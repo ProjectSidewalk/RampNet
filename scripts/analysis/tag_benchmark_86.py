@@ -24,6 +24,8 @@ Subcommands, in run order (``docs/tag_benchmark_86.md`` has the exact commands):
              independent pano-clustered draws) and paired (the labels test in both splits,
              same draws).
 ``resplit``  CPU. A seeded, pano-grouped, per-city re-split of all 10,857 labels.
+``prep``     CPU. Optional: decode a split's training crops once into a uint8 ``.npy``
+             memmap that ``train --prep`` maps instead of decoding in memory.
 ``train``    GPU. The tagger's DINOv2 training recipe (``notebooks/dino-trainer.ipynb``),
              on a split CSV.
 
@@ -140,12 +142,26 @@ def parse_filename(fn):
     return city.replace("_", "-"), int(label_id)
 
 
+#: The one list of columns that are never tags, shared by ``train`` (``train_table``), ``infer``
+#: (``tag_columns``), ``score`` / ``test-only`` (``load_labels``) and ``context_fov_86.py`` (which
+#: calls ``load_labels``). Every other column of a label table is a tag, in file order.
+#: ``affirmed`` (optional, 0/1) marks rows whose untagged cells are affirmed absences (the HF
+#: ASSETS'24 rows); ``train --loss nnpu|soft`` treats them as ordinary BCE rows (see ``TagLoss``).
+#: It is here so that no reader ever takes it for a tag. Example::
+#:
+#:     >>> [c for c in ["label_uid", "split", "steep", "affirmed"] if c not in NON_TAG_COLUMNS]
+#:     ['steep']
+NON_TAG_COLUMNS = ("split", "filename", "city", "label_id", "label_uid", "pano_id", "lat", "lng",
+                   "normalized_x", "normalized_y", "affirmed")
+
+
 def tag_columns(df):
     """The tag columns of a tagger CSV: everything after ``validated_by`` or ``normalized_y``,
-    the same rule as ``get_labels_ref_for_run`` in notebooks/evaluate.py."""
+    the same rule as ``get_labels_ref_for_run`` in notebooks/evaluate.py, less any
+    ``NON_TAG_COLUMNS`` (so a PU training table's ``affirmed`` is not read as a tag)."""
     cols = list(df.columns)
     anchor = "validated_by" if "validated_by" in cols else "normalized_y"
-    return cols[cols.index(anchor) + 1:]
+    return [c for c in cols[cols.index(anchor) + 1:] if c not in NON_TAG_COLUMNS]
 
 
 def check_tagger(repo, want_sha):
@@ -749,8 +765,8 @@ def score_subsets(pred, lab, tags, test_split="test", train_split="train", near_
     return out, per_label
 
 
-LABEL_META_COLS = ("split", "filename", "city", "label_id", "label_uid", "pano_id", "lat", "lng",
-                   "normalized_x", "normalized_y")
+#: Kept as a name for older callers; it is ``NON_TAG_COLUMNS``, not a second list.
+LABEL_META_COLS = NON_TAG_COLUMNS
 
 
 def load_labels(labels_path, split_csv=None):
@@ -759,7 +775,7 @@ def load_labels(labels_path, split_csv=None):
     if split_csv:
         sp = pd.read_csv(split_csv)[["label_uid", "split"]]
         lab = lab.drop(columns="split").merge(sp, on="label_uid", how="inner", validate="one_to_one")
-    return lab, [c for c in lab.columns if c not in LABEL_META_COLS]
+    return lab, [c for c in lab.columns if c not in NON_TAG_COLUMNS]
 
 
 def score_file(pred_path, labels_path, split_csv=None, fixed=None, n_boot=1000, near_m=10.0):
@@ -940,68 +956,490 @@ def cmd_resplit(args):
 
 # ----------------------------------------------------------------------------- train
 
-def cmd_train(args):
-    """The tagger's DINOv2 recipe (notebooks/dino-trainer.ipynb at TAGGER_SHA): full
-    fine-tune, Adam lr 1e-6, batch 4, shuffle, BCEWithLogitsLoss, 100 epochs, no
-    augmentation, checkpoint kept by best *training* exact-match accuracy (ties -> lower
-    loss). Two deliberate differences, both stated in the doc: a fixed seed, and the
-    deterministic preprocessing is computed once and cached in memory (identical tensors,
-    much faster epochs)."""
+#: Side of a prepared crop: IMAGE_DIMENSION padded up to the patch multiple (256 -> 266).
+PREP_SIDE = IMAGE_DIMENSION + (PATCH_MULTIPLE - IMAGE_DIMENSION % PATCH_MULTIPLE) % PATCH_MULTIPLE
+
+
+def train_table(labels_path, split_csv=None):
+    """The rows ``train`` trains on, in the order it trains on them, and the tag columns.
+
+    ``split_csv`` (``label_uid``, ``split``) replaces the labels file's own ``split`` column.
+    ``prep`` and ``train`` both call this, so a prepared array's row order is the trainer's."""
+    lab = pd.read_csv(labels_path)
+    if split_csv:
+        sp = pd.read_csv(split_csv)[["label_uid", "split"]]
+        lab = lab.drop(columns="split").merge(sp, on="label_uid", how="inner", validate="one_to_one")
+    tags = [c for c in lab.columns if c not in NON_TAG_COLUMNS]
+    tr = lab[lab.split == "train"].reset_index(drop=True)
+    return tr, tags
+
+
+def locate_crop(fn, dirs):
+    """First ``dir/fn`` that exists, searching ``dirs`` in order."""
+    for d in dirs:
+        if os.path.exists(os.path.join(d, fn)):
+            return os.path.join(d, fn)
+    raise FileNotFoundError(fn)
+
+
+def decode_crop(path):
+    """One crop as the trainer sees it before normalisation: uint8, C-contiguous, 3 x 266 x 266.
+
+    The recipe's deterministic preprocessing: decode to RGB, ``Resize((256, 256))`` on the PIL
+    image, then zero-pad to the patch multiple (14), split as evenly as possible. ``ToTensor``'s
+    /255 and the mean/std normalisation happen per batch on the GPU, so pad pixels stay 0 here.
+    The in-memory path of ``train`` and the ``prep`` memmap both call this one function, so the
+    two hold the same bytes."""
+    from torchvision import io as tvio, transforms
+    tf = transforms.Compose([transforms.ToPILImage(), transforms.Resize((IMAGE_DIMENSION, IMAGE_DIMENSION))])
+    img = tf(tvio.read_image(path, mode=tvio.ImageReadMode.RGB))
+    pw = (PATCH_MULTIPLE - img.width % PATCH_MULTIPLE) % PATCH_MULTIPLE
+    ph = (PATCH_MULTIPLE - img.height % PATCH_MULTIPLE) % PATCH_MULTIPLE
+    img = transforms.Pad((pw // 2, ph // 2, pw - pw // 2, ph - ph // 2))(img)
+    return np.ascontiguousarray(np.asarray(img).transpose(2, 0, 1))
+
+
+def cmd_prep(args):
+    """Decode every training crop once into a uint8 ``.npy`` memmap (N x 3 x 266 x 266).
+
+    Same rows, same order and same bytes as the in-memory decode at the top of ``train``
+    (``train_table`` + ``decode_crop``). Rows are written one at a time into a memmap, so memory
+    stays flat however large N is (tier 2, ~300k crops, is ~64 GB at 212,268 bytes per crop).
+    The array is written to ``<out>.partial`` and renamed only when complete, and the sidecar
+    ``<out>.meta.json`` is written last, so a killed prep never looks finished; a re-run
+    deletes any existing sidecar before it starts, so an old sidecar can never describe a new
+    array. The sidecar
+    carries the row order (``label_uids``), the labels and split files' sha256, the image dirs
+    and the sha256 of the array's data bytes in row order (not of the ``.npy`` file, whose
+    header is not data).
+
+    Usage::
+
+        python scripts/analysis/tag_benchmark_86.py prep --labels L.csv --split-csv S.csv \\
+            --images /gscratch/.../crops --out /gscratch/.../train_fov25.npy --workers 8
+        python scripts/analysis/tag_benchmark_86.py train ... --prep /gscratch/.../train_fov25.npy
+    """
+    import torch
+    import torchvision
+    tr, tags = train_table(args.labels, args.split_csv)
+    t0 = time.time()
+    paths = [locate_crop(fn, args.images) for fn in tr.filename]   # fail before writing anything
+    shape = (len(tr), 3, PREP_SIDE, PREP_SIDE)
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
+    # A re-run onto an existing --out: drop the old sidecar first, so a kill anywhere below
+    # leaves no sidecar at all (train --prep then refuses) rather than an old sidecar paired
+    # with a new array.
+    if os.path.exists(args.out + ".meta.json"):
+        os.remove(args.out + ".meta.json")
+    partial = args.out + ".partial"
+    arr = np.lib.format.open_memmap(partial, mode="w+", dtype=np.uint8, shape=shape)
+    h = hashlib.sha256()
+    pool = None
+    if args.workers > 1:
+        import multiprocessing
+        pool = multiprocessing.Pool(args.workers)
+        rows = pool.imap(decode_crop, paths, chunksize=32)     # imap keeps input order
+    else:
+        rows = map(decode_crop, paths)
+    try:
+        for i, a in enumerate(rows):
+            if a.shape != shape[1:]:
+                raise SystemExit(f"{paths[i]}: decoded to {a.shape}, expected {shape[1:]}")
+            arr[i] = a
+            h.update(a.tobytes())
+            if (i + 1) % 10000 == 0:
+                arr.flush()
+                print(f"{i + 1}/{len(paths)} crops, {time.time() - t0:.0f} s", flush=True)
+    finally:
+        if pool is not None:
+            pool.close()
+            pool.join()
+    arr.flush()
+    del arr                      # close the map before the rename (Windows refuses otherwise)
+    os.replace(partial, args.out)
+    done = np.load(args.out, mmap_mode="r")         # the sidecar describes the finished file
+    if done.shape != shape or done.dtype != np.uint8:
+        raise SystemExit(f"{args.out}: finished array is {done.dtype} {done.shape}, expected uint8 {shape}")
+    del done
+    meta = {"shape": list(shape), "dtype": "uint8", "array_sha256": h.hexdigest(),
+            "label_uids": tr.label_uid.tolist(), "n": int(len(tr)), "tags": tags,
+            "labels": os.path.basename(args.labels), "labels_sha256": sha256_file(args.labels),
+            "split_csv": os.path.basename(args.split_csv) if args.split_csv else None,
+            "split_csv_sha256": sha256_file(args.split_csv) if args.split_csv else None,
+            "images": list(args.images), "workers": args.workers, "prep_s": time.time() - t0,
+            "host": socket.getfqdn(), "torch": torch.__version__, "torchvision": torchvision.__version__,
+            "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    write_json(meta, args.out + ".meta.json")
+    print(json.dumps(_round({k: v for k, v in meta.items() if k != "label_uids"}, 3)))
+
+
+def array_sha256(X, chunk_rows=1024):
+    """sha256 of an array's data bytes in row order, read ``chunk_rows`` rows at a time."""
+    h = hashlib.sha256()
+    for i in range(0, len(X), chunk_rows):
+        h.update(np.ascontiguousarray(X[i:i + chunk_rows]).tobytes())
+    return h.hexdigest()
+
+
+def load_prep(prep_path, tr, labels_path, verify=False):
+    """Map a ``prep`` array read-only and check it is this training table's.
+
+    Refuses (SystemExit) if the sidecar's row order is not ``tr.label_uid``, the labels file's
+    sha256 differs from the one it was prepared from, or the shape is not N x 3 x 266 x 266.
+    ``verify`` also re-hashes the array (one full sequential read) against ``array_sha256``.
+    Returns ``(X, meta)``; ``X`` is an ``np.memmap``, so indexing it reads only those rows."""
+    with open(prep_path + ".meta.json", encoding="utf-8") as fh:
+        meta = json.load(fh)
+    if meta["label_uids"] != tr.label_uid.tolist():
+        raise SystemExit(f"{prep_path}: row order is not this training table's (prepared from "
+                         f"{meta['labels']} / {meta['split_csv']}); re-run prep")
+    if meta["labels_sha256"] != sha256_file(labels_path):
+        raise SystemExit(f"{prep_path}: prepared from a different {meta['labels']} (sha256 differs)")
+    X = np.load(prep_path, mmap_mode="r")
+    if X.dtype != np.uint8 or X.shape != (len(tr), 3, PREP_SIDE, PREP_SIDE):
+        raise SystemExit(f"{prep_path}: {X.dtype} {X.shape}, expected uint8 {(len(tr), 3, PREP_SIDE, PREP_SIDE)}")
+    if verify and array_sha256(X) != meta["array_sha256"]:
+        raise SystemExit(f"{prep_path}: array sha256 does not match its sidecar")
+    return X, meta
+
+
+def batch_pixels(X, idx):
+    """Rows ``idx`` (a LongTensor, any order) of the crop array as a uint8 tensor, in ``idx`` order.
+
+    ``X`` is either the in-memory uint8 tensor or a ``prep`` memmap; for the memmap only these
+    rows are read from disk (page cache), never the whole array."""
+    import torch
+    if isinstance(X, np.ndarray):
+        return torch.from_numpy(np.asarray(X[idx.numpy()]))
+    return X[idx]
+
+
+# ----------------------------------------------------------------------------- loss
+
+def load_mask(mask_csv, tr, tags):
+    """Per-cell loss mask for ``tr`` as an N x T float32 array (1 = the cell counts, 0 = excluded).
+
+    Convention: a CSV with a ``label_uid`` column and one 0/1 column per tag it masks, named as
+    the tag. A tag with no column is unmasked (all 1). Every training ``label_uid`` must have a
+    row (a missing row is an error, not a default), and a column that is not a tag is an error,
+    so a typo cannot silently unmask a tag. Built from the audit's deployment tag lists (plan
+    §2.3): a cell whose tag the label's deployment does not offer is 0.
+
+    Example: amsterdam hides points-into-traffic, so every amsterdam row has
+    ``points-into-traffic = 0``; its cells contribute no loss in any ``--loss`` mode."""
+    m = pd.read_csv(mask_csv)
+    extra = [c for c in m.columns if c != "label_uid" and c not in tags]
+    if "label_uid" not in m.columns or extra:
+        raise SystemExit(f"{mask_csv}: needs label_uid plus tag columns only (unknown: {extra})")
+    j = tr[["label_uid"]].merge(m, on="label_uid", how="left", validate="one_to_one", indicator=True)
+    if (j["_merge"] != "both").any():
+        raise SystemExit(f"{mask_csv}: {(j['_merge'] != 'both').sum()} training labels have no row")
+    out = np.ones((len(tr), len(tags)), np.float32)
+    for k, t in enumerate(tags):
+        if t in m.columns:
+            v = j[t].to_numpy()
+            if not np.isin(v, [0, 1]).all():
+                raise SystemExit(f"{mask_csv}: column {t} is not 0/1")
+            out[:, k] = v
+    return out
+
+
+def load_prior(prior_json, tags):
+    """``{tag: pi_t}`` from a JSON object; every tag needs a prior in [0, 1] and no key may be
+    a non-tag. pi_t = 0 is allowed and makes that tag's nnPU term exactly naive (pi' = o_t)."""
+    with open(prior_json, encoding="utf-8") as fh:
+        pr = json.load(fh)
+    missing, extra = [t for t in tags if t not in pr], [k for k in pr if k not in tags]
+    if missing or extra:
+        raise SystemExit(f"{prior_json}: missing priors for {missing}; unknown keys {extra}")
+    if not all(0.0 <= float(pr[t]) <= 1.0 for t in tags):
+        raise SystemExit(f"{prior_json}: priors must be in [0, 1]")
+    return np.array([float(pr[t]) for t in tags], np.float64)
+
+
+class TagLoss:
+    """The ``--loss`` switch: masked BCE (``bce``), non-negative PU risk (``nnpu``) or BCE toward a
+    soft target on unlabeled cells (``soft``); per (label, tag) cell, with an optional mask.
+
+    Construct once from the whole training table, call per batch as ``loss(out, yb, idx)`` with
+    the batch's logits (b x T), targets and row indices into the table. Returns
+    ``(objective, value, fired)``: ``objective`` is what is back-propagated, ``value`` the loss
+    that is logged, ``fired`` a length-T bool tensor (nnPU's per-tag gradient-ascent flag) or
+    None. ``cmd_train`` uses no ``TagLoss`` at all for ``--loss bce`` without a mask, so that
+    path is the recipe's ``nn.BCEWithLogitsLoss()`` call, unchanged.
+
+    Cells. ``mask`` (N x T, 0/1) removes a cell from every term. ``affirmed`` (N, 0/1) marks
+    rows whose absences are affirmed (the HF rows): their cells are ordinary BCE in every mode.
+    Every other row is a PU row. For tag t, over the whole table's unmasked PU cells:
+    n_P = cells tagged t, n_U = all cells (tagged or not; the case-control U* sample),
+    o = n_P / n_U, and pi' = max(pi_t, o) with pi_t from ``prior`` (plan §3.1: pi' = o makes the
+    tag exactly naive, and a prior below the observed rate would push tagged positives negative).
+
+    ``bce``  value = (1 / (b T)) * sum over unmasked cells of l(z, y); with no mask this is
+             BCEWithLogitsLoss's mean (up to float summation order).
+    ``soft`` the same, toward target 1 on a tagged cell, 0 on an affirmed untagged cell, and
+             pi_U = max(0, (pi' - o) / (1 - o)) on an untagged PU cell: P(t | untagged), plan §3.2.
+    ``nnpu`` the non-negative PU risk of Kiryo, Niu, du Plessis and Sugiyama, "Positive-Unlabeled
+             Learning with Non-Negative Risk Estimator", NeurIPS 2017, case-control form, with the
+             logistic loss l(z, +1) = log(1 + e^-z), l(z, -1) = log(1 + e^z) (the recipe's BCE; the
+             paper's experiments used the sigmoid loss), per tag:
+
+                 R_t = pi' E_P[l(z, +1)] + max(0, E_U[l(z, -1)] - pi' E_P[l(z, -1)])
+
+             Estimated with global normalisation so any batch is defined (plan §3.1): with N table
+             rows and batch size b, E_X[g] = (N / (b n_X)) * sum over the batch's unmasked PU cells
+             in X of g (0 if n_X = 0). The tag's term is (n_U / N) * R_t plus (1 / b) * the BCE sum
+             over the batch's unmasked affirmed cells; value = mean of the T terms. With pi' = o
+             this equals ``bce`` term for term. Algorithm 1 of the paper: when the bracket
+             B_t = E_U[l(z,-1)] - pi' E_P[l(z,-1)] < -beta, the step for that tag is gradient
+             *ascent* on B_t (the tag's objective term is (n_U / N) * (-gamma * B_t) plus its
+             affirmed BCE) instead of descent on R_t; ``value`` still reports R_t.
+
+    Example (one tag, no mask, no affirmed rows, table of N = 4 with 1 tagged row, so
+    n_P = 1, n_U = 4, o = 0.25; prior 0.5 -> pi' = 0.5; batch rows 0 (tagged, z0) and 1 (z1)):
+    E_P[l+] = 4/(2*1) l(z0,+1), E_U[l-] = 4/(2*4) (l(z0,-1) + l(z1,-1)),
+    value = (4/4) * (0.5 E_P[l+] + max(0, E_U[l-] - 0.5 * 4/(2*1) l(z0,-1))).
+    """
+
+    KINDS = ("bce", "nnpu", "soft")
+
+    def __init__(self, kind, Y, mask=None, affirmed=None, prior=None, beta=0.0, gamma=1.0):
+        import torch
+        if kind not in self.KINDS:
+            raise ValueError(kind)
+        if kind != "bce" and prior is None:
+            raise SystemExit(f"--loss {kind} needs --prior")
+        Y = np.asarray(Y, np.float64)
+        n, t = Y.shape
+        mask = np.ones((n, t)) if mask is None else np.asarray(mask, np.float64)
+        aff = np.zeros(n) if affirmed is None else np.asarray(affirmed, np.float64)
+        if not np.isin(aff, [0, 1]).all():
+            raise SystemExit("affirmed must be 0/1")
+        pu = mask * (1.0 - aff)[:, None]
+        self.kind, self.N, self.T, self.beta, self.gamma = kind, n, t, float(beta), float(gamma)
+        self.n_P = (pu * Y).sum(0)
+        self.n_U = pu.sum(0)
+        self.o = np.divide(self.n_P, self.n_U, out=np.zeros(t), where=self.n_U > 0)
+        self.prior = None if prior is None else np.asarray(prior, np.float64)
+        self.pi_prime = None if prior is None else np.maximum(self.prior, self.o)
+        self.pi_U = None if prior is None else np.divide(
+            np.maximum(self.pi_prime - self.o, 0.0), 1.0 - self.o, out=np.zeros(t), where=self.o < 1)
+        # nnPU coefficients (float64, fixed for the run): 1/n_P, 1/n_U (0 where the count is 0) and
+        # k_P = 1/n_U - pi'/n_P, set to exactly 0 where pi' = o (the naive case).
+        self.inv_n_P = np.divide(1.0, self.n_P, out=np.zeros(t), where=self.n_P > 0)
+        self.inv_n_U = np.divide(1.0, self.n_U, out=np.zeros(t), where=self.n_U > 0)
+        self.k_P = None if prior is None else np.where(
+            (self.pi_prime == self.o) | (self.n_P == 0), 0.0, self.inv_n_U - self.pi_prime * self.inv_n_P)
+        self.mask = torch.from_numpy(mask.astype(np.float32))
+        self.affirmed = torch.from_numpy(aff.astype(np.float32))
+
+    def summary(self):
+        """Per-tag counts and priors as run, for the run meta."""
+        d = {"loss": self.kind, "n_rows": self.N, "n_P": self.n_P.tolist(), "n_U": self.n_U.tolist(),
+             "o": self.o.tolist()}
+        if self.prior is not None:
+            d.update(prior=self.prior.tolist(), pi_prime=self.pi_prime.tolist(), pi_U=self.pi_U.tolist())
+        if self.kind == "nnpu":
+            d.update(nnpu_beta=self.beta, nnpu_gamma=self.gamma)
+        return d
+
+    def __call__(self, out, yb, idx):
+        import torch
+        import torch.nn.functional as F
+        dev, b = out.device, out.shape[0]
+        m = self.mask[idx].to(dev)
+        a = self.affirmed[idx].to(dev)[:, None]
+        if self.kind == "bce":
+            v = (m * F.binary_cross_entropy_with_logits(out, yb, reduction="none")).sum() / (b * self.T)
+            return v, v, None
+        if self.kind == "soft":
+            pi_u = torch.tensor(self.pi_U, dtype=out.dtype, device=dev)
+            target = yb + (1 - yb) * (1 - a) * pi_u
+            v = (m * F.binary_cross_entropy_with_logits(out, target, reduction="none")).sum() / (b * self.T)
+            return v, v, None
+
+        def f(x):
+            return torch.tensor(x, dtype=out.dtype, device=dev)
+        pu, hf = m * (1 - a), m * a
+        l_pos, l_neg = F.softplus(-out), F.softplus(out)               # l(z, +1), l(z, -1)
+        hf_term = (hf * F.binary_cross_entropy_with_logits(out, yb, reduction="none")).sum(0) / b
+        e_p_pos = (self.N / b) * f(self.inv_n_P) * (pu * yb * l_pos).sum(0)
+        # B_t = E_U[l-] - pi' E_P[l-], regrouped per cell so that pi' = o gives k_P = 0 exactly:
+        # (N / b) * (sum_untagged l- / n_U + (1 / n_U - pi' / n_P) * sum_tagged l-). Computed as the
+        # plain difference, float rounding made B_t = -1e-8 on an all-positive batch and fired the
+        # ascent step where the maths says B_t >= 0.
+        bracket = (self.N / b) * (f(self.inv_n_U) * (pu * (1 - yb) * l_neg).sum(0)
+                                  + f(self.k_P) * (pu * yb * l_neg).sum(0))
+        pi = f(self.pi_prime)
+        w = f(self.n_U) / self.N
+        risk = w * (pi * e_p_pos + bracket.clamp(min=0))
+        fired = bracket.detach() < -self.beta
+        obj = torch.where(fired, w * (-self.gamma * bracket), risk)
+        value = (risk + hf_term).sum() / self.T
+        objective = (obj + hf_term).sum() / self.T
+        return objective, value, fired.cpu()
+
+
+def make_loss(kind, tr, tags, mask_csv=None, prior_json=None, beta=0.0, gamma=1.0):
+    """The ``TagLoss`` for ``train``'s flags, or None for ``--loss bce`` with no ``--mask-csv``
+    (the recipe's own ``nn.BCEWithLogitsLoss()`` path, bit for bit)."""
+    if kind == "bce" and not mask_csv:
+        return None
+    mask = load_mask(mask_csv, tr, tags) if mask_csv else None
+    aff = tr["affirmed"].to_numpy() if "affirmed" in tr.columns else None
+    prior = load_prior(prior_json, tags) if prior_json else None
+    return TagLoss(kind, tr[tags].to_numpy(np.float32), mask=mask, affirmed=aff, prior=prior,
+                   beta=beta, gamma=gamma)
+
+
+# ----------------------------------------------------------------------------- train loop
+
+#: Written every epoch by ``train --resume`` (only then); a requeued ``--resume`` continues from it.
+CHECKPOINT_NAME = "checkpoint.pth"
+#: The recipe's kept checkpoint (best training exact-match accuracy, ties -> lower loss).
+BEST_NAME = "best.pth"
+
+
+def _restore_best(out_dir, ck):
+    """Make ``best.pth`` agree with the checkpoint a resume is about to continue from.
+
+    Under ``--resume`` an epoch's writes go in this order: the new best weights (if any) to
+    ``best.pth.pending``, then ``checkpoint.pth`` (temp file + rename; it records
+    ``best_epoch``), then ``best.pth.pending`` is renamed onto ``best.pth``. So after a kill at
+    any point, either the checkpoint is the previous epoch's and ``best.pth`` still agrees with
+    it (a leftover ``.pending`` is from the dead epoch and is deleted), or the checkpoint says
+    this epoch was the best and ``best.pth`` may still hold the older one. In that second case
+    the best weights ARE the checkpoint's model state, so ``best.pth`` is re-saved from it.
+    That re-save keys on the checkpoint alone: whenever the checkpoint's own epoch is its
+    ``best_epoch`` and ``best.pth`` disagrees, ``best.pth`` is overwritten from the checkpoint,
+    a hand-copied ``best.pth`` included. A disagreement when the best epoch is an EARLIER one
+    cannot be repaired from the checkpoint and is refused.
+
+    Returns the epoch the stale ``best.pth`` held (None if nothing was restored).
+
+    Example: killed after epoch 5's checkpoint rename but before its ``best.pth`` rename ->
+    checkpoint ``epoch == best_epoch == 5``, ``best.pth`` says 3 -> ``best.pth`` becomes epoch
+    5's weights and the function returns 3."""
+    import torch
+    best_path = os.path.join(out_dir, BEST_NAME)
+    if os.path.exists(best_path + ".pending"):
+        os.remove(best_path + ".pending")
+    want = ck.get("best_epoch")
+    if want is None:
+        return None
+    have = torch.load(best_path, map_location="cpu")["epoch"] if os.path.exists(best_path) else None
+    if have == want:
+        return None
+    if want != ck["epoch"]:
+        raise SystemExit(f"{best_path} holds epoch {have} but {CHECKPOINT_NAME} (epoch {ck['epoch']}) "
+                         f"says the best is epoch {want}, whose weights it does not carry; "
+                         "refusing to resume (restore that best.pth or start a fresh --out-dir)")
+    torch.save({"epoch": want, "model_state_dict": ck["model_state_dict"], "loss": ck["best_loss"]},
+               best_path + ".pending")
+    os.replace(best_path + ".pending", best_path)
+    print(f"{best_path}: held epoch {have}, restored to epoch {want} from {CHECKPOINT_NAME}", flush=True)
+    return have
+
+
+def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resume=False, fingerprint=None,
+                 loss_fn=None, tags=None, stats=None):
+    """The recipe's training loop, factored out of ``cmd_train`` so a small stand-in model can be
+    driven through it on CPU (``tests/test_tag_trainer_86.py``). Behaviour is the pre-factoring
+    loop's, statement for statement: Adam(lr), a ``torch.Generator`` seeded with ``seed`` whose
+    ``randperm`` sets each epoch's order, batches of ``batch`` rows, pixels /255 then ImageNet
+    mean/std on ``device``, BCE-with-logits, ``best.pth`` kept by best training exact-match
+    accuracy (ties -> lower loss), ``train_log.csv`` rewritten every epoch. Without ``resume``
+    nothing else is written, exactly as before.
+
+    Resume. With ``resume=True`` the loop also writes ``checkpoint.pth`` after every epoch, to
+    a temp name and then an atomic rename, BEFORE the epoch's line is printed (so a watcher
+    that reacts to the line finds that epoch's checkpoint): model and optimizer state, the
+    shuffle generator's state, torch's global CPU/CUDA RNG state, the last finished epoch,
+    ``best_acc``/``best_loss``/``best_epoch``, the log rows and ``fingerprint``. If a checkpoint
+    is present, all of that is loaded and the loop starts at the next epoch; without one it
+    starts fresh, so a requeued job can always pass ``--resume``. Everything the next epoch
+    depends on comes from the checkpoint, never from the process (the rule
+    ``docs/stage2_cosine_rung_135.md`` states for the stateless LR schedule): there is no
+    scheduler, and the epoch's order is the generator's next ``randperm``.
+
+    A resume is refused when ``fingerprint`` (a JSON-able dict of the settings a resume must not
+    change; ``cmd_train`` builds it with ``train_fingerprint``) differs from the checkpoint's,
+    or when ``epochs`` is smaller than the number of epochs the checkpoint has finished.
+    ``epochs`` is deliberately not in the fingerprint, so a finished run can be extended.
+    ``best.pth`` is made consistent with the checkpoint first (``_restore_best``), and
+    ``train_log.csv`` is rewritten from the checkpoint's log rows.
+
+    ``loss_fn`` None is the recipe's ``nn.BCEWithLogitsLoss()``; otherwise a ``TagLoss``, called
+    as ``loss_fn(logits, yb, idx)``. For nnPU the log row also carries, per tag in ``tags``, the
+    fraction of the epoch's steps on which the non-negative correction fired (``clamp:<tag>``).
+
+    ``stats``, if a dict, receives ``checkpoint_write_s`` (seconds this process spent writing
+    ``checkpoint.pth`` and renaming ``best.pth``; 0 without ``resume``; not in any ``epoch_s``)
+    and ``best_restored_from`` (``_restore_best``'s return).
+
+    Returns ``(log_rows, resumed_from_epoch)``, the latter None for a fresh start.
+
+    Usage (the resume test, abridged)::
+
+        run_training(m1, X, Y, epochs=2, ..., out_dir=a)                 # straight
+        run_training(m2, X, Y, epochs=1, ..., out_dir=b, resume=True)    # killed after epoch 0
+        run_training(m3, X, Y, epochs=2, ..., out_dir=b, resume=True)    # requeued
+        # m3's weights == m1's, bit for bit (CPU)
+    """
     import torch
     from torch import nn, optim
-    from torchvision import io as tvio, transforms
     from sklearn.metrics import accuracy_score
-    sha = check_tagger(args.tagger_repo, args.tagger_sha)
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
-    lab = pd.read_csv(args.labels)
-    if args.split_csv:
-        sp = pd.read_csv(args.split_csv)[["label_uid", "split"]]
-        lab = lab.drop(columns="split").merge(sp, on="label_uid", how="inner", validate="one_to_one")
-    tags = [c for c in lab.columns if c not in ("split", "filename", "city", "label_id", "label_uid",
-                                                 "pano_id", "lat", "lng", "normalized_x", "normalized_y")]
-    tr = lab[lab.split == "train"].reset_index(drop=True)
-    tf = transforms.Compose([transforms.ToPILImage(), transforms.Resize((IMAGE_DIMENSION, IMAGE_DIMENSION))])
-    imgs = []
-    t0 = time.time()
-    def locate(fn):
-        for d in args.images:
-            if os.path.exists(os.path.join(d, fn)):
-                return os.path.join(d, fn)
-        raise FileNotFoundError(fn)
-
-    for fn in tr.filename:
-        img = tf(tvio.read_image(locate(fn), mode=tvio.ImageReadMode.RGB))
-        pw = (PATCH_MULTIPLE - img.width % PATCH_MULTIPLE) % PATCH_MULTIPLE
-        ph = (PATCH_MULTIPLE - img.height % PATCH_MULTIPLE) % PATCH_MULTIPLE
-        img = transforms.Pad((pw // 2, ph // 2, pw - pw // 2, ph - ph // 2))(img)
-        imgs.append(torch.from_numpy(np.asarray(img).copy()).permute(2, 0, 1))
-    X = torch.stack(imgs)  # uint8 N,3,266,266 -- ToTensor is /255, pad pixels stay 0
-    Y = torch.tensor(tr[tags].to_numpy(np.float32))
-    prep_s = time.time() - t0
-    dev = torch.device("cuda")
+    dev = device
     mean = torch.tensor([0.485, 0.456, 0.406], device=dev).view(1, 3, 1, 1)
     std = torch.tensor([0.229, 0.224, 0.225], device=dev).view(1, 3, 1, 1)
-    model = build_model(args.tagger_repo, len(tags), backbone=args.backbone).to(dev)
-    opt = optim.Adam(model.parameters(), lr=args.lr)
+    opt = optim.Adam(model.parameters(), lr=lr)
     crit = nn.BCEWithLogitsLoss()
-    os.makedirs(args.out_dir, exist_ok=True)
+    os.makedirs(out_dir, exist_ok=True)
     log_rows, best_acc, best_loss = [], 0.0, 100.0
-    g = torch.Generator().manual_seed(args.seed)
-    t_train = time.time()
-    for epoch in range(args.epochs):
+    g = torch.Generator().manual_seed(seed)
+    ckpt_path = os.path.join(out_dir, CHECKPOINT_NAME)
+    best_path = os.path.join(out_dir, BEST_NAME)
+    start, resumed_from, best_epoch, ckpt_write_s, restored = 0, None, None, 0.0, None
+    if resume and os.path.exists(ckpt_path):
+        ck = torch.load(ckpt_path, map_location="cpu")
+        if ck["fingerprint"] != fingerprint:
+            diff = sorted(k for k in set(ck["fingerprint"] or {}) | set(fingerprint or {})
+                          if (ck["fingerprint"] or {}).get(k) != (fingerprint or {}).get(k))
+            raise SystemExit(f"{ckpt_path}: written under different settings ({', '.join(diff)}); "
+                             "refusing to resume")
+        if ck["epoch"] + 1 > epochs:
+            raise SystemExit(f"{ckpt_path}: {ck['epoch'] + 1} epochs already finished but --epochs is "
+                             f"{epochs}; pass --epochs {ck['epoch'] + 1} or more (or a fresh --out-dir)")
+        restored = _restore_best(out_dir, ck)
+        model.load_state_dict(ck["model_state_dict"])
+        opt.load_state_dict(ck["optimizer_state_dict"])
+        g.set_state(ck["generator_state"])
+        torch.set_rng_state(ck["torch_rng_state"])
+        if ck.get("cuda_rng_state") is not None and torch.cuda.is_available():
+            torch.cuda.set_rng_state_all(ck["cuda_rng_state"])
+        log_rows, best_acc, best_loss = ck["log_rows"], ck["best_acc"], ck["best_loss"]
+        best_epoch = ck.get("best_epoch")
+        write_csv(pd.DataFrame(log_rows), os.path.join(out_dir, "train_log.csv"))
+        start = resumed_from = ck["epoch"] + 1
+        print(f"resuming at epoch {start} from {ckpt_path}", flush=True)
+    for epoch in range(start, epochs):
         model.train()
         te = time.time()
         perm = torch.randperm(len(X), generator=g)
-        losses, accs = [], []
-        for i in range(0, len(perm), args.batch):
-            idx = perm[i:i + args.batch]
-            xb = (X[idx].to(dev).float() / 255.0 - mean) / std
+        losses, accs, fires = [], [], []
+        for i in range(0, len(perm), batch):
+            idx = perm[i:i + batch]
+            xb = (batch_pixels(X, idx).to(dev).float() / 255.0 - mean) / std
             yb = Y[idx].to(dev)
             opt.zero_grad()
             out = model(xb).squeeze(dim=1)
-            loss = crit(out, yb)
-            loss.backward()
+            if loss_fn is None:
+                loss = objective = crit(out, yb)
+            else:
+                objective, loss, fired = loss_fn(out, yb, idx)
+                if fired is not None:
+                    fires.append(fired.numpy())
+            objective.backward()
             opt.step()
             losses.append(loss.item())
             pred = (torch.sigmoid(out) > 0.5).float()
@@ -1009,14 +1447,142 @@ def cmd_train(args):
         el, ea = float(np.mean(losses)), float(np.mean(accs))
         saved = ""
         if ea > best_acc or (ea == best_acc and el < best_loss):
-            best_acc, best_loss = ea, el
+            best_acc, best_loss, best_epoch = ea, el, epoch
+            # without --resume: best.pth directly, as before; with it: renamed after the checkpoint
             torch.save({"epoch": epoch, "model_state_dict": model.state_dict(), "loss": el},
-                       os.path.join(args.out_dir, "best.pth"))
+                       best_path + ".pending" if resume else best_path)
             saved = "best"
         row = {"epoch": epoch, "loss": el, "train_exact_match_acc": ea, "epoch_s": time.time() - te, "saved": saved}
+        if fires:
+            row.update({f"clamp:{t}": float(v) for t, v in zip(tags, np.mean(fires, axis=0))})
         log_rows.append(row)
+        if resume:
+            tc = time.time()
+            torch.save({"epoch": epoch, "model_state_dict": model.state_dict(),
+                        "optimizer_state_dict": opt.state_dict(), "generator_state": g.get_state(),
+                        "torch_rng_state": torch.get_rng_state(),
+                        "cuda_rng_state": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
+                        "best_acc": best_acc, "best_loss": best_loss, "best_epoch": best_epoch,
+                        "log_rows": log_rows, "fingerprint": fingerprint}, ckpt_path + ".tmp")
+            os.replace(ckpt_path + ".tmp", ckpt_path)
+            if saved:
+                os.replace(best_path + ".pending", best_path)
+            ckpt_write_s += time.time() - tc
         print(json.dumps(_round(row, 5)), flush=True)
-        write_csv(pd.DataFrame(log_rows), os.path.join(args.out_dir, "train_log.csv"))
+        write_csv(pd.DataFrame(log_rows), os.path.join(out_dir, "train_log.csv"))
+    if stats is not None:
+        stats.update(checkpoint_write_s=ckpt_write_s, best_restored_from=restored)
+    return log_rows, resumed_from
+
+
+def check_train_flags(args):
+    """Refuse ``train`` flag combinations that would otherwise be silently ignored.
+
+    Example: ``--prep a.npy --images crops/`` -> SystemExit naming both flags, instead of
+    training on ``a.npy`` without saying so."""
+    errs = []
+    if args.prep and args.images:
+        errs.append("--prep and --images both given; pass one (--prep maps a prepared array, "
+                    "--images decodes in memory)")
+    if not args.prep and not args.images:
+        errs.append("train needs --images (decode in memory) or --prep (a prep array)")
+    if args.verify_prep and not args.prep:
+        errs.append("--verify-prep needs --prep")
+    if args.prior and args.loss == "bce":
+        errs.append("--prior is not used by --loss bce; drop it or pick --loss nnpu|soft")
+    if args.loss != "nnpu" and (args.nnpu_beta != 0.0 or args.nnpu_gamma != 1.0):
+        errs.append("--nnpu-beta / --nnpu-gamma are only used by --loss nnpu")
+    if errs:
+        raise SystemExit("train: " + "; ".join(errs))
+
+
+def train_fingerprint(args, tr, tags, tagger_sha, pixels_sha256):
+    """The settings a ``train --resume`` must not change, as a JSON-able dict.
+
+    ``cmd_train`` builds it with this function and stores it in ``checkpoint.pth``; a resume
+    whose fingerprint differs in any key is refused, naming the keys. It covers the row
+    identity (``label_uids_sha256``), the targets (``targets_sha256``: the tag matrix as
+    float32, row-major, in training order; ``affirmed_sha256``: the ``affirmed`` column, or
+    None if the table has none), the pixels (``pixels_sha256``: the uint8 crop array's data
+    bytes in row order -- the ``prep`` sidecar's ``array_sha256`` under ``--prep``, or the same
+    hash computed over the in-memory decode, so the two paths agree for the same bytes), the
+    model (``backbone_sha256`` of the ``--backbone`` file, ``tagger_sha``), the recipe (lr,
+    batch, seed) and the loss (``--loss``, β, γ, and the sha256 of the mask CSV and prior
+    JSON). Needs no GPU. ``--epochs`` is deliberately not in it (a run may be extended).
+
+    Example::
+
+        fp = train_fingerprint(args, tr, tags, "3b7405cd...", prep_meta["array_sha256"])
+        fp["targets_sha256"]   # changes if any tag value in tr flips
+    """
+    y = np.ascontiguousarray(tr[tags].to_numpy(np.float32))
+    aff = (np.ascontiguousarray(tr["affirmed"].to_numpy(np.float32)) if "affirmed" in tr.columns else None)
+    return {"n_train": int(len(tr)), "tags": list(tags), "lr": args.lr, "batch": args.batch, "seed": args.seed,
+            "label_uids_sha256": hashlib.sha256("\n".join(tr.label_uid.astype(str)).encode()).hexdigest(),
+            "targets_sha256": hashlib.sha256(y.tobytes()).hexdigest(),
+            "affirmed_sha256": hashlib.sha256(aff.tobytes()).hexdigest() if aff is not None else None,
+            "pixels_sha256": pixels_sha256,
+            "backbone_sha256": sha256_file(args.backbone), "tagger_sha": tagger_sha,
+            "loss": args.loss, "nnpu_beta": args.nnpu_beta, "nnpu_gamma": args.nnpu_gamma,
+            "mask_sha256": sha256_file(args.mask_csv) if args.mask_csv else None,
+            "prior_sha256": sha256_file(args.prior) if args.prior else None}
+
+
+#: Recorded in ``train_meta.json`` for any run with a ``TagLoss`` (plan §5.3): exact-match
+#: training accuracy counts masked cells and treats unlabeled cells as negatives, so it is not a
+#: selection rule there.
+PLACEHOLDER_BEST_RULE = ("placeholder: best.pth is kept by training exact-match accuracy, which is "
+                         "not a valid selection rule under --loss nnpu/soft or --mask-csv (plan 5.3); "
+                         "score last.pth or a retained checkpoint instead")
+
+
+def cmd_train(args):
+    """The tagger's DINOv2 recipe (notebooks/dino-trainer.ipynb at TAGGER_SHA): full
+    fine-tune, Adam lr 1e-6, batch 4, shuffle, BCEWithLogitsLoss, 100 epochs, no
+    augmentation, checkpoint kept by best *training* exact-match accuracy (ties -> lower
+    loss). Two deliberate differences, both stated in the doc: a fixed seed, and the
+    deterministic preprocessing is computed once and cached in memory (identical tensors,
+    much faster epochs). ``--prep`` maps a ``prep`` array instead of decoding (same bytes).
+
+    The steps that need CUDA (``torch.device("cuda")``, the model on the GPU,
+    ``get_device_name``) are not under the CPU test suite; ``run_training``,
+    ``train_fingerprint`` and ``check_train_flags`` are. ``train_meta.json`` timing fields:
+    ``prep_s``, ``train_s`` and ``elapsed_s`` cover this process only. With ``--resume`` it
+    also has ``resumed_from_epoch``, ``epoch_s_sum_all_runs`` (Σ ``epoch_s`` over every log
+    row, from every process that ran this out-dir; excludes checkpoint writes and any epoch
+    lost to a kill), ``checkpoint_write_s`` (this process's checkpoint writes, which ARE in its
+    ``train_s``) and ``timing_scope`` restating this."""
+    import torch
+    check_train_flags(args)
+    sha = check_tagger(args.tagger_repo, args.tagger_sha)
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    tr, tags = train_table(args.labels, args.split_csv)
+    t0 = time.time()
+    prep_meta = None
+    if args.prep:
+        X, prep_meta = load_prep(args.prep, tr, args.labels, verify=args.verify_prep)
+    else:
+        # uint8 N,3,266,266 -- ToTensor is /255, pad pixels stay 0
+        X = torch.stack([torch.from_numpy(decode_crop(locate_crop(fn, args.images))) for fn in tr.filename])
+    Y = torch.tensor(tr[tags].to_numpy(np.float32))
+    prep_s = time.time() - t0
+    dev = torch.device("cuda")
+    model = build_model(args.tagger_repo, len(tags), backbone=args.backbone).to(dev)
+    loss_fn = make_loss(args.loss, tr, tags, mask_csv=args.mask_csv, prior_json=args.prior,
+                        beta=args.nnpu_beta, gamma=args.nnpu_gamma)
+    if loss_fn is not None:
+        print(f"note: {PLACEHOLDER_BEST_RULE}", flush=True)
+    fingerprint = None
+    if args.resume:        # hashing only when a checkpoint will carry it; no RNG is consumed
+        fingerprint = train_fingerprint(args, tr, tags, sha, prep_meta["array_sha256"] if prep_meta
+                                        else array_sha256(X.numpy()))
+    stats = {}
+    t_train = time.time()
+    log_rows, resumed_from = run_training(model, X, Y, epochs=args.epochs, batch=args.batch, lr=args.lr,
+                                          seed=args.seed, out_dir=args.out_dir, device=dev,
+                                          resume=args.resume, fingerprint=fingerprint, loss_fn=loss_fn, tags=tags,
+                                          stats=stats)
     torch.save({"epoch": args.epochs - 1, "model_state_dict": model.state_dict()},
                os.path.join(args.out_dir, "last.pth"))
     meta = {"tagger_sha": sha, "n_train": int(len(tr)), "tags": tags, "epochs": args.epochs, "lr": args.lr,
@@ -1026,6 +1592,24 @@ def cmd_train(args):
             "host": socket.getfqdn(), "gpu": torch.cuda.get_device_name(0), "torch": torch.__version__,
             "split_csv": os.path.basename(args.split_csv) if args.split_csv else "hf test.csv/train.csv",
             "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    if loss_fn is not None:
+        meta.update(loss_summary=loss_fn.summary(), mask_csv=os.path.basename(args.mask_csv) if args.mask_csv else None,
+                    mask_sha256=sha256_file(args.mask_csv) if args.mask_csv else None,
+                    prior=os.path.basename(args.prior) if args.prior else None,
+                    prior_sha256=sha256_file(args.prior) if args.prior else None,
+                    best_pth_rule=PLACEHOLDER_BEST_RULE)
+    if args.resume:
+        meta.update(resumed_from_epoch=resumed_from,
+                    epoch_s_sum_all_runs=float(sum(r["epoch_s"] for r in log_rows)),
+                    checkpoint_write_s=stats["checkpoint_write_s"],
+                    best_pth_restored_from_epoch=stats["best_restored_from"], fingerprint=fingerprint,
+                    timing_scope="prep_s, train_s, elapsed_s, checkpoint_write_s: this process only "
+                                 "(train_s includes checkpoint_write_s); epoch_s_sum_all_runs: sum of "
+                                 "epoch_s over all log rows of every run, without checkpoint writes or "
+                                 "epochs lost to a kill")
+    if prep_meta is not None:
+        meta.update(prep=os.path.basename(args.prep), prep_array_sha256=prep_meta["array_sha256"],
+                    prep_verified=bool(args.verify_prep))
     write_json(meta, os.path.join(args.out_dir, "train_meta.json"))
     print(json.dumps(_round(meta, 3)))
 
@@ -1313,11 +1897,30 @@ def main(argv=None):
     p.add_argument("--out", default=os.path.join(OUT_DIR, "resplit_pano_grouped_seed86.csv"))
     p.set_defaults(func=cmd_resplit)
 
+    p = sub.add_parser("prep", help="decode the training crops once into a uint8 .npy memmap (CPU)")
+    p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
+    p.add_argument("--split-csv", default=None)
+    p.add_argument("--images", required=True, nargs="+", help="prepared crop dir(s), searched in order")
+    p.add_argument("--workers", type=int, default=1, help="decode processes (row order is kept)")
+    p.add_argument("--out", required=True, help="the .npy to write; its sidecar is <out>.meta.json")
+    p.set_defaults(func=cmd_prep)
+
     p = sub.add_parser("train", help="the tagger's DINOv2 recipe on a split (GPU)")
     tagger(p)
     p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
     p.add_argument("--split-csv", default=None)
-    p.add_argument("--images", required=True, nargs="+", help="prepared crop dir(s), searched in order")
+    p.add_argument("--images", nargs="+", default=None,
+                   help="prepared crop dir(s), searched in order (decoded in memory; the default path)")
+    p.add_argument("--prep", default=None, help="a `prep` .npy to map instead of decoding --images")
+    p.add_argument("--verify-prep", action="store_true", help="re-hash the --prep array before training")
+    p.add_argument("--resume", action="store_true",
+                   help="continue from <out-dir>/checkpoint.pth if present (else start fresh)")
+    p.add_argument("--loss", default="bce", choices=TagLoss.KINDS,
+                   help="bce (the recipe), nnpu (Kiryo et al. 2017 non-negative PU risk) or soft")
+    p.add_argument("--mask-csv", default=None, help="label_uid + one 0/1 column per masked tag (0 = no loss)")
+    p.add_argument("--prior", default=None, help="JSON {tag: pi_t}, every tag; needed by nnpu and soft")
+    p.add_argument("--nnpu-beta", type=float, default=0.0, help="nnPU: ascend when the bracket < -beta")
+    p.add_argument("--nnpu-gamma", type=float, default=1.0, help="nnPU: gradient-ascent step scale")
     p.add_argument("--backbone", required=True, help="dinov2_vitb14_reg4_pretrain.pth")
     p.add_argument("--epochs", type=int, default=100)
     p.add_argument("--lr", type=float, default=1e-6)
