@@ -516,6 +516,7 @@ listed:
 - `docs/data/benchmark_power_135.json`: `run_b_gate_135`, `benchmark_power_135`
 - `docs/data/run_a_84_manual_gold/summary.csv`: `run_b_gate_135`, `benchmark_power_135`
 - `manual_labels/`: `scoreboard`, `benchmark_power_135`
+- `docs/data/run_a_84_detections/`: `seed_variance_read_51_135`, `benchmark_power_135`
 
 ### Result on main
 

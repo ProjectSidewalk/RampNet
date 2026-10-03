@@ -487,7 +487,11 @@ python scripts/analysis/benchmark_power_135.py \
 python scripts/analysis/benchmark_power_135.py --check
 ```
 
-Roughly 20 minutes on a laptop.
+About 11 minutes on a desktop CPU (676 s, measured 2026-10-03; see below). Inputs: `manual_labels/` and `benchmark/*/records.jsonl` +
+`verdicts.json` for ground truth, `benchmark/model_detections/*.json` for the YOLO arms,
+`docs/data/run_a_84_detections/*.json` for the Run A epoch dumps,
+`analysis_out/op_cache/*.json` for the single-pass RampNet arm, and
+`docs/data/run_a_84_manual_gold/summary.csv` for Run A's own curve.
 
 **The splits are pinned (#236).** The analysis was run on ten splits: annapolis, bend,
 budapest_district5, clovis, gainesville, manual_gold, morgantown, paterson, richmond and
@@ -517,11 +521,7 @@ python scripts/analysis/benchmark_power_135.py --splits all \
 ```
 
 It is a new analysis with new numbers, and it has **not** been run or committed. Whether to run
-it, and whether any number quoted from the ten-split file should move to it, is an open decision. Inputs: `manual_labels/` and `benchmark/*/records.jsonl` +
-`verdicts.json` for ground truth, `benchmark/model_detections/*.json` for the YOLO arms,
-`docs/data/run_a_84_detections/*.json` for the Run A epoch dumps,
-`analysis_out/op_cache/*.json` for the single-pass RampNet arm, and
-`docs/data/run_a_84_manual_gold/summary.csv` for Run A's own curve.
+it, and whether any number quoted from the ten-split file should move to it, is an open decision.
 
 **Every derived number in this document is in `docs/data/benchmark_power_135.json`, with four
 stated exceptions** — the earlier claim of "every" was not true and the exceptions are named

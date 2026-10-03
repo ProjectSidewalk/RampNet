@@ -632,6 +632,11 @@ def parse_args(argv=None):
             ap.error(f"--check verifies the default command; it cannot be combined "
                      f"with {', '.join(changed)}")
     args.split_list = resolve_splits(args.splits, args.repo)
+    if not args.split_list:
+        # An empty --splits used to fall through to "every bundle"; silently running on
+        # nothing would crash deep in stack() instead, so say what is wrong here.
+        ap.error("--splits resolved to no splits; omit it for the pinned ten, or pass "
+                 "'all' or a comma-separated list")
     return args
 
 
@@ -1087,6 +1092,12 @@ def _is_num(x):
     return isinstance(x, (int, float)) and not isinstance(x, bool)
 
 
+def _short(x, limit=120):
+    """``repr(x)``, cut to ``limit`` characters so a differing subtree stays one line."""
+    r = repr(x)
+    return r if len(r) <= limit else r[:limit] + f"... ({len(r)} chars)"
+
+
 def _same_leaf(a, b):
     if isinstance(a, float) and isinstance(b, float) and math.isnan(a) and math.isnan(b):
         return True
@@ -1139,14 +1150,17 @@ def compare_to_committed(out, committed_path, stream=None):
     offset = next((i for i, (x, y) in enumerate(zip(new, old)) if x != y),
                   min(len(new), len(old)))
     diffs = list(diff_leaves(json.loads(new), json.loads(old)))
-    num = [abs(x - y) for _, x, y in diffs if _is_num(x) and _is_num(y)]
+    # Numeric only when both sides are numbers OF THE SAME TYPE: 42 vs 42.0 serialises
+    # differently and is a type change, so it counts as structural, not as a 0.0 diff.
+    num = [abs(x - y) for _, x, y in diffs
+           if _is_num(x) and _is_num(y) and type(x) is type(y)]
     print(f"MISMATCH: regenerated output differs from {committed_path}", file=stream)
     print(f"  bytes: regenerated {len(new)}, committed {len(old)}; "
           f"first difference at byte offset {offset}", file=stream)
     if diffs:
         p, x, y = diffs[0]
-        print(f"  first differing key path: {p}  (regenerated {x!r}, committed {y!r})",
-              file=stream)
+        print(f"  first differing key path: {p}  (regenerated {_short(x)}, "
+              f"committed {_short(y)})", file=stream)
     else:
         print("  parsed JSON is equal: the difference is formatting only", file=stream)
     print(f"  differing leaf values: {len(diffs)} ({len(num)} numeric, "

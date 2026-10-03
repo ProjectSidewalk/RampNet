@@ -415,12 +415,36 @@ def test_default_splits_resolve_to_the_pinned_ten_without_touching_the_benchmark
     assert len(calls) == 1
 
 
-@pytest.mark.parametrize("extra", [["--splits", "all"], ["--bootstrap", "100"],
-                                   ["--seed", "1"], ["--out-json", "x.json"]])
-def test_check_refuses_non_default_analysis_options(extra):
+NON_DEFAULT = {
+    "splits": ["--splits", "all"],
+    "reference": ["--reference", "y11l_pano"],
+    "pairs": ["--pairs", "y11l_pano:y11x_pano_h200"],
+    "self_pair_deltas": ["--self-pair-deltas", "0.01"],
+    "bootstrap": ["--bootstrap", "100"],
+    "matrix_bootstrap": ["--matrix-bootstrap", "100"],
+    "seed": ["--seed", "1"],
+    "out_json": ["--out-json", "x.json"],
+}
+
+
+def test_refusal_cases_cover_every_analysis_option():
+    assert set(NON_DEFAULT) == set(bp.ANALYSIS_OPTIONS)
+
+
+@pytest.mark.parametrize("option", sorted(NON_DEFAULT))
+def test_check_refuses_non_default_analysis_options(option):
     """--check verifies the default command; any other configuration is a usage error."""
     with pytest.raises(SystemExit) as exc:
-        bp.parse_args(["--check"] + extra)
+        bp.parse_args(["--check"] + NON_DEFAULT[option])
+    assert exc.value.code == 2
+
+
+@pytest.mark.parametrize("value", ["", ",", " , "])
+def test_empty_splits_is_a_usage_error(value):
+    """On main an empty --splits meant "every bundle"; now it must fail loudly, not
+    crash later in stack() with an IndexError."""
+    with pytest.raises(SystemExit) as exc:
+        bp.parse_args(["--splits", value])
     assert exc.value.code == 2
 
 
@@ -461,6 +485,34 @@ def test_check_reports_a_structural_difference(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "first differing key path: $.splits[10]" in out
     assert "1 structural or non-numeric" in out
+
+
+def test_check_counts_a_type_change_as_structural(tmp_path, capsys):
+    """42 vs 42.0 serialises differently; it is a type change, not a 0.0 numeric diff."""
+    original = _committed()
+    changed = _committed()
+    changed["seed"] = float(changed["seed"])
+    path = tmp_path / "benchmark_power_135.json"
+    path.write_bytes(bp.serialise(changed).encode("utf-8"))
+
+    assert bp.compare_to_committed(original, path) == 2
+    out = capsys.readouterr().out
+    assert "first differing key path: $.seed" in out
+    assert "differing leaf values: 1 (0 numeric, 1 structural" in out
+
+
+def test_check_truncates_a_differing_subtree(tmp_path, capsys):
+    original = _committed()
+    changed = _committed()
+    del changed["unpaired"]["manual_gold"]
+    path = tmp_path / "benchmark_power_135.json"
+    path.write_bytes(bp.serialise(changed).encode("utf-8"))
+
+    assert bp.compare_to_committed(original, path) == 2
+    line = next(l for l in capsys.readouterr().out.splitlines()
+                if "first differing key path" in l)
+    assert "$.unpaired.manual_gold" in line and "chars)" in line
+    assert len(line) < 400
 
 
 def test_serialise_is_what_the_committed_file_holds():
