@@ -48,7 +48,7 @@ challengers. No cluster access, no `.model_cache`, no GPU, no network.
 regenerates `docs/data/benchmark_power_135.json` byte for byte, and exits 2 with
 the first differing byte offset, the first differing key path, the number of
 differing leaf values and the largest absolute numeric difference when it does not.
-It takes about nine minutes on a desktop CPU.
+It takes about 11 minutes on a desktop CPU (676 s measured, 2026-10-03).
 
 A note on what the paired numbers stand in for. The comparison Run B would actually
 make -- two Stage 2 checkpoints from one lineage -- has no committed per-pano data
@@ -139,9 +139,10 @@ RUN_A_EPOCH = "run_a_epoch_{}"
 #: from exactly this list in exactly this order, because one Generator is threaded
 #: through every split (see ``run_analysis``): adding a split shifts the stream for
 #: every group drawn after it. The two Laurens arms (``laurens_gsv``,
-#: ``laurens_mapillary``) were added as bundles on 2026-08-31 and got verdicts later;
-#: they are left out because they did not exist when this analysis was run, not on
-#: any judgment about them. ``--splits all`` includes them (#236).
+#: ``laurens_mapillary``) were committed on their own branch on 2026-08-31 and reached
+#: main with PR #152 on 2026-09-04, an hour before cc94b34; the #135 branch that wrote
+#: the JSON never contained them. They are left out for that reason, not on any
+#: judgment about them. ``--splits all`` includes them (#236).
 SPLITS_135 = ("annapolis", "bend", "budapest_district5", "clovis", "gainesville",
               "manual_gold", "morgantown", "paterson", "richmond", "sao_paulo")
 

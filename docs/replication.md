@@ -428,7 +428,7 @@ to the `labeler_commit` field of `recall_by_depth_112.json` passed `recall_by_de
 failed only `da3_calibration_101`. To see who pins a file, use `--touching <path>`:
 
 ```bash
-python scripts/check_all.py --all                  # the full gate (~10 min on CPU)
+python scripts/check_all.py --all                  # the full gate (~20 min on CPU)
 python scripts/check_all.py --ci                   # what the `checks` CI job runs
 python scripts/check_all.py --list                 # the registry with each entry's pins; nothing run
 python scripts/check_all.py --touching analysis_out/recall_by_depth_112.json --list   # who pins it
@@ -470,7 +470,8 @@ even when every split's imagery is absent, so the runner also FAILs that entry i
 every split is absent. Both guards are tested.
 
 **`--ci`** runs every entry that has no requirements (committed inputs, CPU, offline) and is not
-marked slow. No entry is marked slow today. `cascade_cost_35` was out of `--ci` in the first
+marked slow. One entry is marked slow, `benchmark_power_135` (676 s of bootstrap on the desktop
+CPU, added in #236), so it runs only with `--all`. `cascade_cost_35` was out of `--ci` in the first
 version of this gate, and is now in, because the measured CI time leaves room for it.
 On GitHub's runner at `9671aa2` the whole `checks` job took 6m19s: 17 PASS and 2 SKIP, with 312.6 s inside `check_all.py`, 214.2 s of it `cascade_cost_35`. The runner was faster than the desktop (342 s for the same entry), so the first version's claim that this entry would push a 2-core runner over budget was wrong. The job runs in parallel with the two pytest jobs (8-9 min each), has
 `timeout-minutes: 30`, and passes `--timeout 1200` per step. Entries that need git-ignored local
@@ -497,6 +498,7 @@ data are skipped unless `--allow local-cache` is given.
 | `cascade_transfer_35` | `cascade_transfer_35.py --check` | the transfer table regenerates byte-identical (#35) | committed only | 1.8 |
 | `scoreboard` | `scoreboard.py --check` | the scoreboard doc's tables, the counts its prose quotes, the log tables and `scoreboard.json` match a fresh scoring of every leg | committed only | 4.4 |
 | `cascade_cost_35` | `cascade_cost_35.py --check` | all 142 per-pair cascade files regenerate byte-identical from their recorded args (#35) | committed only | 341.7 |
+| `benchmark_power_135` | `benchmark_power_135.py --check` | the default command (the ten pinned #135 splits) regenerates `docs/data/benchmark_power_135.json` byte-identical (#135, #236). **Slow: `--all` only.** Its seconds are from the standalone `--check` run in #237 (2026-10-03, same desktop), not from `latest.json` | committed only | 676 |
 | `export_model_cache_verify` | `export_model_cache.py --verify --cache-dir {local_root}/.model_cache` | the published `benchmark/model_detections/` score identically to the local `.model_cache` | **local-cache** (`{local_root}/.model_cache` must exist) | 12.4 |
 | `imagery_manifest_verify` | `imagery_manifest.py --verify --panos-root {local_root}` | the local `benchmark/*/panos/` JPEGs match the committed imagery manifests | **local-cache** (`{local_root}/benchmark/*/panos` must exist) | 16.5 |
 
@@ -507,10 +509,13 @@ The seconds are from the committed run, `analysis_out/check_all/latest.json` (at
 listed:
 
 - `analysis_out/recall_by_depth_112.json`: `manifests_sha256`, `recall_by_depth_112`, `da3_calibration_101`, `laurens_paired_151`
-- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `cascade_transfer_35`, `cascade_cost_35`
+- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `cascade_transfer_35`, `cascade_cost_35`, `benchmark_power_135`
 - `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `cascade_transfer_35`
-- `benchmark/model_detections/`: `laurens_paired_151`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `export_model_cache_verify`
-- `benchmark/<split>/verdicts.json`: `da3_calibration_101`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`
+- `benchmark/model_detections/`: `laurens_paired_151`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`, `export_model_cache_verify`
+- `benchmark/<split>/verdicts.json`: `da3_calibration_101`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
+- `docs/data/benchmark_power_135.json`: `run_b_gate_135`, `benchmark_power_135`
+- `docs/data/run_a_84_manual_gold/summary.csv`: `run_b_gate_135`, `benchmark_power_135`
+- `manual_labels/`: `scoreboard`, `benchmark_power_135`
 
 ### Result on main
 

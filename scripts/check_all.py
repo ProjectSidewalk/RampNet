@@ -35,7 +35,7 @@ Entry fields:
   * ``nothing_verified`` -- a function of the entry's output returning a reason when the
                        script exited 0 without comparing anything; that is a FAIL.
   * ``slow``        -- runs only with ``--all``. One entry is slow: ``benchmark_power_135``
-                       (about nine minutes; see the doc).
+                       (about 11 minutes; see the doc).
 
 Placeholders in an argv: ``{tmp}`` (a fresh scratch directory per entry, deleted
 afterwards) and ``{local_root}`` (``--local-root``, default the repo root).
@@ -209,7 +209,7 @@ REGISTRY: list = [
       # parallel with pytest (8-9 min) and stays well inside its 30 min guard.
       pins=("analysis_out/cascade_cost_35/", "analysis_out/op_cache/",
             "analysis_out/cascade_gate_op030.json", "benchmark/model_detections/") + GT),
-    # Slow: about nine minutes of bootstrap on a desktop CPU, so --all only, not --ci (#236).
+    # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
     E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),
       "the default command regenerates docs/data/benchmark_power_135.json byte-identical (#135, #236)",
       pins=("docs/data/benchmark_power_135.json", "manual_labels/", "benchmark/model_detections/",

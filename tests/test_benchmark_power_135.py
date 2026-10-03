@@ -430,7 +430,7 @@ def test_check_passes_on_the_committed_bytes(capsys):
 
 
 def test_check_reports_first_differing_key(tmp_path, capsys):
-    """The comparator names the changed leaf, without running the nine-minute analysis.
+    """The comparator names the changed leaf, without running the 11-minute analysis.
 
     The "regenerated" object is the original committed dict; the "committed" file is a
     copy with one leaf nudged, so the mismatch is known exactly.
@@ -471,6 +471,6 @@ def test_serialise_is_what_the_committed_file_holds():
 
 
 @pytest.mark.skipif(not os.environ.get("RAMPNET_SLOW"),
-                    reason="about nine minutes on CPU; set RAMPNET_SLOW=1 to run")
+                    reason="about 11 minutes on CPU; set RAMPNET_SLOW=1 to run")
 def test_default_command_regenerates_the_committed_json_byte_for_byte():
     assert bp.main(["--check"]) == 0
