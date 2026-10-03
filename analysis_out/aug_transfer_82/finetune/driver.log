@@ -52,3 +52,12 @@ splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens
 --- res_s2: /gscratch/makelab/jonf/aug82/res_s2.pth sha256 1aad18b128f3f2af
 --- both_s2 exit=0 splits=12 elapsed=2473s
 === done 2026-10-02T18:01:40-07:00
+=== aug82 scoring (job 41170148) 2026-10-02T18:08:12-07:00 host g3075 repo commit 81d3afa
+python: /scr/jfroehli/aug82score_41170148_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA A40, 0 MiB, 46068 MiB 
+splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- photo_s2: /gscratch/makelab/jonf/aug82/photo_s2.pth sha256 77db0d1eed894a59
+--- res_s2 exit=0 splits=12 elapsed=2619s
+=== done 2026-10-02T18:39:06-07:00
+--- photo_s2 exit=0 splits=12 elapsed=2761s
+=== done 2026-10-02T18:54:18-07:00

@@ -230,8 +230,8 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 The pull is by job id rather than a date window, so that a window would not sweep in other jobs
 run on the account the same day (the #131 replication ran on klone that night and records its
 own). The ledger is rebuilt in append order: klone 2026-08-19, Tillicum 2026-09-21, the #131
-pull `sacct_klone_2026-09-24_sa131.txt` (above), this file, then the 2026-09-26 and 2026-09-27 pulls below;
-`tests/test_slurm_usage.py` compares all eight. What the five rows are is in
+pull `sacct_klone_2026-09-24_sa131.txt` (above), this file, then the 2026-09-26, 2026-09-27 and 2026-10-03 pulls below;
+`tests/test_slurm_usage.py` compares all nine. What the five rows are is in
 [`context_fov_86.md`](context_fov_86.md) §5.
 
 ## klone, 2026-09-26: the context experiment's resolution and seed arms, 13.6 GPU-hours, $0
@@ -341,6 +341,48 @@ The per-pano timings (the script's own `paid: false` rows in `analysis_out/usage
 what each run produced are in [`da3_calibration_101.md`](da3_calibration_101.md) §9 (the
 ground-fit change between the two full runs is §8). Two of the three usage rows were relabelled by
 hand when appended; §9 says which.
+
+## klone, 2026-10-03: the augmentation fine-tune screen (#82), 108.66 GPU-hours, $0
+
+Every klone allocation of the #82 screen: the eight 2,000-step fine-tunes (four arms x two
+seeds, 4 GPUs each), their requeued, preempted, failed and cancelled incarnations, the CPU job
+that packed the conda env into a tarball, and the nine scoring jobs (the released checkpoint and
+the eight fine-tunes, one GPU each), all on `ckpt-all`. Pulled by job id on 2026-10-03 into
+`docs/data/compute/sacct_klone_2026-10-03_aug82.txt` (7,381 bytes, sha256
+`befd499289889b6a71037d3fdea1355a5cb37be956b638d26c9e60bc6df1b4c1`) on a klone login node. The
+job ids are every job named `aug82*` on the account since 2026-10-01:
+
+```bash
+IDS=$(sacct -X -D -P -n -u jfroehli -S 2026-10-01 --format=JobID,JobName%60 \
+      | awk -F'|' '$2 ~ /^aug82/ {print $1}' | sort -u | paste -sd,)
+sacct -X -D -P -n -u jfroehli -S 2026-07-01 \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j "$IDS" > sacct_klone_2026-10-03_aug82.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-10-03_aug82.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+| what | records | GPU-h |
+| :--- | ---: | ---: |
+| fine-tunes, the incarnation that finished (8 runs) | 8 | 79.51 |
+| fine-tunes, incarnations preempted or requeued before finishing | 7 | 23.13 |
+| fine-tunes, failed at start (dangling HF cache link, jobs 41103263-70) | 8 | 0.15 |
+| fine-tunes, cancelled before starting | 10 | 0 |
+| scoring on all 12 bundles (released + 8 fine-tunes) | 9 | 5.87 |
+| env tarball (CPU) | 1 | 0 |
+| **total** | **43** | **108.66** |
+
+A preempted incarnation's work is not all lost: training resumes from `latest_checkpoint.pth`,
+so part of those 23.13 GPU-hours carried into the finished runs. The frozen probe (Step 1) ran on
+makelab2, which has no Slurm; its four `paid: false` rows (`aug-probe-82:*`, 3.97 h of A40 time
+for extraction plus a 624 s CPU stats pass) are in `analysis_out/usage_log.jsonl`. What the runs
+produced is in [`aug_transfer_82.md`](aug_transfer_82.md).
 
 ## Gaps, stated
 

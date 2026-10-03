@@ -1,7 +1,7 @@
 """Read the #82 paired fine-tune screen (Step 3) from the committed per-checkpoint caches.
 
 Inputs: ``analysis_out/aug_transfer_82/finetune/<label>/<split>.json``, one
-``operating_point_curve.py extract`` cache per checkpoint x split (written on makelab2 by
+``operating_point_curve.py extract`` cache per checkpoint x split (written on klone by
 ``scripts/analysis/aug82_score_ckpts.sh``). Labels: ``released`` (the Hub checkpoint) and
 ``<arm>_s<seed>`` for arm in control / res / photo / both and the screen's seeds.
 
@@ -16,6 +16,13 @@ What it reports, per split and never only pooled, at 0.30 and 0.55:
   in-domain splits (manual_gold, bend) and the US7 pool, stratified by split;
 * the Laurens rig effect per checkpoint on the 47 corners both rigs saw
   (``analysis_out/laurens_paired_151.json`` pairs; GSV minus GoPro, pair bootstrap).
+* max-F1 (best F1 over every threshold) beside every fixed-threshold read, because extra
+  training shifts score calibration and a fixed threshold then trades recall for precision;
+* seed-mean contrasts: the two seeds of an arm averaged against the two controls averaged,
+  under one resample (this averages over seed; only the control spread row estimates seed
+  variance, and that from a single pair of runs);
+* the change in the Laurens rig effect against the control (difference in differences), per
+  seed and as a seed mean, at 0.30, 0.55 and max-F1.
 
     python scripts/analysis/aug_finetune_82.py            # -> finetune_results.json / .md
     python scripts/analysis/aug_finetune_82.py --check    # exit 1 if the committed output is stale
@@ -105,6 +112,11 @@ def _metrics(panos, rsq):
     return out
 
 
+
+def _max_f1(sc):
+    """Best F1 over every threshold on the observed sample (the bootstrap's max_f1 column)."""
+    return rnd(bp.metrics(sc, np.ones((1, len(sc.pids))), THRESHOLDS[0])[3][0])
+
 def _contrast(sa, sb, sizes, t):
     rng = np.random.default_rng(SEED)
     r = bp.observed_and_se(sa, sizes, t, rng, N_REPS, paired=sb)
@@ -142,72 +154,168 @@ def contrast_list(labels):
     return pl
 
 
+def seed_mean_list(labels):
+    """(name, plus labels, minus labels): seed-averaged arm minus seed-averaged control."""
+    ctrls = [f"control_s{s}" for s in SEEDS]
+    if not all(c in labels for c in ctrls):
+        return []
+    pl = []
+    if "released" in labels:
+        pl.append(("control (seed mean) - released", ctrls, ["released"]))
+    for a in ARMS[1:]:
+        labs = [f"{a}_s{s}" for s in SEEDS]
+        if all(x in labels for x in labs):
+            pl.append((f"{a} - control (seed mean)", labs, ctrls))
+    return pl
+
+
+def seed_mean_contrasts(scored, members, plist, chunk=500):
+    """Mean over seeds of the arm minus mean over seeds of the control, pano bootstrap.
+
+    The same stratified pano weights are applied to every checkpoint in a draw, as in the
+    per-seed paired contrasts. This averages over the two training seeds; it does not
+    estimate training-seed variance (only the control spread row does, from one pair).
+    """
+    def stk(lab):
+        return (bp.stack([scored[(lab, c)] for c in members]) if len(members) > 1
+                else scored[(lab, members[0])])
+    out = {}
+    for name, plus, minus in plist:
+        if not all((x, c) in scored for x in plus + minus for c in members):
+            continue
+        sp, sm = [stk(x) for x in plus], [stk(x) for x in minus]
+        for s_ in sp + sm:
+            assert list(s_.pids) == list(sp[0].pids), "seed-mean contrast needs one pano order"
+        sizes = [len(scored[(plus[0], c)].pids) for c in members]
+
+        def combo(w, t):
+            a = np.mean([np.array(bp.metrics(x, w, t)) for x in sp], axis=0)
+            b = np.mean([np.array(bp.metrics(x, w, t)) for x in sm], axis=0)
+            return a - b
+        ent = {}
+        for t in THRESHOLDS:
+            rng = np.random.default_rng(SEED)
+            obs = combo(np.ones((1, len(sp[0].pids))), t).ravel()
+            draws, done = [], 0
+            while done < N_REPS:
+                b = min(chunk, N_REPS - done)
+                draws.append(combo(bp.bootstrap_weights(rng, sizes, b), t))
+                done += b
+            d = np.hstack(draws)
+            ent[f"{t:.2f}"] = {n: {"observed": rnd(o), "ci_lo": rnd(np.percentile(v, 2.5)),
+                                   "ci_hi": rnd(np.percentile(v, 97.5))}
+                               for n, o, v in zip(("precision", "recall", "f1", "max_f1"),
+                                                  obs, d)}
+        out[name] = ent
+    return out
+
+#: Thresholds the rig-effect max-F1 is read over (the scorer's floor is 0.05). 0.30 and 0.55
+#: are exact members, so the fixed-threshold rows come from the same count cube.
+RIG_GRID = tuple(k / 100 for k in range(5, 96))
+
+
+def _rig_counts(g, m, pairs, rsq):
+    """(pair, arm, threshold, [tp, fp, tp on recall-confirmed GT, n confirmed GT])."""
+    cnt = np.zeros((len(pairs), 2, len(RIG_GRID), 4))
+    for i, pr in enumerate(pairs):
+        for j, d in enumerate((g[pr["gsv"]], m[pr["mly"]])):
+            n_gt = len(d["gt"].gt_points) if d["gt"].fn_confirmed else 0
+            for k, t in enumerate(RIG_GRID):
+                s = score_pano([q for q in d["preds"] if q[2] >= t], d["gt"], radius_sq=rsq)
+                cnt[i, j, k] = (s.tp, s.fp, s.tp if d["gt"].fn_confirmed else 0, n_gt)
+    return cnt
+
+
+def _rig_prf(weights, cnt):
+    """P, R, F1 per (replicate, arm, threshold) at pair weights ``weights`` (B, n_pairs)."""
+    c = np.tensordot(weights, cnt, axes=(1, 0))           # (B, 2, n_thr, 4)
+    tp, fp, tpr, n = (c[..., k] for k in range(4))
+    p = np.where(tp + fp > 0, tp / np.maximum(tp + fp, 1e-12), 0.0)
+    r = np.where(n > 0, tpr / np.maximum(n, 1e-12), 0.0)
+    f = np.where(p + r > 0, 2 * p * r / np.maximum(p + r, 1e-12), 0.0)
+    return p, r, f
+
+
 def laurens_rig_effect(data, rsq, labels):
-    """GSV minus GoPro on the paired corners, per checkpoint, pair bootstrap."""
+    """GSV minus GoPro on the paired corners, per checkpoint, pair bootstrap.
+
+    Reported at 0.30 and 0.55 and as max-F1 (each rig's best F1 over ``RIG_GRID``, so a
+    checkpoint whose scores shifted is not penalised for where the fixed threshold sits).
+    """
     with open(PAIRS, encoding="utf-8") as f:
         pairs = json.load(f)["pairs"]
     out = {}
     rng0 = np.random.default_rng(SEED)
     w = rng0.multinomial(len(pairs), np.full(len(pairs), 1.0 / len(pairs)), size=N_REPS)
-    draws = {}                                  # (label, thr, metric) -> bootstrap rig effect
+    w = w.astype(np.float64)
+    ones = np.ones((1, len(pairs)))
+    idx = {f"{t:.2f}": RIG_GRID.index(t) for t in THRESHOLDS}
+    draws = {}                                  # (label, thr, metric) -> (observed, bootstrap)
     for lab in labels:
         if (lab, "laurens_gsv") not in data or (lab, "laurens_mapillary") not in data:
             continue
         g = {p["pano"]: p for p in data[(lab, "laurens_gsv")]}
         m = {p["pano"]: p for p in data[(lab, "laurens_mapillary")]}
+        cnt = _rig_counts(g, m, pairs, rsq)
+        obs, bs = _rig_prf(ones, cnt), _rig_prf(w, cnt)
         ent = {}
-        for t in THRESHOLDS:
-            cnt = np.zeros((len(pairs), 2, 4))     # pair x arm x (tp, fp, tp_r, n_gt)
-            for i, pr in enumerate(pairs):
-                for j, d in enumerate((g[pr["gsv"]], m[pr["mly"]])):
-                    s = score_pano([q for q in d["preds"] if q[2] >= t], d["gt"],
-                                   radius_sq=rsq)
-                    n_gt = len(d["gt"].gt_points) if d["gt"].fn_confirmed else 0
-                    cnt[i, j] = (s.tp, s.fp, s.tp if d["gt"].fn_confirmed else 0, n_gt)
-
-            def prf(weights):
-                c = np.tensordot(weights, cnt, axes=(1, 0))   # (B, 2, 4)
-                tp, fp, tpr, n = (c[..., k] for k in range(4))
-                p = np.where(tp + fp > 0, tp / np.maximum(tp + fp, 1e-12), 0.0)
-                r = np.where(n > 0, tpr / np.maximum(n, 1e-12), 0.0)
-                f = np.where(p + r > 0, 2 * p * r / np.maximum(p + r, 1e-12), 0.0)
-                return p, r, f
-            obs = prf(np.ones((1, len(pairs))))
-            bs = prf(w.astype(np.float64))
+        for t, k in idx.items():
             row = {}
-            for k, name in enumerate(("precision", "recall", "f1")):
-                d_obs = obs[k][0, 0] - obs[k][0, 1]
-                d_bs = bs[k][:, 0] - bs[k][:, 1]
-                draws[(lab, f"{t:.2f}", name)] = (d_obs, d_bs)
-                row[name] = {"gsv": rnd(obs[k][0, 0]), "gopro": rnd(obs[k][0, 1]),
-                             "gsv_minus_gopro": rnd(d_obs),
-                             "ci_lo": rnd(np.percentile(d_bs, 2.5)),
-                             "ci_hi": rnd(np.percentile(d_bs, 97.5))}
-            ent[f"{t:.2f}"] = row
+            for q, name in enumerate(("precision", "recall", "f1")):
+                o, b = obs[q][0, :, k], bs[q][:, :, k]
+                draws[(lab, t, name)] = (o[0] - o[1], b[:, 0] - b[:, 1])
+                row[name] = _rig_row(o, b)
+            ent[t] = row
+        o, b = obs[2].max(axis=2)[0], bs[2].max(axis=2)
+        draws[(lab, "max", "f1")] = (o[0] - o[1], b[:, 0] - b[:, 1])
+        ent["max_f1"] = _rig_row(o, b)
         out[lab] = ent
     # Difference in differences: an arm's rig effect minus its same-seed control's, with the
     # same pair resample applied to both, so the corner-difficulty component cancels.
+    keys = [(t, n) for t in idx for n in ("precision", "recall", "f1")] + [("max", "f1")]
+
+    def table(plus, minus):
+        res = {}
+        for t, n in keys:
+            a = [draws[(lab, t, n)] for lab in plus]
+            b = [draws[(lab, t, n)] for lab in minus]
+            o = np.mean([x[0] for x in a]) - np.mean([x[0] for x in b])
+            d = np.mean([x[1] for x in a], axis=0) - np.mean([x[1] for x in b], axis=0)
+            res.setdefault("max_f1" if t == "max" else t, {})[n] = {
+                "observed": rnd(o), "ci_lo": rnd(np.percentile(d, 2.5)),
+                "ci_hi": rnd(np.percentile(d, 97.5))}
+        return res
+
     did = {}
-    thrs = [f"{x:.2f}" for x in THRESHOLDS]
-    names = ("precision", "recall", "f1")
     if "control_s1" in out and "control_s2" in out:
-        did["spread: control_s2 - control_s1"] = {
-            t: {n: _did(draws[("control_s2", t, n)], draws[("control_s1", t, n)]) for n in names}
-            for t in thrs}
+        did["spread: control_s2 - control_s1"] = table(["control_s2"], ["control_s1"])
     for lab in labels:
         arm, _, seed = lab.rpartition("_s")
         ctrl = f"control_s{seed}"
         if arm in ("", "control") or ctrl not in out or lab not in out:
             continue
-        did[f"{lab} - {ctrl}"] = {
-            t: {n: _did(draws[(lab, t, n)], draws[(ctrl, t, n)]) for n in names} for t in thrs}
-    return {"n_pairs": len(pairs), "per_checkpoint": out, "rig_effect_vs_control": did}
+        did[f"{lab} - {ctrl}"] = table([lab], [ctrl])
+    # Seed mean: the average of the two seeds' arms minus the average of the two controls,
+    # under one pair resample. It averages over two training seeds; it does not measure the
+    # seed-to-seed variance, which only the control spread row estimates (one draw).
+    seed_mean = {}
+    ctrls = [f"control_s{s}" for s in SEEDS]
+    if all(c in out for c in ctrls) and "released" in out:
+        seed_mean["control (seed mean) - released"] = table(ctrls, ["released"])
+    for a in ARMS[1:]:
+        labs = [f"{a}_s{s}" for s in SEEDS]
+        if all(x in out for x in labs + ctrls):
+            seed_mean[f"{a} - control (seed mean)"] = table(labs, ctrls)
+    return {"n_pairs": len(pairs), "rig_grid": [RIG_GRID[0], RIG_GRID[-1], 0.01],
+            "per_checkpoint": out, "rig_effect_vs_control": did,
+            "rig_effect_vs_control_seed_mean": seed_mean}
 
 
-def _did(a, b):
-    d = a[1] - b[1]
-    return {"observed": rnd(a[0] - b[0]), "ci_lo": rnd(np.percentile(d, 2.5)),
-            "ci_hi": rnd(np.percentile(d, 97.5))}
+def _rig_row(o, b):
+    """One metric: per-rig observed values and the GSV-minus-GoPro difference with its CI."""
+    d = b[:, 0] - b[:, 1]
+    return {"gsv": rnd(o[0]), "gopro": rnd(o[1]), "gsv_minus_gopro": rnd(o[0] - o[1]),
+            "ci_lo": rnd(np.percentile(d, 2.5)), "ci_hi": rnd(np.percentile(d, 97.5))}
 
 
 def build(root=FT_ROOT):
@@ -216,6 +324,7 @@ def build(root=FT_ROOT):
     labels = labels_present(root)
     scored = {k: _scored(k[1], v, rsq) for k, v in data.items()}
     pl = contrast_list(labels)
+    sml = seed_mean_list(labels)
     rep = {"protocol": {"thresholds": list(THRESHOLDS), "n_reps": N_REPS, "seed": SEED,
                         "bootstrap": "pano-level paired cluster bootstrap, stratified by "
                                      "split (benchmark_power_135.observed_and_se)",
@@ -227,10 +336,14 @@ def build(root=FT_ROOT):
         rep["per_split"][c] = {
             "n_panos": len(next(data[(lab, c)] for lab in labels if (lab, c) in data)),
             "metrics": {lab: _metrics(data[(lab, c)], rsq) for lab in labels if (lab, c) in data},
-            "contrasts": contrasts_for(scored, (c,), pl)}
+            "max_f1": {lab: _max_f1(scored[(lab, c)]) for lab in labels if (lab, c) in scored},
+            "contrasts": contrasts_for(scored, (c,), pl),
+            "seed_mean_contrasts": seed_mean_contrasts(scored, (c,), sml)}
     for name, members in POOLS.items():
         rep["pooled"][name] = {"members": list(members),
-                               "contrasts": contrasts_for(scored, members, pl)}
+                               "contrasts": contrasts_for(scored, members, pl),
+                               "seed_mean_contrasts": seed_mean_contrasts(
+                                   scored, members, sml)}
     rep["laurens_paired"] = laurens_rig_effect(data, rsq, labels)
     return rep
 
@@ -246,6 +359,14 @@ def _fmt(d):
 def markdown(rep):
     L = ["# Issue #82 Step 3: paired fine-tune screen", "",
          "Generated by `scripts/analysis/aug_finetune_82.py`; do not edit by hand.", ""]
+    labs = rep["protocol"]["labels"]
+    L += ["## max-F1 per checkpoint (best F1 over every threshold) and AP", "",
+          "| split | " + " | ".join(labs) + " |", "|---|" + "---|" * len(labs)]
+    for c, ent in rep["per_split"].items():
+        L.append(f"| {c} | " + " | ".join(
+            "-" if lab not in ent["max_f1"] else
+            f"{ent['max_f1'][lab]:.3f} ({ent['metrics'][lab]['AP']:.3f})" for lab in labs) + " |")
+    L += ["", "Cells are max-F1 (AP).", ""]
     for thr in ("0.30", "0.55"):
         L += [f"## Metrics at {thr} (P / R / F1)", "",
               "| split | " + " | ".join(rep["protocol"]["labels"]) + " |",
@@ -268,22 +389,45 @@ def markdown(rep):
                 L.append(f"| {c} | {name} | {_fmt(d['recall'])} | {_fmt(d['precision'])} | "
                          f"{_fmt(d['f1'])} | {_fmt(d['max_f1'])} |")
         L.append("")
+        L += [f"## Seed-mean contrasts at {thr}: mean of seeds 1 and 2 minus mean of the two "
+              "controls (same pano resample for every checkpoint)", "",
+              "| split / pool | contrast | dR | dP | dF1 | d max-F1 |", "|---|---|---|---|---|---|"]
+        for c, ent in blocks:
+            for name, cs in ent.get("seed_mean_contrasts", {}).items():
+                d = cs[thr]
+                L.append(f"| {c} | {name} | {_fmt(d['recall'])} | {_fmt(d['precision'])} | "
+                         f"{_fmt(d['f1'])} | {_fmt(d['max_f1'])} |")
+        L.append("")
     lp = rep["laurens_paired"]
+    lo, hi, step = lp["rig_grid"]
     L += [f"## Laurens rig effect on the {lp['n_pairs']} paired corners (GSV minus GoPro)", "",
-          "| checkpoint | thr | R gsv | R gopro | dR [95%] | dF1 [95%] |",
-          "|---|---|---:|---:|---|---|"]
+          f"max-F1 is each rig's best F1 over thresholds {lo:.2f} to {hi:.2f} in steps of {step}.",
+          "", "| checkpoint | read | R gsv | R gopro | dR [95%] | F1 gsv | F1 gopro | dF1 [95%] |",
+          "|---|---|---:|---:|---|---:|---:|---|"]
     for lab, ent in lp["per_checkpoint"].items():
         for thr, row in ent.items():
-            r, f = row["recall"], row["f1"]
+            f = row if thr == "max_f1" else row["f1"]
+            fcell = (f"{f['gsv']:.3f} | {f['gopro']:.3f} | {f['gsv_minus_gopro']:+.3f} "
+                     f"[{f['ci_lo']:+.3f}, {f['ci_hi']:+.3f}]")
+            if thr == "max_f1":
+                L.append(f"| {lab} | max-F1 | - | - | - | {fcell} |")
+                continue
+            r = row["recall"]
             L.append(f"| {lab} | {thr} | {r['gsv']:.3f} | {r['gopro']:.3f} | "
                      f"{r['gsv_minus_gopro']:+.3f} [{r['ci_lo']:+.3f}, {r['ci_hi']:+.3f}] | "
-                     f"{f['gsv_minus_gopro']:+.3f} [{f['ci_lo']:+.3f}, {f['ci_hi']:+.3f}] |")
-    L += ["", "Change in the rig effect against the same-seed control (difference in differences, "
-          "same pair resample; negative = a smaller GSV-minus-GoPro gap):", "",
-          "| contrast | thr | d(rig effect) R [95%] | d(rig effect) F1 [95%] |", "|---|---|---|---|"]
-    for name, ent in lp.get("rig_effect_vs_control", {}).items():
-        for thr, row in ent.items():
-            L.append(f"| {name} | {thr} | {_fmt(row['recall'])} | {_fmt(row['f1'])} |")
+                     f"{fcell} |")
+    for key, title in (("rig_effect_vs_control", "per seed, against the same-seed control"),
+                       ("rig_effect_vs_control_seed_mean",
+                        "seed mean (arm s1 and s2 against control s1 and s2)")):
+        L += ["", f"Change in the rig effect, {title} (difference in differences, same pair "
+              "resample; negative = a smaller GSV-minus-GoPro gap):", "",
+              "| contrast | read | d(rig effect) R [95%] | d(rig effect) F1 [95%] |",
+              "|---|---|---|---|"]
+        for name, ent in lp.get(key, {}).items():
+            for thr, row in ent.items():
+                rc = _fmt(row["recall"]) if "recall" in row else "-"
+                L.append(f"| {name} | {'max-F1' if thr == 'max_f1' else thr} | {rc} | "
+                         f"{_fmt(row['f1'])} |")
     return "\n".join(L) + "\n"
 
 
