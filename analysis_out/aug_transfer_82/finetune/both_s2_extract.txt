@@ -1,0 +1,25 @@
+device=cuda model=aug82_both_s2 score_floor=0.05 min_distance=10 tta=False
+  annapolis: 50/125
+  annapolis: 100/125
+annapolis: 125 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/annapolis.json
+  bend: 50/110
+  bend: 100/110
+bend: 110 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/bend.json
+  budapest_district5: 50/125
+  budapest_district5: 100/125
+budapest_district5: 125 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/budapest_district5.json
+  clovis: 50/125
+  clovis: 100/125
+clovis: 125 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/clovis.json
+  gainesville: 50/125
+  gainesville: 100/125
+gainesville: 125 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/gainesville.json
+  laurens_gsv: 50/86
+laurens_gsv: 86 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/laurens_gsv.json
+  laurens_mapillary: 50/94
+laurens_mapillary: 94 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/laurens_mapillary.json
+  manual_gold: 50/1000
+  manual_gold: 100/1000
+  manual_gold: 150/1000
+  manual_gold: 200/1000
+  manual_gold: 250/1000

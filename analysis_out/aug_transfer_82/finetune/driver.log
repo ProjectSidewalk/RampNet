@@ -19,3 +19,29 @@ splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens
 === done 2026-10-02T15:48:47-07:00
 --- res_s1 exit=0 splits=12 elapsed=1969s
 === done 2026-10-02T15:48:48-07:00
+=== aug82 scoring (job 41159296) 2026-10-02T16:54:24-07:00 host g3109 repo commit 81d3afa
+python: /scr/jfroehli/aug82score_41159296_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA L40S, 0 MiB, 46068 MiB 
+splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- photo_s1: /gscratch/makelab/jonf/aug82/photo_s1.pth sha256 e6d4d508b5b6b858
+=== aug82 scoring (job 41160386) 2026-10-02T16:59:08-07:00 host g3094 repo commit 81d3afa
+python: /scr/jfroehli/aug82score_41160386_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA L40, 0 MiB, 46068 MiB 
+splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- control_s2: /gscratch/makelab/jonf/aug82/control_s2.pth sha256 2b8ed5c5120e58a7
+=== aug82 scoring (job 41161884) 2026-10-02T17:09:10-07:00 host g3114 repo commit 81d3afa
+python: /scr/jfroehli/aug82score_41161884_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA L40S, 0 MiB, 46068 MiB 
+splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- control_s1: /gscratch/makelab/jonf/aug82/control_s1.pth sha256 d027a41d964ea694
+=== aug82 scoring (job 41163344) 2026-10-02T17:20:23-07:00 host g3123 repo commit 81d3afa
+python: /scr/jfroehli/aug82score_41163344_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA L40S, 0 MiB, 46068 MiB 
+splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- both_s2: /gscratch/makelab/jonf/aug82/both_s2.pth sha256 905f093a3177d5a3
+--- photo_s1 exit=0 splits=12 elapsed=1907s
+=== done 2026-10-02T17:26:14-07:00
+--- control_s2 exit=0 splits=12 elapsed=2008s
+=== done 2026-10-02T17:32:38-07:00
+--- control_s1 exit=0 splits=12 elapsed=1897s
+=== done 2026-10-02T17:40:50-07:00
