@@ -116,6 +116,23 @@ class ResumeSkipSampler(Sampler):
         return max(0, self.epoch_length - self.skip)
 
 
+def periodic_save_due(step, interval, max_micro_steps=None):
+    """Whether the periodic ``latest_checkpoint.pth`` save runs after micro-batch ``step``.
+
+    The last micro-batch of a ``--max-steps`` run is excluded, even when ``interval``
+    divides it: ``save_final`` writes ``final_step_N.pth`` and then the resume file, in that
+    order. If the periodic save also ran at that step, a preemption after it and before
+    ``save_final`` would requeue into "nothing to do" with no final weights (#82 review, S3).
+    With ``max_micro_steps=None`` (the recipe) this is ``step % interval == 0``, unchanged.
+
+    >>> periodic_save_due(8000, 400, 8000), periodic_save_due(7600, 400, 8000)
+    (False, True)
+    """
+    if max_micro_steps is not None and step >= max_micro_steps:
+        return False
+    return step % interval == 0
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Train the stage-2 panorama curb ramp detector.")
     parser.add_argument('--data-root', default='../dataset',
@@ -159,7 +176,10 @@ def parse_args():
                              "and with none the dataset output is bit-identical to the "
                              "published recipe (tests/test_train_augment_82.py). Draws come "
                              "from their own generator keyed on (--seed, epoch, sample "
-                             "index), so arms with the same --seed share data order and flips.")
+                             "index), so arms with the same --seed share data order and, "
+                             "until either run resumes from a checkpoint, flips (the "
+                             "DataLoader re-seeds its workers on every start, so flips "
+                             "after a resume are re-drawn; augmentation draws are not).")
     parser.add_argument('--max-steps', type=int, default=None,
                         help="Stop after this many OPTIMIZER steps, write "
                              "final_step_<N>.pth (model state_dict) and latest_checkpoint.pth, "
@@ -652,7 +672,7 @@ for epoch in range(start_epoch, num_epochs):
             progress_bar.set_postfix(loss=loss.item(), step=current_total_step)
             progress_bar.update(1) 
 
-            if current_total_step % checkpoint_interval_steps == 0:
+            if periodic_save_due(current_total_step, checkpoint_interval_steps, max_micro_steps):
                 model_state_to_save = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
                 torch.save({
                     'epoch': epoch, 

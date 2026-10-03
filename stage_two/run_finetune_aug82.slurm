@@ -4,8 +4,13 @@
 # One job = one (ARM, SEED): start from the RELEASED RampNet weights, train a fixed number
 # of optimizer steps at the recipe's constant LR 1e-5 and global batch 16, with or without
 # the #82 pixel-statistics augmentation, and write checkpoints/final_step_<STEPS>.pth.
-# Arms with the same SEED share data order and flip draws (train.py --aug docs), so the
-# control at a seed is the paired baseline for every augmented arm at that seed.
+# Arms with the same SEED share data order and, until either run resumes from a
+# checkpoint, flip draws (train.py --aug docs), so the control at a seed is the paired
+# baseline for every augmented arm at that seed. A resume re-seeds the DataLoader workers,
+# so flips after it are re-drawn; augmentation draws and data order are not. In the
+# 2026-10-02 screen photo_s1 resumed at micro-batch 4000 and control_s2 and both_s2 at
+# 4400 (docs/aug_transfer_82.md, Setup), so flip pairing holds only for the first half of
+# those pairs.
 #
 # WHY A NEW FILE. run_train.slurm is the preserved record of the published run and is not
 # edited; run_train_seed.slurm is the record of the #51/#135 seed replicates. This one

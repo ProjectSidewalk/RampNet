@@ -88,3 +88,16 @@ def test_doc_quotes_the_committed_transfer_pool_max_f1(name):
 def test_no_finetune_beats_released_on_laurens_mapillary_max_f1():
     m = _rep()["per_split"]["laurens_mapillary"]["max_f1"]
     assert all(v < m["released"] for k, v in m.items() if k != "released")
+
+
+def test_doc_quotes_the_finetunes_above_released_on_clovis_and_richmond():
+    """#82 review S1: the 'no fine-tune beats released' claim is laurens_mapillary-only."""
+    rep = _rep()["per_split"]
+    with open(DOC, encoding="utf-8") as f:
+        doc = f.read()
+    for split in ("clovis", "richmond"):
+        m = rep[split]["max_f1"]
+        above = [k for k, v in m.items() if k != "released" and v > m["released"]]
+        assert above, split
+        for k in above:
+            assert f"{k} {m[k]:.3f}" in doc, (split, k)

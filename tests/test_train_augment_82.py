@@ -217,3 +217,23 @@ def test_run_train_slurm_is_untouched():
     """stage_two/run_train.slurm is the preserved record of the published run."""
     with open(os.path.join(REPO, "stage_two", "run_train.slurm"), "rb") as f:
         assert "--aug" not in f.read().decode("utf-8")
+
+
+def test_final_micro_batch_skips_the_periodic_save():
+    """#82 review S3: at the last micro-batch of a --max-steps run the periodic save must not
+    run, or a preemption before save_final leaves a finished resume file with no
+    final_step_N.pth. The recipe (no --max-steps) keeps step % interval == 0 exactly."""
+    mod = load_from_train_py("periodic_save_due")
+    due = mod["periodic_save_due"] if isinstance(mod, dict) else mod.periodic_save_due
+    # the launcher's defaults: 2,000 optimizer steps x accumulation 4, interval 100 x 4
+    assert not due(8000, 400, 8000)
+    assert due(7600, 400, 8000) and not due(7601, 400, 8000)
+    assert not due(8400, 400, 8000)
+    for step in range(1, 5001):
+        assert due(step, 250, None) == (step % 250 == 0)
+
+
+def test_the_loop_uses_periodic_save_due():
+    src = open(os.path.join(REPO, "stage_two", "train.py"), encoding="utf-8").read()
+    assert "if periodic_save_due(current_total_step, checkpoint_interval_steps, max_micro_steps):" in src
+    assert "current_total_step % checkpoint_interval_steps == 0" not in src

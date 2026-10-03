@@ -11,14 +11,19 @@ transforms are `rampnet/augment.py`. Tests: `tests/test_train_augment_82.py`,
 `analysis_out/aug_transfer_82/probe_results.md` or `finetune_results.md`, which the scripts write
 from the committed caches in the same directory.
 
-**Answer, 2026-10-03.** No. Training-time augmentation of resolution, blur, compression and
-colour does not narrow RampNet's GSV-to-GoPro gap in this screen. Against same-seed controls, the
-change in the Laurens paired-corner rig effect is within seed noise for every arm (seed mean at
+**Answer, 2026-10-03.** No detectable effect. Training-time augmentation of resolution, blur,
+compression and colour produced no detectable narrowing of RampNet's GSV-to-GoPro gap in this
+screen: at most about 0.04 of a 0.115 gap, by the pano-level intervals. Against same-seed controls,
+the change in the Laurens paired-corner rig effect is within seed noise for every arm (seed mean at
 max-F1: res −0.015 [−0.034, +0.012], photo −0.020 [−0.039, +0.004], both −0.008 [−0.032, +0.013],
-against a control-to-control spread of +0.029), and no fine-tuned checkpoint beats the released one
-on laurens_mapillary. The frozen probe (Step 1) had already found that no single pixel-statistics
-axis moved to its GoPro value costs the released model much recall, and that no repair transform
-recovers any. Details and caveats (two seeds per arm; a fifth of an epoch) are in Step 3.
+against a control-to-control spread of +0.029). No fine-tuned checkpoint beats the released one on
+laurens_mapillary, and the transfer pool as a whole drops with the extra training (−0.015 max-F1);
+on clovis and richmond some fine-tunes do edge above the released checkpoint (Step 3). The frozen
+probe (Step 1) found that no single pixel-statistics axis moved to its GoPro value costs the
+released model much recall, and that none of the repairs tested recovers any; neither step tested
+a gamma lift or gamma-heavy training, the one axis the probe found the model sensitive to. Details
+and caveats (two seeds per arm; a fifth of an epoch; same-seed flip pairing lost after a resume in
+three runs) are in Step 3.
 
 ## The question
 
@@ -46,10 +51,12 @@ laurens_mapillary is not actually softer than laurens_gsv. Restricted to the axe
 Laurens arms really differ (exposure and colour), the share is 7% if the darkening is a brightness
 scale and 64% if it is a gamma curve. The measurements here cannot say which of the two is closer to
 the real GoPro darkening. **None of the repair transforms (colour-statistics match to GSV, unsharp
-mask, CLAHE) recovers recall on any GoPro split. Every one costs recall or does nothing.** So these
-pixel statistics are not what limits the model on GoPro imagery. A frozen model that loses
-recall under a GoPro-like combination is sensitive in a way that augmentation could reduce, which is
-what Step 3 tests.
+mask, CLAHE) recovers recall on any GoPro split. Every one costs recall or does nothing.** So the
+repairs tested do not recover recall. None of them is a gamma lift, the inverse of the one axis the
+degrade side found the model sensitive to (gamma darkening; `photo_gamma@gopro` reproduces 0.64 of
+the Laurens gap at 0.30), so the probe does not rule out GoPro darkening as part of the gap. Step 3
+caps gamma at 1.5 and does not test it either. A frozen model that loses recall under a GoPro-like
+combination is sensitive in a way that augmentation could reduce, which is what Step 3 tests.
 
 ### Rig statistics
 
@@ -243,7 +250,8 @@ sha256 `f2119e3b…`, converted once to a bare state_dict, `released_rampnet_sta
 `024a987c…`. Each run then trains 2,000 optimizer steps at the recipe's constant LR 1e-5 with Adam
 and AMP, global batch 16 (4 GPUs × batch 1 × accumulation 4), on the full Stage 2 train split
 (`/gscratch/scrubbed/jfroehli/rampnet_dataset/train`, 150,063 panos; it was intact on 2026-10-02, so no
-subset was staged). 2,000 steps is 32,000 panos, about a fifth of an epoch, and it took 2–3 h per
+subset was staged). That is the train split of the published `projectsidewalk/rampnet-dataset`
+(same 150,063-pano count; see Reproducing for the clean-clone route and what was not checked). 2,000 steps is 32,000 panos, about a fifth of an epoch, and it took 2–3 h per
 run on 4 A40/L40/L40S (1.0–1.4 s per micro-batch). The arms (`stage_two/run_finetune_aug82.slurm`):
 
 | arm | `--aug` added to the recipe's flip | why these ranges |
@@ -255,9 +263,21 @@ run on 4 A40/L40/L40S (1.0–1.4 s per micro-batch). The arms (`stage_two/run_fi
 
 The levels were set from the rig statistics before the probe's contrasts were read. Training had to
 start early in the day to finish, so the probe's results did not feed back into the ranges. Each arm
-ran at seeds 1 and 2. Arms at the same seed share data order and flip draws, so every augmented
-arm is compared with its same-seed control. The two controls differ in seed only, and their
-difference (`spread`) is the noise floor printed beside every contrast.
+ran at seeds 1 and 2. Arms at the same seed share data order and augmentation draws, and they share
+flip draws until either run resumes from a checkpoint, so every augmented arm is compared with its
+same-seed control. The two controls differ in seed only, and their difference (`spread`) is the
+noise floor printed beside every contrast.
+
+**Same-seed flip pairing broke in three runs.** A resume re-seeds the DataLoader workers, so flips
+after it are re-drawn (see Step 2, Requeue/resume). From the committed logs
+(`analysis_out/aug_transfer_82/finetune/trainlogs/`): photo_s1 resumed at micro-batch 4000 (job
+41138714), and control_s2 and both_s2 resumed at 4400 (jobs 41138715 and 41123607, three
+incarnations each). control_s1, res_s1, both_s1, res_s2 and photo_s2 ran without a resume. So for
+about the second half of the 8,000 micro-batches, flips are not paired in photo_s1 vs control_s1
+(only the arm resumed) or in res_s2 and photo_s2 vs control_s2 (only the control resumed). both_s2
+vs control_s2 both resumed at 4400 but after different earlier incarnations, so their flips are not
+known to match either. Data order and augmentation draws are unaffected. This does not bias a
+contrast; it makes the pairing looser than designed, and it matters for one reading flagged below.
 
 All eight fine-tunes trained to 2,000 steps and every one was scored on all 12 bundles (scoring jobs
 41103600 for the released checkpoint, then 41145630, 41145631, 41159296, 41160386, 41161884,
@@ -272,7 +292,11 @@ seeds per arm, the only estimate of seed variance is the gap between the two con
 ### Short answer
 
 **No augmentation arm narrows the GSV-to-GoPro gap by more than the two controls differ from each
-other, and no fine-tuned checkpoint beats the released one on GoPro imagery.** Negative result.
+other (at most about 0.04 of a 0.115 gap, by the pano-level intervals), and no fine-tuned
+checkpoint beats the released one on laurens_mapillary.** Negative result. On the other two GoPro
+splits the picture is mixed rather than a drop: on clovis (released max-F1 0.837) control_s1 0.844,
+control_s2 0.845, photo_s1 0.838, photo_s2 0.842 and both_s2 0.850 are above it, and on richmond
+(0.870) control_s1 0.878 and both_s2 0.871 are. The transfer pool as a whole drops (item 3).
 
 1. **On the Laurens paired corners, the change in the rig effect against the control is within
    seed noise for every arm.** Seed mean (both seeds of an arm against both controls), the change
@@ -326,7 +350,10 @@ All 12 splits, with AP for every checkpoint, are in the first table of `finetune
 | both_s2 | +0.127 [+0.046, +0.217] | +0.127 [+0.062, +0.202] | +0.142 [+0.079, +0.195] |
 
 max-F1 here is each rig's best F1 over thresholds 0.05 to 0.95 in steps of 0.01, chosen
-separately for each rig. The released row at 0.30 is the same number as the `rampnet_r2048`
+separately for each rig. That makes the max-F1 column blind by construction to an arm that fixes
+GoPro score calibration, which is what the probe says darkening breaks: a calibration repair would
+show up only at a fixed threshold, as a smaller gap at 0.30 or 0.55. Those rows are the ones to read
+for it, and they are null too (next table). The released row at 0.30 is the same number as the `rampnet_r2048`
 same-input re-run in `laurens_paired_151.md` (+0.095 [+0.040, +0.152]); the CI differs in the
 third decimal because the resample is drawn here with seed 82.
 
@@ -378,7 +405,11 @@ What the table does and does not show:
 transfer = laurens_mapillary + clovis + richmond; in-domain = manual_gold + bend; US7 = the eight
 US splits of `miss_decomposition.US_SPLITS`. The res arm does trade precision for recall at 0.30
 (+0.020 recall, −0.027 precision on the transfer pool), which is a score shift: at max-F1 it is
-+0.003. The one positive interval at max-F1, both on in-domain (+0.003 [+0.001, +0.005]), is
++0.003. **That reading comes entirely from seed 2,** against control_s2, the control whose flips
+were re-drawn after its resume: on the transfer pool at 0.30 all three seed-2 contrasts have recall
+intervals above zero (res_s2 +0.039 [+0.020, +0.057], photo_s2 +0.028 [+0.012, +0.044], both_s2
++0.019 [+0.005, +0.032]), while all three seed-1 contrasts are about zero (+0.001, +0.000, +0.003).
+It is as consistent with control_s2 being a low-recall draw as with an effect of the arms. The one positive interval at max-F1, both on in-domain (+0.003 [+0.001, +0.005]), is
 in-domain and about a third of a point. Per-seed contrasts for every split are in
 `finetune_results.md`.
 
@@ -450,8 +481,9 @@ All of it was free. **Step 1:** makelab2's A40, 3.97 h of extraction plus a 624 
 recorded as four `paid: false` rows (`aug-probe-82:*`) in `analysis_out/usage_log.jsonl`. **Step 3:**
 klone `ckpt-all`, 43 allocations, **108.66 GPU-hours**, recorded in `analysis_out/compute_log.jsonl`
 from the committed dump `docs/data/compute/sacct_klone_2026-10-03_aug82.txt` (pulled with `sacct
--D`, so requeued incarnations are counted). Of that, 79.51 GPU-h is the eight finished fine-tunes
-(about 10 GPU-h each on 4 GPUs), 23.13 GPU-h went to incarnations that were preempted or requeued
+-D`, so requeued incarnations are counted). Of that, 79.51 GPU-h is the eight finishing
+incarnations (11.7 to 14.2 GPU-h for the five that ran in one go; 4.3, 5.4 and 6.0 GPU-h for
+control_s2, both_s2 and photo_s1, which finished from a resume), 23.13 GPU-h went to incarnations that were preempted or requeued
 (resume from `latest_checkpoint.pth` kept part of that work), 0.15 GPU-h to the eight jobs that
 failed at start, and 5.87 GPU-h to scoring nine checkpoints on all 12 bundles (about 35 min each on
 one A40/L40/L40S). The breakdown and the exact commands are in `docs/compute_cost.md` (klone,
@@ -464,6 +496,22 @@ panos (`benchmark/<split>/panos/`, not committed; fetched per `benchmark/README.
 `/homes/gws/jonf/RampNet/benchmark/<split>/panos`, on klone at
 `/gscratch/makelab/jonf/rampnet_benchmark/<split>/panos` and, for manual_gold,
 `/gscratch/scrubbed/jfroehli/manual_gold/panos`).
+
+**Not published, stated beside the numbers.**
+- **The eight fine-tuned checkpoints exist only at `/gscratch/makelab/jonf/aug82/`** on klone
+  (8 x ~340 MB, sha256 in `analysis_out/aug_transfer_82/finetune/trainlogs/ckpt_SHA256SUMS.txt`).
+  Every number in this doc re-derives on CPU from the committed caches
+  (`aug_finetune_82.py --check`), but re-scoring them, or any new analysis (another split, recall
+  by distance), needs those files. What would unblock it: a push of the eight files to a Hugging
+  Face repo. Re-training is not a substitute: training is not bit-reproducible (no deterministic
+  algorithms, AMP, and flips re-drawn on every resume), so a re-run gives different checkpoints
+  with, at best, similar numbers. The committed caches and hashes are the durable record.
+- **The train split.** Training read `/gscratch/scrubbed/jfroehli/rampnet_dataset/train`. From a
+  clean clone the route is `python download_dataset.py` (repo root), which writes
+  `./dataset/{train,val,test}` from `projectsidewalk/rampnet-dataset`; its train split has the same
+  150,063 panos. Not checked: whether the klone files are byte-identical to that script's output
+  (the script re-encodes each image as JPEG quality 95), or which Hub revision the klone copy was
+  made from. `download_dataset.py` does not pin a revision.
 
 ```bash
 # --- Step 1 (makelab2; ~10 min CPU for stats, ~4.3 h on a shared A40 for the probe) ---
