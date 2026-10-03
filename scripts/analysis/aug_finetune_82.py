@@ -149,6 +149,7 @@ def laurens_rig_effect(data, rsq, labels):
     out = {}
     rng0 = np.random.default_rng(SEED)
     w = rng0.multinomial(len(pairs), np.full(len(pairs), 1.0 / len(pairs)), size=N_REPS)
+    draws = {}                                  # (label, thr, metric) -> bootstrap rig effect
     for lab in labels:
         if (lab, "laurens_gsv") not in data or (lab, "laurens_mapillary") not in data:
             continue
@@ -177,13 +178,36 @@ def laurens_rig_effect(data, rsq, labels):
             for k, name in enumerate(("precision", "recall", "f1")):
                 d_obs = obs[k][0, 0] - obs[k][0, 1]
                 d_bs = bs[k][:, 0] - bs[k][:, 1]
+                draws[(lab, f"{t:.2f}", name)] = (d_obs, d_bs)
                 row[name] = {"gsv": rnd(obs[k][0, 0]), "gopro": rnd(obs[k][0, 1]),
                              "gsv_minus_gopro": rnd(d_obs),
                              "ci_lo": rnd(np.percentile(d_bs, 2.5)),
                              "ci_hi": rnd(np.percentile(d_bs, 97.5))}
             ent[f"{t:.2f}"] = row
         out[lab] = ent
-    return {"n_pairs": len(pairs), "per_checkpoint": out}
+    # Difference in differences: an arm's rig effect minus its same-seed control's, with the
+    # same pair resample applied to both, so the corner-difficulty component cancels.
+    did = {}
+    thrs = [f"{x:.2f}" for x in THRESHOLDS]
+    names = ("precision", "recall", "f1")
+    if "control_s1" in out and "control_s2" in out:
+        did["spread: control_s2 - control_s1"] = {
+            t: {n: _did(draws[("control_s2", t, n)], draws[("control_s1", t, n)]) for n in names}
+            for t in thrs}
+    for lab in labels:
+        arm, _, seed = lab.rpartition("_s")
+        ctrl = f"control_s{seed}"
+        if arm in ("", "control") or ctrl not in out or lab not in out:
+            continue
+        did[f"{lab} - {ctrl}"] = {
+            t: {n: _did(draws[(lab, t, n)], draws[(ctrl, t, n)]) for n in names} for t in thrs}
+    return {"n_pairs": len(pairs), "per_checkpoint": out, "rig_effect_vs_control": did}
+
+
+def _did(a, b):
+    d = a[1] - b[1]
+    return {"observed": rnd(a[0] - b[0]), "ci_lo": rnd(np.percentile(d, 2.5)),
+            "ci_hi": rnd(np.percentile(d, 97.5))}
 
 
 def build(root=FT_ROOT):
@@ -254,6 +278,12 @@ def markdown(rep):
             L.append(f"| {lab} | {thr} | {r['gsv']:.3f} | {r['gopro']:.3f} | "
                      f"{r['gsv_minus_gopro']:+.3f} [{r['ci_lo']:+.3f}, {r['ci_hi']:+.3f}] | "
                      f"{f['gsv_minus_gopro']:+.3f} [{f['ci_lo']:+.3f}, {f['ci_hi']:+.3f}] |")
+    L += ["", "Change in the rig effect against the same-seed control (difference in differences, "
+          "same pair resample; negative = a smaller GSV-minus-GoPro gap):", "",
+          "| contrast | thr | d(rig effect) R [95%] | d(rig effect) F1 [95%] |", "|---|---|---|---|"]
+    for name, ent in lp.get("rig_effect_vs_control", {}).items():
+        for thr, row in ent.items():
+            L.append(f"| {name} | {thr} | {_fmt(row['recall'])} | {_fmt(row['f1'])} |")
     return "\n".join(L) + "\n"
 
 
