@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+  File "/gscratch/makelab/jonf/envs/sidewalkcv2/lib/python3.10/site-packages/safetensors/torch.py", line 359, in load_file
+    with safe_open(filename, framework="pt", device=device, backend=backend) as f:
+FileNotFoundError: No such file or directory: /gscratch/scrubbed/jfroehli/hf/hub/models--projectsidewalk--rampnet-model/blobs/f2119e3becb0b551fa1470f7b7ba85b82122a3f73a6ed2a85609dd57617866b5

@@ -1,0 +1,60 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+/mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/stage_two/train.py:446: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler()
+/mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/stage_two/train.py:446: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler()
+/mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/stage_two/train.py:446: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler()
+/mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/stage_two/train.py:446: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler()
+Epoch 1/1:   0%|          | 0/37515 [00:00<?, ?it/s]/mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/stage_two/train.py:631: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast():
+/mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/stage_two/train.py:631: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast():
+/mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/stage_two/train.py:631: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast():
+/mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/stage_two/train.py:631: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast():
+Epoch 1/1:   0%|          | 0/37515 [00:11<?, ?it/s, loss=0.000303, step=1]
+Epoch 1/1:   0%|          | 1/37515 [00:11<118:58:48, 11.42s/it, loss=0.000303, step=1]
+Epoch 1/1:   0%|          | 1/37515 [00:12<118:58:48, 11.42s/it, loss=5.06e-6, step=2] 
+Epoch 1/1:   0%|          | 2/37515 [00:12<56:52:34,  5.46s/it, loss=5.06e-6, step=2] 
+Epoch 1/1:   0%|          | 2/37515 [00:13<56:52:34,  5.46s/it, loss=0.00104, step=3]
+Epoch 1/1:   0%|          | 3/37515 [00:13<37:02:05,  3.55s/it, loss=0.00104, step=3]/scr/jfroehli/aug82env_41123606_0/sidewalkcv2/lib/python3.10/site-packages/torch/autograd/graph.py:823: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [1, 256, 1, 1], strides() = [256, 1, 256, 256]
+bucket_view.sizes() = [1, 256, 1, 1], strides() = [256, 1, 1, 1] (Triggered internally at /home/conda/feedstock_root/build_artifacts/libtorch_1744247799952/work/torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/scr/jfroehli/aug82env_41123606_0/sidewalkcv2/lib/python3.10/site-packages/torch/autograd/graph.py:823: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [1, 256, 1, 1], strides() = [256, 1, 256, 256]
+bucket_view.sizes() = [1, 256, 1, 1], strides() = [256, 1, 1, 1] (Triggered internally at /home/conda/feedstock_root/build_artifacts/libtorch_1744247799952/work/torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/scr/jfroehli/aug82env_41123606_0/sidewalkcv2/lib/python3.10/site-packages/torch/autograd/graph.py:823: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [1, 256, 1, 1], strides() = [256, 1, 256, 256]
+bucket_view.sizes() = [1, 256, 1, 1], strides() = [256, 1, 1, 1] (Triggered internally at /home/conda/feedstock_root/build_artifacts/libtorch_1744247799952/work/torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/scr/jfroehli/aug82env_41123606_0/sidewalkcv2/lib/python3.10/site-packages/torch/autograd/graph.py:823: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [1, 256, 1, 1], strides() = [256, 1, 256, 256]
+bucket_view.sizes() = [1, 256, 1, 1], strides() = [256, 1, 1, 1] (Triggered internally at /home/conda/feedstock_root/build_artifacts/libtorch_1744247799952/work/torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+Epoch 1/1:   0%|          | 3/37515 [00:15<37:02:05,  3.55s/it, loss=0.000437, step=4]
+Epoch 1/1:   0%|          | 4/37515 [00:15<28:18:34,  2.72s/it, loss=0.000437, step=4]
+Epoch 1/1:   0%|          | 4/37515 [00:16<28:18:34,  2.72s/it, loss=0.005, step=5]   
+Epoch 1/1:   0%|          | 5/37515 [00:16<22:56:38,  2.20s/it, loss=0.005, step=5]
+Epoch 1/1:   0%|          | 5/37515 [00:18<22:56:38,  2.20s/it, loss=0.00355, step=6]
+Epoch 1/1:   0%|          | 6/37515 [00:18<19:42:33,  1.89s/it, loss=0.00355, step=6]
+Epoch 1/1:   0%|          | 6/37515 [00:19<19:42:33,  1.89s/it, loss=0.00508, step=7]
+Epoch 1/1:   0%|          | 7/37515 [00:19<17:39:25,  1.69s/it, loss=0.00508, step=7]
+Epoch 1/1:   0%|          | 7/37515 [00:20<17:39:25,  1.69s/it, loss=0.00435, step=8]
+Epoch 1/1:   0%|          | 8/37515 [00:20<16:36:06,  1.59s/it, loss=0.00435, step=8]
+Epoch 1/1:   0%|          | 8/37515 [00:21<16:36:06,  1.59s/it, loss=0.000261, step=9]
+Epoch 1/1:   0%|          | 9/37515 [00:21<15:36:12,  1.50s/it, loss=0.000261, step=9]
+Epoch 1/1:   0%|          | 9/37515 [00:23<15:36:12,  1.50s/it, loss=0.00114, step=10]
+Epoch 1/1:   0%|          | 10/37515 [00:23<14:56:06,  1.43s/it, loss=0.00114, step=10]
+Epoch 1/1:   0%|          | 10/37515 [00:24<14:56:06,  1.43s/it, loss=0.0011, step=11] 
+Epoch 1/1:   0%|          | 11/37515 [00:24<14:28:34,  1.39s/it, loss=0.0011, step=11]
+Epoch 1/1:   0%|          | 11/37515 [00:25<14:28:34,  1.39s/it, loss=0.00018, step=12]
+Epoch 1/1:   0%|          | 12/37515 [00:25<14:15:09,  1.37s/it, loss=0.00018, step=12]
+Epoch 1/1:   0%|          | 12/37515 [00:27<14:15:09,  1.37s/it, loss=0.00093, step=13]

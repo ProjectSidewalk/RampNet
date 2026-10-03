@@ -23,3 +23,31 @@ laurens_mapillary: 94 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/a
   manual_gold: 150/1000
   manual_gold: 200/1000
   manual_gold: 250/1000
+  manual_gold: 300/1000
+  manual_gold: 350/1000
+  manual_gold: 400/1000
+  manual_gold: 450/1000
+  manual_gold: 500/1000
+  manual_gold: 550/1000
+  manual_gold: 600/1000
+  manual_gold: 650/1000
+  manual_gold: 700/1000
+  manual_gold: 750/1000
+  manual_gold: 800/1000
+  manual_gold: 850/1000
+  manual_gold: 900/1000
+  manual_gold: 950/1000
+  manual_gold: 1000/1000
+manual_gold: 1000 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/manual_gold.json
+  morgantown: 50/125
+  morgantown: 100/125
+morgantown: 125 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/morgantown.json
+  paterson: 50/125
+  paterson: 100/125
+paterson: 125 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/paterson.json
+  richmond: 50/124
+  richmond: 100/124
+richmond: 124 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/richmond.json
+  sao_paulo: 50/125
+  sao_paulo: 100/125
+sao_paulo: 125 panos -> /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82/analysis_out/aug_transfer_82/finetune/both_s2/sao_paulo.json
