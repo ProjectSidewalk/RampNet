@@ -1,6 +1,6 @@
 # Augmentation as a rig-transfer lever: frozen probe and paired fine-tune screen (#82)
 
-**Status:** in progress (PR #235). Plan: the 2026-10-02 comment on
+**Status:** complete (PR #235); the answer is no. Plan: the 2026-10-02 comment on
 [#82](https://github.com/ProjectSidewalk/RampNet/issues/82#issuecomment-5956602885). Implemented by
 an Opus 5.5 agent on 2026-10-02.
 
@@ -10,6 +10,15 @@ transforms are `rampnet/augment.py`. Tests: `tests/test_train_augment_82.py`,
 `tests/test_aug_probe_82.py`, `tests/test_aug_finetune_82.py`. Every table below is pasted from
 `analysis_out/aug_transfer_82/probe_results.md` or `finetune_results.md`, which the scripts write
 from the committed caches in the same directory.
+
+**Answer, 2026-10-03.** No. Training-time augmentation of resolution, blur, compression and
+colour does not narrow RampNet's GSV-to-GoPro gap in this screen. Against same-seed controls, the
+change in the Laurens paired-corner rig effect is within seed noise for every arm (seed mean at
+max-F1: res −0.015 [−0.034, +0.012], photo −0.020 [−0.039, +0.004], both −0.008 [−0.032, +0.013],
+against a control-to-control spread of +0.029), and no fine-tuned checkpoint beats the released one
+on laurens_mapillary. The frozen probe (Step 1) had already found that no single pixel-statistics
+axis moved to its GoPro value costs the released model much recall, and that no repair transform
+recovers any. Details and caveats (two seeds per arm; a fifth of an epoch) are in Step 3.
 
 ## The question
 
@@ -250,7 +259,148 @@ ran at seeds 1 and 2. Arms at the same seed share data order and flip draws, so 
 arm is compared with its same-seed control. The two controls differ in seed only, and their
 difference (`spread`) is the noise floor printed beside every contrast.
 
-STEP3_RESULTS
+All eight fine-tunes trained to 2,000 steps and every one was scored on all 12 bundles (scoring jobs
+41103600 for the released checkpoint, then 41145630, 41145631, 41159296, 41160386, 41161884,
+41163344, 41168242 and 41170148; checkpoint hashes in
+`analysis_out/aug_transfer_82/finetune/trainlogs/ckpt_SHA256SUMS.txt`). Every number below is
+pasted from `analysis_out/aug_transfer_82/finetune_results.md`. Intervals are 95% paired
+bootstraps (2,000 draws, seed 82) over panos, stratified by split, or over the 47 Laurens corner
+pairs for the rig effect. **None of these intervals includes training-seed variance.** With two
+seeds per arm, the only estimate of seed variance is the gap between the two controls (the
+`spread` row), which is one draw.
+
+### Short answer
+
+**No augmentation arm narrows the GSV-to-GoPro gap by more than the two controls differ from each
+other, and no fine-tuned checkpoint beats the released one on GoPro imagery.** Negative result.
+
+1. **On the Laurens paired corners, the change in the rig effect against the control is within
+   seed noise for every arm.** Seed mean (both seeds of an arm against both controls), the change
+   in the max-F1 rig effect is −0.015 [−0.034, +0.012] for res, −0.020 [−0.039, +0.004] for photo
+   and −0.008 [−0.032, +0.013] for both (negative means a smaller gap). The two controls alone
+   differ by +0.029 [−0.007, +0.060]. The released checkpoint's rig effect is +0.115 [+0.047,
+   +0.163] at max-F1, so even the best point estimate would close about a sixth of it.
+2. **On the pooled transfer splits, augmentation does nothing measurable.** Seed-mean max-F1
+   against the control on laurens_mapillary + clovis + richmond: res +0.003 [−0.007, +0.010],
+   photo +0.005 [−0.002, +0.013], both +0.004 [−0.005, +0.011]. In-domain (manual_gold + bend)
+   it is +0.001 to +0.003.
+3. **The extra training itself hurts transfer.** Seed-mean control minus released: max-F1 on the
+   transfer pool −0.015 [−0.026, −0.003], and on laurens_mapillary −0.057 [−0.085, −0.034]. All
+   eight fine-tunes are below the released checkpoint on laurens_mapillary at max-F1 (0.637 to
+   0.684, against 0.710), and the GSV-minus-GoPro gap on the paired corners widens by +0.028
+   [+0.003, +0.064] at max-F1. In-domain the extra steps help slightly (+0.005 [+0.002, +0.008]).
+4. **The preliminary read, that res and both raise recall and lower precision at 0.30, was a
+   seed effect, not an augmentation effect.** On 11 of the 12 splits at 0.30 (all but
+   morgantown), every seed-1 checkpoint, control included, sits at higher recall and lower
+   precision than every seed-2 checkpoint
+   (laurens_gsv recall at 0.30: 0.727 to 0.754 for seed 1, 0.605 to 0.627 for seed 2). Seed 1's
+   arms were the ones read first, against the released checkpoint. At max-F1 the two controls
+   are close to each other (transfer pool −0.007 [−0.022, +0.005]). Same-seed controls are what
+   made this visible.
+
+### Per-checkpoint max-F1 (AP in parentheses), selected splits
+
+| split | released | control s1 / s2 | res s1 / s2 | photo s1 / s2 | both s1 / s2 |
+|---|---|---|---|---|---|
+| laurens_gsv | 0.812 (0.768) | 0.806 / 0.819 | 0.810 / 0.812 | 0.813 / 0.822 | 0.804 / 0.824 |
+| laurens_mapillary | 0.710 (0.691) | 0.668 / 0.637 | 0.668 / 0.660 | 0.684 / 0.662 | 0.651 / 0.668 |
+| clovis | 0.837 (0.868) | 0.844 / 0.845 | 0.827 / 0.833 | 0.838 / 0.842 | 0.830 / 0.850 |
+| richmond | 0.870 (0.876) | 0.878 / 0.870 | 0.869 / 0.867 | 0.870 / 0.860 | 0.866 / 0.871 |
+| manual_gold | 0.907 (0.909) | 0.912 / 0.912 | 0.912 / 0.915 | 0.912 / 0.914 | 0.915 / 0.916 |
+| bend | 0.873 (0.871) | 0.874 / 0.873 | 0.876 / 0.874 | 0.878 / 0.869 | 0.874 / 0.875 |
+
+All 12 splits, with AP for every checkpoint, are in the first table of `finetune_results.md`.
+
+### Laurens rig effect (GSV minus GoPro) on the 47 paired corners
+
+| checkpoint | ΔR @0.30 | ΔF1 @0.30 | ΔF1 max-F1 |
+|---|---|---|---|
+| released | +0.128 [+0.054, +0.201] | +0.095 [+0.038, +0.151] | +0.115 [+0.047, +0.163] |
+| control_s1 | +0.196 [+0.121, +0.269] | +0.145 [+0.094, +0.197] | +0.129 [+0.075, +0.176] |
+| control_s2 | +0.137 [+0.043, +0.231] | +0.137 [+0.061, +0.221] | +0.158 [+0.093, +0.209] |
+| res_s1 | +0.190 [+0.113, +0.267] | +0.142 [+0.081, +0.204] | +0.116 [+0.058, +0.170] |
+| res_s2 | +0.080 [+0.018, +0.145] | +0.094 [+0.043, +0.147] | +0.140 [+0.077, +0.196] |
+| photo_s1 | +0.164 [+0.084, +0.241] | +0.125 [+0.069, +0.177] | +0.101 [+0.050, +0.165] |
+| photo_s2 | +0.123 [+0.053, +0.191] | +0.119 [+0.064, +0.176] | +0.146 [+0.078, +0.194] |
+| both_s1 | +0.158 [+0.077, +0.236] | +0.129 [+0.067, +0.187] | +0.128 [+0.066, +0.185] |
+| both_s2 | +0.127 [+0.046, +0.217] | +0.127 [+0.062, +0.202] | +0.142 [+0.079, +0.195] |
+
+max-F1 here is each rig's best F1 over thresholds 0.05 to 0.95 in steps of 0.01, chosen
+separately for each rig. The released row at 0.30 is the same number as the `rampnet_r2048`
+same-input re-run in `laurens_paired_151.md` (+0.095 [+0.040, +0.152]); the CI differs in the
+third decimal because the resample is drawn here with seed 82.
+
+### Difference in differences: change in the rig effect against the control
+
+Same pair resample applied to both checkpoints, so corner difficulty cancels. Negative means the
+arm has a smaller GSV-minus-GoPro gap than its control.
+
+| contrast | Δ(rig effect) R @0.30 | Δ(rig effect) F1 @0.30 | Δ(rig effect) max-F1 |
+|---|---|---|---|
+| spread: control_s2 − control_s1 | −0.060 [−0.128, +0.009] | −0.008 [−0.065, +0.052] | +0.029 [−0.007, +0.060] |
+| res_s1 − control_s1 | −0.006 [−0.045, +0.036] | −0.003 [−0.036, +0.033] | −0.013 [−0.045, +0.023] |
+| res_s2 − control_s2 | −0.057 [−0.115, +0.001] | −0.043 [−0.093, +0.007] | −0.018 [−0.044, +0.019] |
+| photo_s1 − control_s1 | −0.032 [−0.069, +0.005] | −0.020 [−0.050, +0.009] | −0.028 [−0.048, +0.008] |
+| photo_s2 − control_s2 | −0.014 [−0.075, +0.047] | −0.017 [−0.071, +0.034] | −0.012 [−0.046, +0.018] |
+| both_s1 − control_s1 | −0.038 [−0.092, +0.018] | −0.016 [−0.060, +0.028] | −0.001 [−0.032, +0.027] |
+| both_s2 − control_s2 | −0.010 [−0.053, +0.029] | −0.009 [−0.047, +0.025] | −0.016 [−0.040, +0.010] |
+| **seed mean:** control − released | +0.038 [−0.007, +0.085] | +0.046 [+0.009, +0.084] | +0.028 [+0.003, +0.064] |
+| **seed mean:** res − control | −0.032 [−0.068, +0.003] | −0.023 [−0.055, +0.007] | −0.015 [−0.034, +0.012] |
+| **seed mean:** photo − control | −0.023 [−0.060, +0.012] | −0.018 [−0.050, +0.010] | −0.020 [−0.039, +0.004] |
+| **seed mean:** both − control | −0.024 [−0.059, +0.013] | −0.013 [−0.041, +0.015] | −0.008 [−0.032, +0.013] |
+
+What the table does and does not show:
+- **Every per-seed interval includes zero**, at every read.
+- **All six per-seed max-F1 point estimates are negative** (−0.001 to −0.028). They are not six
+  independent results: the three arms at a seed share one control, so this is two draws of
+  control noise. The control spread (+0.029) is larger than any of them.
+- **The best case is small.** Even taking photo's seed mean (−0.020) at face value, augmentation
+  would recover the +0.028 the extra training cost, not the +0.115 gap the released model
+  already has.
+
+### Pooled pano-level contrasts, seed mean (arm s1 and s2 against control s1 and s2)
+
+| pool | contrast | ΔR @0.30 | ΔP @0.30 | ΔF1 @0.30 | Δ max-F1 |
+|---|---|---|---|---|---|
+| transfer | control − released | +0.007 [−0.009, +0.022] | −0.038 [−0.057, −0.019] | −0.014 [−0.028, −0.001] | −0.015 [−0.026, −0.003] |
+| transfer | res − control | +0.020 [+0.008, +0.033] | −0.027 [−0.039, −0.015] | +0.000 [−0.010, +0.010] | +0.003 [−0.007, +0.010] |
+| transfer | photo − control | +0.014 [+0.005, +0.024] | −0.006 [−0.017, +0.007] | +0.006 [−0.002, +0.015] | +0.005 [−0.002, +0.013] |
+| transfer | both − control | +0.011 [+0.001, +0.021] | −0.014 [−0.026, −0.003] | −0.001 [−0.008, +0.008] | +0.004 [−0.005, +0.011] |
+| in-domain | control − released | +0.008 [+0.004, +0.012] | −0.003 [−0.007, +0.003] | +0.002 [−0.001, +0.006] | +0.005 [+0.002, +0.008] |
+| in-domain | res − control | +0.004 [+0.001, +0.006] | −0.001 [−0.004, +0.002] | +0.001 [−0.001, +0.003] | +0.001 [−0.001, +0.003] |
+| in-domain | photo − control | +0.000 [−0.002, +0.003] | +0.001 [−0.002, +0.004] | +0.001 [−0.001, +0.003] | +0.001 [−0.001, +0.003] |
+| in-domain | both − control | +0.001 [−0.002, +0.004] | +0.006 [+0.004, +0.009] | +0.004 [+0.002, +0.006] | +0.003 [+0.001, +0.005] |
+| US7 | control − released | +0.002 [−0.006, +0.010] | −0.025 [−0.034, −0.015] | −0.011 [−0.017, −0.005] | −0.007 [−0.013, −0.002] |
+| US7 | res − control | +0.013 [+0.008, +0.018] | −0.017 [−0.023, −0.010] | +0.000 [−0.004, +0.005] | +0.001 [−0.003, +0.005] |
+| US7 | photo − control | +0.005 [−0.000, +0.010] | −0.001 [−0.008, +0.005] | +0.003 [−0.002, +0.007] | +0.002 [−0.002, +0.006] |
+| US7 | both − control | +0.006 [+0.001, +0.011] | −0.006 [−0.012, +0.000] | +0.001 [−0.004, +0.005] | +0.001 [−0.002, +0.006] |
+
+transfer = laurens_mapillary + clovis + richmond; in-domain = manual_gold + bend; US7 = the eight
+US splits of `miss_decomposition.US_SPLITS`. The res arm does trade precision for recall at 0.30
+(+0.020 recall, −0.027 precision on the transfer pool), which is a score shift: at max-F1 it is
++0.003. The one positive interval at max-F1, both on in-domain (+0.003 [+0.001, +0.005]), is
+in-domain and about a third of a point. Per-seed contrasts for every split are in
+`finetune_results.md`.
+
+### Caveats
+
+- **n = 2 seeds per arm.** The intervals are over panos or corner pairs. They say how sure we are
+  about these particular checkpoints, not about what another seed would do. The control spread is
+  one draw of seed-to-seed variance, and on several reads it is as large as any arm effect. The
+  seed variance campaign in `seed_variance_51_135.md` found seed-to-seed spread to be the binding
+  limit on full training runs too.
+- **A fifth of an epoch, at constant LR 1e-5, from the released checkpoint.** This is a screen,
+  not the recipe. An effect that needs a full epoch of augmented training, or training from
+  scratch, would not show up here. What this screen does show is that the extra steps alone move
+  transfer by more (−0.015 max-F1 on the transfer pool) than any augmentation moves it.
+- **The ranges were set before the probe was read** (see Setup), and the probe later found that
+  the axes the frozen model reacts to most are darkening by gamma and combinations of axes. The
+  photo arm covers gamma only up to 1.5. A gamma-heavy arm was not run.
+- **The paired-corner set is small** (47 pairs), which is why its intervals are about ±0.03 to
+  ±0.06 on a difference in differences.
+- **max-F1 picks its threshold on the evaluation data itself**, so it is an optimistic number for
+  every checkpoint alike. It is used here to compare checkpoints whose scores are calibrated
+  differently, not as a deployable operating point.
 
 
 ## Deviations from the plan, and why
@@ -294,7 +444,18 @@ STEP3_RESULTS
   library pre-read, then the option to unpack a tarball of the env onto node-local NVMe
   (`/scr`, 2.8 TB), which job 41123104 built.
 
-COST_PLACEHOLDER
+## Compute
+
+All of it was free. **Step 1:** makelab2's A40, 3.97 h of extraction plus a 624 s CPU stats pass,
+recorded as four `paid: false` rows (`aug-probe-82:*`) in `analysis_out/usage_log.jsonl`. **Step 3:**
+klone `ckpt-all`, 43 allocations, **108.66 GPU-hours**, recorded in `analysis_out/compute_log.jsonl`
+from the committed dump `docs/data/compute/sacct_klone_2026-10-03_aug82.txt` (pulled with `sacct
+-D`, so requeued incarnations are counted). Of that, 79.51 GPU-h is the eight finished fine-tunes
+(about 10 GPU-h each on 4 GPUs), 23.13 GPU-h went to incarnations that were preempted or requeued
+(resume from `latest_checkpoint.pth` kept part of that work), 0.15 GPU-h to the eight jobs that
+failed at start, and 5.87 GPU-h to scoring nine checkpoints on all 12 bundles (about 35 min each on
+one A40/L40/L40S). The breakdown and the exact commands are in `docs/compute_cost.md` (klone,
+2026-10-03).
 
 ## Reproducing
 

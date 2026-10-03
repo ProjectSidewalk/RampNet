@@ -36,3 +36,55 @@ def test_manual_gold_scored_in_full():
     with open(os.path.join(FT, "released", "manual_gold.json"), encoding="utf-8") as f:
         d = json.load(f)
     assert len(d["panos"]) == 1000 and d["meta"]["fp16"] is False and d["meta"]["tta"] is False
+
+
+RESULTS = os.path.join(REPO, "analysis_out", "aug_transfer_82", "finetune_results.json")
+DOC = os.path.join(REPO, "docs", "aug_transfer_82.md")
+
+
+def _rep():
+    with open(RESULTS, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def test_all_eight_finetunes_scored_on_all_twelve_bundles():
+    rep = _rep()
+    labels = rep["protocol"]["labels"]
+    assert labels == ["released"] + [f"{a}_s{s}" for a in F.ARMS for s in F.SEEDS]
+    for c in F.SPLITS:
+        assert set(rep["per_split"][c]["metrics"]) == set(labels), c
+
+
+def _cell(d):
+    return f"{d['observed']:+.3f} [{d['ci_lo']:+.3f}, {d['ci_hi']:+.3f}]".replace("-", "−")
+
+
+@pytest.mark.parametrize("name,read", [
+    ("spread: control_s2 - control_s1", "max_f1"),
+    ("res - control (seed mean)", "max_f1"),
+    ("photo - control (seed mean)", "max_f1"),
+    ("both - control (seed mean)", "max_f1"),
+    ("control (seed mean) - released", "max_f1"),
+])
+def test_doc_quotes_the_committed_rig_effect_did(name, read):
+    """The difference-in-differences numbers in docs/aug_transfer_82.md are the committed ones."""
+    lp = _rep()["laurens_paired"]
+    table = (lp["rig_effect_vs_control"] if name.startswith("spread")
+             else lp["rig_effect_vs_control_seed_mean"])
+    with open(DOC, encoding="utf-8") as f:
+        doc = f.read()
+    assert _cell(table[name][read]["f1"]) in doc
+
+
+@pytest.mark.parametrize("name", ["control (seed mean) - released", "res - control (seed mean)",
+                                  "photo - control (seed mean)", "both - control (seed mean)"])
+def test_doc_quotes_the_committed_transfer_pool_max_f1(name):
+    pool = _rep()["pooled"]["transfer (laurens_mapillary+clovis+richmond)"]
+    with open(DOC, encoding="utf-8") as f:
+        doc = f.read()
+    assert _cell(pool["seed_mean_contrasts"][name]["0.30"]["max_f1"]) in doc
+
+
+def test_no_finetune_beats_released_on_laurens_mapillary_max_f1():
+    m = _rep()["per_split"]["laurens_mapillary"]["max_f1"]
+    assert all(v < m["released"] for k, v in m.items() if k != "released")
