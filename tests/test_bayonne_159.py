@@ -517,3 +517,25 @@ def test_complementarity_does_not_catch_an_unreviewed_cache():
     import complementarity as C
     src = inspect.getsource(C.main)
     assert src.index("except UnreviewedCache:") < src.index("except (OSError, ValueError, KeyError)")
+
+
+# --------------------------------------------------------------------------- #
+# paired tests behind the write-up's comparative claims (PR #239 review, S3)
+# --------------------------------------------------------------------------- #
+def test_paired_tests_rederive_and_say_not_significant():
+    import bayonne_paired_159 as P
+    with open(P.OUT, encoding="utf-8") as f:
+        want = f.read()
+    res = P.build()
+    assert json.dumps(res, indent=1, sort_keys=True) + "\n" == want
+    flash = res["paired_recall_mcnemar"]["gemini-3.6-flash"]
+    assert (flash["challenger_only"], flash["rampnet_only"]) == (61, 48)
+    assert flash["mcnemar_exact_p"] > 0.05          # the recall edge is not significant
+    lo, _ = res["pano_bootstrap_f1"]["legs"]["gemini-3.1-pro-preview"]["ci95"]
+    assert lo > 0                                   # the F1 lead holds, only just
+
+
+def test_mcnemar_exact_matches_a_hand_computed_value():
+    import bayonne_paired_159 as P
+    assert P.mcnemar_exact(0, 0) == 1.0
+    assert abs(P.mcnemar_exact(1, 9) - 2 * 11 / 1024) < 1e-12
