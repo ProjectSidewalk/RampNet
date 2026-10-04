@@ -32,10 +32,27 @@ def test_the_staged_bundle_verifies():
                      "detections_055": 147}
 
 
-def test_the_bundle_is_not_reviewed():
-    # The whole point of this stage: nothing may claim a review that did not happen.
-    assert not os.path.exists(os.path.join(BUNDLE, "verdicts.json"))
+def test_the_bundle_carries_jons_review_and_its_caveats():
+    # Staged on 2026-10-02 with no verdicts; reviewed 2026-10-04. The review must say
+    # who made it and how sure they were, because the split is held out partly on it.
     assert not os.path.exists(os.path.join(BUNDLE, "gt_source.json"))
+    with open(os.path.join(BUNDLE, "verdicts.json"), encoding="utf-8") as f:
+        v = json.load(f)
+    notes = v["review_notes"]
+    assert notes["reviewer"] == "jonf" and notes["confidence"] == "medium"
+    assert len(v["panos"]) == 125
+    assert any("Bollards" in c for c in notes["caveats"])
+
+
+def test_the_registries_hold_bayonne_out_and_say_why():
+    import low_floor_sweep as L
+    import miss_decomposition as M
+    from export_benchmark import BENCHMARK_SPLITS
+    assert "bayonne" in L.CITY_SPLITS and "bayonne" not in L.US_SPLITS
+    assert "bayonne" not in L.pool_of(L.ALL_SPLITS)
+    for why in (L.HELD_OUT["bayonne"], M.HELD_OUT["bayonne"]):
+        assert "non-US" in why and "medium" in why.lower()
+    assert "bayonne" in BENCHMARK_SPLITS
 
 
 def test_provenance_records_the_run_hash_the_labeler_doc_records():
@@ -216,10 +233,13 @@ def test_extract_unreviewed_refuses_a_reviewed_bundle(tmp_path):
         O.unreviewed_ground_truths("stageville", repo=str(tmp_path))
 
 
-def test_a_staged_bundle_is_not_a_cascade_split():
+def test_a_staged_bundle_is_not_a_cascade_split(tmp_path, monkeypatch):
+    # Bayonne itself is reviewed now, so the staged case is exercised on a tiny bundle.
+    from rampnet.bundles import scored_splits
+    root = _bundle_kinds(tmp_path)
+    assert "staged" not in scored_splits(str(root))
     import cascade_cost_35 as CC
-    splits = CC.all_benchmark_splits()
-    assert "bayonne" not in splits and "richmond" in splits
+    assert "bayonne" in CC.all_benchmark_splits()
 
 
 # --------------------------------------------------------------------------- #
@@ -384,14 +404,15 @@ def test_shared_discovery_keeps_only_scored_splits(tmp_path):
     assert scored_splits(str(_bundle_kinds(tmp_path))) == ["gold", "scored"]
 
 
-def test_every_default_discovery_skips_the_staged_bayonne_bundle():
-    # B1: a script that lists benchmark/*/ must not pick up a bundle with no review,
-    # or its default invocation exits on it. Every lister in the repo is checked here.
+def test_every_default_discovery_picks_up_bayonne_once_reviewed():
+    # B1 was the staged half: a lister must not pick up a bundle with no review. That
+    # is pinned on a tiny bundle in test_shared_discovery_keeps_only_scored_splits.
+    # This is the other half: once verdicts.json lands, every lister sees the split.
     import benchmark_power_135 as BP
     import cascade_cost_35 as CC
     for name, splits in (("benchmark_power_135", BP.discover_splits(REPO)),
                          ("cascade_cost_35", CC.all_benchmark_splits())):
-        assert "bayonne" not in splits, name
+        assert "bayonne" in splits, name
         assert "richmond" in splits and "manual_gold" in splits, name
 
 
