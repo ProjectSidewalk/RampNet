@@ -370,3 +370,115 @@ def test_covisible_components():
              {"image_id": "c", "ramp": "r4"}]
     comp = PP.covisible_components(pairs)
     assert comp["r1"] == comp["r2"] == comp["r3"] != comp["r4"]
+
+
+# --------------------------------------------------------------------------- #
+# click-to-mark (Richmond FP gallery)
+# --------------------------------------------------------------------------- #
+def _page_cards(path):
+    """Cards and digest read back out of a committed rating page."""
+    import html as H
+    import json
+    import re
+    s = open(path, encoding="utf-8").read()
+    cards = [{"name": H.unescape(m[0]), "img": H.unescape(m[1]), "w": int(m[2]), "h": int(m[3])}
+             for m in re.findall(r'<section class="card" data-uid="([^"]*)".*?<img src="([^"]*)" '
+                                 r'width="(\d+)" height="(\d+)"', s)]
+    meta = json.loads(re.search(r'<script id="meta" type="application/json">(.*?)</script>',
+                                s, re.S).group(1))
+    return s, cards, meta["manifest_digest"]
+
+
+def test_seoul_page_is_unchanged_by_the_click_option_default():
+    """The option is off by default, so the committed Seoul page re-renders byte for byte
+    from its own cards, and an explicit click_mark=False is the same page."""
+    import seoul_photos_218 as S
+    import rating_page_218 as RP
+    s, cards, digest = _page_cards(os.path.join(os.path.dirname(HERE), "benchmark", "seoul_presence_218",
+                                                "gallery.html"))
+    assert len(cards) == 514
+    assert S.render_gallery(cards, digest) == s
+    assert "clearmark" not in s and "ramp marker" not in s
+    cfg = {"title": "t", "h1": "h", "intro": "", "question": "Q?",
+           "rubric": [("yes", "Yes", "y")], "rules": ["r"], "keys": {"y": "yes"}, "task": "T",
+           "export_prefix": "x__", "storage_prefix": "x_", "gallery_rel": "g", "commit_dir": "c"}
+    items = [{"name": "a", "img": "img/a.jpg", "w": 720, "h": 480, "ring": (0.5, 0.5)}]
+    assert RP.render(items, "d", cfg) == RP.render(items, "d", {**cfg, "click_mark": False})
+    on = RP.render(items, "d", {**cfg, "click_mark": True})
+    assert 'class="mark"' in on and "clearmark" in on and 'tabindex="0"' in on
+
+
+def test_click_to_pixel_including_a_crop_clamped_at_the_image_edge():
+    import perspective_photos_218 as PP
+    # a detection near the right edge of a 1024 x 768 image: the crop is shifted left
+    u, v, w, h = 1000.0, 50.0, 1024, 768
+    box = PP.crop_box(u, v, w, h)
+    assert box == (304, 0, 1024, 480)
+    ring = ((u - box[0]) / (box[2] - box[0]), (v - box[1]) / (box[3] - box[1]))
+    assert ring[0] > 0.9 and ring[1] < 0.2           # ring is off-centre in the crop
+    assert PP.click_to_pixel(ring, box) == pytest.approx((u, v))
+    assert PP.click_to_pixel([0, 0], box) == (304, 0)
+    assert PP.click_to_pixel([1, 1], box) == (1024, 480)
+    # an image smaller than the crop: the box is the whole image
+    assert PP.click_to_pixel([0.5, 0.5], PP.crop_box(10, 10, 400, 300)) == (200, 150)
+
+
+def _fp_man():
+    return {"totals": {"unmatched_total": 300, "matched_total": 100},
+            "items": [{"item": "u1", "matched_ramp": None, "u": 400.0, "v": 300.0,
+                       "crop_box": [40, 60, 760, 540], "image_id": "i1", "width": 800,
+                       "height": 600},
+                      {"item": "u2", "matched_ramp": None, "u": 100.0, "v": 100.0,
+                       "crop_box": [0, 0, 720, 480], "image_id": "i1", "width": 800,
+                       "height": 600},
+                      {"item": "m1", "matched_ramp": "richmond:1", "u": 400.0, "v": 300.0,
+                       "crop_box": [40, 60, 760, 540], "image_id": "i1", "width": 800,
+                       "height": 600}]}
+
+
+def test_rates_with_and_without_clicks():
+    import perspective_photos_218 as PP
+    man = _fp_man()
+    plain = {"u1": {"answer": "yes"}, "u2": {"answer": "no"}, "m1": {"answer": "yes"}}
+    clicked = {"u1": {"answer": "yes", "click": [0.55, 0.5]},     # 36 px right of (400, 300)
+               "u2": {"answer": "no", "click": [0.0, 0.0]},       # (0, 0): 100 px left, up
+               "m1": {"answer": "yes"}}
+    # the clicks change nothing in the precision
+    assert PP.fp_precision(clicked, man, n_reps=50) == PP.fp_precision(plain, man, n_reps=50)
+    assert PP.fp_click_offsets(plain, man) is None
+    out = PP.fp_click_offsets(clicked, man)
+    assert out["all"]["n"] == 2 and out["degrees"].startswith("no")
+    yes = out["by_answer"]["yes"]
+    assert yes["n"] == 1 and yes["dx_px_median"] == pytest.approx(36.0)
+    assert yes["dy_px_median"] == pytest.approx(0.0) and "sep_deg_median" not in yes
+    assert out["by_answer"]["no"]["dist_px_median"] == pytest.approx(math.hypot(100, 100))
+    assert out["by_answer"]["cant_tell"] == {"n": 0}
+    assert out["by_stratum"]["matched"] == {"n": 0} and out["by_stratum"]["unmatched"]["n"] == 2
+    # degrees with a pinhole camera: 36 px right at the centre is atan(36 / f) to the right
+    cam = P.Camera(800, 600, 0.8, 0.0, 0.0)
+    deg = PP.fp_click_offsets(clicked, man, cam_of=lambda it: cam)["by_answer"]["yes"]
+    f_px = cam.size * cam.focal
+    assert deg["dyaw_deg_median"] == pytest.approx(math.degrees(math.atan(36 / f_px)), abs=0.05)
+    assert deg["sep_deg_median"] == pytest.approx(deg["dyaw_deg_median"], abs=0.05)
+
+
+def test_load_verdicts_accepts_clicks_and_refuses_bad_ones(tmp_path):
+    import rating_page_218 as RP
+    pre = "richmond_flat_fp__"
+    ok = {"d001": {"answer": "yes", "click": [0.25, 1]}, "d002": {"answer": None}}
+    assert RP.load_verdicts(_export(tmp_path, verdicts=ok), _reference(), pre)
+    for bad in ([0.5], [0.5, 1.2], ["a", 0.1], [True, 0.5], 0.5):
+        with pytest.raises(ValueError, match="click"):
+            RP.load_verdicts(_export(tmp_path, verdicts={"d001": {"answer": "yes",
+                                                                  "click": bad}}),
+                             _reference(), pre)
+
+
+def test_richmond_manifest_digest_and_items_are_unchanged_by_the_click_rule():
+    """Adding the click rule changed only the rules list: the item set and digest are the
+    ones the gallery has always had."""
+    import perspective_photos_218 as PP
+    man, ref = PP.fp_reference()
+    assert man["manifest_digest"] == ref["manifest_digest"] == "f5567bf82fe0e2e3"
+    assert ref["items"] == [f"d{k:03d}" for k in range(1, 191)]
+    assert any("click it" in r for r in man["rules"])
