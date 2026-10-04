@@ -391,7 +391,10 @@ def _page_cards(path):
 
 def test_seoul_page_is_unchanged_by_the_click_option_default():
     """The option is off by default, so the committed Seoul page re-renders byte for byte
-    from its own cards, and an explicit click_mark=False is the same page."""
+    from its own cards, and an explicit click_mark=False is the same page. The pinned bytes
+    are the ones after PR #240's overlay fix (``.ringwrap`` sized to its image, ring strokes
+    non-scaling, answer keys leave focus on a focused image): CSS/JS only, and Seoul has no
+    ring and images wider than the column, so it renders the same as before."""
     import seoul_photos_218 as S
     import rating_page_218 as RP
     s, cards, digest = _page_cards(os.path.join(os.path.dirname(HERE), "benchmark", "seoul_presence_218",
@@ -482,3 +485,29 @@ def test_richmond_manifest_digest_and_items_are_unchanged_by_the_click_rule():
     assert man["manifest_digest"] == ref["manifest_digest"] == "f5567bf82fe0e2e3"
     assert ref["items"] == [f"d{k:03d}" for k in range(1, 191)]
     assert any("click it" in r for r in man["rules"])
+
+
+def test_rating_page_overlays_are_sized_to_the_image_and_hidden_marks_are_hidden():
+    """Static guards for two bugs a headless browser found in PR #240: (1) the SVG overlays
+    are inset:0 / 100% of ``.ringwrap`` with preserveAspectRatio=none, so the wrapper must
+    shrink to the image or a wide window stretches the ring and mark off the image; (2) the
+    HTML ``hidden`` attribute does not hide an SVG ``<g>`` in Chromium, so an unplaced mark
+    must use the SVG ``display`` attribute."""
+    import re
+    import rating_page_218 as RP
+    cfg = {"title": "t", "h1": "h", "intro": "", "question": "Q?",
+           "rubric": [("yes", "Yes", "y")], "rules": ["r"], "keys": {"y": "yes"}, "task": "T",
+           "export_prefix": "x__", "storage_prefix": "x_", "gallery_rel": "g", "commit_dir": "c"}
+    items = [{"name": "a", "img": "img/a.jpg", "w": 720, "h": 480, "ring": (0.5, 0.5)}]
+    pages = [RP.render(items, "d", cfg), RP.render(items, "d", {**cfg, "click_mark": True})]
+    for p in pages + [open(os.path.join(os.path.dirname(HERE), "benchmark", d, "gallery.html"),
+                           encoding="utf-8").read()
+                      for d in ("richmond_flat_fp_218", "seoul_presence_218")]:
+        rule = re.search(r"\.ringwrap \{([^}]*)\}", p).group(1)
+        assert "width:fit-content" in rule and "max-width:100%" in rule
+        for svg in re.findall(r"<svg.*?</svg>", p, re.S):
+            assert not re.search(r"<(?!svg)\w+[^>]*\shidden[\s>=]", svg), svg
+        assert "setAttribute('hidden'" not in p
+    on = pages[1]
+    assert '<g display="none">' in on and "setAttribute('display', 'none')" in on
+    assert "vector-effect:non-scaling-stroke" in on
