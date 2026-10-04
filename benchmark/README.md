@@ -180,7 +180,7 @@ reviewed panos — in `rampnet-dataset`'s train/val splits. Dropping them (measu
 `score_validation.py`) moves the headline **0.954 / 0.758 → 0.956 / 0.753** and the unbiased subset
 **0.972 / 0.738 → 0.976 / 0.731**: inside the Wilson intervals both ways, so nothing here rests on
 it. `scripts/analysis/train_overlap_check.py` re-ran the exact-id check on 2026-09-26 for all eleven
-splits, the Mapillary ones included, and found the same four in bend and none in any other split
+splits, and again on 2026-10-04 for all twelve with bayonne (12 min 00 s), the Mapillary ones included, and found the same four in bend and none in any other split
 (`benchmark/train_overlap.json`), so "only bend" is now a measurement rather than a prediction. The
 `records` config carries a `train_overlap` column to filter on (#127), and
 `python scripts/score_validation.py benchmark/bend --exclude-train-overlap` prints the numbers with
