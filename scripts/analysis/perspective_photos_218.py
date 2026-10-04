@@ -1576,6 +1576,8 @@ FP_RULES = [
     "The cards are shuffled and mix detections that matched a known ramp with ones that did "
     "not; nothing on the card says which.",
     "Add a note for anything worth recording, e.g. 'ramp 1 m left of ring'.",
+    "If you can see the curb ramp the ring seems to be aiming at, click it, whatever your "
+    "answer; leave it unmarked if there is none.",
 ]
 FP_MAX_UNMATCHED = 150
 FP_MATCHED_CONTROL = 40
@@ -1667,12 +1669,16 @@ def cmd_gallery(args):
         "title": "Richmond flat detections", "h1": "Richmond flat photos (#218): detections",
         "intro": ("<p>Each card is a crop of one Richmond flat (non-360) Mapillary photo, with a "
                   "ring on a RampNet detection (canvas-embed arm, score at least 0.30). Answer "
-                  f"one question: <strong>{html_escape(FP_QUESTION)}</strong></p>"),
+                  f"one question: <strong>{html_escape(FP_QUESTION)}</strong></p>"
+                  "<p>Optionally, if you can see the curb ramp the ring seems to be aiming at, "
+                  "click it on the image, whatever your answer (a magenta mark appears; click "
+                  "again to move it). Leave it unmarked if there is none.</p>"),
         "question": FP_QUESTION, "rubric": FP_RUBRIC, "rules": FP_RULES,
         "keys": {"y": "yes", "n": "no", "c": "cant_tell"},
         "task": "RampNet #218 Richmond flat photos, detections: " + FP_QUESTION,
         "export_prefix": "richmond_flat_fp__", "storage_prefix": "rflat218_",
-        "gallery_rel": FP_REL, "commit_dir": "benchmark/richmond_flat_fp_218/"})
+        "gallery_rel": FP_REL, "commit_dir": "benchmark/richmond_flat_fp_218/",
+        "click_mark": True})
     with open(os.path.join(FP_DIR, "gallery.html"), "w", encoding="utf-8", newline="") as f:
         f.write(page)
     print(f"{len(items)} cards ({totals}), digest {digest} -> {FP_DIR}/gallery.html")
@@ -1735,6 +1741,91 @@ def fp_precision(verdicts, man, n_reps=N_REPS, seed=SEED):
     return out
 
 
+def click_to_pixel(click, box):
+    """A rater's mark ``[fx, fy]`` (fractions of the crop's width and height) -> pixel
+    (x, y) in the original image, through the item's ``crop_box`` (x0, y0, x1, y1). The
+    inverse of the ring placement in ``cmd_gallery``, so it holds for a crop shifted to stay
+    inside the image too.
+
+    >>> click_to_pixel([0.5, 0.25], [100, 40, 820, 520])
+    (460.0, 160.0)
+    """
+    x0, y0, x1, y1 = box
+    return x0 + click[0] * (x1 - x0), y0 + click[1] * (y1 - y0)
+
+
+def _offset_stats(rows):
+    out = {"n": len(rows)}
+    if not rows:
+        return out
+    dist = np.array([r["dist_px"] for r in rows])
+    out.update({"dist_px_median": float(np.median(dist)),
+                "dist_px_p90": float(np.percentile(dist, 90)),
+                "dx_px_median": float(np.median([r["dx_px"] for r in rows])),
+                "dy_px_median": float(np.median([r["dy_px"] for r in rows]))})
+    deg = [r for r in rows if r.get("sep_deg") is not None]
+    out["n_deg"] = len(deg)
+    if deg:
+        sep = np.array([r["sep_deg"] for r in deg])
+        out.update({"sep_deg_median": float(np.median(sep)),
+                    "sep_deg_p90": float(np.percentile(sep, 90)),
+                    "dyaw_deg_median": float(np.median([r["dyaw_deg"] for r in deg]))})
+    return out
+
+
+def fp_click_offsets(verdicts, man, cam_of=None):
+    """Where the rater put the ramp the ring was aiming at, relative to the detection.
+
+    For each item with a ``click``: the mark in original-image pixels (``click_to_pixel``),
+    and its offset from the detection (u, v): dx, dy (+x right, +y down) and the distance,
+    in px of the image the detector saw (the thumbnail). With ``cam_of(item) -> Camera`` the
+    same offset in degrees too: the angle between the two camera rays (``sep_deg``) and the
+    signed horizontal angle (``dyaw_deg``, + = mark right of the detection, in the camera
+    frame, so it is a bearing offset only as far as the camera is level); a pixel the
+    distortion model cannot invert gets no degrees and is left out of ``n_deg``.
+
+    Summaries (n, median and p90 distance, median signed dx and dy, and the degree
+    equivalents) overall, by answer and by stratum (unmatched / matched control). A
+    one-sided median dx is the systematic bearing error to look for. None if no item has a
+    click, so an export without marks scores exactly as before."""
+    rows = []
+    for it in man["items"]:
+        v = verdicts.get(it["item"]) or {}
+        c = v.get("click")
+        if c is None:
+            continue
+        x, y = click_to_pixel(c, it["crop_box"])
+        dx, dy = x - it["u"], y - it["v"]
+        r = {"item": it["item"], "answer": v.get("answer"),
+             "stratum": "unmatched" if it["matched_ramp"] is None else "matched",
+             "dx_px": dx, "dy_px": dy, "dist_px": math.hypot(dx, dy)}
+        cam = cam_of(it) if cam_of else None
+        if cam is not None:
+            ray = P.unproject_cam(cam, [it["u"], x], [it["v"], y])
+            if np.all(np.isfinite(ray)):
+                yaw = np.degrees(np.arctan2(ray[:, 0], ray[:, 2]))
+                r["dyaw_deg"] = float(yaw[1] - yaw[0])
+                r["sep_deg"] = float(np.degrees(np.arccos(np.clip(ray[0] @ ray[1], -1, 1))))
+        rows.append(r)
+    if not rows:
+        return None
+    out = {"all": _offset_stats(rows),
+           "by_answer": {a: _offset_stats([r for r in rows if r["answer"] == a])
+                         for a in (*FP_ANSWERS, None)},
+           "by_stratum": {k: _offset_stats([r for r in rows if r["stratum"] == k])
+                          for k in ("unmatched", "matched")}}
+    out["by_answer"]["unanswered"] = out["by_answer"].pop(None)
+    out["degrees"] = "yes" if cam_of else "no: no camera given, px only"
+    return out
+
+
+def fp_cam_of():
+    """``cam_of`` for ``fp_click_offsets``: the Mapillary camera of each item's photo, from
+    the committed ``images.csv``, on the image the detector saw (item width x height)."""
+    rows = {r["image_id"]: r for r in read_csv(IMAGES_CSV)}
+    return lambda it: camera_of(rows[it["image_id"]], it["width"], it["height"])
+
+
 def cmd_rates(args):
     """Richmond flat-photo detection precision from rater exports
     (``benchmark/richmond_flat_fp_218/richmond_flat_fp__<rater>.json``); with two or more,
@@ -1743,8 +1834,12 @@ def cmd_rates(args):
     man, ref = fp_reference()
     files = [RP.load_verdicts(p, ref, FP_EXPORT_PREFIX) for p in args.verdicts]
     res = {"arm": man["arm"], "threshold": man["threshold"], "totals": man["totals"]}
+    cam_of = None
     for v in files:
         res[v["rater"]] = fp_precision(v["verdicts"], man)
+        if any("click" in (x or {}) for x in v["verdicts"].values()):
+            cam_of = cam_of or fp_cam_of()
+            res[v["rater"]]["clicks"] = fp_click_offsets(v["verdicts"], man, cam_of)
     for i in range(len(files)):
         for j in range(i + 1, len(files)):
             res[f"agreement:{files[i]['rater']}-{files[j]['rater']}"] = RP.agreement(
