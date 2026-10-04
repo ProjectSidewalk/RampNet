@@ -3,6 +3,18 @@
   "run_name": "bayonne",
   "source": "benchmark\\bayonne\\records.jsonl",
   "exported_at": "2026-10-04T18:42:33.241Z",
+  "review_notes": {
+    "reviewer": "jonf",
+    "reviewed_at": "2026-10-04",
+    "confidence": "unrecorded",
+    "summary": "Bayonne is the first non-US Panoramax split (125 panos, GoPro Max). The reviewer found it hard to label in places because its pedestrian infrastructure differs from the US styles the rubric was written around. Unbiased subset: precision 0.785 [0.698, 0.852], recall 0.322 [0.268, 0.381]; 53 missed-ramp marks and 11 detections were flagged unsure and abstain. Reviewer-rated confidence was not stated and is left unrecorded rather than inferred from the comments below.",
+    "caveats": [
+      "Bollards as crossing cues. Bollard poles mark where pedestrians walk and cross, so the location of a crossing is often signalled by bollards rather than by a US-style ramp-plus-tactile-strip corner.",
+      "Speed bumps vs crossings vs raised walkways. Speed bumps can look like crosswalks or raised walkways, and it was not always clear which was which.",
+      "Roundabouts and complex intersections. Many roundabouts and multi-leg intersections carry many curb ramps each, which makes per-corner judgments and the completeness of the missed marks harder than on US grid corners.",
+      "Bike-lane cuts. One pano note (b517b388) asks whether a curb cut onto a bike lane should be marked like a pedestrian crossing. benchmark/RUBRICS.md does not cover this, and no ruling had been made at commit time; that pano's detection is marked unsure."
+    ]
+  },
   "panos": {
     "28f9f4bf-8263-4aa3-bded-81f6457ce5dc": {
       "group": "random",
