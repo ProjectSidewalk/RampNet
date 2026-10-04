@@ -12,7 +12,7 @@
       "Bollards as crossing cues. Bollard poles mark where pedestrians walk and cross, so the location of a crossing is often signalled by bollards rather than by a US-style ramp-plus-tactile-strip corner.",
       "Speed bumps vs crossings vs raised walkways. Speed bumps can look like crosswalks or raised walkways, and it was not always clear which was which.",
       "Roundabouts and complex intersections. Many roundabouts and multi-leg intersections carry many curb ramps each, which makes per-corner judgments and the completeness of the missed marks harder than on US grid corners.",
-      "Bike-lane cuts. One pano note (b517b388) asks whether a curb cut onto a bike lane should be marked like a pedestrian crossing. Ruled 2026-10-04, after the review: No, a bike-lane cut is not a pedestrian curb ramp (benchmark/RUBRICS.md section 1, Class rulings). Rated before the ruling, that pano's only detection, at the orange bike-lane crossing, is marked unsure, Six of its seven missed marks are at zebra crossings and are unaffected; the seventh, marked unsure, is near the orange bike lane."
+      "Bike-lane cuts. One pano note (b517b388) asks whether a curb cut onto a bike lane should be marked like a pedestrian crossing. Ruled 2026-10-04, after the review: No, a bike-lane cut is not a pedestrian curb ramp (benchmark/RUBRICS.md section 1, Class rulings). Rated before the ruling, that pano's only detection, at the orange bike-lane crossing, is marked unsure. Six of its seven missed marks are at zebra crossings and are unaffected; the seventh, marked unsure, is near the orange bike lane."
     ]
   },
   "panos": {
