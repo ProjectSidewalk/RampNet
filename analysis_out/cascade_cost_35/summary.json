@@ -13,6 +13,51 @@
  },
  "gaps": [
   {
+   "challenger": "gemini-3.6-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-3.1-pro-preview",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "Qwen/Qwen3-VL-8B-Instruct",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "google/owlv2-large-patch14-ensemble",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "IDEA-Research/grounding-dino-base",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-3.7-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "y11l_pano",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "y11x_pano_h200",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "y26_pano",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
    "reason": "no analysis_out/op_cache/<split>.json",
    "split": "laurens_gsv"
   }

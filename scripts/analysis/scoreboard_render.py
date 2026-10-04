@@ -644,7 +644,11 @@ LOG_ROWS = {
     "laurens_gsv": LOG_STANDING + ("claude-opus-5-effort-low",),
     "budapest_district5": LOG_STANDING,
     "sao_paulo": LOG_STANDING,
-    "bayonne": LOG_STANDING,
+    # Molmo2-8B failed on every pano and Qwen3-VL-32B was not run (weights not cached
+    # on makelab2), so bayonne's table is the standing roster without those two rows
+    # (docs/bayonne_split_159.md section 10). Add them here when they run.
+    "bayonne": tuple(n for n in LOG_STANDING
+                     if n not in ("allenai/Molmo2-8B", "Qwen/Qwen3-VL-32B-Instruct")),
 }
 
 

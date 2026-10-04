@@ -49,6 +49,7 @@ a run that hasn't happened, not a result being withheld.
 | gainesville | ✅ | ✅ full roster | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
 | budapest_district5 | ✅ | ✅ full roster | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
 | sao_paulo | ✅ | ✅ full roster | ✅ | ✅ **12.5% (6/48) — lowest measured** | second non-US split (GSV, NBR 9050), GT **high** confidence — the budapest recall collapse did not replicate; 4th Qwen-32B caution occurrence, this time at parity not inversion |
+| bayonne | ✅ | ⚠️ partial: Gemini 3.6 Flash, Gemini 3.1 Pro, Gemini 3.7 Flash, Qwen3-VL-8B, OWLv2, Grounding DINO, the three YOLO pano arms. **Not run:** Molmo2-8B (failed on every pano), Qwen3-VL-32B (weights not cached on makelab2), claude-opus-5 (bills a separate account, not authorized) | ❌ not run | ❌ gallery built (40 items), **tags pending** | third non-US split, first Panoramax (GoPro Max); GT single-rater, **medium** confidence; lowest recall in the benchmark (`docs/bayonne_split_159.md`) |
 | manual_gold | ✅ | ✅ full roster | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "Full roster" is the standing roster below. It is not a count written into this prose: the
@@ -867,6 +868,50 @@ challenger at 0.263 — squarely in the 0.19–0.34 band of every other split. W
 establish is any between-challenger ordering, and its numbers must not be pooled with the US
 splits or averaged into a headline.
 
+**bayonne** (125 reviewed panos, 301 GT ramps) — the third non-US split and the first from
+Panoramax (2026-10-04), consumer GoPro Max imagery from the municipal producer; single rater,
+reviewer confidence **MEDIUM** (French crossing design fought the rubric: bollards as crossing
+cues, speed bumps vs raised crossings, roundabouts; see `benchmark/README.md`)
+
+<!-- BEGIN GENERATED: results:bayonne (scripts/analysis/scoreboard.py) -->
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.831** | 0.375 | **0.517** | 0.344 | 113/23/188 |
+| **gemini-3.1-pro-preview** | 0.469 | 0.399 | **0.431** | – | 120/136/181 |
+| gemini-3.6-flash | 0.371 | 0.419 | 0.393 | – | 126/214/175 |
+| **Qwen3-VL-8B-Instruct** | 0.161 | 0.186 | **0.173** | – | 56/292/245 |
+| owlv2-large-patch14-ensemble | 0.034 | **0.950** | 0.065 | 0.092 | 286/8229/15 |
+| grounding-dino-base | 0.025 | 0.824 | 0.048 | 0.025 | 248/9872/53 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.351. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11x (pano) F1 0.296, YOLO26 (pano) F1 0.261, YOLO11l (pano) F1 0.249.
+
+<!-- END GENERATED: results:bayonne -->
+
+Paid legs: the three Gemini legs ran on 2026-10-04 ($5.80 estimated, 2.6 h wall; rows in
+`analysis_out/usage_log.jsonl`). Not run: claude-opus-5 (bills a separate account, not
+authorized), Qwen3-VL-32B (weights not cached on makelab2) and Molmo2-8B (failed on every pano
+on 2026-10-02). `docs/bayonne_split_159.md` §10 has the reasons.
+
+What bayonne adds:
+
+1. **The narrowest RampNet lead in the benchmark, 0.086 F1** (gemini-3.1-pro-preview 0.431),
+   and the reason is recall, not a stronger challenger. RampNet's recall here, 0.375, is the
+   lowest it has on any split, while gemini-pro's 0.399 is close to its own range elsewhere
+   (0.445 on sao_paulo). RampNet keeps the precision lead (0.831 against 0.469).
+2. **A chat VLM out-recalls RampNet at its deployed threshold for the first time:**
+   gemini-3.6-flash finds 126 of the ramps against RampNet's 113 (R 0.419 vs 0.375), at
+   precision 0.371. At the recommended 0.30 RampNet's recall is 0.498 (`docs/operating_point.md`),
+   which is back above every chat VLM, so this is an operating-point result as much as a model
+   one.
+3. **The supervised YOLO pano arms collapse here** (F1 0.249-0.296, recall 0.146-0.176), below
+   both Gemini legs. They were trained on the RampNet dataset, so a GoPro Max split
+   from a new country hurts them more than it hurts RampNet.
+4. **Read it with its GT caveat.** Single rater, medium confidence, and the review notes say
+   French crossing design fought the rubric. A rubric that is unsure where a crossing's ramp is
+   costs a model that fires only when confident more than one that fires often, as on
+   budapest. The second rater that budapest asks for would help here too.
+
 ### Scope of the claim
 
 The headline — RampNet beats every off-the-shelf model tested — is real and wide, but it
@@ -890,12 +935,18 @@ the range is paterson, and its decomposition is in that split's section: RampNet
 structural recall ceiling meeting precision-friendly imagery, not a challenger closing the
 gap. That is a wide claim, and the qualifiers above are what keep it honest.
 
+**Bayonne (2026-10-04) narrows it further, on GT the reviewer rated medium confidence:**
+RampNet's lead there is **0.086 F1** over gemini-3.1-pro-preview (0.517 vs 0.431), below
+paterson's 0.124, and gemini-3.6-flash out-recalls RampNet (0.419 vs 0.375). RampNet still has
+the top F1 on the split; see the bayonne block above for why the margin is a recall story.
+
 ### What the numbers say
 
 1. **RampNet still wins by a wide margin**, and nothing tested comes close on F1. The best
    challenger (Gemini-3.1-pro, F1 0.664) trails it by ~0.19; the best open-weight model
-   (Molmo, F1 0.457) by ~0.40. (The narrowest lead anywhere is paterson's 0.124 — see that
-   split's section for why it narrows there.)
+   (Molmo, F1 0.457) by ~0.40. (The narrowest lead on a high-confidence split is paterson's
+   0.124 — see that split's section for why it narrows there. Bayonne's 0.086, on
+   medium-confidence GT, is narrower still.)
 2. **Off-the-shelf open-vocab detectors did worse than chat models, not better.** OWLv2's
    best F1 over the whole threshold sweep is **0.184** (thr 0.25: P 0.130 / R 0.310);
    Grounding DINO's is **0.073**. Both are far below Gemini-3.6-flash's 0.634. So the

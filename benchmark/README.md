@@ -479,11 +479,14 @@ pre-review reads and every command are in [`docs/bayonne_split_159.md`](../docs/
 **Recall is the lowest in the benchmark.** All panos: P 0.824 [0.751, 0.878], R 0.372
 [0.319, 0.428]. Unbiased subset: P 0.785 [0.698, 0.852], R 0.322 [0.268, 0.381], level with
 `laurens_mapillary` (0.325) and below Budapest (0.459). The reviewer marked 189 missed ramps
-(+53 unsure) against 112 confirmed detections. Bayonne and `laurens_mapillary` are both
-consumer GoPro Max imagery, and Laurens' second arm showed that its low recall is the rig, not
-the town; Bayonne is a second GoPro Max split with the same recall, in a different country. It
-is consistent with the rig explanation, but Bayonne has no second arm, so it cannot separate rig
-from city on its own.
+(+53 unsure) against 112 confirmed detections. Bayonne and `laurens_mapillary` are both GoPro
+Max imagery with the lowest recall in the benchmark, but the camera alone does not explain it:
+morgantown is GoPro Max too, at 0.730. Bayonne has no second imagery arm and its GT is medium
+confidence, so city, rubric and capture setup are confounded here.
+
+**Challengers** (`docs/model_comparison.md`, bayonne block): RampNet keeps the top F1, 0.517,
+but by 0.086 over gemini-3.1-pro-preview (0.431), the narrowest lead in the benchmark, and
+gemini-3.6-flash out-recalls it at 0.55 (0.419 vs 0.375).
 
 **The misses are not far-field.** Using the flat-ground distance estimate, recall at 0.55 is
 0.450 near (< 12.5 m), 0.320 mid and 0.302 far (`low_floor_sweep.py distance`), so RampNet misses

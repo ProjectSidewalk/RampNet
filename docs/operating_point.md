@@ -390,7 +390,7 @@ training city that raising the threshold costs it little — that was bend's 0.5
 nothing about GSV imagery. Deployment cities should not inherit it.
 ¶ bayonne (added 2026-10-04) is held out as a non-US split (the first Panoramax one), with
 single-rater GT at **medium** reviewer confidence. Its deployed recall, 0.379, is the lowest of
-any split, level with laurens_mapillary (0.390, the other consumer GoPro Max split), and its F1
+any split, level with laurens_mapillary (0.390), and its F1
 optimum sits far below the recommendation, at 0.20 (laurens_mapillary: 0.15). Its #55 pass has
 not been tagged yet (40 items in `[0.25, 0.55)`), so its sub-0.55 precision is still a raw lower
 bound.

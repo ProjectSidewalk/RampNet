@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 25.5 MB (153 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 25.6 MB (162 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -59,14 +59,14 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-09-27 that is **153 files, 25.5 MB**, and every one of
+signature recorded inside. As of 2026-10-04 that is **162 files, 25.6 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
 |---|---:|---|
-| the standing zero-shot roster, twelve splits each (two Gemini legs are absent on `manual_gold`) | 82 | the roster tables in [`model_comparison.md`](model_comparison.md) |
-| `gemini-3.7-flash`, twelve splits, published ahead of its write-up (#120) | 12 | §below |
-| the supervised YOLO pano trio, twelve splits each (#51) | 36 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
+| the standing zero-shot roster, thirteen splits each (two Gemini legs are absent on `manual_gold`; Molmo2-8B and Qwen3-VL-32B are absent on `bayonne`, #159) | 87 | the roster tables in [`model_comparison.md`](model_comparison.md) |
+| `gemini-3.7-flash`, thirteen splits, published ahead of its write-up (#120) | 13 | §below |
+| the supervised YOLO pano trio, thirteen splits each (#51) | 39 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
 | `claude-opus-5` at `low` effort, eleven splits (#122; the pool by #139, both Laurens arms by #151) | 11 | [`claude_legs_122.md`](claude_legs_122.md) |
 | the other three Vertex Claude legs, annapolis only (#122) | 3 | [`claude_legs_122.md`](claude_legs_122.md) |
 | the two Fable legs, annapolis only, served on Anthropic's first-party API (#156) | 2 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
