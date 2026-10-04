@@ -93,11 +93,11 @@ HELD_OUT = {
                  "basis (GT is HIGH reviewer confidence; held out for "
                  "geography, not GT quality)",
     "bayonne": "non-US city -- the pooled recommendation is a US-deployment "
-               "basis (first Panoramax split; held out for geography). GT is "
-               "single-rater at MEDIUM reviewer confidence: French "
-               "infrastructure fought the US-written rubric (bollards as "
-               "crossing cues, speed bumps vs raised crossings, roundabouts "
-               "with many ramps per junction)",
+               "basis (first Panoramax split; held out for geography). Caveat, "
+               "not a second reason: GT is single-rater at MEDIUM reviewer "
+               "confidence, and French infrastructure fought the US-written "
+               "rubric (bollards as crossing cues, speed bumps vs raised "
+               "crossings, roundabouts with many ramps per junction)",
     "manual_gold": "in-distribution GSV + independently-labelled GT "
                    "(in-domain reference, not a deployment city)",
 }

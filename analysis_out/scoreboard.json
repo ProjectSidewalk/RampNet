@@ -42,7 +42,7 @@
     "laurens_gsv": "second imagery arm of laurens, which is already pooled through laurens_mapillary -- the two arms sample one town and largely the same physical ramps (59% of gsv panos within 20 m of a mapillary one, median NN 17.2 m), so pooling both would double-count them and break the independence the Wilson intervals assume (GT is HIGH confidence; held out for non-independence, not GT quality)",
     "budapest_district5": "single-rater GT at low reviewer confidence (docs/model_comparison.md: do not pool)",
     "sao_paulo": "non-US city \u2014 the pooled recommendation is a US-deployment basis (GT is HIGH reviewer confidence; held out for geography, not GT quality)",
-    "bayonne": "non-US city -- the pooled recommendation is a US-deployment basis (first Panoramax split; held out for geography). GT is single-rater at MEDIUM reviewer confidence: French infrastructure fought the US-written rubric (bollards as crossing cues, speed bumps vs raised crossings, roundabouts with many ramps per junction)",
+    "bayonne": "non-US city -- the pooled recommendation is a US-deployment basis (first Panoramax split; held out for geography). Caveat, not a second reason: GT is single-rater at MEDIUM reviewer confidence, and French infrastructure fought the US-written rubric (bollards as crossing cues, speed bumps vs raised crossings, roundabouts with many ramps per junction)",
     "manual_gold": "in-distribution GSV + independently-labelled GT (in-domain reference, not a deployment city)"
   },
   "in_distribution_split": "manual_gold",
