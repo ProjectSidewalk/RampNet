@@ -34,9 +34,21 @@ Every input is committed: `manual_labels/` and `benchmark/*/records.jsonl` +
 `verdicts.json` for ground truth, `benchmark/model_detections/*.json` for the
 challengers. No cluster access, no `.model_cache`, no GPU, no network.
 
-    python scripts/analysis/benchmark_power_135.py
-    python scripts/analysis/benchmark_power_135.py --bootstrap 50000 \
+    # Reproduce the committed artifact (the ten #135 splits, SPLITS_135):
+    python scripts/analysis/benchmark_power_135.py \
         --out-json docs/data/benchmark_power_135.json
+    # Verify it instead: regenerate in memory and compare bytes, write nothing.
+    python scripts/analysis/benchmark_power_135.py --check
+    # A NEW analysis over every scored bundle today (twelve: adds both Laurens arms).
+    # Not committed; whether to run and commit it is a separate decision (#236).
+    python scripts/analysis/benchmark_power_135.py --splits all \
+        --out-json docs/data/benchmark_power_135_all.json
+
+`--check` exits 0 and prints `ok (byte-identical)` when the default command
+regenerates `docs/data/benchmark_power_135.json` byte for byte, and exits 2 with
+the first differing byte offset, the first differing key path, the number of
+differing leaf values and the largest absolute numeric difference when it does not.
+It takes about 11 minutes on a desktop CPU (676 s measured, 2026-10-03).
 
 A note on what the paired numbers stand in for. The comparison Run B would actually
 make -- two Stage 2 checkpoints from one lineage -- has no committed per-pano data
@@ -72,6 +84,8 @@ splits but is single-pass and missing seam detections (#132), so it bounds the s
 of the effect rather than correcting it.
 """
 import argparse
+import contextlib
+import io
 import json
 import math
 import os
@@ -120,6 +134,40 @@ RAMPNET_PREFIXES = ("rampnet", "run_a_epoch_")
 #: Label of the Run A epoch-N dump, for the measured epoch-pair matrix.
 RUN_A_EPOCH = "run_a_epoch_{}"
 
+#: The ten splits the #135 analysis was run on (2026-09-04, cc94b34), in the order it
+#: ran them. The committed ``docs/data/benchmark_power_135.json`` is reproducible only
+#: from exactly this list in exactly this order, because one Generator is threaded
+#: through every split (see ``run_analysis``): adding a split shifts the stream for
+#: every group drawn after it. The two Laurens arms (``laurens_gsv``,
+#: ``laurens_mapillary``) were committed on their own branch on 2026-08-31 and reached
+#: main with PR #152 on 2026-09-04, an hour before cc94b34; the #135 branch that wrote
+#: the JSON never contained them. They are left out for that reason, not on any
+#: judgment about them. ``--splits all`` includes them (#236).
+SPLITS_135 = ("annapolis", "bend", "budapest_district5", "clovis", "gainesville",
+              "manual_gold", "morgantown", "paterson", "richmond", "sao_paulo")
+
+#: The artifact the default command writes and ``--check`` compares against.
+COMMITTED_JSON = Path("docs") / "data" / "benchmark_power_135.json"
+
+
+def resolve_splits(splits_arg, repo):
+    """The split list for a ``--splits`` value.
+
+    ``None`` (the default) -> the pinned ``SPLITS_135``, without reading
+    ``benchmark/``; ``"all"`` -> ``discover_splits(repo)``, every scored bundle;
+    anything else -> a comma-separated list, in the order given.
+
+    >>> resolve_splits(None, ".") == list(SPLITS_135)
+    True
+    >>> resolve_splits("manual_gold, bend", ".")
+    ['manual_gold', 'bend']
+    """
+    if splits_arg is None:
+        return list(SPLITS_135)
+    if splits_arg.strip() == "all":
+        return discover_splits(repo)
+    return [s.strip() for s in splits_arg.split(",") if s.strip()]
+
 
 def protocol_threshold(model):
     if model in PROTOCOL_THRESHOLD:
@@ -131,11 +179,11 @@ def protocol_threshold(model):
 
 def discover_splits(repo):
     """Every committed benchmark bundle, in sorted order."""
-    bench = Path(repo) / "benchmark"
-    # A bundle.json bundle (#48's neighbourhood bundles) borrows another split's
-    # verdicts; counting it would score those judged panos twice.
-    return sorted(d.name for d in bench.iterdir()
-                  if (d / "records.jsonl").exists() and not (d / "bundle.json").exists())
+    # Scored splits only: a bundle.json bundle (#48's neighbourhood bundles) borrows
+    # another split's verdicts, so counting it would score those judged panos twice,
+    # and a staged bundle with no review yet (bayonne, #159) cannot be scored at all.
+    from rampnet.bundles import scored_splits
+    return scored_splits(str(Path(repo) / "benchmark"))
 
 
 def load_split(repo, split):
@@ -530,11 +578,15 @@ def fmt(x, nd=4):
     return "n/a" if x is None or (isinstance(x, float) and math.isnan(x)) else f"{x:.{nd}f}"
 
 
-def main(argv=None):
+def build_parser():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--repo", default=str(REPO))
     ap.add_argument("--splits", default=None,
-                    help="Comma-separated bundle names (default: every committed bundle).")
+                    help="Comma-separated bundle names, or 'all' for every scored "
+                         "bundle under benchmark/ (today twelve). Default: the ten "
+                         "#135 splits (SPLITS_135), which is what reproduces "
+                         "docs/data/benchmark_power_135.json; a different list draws "
+                         "a different bootstrap stream.")
     ap.add_argument("--reference", default="rampnet",
                     help="Detector used for the unpaired noise floor.")
     ap.add_argument("--pairs",
@@ -555,11 +607,46 @@ def main(argv=None):
                          "drawn from it, and it keeps 28 paired resamples affordable.")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out-json", default=None)
-    args = ap.parse_args(argv)
+    ap.add_argument("--check", action="store_true",
+                    help="Run the default analysis in memory and compare its bytes with "
+                         "the committed docs/data/benchmark_power_135.json. Writes "
+                         "nothing. Exit 0 on a byte-identical match, 2 otherwise. Only "
+                         "--repo may be combined with it.")
+    return ap
 
+
+#: Options that change the analysis. ``--check`` refuses any of them at a non-default
+#: value, because it verifies the DEFAULT command and nothing else.
+ANALYSIS_OPTIONS = ("splits", "reference", "pairs", "self_pair_deltas", "bootstrap",
+                    "matrix_bootstrap", "seed", "out_json")
+
+
+def parse_args(argv=None):
+    """Parse the CLI and attach ``args.split_list`` (see ``resolve_splits``)."""
+    ap = build_parser()
+    args = ap.parse_args(argv)
+    if args.check:
+        changed = [f"--{d.replace('_', '-')}" for d in ANALYSIS_OPTIONS
+                   if getattr(args, d) != ap.get_default(d)]
+        if changed:
+            ap.error(f"--check verifies the default command; it cannot be combined "
+                     f"with {', '.join(changed)}")
+    args.split_list = resolve_splits(args.splits, args.repo)
+    if not args.split_list:
+        # An empty --splits used to fall through to "every bundle"; silently running on
+        # nothing would crash deep in stack() instead, so say what is wrong here.
+        ap.error("--splits resolved to no splits; omit it for the pinned ten, or pass "
+                 "'all' or a comma-separated list")
+    return args
+
+
+def run_analysis(args):
+    """The whole analysis. Prints its tables and returns the ``out`` dict.
+
+    Shared by the normal path and ``--check``, so there is one copy of it.
+    """
     repo = args.repo
-    splits = ([s.strip() for s in args.splits.split(",") if s.strip()]
-              if args.splits else discover_splits(repo))
+    splits = args.split_list
     rsq = radius_sq_for()
     # ONE Generator for the whole run, threaded through every group and pair in the
     # order they are computed. That makes the committed artifact exactly reproducible
@@ -993,14 +1080,112 @@ def main(argv=None):
             print(f"  {f'{ea} vs {eb}':>10} {ma:>9.4f} {mb:>9.4f} {mb - ma:>+9.4f} "
                   f"{fmt(se) if se else 'n/a':>8} {z:>6.1f} {verdict + note:>16}")
 
+    return out
+
+
+def serialise(out):
+    """The exact text the writer puts on disk: sorted keys, indent 2, trailing LF."""
+    return json.dumps(out, indent=2, sort_keys=True) + "\n"
+
+
+def _is_num(x):
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
+def _short(x, limit=120):
+    """``repr(x)``, cut to ``limit`` characters so a differing subtree stays one line."""
+    r = repr(x)
+    return r if len(r) <= limit else r[:limit] + f"... ({len(r)} chars)"
+
+
+def _same_leaf(a, b):
+    if isinstance(a, float) and isinstance(b, float) and math.isnan(a) and math.isnan(b):
+        return True
+    return type(a) is type(b) and a == b
+
+
+def diff_leaves(a, b, path="$"):
+    """Yield ``(path, a_value, b_value)`` for every differing leaf, in serialised order.
+
+    Dicts are walked in sorted key order and lists by index, which is the order
+    ``serialise`` writes them, so the first item is the first difference in the file.
+    A key present on one side only, a length mismatch or a type mismatch is yielded
+    once at that node, with the missing side as the string ``"<absent>"``.
+
+    >>> list(diff_leaves({"a": [1, 2.0]}, {"a": [1, 2.5]}))
+    [('$.a[1]', 2.0, 2.5)]
+    """
+    if isinstance(a, dict) and isinstance(b, dict):
+        for k in sorted(set(a) | set(b)):
+            p = f"{path}.{k}"
+            if k not in a or k not in b:
+                yield p, a.get(k, "<absent>"), b.get(k, "<absent>")
+            else:
+                yield from diff_leaves(a[k], b[k], p)
+    elif isinstance(a, list) and isinstance(b, list):
+        for i in range(max(len(a), len(b))):
+            p = f"{path}[{i}]"
+            if i >= len(a) or i >= len(b):
+                yield p, a[i] if i < len(a) else "<absent>", b[i] if i < len(b) else "<absent>"
+            else:
+                yield from diff_leaves(a[i], b[i], p)
+    elif not _same_leaf(a, b):
+        yield path, a, b
+
+
+def compare_to_committed(out, committed_path, stream=None):
+    """Compare ``serialise(out)`` with the bytes of ``committed_path``.
+
+    Returns 0 on a byte-identical match, 2 otherwise. On a mismatch it prints the
+    first differing byte offset, the first differing key path, the number of
+    differing leaf values and the largest absolute numeric difference, so numeric
+    noise (same shape, tiny max diff) reads differently from a structural change.
+    """
+    stream = stream or sys.stdout
+    new = serialise(out).encode("utf-8")
+    old = Path(committed_path).read_bytes()
+    if new == old:
+        print(f"ok (byte-identical): {committed_path}", file=stream)
+        return 0
+    offset = next((i for i, (x, y) in enumerate(zip(new, old)) if x != y),
+                  min(len(new), len(old)))
+    diffs = list(diff_leaves(json.loads(new), json.loads(old)))
+    # Numeric only when both sides are numbers OF THE SAME TYPE: 42 vs 42.0 serialises
+    # differently and is a type change, so it counts as structural, not as a 0.0 diff.
+    num = [abs(x - y) for _, x, y in diffs
+           if _is_num(x) and _is_num(y) and type(x) is type(y)]
+    print(f"MISMATCH: regenerated output differs from {committed_path}", file=stream)
+    print(f"  bytes: regenerated {len(new)}, committed {len(old)}; "
+          f"first difference at byte offset {offset}", file=stream)
+    if diffs:
+        p, x, y = diffs[0]
+        print(f"  first differing key path: {p}  (regenerated {_short(x)}, "
+              f"committed {_short(y)})", file=stream)
+    else:
+        print("  parsed JSON is equal: the difference is formatting only", file=stream)
+    print(f"  differing leaf values: {len(diffs)} ({len(num)} numeric, "
+          f"{len(diffs) - len(num)} structural or non-numeric)", file=stream)
+    print(f"  max absolute numeric difference: {max(num) if num else 0.0!r}", file=stream)
+    return 2
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    repo = args.repo
+    if args.check:
+        # The tables are long and --check's answer is a few lines: divert them.
+        with contextlib.redirect_stdout(io.StringIO()):
+            out = run_analysis(args)
+        return compare_to_committed(out, Path(repo) / COMMITTED_JSON)
+
+    out = run_analysis(args)
     if args.out_json:
         path = args.out_json if os.path.isabs(args.out_json) else os.path.join(repo, args.out_json)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         # newline="" so a Windows re-run writes the same bytes as a Linux one; a
         # committed JSON that flips to CRLF breaks byte-comparison silently.
         with open(path, "w", encoding="utf-8", newline="") as fh:
-            json.dump(out, fh, indent=2, sort_keys=True)
-            fh.write("\n")
+            fh.write(serialise(out))
         print(f"\nwrote {path}")
     return 0
 

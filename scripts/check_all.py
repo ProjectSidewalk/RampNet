@@ -34,7 +34,8 @@ Entry fields:
                        never runs against nothing.
   * ``nothing_verified`` -- a function of the entry's output returning a reason when the
                        script exited 0 without comparing anything; that is a FAIL.
-  * ``slow``        -- runs only with ``--all``. No entry is slow today (see the doc).
+  * ``slow``        -- runs only with ``--all``. One entry is slow: ``benchmark_power_135``
+                       (about 11 minutes; see the doc).
 
 Placeholders in an argv: ``{tmp}`` (a fresh scratch directory per entry, deleted
 afterwards) and ``{local_root}`` (``--local-root``, default the repo root).
@@ -208,6 +209,13 @@ REGISTRY: list = [
       # parallel with pytest (8-9 min) and stays well inside its 30 min guard.
       pins=("analysis_out/cascade_cost_35/", "analysis_out/op_cache/",
             "analysis_out/cascade_gate_op030.json", "benchmark/model_detections/") + GT),
+    # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
+    E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),
+      "the default command regenerates docs/data/benchmark_power_135.json byte-identical (#135, #236)",
+      pins=("docs/data/benchmark_power_135.json", "manual_labels/", "benchmark/model_detections/",
+            "docs/data/run_a_84_detections/", "docs/data/run_a_84_manual_gold/summary.csv",
+            "analysis_out/op_cache/") + GT,
+      slow=True),
     # -- need git-ignored local data: never in CI, run with --allow local-cache ---------------
     E("export_model_cache_verify",
       ("scripts/analysis/export_model_cache.py", "--verify", "--cache-dir", "{local_root}/.model_cache"),
