@@ -16,9 +16,9 @@ fieldset { border:1px solid var(--line); border-radius:6px; background:var(--pan
 legend { font-weight:600; padding:0 4px; }
 .opts { display:flex; flex-wrap:wrap; gap:4px 18px; }
 .opts label { cursor:pointer; padding:2px 0; }
-.ringwrap { position:relative; display:block; }
+.ringwrap { position:relative; display:block; width:fit-content; max-width:100%; }
 .halo { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-.halo circle { fill:none; stroke:#00e676; stroke-width:2.5; }
+.halo circle { fill:none; stroke:#00e676; stroke-width:2.5; vector-effect:non-scaling-stroke; }
 .halo circle.o { stroke:#000; stroke-width:1.2; }
 .note { display:block; margin-top:6px; font-size:13px; color:var(--muted); }
 textarea { display:block; width:100%; box-sizing:border-box; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:4px; }
@@ -108,7 +108,7 @@ document.addEventListener('keydown', ev => {
   ev.preventDefault();
   if (needRater()) return;
   const inp = card.querySelector('input[value="' + k + '"]');
-  inp.checked = true; inp.focus(); inp.dispatchEvent(new Event('change'));
+  inp.checked = true; if (!(t.closest && t.closest('.ringwrap'))) inp.focus(); inp.dispatchEvent(new Event('change'));
 });
 load(); render();
 document.getElementById('next').addEventListener('click', () => {

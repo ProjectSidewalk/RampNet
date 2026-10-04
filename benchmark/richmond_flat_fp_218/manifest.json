@@ -3602,7 +3602,8 @@
  "rules": [
   "Judge the spot under the ring, not whether a ramp exists somewhere in the crop.",
   "The cards are shuffled and mix detections that matched a known ramp with ones that did not; nothing on the card says which.",
-  "Add a note for anything worth recording, e.g. 'ramp 1 m left of ring'."
+  "Add a note for anything worth recording, e.g. 'ramp 1 m left of ring'.",
+  "If you can see the curb ramp the ring seems to be aiming at, click it, whatever your answer; leave it unmarked if there is none."
  ],
  "threshold": 0.3,
  "totals": {
