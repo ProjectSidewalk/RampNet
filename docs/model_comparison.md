@@ -45,7 +45,7 @@ a run that hasn't happened, not a result being withheld.
 | clovis | ✅ | ✅ full roster | ✅ | ✅ 30% (7/23) | hardest split — 2018 GoPro Fusion |
 | annapolis | ✅ | ✅ full roster | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with all six Claude legs** (#122, #156; `claude-opus-5` low has run all eleven city splits) |
 | morgantown | ✅ | ✅ full roster | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
-| paterson | ✅ | ✅ full roster | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead (0.12); 2nd Qwen inversion |
+| paterson | ✅ | ✅ full roster | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead over the standing roster on a high-confidence split (0.12; bayonne's 0.086 is narrower, on medium-confidence GT); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ full roster | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
 | budapest_district5 | ✅ | ✅ full roster | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
 | sao_paulo | ✅ | ✅ full roster | ✅ | ✅ **12.5% (6/48) — lowest measured** | second non-US split (GSV, NBR 9050), GT **high** confidence — the budapest recall collapse did not replicate; 4th Qwen-32B caution occurrence, this time at parity not inversion |
@@ -498,7 +498,8 @@ Best sweep F1: OWLv2 **0.216** (thr 0.25), Grounding DINO **0.100** (thr 0.15).
 
 Three things paterson adds to the comparison:
 
-1. **The narrowest RampNet lead measured anywhere: 0.124 F1** (prior range 0.19–0.34), and
+1. **The narrowest RampNet lead measured when paterson landed: 0.124 F1** over the standing
+   roster (prior range 0.19–0.34; bayonne, 2026-10-04, is now narrower at 0.086), and
    the decomposition matters. It is *not* a challenger breakthrough — gemini-pro's recall
    (0.567) is ordinary. Two things compress the gap: RampNet posts its lowest US F1 (its
    structural recall ceiling — see `benchmark/README.md`), and the fresh GSV imagery hands
@@ -895,18 +896,27 @@ on 2026-10-02). `docs/bayonne_split_159.md` §10 has the reasons.
 
 What bayonne adds:
 
-1. **The narrowest RampNet lead in the benchmark, 0.086 F1** (gemini-3.1-pro-preview 0.431),
-   and the reason is recall, not a stronger challenger. RampNet's recall here, 0.375, is the
-   lowest it has on any split, while gemini-pro's 0.399 is close to its own range elsewhere
-   (0.445 on sao_paulo). RampNet keeps the precision lead (0.831 against 0.469).
-2. **A chat VLM out-recalls RampNet at its deployed threshold for the first time:**
-   gemini-3.6-flash finds 126 of the ramps against RampNet's 113 (R 0.419 vs 0.375), at
-   precision 0.371. At the recommended 0.30 RampNet's recall is 0.498 (`docs/operating_point.md`),
-   which is back above every chat VLM, so this is an operating-point result as much as a model
-   one.
+1. **The narrowest RampNet lead over a zero-shot challenger on any split, 0.086 F1**
+   (gemini-3.1-pro-preview 0.431; pano-bootstrap 95% CI of the difference [0.005, 0.168],
+   `analysis_out/bayonne_159/paired_tests.json`). The previous zero-shot low was
+   laurens_mapillary's 0.114 over claude-opus-5 at effort low, which is off the standing roster;
+   against the standing roster it was paterson's 0.124. It is **not** the narrowest lead
+   overall: RampNet loses laurens_mapillary to two supervised YOLO arms and leads them by only
+   0.058 on manual_gold and 0.072 on laurens_gsv. The margin is mostly RampNet's recall, 0.375,
+   its lowest on any split. gemini-pro also holds up better here than on the other two GoPro
+   Max splits where RampNet struggles (F1 0.431 vs 0.343 on laurens_mapillary and 0.381 on
+   budapest; its morgantown 0.643 is higher). RampNet keeps the precision lead (0.831 against
+   0.469).
+2. **gemini-3.6-flash's recall point estimate is above RampNet's at the deployed threshold**
+   (126 vs 113 of 301 ramps, R 0.419 vs 0.375), the only split where a chat VLM's is. The
+   paired difference is **not significant**: 61 ramps found only by Flash, 48 only by RampNet,
+   exact McNemar p = 0.25 (gemini-3.1-pro: 63 vs 56, p = 0.58). The two models' hits are largely
+   disjoint; their union finds 174 of 301 (0.578). At the recommended 0.30 RampNet's recall is
+   0.498 (`docs/operating_point.md`), above every chat VLM.
 3. **The supervised YOLO pano arms collapse here** (F1 0.249-0.296, recall 0.146-0.176), below
-   both Gemini legs. They were trained on the RampNet dataset, so a GoPro Max split
-   from a new country hurts them more than it hurts RampNet.
+   both Gemini legs, at high precision. This is not a GoPro Max effect: on laurens_mapillary,
+   also GoPro Max, the same arms beat RampNet. Nothing here separates country, imagery source
+   and rubric as the cause.
 4. **Read it with its GT caveat.** Single rater, medium confidence, and the review notes say
    French crossing design fought the rubric. A rubric that is unsure where a crossing's ramp is
    costs a model that fires only when confident more than one that fires often, as on
@@ -925,20 +935,24 @@ no experiment here tested (OWLv2 / Grounding DINO are general open-vocab models,
 curb-ramp detectors). How much of the gap survives a tuned prompt (#45), a failure-artifact
 audit (#46), and a nadir/hood mask (#47) is exactly what those follow-ups measure.
 
-**What the claim now rests on:** nine city splits across three countries, four camera rigs
-(GSV, iSTAR Pulsar, GoPro Max/Fusion, Trimble MX7) and one 1,000-pano un-anchored gold set —
-RampNet wins on every one, by **0.12–0.34 F1**. It survives the hardest imagery (clovis),
+**What the claim now rests on:** twelve city splits across four countries (the US, Hungary,
+Brazil, France), four camera rigs (GSV, iSTAR Pulsar, GoPro Max/Fusion, Trimble MX7) and one
+1,000-pano un-anchored gold set — RampNet has the top F1 against every zero-shot challenger on
+every one, by **0.09–0.49 F1** against the standing roster (`analysis_out/scoreboard.json`;
+0.086 on bayonne, 0.124 on paterson). It survives the hardest imagery (clovis),
 un-anchored ground truth (`manual_gold`), ground truth the reviewer distrusts (budapest),
 the split engineered to remove its in-domain GSV advantage (paterson), and a second non-US
 design vocabulary at high-confidence GT (sao_paulo, lead 0.323). The low end of
-the range is paterson, and its decomposition is in that split's section: RampNet's
+the range among the trusted-GT splits is paterson, and its decomposition is in that split's section: RampNet's
 structural recall ceiling meeting precision-friendly imagery, not a challenger closing the
 gap. That is a wide claim, and the qualifiers above are what keep it honest.
 
 **Bayonne (2026-10-04) narrows it further, on GT the reviewer rated medium confidence:**
-RampNet's lead there is **0.086 F1** over gemini-3.1-pro-preview (0.517 vs 0.431), below
-paterson's 0.124, and gemini-3.6-flash out-recalls RampNet (0.419 vs 0.375). RampNet still has
-the top F1 on the split; see the bayonne block above for why the margin is a recall story.
+RampNet's lead over the best zero-shot challenger there is **0.086 F1** (gemini-3.1-pro-preview,
+0.517 vs 0.431, bootstrap CI [0.005, 0.168]), below every other split. gemini-3.6-flash's recall
+point estimate is above RampNet's (0.419 vs 0.375) but not significantly (McNemar p = 0.25).
+RampNet still has the top F1 on the split; see the bayonne block above for why the margin is a
+recall story.
 
 ### What the numbers say
 

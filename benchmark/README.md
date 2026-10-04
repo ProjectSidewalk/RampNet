@@ -485,12 +485,18 @@ morgantown is GoPro Max too, at 0.730. Bayonne has no second imagery arm and its
 confidence, so city, rubric and capture setup are confounded here.
 
 **Challengers** (`docs/model_comparison.md`, bayonne block): RampNet keeps the top F1, 0.517,
-but by 0.086 over gemini-3.1-pro-preview (0.431), the narrowest lead in the benchmark, and
-gemini-3.6-flash out-recalls it at 0.55 (0.419 vs 0.375).
+but by 0.086 over gemini-3.1-pro-preview (0.431; pano-bootstrap 95% CI of the difference
+[0.005, 0.168]), the narrowest lead over a zero-shot challenger on any split. It is not the
+narrowest lead overall: the supervised YOLO arms come closer elsewhere, and beat RampNet on
+`laurens_mapillary`. gemini-3.6-flash's recall point estimate is above RampNet's at 0.55 (0.419 vs
+0.375), but the paired difference is not significant (exact McNemar p = 0.25,
+`analysis_out/bayonne_159/paired_tests.json`).
 
 **The misses are not far-field.** Using the flat-ground distance estimate, recall at 0.55 is
 0.450 near (< 12.5 m), 0.320 mid and 0.302 far (`low_floor_sweep.py distance`), so RampNet misses
-more than half of the ramps within 12.5 m of the camera. Lowering the threshold helps: 0.55 to
+more than half of the ramps within 12.5 m of the camera. The estimate assumes one camera height,
+and Bayonne mixes car and two-wheeler mounts, so the band edges in metres are approximate; recall
+is low in every band either way. Lowering the threshold helps: 0.55 to
 0.30 moves recall 0.379 to 0.498 and precision 0.820 to 0.754 on all 125 panos (`sweep`, from
 the op_cache), and the F1 optimum sits at 0.20. About 28% of the GT ramps (recall ceiling 0.721
 at the 0.05 extraction floor, `floor`) produce no candidate at any threshold, so a lower threshold
@@ -508,13 +514,22 @@ cannot reach them.
   (`RUBRICS.md` §1, Class rulings). The verdict was left as recorded (unsure, so it abstains).
 
 No detection was marked duplicate. The negative check: 21 of the 25 `empty`-stratum panos were
-clean, and the other 4 held 8 missed ramps. Abstention is 7.5% of detections and 21.9% of missed
+clean, and the other 4 held 8 missed ramps (+2 unsure). Abstention is 7.5% of detections and 21.9% of missed
 marks.
 
-**The logo band.** 124 panos carry a burned-in band across the bottom of the frame (from y 0.771
-to 0.791). The gallery hatched it, and a ramp under the band is invisible to the model and the
+**The logo band.** 124 panos carry a burned-in band that runs from its top edge to the bottom
+of the frame; the top edge sits at y 0.771-0.791 on the municipal panos and 0.8008 on the one
+measured by hand. The gallery hatched it, and a ramp under the band is invisible to the model and the
 reviewer alike, so it is outside the ground truth by construction. It covers ramps within about
 2 m of the camera.
+
+**The panos are not yet published** to the `rampnet-benchmark` dataset on Hugging Face (Jon's
+call, `docs/bayonne_split_159.md` §10), so a clean clone cannot re-run the numbers above from
+the Hub. They are public on Panoramax under the ids in `records.jsonl`, and
+`benchmark/bayonne/imagery_manifest.json` pins every file's sha256 and size, so a re-fetched
+copy can be checked with `python scripts/analysis/bayonne_159.py verify`. Nobody has tried a
+re-fetch yet, so whether Panoramax serves byte-identical files is unchecked. They are also in the makelab2
+archive (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/bayonne/panos/`).
 
 ## Laurens, IA — one town, two rigs, and the split that tests the rig itself
 

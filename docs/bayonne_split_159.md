@@ -26,9 +26,13 @@ The bundle comes from sidewalk-auto-labeler
   `tier_of()`. It is not needed and would be wrong: tiers are by rig, and the records carry
   `GoPro` / `Max`, which the existing branch already classifies
   (`tests/test_bayonne_159.py::test_bayonne_lands_in_the_modern_action_cam_tier_without_a_new_branch`).
-- **Pooling (proposed, Jon's call):** held out of the pooled recommendation as a non-US split,
-  like `sao_paulo`, whose `HELD_OUT` reason ("the pooled recommendation is a US-deployment
-  basis") applies unchanged.
+- **Pooling:** held out of the pooled recommendation as a non-US split, like `sao_paulo`, whose
+  `HELD_OUT` reason ("the pooled recommendation is a US-deployment basis") applies unchanged.
+  Proposed here before the review; registered that way on 2026-10-04 under the instructions Jon
+  gave for finishing the split. The reason is geography. The medium-confidence GT is recorded
+  in `HELD_OUT` as a caveat, not as a second reason (budapest is held out for its GT; this split
+  is not). If Jon wants GT confidence to be a reason too, only the wording changes: the split is
+  out of the pool either way.
 - **Naming:** bare `bayonne`, one imagery source (the `_<source>` suffix rule).
 
 **Imagery credit.** Municipal imagery © sig_bayonne via Panoramax (panoramax.ign.fr), Licence
@@ -304,7 +308,10 @@ branch's worktree on the Windows desktop, without `--unreviewed`, with the defau
 (which `compare.py` resolves to the main checkout, `D:/Git/RampNet/analysis_out/usage_log.jsonl`)
 and `--cache-dir D:/Git/RampNet/.model_cache` so the paid detections are cached in the main
 checkout rather than in a worktree. The three ledger rows were copied verbatim into this
-branch's `analysis_out/usage_log.jsonl`. The estimate above was printed first
+branch's `analysis_out/usage_log.jsonl`. **Follow-up:** the same three rows also sit uncommitted
+in the main checkout's working tree, which is on another branch; they must be dropped there once
+this PR merges (or before anything commits that file there), or the ledger counts $5.80 twice.
+The estimate above was printed first
 (`bayonne_159.py paid-estimate`; Gemini subtotal $5.26, under the $15 stop line).
 
 | leg | calls | input tokens | output tokens (thinking) | est. $ | wall clock | s/pano |
@@ -365,6 +372,7 @@ python scripts/analysis/export_model_cache.py --cache-dir D:/Git/RampNet/.model_
 python scripts/analysis/vertex_usage.py --reconcile --days 3
 python scripts/analysis/train_overlap_check.py --benchmark benchmark --out benchmark/train_overlap.json
 python scripts/analysis/scoreboard.py && python scripts/analysis/cascade_cost_35.py --summary
+python scripts/analysis/bayonne_paired_159.py --write   # paired McNemar + pano bootstrap (PR #239 review)
 ```
 
 **GPU run: no spend, about 1.6 GPU-hours of a shared A40** (5,874 s). The seven challenger legs
@@ -411,7 +419,10 @@ Windows desktop; the challenger scoring ran on makelab2 from the `~/wt-bayonne15
    `export_model_cache.py --verify`: 6 of 6 pairs score identically to the cache.
 7. **Paid legs: the three Gemini legs ran; claude-opus-5 did not** (section 7).
 8. **`train_overlap_check.py`** (network, 12 min 00 s): bayonne 0 of 125 panos in
-   `rampnet-dataset`'s train or validation split; every other split unchanged (bend's 4).
+   `rampnet-dataset`'s train or validation split; every other split unchanged (bend's 4). For
+   bayonne the zero is true by construction: Panoramax picture ids are UUIDs and cannot collide
+   with the GSV pano ids the training set uses, so it says nothing about the imagery itself. It
+   is recorded because `export_benchmark.py` requires an entry for every split.
 9. **Docs**: `benchmark/README.md` (both tables, a footnote, a Bayonne section),
    `docs/model_comparison.md` (coverage matrix and the generated `results:bayonne` table),
    `docs/model_scoreboard.md` (regenerated), `docs/operating_point.md` (held-out rows).
@@ -483,21 +494,57 @@ in `docs/model_comparison.md` and the bayonne column of `docs/model_scoreboard.m
 
 What it says:
 
-1. **RampNet has the top F1, by the narrowest margin in the benchmark: 0.086** over
-   gemini-3.1-pro-preview (paterson's 0.124 was the previous low). The margin is RampNet's
-   recall, 0.375, its lowest on any split. It keeps a wide precision lead.
-2. **gemini-3.6-flash out-recalls RampNet at 0.55** (0.419 vs 0.375; the intervals overlap). At
-   the recommended 0.30 RampNet's recall is 0.498 on the op_cache (`docs/operating_point.md`),
-   above every chat VLM, so this is partly an operating-point result.
+Paired tests (`scripts/analysis/bayonne_paired_159.py` → `analysis_out/bayonne_159/paired_tests.json`,
+CPU, committed inputs, pinned by `tests/test_bayonne_159.py`): an exact two-sided McNemar test
+over per-GT-ramp hits for recall, and a 10,000-draw pano-level paired bootstrap (seed 0) for the
+F1 difference.
+
+1. **RampNet has the top F1, by the narrowest lead over a zero-shot challenger on any split:
+   0.086** over gemini-3.1-pro-preview, bootstrap 95% CI [0.005, 0.168] (RampNet ahead in 98.2%
+   of draws). The previous zero-shot low was laurens_mapillary's 0.114 over claude-opus-5 at
+   effort low (off the standing roster); against the standing roster it was paterson's 0.124.
+   It is **not** the narrowest lead overall: RampNet loses laurens_mapillary to two supervised
+   YOLO pano arms, and leads them by only 0.058 on manual_gold and 0.072 on laurens_gsv
+   (`analysis_out/scoreboard.json`). The margin is mostly RampNet's recall, 0.375, its lowest
+   on any split; gemini-pro also does better here than on the other two GoPro Max splits where
+   RampNet struggles (F1 0.431 vs 0.343 laurens_mapillary, 0.381 budapest). RampNet keeps a wide
+   precision lead.
+2. **gemini-3.6-flash's recall point estimate is above RampNet's at 0.55** (126 vs 113 of 301
+   ramps, R 0.419 vs 0.375), the only split where a chat VLM's is. The paired difference is
+   **not significant**: 61 ramps found only by Flash, 48 only by RampNet, exact McNemar
+   p = 0.25 (gemini-3.1-pro: 63 vs 56, p = 0.58). Their hits are largely disjoint: the union
+   finds 174 of 301 (0.578). At the recommended 0.30 RampNet's recall is 0.498 on the op_cache
+   (`docs/operating_point.md`), above every chat VLM.
 3. **The YOLO pano arms collapse** (F1 0.25-0.30, recall under 0.18) at high precision: they
-   fire rarely on this imagery.
+   fire rarely on this imagery. It is not a GoPro Max effect, since on laurens_mapillary the
+   same arms beat RampNet; nothing here separates country, source and rubric.
 4. **RampNet's misses are not far-field** (`low_floor_sweep.py distance`): recall at 0.55 is 0.450
-   within 12.5 m, 0.320 at 12.5-25 m and 0.302 beyond. About 28% of the GT ramps have no
-   RampNet candidate even at 0.05 (`floor`: recall ceiling 0.721).
+   within 12.5 m, 0.320 at 12.5-25 m and 0.302 beyond. The flat-ground estimate assumes one
+   camera height, and Bayonne mixes car and two-wheeler mounts (section 2, and the lower peaks in
+   section 4.4), so the band edges in metres are approximate; recall is low in every band either
+   way. About 28% of the GT ramps have no RampNet candidate even at 0.05 (`floor`: recall
+   ceiling 0.721).
 5. **The camera alone does not explain it.** laurens_mapillary (R 0.390) and bayonne (0.375),
    both GoPro Max, have the lowest RampNet recall in the benchmark, but morgantown is GoPro Max
    too and has 0.730. Bayonne has no second imagery arm and its GT is medium confidence, so
-   city, rubric and capture setup (mounting, the logo band) are confounded here.
+   city, rubric and capture setup (mounting, the logo band) are confounded here. budapest_district5
+   (GoPro Max, R 0.510) sits between the two.
+6. **The reviewer's hypothesis: European infrastructure.** Jon's reading is that Bayonne
+   underperforms because it is a French, European city whose pedestrian infrastructure differs
+   from the US cities RampNet was trained on. The evidence is suggestive, not decisive.
+   - *For it:* the review notes record exactly that kind of difference (bollards as crossing
+     cues, speed bumps vs raised crossings, roundabouts with many ramps each), and about 28% of
+     the GT ramps produce no RampNet candidate even at the 0.05 floor, which is what a design
+     the model has never seen would look like, rather than an under-confident detection.
+   - *Against it, or at least not requiring it:* laurens_mapillary, a US town, has the same
+     unbiased recall (0.325 vs 0.322), so a US split can be this hard; and the other two non-US
+     splits do much better (budapest 0.459, sao_paulo 0.626 unbiased), so being non-US is not
+     enough on its own.
+   - *The check that would separate them, not run:* tag the no-candidate misses (the GT ramps
+     with no peak ≥ 0.05) by infrastructure type, e.g. bollard-marked crossing, raised crossing,
+     roundabout leg, US-style kerb ramp. If the misses concentrate in the European types while
+     the US-style ramps are found at US rates, the hypothesis holds; if US-style ramps are missed
+     as often, it does not.
 
 Calibration (`hist`, `analysis_out/op/confidence_calibration.json`): P(real) is 0.59 at
 0.55-0.60 and 0.83 at 0.65-0.70, and 0.46-0.54 in the 0.20-0.30 bins, which are raw lower
