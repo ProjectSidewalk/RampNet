@@ -35,14 +35,15 @@ def _wrap_open(it, key, click):
 
 
 def _mark_svg(it):
-    """The rater's mark, hidden until placed: a magenta crosshair in a diamond with a
+    """The rater's mark, not displayed until placed (an SVG ``display`` attribute: the HTML
+    ``hidden`` attribute does not hide an SVG ``<g>`` in Chromium): a magenta crosshair in a diamond with a
     black under-stroke, so it reads on any photo and never looks like the green ring."""
     w, h = it["w"], it["h"]
     r = max(10.0, 0.035 * w)
     d = (f"M0 {-r:.1f} L{r:.1f} 0 L0 {r:.1f} L{-r:.1f} 0 Z "
          f"M0 {-1.6 * r:.1f} V{1.6 * r:.1f} M{-1.6 * r:.1f} 0 H{1.6 * r:.1f}")
     return (f'<svg class="mark" viewBox="0 0 {w} {h}" preserveAspectRatio="none" '
-            f'aria-hidden="true" focusable="false"><g hidden><path class="o" d="{d}"/>'
+            f'aria-hidden="true" focusable="false"><g display="none"><path class="o" d="{d}"/>'
             f'<path d="{d}"/></g></svg>')
 
 
@@ -116,9 +117,9 @@ fieldset {{ border:1px solid var(--line); border-radius:6px; background:var(--pa
 legend {{ font-weight:600; padding:0 4px; }}
 .opts {{ display:flex; flex-wrap:wrap; gap:4px 18px; }}
 .opts label {{ cursor:pointer; padding:2px 0; }}
-.ringwrap {{ position:relative; display:block; }}
+.ringwrap {{ position:relative; display:block; width:fit-content; max-width:100%; }}
 .halo {{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }}
-.halo circle {{ fill:none; stroke:#00e676; stroke-width:2.5; }}
+.halo circle {{ fill:none; stroke:#00e676; stroke-width:2.5; vector-effect:non-scaling-stroke; }}
 .halo circle.o {{ stroke:#000; stroke-width:1.2; }}{C["css"]}
 .note {{ display:block; margin-top:6px; font-size:13px; color:var(--muted); }}
 textarea {{ display:block; width:100%; box-sizing:border-box; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:4px; }}
@@ -208,7 +209,7 @@ document.addEventListener('keydown', ev => {{
   ev.preventDefault();
   if (needRater()) return;
   const inp = card.querySelector('input[value="' + k + '"]');
-  inp.checked = true; inp.focus(); inp.dispatchEvent(new Event('change'));
+  inp.checked = true; if (!(t.closest && t.closest('.ringwrap'))) inp.focus(); inp.dispatchEvent(new Event('change'));
 }});
 load(); render();
 document.getElementById('next').addEventListener('click', () => {{
@@ -247,30 +248,32 @@ def _click_parts(click):
     return {
         "css": """
 .mark { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-.mark path { fill:none; stroke:#ff2bd6; stroke-width:2.5; stroke-linejoin:round; }
+.mark path { fill:none; stroke:#ff2bd6; stroke-width:2.5; stroke-linejoin:round; vector-effect:non-scaling-stroke; }
 .mark path.o { stroke:#000; stroke-width:5.5; }
 .ringwrap.clickable { cursor:crosshair; }
 .markbar { display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center; margin-top:6px; }""",
         "help": (" Optional ramp mark: click the image where the ramp is (click again to "
                  "move it, Clear mark to remove it); or Tab to the image, press Enter to put "
                  "the mark at the ring, arrow keys to move it (Shift for bigger steps), "
-                 "Delete or Backspace to clear it. The mark is magenta; the ring is green."),
+                 "Delete or Backspace to clear it; an answer key pressed there answers the "
+                 "card and leaves focus on the image. The mark is magenta; the ring is green."),
         "render": "\n    drawMark(card, cur.click);",
         "js": r"""
 function pct(f) { return Math.round(f * 100) + "%"; }
 function drawMark(card, c) {
   const g = card.querySelector('.mark g');
   const st = card.querySelector('.markbar .muted');
-  if (!c) { g.setAttribute('hidden', ''); st.textContent = "No ramp mark."; return; }
+  if (!c) { g.setAttribute('display', 'none'); st.textContent = "No ramp mark."; return; }
   const vb = card.querySelector('.mark').viewBox.baseVal;
   g.setAttribute('transform', 'translate(' + (c[0] * vb.width).toFixed(1) + ' ' + (c[1] * vb.height).toFixed(1) + ')');
-  g.removeAttribute('hidden');
+  g.removeAttribute('display');
   st.textContent = "Ramp mark at " + pct(c[0]) + " across, " + pct(c[1]) + " down.";
 }
 function r4(x) { return Math.round(Math.min(1, Math.max(0, x)) * 10000) / 10000; }
 function setMark(card, c) {
   if (needRater()) return;
   const uid = card.dataset.uid;
+  if (!c && !(saved[uid] || {}).click) { say(uid + ": no ramp mark to clear."); return; }
   const cur = Object.assign(saved[uid] || {}, {});
   if (c) cur.click = [r4(c[0]), r4(c[1])]; else delete cur.click;
   saved[uid] = cur; persist(); drawMark(card, cur.click);

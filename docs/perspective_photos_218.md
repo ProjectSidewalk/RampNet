@@ -667,7 +667,15 @@ manifest digest `a1484360ce2df9a6`.
     before. The rule that asks for it was added after the gallery was built and before
     any rating; the item set and `manifest_digest` (`f5567bf82fe0e2e3`) are unchanged,
     only the manifest's rules list. The Seoul page has no mark (the option is off by
-    default there, and that page is byte-identical).
+    default there).
+  - **Ring placement fix (PR #240 review).** Before it, the shared page stretched the ring
+    overlay across the whole text column, not the image. On any window wider than about
+    750 px, a 720 px Richmond crop showed its ring off the detection: on `d001` at a
+    1280 px window, 190 px right of it and squashed into an ellipse. Any Richmond answer
+    given on the earlier page in a wide window therefore judged a misplaced ring, and
+    should be re-checked before it is used. The fix sizes the image wrapper to the image.
+    It changed the Seoul page's CSS and JS bytes but not how it looks: Seoul has no ring,
+    and its images are wider than the column.
 - **A second rater.** Both `rates` commands take several exports and report pairwise
   agreement (Cohen's kappa), and both refuse an export whose digest, item list, question,
   rubric or rules differ from the committed gallery's. No second rater has been asked.
