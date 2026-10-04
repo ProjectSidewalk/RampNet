@@ -349,20 +349,22 @@ After the review (2026-10-04), in order:
 
 ```bash
 python scripts/score_validation.py benchmark/bayonne
-python scripts/analysis/operating_point_curve.py attach-gt --cities bayonne     --cache analysis_out/bayonne_159/op_cache
+python scripts/analysis/operating_point_curve.py attach-gt --cities bayonne --cache analysis_out/bayonne_159/op_cache
 python scripts/analysis/low_floor_sweep.py parity --cities bayonne
 C=richmond,bend,clovis,morgantown,annapolis,paterson,gainesville,laurens_mapillary,budapest_district5,sao_paulo,bayonne,manual_gold
 for s in sweep hist gtbias floor distance; do python scripts/analysis/low_floor_sweep.py $s --cities $C; done
-python scripts/analysis/operating_point_curve.py gallery --city bayonne --op-threshold 0.25     --upper 0.55 --panos benchmark/bayonne/panos --out analysis_out/op/bayonne_incremental_fp
+python scripts/analysis/operating_point_curve.py gallery --city bayonne --op-threshold 0.25 --upper 0.55 --panos benchmark/bayonne/panos --out analysis_out/op/bayonne_incremental_fp
 # makelab2 ~/wt-bayonne159, RampNet .venv-eval, CUDA_VISIBLE_DEVICES= (cache hits only):
-python scripts/model_comparison/compare.py benchmark/bayonne     --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt     --tiling none --yolo-imgsz 1280 --op-threshold 0.25
-python scripts/model_comparison/compare.py benchmark/bayonne     --models rampnet,owlv2,gdino,qwen:Qwen/Qwen3-VL-8B-Instruct
-python scripts/analysis/export_model_cache.py --splits bayonne --verify     --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt     --tiling none --yolo-imgsz 1280
-python scripts/analysis/export_model_cache.py --splits bayonne --verify     --models owlv2,gdino,qwen:Qwen/Qwen3-VL-8B-Instruct
+python scripts/model_comparison/compare.py benchmark/bayonne --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt --tiling none --yolo-imgsz 1280 --op-threshold 0.25
+python scripts/model_comparison/compare.py benchmark/bayonne --models rampnet,owlv2,gdino,qwen:Qwen/Qwen3-VL-8B-Instruct
+python scripts/analysis/export_model_cache.py --splits bayonne --verify --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt --tiling none --yolo-imgsz 1280
+python scripts/analysis/export_model_cache.py --splits bayonne --verify --models owlv2,gdino,qwen:Qwen/Qwen3-VL-8B-Instruct
 # desktop, paid (section 7), default ledger:
-python scripts/model_comparison/compare.py benchmark/bayonne     --models gemini:gemini-3.6-flash,gemini:gemini-3.1-pro-preview,gemini:gemini-3.7-flash
+python scripts/model_comparison/compare.py benchmark/bayonne --models gemini:gemini-3.6-flash,gemini:gemini-3.1-pro-preview,gemini:gemini-3.7-flash --cache-dir D:/Git/RampNet/.model_cache
+python scripts/analysis/export_model_cache.py --cache-dir D:/Git/RampNet/.model_cache --splits bayonne --models gemini:gemini-3.6-flash,gemini:gemini-3.1-pro-preview,gemini:gemini-3.7-flash --write   # then --verify
+python scripts/analysis/vertex_usage.py --reconcile --days 3
 python scripts/analysis/train_overlap_check.py --benchmark benchmark --out benchmark/train_overlap.json
-python scripts/analysis/scoreboard.py
+python scripts/analysis/scoreboard.py && python scripts/analysis/cascade_cost_35.py --summary
 ```
 
 **GPU run: no spend, about 1.6 GPU-hours of a shared A40** (5,874 s). The seven challenger legs
