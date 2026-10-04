@@ -73,6 +73,10 @@ HELD_OUT = {"laurens_gsv": "second imagery arm of laurens, already pooled throug
             "sao_paulo": "non-US city, and the pooled basis is US deployment "
                          "(GT is high confidence; held out for geography, "
                          "not GT quality)",
+            "bayonne": "non-US city, and the pooled basis is US deployment "
+                       "(first Panoramax split; GT is single-rater at medium "
+                       "confidence -- bollards, speed bumps vs raised "
+                       "crossings, roundabouts fought the rubric)",
             "manual_gold": "in-distribution reference, not a deployment city"}
 ALL_SPLITS = US_SPLITS + tuple(HELD_OUT)
 

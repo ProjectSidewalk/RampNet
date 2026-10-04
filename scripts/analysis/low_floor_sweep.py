@@ -67,7 +67,8 @@ from operating_point_curve import (  # noqa: E402
 # The seven US city splits carry verdict-grade GT and are the recommendation's basis.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
              "gainesville", "laurens_mapillary")
-CITY_SPLITS = US_SPLITS + ("laurens_gsv", "budapest_district5", "sao_paulo")
+CITY_SPLITS = US_SPLITS + ("laurens_gsv", "budapest_district5", "sao_paulo",
+                            "bayonne")
 ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 
 # Why a split is swept but not pooled. Printed with the results so an omission can
@@ -91,6 +92,12 @@ HELD_OUT = {
     "sao_paulo": "non-US city — the pooled recommendation is a US-deployment "
                  "basis (GT is HIGH reviewer confidence; held out for "
                  "geography, not GT quality)",
+    "bayonne": "non-US city -- the pooled recommendation is a US-deployment "
+               "basis (first Panoramax split; held out for geography). GT is "
+               "single-rater at MEDIUM reviewer confidence: French "
+               "infrastructure fought the US-written rubric (bollards as "
+               "crossing cues, speed bumps vs raised crossings, roundabouts "
+               "with many ramps per junction)",
     "manual_gold": "in-distribution GSV + independently-labelled GT "
                    "(in-domain reference, not a deployment city)",
 }
