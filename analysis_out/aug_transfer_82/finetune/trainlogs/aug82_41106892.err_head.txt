@@ -1,0 +1,8 @@
+srun: Job step aborted: Waiting up to 12 seconds for job step to finish.
+[2026-10-02T11:10:43.324] error: *** STEP 41106892.0 ON g3115 CANCELLED AT 2026-10-02T11:10:43 DUE TO JOB REQUEUE ***
+[2026-10-02T11:10:43.324] error: *** JOB 41106892 ON g3115 CANCELLED AT 2026-10-02T11:10:43 DUE TO JOB REQUEUE ***
+W1002 11:10:43.327000 3360343 /mmfs1/gscratch/makelab/jonf/envs/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py:719] Received Signals.SIGTERM death signal, shutting down workers
+W1002 11:10:43.328000 3360343 /mmfs1/gscratch/makelab/jonf/envs/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 3360473 closing signal SIGTERM
+W1002 11:10:43.328000 3360343 /mmfs1/gscratch/makelab/jonf/envs/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 3360474 closing signal SIGTERM
+W1002 11:10:43.329000 3360343 /mmfs1/gscratch/makelab/jonf/envs/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 3360475 closing signal SIGTERM
+W1002 11:10:43.329000 3360343 /mmfs1/gscratch/makelab/jonf/envs/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 3360476 closing signal SIGTERM

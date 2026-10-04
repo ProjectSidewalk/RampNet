@@ -1,0 +1,89 @@
+=== aug probe 82 2026-10-02T09:59:53-07:00 commit 1f5e465 host makelab2.cs.washington.edu
+NVIDIA A40, 8168 MiB, 46068 MiB, 100 %
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+device=cuda gpus=['NVIDIA A40'] arms=1 torch=2.6.0+cu124
+  laurens_gsv: 25/86  wall 48s
+  laurens_gsv: 50/86  wall 88s
+  laurens_gsv: 75/86  wall 132s
+laurens_gsv done: 1 arms x 86 panos; gpu 151s wait 2s wall 152s
+  laurens_mapillary: 25/94  wall 200s
+  laurens_mapillary: 50/94  wall 247s
+  laurens_mapillary: 75/94  wall 294s
+laurens_mapillary done: 1 arms x 94 panos; gpu 328s wait 2s wall 330s
+  clovis: 25/125  wall 377s
+  clovis: 50/125  wall 424s
+  clovis: 75/125  wall 471s
+  clovis: 100/125  wall 518s
+  clovis: 125/125  wall 565s
+clovis done: 1 arms x 125 panos; gpu 563s wait 2s wall 565s
+  bend: 25/110  wall 614s
+  bend: 50/110  wall 662s
+  bend: 75/110  wall 709s
+  bend: 100/110  wall 757s
+bend done: 1 arms x 110 panos; gpu 772s wait 4s wall 776s
+  richmond: 25/124  wall 824s
+  richmond: 50/124  wall 871s
+  richmond: 75/124  wall 918s
+  richmond: 100/124  wall 965s
+richmond done: 1 arms x 124 panos; gpu 1005s wait 5s wall 1010s
+  gainesville: 25/125  wall 1059s
+  gainesville: 50/125  wall 1107s
+  gainesville: 75/125  wall 1149s
+  gainesville: 100/125  wall 1189s
+  gainesville: 125/125  wall 1230s
+gainesville done: 1 arms x 125 panos; gpu 1224s wait 6s wall 1230s
+  paterson: 25/125  wall 1271s
+  paterson: 50/125  wall 1312s
+  paterson: 75/125  wall 1354s
+  paterson: 100/125  wall 1395s
+  paterson: 125/125  wall 1436s
+paterson done: 1 arms x 125 panos; gpu 1429s wait 7s wall 1436s
+usage_log row (ok) -> /homes/gws/jonf/wt-aug82/analysis_out/usage_log.jsonl
+laurens_gsv: 86 panos, mismatched 0, max |score diff| 0.00e+00
+laurens_mapillary: 94 panos, mismatched 0, max |score diff| 0.00e+00
+clovis: 125 panos, mismatched 0, max |score diff| 0.00e+00
+bend: 110 panos, mismatched 0, max |score diff| 0.00e+00
+richmond: 124 panos, mismatched 0, max |score diff| 0.00e+00
+gainesville: 125 panos, mismatched 0, max |score diff| 0.00e+00
+paterson: 125 panos, mismatched 0, max |score diff| 0.00e+00
+PASS
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+device=cuda gpus=['NVIDIA A40'] arms=36 torch=2.6.0+cu124
+  laurens_gsv: 25/86  wall 1176s
+  laurens_gsv: 50/86  wall 2475s
+  laurens_gsv: 75/86  wall 3541s
+laurens_gsv done: 28 arms x 86 panos; gpu 3938s wait 13s wall 3951s
+  laurens_mapillary: 25/94  wall 4184s
+  laurens_mapillary: 50/94  wall 4414s
+  laurens_mapillary: 75/94  wall 4643s
+laurens_mapillary done: 7 arms x 94 panos; gpu 4800s wait 17s wall 4818s
+  clovis: 25/125  wall 5051s
+  clovis: 50/125  wall 5280s
+  clovis: 75/125  wall 5509s
+  clovis: 100/125  wall 5739s
+  clovis: 125/125  wall 5968s
+clovis done: 7 arms x 125 panos; gpu 5945s wait 22s wall 5968s
+  bend: 25/110  wall 6602s
+  bend: 50/110  wall 7234s
+  bend: 75/110  wall 7868s
+  bend: 100/110  wall 8504s
+bend done: 19 arms x 110 panos; gpu 8719s wait 37s wall 8757s
+  richmond: 25/124  wall 8992s
+  richmond: 50/124  wall 9224s
+  richmond: 75/124  wall 9454s
+  richmond: 100/124  wall 9685s
+richmond done: 7 arms x 124 panos; gpu 9859s wait 47s wall 9907s
+  gainesville: 25/125  wall 10243s
+  gainesville: 50/125  wall 10577s
+  gainesville: 75/125  wall 10822s
+  gainesville: 100/125  wall 11117s
+  gainesville: 125/125  wall 11429s
+gainesville done: 10 arms x 125 panos; gpu 11364s wait 64s wall 11429s
+  paterson: 25/125  wall 11719s
+  paterson: 50/125  wall 11876s
+  paterson: 75/125  wall 12033s
+  paterson: 100/125  wall 12189s
+  paterson: 125/125  wall 12345s
+paterson done: 10 arms x 125 panos; gpu 12266s wait 78s wall 12345s
+usage_log row (ok) -> /homes/gws/jonf/wt-aug82/analysis_out/usage_log.jsonl
+=== done 2026-10-02T13:50:26-07:00
