@@ -1,0 +1,750 @@
+{
+ "cost": "Not metered. The pre-read ran inside the Claude Code agent session that built PR #234, under a subscription; its tokens were not counted per item or per pass and cannot be recovered, so no token count or dollar figure is given. Wall clock, from file modification times on the agent's machine: crops and sheets written 2026-10-02 09:50:19 -0700, this file written 09:53:25, about 3 minutes for the 25 sheets.",
+ "instrument": "scripts/analysis/bayonne_159.py preread-crops -> ai_preread/sheet_NN.jpg (25 sheets of 6), viewed one sheet at a time",
+ "labels": {
+  "019f4d23_d0": {
+   "label": "cant_tell",
+   "n": 1,
+   "reason": "marker on a manhole cover on the footway beside a curved kerb; no crossing in view; lowering not resolvable"
+  },
+  "019f4d23_d1": {
+   "label": "ramp",
+   "n": 2,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "01c159b3_d0": {
+   "label": "ramp",
+   "n": 3,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "071afe3d_d0": {
+   "label": "cant_tell",
+   "n": 4,
+   "reason": "footway corner, no crossing in view, kerb height unclear"
+  },
+  "0c1ccac3_d0": {
+   "label": "ramp",
+   "n": 5,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "0c510a43_d0": {
+   "label": "ramp",
+   "n": 6,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "11f1d4e9_d0": {
+   "label": "not_ramp",
+   "n": 7,
+   "reason": "roof tiles above a fence, in a pano whose horizon is tilted"
+  },
+  "135b5214_d0": {
+   "label": "ramp",
+   "n": 8,
+   "reason": "tactile paving at a lowered corner"
+  },
+  "1627f0a5_d0": {
+   "label": "cant_tell",
+   "n": 9,
+   "reason": "footway lowered at a gate onto a cobbled area: driveway or ramp"
+  },
+  "1c2894e4_d0": {
+   "label": "cant_tell",
+   "n": 10,
+   "reason": "corner kerb by a stop sign, no crossing in view"
+  },
+  "1d3991ab_d0": {
+   "label": "ramp",
+   "n": 11,
+   "reason": "tactile strip at a crossing"
+  },
+  "2157f981_d0": {
+   "label": "ramp",
+   "n": 12,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "2157f981_d1": {
+   "label": "ramp",
+   "n": 13,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "254396eb_d0": {
+   "label": "cant_tell",
+   "n": 14,
+   "reason": "rounded corner whose kerb looks full height, no crossing"
+  },
+  "25bd098c_d0": {
+   "label": "ramp",
+   "n": 15,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "25d35011_d0": {
+   "label": "cant_tell",
+   "n": 16,
+   "reason": "footway corner by a barrier, lowering unclear"
+  },
+  "267b94ed_d0": {
+   "label": "ramp",
+   "n": 17,
+   "reason": "tactile paving at a crossing"
+  },
+  "27bd61dd_d0": {
+   "label": "ramp",
+   "n": 18,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "27bd61dd_d1": {
+   "label": "ramp",
+   "n": 19,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "27bd61dd_d2": {
+   "label": "ramp",
+   "n": 20,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "27bd61dd_d3": {
+   "label": "ramp",
+   "n": 21,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "2873e2ea_d0": {
+   "label": "not_ramp",
+   "n": 22,
+   "reason": "garage entrance apron beside a crossing; the crossing's end is outside the radius"
+  },
+  "28f9f4bf_d0": {
+   "label": "ramp",
+   "n": 23,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "29edbf30_d0": {
+   "label": "ramp",
+   "n": 24,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "2a2f5334_d0": {
+   "label": "ramp",
+   "n": 25,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "2da9c8a1_d0": {
+   "label": "not_ramp",
+   "n": 26,
+   "reason": "flush brick footway with no kerb edge or crossing at the marker"
+  },
+  "345ab35f_d0": {
+   "label": "cant_tell",
+   "n": 27,
+   "reason": "low kerb by a gate, no crossing"
+  },
+  "34f476a5_d0": {
+   "label": "ramp",
+   "n": 28,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "34f476a5_d1": {
+   "label": "ramp",
+   "n": 29,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "34f476a5_d2": {
+   "label": "ramp",
+   "n": 30,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "34f476a5_d3": {
+   "label": "ramp",
+   "n": 31,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "34f476a5_d4": {
+   "label": "ramp",
+   "n": 32,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "34f476a5_d5": {
+   "label": "ramp",
+   "n": 33,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "34f476a5_d6": {
+   "label": "ramp",
+   "n": 34,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "3748abdb_d0": {
+   "label": "ramp",
+   "n": 35,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "3c377025_d0": {
+   "label": "ramp",
+   "n": 36,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "417becfa_d0": {
+   "label": "cant_tell",
+   "n": 37,
+   "reason": "flush plaza entrance, no crossing"
+  },
+  "46c078b2_d0": {
+   "label": "ramp",
+   "n": 38,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "47e29c76_d0": {
+   "label": "ramp",
+   "n": 39,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "47e29c76_d1": {
+   "label": "cant_tell",
+   "n": 40,
+   "reason": "give-way triangles rather than a pedestrian crossing; kerb height unclear"
+  },
+  "47e29c76_d2": {
+   "label": "cant_tell",
+   "n": 41,
+   "reason": "near a refuge-island crossing, marker position relative to the lowering unclear"
+  },
+  "47e29c76_d3": {
+   "label": "ramp",
+   "n": 42,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "47e29c76_d4": {
+   "label": "ramp",
+   "n": 43,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "47e29c76_d5": {
+   "label": "ramp",
+   "n": 44,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "48d7a7fe_d0": {
+   "label": "ramp",
+   "n": 45,
+   "reason": "marker on the zebra, under one radius from the lowered kerb at its far end"
+  },
+  "48d7a7fe_d1": {
+   "label": "ramp",
+   "n": 46,
+   "reason": "tactile paving at the kerb"
+  },
+  "48d7a7fe_d2": {
+   "label": "ramp",
+   "n": 47,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "48d7a7fe_d3": {
+   "label": "ramp",
+   "n": 48,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "48d7a7fe_d4": {
+   "label": "ramp",
+   "n": 49,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "49e70c7d_d0": {
+   "label": "ramp",
+   "n": 50,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "4b05fbdc_d0": {
+   "label": "cant_tell",
+   "n": 51,
+   "reason": "lowered kerb along a wall with no crossing: driveway or ramp"
+  },
+  "507f47f2_d0": {
+   "label": "not_ramp",
+   "n": 52,
+   "reason": "manhole cover in a grass verge"
+  },
+  "5522ae66_d0": {
+   "label": "ramp",
+   "n": 53,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "581f2fdf_d0": {
+   "label": "cant_tell",
+   "n": 54,
+   "reason": "corner kerb, no crossing in view"
+  },
+  "5890b486_d0": {
+   "label": "ramp",
+   "n": 55,
+   "reason": "tactile paving on a lowered kerb"
+  },
+  "59e47e8b_d0": {
+   "label": "ramp",
+   "n": 56,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "59e47e8b_d1": {
+   "label": "ramp",
+   "n": 57,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "59e47e8b_d2": {
+   "label": "ramp",
+   "n": 58,
+   "reason": "tactile paving at a crossing"
+  },
+  "59e47e8b_d3": {
+   "label": "ramp",
+   "n": 59,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "59e47e8b_d4": {
+   "label": "ramp",
+   "n": 60,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "5fd55065_d0": {
+   "label": "ramp",
+   "n": 61,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "6279b12d_d0": {
+   "label": "cant_tell",
+   "n": 62,
+   "reason": "lowered kerb by a parked van: driveway or ramp"
+  },
+  "67b751e6_d0": {
+   "label": "cant_tell",
+   "n": 63,
+   "reason": "lowered kerb at a parking entrance: driveway or ramp"
+  },
+  "67c359e5_d0": {
+   "label": "ramp",
+   "n": 64,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "6c22145f_d0": {
+   "label": "ramp",
+   "n": 65,
+   "reason": "tactile strip at a crossing"
+  },
+  "6d0d3dba_d0": {
+   "label": "ramp",
+   "n": 66,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "6d0d3dba_d1": {
+   "label": "ramp",
+   "n": 67,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "6d0d3dba_d2": {
+   "label": "ramp",
+   "n": 68,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "6d0d3dba_d3": {
+   "label": "ramp",
+   "n": 69,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "6d0d3dba_d4": {
+   "label": "ramp",
+   "n": 70,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "6d0d3dba_d5": {
+   "label": "ramp",
+   "n": 71,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "6d0d3dba_d6": {
+   "label": "ramp",
+   "n": 72,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "6f285965_d0": {
+   "label": "ramp",
+   "n": 73,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "733095d5_d0": {
+   "label": "ramp",
+   "n": 74,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "733095d5_d1": {
+   "label": "cant_tell",
+   "n": 75,
+   "reason": "corner about 1.5 match radii from the crossing's end"
+  },
+  "75110567_d0": {
+   "label": "ramp",
+   "n": 76,
+   "reason": "tactile paving at a crossing"
+  },
+  "75a63358_d0": {
+   "label": "ramp",
+   "n": 77,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "76e98dfb_d0": {
+   "label": "ramp",
+   "n": 78,
+   "reason": "tactile paving on an island"
+  },
+  "7c8f3186_d0": {
+   "label": "ramp",
+   "n": 79,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "7c9dd979_d0": {
+   "label": "cant_tell",
+   "n": 80,
+   "reason": "footway corner, no crossing, lowering unclear"
+  },
+  "7e5ddca0_d0": {
+   "label": "ramp",
+   "n": 81,
+   "reason": "tactile paving at a crossing"
+  },
+  "7ee0b0b3_d0": {
+   "label": "ramp",
+   "n": 82,
+   "reason": "tactile paving at the kerb"
+  },
+  "8176c006_d0": {
+   "label": "ramp",
+   "n": 83,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "86278d43_d0": {
+   "label": "cant_tell",
+   "n": 84,
+   "reason": "blurred verge just above the bonnet"
+  },
+  "88490116_d0": {
+   "label": "ramp",
+   "n": 85,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "890b83cb_d0": {
+   "label": "ramp",
+   "n": 86,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "890b83cb_d1": {
+   "label": "ramp",
+   "n": 87,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "8a14654a_d0": {
+   "label": "cant_tell",
+   "n": 88,
+   "reason": "marker on a grass verge between two crossings"
+  },
+  "8c6a0a00_d0": {
+   "label": "ramp",
+   "n": 89,
+   "reason": "tactile paving at a refuge island"
+  },
+  "8ce50263_d0": {
+   "label": "ramp",
+   "n": 90,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "8dcc08b6_d0": {
+   "label": "ramp",
+   "n": 91,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "8eee869f_d0": {
+   "label": "ramp",
+   "n": 92,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "8fedbe47_d0": {
+   "label": "ramp",
+   "n": 93,
+   "reason": "tactile paving at a crossing"
+  },
+  "9286f977_d0": {
+   "label": "ramp",
+   "n": 94,
+   "reason": "tactile tile at the kerb"
+  },
+  "963fa5c1_d0": {
+   "label": "not_ramp",
+   "n": 95,
+   "reason": "manhole cover on the footway, no crossing"
+  },
+  "99432a18_d0": {
+   "label": "ramp",
+   "n": 96,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "9b926058_d0": {
+   "label": "ramp",
+   "n": 97,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "9b98c1a4_d0": {
+   "label": "ramp",
+   "n": 98,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "9b98c1a4_d1": {
+   "label": "ramp",
+   "n": 99,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "9d357c77_d0": {
+   "label": "ramp",
+   "n": 100,
+   "reason": "tactile paving at a crossing"
+  },
+  "9d357c77_d1": {
+   "label": "ramp",
+   "n": 101,
+   "reason": "tactile paving on an island"
+  },
+  "a11e2be5_d0": {
+   "label": "cant_tell",
+   "n": 102,
+   "reason": "shaded footway corner, lowering unclear"
+  },
+  "a5a85e1e_d0": {
+   "label": "ramp",
+   "n": 103,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "a6fe5336_d0": {
+   "label": "not_ramp",
+   "n": 104,
+   "reason": "edge of a grass-paver parking area"
+  },
+  "ab51ab70_d0": {
+   "label": "ramp",
+   "n": 105,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "ab51ab70_d1": {
+   "label": "ramp",
+   "n": 106,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "ade1ccfb_d0": {
+   "label": "ramp",
+   "n": 107,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "ade1ccfb_d1": {
+   "label": "cant_tell",
+   "n": 108,
+   "reason": "beside an island end; the crossing is on the island's other side"
+  },
+  "b0f0b5d9_d0": {
+   "label": "ramp",
+   "n": 109,
+   "reason": "tactile strip at a lowered kerb"
+  },
+  "b169d91f_d0": {
+   "label": "not_ramp",
+   "n": 110,
+   "reason": "full-height kerb around a corner, no crossing"
+  },
+  "b1b7ddd2_d0": {
+   "label": "ramp",
+   "n": 111,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "b45ba492_d0": {
+   "label": "not_ramp",
+   "n": 112,
+   "reason": "car park surface, no kerb lowering"
+  },
+  "b517b388_d0": {
+   "label": "cant_tell",
+   "n": 113,
+   "reason": "road surface by an island edge with give-way triangles"
+  },
+  "b9f7349e_d0": {
+   "label": "ramp",
+   "n": 114,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "b9f7349e_d1": {
+   "label": "ramp",
+   "n": 115,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "b9f7349e_d2": {
+   "label": "ramp",
+   "n": 116,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "c57fbe9c_d0": {
+   "label": "ramp",
+   "n": 117,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "c57fbe9c_d1": {
+   "label": "ramp",
+   "n": 118,
+   "reason": "tactile paving at a crossing"
+  },
+  "cc057703_d0": {
+   "label": "ramp",
+   "n": 119,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "cc057703_d1": {
+   "label": "ramp",
+   "n": 120,
+   "reason": "tactile paving at a crossing"
+  },
+  "cee5d22e_d0": {
+   "label": "ramp",
+   "n": 121,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "cee5d22e_d1": {
+   "label": "ramp",
+   "n": 122,
+   "reason": "tactile paving at a crossing"
+  },
+  "cee5d22e_d2": {
+   "label": "ramp",
+   "n": 123,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "cee5d22e_d3": {
+   "label": "ramp",
+   "n": 124,
+   "reason": "tactile paving on a median"
+  },
+  "d360b220_d0": {
+   "label": "cant_tell",
+   "n": 125,
+   "reason": "mostly occluded by the bonnet"
+  },
+  "d396b612_d0": {
+   "label": "ramp",
+   "n": 126,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "d396b612_d1": {
+   "label": "ramp",
+   "n": 127,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "d4200c21_d0": {
+   "label": "ramp",
+   "n": 128,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "d90cbe9d_d0": {
+   "label": "ramp",
+   "n": 129,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "db595ea9_d0": {
+   "label": "ramp",
+   "n": 130,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "dca64d90_d0": {
+   "label": "ramp",
+   "n": 131,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "dca64d90_d1": {
+   "label": "ramp",
+   "n": 132,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "dcfef45d_d0": {
+   "label": "ramp",
+   "n": 133,
+   "reason": "tactile paving at an island"
+  },
+  "e018e8ad_d0": {
+   "label": "not_ramp",
+   "n": 134,
+   "reason": "patch on an island footway behind a full-height kerb"
+  },
+  "e018e8ad_d1": {
+   "label": "ramp",
+   "n": 135,
+   "reason": "white tactile strip at the kerb by a crossing"
+  },
+  "e0849d9a_d0": {
+   "label": "not_ramp",
+   "n": 136,
+   "reason": "kerb lowered across a gate (driveway), no crossing; conf 0.97"
+  },
+  "e36b77c3_d0": {
+   "label": "cant_tell",
+   "n": 137,
+   "reason": "corner of a footway at a lot entrance"
+  },
+  "e8acafb5_d0": {
+   "label": "ramp",
+   "n": 138,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "ea8b3f52_d0": {
+   "label": "ramp",
+   "n": 139,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "ee13d084_d0": {
+   "label": "cant_tell",
+   "n": 140,
+   "reason": "footway corner between parked cars, no crossing"
+  },
+  "f3df7175_d0": {
+   "label": "ramp",
+   "n": 141,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "f557d640_d0": {
+   "label": "cant_tell",
+   "n": 142,
+   "reason": "painted lowering by a gate; crossing or entrance"
+  },
+  "f5af69b9_d0": {
+   "label": "cant_tell",
+   "n": 143,
+   "reason": "footway edge along the road, lowering unclear"
+  },
+  "f8759625_d0": {
+   "label": "cant_tell",
+   "n": 144,
+   "reason": "flush plaza corner with bollards, no crossing in view"
+  },
+  "fbbe99ca_d0": {
+   "label": "cant_tell",
+   "n": 145,
+   "reason": "at the pano's left edge, so the crop is clamped and the detection sits at its border"
+  },
+  "fe3d9264_d0": {
+   "label": "ramp",
+   "n": 146,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  },
+  "fe3d9264_d1": {
+   "label": "ramp",
+   "n": 147,
+   "reason": "lowered kerb at the end of a pedestrian crossing"
+  }
+ },
+ "rater": {
+  "date": "2026-10-02",
+  "human": false,
+  "kind": "model",
+  "model": "Claude Opus 5.5",
+  "model_id": "claude-opus-5-5"
+ },
+ "rubric": "AI pre-read rubric (applied 2026-10-02 by claude-opus-5-5; not a verdict).\nUnit: one RampNet detection >= 0.55 from benchmark/bayonne/records.jsonl, shown as a square crop\ncut from the NATIVE panorama (side = 0.09 x native width, 484-518 px, shown 1:1), with a ring at\nthe peak. The benchmark match radius (0.022 normalized) is about a quarter of the crop's width.\nramp: within about one match radius of the marker there is a curb ramp: a place where the kerb is\n  lowered or ramped so a wheelchair can cross between footway and carriageway. This includes the\n  French lowered kerb (abaissement de trottoir) at the end of a pedestrian crossing, with or without\n  tactile paving or a white-painted kerb, and refuge-island cut-throughs.\nnot_ramp: the marker is on something else: a driveway or garage apron with no crossing, a manhole\n  cover or verge with no lowering, a full-height kerb, a car park surface, a building.\ncant_tell: the crop does not show whether the kerb is lowered, or a lowering is visible but nothing\n  says crossing rather than driveway, or the marker is between one and two radii from a lowering.\nNot distinguished: duplicates (a second detection on one ramp is labelled ramp). Not done: any\nscan for missed ramps. The crops are native resolution, i.e. MORE pixels than the model and the\nreviewer see (both see 4096x2048), which favours ramp and cant_tell over not_ramp.",
+ "what": "AI pre-read of the 147 Bayonne detections the review will judge. A heads-up on what the detector fires on. NOT ground truth, NOT a verdict file, NOT a precision: no number from it may be quoted as precision. REVIEWER: do not open the per-item labels in this file, items.json or summary.json until your verdicts.json is exported; a review made after reading a model's per-item calls is partly that model's ground truth. Only the rubric notes in docs/bayonne_split_159.md section 3 are meant to be read first."
+}

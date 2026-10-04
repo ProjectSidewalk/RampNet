@@ -1,0 +1,33 @@
+{
+ "by_conf": {
+  "0.55-0.70": {
+   "cant_tell": 20,
+   "not_ramp": 7,
+   "ramp": 49
+  },
+  "0.70-0.85": {
+   "cant_tell": 7,
+   "not_ramp": 2,
+   "ramp": 35
+  },
+  "0.85-1.00": {
+   "cant_tell": 1,
+   "not_ramp": 1,
+   "ramp": 25
+  }
+ },
+ "counts": {
+  "cant_tell": 28,
+  "not_ramp": 10,
+  "ramp": 109
+ },
+ "n": 147,
+ "note": "Counts of a MODEL's labels on native-resolution crops. Not ground truth and not a precision; see the rubric in the labels file. Reviewer: do not read this before your verdicts.json is exported.",
+ "rater": {
+  "date": "2026-10-02",
+  "human": false,
+  "kind": "model",
+  "model": "Claude Opus 5.5",
+  "model_id": "claude-opus-5-5"
+ }
+}

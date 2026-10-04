@@ -179,11 +179,11 @@ def protocol_threshold(model):
 
 def discover_splits(repo):
     """Every committed benchmark bundle, in sorted order."""
-    bench = Path(repo) / "benchmark"
-    # A bundle.json bundle (#48's neighbourhood bundles) borrows another split's
-    # verdicts; counting it would score those judged panos twice.
-    return sorted(d.name for d in bench.iterdir()
-                  if (d / "records.jsonl").exists() and not (d / "bundle.json").exists())
+    # Scored splits only: a bundle.json bundle (#48's neighbourhood bundles) borrows
+    # another split's verdicts, so counting it would score those judged panos twice,
+    # and a staged bundle with no review yet (bayonne, #159) cannot be scored at all.
+    from rampnet.bundles import scored_splits
+    return scored_splits(str(Path(repo) / "benchmark"))
 
 
 def load_split(repo, split):

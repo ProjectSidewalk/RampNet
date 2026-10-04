@@ -347,9 +347,20 @@ def write_cache(path, city, panos, meta):
         json.dump(payload, f)
 
 
-def read_cache(path):
+class UnreviewedCache(ValueError):
+    """An ``extract --unreviewed`` cache was read by something that scores GT."""
+
+
+def read_cache(path, allow_unreviewed=False):
+    """``(panos, meta)`` from a cache. Refuses an ``extract --unreviewed`` cache
+    (``meta.gt == "unreviewed"``) unless ``allow_unreviewed``: its GT is a placeholder,
+    and scoring it would count every peak as a false positive (PR #234, S3). Readers
+    that never touch GT (parity, attach-gt) pass ``allow_unreviewed=True``."""
     with open(path, encoding="utf-8") as f:
         payload = json.load(f)
+    if payload.get("meta", {}).get("gt") == "unreviewed" and not allow_unreviewed:
+        raise UnreviewedCache(f"{path}: an unreviewed cache (placeholder GT); run "
+                              "operating_point_curve.py attach-gt after the review")
     panos = [{"pano": p["pano"],
               "preds": [tuple(t) for t in p["preds"]],
               "gt": _gt_from_json(p["gt"])} for p in payload["panos"]]
@@ -359,6 +370,28 @@ def read_cache(path):
 # --------------------------------------------------------------------------- #
 # bundle ground truth (both bundle kinds)
 # --------------------------------------------------------------------------- #
+def unreviewed_ground_truths(city, repo=REPO):
+    """``({pid: empty GroundTruth}, panos_dir)`` for a bundle staged ahead of its
+    review (#159): only ``records.jsonl`` and ``panos/`` exist.
+
+    The peaks ``extract`` caches do not depend on GT, so a split can be extracted
+    before anyone has judged it. The empty GT is a placeholder, not a claim -- the
+    cache's ``meta.gt`` says ``"unreviewed"``, and ``attach-gt`` swaps in the
+    verdict-derived GT on the CPU once ``verdicts.json`` lands, with no GPU re-run.
+    """
+    cdir = os.path.join(repo, "benchmark", city)
+    for name in ("verdicts.json", "gt_source.json", "bundle.json"):
+        if os.path.exists(os.path.join(cdir, name)):
+            raise SystemExit(f"{cdir} has {name}; it is reviewed -- drop --unreviewed")
+    pids = []
+    with open(os.path.join(cdir, "records.jsonl"), encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                pids.append(json.loads(line)["pano"]["panorama_id"])
+    return ({pid: GroundTruth([], [], False) for pid in pids},
+            os.path.join(cdir, "panos"))
+
+
 def bundle_ground_truths(city, repo=REPO):
     """``({pid: GroundTruth}, panos_dir)`` for either kind of benchmark bundle.
 
@@ -475,6 +508,11 @@ def cmd_extract(args):
     import threshold_sweep as ts
 
     _assert_cache_arm(args.cache, args.tta)
+    if args.unreviewed and os.path.abspath(args.cache) == os.path.abspath(CACHE_DIR):
+        # The shared op_cache is read by every analysis, and none of them can score a
+        # placeholder GT; an unreviewed cache must live beside its split's work.
+        raise SystemExit("extract --unreviewed refuses the shared analysis_out/op_cache; "
+                         "pass --cache analysis_out/<split>_<issue>/op_cache")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model, model_label = _load_extract_model(args.checkpoint, args.model_label)
     model = model.to(device)
@@ -490,7 +528,8 @@ def cmd_extract(args):
         if os.path.exists(out_path) and not args.force:
             print(f"{city}: cache exists -> skipping (--force to re-extract)", flush=True)
             continue
-        gts, panos_dir = bundle_ground_truths(city)
+        gts, panos_dir = (unreviewed_ground_truths(city) if args.unreviewed
+                          else bundle_ground_truths(city))
         panos = []
         for i, (pid, gt) in enumerate(gts.items(), 1):
             path = os.path.join(panos_dir, f"{pid}.jpg")
@@ -516,8 +555,45 @@ def cmd_extract(args):
                 "radius_normalized": 0.022, "fp16": use_fp16, "tta": args.tta,
                 "n_panos": len(panos), "deployed_threshold": DEPLOYED_THRESHOLD,
                 "model": model_label, "device": device.type}
+        if args.unreviewed:
+            meta["gt"] = "unreviewed"
         write_cache(out_path, city, panos, meta)
         print(f"{city}: {len(panos)} panos -> {out_path}", flush=True)
+
+
+def attach_ground_truth(panos, meta, gts):
+    """Replace an unreviewed cache's placeholder GT with verdict-derived GT.
+
+    Pure: returns ``(panos, meta)`` and leaves the peaks untouched. Refuses a pano
+    set that differs from the review's, because a cache scored against a different
+    list of panos is silently a different split. Panos come out in ``gts`` order --
+    the order ``extract`` itself writes for a reviewed split (``bundle_ground_truths``
+    is verdicts order) -- so the result is byte-identical to a fresh GT extraction;
+    seeded bootstraps over panos depend on that order (PR #234, S4).
+    """
+    have, want = {pd["pano"] for pd in panos}, set(gts)
+    if have != want:
+        raise ValueError(f"cache has {len(have)} panos, review has {len(want)}; "
+                         f"{len(have - want)} unreviewed, {len(want - have)} missing")
+    by_pid = {pd["pano"]: pd for pd in panos}
+    out = [dict(by_pid[p], gt=gts[p]) for p in gts]
+    meta = {k: v for k, v in meta.items() if k != "gt"}
+    return out, meta
+
+
+def cmd_attach_gt(args):
+    for city in args.cities:
+        src = os.path.join(args.cache, f"{city}.json")
+        panos, meta = read_cache(src, allow_unreviewed=True)
+        if meta.get("gt") != "unreviewed":
+            raise SystemExit(f"{src}: not an unreviewed cache (meta.gt={meta.get('gt')!r})")
+        gts, _ = bundle_ground_truths(city)
+        panos, meta = attach_ground_truth(panos, meta, gts)
+        # Never land an attached cache among the other arm's (TTA vs single-pass).
+        _assert_cache_arm(args.out_cache, bool(meta.get("tta", False)))
+        dst = os.path.join(args.out_cache, f"{city}.json")
+        write_cache(dst, city, panos, meta)
+        print(f"{city}: GT attached to {len(panos)} panos -> {dst}")
 
 
 # --------------------------------------------------------------------------- #
@@ -972,6 +1048,10 @@ def main():
     e.add_argument("--score-floor", type=float, default=DEFAULT_SCORE_FLOOR)
     e.add_argument("--min-distance", type=int, default=DEFAULT_MIN_DISTANCE)
     e.add_argument("--cache", default=CACHE_DIR)
+    e.add_argument("--unreviewed", action="store_true",
+                   help="the split has records.jsonl + panos/ but no review yet (#159): "
+                        "cache peaks with placeholder GT (meta.gt='unreviewed'); "
+                        "attach-gt fills it in later")
     e.add_argument("--force", action="store_true",
                    help="re-extract splits that already have a cache (default: skip them, "
                         "so a preempted job resumes where it stopped)")
@@ -990,6 +1070,14 @@ def main():
                    help="what meta.model records; default is the Hub id, or "
                         "'checkpoint:<fingerprint>' when --checkpoint is given")
     e.set_defaults(func=cmd_extract)
+
+    a = sub.add_parser("attach-gt",
+                       help="CPU: swap verdict-derived GT into an --unreviewed cache (#159)")
+    a.add_argument("--cities", type=_csv_cities, required=True)
+    a.add_argument("--cache", required=True, help="dir holding the unreviewed cache")
+    a.add_argument("--out-cache", default=CACHE_DIR,
+                   help="where the reviewed cache is written (default: the op_cache)")
+    a.set_defaults(func=cmd_attach_gt)
 
     c = sub.add_parser("curve", help="CPU: PR curve + AP + F1-vs-threshold from the cache")
     c.add_argument("--cities", type=_csv_cities, default=DEFAULT_CITIES)
