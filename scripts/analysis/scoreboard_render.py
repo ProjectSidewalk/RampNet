@@ -29,6 +29,7 @@ SPLIT_HEADER = {
     "laurens_gsv": "laur_gsv †",
     "budapest_district5": "budapest †",
     "sao_paulo": "sao_paulo †",
+    "bayonne": "bayonne †",
     "manual_gold": "manual_gold †",
 }
 
@@ -643,6 +644,7 @@ LOG_ROWS = {
     "laurens_gsv": LOG_STANDING + ("claude-opus-5-effort-low",),
     "budapest_district5": LOG_STANDING,
     "sao_paulo": LOG_STANDING,
+    "bayonne": LOG_STANDING,
 }
 
 

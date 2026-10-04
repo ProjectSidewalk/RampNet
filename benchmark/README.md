@@ -117,6 +117,7 @@ marked for deletion; run the RampNet versions, not those.
 | sao_paulo ‡ | GSV (Google Street View) | 125 | 0.888 | 0.676 |
 | laurens_mapillary § | Mapillary 360 (GoPro Max) | 94 | 0.898 | 0.390 |
 | laurens_gsv § | GSV (Google Street View) | 86 | 0.925 | 0.505 |
+| bayonne ¶ | Panoramax (GoPro Max) | 125 | 0.824 | 0.372 |
 
 † **Budapest is not comparable to the seven US splits without its caveats** — the reviewer rated
 their own pass low confidence and the rubric does not transfer cleanly. Read the section below
@@ -134,7 +135,12 @@ a `laurens_mapillary` one, so pooling both double-counts the same physical ramps
 independence the Wilson intervals assume. Held out for non-independence, **not** for GT quality.
 Read the section below before quoting either row.
 
-All eleven city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+¶ **Bayonne is the third non-US split and the first from Panoramax**, reviewed at **medium**
+confidence by a single rater, who found French crossing design hard to judge against a rubric
+written around US corners. Held out of the pooled recommendation for geography; read its section
+below before quoting it.
+
+All twelve city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
@@ -160,6 +166,7 @@ hand-picked high-density panos — is the honest between-city comparison, and
 | sao_paulo ‡ | 120 | 0.869 | 0.626 |
 | laurens_mapillary § | 89 | 0.863 | 0.325 |
 | laurens_gsv § | 81 | 0.904 | 0.459 |
+| bayonne ¶ | 120 | 0.785 | 0.322 |
 
 Clovis is below the other cities on both metrics because it is 100% soft, 2018-era GoPro Fusion
 360 imagery, where richmond mixes in the sharper NCTECH iSTAR Pulsar (camera provenance is in the
@@ -461,6 +468,50 @@ other 5 held 11 missed ramps — the annapolis-shaped result that the model's "n
 mostly, not entirely, right. A live Project Sidewalk deployment
 (sidewalk-sao-paulo.cs.washington.edu) sits inside the footprint, so an agree-rate comparison
 is possible later; it covers Brás only and is 8.2% audited, so that comparison would be thin.
+
+## Bayonne — the first Panoramax split, and the lowest recall in the benchmark
+
+`benchmark/bayonne/` (issue #159) is 125 panos of Bayonne, France: 123 from the municipal
+producer `sig_bayonne` on Panoramax and 2 from another producer, all GoPro Max. It is the
+ground-truth gate for the first Panoramax Project Sidewalk city. The split's build, the
+pre-review reads and every command are in [`docs/bayonne_split_159.md`](../docs/bayonne_split_159.md).
+
+**Recall is the lowest in the benchmark.** All panos: P 0.824 [0.751, 0.878], R 0.372
+[0.319, 0.428]. Unbiased subset: P 0.785 [0.698, 0.852], R 0.322 [0.268, 0.381], level with
+`laurens_mapillary` (0.325) and below Budapest (0.459). The reviewer marked 189 missed ramps
+(+53 unsure) against 112 confirmed detections. Bayonne and `laurens_mapillary` are both
+consumer GoPro Max imagery, and Laurens' second arm showed that its low recall is the rig, not
+the town; Bayonne is a second GoPro Max split with the same recall, in a different country. It
+is consistent with the rig explanation, but Bayonne has no second arm, so it cannot separate rig
+from city on its own.
+
+**The misses are not far-field.** Using the flat-ground distance estimate, recall at 0.55 is
+0.450 near (< 12.5 m), 0.320 mid and 0.302 far (`low_floor_sweep.py distance`), so RampNet misses
+more than half of the ramps within 12.5 m of the camera. Lowering the threshold helps: 0.55 to
+0.30 moves recall 0.379 to 0.498 and precision 0.820 to 0.754 on all 125 panos (`sweep`, from
+the op_cache), and the F1 optimum sits at 0.20. About 28% of the GT ramps (recall ceiling 0.721
+at the 0.05 extraction floor, `floor`) produce no candidate at any threshold, so a lower threshold
+cannot reach them.
+
+**What fought the review** (`review_notes`, confidence medium, reviewer jonf, 2026-10-04):
+
+- **Bollards as crossing cues.** Crossings are often marked by bollards rather than a US-style
+  ramp with a tactile strip.
+- **Speed bumps vs raised crossings.** Speed bumps can look like crosswalks or raised walkways.
+- **Roundabouts and complex junctions** carry many ramps each, which makes per-corner judgments
+  and the completeness of the missed marks harder than on US grid corners.
+- **Bike-lane cuts.** One pano (`b517b388`) has a detection at a bike-lane cut, marked unsure.
+  The rubric was ruled afterwards: a bike-lane cut is not a pedestrian curb ramp
+  (`RUBRICS.md` §1, Class rulings). The verdict was left as recorded (unsure, so it abstains).
+
+No detection was marked duplicate. The negative check: 21 of the 25 `empty`-stratum panos were
+clean, and the other 4 held 8 missed ramps. Abstention is 7.5% of detections and 21.9% of missed
+marks.
+
+**The logo band.** 124 panos carry a burned-in band across the bottom of the frame (from y 0.771
+to 0.791). The gallery hatched it, and a ramp under the band is invisible to the model and the
+reviewer alike, so it is outside the ground truth by construction. It covers ramps within about
+2 m of the camera.
 
 ## Laurens, IA — one town, two rigs, and the split that tests the rig itself
 

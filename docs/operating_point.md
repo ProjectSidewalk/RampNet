@@ -65,6 +65,7 @@ could change a scoring outcome.
 | paterson | 284 | 281 | 81.1% | 96.8% | 0.439 R |
 | gainesville | 205 | 197 | 76.6% | 95.4% | 0.439 R |
 | sao_paulo ‡ | 251 | 228 | 77.2% | 98.2% | 0.439 R |
+| bayonne ¶ | 147 | 150 | 98.0% | 98.0% | 0.000 R |
 | manual_gold † | 3610 | 3487 | 80.9% | 99.9% | 0.472 R |
 
 **Every Mapillary split reproduces bit-exactly, including on different hardware** (these were
@@ -117,6 +118,15 @@ precision (11 production FPs also fell below the floor); every row at ≤ 0.38 �
 the recommended 0.30 — is unaffected, because all 20 straddlers are present at 0.386+. The
 sweep values are used with this caveat attached; sao_paulo is held out of every pooled row
 regardless, so no recommendation number inherits any of it.
+
+¶ **bayonne passes** (2026-10-04). All 147 record detections land in the identical heatmap
+cell; the cache has 3 more peaks at ≥ 0.55, all on the 360 seam (x = 0 or 0.996), which the
+production labeler dropped because its `peak_local_max` call lacks `exclude_border=False`
+(sidewalk-auto-labeler#130, the defect RampNet's extractor had until f4c71c8). 3 of 147 is
+2.0%, inside the 5% count allowance, so no `PARITY_EXCEPTIONS` entry. The cache-based rows
+therefore count those 3 seam peaks at 0.55 and the records-based score does not (details in
+`docs/bayonne_split_159.md` §4.2). The sweep's 0.55 row (P 0.820, R 0.379) and the
+verdict-based `score_validation.py` (P 0.824, R 0.372) differ for that reason.
 
 ## The central bias: sub-0.55 precision is a lower bound, and we can prove it
 
@@ -201,6 +211,10 @@ sao_paulo 2026-08-01): every unmatched prediction in the `[0.25, 0.55)` band was
 | gainesville | 34 | 12 | 21 | 1 | **35.3%** |
 | budapest_district5 | 89 | 23 | 59 | 7 | 25.8% |
 | sao_paulo | 48 | 6 | 38 | 4 | **12.5% — lowest of any split** |
+| bayonne | 40 | — | — | — | **not tagged yet** |
+
+bayonne's gallery (40 items, 9 pre-flagged as likely duplicates) was built on 2026-10-04 and
+is waiting for Jon's tags; no A-rate exists for it yet, and nothing below uses one.
 
 paterson produced by far the fewest incremental FPs (10, against 23–34 for the other US
 cities) — the same shallow threshold response its sweep row shows, measured a second way.
@@ -306,6 +320,7 @@ not move the pooled optimum, which is still 0.32.)
 | laurens_mapillary | 0.898 | 0.390 | 0.895 | 0.514 | +0.124 | −0.003 | 1.18 → 1.57 | 0.15 |
 | budapest † | 0.874 | 0.510 | 0.718 | 0.637 | +0.127 | −0.156 | 1.51 → 2.27 | 0.37 |
 | sao_paulo § | 0.906 | 0.651 | 0.809 | 0.783 | **+0.132** | −0.097 | 1.82 → 2.50 | 0.31 |
+| bayonne ¶ | 0.820 | 0.379 | 0.755 | 0.482 | +0.103 | −0.065 | 1.20 → 1.64 | 0.20 |
 | manual_gold ‡ | 0.955 | 0.849 | 0.926 | 0.884 | +0.035 | −0.028 | 3.49 → 3.74 | 0.36 |
 
 † Budapest is swept but **held out of the pooled recommendation** (single-rater GT at low
@@ -373,6 +388,12 @@ answer is unambiguous: with paterson pooled in, the GSV tier's optimum moved fro
 **0.26**, into (indeed past) the cluster. An in-domain model is confident enough on its own
 training city that raising the threshold costs it little — that was bend's 0.50, and it says
 nothing about GSV imagery. Deployment cities should not inherit it.
+¶ bayonne (added 2026-10-04) is held out as a non-US split (the first Panoramax one), with
+single-rater GT at **medium** reviewer confidence. Its deployed recall, 0.379, is the lowest of
+any split, level with laurens_mapillary (0.390, the other consumer GoPro Max split), and its F1
+optimum sits far below the recommendation, at 0.20 (laurens_mapillary: 0.15). Its #55 pass has
+not been tagged yet (40 items in `[0.25, 0.55)`), so its sub-0.55 precision is still a raw lower
+bound.
 
 ### Where the recall gain lands on the distance axis
 
@@ -391,7 +412,9 @@ multi-view lever are largely independent and **stack**. (paterson tilts the far 
 slightly — its largest per-band gain is far, +0.091; gainesville gains +0.122 mid and
 +0.120 far. Held-out sao_paulo is the extreme case: +0.101 near / +0.194 mid / +0.217 far,
 0.55 → 0.30 — its reviewer-documented mid-block sampling geometry puts 47% of its GT beyond
-12.5 m, and that is exactly where its outsized threshold response lands.) Far-field recall
+12.5 m, and that is exactly where its outsized threshold response lands. Held-out bayonne
+is the opposite shape: +0.114 near / +0.150 mid / +0.075 far, and its recall at 0.55 is
+low in every band, near included: 0.450 / 0.320 / 0.302.) Far-field recall
 stays poor even after the drop (bend 0.214, clovis 0.389,
 annapolis 0.490 at 0.32; paterson 0.523 and gainesville 0.420 at 0.30 — gainesville's
 far band is the worst in the benchmark at the deployed threshold, 0.300), so multi-view
@@ -442,9 +465,11 @@ Per split at 0.30:
 | gainesville | 0.857 | 0.886 | 0.890 | 0.778 | 0.828 |
 | budapest ‡ | 0.707 | 0.762 | 0.777 | 0.660 | 0.707 |
 | sao_paulo ‡ | 0.803 | 0.821 | 0.828 | 0.801 | 0.811 |
+| bayonne ‡ | 0.754 | — | — | — | — |
 
 ‡ excluded from the pooled row and the recommendation (budapest: low-confidence GT;
-sao_paulo: non-US — tags applied 2026-08-01, `tagcheck` 48/48).
+sao_paulo: non-US — tags applied 2026-08-01, `tagcheck` 48/48; bayonne: non-US, raw
+precision only, because its #55 tags do not exist yet).
 
 **The correction changed the answer.** On raw numbers the F1 optimum sat at 0.32 and the
 conservative choice was 0.35; with the GT completeness correction applied, corrected F1 peaks
@@ -488,6 +513,7 @@ Reproduce with `python scripts/analysis/low_floor_sweep.py floor` and
 | **POOLED (7 US)** | **2060** | **45** | **2.18%** |
 | budapest | 300 | 7 | 2.33% |
 | sao_paulo | 281 | 2 | 0.71% |
+| bayonne | 301 | 14 | 4.65% |
 | manual_gold | 3919 | 19 | 0.48% |
 
 paterson is the outlier at 0.25%, and not in a comforting way: its missed ramps are not
@@ -501,6 +527,12 @@ floor-lost, but its ceiling at the 0.10 storage floor is **0.861 against a deplo
 +0.210 recoverable, the most of any split with trusted GT** (budapest's +0.223 rests on
 low-confidence GT). Its out-of-domain misses overwhelmingly *fire* — under-confident, not
 silent — which is what its record threshold response (+14.6 R at 0.30) exploits.
+
+bayonne (held out, 2026-10-04) is the other way round: 14 of its 301 ramps (4.65%) have their
+best candidate in `[0.05, 0.10)`, twice the US rate, and its ceiling is low at every floor
+(0.721 at 0.05, 0.674 at 0.10, against 0.375 deployed). A 0.1 storage floor would cost it more
+than any US split, and even the 0.05 extraction floor leaves 28% of its ramps with no candidate
+at all.
 
 **The recall ceiling.** The share of GT ramps with *any* candidate at or above a floor —
 the hard upper bound on what multi-view consensus can ever recover:
