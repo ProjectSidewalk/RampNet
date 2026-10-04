@@ -533,9 +533,12 @@ F1 difference.
    underperforms because it is a French, European city whose pedestrian infrastructure differs
    from the US cities RampNet was trained on. The evidence is suggestive, not decisive.
    - *For it:* the review notes record exactly that kind of difference (bollards as crossing
-     cues, speed bumps vs raised crossings, roundabouts with many ramps each), and about 28% of
-     the GT ramps produce no RampNet candidate even at the 0.05 floor, which is what a design
-     the model has never seen would look like, rather than an under-confident detection.
+     cues, speed bumps vs raised crossings, roundabouts with many ramps each). Also, about 28%
+     of the GT ramps produce no RampNet candidate even at the 0.05 floor. That is the highest
+     share of any split (paterson and budapest 24%, laurens_mapillary 22%;
+     `analysis_out/op/storage_floor.csv`), and it fits a design the model has not learned.
+     But most misses (about 104 of 188) do fire between 0.05 and 0.55, so under-confidence is
+     the larger part of the deficit.
    - *Against it, or at least not requiring it:* laurens_mapillary, a US town, has the same
      unbiased recall (0.325 vs 0.322), so a US split can be this hard; and the other two non-US
      splits do much better (budapest 0.459, sao_paulo 0.626 unbiased), so being non-US is not
