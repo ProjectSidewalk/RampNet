@@ -483,13 +483,45 @@ the eight Run A epoch dumps at `docs/data/run_a_84_detections/`.
 python scripts/analysis/benchmark_power_135.py \
     --bootstrap 20000 --matrix-bootstrap 5000 \
     --out-json docs/data/benchmark_power_135.json
+# or, to verify without writing anything:
+python scripts/analysis/benchmark_power_135.py --check
 ```
 
-Roughly 20 minutes on a laptop. Inputs: `manual_labels/` and `benchmark/*/records.jsonl` +
+About 11 minutes on a desktop CPU (676 s, measured 2026-10-03; see below). Inputs: `manual_labels/` and `benchmark/*/records.jsonl` +
 `verdicts.json` for ground truth, `benchmark/model_detections/*.json` for the YOLO arms,
 `docs/data/run_a_84_detections/*.json` for the Run A epoch dumps,
 `analysis_out/op_cache/*.json` for the single-pass RampNet arm, and
 `docs/data/run_a_84_manual_gold/summary.csv` for Run A's own curve.
+
+**The splits are pinned (#236).** The analysis was run on ten splits: annapolis, bend,
+budapest_district5, clovis, gainesville, manual_gold, morgantown, paterson, richmond and
+sao_paulo (`SPLITS_135` in the script). The default `--splits` used to mean "every scored bundle
+under `benchmark/`", which became twelve when both Laurens arms (`laurens_gsv`,
+`laurens_mapillary`) reached main, so the command above silently stopped reproducing the committed
+file. The default is now the pinned ten. The Laurens arms were committed on their own branch on
+2026-08-31 and merged with #152 on 2026-09-04, an hour before cc94b34; the #135 branch that wrote
+the JSON never contained them. That is why they are left out, not any judgment about them.
+
+`--check` runs the default analysis in memory and compares its bytes with the committed JSON. It
+writes nothing, exits 0 with `ok (byte-identical)` on a match, and on a mismatch exits 2 with the
+first differing byte offset, the first differing key path, the number of differing leaf values and
+the largest absolute numeric difference. **On 2026-10-03 the default command regenerated
+`docs/data/benchmark_power_135.json` byte for byte** (#237): Windows 11 desktop, CPython 3.12.10,
+numpy 2.5.1, 676 s wall-clock. The same check is registered in `scripts/check_all.py` as a slow
+entry, so it runs with `--all` and not in CI. `tests/test_benchmark_power_135.py` holds the same
+check behind `RAMPNET_SLOW=1`. It was not re-run on Linux; the committed file was written on
+2026-09-04 and neither this doc nor the commits that wrote it (bd9486a, cc94b34) record the platform
+or numpy version, so cross-platform byte identity is untested.
+
+A twelve-split run over every scored bundle is a separate command with a separate output file:
+
+```bash
+python scripts/analysis/benchmark_power_135.py --splits all \
+    --out-json docs/data/benchmark_power_135_all.json
+```
+
+It is a new analysis with new numbers, and it has **not** been run or committed. Whether to run
+it, and whether any number quoted from the ten-split file should move to it, is an open decision.
 
 **Every derived number in this document is in `docs/data/benchmark_power_135.json`, with four
 stated exceptions** — the earlier claim of "every" was not true and the exceptions are named
