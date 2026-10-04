@@ -1,5 +1,30 @@
 {
- "gallery": "benchmark/mined_label_check_158/gallery_click.html",
+ "task": "RampNet #158 step 4, click pass: where would you place the label?",
+ "question": "Click where you would place the label on the curb ramp the ring refers to.",
+ "statuses": [
+  {
+   "key": "placed",
+   "label": "Placed",
+   "definition": "A click on the ramp the ring refers to, where you would put a curb-ramp label (e.g. the centre of the tactile warning strip, or of the ramp if it has none)."
+  },
+  {
+   "key": "multi",
+   "label": "Two ramps, can't pick",
+   "definition": "The ring sits between two or more ramps and you cannot say which one it means."
+  },
+  {
+   "key": "cant_place",
+   "label": "Can't place",
+   "definition": "You answered Yes before, but in this view you cannot put a point on the ramp (occluded, washed out, too far). Excluded from offsets."
+  }
+ ],
+ "rules": [
+  "The ring is the miner's point. Click the ramp it refers to, not the nearest ramp in the crop if that is a different one.",
+  "R hides the ring, so it does not cover the ramp; the click stays.",
+  "Clicking again moves the point. Clear removes it.",
+  "Use the same placement convention on every card."
+ ],
+ "rater": "jonf",
  "items": [
   "cb7e678b7",
   "c56bf7daa",
@@ -74,33 +99,507 @@
   "c553b56a2"
  ],
  "manifest_digest": "b0a61275cb6666a3",
- "n_answered": 0,
  "n_items": 71,
- "question": "Click where you would place the label on the curb ramp the ring refers to.",
- "rater": "jonf",
- "rules": [
-  "The ring is the miner's point. Click the ramp it refers to, not the nearest ramp in the crop if that is a different one.",
-  "R hides the ring, so it does not cover the ramp; the click stays.",
-  "Clicking again moves the point. Clear removes it.",
-  "Use the same placement convention on every card."
- ],
- "statuses": [
-  {
-   "definition": "A click on the ramp the ring refers to, where you would put a curb-ramp label (e.g. the centre of the tactile warning strip, or of the ramp if it has none).",
-   "key": "placed",
-   "label": "Placed"
+ "n_answered": 71,
+ "gallery": "benchmark/mined_label_check_158/gallery_click.html",
+ "exported_at": "2026-10-04T18:47:51.518Z",
+ "verdicts": {
+  "cb7e678b7": {
+   "status": "placed",
+   "click": {
+    "fx": 0.65926,
+    "fy": 0.43034
+   }
   },
-  {
-   "definition": "The ring sits between two or more ramps and you cannot say which one it means.",
-   "key": "multi",
-   "label": "Two ramps, can't pick"
+  "c56bf7daa": {
+   "status": "placed",
+   "click": {
+    "fx": 0.48545,
+    "fy": 0.54509
+   }
   },
-  {
-   "definition": "You answered Yes before, but in this view you cannot put a point on the ramp (occluded, washed out, too far). Excluded from offsets.",
-   "key": "cant_place",
-   "label": "Can't place"
+  "c680e7c83": {
+   "status": "placed",
+   "click": {
+    "fx": 0.48818,
+    "fy": 0.52946
+   }
+  },
+  "cab443812": {
+   "status": "placed",
+   "click": {
+    "fx": 0.52407,
+    "fy": 0.62238
+   }
+  },
+  "c3308718a": {
+   "status": "placed",
+   "click": {
+    "fx": 0.44,
+    "fy": 0.54482
+   }
+  },
+  "c4c718ab4": {
+   "status": "placed",
+   "click": {
+    "fx": 0.49636,
+    "fy": 0.49918
+   }
+  },
+  "c5dd53f92": {
+   "status": "placed",
+   "click": {
+    "fx": 0.55,
+    "fy": 0.5222
+   }
+  },
+  "ca95cca46": {
+   "status": "placed",
+   "click": {
+    "fx": 0.41727,
+    "fy": 0.462
+   }
+  },
+  "c095c37b7": {
+   "status": "placed",
+   "click": {
+    "fx": 0.61545,
+    "fy": 0.61053
+   }
+  },
+  "cb1b24868": {
+   "status": "placed",
+   "click": {
+    "fx": 0.46455,
+    "fy": 0.54397
+   }
+  },
+  "ca6f200c2": {
+   "status": "placed",
+   "click": {
+    "fx": 0.38909,
+    "fy": 0.47877
+   }
+  },
+  "c6f5d7ff7": {
+   "status": "placed",
+   "click": {
+    "fx": 0.54,
+    "fy": 0.5268
+   }
+  },
+  "c9e1da236": {
+   "status": "placed",
+   "click": {
+    "fx": 0.47545,
+    "fy": 0.55574
+   }
+  },
+  "c9571cf24": {
+   "status": "placed",
+   "click": {
+    "fx": 0.45909,
+    "fy": 0.44824
+   }
+  },
+  "ce3d174f9": {
+   "status": "placed",
+   "click": {
+    "fx": 0.48519,
+    "fy": 0.53058
+   }
+  },
+  "c39e973d9": {
+   "status": "placed",
+   "click": {
+    "fx": 0.50185,
+    "fy": 0.49486
+   }
+  },
+  "c8b49b29a": {
+   "status": "placed",
+   "click": {
+    "fx": 0.51818,
+    "fy": 0.46942
+   }
+  },
+  "ceff8e8f5": {
+   "status": "placed",
+   "click": {
+    "fx": 0.50727,
+    "fy": 0.54656
+   }
+  },
+  "c64a17ef8": {
+   "status": "placed",
+   "click": {
+    "fx": 0.55364,
+    "fy": 0.4568
+   }
+  },
+  "c7e619782": {
+   "status": "placed",
+   "click": {
+    "fx": 0.59818,
+    "fy": 0.48164
+   }
+  },
+  "c80f324a8": {
+   "status": "placed",
+   "click": {
+    "fx": 0.60556,
+    "fy": 0.52357
+   }
+  },
+  "c3b63b0a0": {
+   "status": "placed",
+   "click": {
+    "fx": 0.49797,
+    "fy": 0.45796
+   }
+  },
+  "c755d38a2": {
+   "status": "placed",
+   "click": {
+    "fx": 0.49,
+    "fy": 0.41876
+   }
+  },
+  "c6f21a662": {
+   "status": "placed",
+   "click": {
+    "fx": 0.51727,
+    "fy": 0.55683
+   }
+  },
+  "cf923fecb": {
+   "status": "placed",
+   "click": {
+    "fx": 0.58818,
+    "fy": 0.57439
+   }
+  },
+  "cf5639457": {
+   "status": "placed",
+   "click": {
+    "fx": 0.49727,
+    "fy": 0.57468
+   }
+  },
+  "c2e89cb06": {
+   "status": "placed",
+   "click": {
+    "fx": 0.52273,
+    "fy": 0.52176
+   }
+  },
+  "c8ecc0cac": {
+   "status": "placed",
+   "click": {
+    "fx": 0.45909,
+    "fy": 0.45065
+   }
+  },
+  "c1e52b2ce": {
+   "status": "placed",
+   "click": {
+    "fx": 0.45636,
+    "fy": 0.51414
+   }
+  },
+  "cf1ff3da0": {
+   "status": "placed",
+   "click": {
+    "fx": 0.55167,
+    "fy": 0.52064
+   }
+  },
+  "c10dd8bbb": {
+   "status": "placed",
+   "click": {
+    "fx": 0.53545,
+    "fy": 0.53108
+   }
+  },
+  "cda19644b": {
+   "status": "placed",
+   "click": {
+    "fx": 0.46273,
+    "fy": 0.56729
+   }
+  },
+  "cd2080b87": {
+   "status": "placed",
+   "click": {
+    "fx": 0.47778,
+    "fy": 0.48031
+   }
+  },
+  "c8bbd25a4": {
+   "status": "placed",
+   "click": {
+    "fx": 0.79273,
+    "fy": 0.53732
+   }
+  },
+  "ca3883760": {
+   "status": "placed",
+   "click": {
+    "fx": 0.56727,
+    "fy": 0.52487
+   }
+  },
+  "cee03db29": {
+   "status": "placed",
+   "click": {
+    "fx": 0.47455,
+    "fy": 0.45376
+   }
+  },
+  "c42904dcc": {
+   "status": "placed",
+   "click": {
+    "fx": 0.59727,
+    "fy": 0.49633
+   }
+  },
+  "cd88002bf": {
+   "status": "placed",
+   "click": {
+    "fx": 0.47182,
+    "fy": 0.52709
+   }
+  },
+  "c0b708fdf": {
+   "status": "placed",
+   "click": {
+    "fx": 0.51389,
+    "fy": 0.52837
+   }
+  },
+  "c9394d456": {
+   "status": "placed",
+   "click": {
+    "fx": 0.38364,
+    "fy": 0.44375
+   }
+  },
+  "c58959fc7": {
+   "status": "placed",
+   "click": {
+    "fx": 0.49727,
+    "fy": 0.44677
+   }
+  },
+  "c26bdc981": {
+   "status": "placed",
+   "click": {
+    "fx": 0.5,
+    "fy": 0.64589
+   }
+  },
+  "ca0ddf18b": {
+   "status": "placed",
+   "click": {
+    "fx": 0.59273,
+    "fy": 0.44893
+   }
+  },
+  "c9ff175d7": {
+   "status": "placed",
+   "click": {
+    "fx": 0.59727,
+    "fy": 0.52197
+   }
+  },
+  "c2332d731": {
+   "status": "placed",
+   "click": {
+    "fx": 0.44909,
+    "fy": 0.5027
+   }
+  },
+  "ca5980e4a": {
+   "status": "placed",
+   "click": {
+    "fx": 0.53214,
+    "fy": 0.45912
+   }
+  },
+  "c33415826": {
+   "status": "placed",
+   "click": {
+    "fx": 0.44727,
+    "fy": 0.53874
+   }
+  },
+  "c7e116011": {
+   "status": "placed",
+   "click": {
+    "fx": 0.51182,
+    "fy": 0.40896
+   }
+  },
+  "cddcd109f": {
+   "status": "placed",
+   "click": {
+    "fx": 0.46364,
+    "fy": 0.46837
+   }
+  },
+  "ca58981b0": {
+   "status": "placed",
+   "click": {
+    "fx": 0.45273,
+    "fy": 0.52868
+   }
+  },
+  "c7f2ec048": {
+   "status": "placed",
+   "click": {
+    "fx": 0.42273,
+    "fy": 0.52169
+   }
+  },
+  "c35a42a01": {
+   "status": "placed",
+   "click": {
+    "fx": 0.39818,
+    "fy": 0.5247
+   }
+  },
+  "c5a1a7f16": {
+   "status": "placed",
+   "click": {
+    "fx": 0.51215,
+    "fy": 0.47781
+   }
+  },
+  "c85efc0ec": {
+   "status": "placed",
+   "click": {
+    "fx": 0.51296,
+    "fy": 0.43347
+   }
+  },
+  "c75f12335": {
+   "status": "placed",
+   "click": {
+    "fx": 0.94545,
+    "fy": 0.60938
+   }
+  },
+  "ccc5b1f60": {
+   "status": "placed",
+   "click": {
+    "fx": 0.53333,
+    "fy": 0.32045
+   }
+  },
+  "cb72c4cd1": {
+   "status": "placed",
+   "click": {
+    "fx": 0.38727,
+    "fy": 0.54712
+   }
+  },
+  "c442707f9": {
+   "status": "placed",
+   "click": {
+    "fx": 0.49273,
+    "fy": 0.49602
+   }
+  },
+  "c48ac7f31": {
+   "status": "placed",
+   "click": {
+    "fx": 0.40926,
+    "fy": 0.41568
+   }
+  },
+  "cc84b46b9": {
+   "status": "placed",
+   "click": {
+    "fx": 0.51182,
+    "fy": 0.56018
+   }
+  },
+  "ce8ff1a5c": {
+   "status": "placed",
+   "click": {
+    "fx": 0.5,
+    "fy": 0.61412
+   }
+  },
+  "c92d1c4d6": {
+   "status": "placed",
+   "click": {
+    "fx": 0.48818,
+    "fy": 0.53915
+   }
+  },
+  "c04849abb": {
+   "status": "placed",
+   "click": {
+    "fx": 0.37727,
+    "fy": 0.5408
+   }
+  },
+  "c8b8a016c": {
+   "status": "placed",
+   "click": {
+    "fx": 0.56727,
+    "fy": 0.54791
+   }
+  },
+  "c4b71982e": {
+   "status": "placed",
+   "click": {
+    "fx": 0.52455,
+    "fy": 0.61868
+   }
+  },
+  "c38107a98": {
+   "status": "placed",
+   "click": {
+    "fx": 0.49,
+    "fy": 0.45934
+   }
+  },
+  "cea5a7e21": {
+   "status": "placed",
+   "click": {
+    "fx": 0.49909,
+    "fy": 0.5674
+   }
+  },
+  "c6a9314d0": {
+   "status": "placed",
+   "click": {
+    "fx": 0.51912,
+    "fy": 0.50767
+   }
+  },
+  "cf8ca4449": {
+   "status": "placed",
+   "click": {
+    "fx": 0.49727,
+    "fy": 0.5034
+   }
+  },
+  "ca6c2d58e": {
+   "status": "placed",
+   "click": {
+    "fx": 0.55364,
+    "fy": 0.48094
+   }
+  },
+  "c553b56a2": {
+   "status": "placed",
+   "click": {
+    "fx": 0.64815,
+    "fy": 0.55089
+   }
   }
- ],
- "task": "RampNet #158 step 4, click pass: where would you place the label?",
- "verdicts": {}
+ }
 }

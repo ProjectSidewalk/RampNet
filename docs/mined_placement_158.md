@@ -352,6 +352,41 @@ python scripts/analysis/mined_click_check_158.py score \
 **Status (2026-10-02):** the page is built (`benchmark/mined_label_check_158/gallery_click.html`),
 and the rater file is empty (0 of 71).
 
+### Click pass result (Jon, 2026-10-04): 71 of 71 placed
+
+All 71 cards are placed. No card is marked "two ramps" or "can't place". The rater file was
+exported under the id `jonf-step4` and committed as `jonf`, the id the plan names. Only the
+`rater` field was changed, as was done for pass 2. Reproduce the numbers with the `score`
+command above.
+
+Offsets are measured on the 512×1024 heatmap, where 1 px = 0.35°:
+
+| band | n | median px | p90 px | max px | within sigma (10 px) | within eval radius (22.5 px) |
+|---|---|---|---|---|---|---|
+| 0–8 m | 12 | 8.6 | 12.8 | 46.2 | 7 | 11 |
+| 8–12 m | 29 | 6.9 | 14.3 | 30.1 | 20 | 28 |
+| 12–15 m | 30 | 3.8 | 9.0 | 12.0 | 27 | 30 |
+| **pooled** | **71** | **5.4** | **12.5** | **46.2** | **54 (0.761 [0.650, 0.845])** | **69 (0.972 [0.903, 0.992])** |
+
+Precision at a radius, with all 83 decided cards as the denominator:
+- at the 22.5 px eval radius: **0.831 [0.737, 0.897]**. The pass-2 read was 0.855, so this
+  costs two cards.
+- at the 10 px sigma: **0.651 [0.543, 0.744]**.
+
+**What it means, against the outcomes written before rating.** About three quarters of the
+offsets fall within sigma, and nearly all fall within the eval radius. That is the first
+outcome: as a training target, the miner's point is about as good as a hand label. Only two
+cards land beyond the eval radius: `c75f12335` (0–8 m, 46 px) and `c8bbd25a4` (8–12 m, 30 px).
+The offsets grow as the ramp gets closer: the median is 3.8 px at 12–15 m and 8.6 px at
+0–8 m. A near ramp covers more pixels, so "where on the ramp" spreads more, and part of that
+spread is labelling convention, not miner error. Jon's note on the pass: there is no single
+right way to place a point label on a curb ramp; most points were not far off, but some
+clearly were, and he corrected those. Snapping each point to the nearest peak is not needed
+as step 5.
+
+**Caveats.** One rater, who has seen every card three times. The convention is his. A second
+rater on the same 71 cards (`score A B`) would separate convention from miner error.
+
 ## Cost
 
 | step | where | wall-clock | GPU-h |
