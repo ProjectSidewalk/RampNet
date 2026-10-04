@@ -1,9 +1,11 @@
-# Bayonne (#159): the first Panoramax split, staged ahead of its ground-truth review
+# Bayonne (#159): the first Panoramax split
 
-**Status: staged, NOT reviewed.** `benchmark/bayonne/` has no `verdicts.json`, and nothing in
-this document is scored against ground truth. Every number below is ground-truth-free. The
-review is the only step left; this document says how to start it, what is already cached for
-the moment it ends, and what remains after it.
+**Status (2026-10-04): reviewed and registered.** Jon reviewed the ground truth on 2026-10-04
+(`benchmark/bayonne/verdicts.json`, single rater, **medium** confidence). The split is
+registered, held out of the pooled recommendation, and scored for RampNet and the free
+challengers. Section 11 has the results; sections 9 and 10 say what is done and what is not.
+Sections 2-8 were written before the review, while the split was staged, and are kept as the
+record of that stage: the numbers in sections 4-6 are ground-truth-free.
 
 Issue [#159](https://github.com/ProjectSidewalk/RampNet/issues/159); plan in
 [this comment](https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-5956603646).
@@ -24,9 +26,13 @@ The bundle comes from sidewalk-auto-labeler
   `tier_of()`. It is not needed and would be wrong: tiers are by rig, and the records carry
   `GoPro` / `Max`, which the existing branch already classifies
   (`tests/test_bayonne_159.py::test_bayonne_lands_in_the_modern_action_cam_tier_without_a_new_branch`).
-- **Pooling (proposed, Jon's call):** held out of the pooled recommendation as a non-US split,
-  like `sao_paulo`, whose `HELD_OUT` reason ("the pooled recommendation is a US-deployment
-  basis") applies unchanged.
+- **Pooling:** held out of the pooled recommendation as a non-US split, like `sao_paulo`, whose
+  `HELD_OUT` reason ("the pooled recommendation is a US-deployment basis") applies unchanged.
+  Proposed here before the review; registered that way on 2026-10-04 under the instructions Jon
+  gave for finishing the split. The reason is geography. The medium-confidence GT is recorded
+  in `HELD_OUT` as a caveat, not as a second reason (budapest is held out for its GT; this split
+  is not). If Jon wants GT confidence to be a reason too, only the wording changes: the split is
+  out of the pool either way.
 - **Naming:** bare `bayonne`, one imagery source (the `_<source>` suffix rule).
 
 **Imagery credit.** Municipal imagery © sig_bayonne via Panoramax (panoramax.ign.fr), Licence
@@ -56,7 +62,7 @@ cannot see (it looks for white where this band has map graphics); its edge, y 0.
 by hand and marked `method: "manual"` in `nadir_band.json` (`MANUAL_BANDS` in the script says
 how). The other has no band. So 124 of 125 panos are shaded in the gallery.
 
-## 3. Start the review (the only step left)
+## 3. Start the review (done 2026-10-04)
 
 ```bash
 # 1. imagery into the checkout (git-ignored), then check it
@@ -188,7 +194,7 @@ All on makelab2's A40 (shared with two other jobs), 2026-10-02, with
 scored**. Each leg wrote a `paid: false` row to `analysis_out/usage_log.jsonl`. The exported
 files are in `analysis_out/bayonne_159/model_detections/`, in the
 `benchmark/model_detections/` format, and stay out of that directory until the split is
-registered. `export_model_cache.py --verify` was not run: it re-scores against verdicts, and
+registered. (Moved there unchanged on 2026-10-04, section 9.) `export_model_cache.py --verify` was not run: it re-scores against verdicts, and
 there are none yet.
 
 | leg | env | settings | panos | wall time | s/pano | points/pano at the list's threshold |
@@ -271,9 +277,9 @@ pano whose horizon is tilted; they cluster below 0.70. Re-derive the table with
 `python scripts/analysis/bayonne_159.py preread-summary` (`ai_preread/summary.json`); the crops
 regenerate with `preread-crops`.
 
-## 7. Paid legs: not run
+## 7. Paid legs: the three Gemini legs ran, claude-opus-5 did not
 
-No money was spent. **How the estimate is derived:** for each leg, the ledger's estimated
+**Before the review** no money was spent, and this section was the estimate. **How the estimate is derived:** for each leg, the ledger's estimated
 dollars over every measured row before 2026-10-02, divided by the panos that actually reached
 the API in those rows, times 125. A row's panos are `panos_called` where the row records it,
 otherwise `calls` ÷ the number of perspective views in its signature (6; one call per view).
@@ -297,6 +303,35 @@ To run all four after the review (they need verdicts only to be scored, not to r
 gemini:gemini-3.6-flash,gemini:gemini-3.1-pro-preview,gemini:gemini-3.7-flash,claude:claude-opus-5`
 with the default ledger (`claude_effort` defaults to `low`).
 
+**What ran, 2026-10-04.** Jon authorized the three Gemini legs only. They ran from this
+branch's worktree on the Windows desktop, without `--unreviewed`, with the default ledger
+(which `compare.py` resolves to the main checkout, `D:/Git/RampNet/analysis_out/usage_log.jsonl`)
+and `--cache-dir D:/Git/RampNet/.model_cache` so the paid detections are cached in the main
+checkout rather than in a worktree. The three ledger rows were copied verbatim into this
+branch's `analysis_out/usage_log.jsonl`. **Follow-up:** the same three rows also sit uncommitted
+in the main checkout's working tree, which is on another branch; they must be dropped there once
+this PR merges (or before anything commits that file there), or the ledger counts $5.80 twice.
+The estimate above was printed first
+(`bayonne_159.py paid-estimate`; Gemini subtotal $5.26, under the $15 stop line).
+
+| leg | calls | input tokens | output tokens (thinking) | est. $ | wall clock | s/pano |
+|---|---:|---:|---:|---:|---:|---:|
+| gemini-3.6-flash | 750 | 957,000 | 342,466 (326,275) | 2.00 | 3,104 s | 24.8 |
+| gemini-3.1-pro-preview | 750 | 957,000 | 17,266 (0) | 2.12 | 2,282 s | 18.2 |
+| gemini-3.7-flash | 750 | 957,000 | 256,002 (245,982) | 1.68 | 4,086 s | 32.7 |
+| total | 2,250 | 2,871,000 | 615,734 | **5.80** | 9,472 s (2.6 h) | |
+
+Against the estimate: $5.80 actual vs $5.26 expected (+10%); input tokens are deterministic
+(6 views × 125 panos), and the difference is output, mostly thinking on the two Flash legs.
+`vertex_usage.py --reconcile --days 3` (Cloud Monitoring, run the same day): all three models
+`ok`, billed input = logged input = 957,000 each; billed output for gemini-3.7-flash read
+253,776 against 256,002 logged, inside the check's tolerance. Dollars are estimates; the
+billing console is authoritative. `export_model_cache.py --verify`: the three published files
+score identically to the cache.
+
+**claude-opus-5 (effort low) was not run**: it bills Jon's Anthropic account separately, and
+only the Gemini legs were authorized. Expected cost $8.89 (table above).
+
 ## 8. Commands, in order
 
 ```bash
@@ -317,6 +352,29 @@ python scripts/analysis/bayonne_159.py paid-estimate --print
 python scripts/analysis/bayonne_159.py preread-crops && python scripts/analysis/bayonne_159.py preread-summary
 ```
 
+After the review (2026-10-04), in order:
+
+```bash
+python scripts/score_validation.py benchmark/bayonne
+python scripts/analysis/operating_point_curve.py attach-gt --cities bayonne --cache analysis_out/bayonne_159/op_cache
+python scripts/analysis/low_floor_sweep.py parity --cities bayonne
+C=richmond,bend,clovis,morgantown,annapolis,paterson,gainesville,laurens_mapillary,budapest_district5,sao_paulo,bayonne,manual_gold
+for s in sweep hist gtbias floor distance; do python scripts/analysis/low_floor_sweep.py $s --cities $C; done
+python scripts/analysis/operating_point_curve.py gallery --city bayonne --op-threshold 0.25 --upper 0.55 --panos benchmark/bayonne/panos --out analysis_out/op/bayonne_incremental_fp
+# makelab2 ~/wt-bayonne159, RampNet .venv-eval, CUDA_VISIBLE_DEVICES= (cache hits only):
+python scripts/model_comparison/compare.py benchmark/bayonne --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt --tiling none --yolo-imgsz 1280 --op-threshold 0.25
+python scripts/model_comparison/compare.py benchmark/bayonne --models rampnet,owlv2,gdino,qwen:Qwen/Qwen3-VL-8B-Instruct
+python scripts/analysis/export_model_cache.py --splits bayonne --verify --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt --tiling none --yolo-imgsz 1280
+python scripts/analysis/export_model_cache.py --splits bayonne --verify --models owlv2,gdino,qwen:Qwen/Qwen3-VL-8B-Instruct
+# desktop, paid (section 7), default ledger:
+python scripts/model_comparison/compare.py benchmark/bayonne --models gemini:gemini-3.6-flash,gemini:gemini-3.1-pro-preview,gemini:gemini-3.7-flash --cache-dir D:/Git/RampNet/.model_cache
+python scripts/analysis/export_model_cache.py --cache-dir D:/Git/RampNet/.model_cache --splits bayonne --models gemini:gemini-3.6-flash,gemini:gemini-3.1-pro-preview,gemini:gemini-3.7-flash --write   # then --verify
+python scripts/analysis/vertex_usage.py --reconcile --days 3
+python scripts/analysis/train_overlap_check.py --benchmark benchmark --out benchmark/train_overlap.json
+python scripts/analysis/scoreboard.py && python scripts/analysis/cascade_cost_35.py --summary
+python scripts/analysis/bayonne_paired_159.py --write   # paired McNemar + pano bootstrap (PR #239 review)
+```
+
 **GPU run: no spend, about 1.6 GPU-hours of a shared A40** (5,874 s). The seven challenger legs
 total 5,508 s (one `paid: false` row each in `analysis_out/usage_log.jsonl`, written by
 `compare.py`, Molmo's failed leg included). The two extractions took 170 s (laurens_mapillary,
@@ -330,55 +388,168 @@ The `GPU` step ran from a git worktree of this branch on makelab2 (`~/wt-bayonne
 Bayonne panos copied from the archive and checked against `imagery_manifest.json`, and
 `benchmark/laurens_mapillary/panos` linked from the main checkout there.
 
-## 9. What is left after the review
+## 9. After the review: what was done (2026-10-04)
 
-1. Commit `benchmark/bayonne/verdicts.json` with `review_notes` (reviewer, confidence, what
-   fought the rubric: driveway lowerings, the band, the two-wheeler captures).
-2. `python scripts/score_validation.py benchmark/bayonne`; quote the unbiased column.
-3. `python scripts/analysis/operating_point_curve.py attach-gt --cities bayonne --cache
-   analysis_out/bayonne_159/op_cache` → `analysis_out/op_cache/bayonne.json` (CPU, no GPU re-run).
-4. Register the split (the diff below), then `low_floor_sweep.py parity --cities bayonne`
-   (expect the 3 seam peaks; consider a `PARITY_EXCEPTIONS` entry if the count arm trips), and
-   `sweep` / `hist` / `gtbias` / `floor` / `distance`.
-5. #55 incremental-FP gallery at **op-threshold 0.25**, tags into
-   `benchmark/bayonne/incremental_fp_tags.json`, then `corrected --op-threshold 0.30` and
-   `tagcheck`. Section 4.3 predicts a larger item count than paterson's 10.
-6. Move the challenger detections from `analysis_out/bayonne_159/model_detections/` into
-   `benchmark/model_detections/` and score the row from the makelab2 worktree's `.model_cache`
-   (cache hits, no GPU). The YOLO arms' cache keys carry the #71 protocol, so they need its
-   flags or every lookup misses:
-   `compare.py benchmark/bayonne --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt --tiling none --yolo-imgsz 1280 --op-threshold 0.25`,
-   then `compare.py benchmark/bayonne --models owlv2,gdino,qwen:Qwen/Qwen3-VL-8B-Instruct`.
-7. Decide the paid legs (section 7).
-8. `python scripts/analysis/train_overlap_check.py` (network, ~10 min) and commit
-   `benchmark/train_overlap.json`; only then does `export_benchmark.py` accept the split.
-9. Docs: `benchmark/README.md` (both tables + a Bayonne section), `docs/model_comparison.md`
-   coverage matrix, `docs/operating_point.md` (held-out rows).
-10. HF publish of the panos (Jon's call; not done here).
+Every step below ran from the branch `benchmark/bayonne-verdicts-159`. CPU steps ran on the
+Windows desktop; the challenger scoring ran on makelab2 from the `~/wt-bayonne159` worktree.
 
-**Registration diff, prepared and not landed** (it needs verdicts: `train_overlap_check.py`
-exits on any split in `BENCHMARK_SPLITS` without `verdicts.json`, and the registries feed tables
-and tests that would then claim a reviewed split):
+1. **Verdicts committed** with `review_notes` (reviewer jonf, confidence **medium**; bollards,
+   speed bumps vs raised crossings, roundabouts, the bike-lane cut). Every verdict is as Jon
+   exported it, the unsure detection at the bike-lane cut on `b517b388` included; the bike-lane
+   ruling came after the review (`benchmark/RUBRICS.md` §1, Class rulings).
+2. **`score_validation.py benchmark/bayonne`**: unbiased subset (120 panos) P **0.785**
+   [0.698, 0.852], R **0.322** [0.268, 0.381]; all 125 panos P 0.824 [0.751, 0.878], R 0.372
+   [0.319, 0.428].
+3. **`attach-gt`** → `analysis_out/op_cache/bayonne.json` (CPU, no re-extraction).
+4. **Registered**, with the diff that was prepared here, and `HELD_OUT` worded from the review:
+   non-US (first Panoramax split), single-rater GT at medium confidence, and the three things
+   that fought the rubric. `plot_operating_point.py` also got a `LABEL` entry (`bayonne¶`) and a
+   footnote line. **Parity: OK**, 147 records vs 150 cache peaks, 98.0% identical cells; the 3
+   extra are the seam peaks of section 4.2, inside the 5% count allowance, so no
+   `PARITY_EXCEPTIONS` entry. `sweep` / `hist` / `gtbias` / `floor` / `distance` ran over the
+   eleven splits that have an op_cache plus bayonne (`laurens_gsv` has none, so the default
+   split list exits on it; that predates this branch). Every committed row in `analysis_out/op/`
+   is unchanged and bayonne's rows are appended. `docs/figures/operating_point_pr.png` was not
+   regenerated, for the same `laurens_gsv` reason.
+5. **#55 gallery built, not tagged** (below).
+6. **Free challengers scored.** The six exported files moved unchanged into
+   `benchmark/model_detections/`. On makelab2, with `CUDA_VISIBLE_DEVICES` empty, every leg was
+   125/125 cache hits with the model load skipped, so nothing was inferred; `compare.py` writes
+   no ledger row for a leg that loads no model and makes no calls, so this step added none.
+   `export_model_cache.py --verify`: 6 of 6 pairs score identically to the cache.
+7. **Paid legs: the three Gemini legs ran; claude-opus-5 did not** (section 7).
+8. **`train_overlap_check.py`** (network, 12 min 00 s): bayonne 0 of 125 panos in
+   `rampnet-dataset`'s train or validation split; every other split unchanged (bend's 4). For
+   bayonne the zero is true by construction: Panoramax picture ids are UUIDs and cannot collide
+   with the GSV pano ids the training set uses, so it says nothing about the imagery itself. It
+   is recorded because `export_benchmark.py` requires an entry for every split.
+9. **Docs**: `benchmark/README.md` (both tables, a footnote, a Bayonne section),
+   `docs/model_comparison.md` (coverage matrix and the generated `results:bayonne` table),
+   `docs/model_scoreboard.md` (regenerated), `docs/operating_point.md` (held-out rows).
 
-- `scripts/analysis/low_floor_sweep.py`: add `"bayonne"` to `CITY_SPLITS`, and
-  `HELD_OUT["bayonne"] = "non-US city -- the pooled recommendation is a US-deployment basis
-  (first Panoramax split; held out for geography, not GT quality)"`, adjusting the GT-quality
-  clause to what the review records.
-- `scripts/analysis/miss_decomposition.py`: the same `HELD_OUT` entry (the two registries must
-  agree, `test_registries_agree_with_low_floor_sweep`).
-- `scripts/export_benchmark.py`: add `"bayonne"` to `BENCHMARK_SPLITS`.
-- `scripts/analysis/plot_operating_point.py`: `SERIES["bayonne"] = "#52514e"` (neutral ink,
-  held out) and a `HELD_DASH` entry.
-- `tier_of()`: no change (section 1).
+**Step 4 needed one more change than the prepared diff:** `scoreboard_render.py` needs a column
+header and a row set for every registered split (`SPLIT_HEADER`, `LOG_ROWS`), and the scoreboard
+prose counts moved from twelve splits to thirteen. Tests that pinned the staged state
+(`test_bayonne_159.py`) now pin the reviewed one.
 
-## 10. Not done here, and why
+**The #55 incremental-FP gallery** (step 5), built 2026-10-04:
 
-- **The review**, and anything scored against it: it is Jon's.
-- **Registration**: needs verdicts (section 9).
-- **Paid legs**: no spend today; expected cost in section 7.
-- **HF publish**: Jon's call.
-- **The labeler's seam defect**: found here, not fixed here; filed as
+```bash
+python scripts/analysis/operating_point_curve.py gallery --city bayonne \
+    --op-threshold 0.25 --upper 0.55 --panos benchmark/bayonne/panos \
+    --out analysis_out/op/bayonne_incremental_fp
+```
+
+**40 items** in `[0.25, 0.55)`, 9 pre-flagged as likely duplicates of an already-detected ramp
+(section 4.3 predicted more than paterson's 10; it is the third-largest queue after budapest's 89
+and sao_paulo's 48). The gallery is git-ignored and regenerates with that command. Nobody has
+tagged it. Jon tags it, saves the download as `benchmark/bayonne/incremental_fp_tags.json`, then
+`low_floor_sweep.py corrected --op-threshold 0.30` and `tagcheck --cities bayonne`; neither has
+been run.
+
+## 10. Not done, and why
+
+- **The #55 tags, `corrected` and `tagcheck`**: the tags are Jon's judgment; the gallery is
+  built (section 9).
+- **claude-opus-5 (effort low)**: not run. It bills Jon's Anthropic account separately, and
+  only the Gemini legs were authorized. Expected cost $8.89 (section 7).
+- **HF publish of the panos**: Jon's call. Until it happens the panos are an input another
+  person cannot obtain from the repo; they are in the makelab2 archive
+  (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/bayonne/panos/`), pinned by
+  `imagery_manifest.json`.
+- **Qwen3-VL-32B**: not run; its weights are not cached on makelab2, and this pass ran cache
+  hits only.
+- **Molmo2-8B**: ran in its own env on 2026-10-02 and failed on every pano (section 5); not
+  retried, since a retry needs a code or env change and new GPU inference.
+- **`docs/figures/operating_point_pr.png`**: not regenerated (step 4).
+- **The #35 cascade read and null-recall** for bayonne: not run (out of scope for this pass).
+  `analysis_out/cascade_cost_35/summary.json` was regenerated and lists every bayonne pair
+  under `gaps` as "published detections exist but this pair was not run".
+- **The labeler's seam defect**: found here, not fixed here;
   [sidewalk-auto-labeler#130](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/130).
-- **Qwen3-VL-32B**: its weights are not cached on makelab2, and downloading them for one
-  leg was not worth it ahead of the review; it can run after.
-- **Molmo2-8B**: ran in its own env and failed on every pano (section 5); not retried.
+
+## 11. Results
+
+All rows from `compare.py`'s matcher (match radius 0.022) over all 125 panos, each model at
+its standing operating point: RampNet at its deployed 0.55 from the committed records, the
+YOLO arms at conf 0.25 (#71), the open-vocabulary detectors at their 0.05 export floor, the
+chat VLMs as returned. 95% Wilson intervals. The verdict-based `score_validation.py` numbers
+for RampNet are in section 9.
+
+| model | P [95% CI] | R [95% CI] | F1 | tp/fp/fn |
+|---|---|---|---:|---|
+| **RampNet** | **0.831** [0.759, 0.885] | 0.375 [0.323, 0.431] | **0.517** | 113/23/188 |
+| gemini-3.1-pro-preview | 0.469 [0.409, 0.530] | 0.399 [0.345, 0.455] | 0.431 | 120/136/181 |
+| gemini-3.6-flash | 0.371 [0.321, 0.423] | 0.419 [0.364, 0.475] | 0.393 | 126/214/175 |
+| gemini-3.7-flash | 0.440 [0.373, 0.509] | 0.292 [0.244, 0.346] | 0.351 | 88/112/213 |
+| y11x_pano_h200 (supervised) | 0.930 [0.833, 0.972] | 0.176 [0.137, 0.223] | 0.296 | 53/4/248 |
+| y26_pano (supervised) | 0.716 [0.599, 0.810] | 0.159 [0.122, 0.205] | 0.261 | 48/19/253 |
+| y11l_pano (supervised) | 0.830 [0.708, 0.908] | 0.146 [0.111, 0.191] | 0.249 | 44/9/257 |
+| Qwen3-VL-8B-Instruct | 0.161 [0.126, 0.203] | 0.186 [0.146, 0.234] | 0.173 | 56/292/245 |
+| owlv2-large-patch14-ensemble | 0.034 [0.030, 0.038] | 0.950 [0.919, 0.970] | 0.065 | 286/8229/15 |
+| grounding-dino-base | 0.025 [0.022, 0.028] | 0.824 [0.777, 0.863] | 0.048 | 248/9872/53 |
+
+The same numbers, regenerated from the committed detections, are the `results:bayonne` block
+in `docs/model_comparison.md` and the bayonne column of `docs/model_scoreboard.md`.
+
+What it says:
+
+Paired tests (`scripts/analysis/bayonne_paired_159.py` → `analysis_out/bayonne_159/paired_tests.json`,
+CPU, committed inputs, pinned by `tests/test_bayonne_159.py`): an exact two-sided McNemar test
+over per-GT-ramp hits for recall, and a 10,000-draw pano-level paired bootstrap (seed 0) for the
+F1 difference.
+
+1. **RampNet has the top F1, by the narrowest lead over a zero-shot challenger on any split:
+   0.086** over gemini-3.1-pro-preview, bootstrap 95% CI [0.005, 0.168] (RampNet ahead in 98.2%
+   of draws). The previous zero-shot low was laurens_mapillary's 0.114 over claude-opus-5 at
+   effort low (off the standing roster); against the standing roster it was paterson's 0.124.
+   It is **not** the narrowest lead overall: RampNet loses laurens_mapillary to two supervised
+   YOLO pano arms, and leads them by only 0.058 on manual_gold and 0.072 on laurens_gsv
+   (`analysis_out/scoreboard.json`). The margin is mostly RampNet's recall, 0.375, its lowest
+   on any split; gemini-pro also does better here than on the other two GoPro Max splits where
+   RampNet struggles (F1 0.431 vs 0.343 laurens_mapillary, 0.381 budapest). RampNet keeps a wide
+   precision lead.
+2. **gemini-3.6-flash's recall point estimate is above RampNet's at 0.55** (126 vs 113 of 301
+   ramps, R 0.419 vs 0.375), the only split where a chat VLM's is. The paired difference is
+   **not significant**: 61 ramps found only by Flash, 48 only by RampNet, exact McNemar
+   p = 0.25 (gemini-3.1-pro: 63 vs 56, p = 0.58). Their hits are largely disjoint: the union
+   finds 174 of 301 (0.578). At the recommended 0.30 RampNet's recall is 0.498 on the op_cache
+   (`docs/operating_point.md`), above every chat VLM.
+3. **The YOLO pano arms collapse** (F1 0.25-0.30, recall under 0.18) at high precision: they
+   fire rarely on this imagery. It is not a GoPro Max effect, since on laurens_mapillary the
+   same arms beat RampNet; nothing here separates country, source and rubric.
+4. **RampNet's misses are not far-field** (`low_floor_sweep.py distance`): recall at 0.55 is 0.450
+   within 12.5 m, 0.320 at 12.5-25 m and 0.302 beyond. The flat-ground estimate assumes one
+   camera height, and Bayonne mixes car and two-wheeler mounts (section 2, and the lower peaks in
+   section 4.4), so the band edges in metres are approximate; recall is low in every band either
+   way. About 28% of the GT ramps have no RampNet candidate even at 0.05 (`floor`: recall
+   ceiling 0.721).
+5. **The camera alone does not explain it.** laurens_mapillary (R 0.390) and bayonne (0.375),
+   both GoPro Max, have the lowest RampNet recall in the benchmark, but morgantown is GoPro Max
+   too and has 0.730. Bayonne has no second imagery arm and its GT is medium confidence, so
+   city, rubric and capture setup (mounting, the logo band) are confounded here. budapest_district5
+   (GoPro Max, R 0.510) sits between the two.
+6. **The reviewer's hypothesis: European infrastructure.** Jon's reading is that Bayonne
+   underperforms because it is a French, European city whose pedestrian infrastructure differs
+   from the US cities RampNet was trained on. The evidence is suggestive, not decisive.
+   - *For it:* the review notes record exactly that kind of difference (bollards as crossing
+     cues, speed bumps vs raised crossings, roundabouts with many ramps each). Also, about 28%
+     of the GT ramps produce no RampNet candidate even at the 0.05 floor. That is the highest
+     share of any split (paterson and budapest 24%, laurens_mapillary 22%;
+     `analysis_out/op/storage_floor.csv`), and it fits a design the model has not learned.
+     But most misses (about 104 of 188) do fire between 0.05 and 0.55, so under-confidence is
+     the larger part of the deficit.
+   - *Against it, or at least not requiring it:* laurens_mapillary, a US town, has the same
+     unbiased recall (0.325 vs 0.322), so a US split can be this hard; and the other two non-US
+     splits do much better (budapest 0.459, sao_paulo 0.626 unbiased), so being non-US is not
+     enough on its own.
+   - *The check that would separate them, not run:* tag the no-candidate misses (the GT ramps
+     with no peak ≥ 0.05) by infrastructure type, e.g. bollard-marked crossing, raised crossing,
+     roundabout leg, US-style kerb ramp. If the misses concentrate in the European types while
+     the US-style ramps are found at US rates, the hypothesis holds; if US-style ramps are missed
+     as often, it does not.
+
+Calibration (`hist`, `analysis_out/op/confidence_calibration.json`): P(real) is 0.59 at
+0.55-0.60 and 0.83 at 0.65-0.70, and 0.46-0.54 in the 0.20-0.30 bins, which are raw lower
+bounds until the #55 tags exist. `gtbias`: as on every split, every true positive below 0.55
+comes from a missed mark.

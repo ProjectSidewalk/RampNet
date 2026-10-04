@@ -70,15 +70,18 @@ SERIES = {
     "laurens_gsv": "#52514e",          # neutral ink — held out, not a categorical slot
     "budapest_district5": "#52514e",   # neutral ink — held out, not a categorical slot
     "sao_paulo": "#52514e",            # neutral ink — held out, not a categorical slot
+    "bayonne": "#52514e",              # neutral ink — held out, not a categorical slot
     "manual_gold": "#52514e",          # neutral ink — held out, not a categorical slot
 }
 POOLED_COLOR = "#0b0b0b"
 INK, INK_MUTED, GRID = "#0b0b0b", "#52514e", "#d9d8d4"
 # The neutral-ink held-out splits share a hue, so each carries its own dash.
 HELD_DASH = {"budapest_district5": (0, (5, 2)), "manual_gold": (0, (1, 1.6)),
-             "sao_paulo": (0, (4, 1.4, 1, 1.4)), "laurens_gsv": (0, (2, 1.2))}
+             "sao_paulo": (0, (4, 1.4, 1, 1.4)), "laurens_gsv": (0, (2, 1.2)),
+             "bayonne": (0, (6, 1.4, 1, 1.4, 1, 1.4))}
 LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†",
-         "sao_paulo": "sao_paulo‡", "laurens_gsv": "laurens_gsv§"}
+         "sao_paulo": "sao_paulo‡", "laurens_gsv": "laurens_gsv§",
+         "bayonne": "bayonne¶"}
 
 
 def collect(cities=ALL_SPLITS, cache_dir=CACHE_DIR):
@@ -217,7 +220,8 @@ def build(curves, path, meta):
              "positive (see docs/operating_point.md; the #55 correction is applied "
              "separately).\n*budapest GT is single-rater, low confidence.   †manual_gold is "
              "in-distribution GSV with independent, un-anchored GT.   ‡sao_paulo is non-US "
-             "(held out of the pooled recommendation; GT is high confidence).",
+             "(held out of the pooled recommendation; GT is high confidence).   ¶bayonne is "
+             "non-US, Panoramax (held out; GT is single-rater, medium confidence).",
              fontsize=7.6, color=INK_MUTED, ha="left", va="bottom")
 
     fig.subplots_adjust(left=0.050, right=0.872, top=0.885, bottom=0.165, wspace=0.185)

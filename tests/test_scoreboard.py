@@ -569,9 +569,15 @@ def test_the_annapolis_displacement_does_not_survive_pooling(board):
     # The pooled scope matters: the held-out laurens_gsv is a wider gap still, and the
     # doc must say "of the eight pooled splits" for 0.086 and name laurens_gsv (+0.158)
     # as the largest on the whole board -- not call 0.086 the board's largest.
+    # Only splits both legs ran: claude-opus-5 was not run on bayonne (#159, it bills a
+    # separate account and was not authorized), so "overall" stays the eleven it has.
+    both = [s for s in board["city_splits"]
+            if s in board["per_split"]["claude-opus-5-effort-low"]
+            and s in board["per_split"][gem["model"]]]
+    assert len(both) == 11, both
     city_deltas = {s: _cell(board, "claude-opus-5-effort-low", s)["f1"]
                    - _cell(board, gem["model"], s)["f1"]
-                   for s in board["city_splits"]}
+                   for s in both}
     assert max(city_deltas, key=lambda s: abs(city_deltas[s])) == "laurens_gsv"
     assert city_deltas["laurens_gsv"] == pytest.approx(0.158, abs=0.001)
     assert sum(d > 0 for d in city_deltas.values()) == 6      # six of eleven overall
@@ -805,11 +811,11 @@ def test_the_prose_guard_catches_each_171_sentence(board, stale):
 
 @pytest.mark.parametrize("old, new", [
     # the two rewordings the first version passed, because three rules shared one name
-    ("The pool is eight cities, not all twelve splits.", "The pool has seven cities, not ten."),
+    ("The pool is eight cities, not all thirteen splits.", "The pool has seven cities, not ten."),
     ("Macro-mean over the eight pooled US city splits", "Macro-mean over the seven US cities"),
     ("Macro-mean over the eight pooled US city splits",
      "Macro-mean over the 7 pooled US city splits"),
-    ("The four held-out splits", "The three splits held out"),
+    ("The five held-out splits", "The three splits held out"),
     ("scored on 2026-08-30 on the ten splits registered then",
      "scored on all ten splits on 2026-08-30"),
     ("scored on 2026-08-30 on the ten splits registered then",
@@ -826,9 +832,9 @@ def test_the_prose_guard_catches_each_171_sentence(board, stale):
     ("flatter (0.028, 0.039)", "flatter (0.028, 0.030)"),
     ("macro-to-macro the gap is 0.106", "macro-to-macro the gap is 0.119"),
     ("micro-to-micro 0.102", "micro-to-micro 0.110"),
-    ("all eleven city splits combined (3,110)", "all nine city splits combined (3,110)"),
-    ("all eleven city splits combined (3,110)", "all eleven city splits combined (3,119)"),
-    ("would be 56% one split", "would be 64% one split"),
+    ("all twelve city splits combined (3,411)", "all nine city splits combined (3,411)"),
+    ("all twelve city splits combined (3,411)", "all twelve city splits combined (3,419)"),
+    ("would be 53% one split", "would be 64% one split"),
 ])
 def test_the_prose_guard_catches_a_reworded_sentence(board, old, new):
     """Rewording one guarded sentence in the real doc fails, whatever its siblings say.
