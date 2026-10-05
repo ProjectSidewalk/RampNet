@@ -156,12 +156,25 @@ Three more future-work figures, each from real data:
   keypoint, the whole-apron extent box from the gold set, the range from calibrated Depth
   Anything 3, the width that follows (an illustration of the geometry, labelled as such), and
   slope as the measurement that does not exist yet.
-- **3D fly-around**, `flyaround/flyaround_richmond_99.mp4` and `flyaround_bend_7.mp4` (8 s
-  orbits, 1920×1080). The MapAnything reconstructions behind the cross-view placement viewer
+- **3D fly-around** (not for the talk: Jon judged the 150k-point clouds unreadable, you cannot
+  tell what you are looking at; kept only because the script and data are small),
+  `flyaround/flyaround_richmond_99.mp4` and `flyaround_bend_7.mp4` (8 s orbits, 1920×1080). The MapAnything reconstructions behind the cross-view placement viewer
   (#48, PR #210): the corner's point cloud, every camera that saw it, and the ramp's ground-truth
   point placed in 3D. Point clouds committed as `flyaround/*.npz`; frames and mp4 gitignored,
   `uchicago_2026_flyaround.py render` then `video` rebuilds them (CPU, a few minutes). The clouds
   are the viewer's 150k-point subsample, which is why they read as points rather than surfaces.
+
+## System diagrams, `diagrams/`
+
+Four SVGs (PowerPoint imports them as editable shapes) with PNG renders, from
+`scripts/talks/uchicago_2026_diagrams.py` (headless Edge rasterizes; `--no-png` skips it):
+
+| file | what it shows | slide |
+|---|---|---|
+| `pipeline.svg` | three columns: Stage 1 makes the dataset, Stage 2 trains the detector, deployment labels a city; the numbers at the bottom of each column | 2 or an overview |
+| `dataflow.svg` | the loop: city open data → dataset → RampNet → Project Sidewalk → validators → (2.0) the next training set; and back to cities as an inventory | 8 |
+| `deployment.svg` | the runtime: three imagery sources, the labeler's seven steps, the city server with live counts and agreement | 7 |
+| `model.svg` | the network left to right, panorama to peaks, plus the three design points (whole panorama, points not boxes, the dataset is the result) | 3 |
 
 ## Figures in this folder
 

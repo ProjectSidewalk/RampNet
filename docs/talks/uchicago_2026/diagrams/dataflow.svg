@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52514e"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2a78d6"/></marker></defs>
+<rect width="1920" height="1080" fill="#fcfcfb"/>
+<text x="40" y="70" font-size="40" fill="#0b0b0b" font-weight="bold" text-anchor="start">Where the labels come from, and where they go</text>
+<text x="40" y="108" font-size="22" fill="#52514e" font-weight="normal" text-anchor="start">A loop: cities supply the first labels, the model labels new cities, people check the model, and their checks become the next training set.</text>
+<rect x="160" y="300" width="400" height="150" rx="18" fill="#fbf1cf" stroke="#e6d79a" stroke-width="1.5"/>
+<text x="184" y="348" font-size="27" fill="#7a6210" font-weight="bold" text-anchor="start">City open data</text>
+<text x="184" y="386" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Curb-ramp GPS inventories</text>
+<text x="184" y="412" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">NYC, Portland, Bend; 65 publishers found</text>
+<rect x="160" y="640" width="400" height="150" rx="18" fill="#cde2fb" stroke="#9ec5f4" stroke-width="1.5"/>
+<text x="184" y="688" font-size="27" fill="#184f95" font-weight="bold" text-anchor="start">Auto-labelled dataset</text>
+<text x="184" y="726" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">850k points on 214k GSV panoramas</text>
+<text x="184" y="752" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">no human in the loop</text>
+<rect x="760" y="470" width="400" height="150" rx="18" fill="#2a78d6" stroke="#2a78d6" stroke-width="1.5"/>
+<text x="784" y="518" font-size="27" fill="#fcfcfb" font-weight="bold" text-anchor="start">RampNet</text>
+<text x="784" y="556" font-size="19" fill="#fcfcfb" font-weight="normal" text-anchor="start">Keypoint heatmap on whole panoramas</text>
+<text x="784" y="582" font-size="19" fill="#fcfcfb" font-weight="normal" text-anchor="start">GSV, Mapillary and Panoramax</text>
+<rect x="1360" y="300" width="400" height="150" rx="18" fill="#fbf1cf" stroke="#e6d79a" stroke-width="1.5"/>
+<text x="1384" y="348" font-size="27" fill="#7a6210" font-weight="bold" text-anchor="start">Project Sidewalk</text>
+<text x="1384" y="386" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">AI labels on a city's map</text>
+<text x="1384" y="412" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">64,814 in Vancouver alone</text>
+<rect x="1360" y="640" width="400" height="150" rx="18" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="1384" y="688" font-size="27" fill="#0b0b0b" font-weight="bold" text-anchor="start">Volunteers and experts</text>
+<text x="1384" y="726" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Validate, tag and rate the AI's labels</text>
+<text x="1384" y="752" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">90–97% of ramp clusters agreed</text>
+<path d="M 360 450 L 360 640" fill="none" stroke="#52514e" stroke-width="3.5" marker-end="url(#arrow)"/>
+<text x="360" y="555" font-size="19" fill="#52514e" font-weight="bold" text-anchor="middle">project to pixels (Stage 1)</text>
+<path d="M 560 715 C 660 715, 660 545, 760 545" fill="none" stroke="#52514e" stroke-width="3.5" marker-end="url(#arrow)"/>
+<text x="640" y="760" font-size="19" fill="#52514e" font-weight="bold" text-anchor="middle">train (Stage 2)</text>
+<path d="M 1160 545 C 1260 545, 1260 375, 1360 375" fill="none" stroke="#52514e" stroke-width="3.5" marker-end="url(#arrow)"/>
+<text x="1250" y="330" font-size="19" fill="#52514e" font-weight="bold" text-anchor="middle">label new cities</text>
+<path d="M 1560 450 L 1560 640" fill="none" stroke="#52514e" stroke-width="3.5" marker-end="url(#arrow)"/>
+<text x="1560" y="555" font-size="19" fill="#52514e" font-weight="bold" text-anchor="middle">shown in the validation queue</text>
+<path d="M 1560 790 L 1560 850 L 960 850 L 960 620" fill="none" stroke="#2a78d6" stroke-width="3.5" marker-end="url(#arrow-blue)" stroke-dasharray="10 8"/>
+<text x="1260" y="890" font-size="19" fill="#2a78d6" font-weight="bold" text-anchor="middle">RampNet 2.0: validated labels become the next training set</text>
+<path d="M 1560 300 C 1560 180, 560 180, 560 300" fill="none" stroke="#7a6210" stroke-width="3.5" marker-end="url(#arrow)" stroke-dasharray="10 8"/>
+<text x="1060" y="165" font-size="19" fill="#7a6210" font-weight="bold" text-anchor="middle">an inventory for cities that never had one</text>
+<text x="40" y="1052" font-size="16" fill="#898781" font-weight="normal" text-anchor="start">Counts: docs/rampnet1_findings.md; docs/curb_ramp_data_sourcing.md (publishers); sidewalk-auto-labeler docs/server-agree-check.md (Vancouver, agreement).</text>
+</svg>
