@@ -158,7 +158,15 @@ def _save(fig, name):
 # 1. Comparison
 # ---------------------------------------------------------------------------------------------
 
-def fig_comparison(board, plt):
+PROVIDER_NAME = {
+    "rampnet": "RampNet (ours)", "yolo": "Ultralytics YOLO", "gemini": "Google Gemini",
+    "claude": "Anthropic Claude", "qwen": "Alibaba Qwen3-VL", "molmo": "Ai2 Molmo2",
+    "owlv2": "Google OWLv2", "gdino": "IDEA Grounding DINO",
+}
+
+
+def fig_comparison(board, plt, v2=False):
+    """``v2`` keeps the chart and states the N: cities, panoramas, ramps, models, providers."""
     by_id = {m["model"]: m for m in board["models"]}
     rows = [by_id[m] for m in COMPARISON_MODELS]
     rows.sort(key=lambda m: m["f1"])
@@ -192,16 +200,42 @@ def fig_comparison(board, plt):
     ref = by_id["rampnet"]["f1"]
     best_zs = max((m for m in board["models"] if m["complete"] and m["class"] in ZERO_SHOT_CLASSES),
                   key=lambda m: m["f1"])
-    _titles(fig, "Purpose-trained beats zero-shot frontier models by a wide margin",
-            f"RampNet {ref:.2f} vs the best zero-shot model, {best_zs['display']}, "
-            f"{best_zs['f1']:.2f}. The lead holds on every one of twelve benchmark bundles.")
-    bottom = _footnote(fig,
-                       "Operating points differ by class: RampNet 0.55, YOLO 0.25 (its default), "
-                       "OWLv2 0.05 floor, chat VLMs emit no score. At matched operating points "
-                       "and across seeds the YOLO gap is 0.016 F1, 95% CI [0.008, 0.024]. "
-                       "Source: docs/model_scoreboard.md, analysis_out/scoreboard.json.")
+    pooled = board["pooled_splits"]
+    n_panos = sum(board["splits"][s]["n_panos"] for s in pooled)
+    n_gt = sum(board["splits"][s]["n_gt"] for s in pooled)
+    complete = [m for m in board["models"] if m["complete"]]
+    providers = []
+    for m in complete:
+        if m["provider"] not in providers:
+            providers.append(m["provider"])
+    if v2:
+        _titles(fig, "Purpose-trained beats zero-shot frontier models by a wide margin",
+                f"N = {len(pooled)} US cities, {n_panos:,} panoramas, {n_gt:,} reviewer-confirmed "
+                f"ramps. {len(complete) - 1} challengers from {len(providers) - 1} providers "
+                f"tested; best of each family shown.")
+        bottom = _footnote(fig,
+                           "Cities (one reviewer each, ~125 panoramas per city): "
+                           + ", ".join(pooled) + ". Models: "
+                           + "; ".join(PROVIDER_NAME[p] for p in providers)
+                           + ". YOLO was trained on the same dataset as RampNet; every other "
+                           "challenger is zero-shot with a fixed prompt. Operating points: RampNet "
+                           "0.55, YOLO 0.25 (its default), OWLv2 0.05 floor, chat VLMs emit no "
+                           "score; at matched operating points and across seeds the YOLO gap is "
+                           "0.016 F1, 95% CI [0.008, 0.024]. Source: docs/model_scoreboard.md.",
+                           width=165)
+        name = "comparison_f1_v2.png"
+    else:
+        _titles(fig, "Purpose-trained beats zero-shot frontier models by a wide margin",
+                f"RampNet {ref:.2f} vs the best zero-shot model, {best_zs['display']}, "
+                f"{best_zs['f1']:.2f}. The lead holds on every one of twelve benchmark bundles.")
+        bottom = _footnote(fig,
+                           "Operating points differ by class: RampNet 0.55, YOLO 0.25 (its default), "
+                           "OWLv2 0.05 floor, chat VLMs emit no score. At matched operating points "
+                           "and across seeds the YOLO gap is 0.016 F1, 95% CI [0.008, 0.024]. "
+                           "Source: docs/model_scoreboard.md, analysis_out/scoreboard.json.")
+        name = "comparison_f1.png"
     fig.tight_layout(rect=(0, bottom, 1, 0.885))
-    _save(fig, "comparison_f1.png")
+    _save(fig, name)
     plt.close(fig)
 
 
@@ -574,6 +608,7 @@ def fig_pipeline(plt, pano_dir=BEND_PANO_DIR):
 FIGURES = {
     "pipeline": lambda board, plt, pano_dir: fig_pipeline(plt, pano_dir),
     "comparison": lambda board, plt, _: fig_comparison(board, plt),
+    "comparison_v2": lambda board, plt, _: fig_comparison(board, plt, v2=True),
     "transfer": lambda board, plt, _: fig_transfer(board, plt),
     "recall_by_distance": lambda board, plt, _: fig_recall_by_distance(plt),
     "deployment": lambda board, plt, _: fig_deployment(plt),
