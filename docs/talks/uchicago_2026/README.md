@@ -139,6 +139,30 @@ Figure: `deployment_validation.png`. Source: sidewalk-auto-labeler `docs/server-
 Figure: `rampnet2_roadmap.png`. Three rows (find, tag, rate) with where each stands and what
 2.0 adds, from `rampnet2_plan.md` §1 and §4.
 
+Three more future-work figures, each from real data:
+
+- **A corner over time**, `timelapse/timelapse_E15SCY6RTiDuNUu_trZk4Q.png` (and a second corner,
+  `timelapse_0CvMs02xHlg3mCMHJdc6Xg.png`). The same Bend intersection in three Street View
+  captures with the model's heatmap on each, and the city's inventory install dates: one ramp
+  through 2021, nine ramps built 2023-05 per the city, nine detected in 2024-08. Built by
+  `uchicago_2026_timelapse.py` (`candidates` ranks every benchmark panorama whose GSV history
+  brackets an install date; `fetch` pulls metadata and tiles through the production Stage 1 path;
+  `infer`; `render --dates`). Manifests and heatmaps committed; the historical panoramas are
+  cached and gitignored, sha256 in the manifest. A finding on the way: on the first corner the
+  model sees the ramps the inventory dates to 2010-02 already present in 2008-10, so that
+  InstallDate is a record date, not a construction date. That is the dating question
+  [#238](https://github.com/ProjectSidewalk/RampNet/issues/238) is about.
+- **From a point to a measurement**, `measure_chain.png`. One Richmond ramp: the deployed
+  keypoint, the whole-apron extent box from the gold set, the range from calibrated Depth
+  Anything 3, the width that follows (an illustration of the geometry, labelled as such), and
+  slope as the measurement that does not exist yet.
+- **3D fly-around**, `flyaround/flyaround_richmond_99.mp4` and `flyaround_bend_7.mp4` (8 s
+  orbits, 1920×1080). The MapAnything reconstructions behind the cross-view placement viewer
+  (#48, PR #210): the corner's point cloud, every camera that saw it, and the ramp's ground-truth
+  point placed in 3D. Point clouds committed as `flyaround/*.npz`; frames and mp4 gitignored,
+  `uchicago_2026_flyaround.py render` then `video` rebuilds them (CPU, a few minutes). The clouds
+  are the viewer's 150k-point subsample, which is why they read as points rather than surfaces.
+
 ## Figures in this folder
 
 | file | slide | inputs |
@@ -154,6 +178,9 @@ Figure: `rampnet2_roadmap.png`. Three rows (find, tag, rate) with where each sta
 | `comparison_f1_with_gold.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_gold`) |
 | `comparison_f1_annapolis.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_annapolis`) |
 | `recall_by_distance.png` | 6 | `docs/detection_recall_analysis.md` §1–§2 (constants in the script) |
+| `timelapse/timelapse_*.png` | 8 | `timelapse/manifest_*.json`, `timelapse/heat_*.png` (GSV history via `uchicago_2026_timelapse.py fetch` + `infer`, GPU), Bend inventory |
+| `measure_chain.png` | 8 | `benchmark/richmond/{boxes.json,records.jsonl,panos/}`, `analysis_out/da3_calibration_101/rows_points.jsonl` (`--only measure`) |
+| `flyaround/flyaround_*.mp4` | 8 | `flyaround/*.npz` (MapAnything clouds from the #48 viewer); `uchicago_2026_flyaround.py render` + `video` |
 | `rampnet2_roadmap.png` | 8 | `docs/rampnet2_plan.md` §1, §4 (constants in the script) |
 | `deployment_validation.png` | 7 | sidewalk-auto-labeler `docs/server-agree-check.md` at 66c76d6 (constants in the script) |
 

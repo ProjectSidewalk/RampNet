@@ -949,11 +949,114 @@ def fig_comparison_city(board, plt, split="annapolis"):
 
 
 # ---------------------------------------------------------------------------------------------
+# 9. From a point to a measurement (RampNet 2.0 "rate")
+# ---------------------------------------------------------------------------------------------
+
+MEASURE_SPLIT, MEASURE_PANO, MEASURE_KEY = "richmond", "1335429861397399", "det:0"
+
+
+def fig_measure(plt, pano_dir, split=MEASURE_SPLIT, pano=MEASURE_PANO, key=MEASURE_KEY):
+    """One ramp: the keypoint, the whole-apron extent box (benchmark/<split>/boxes.json), the
+    metric range from calibrated Depth Anything 3 (analysis_out/da3_calibration_101), and the
+    width that follows; slope is marked as the measurement that does not exist yet."""
+    import math
+    import numpy as np
+    from PIL import Image
+    from matplotlib.patches import Rectangle
+
+    with open(os.path.join(REPO, "benchmark", split, "boxes.json"), encoding="utf-8") as f:
+        boxes = json.load(f)
+    box = boxes["panos"][pano][key]
+    px, py = box["point"]["x"], box["point"]["y"]
+    rows = [json.loads(l) for l in open(os.path.join(REPO, "analysis_out", "da3_calibration_101",
+                                                     "rows_points.jsonl"), encoding="utf-8")]
+    da3 = next(r for r in rows if r["split"] == split and r["pano"] == pano and r["kind"] == "gt"
+               and abs(r["x"] - px) < 1e-3 and abs(r["y"] - py) < 1e-3)
+    rng = da3["da3_range"]
+    ang_w = box["w"] * 360.0                       # equirect x is azimuth; width is an angle
+    width_m = 2 * rng * math.tan(math.radians(ang_w / 2))
+    with open(os.path.join(REPO, "benchmark", split, "records.jsonl"), encoding="utf-8") as f:
+        record = next(json.loads(l) for l in f if pano in l)
+    rec = record["pano"]
+    conf = (record["detections"][int(key.split(":")[1])]["confidence"]
+            if key.startswith("det:") else None)
+
+    Image.MAX_IMAGE_PIXELS = None
+    img = Image.open(os.path.join(pano_dir, f"{pano}.jpg"))
+    img.draft("RGB", (4096, 2048))
+    img = img.convert("RGB").resize((4096, 2048), Image.LANCZOS)
+    W, H = img.size
+    x0, x1 = box["cx"] - 0.11, box["cx"] + 0.11
+    y0, y1 = box["cy"] - 0.12, box["cy"] + 0.12
+    crop = img.crop((int(x0 * W), int(y0 * H), int(x1 * W), int(y1 * H)))
+
+    fig = plt.figure(figsize=(13.33, 7.5))
+    fig.patch.set_facecolor(SURFACE)
+    ax = fig.add_axes([0.012, 0.09, 0.56, 0.77])
+    ax.imshow(crop, extent=(x0, x1, y1, y0), aspect="auto", interpolation="lanczos")
+    ax.add_patch(Rectangle((box["cx"] - box["w"] / 2, box["cy"] - box["h"] / 2), box["w"], box["h"],
+                           fill=False, edgecolor="#ffd34d", lw=3, zorder=3))
+    ax.scatter([px], [py], s=260, facecolor="none", edgecolor="#5af0ff", lw=3.2, zorder=4)
+    ax.scatter([px], [py], s=24, color="#5af0ff", zorder=4)
+    bx0, bx1 = box["cx"] - box["w"] / 2, box["cx"] + box["w"] / 2
+    yb = box["cy"] + box["h"] / 2 + 0.012
+    ax.annotate("", xy=(bx1, yb), xytext=(bx0, yb), zorder=5,
+                arrowprops=dict(arrowstyle="<->", color="#ffd34d", lw=2.2))
+    ax.text((bx0 + bx1) / 2, yb + 0.006, f"{ang_w:.0f}° of azimuth  ⇒  ≈ {width_m:.1f} m at {rng:.1f} m",
+            ha="center", va="top", fontsize=12.5, color="#ffd34d", fontweight="bold", zorder=5,
+            bbox=dict(facecolor=INK, alpha=0.55, pad=3, edgecolor="none"))
+    ax.set_xlim(x0, x1)
+    ax.set_ylim(y1, y0)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for sp in ax.spines.values():
+        sp.set_color(GRID)
+
+    # Right column: the chain, one line per quantity, with what each rests on.
+    tx = 0.60
+    lines = [
+        ("1. Find", "a keypoint (ring)",
+         f"RampNet's deployed detection, confidence {conf:.2f}" if conf else "a reviewer-added point",
+         BLUE),
+        ("2. Extent", "the whole apron (box)", f"human gold, {ang_w:.0f}° wide × "
+         f"{box['h'] * 180:.0f}° tall; richmond is the one split with complete extent gold",
+         "#b8962e"),
+        ("3. Range", f"{rng:.1f} m from the camera", "Depth Anything 3, calibrated against GSV's "
+         "own depth: reads ~11% long pooled, within a few % per rig after calibration (#101)",
+         INK),
+        ("4. Width", f"≈ {width_m:.1f} m", "angular extent × range, a flat-ground chord; "
+         "cross-view repeatability (plan item 8) is what turns this into a number with an error "
+         "bar", INK),
+        ("5. Slope", "not yet measured", "no field-measured curb ramp exists anywhere; ~50 taped "
+         "and inclinometered ramps (plan item 9) are the only route to 'better than humans'",
+         INK_MUTED),
+    ]
+    y = 0.835
+    for head, value, basis, color in lines:
+        fig.text(tx, y, head, fontsize=13, color=INK_SECONDARY, va="top")
+        fig.text(tx + 0.085, y, value, fontsize=15, color=color, fontweight="bold", va="top")
+        import textwrap
+        wrapped = "\n".join(textwrap.wrap(basis, 52))
+        fig.text(tx + 0.085, y - 0.036, wrapped, fontsize=10.5, color=INK_SECONDARY, va="top",
+                 linespacing=1.3)
+        y -= 0.155
+    _titles(fig, "From a point to a measurement: what 'rate' needs",
+            "One Richmond ramp. Each step down the chain rests on a weaker input than the last.")
+    _footnote(fig, f"Panorama {pano} ({split}, Mapillary, {rec.get('capture_date', '?')}). Box: "
+              "benchmark/richmond/boxes.json (rule v2: sloped apron + warning pad + flares). Range: "
+              "analysis_out/da3_calibration_101/rows_points.jsonl, da3_range. Width is an "
+              "illustration of the geometry, not a validated measurement.", width=185)
+    _save(fig, "measure_chain.png")
+    plt.close(fig)
+
+
+# ---------------------------------------------------------------------------------------------
 
 FIGURES = {
     "pipeline": lambda board, plt, pano_dir: fig_pipeline(plt, pano_dir),
     "heatmap": lambda board, plt, pano_dir: fig_heatmap(plt, pano_dir),
     "roadmap": lambda board, plt, _: fig_roadmap(plt),
+    "measure": lambda board, plt, pano_dir: fig_measure(plt, pano_dir),
     "comparison": lambda board, plt, _: fig_comparison(board, plt),
     "comparison_v2": lambda board, plt, _: fig_comparison(board, plt, v2=True),
     "comparison_pr": lambda board, plt, _: fig_comparison_pr(board, plt),
