@@ -45,8 +45,22 @@ dataset), `benchmark/bend/records.jsonl`, `stage_one/dataset_generation/location
   detections.
 - Gold set, one-to-one matching: precision 0.949, recall 0.873, AP 0.92 (`README.md` erratum).
 
-Figure: a panorama with the predicted heatmap and extracted peaks. Not built here; needs a
-checkpoint and a GPU (`stage_two/demo.py`).
+Figure: `heatmap_demo_paterson.png`. One Paterson panorama (not in training), the street band
+of the input above and the model's heatmap below in the style of the 2023 talk slide; 9 confirmed
+ramps, 9 peaks at the deployed threshold. The heatmap is saved beside the figure
+(`heatmap_paterson_*.npz`, with checkpoint and run metadata) so the figure regenerates on CPU;
+`uchicago_2026_heatmap.py` is the one GPU step. Two richmond heatmaps are saved too
+(`1847752429062443`, 8 of 8; `1273933840289887`, 10 found and 4 far-field misses) if a harder
+example is wanted: pass them as `split`/`pano` to `fig_heatmap`.
+
+Video: `showcase/showcase.mp4` (1920×1080, 32 panoramas × 2.5 s). Each frame is the raw street
+band above and the heatmap below with a ring on every peak ≥ 0.55, captioned with city, imagery
+and the reviewer's verdict. Selection is mechanical from the committed verdicts
+(`showcase/manifest.json`): per split, the two panoramas with the most confirmed ramps where every
+detection was confirmed and nothing was missed, plus one seeded-random other, plus four true
+negatives (no ramps, no detections). Eleven splits, three imagery sources, four countries. The
+32 heatmaps are committed as 8-bit PNGs; frames and the mp4 are not (regenerate with
+`uchicago_2026_showcase.py render` then `video`, needs ffmpeg).
 
 ## Slide 4. How it compares
 
@@ -61,7 +75,16 @@ Three baselines, in increasing strength:
 The honest framing, which Jon chose: the dataset is the result; the keypoint formulation is a
 small, real bonus. On the in-distribution gold set the two supervised models are level.
 
-Figure: `comparison_f1.png` (eight rows, pooled F1, operating points in the footnote).
+Figure: `comparison_f1.png` (eight rows, pooled F1, operating points in the footnote). Variants:
+`comparison_f1_v2.png` states the N; `comparison_pr.png` shows precision and recall instead of
+F1; `comparison_f1_with_gold.png` adds each model's manual_gold F1 as a diamond;
+`comparison_f1_annapolis.png` is one city with every leg ever run there (18 challengers,
+including the Claude Fable 5 / 5.1, Opus 5 and Sonnet 5 legs).
+
+Why `manual_gold` is not in the pooled bar: the scoreboard holds it out as the in-distribution
+reference. It is GSV from the three training cities, so pooling it with deployment cities would
+mix two questions; and two of the challengers (Gemini 3.1 Pro, Claude Opus 5) have no published
+manual_gold detections, so the pooled mean would not be over the same models.
 
 ## Slide 5. Trained on US Google Street View, it transfers to other cameras and countries
 
@@ -107,13 +130,14 @@ Figure: `deployment_validation.png`. Source: sidewalk-auto-labeler `docs/server-
 `66c76d6` (PR [#119](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/119), merged
 2026-10-04).
 
-## Slide 8 (optional). RampNet 2.0
+## Slide 8. RampNet 2.0
 
 - Find, then measure, condition and tag. Multi-view fusion across panoramas. Composition and
   geometry over volume (NYC is 78% of training records; assessed inventories cannot reach 500k).
 - North star: an AI labeller at least as good as a human, feeding Project Sidewalk.
 
-Figure: not built; the multi-view figures under `figures/multiview_48/` are candidates.
+Figure: `rampnet2_roadmap.png`. Three rows (find, tag, rate) with where each stands and what
+2.0 adds, from `rampnet2_plan.md` §1 and §4.
 
 ## Figures in this folder
 
@@ -124,7 +148,13 @@ Figure: not built; the multi-view figures under `figures/multiview_48/` are cand
 | `comparison_f1_v2.png` | 4 | same chart with the N stated: cities, panoramas, ramps, challengers and providers (`--only comparison_v2`) |
 | `transfer_imagery_country.png` | 5 | `analysis_out/scoreboard.json`; bayonne from PR #239 (constant in the script) |
 | `transfer_imagery_us.png` | 5 | same, US splits only, so it reads as camera transfer alone (`--only transfer_us`) |
+| `heatmap_demo_paterson.png` | 3 | `heatmap_paterson_*.npz` (from `uchicago_2026_heatmap.py`, GPU), `benchmark/paterson/{records.jsonl,verdicts.json,panos/}` |
+| `showcase/showcase.mp4` | 3 | `showcase/manifest.json`, `showcase/heat_*.png` (from `uchicago_2026_showcase.py infer`, GPU), benchmark panos; frames + mp4 regenerate with `render` and `video` |
+| `comparison_pr.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_pr`) |
+| `comparison_f1_with_gold.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_gold`) |
+| `comparison_f1_annapolis.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_annapolis`) |
 | `recall_by_distance.png` | 6 | `docs/detection_recall_analysis.md` §1–§2 (constants in the script) |
+| `rampnet2_roadmap.png` | 8 | `docs/rampnet2_plan.md` §1, §4 (constants in the script) |
 | `deployment_validation.png` | 7 | sidewalk-auto-labeler `docs/server-agree-check.md` at 66c76d6 (constants in the script) |
 
 Palette and mark conventions follow `scripts/analysis/scoreboard_figures.py`: one hue for emphasis,

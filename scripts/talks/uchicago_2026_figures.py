@@ -622,11 +622,343 @@ def fig_pipeline(plt, pano_dir=BEND_PANO_DIR):
 
 
 # ---------------------------------------------------------------------------------------------
+# 6. Stage 2 heatmap demo (from the npz that uchicago_2026_heatmap.py wrote)
+# ---------------------------------------------------------------------------------------------
+
+HEATMAP_SPLIT, HEATMAP_PANO = "paterson", "tekhQ4HQ9pcOqs_kGGpGaw"
+DEPLOYED_T, RECOMMENDED_T = 0.55, 0.30
+
+
+HEAT_BAND = (0.26, 0.80)   # fraction of the equirect height shown: sky and the ground under the camera hold no ramps
+
+
+def _heat_overlay(img_band, heat_band):
+    """The panorama dimmed and cooled, the heatmap in jet with alpha from its value: the look of
+    the 2023 RampNet talk slide. Display only; peaks are extracted from the raw heatmap."""
+    import numpy as np
+    from PIL import Image
+    from matplotlib import cm
+    base = np.asarray(img_band, dtype=np.float32)
+    tint = base * 0.42 + np.array([18, 22, 90], dtype=np.float32) * 0.58
+    hb = Image.fromarray((heat_band * 255).astype(np.uint8)).resize(img_band.size, Image.BICUBIC)
+    hb = np.asarray(hb, dtype=np.float32) / 255.0
+    rgb = cm.jet(hb)[..., :3] * 255
+    alpha = np.clip(hb * 1.6, 0, 0.92)[..., None]
+    return Image.fromarray((tint * (1 - alpha) + rgb * alpha).round().astype(np.uint8))
+
+
+def fig_heatmap(plt, pano_dir, split=HEATMAP_SPLIT, pano=HEATMAP_PANO):
+    import numpy as np
+    from PIL import Image
+    from skimage.feature import peak_local_max
+
+    npz = np.load(os.path.join(OUT_DIR, f"heatmap_{split}_{pano}.npz"))
+    heat = npz["heatmap"].astype(np.float32)
+    meta = json.loads(str(npz["meta"]))
+    with open(os.path.join(REPO, "benchmark", split, "records.jsonl"), encoding="utf-8") as f:
+        rec = next(json.loads(l) for l in f if pano in l)
+    with open(os.path.join(REPO, "benchmark", split, "verdicts.json"), encoding="utf-8") as f:
+        verdict = json.load(f)["panos"][pano]
+    missed = verdict.get("missed", [])
+
+    Image.MAX_IMAGE_PIXELS = None
+    img = Image.open(os.path.join(pano_dir, f"{pano}.jpg"))
+    img.draft("RGB", (4096, 2048))
+    img = img.convert("RGB").resize((4096, 2048), Image.BILINEAR)
+    b0, b1 = HEAT_BAND
+    band = img.crop((0, int(b0 * 2048), 4096, int(b1 * 2048))).resize((2560, int(2560 / 2 * (b1 - b0))), Image.LANCZOS)
+    H, W = heat.shape
+    overlay = _heat_overlay(band, heat[int(b0 * H):int(b1 * H)])
+
+    peaks = peak_local_max(heat, min_distance=10, threshold_abs=RECOMMENDED_T, exclude_border=False)
+    conf = heat[tuple(peaks.T)] if len(peaks) else np.zeros(0)
+    px = (peaks[:, 1] + 0.5) / W
+    py = ((peaks[:, 0] + 0.5) / H - b0) / (b1 - b0)
+    strong = conf >= DEPLOYED_T
+
+    fig = plt.figure(figsize=(13.33, 7.5))
+    fig.patch.set_facecolor(SURFACE)
+    gs = fig.add_gridspec(2, 1, left=0.012, right=0.988, top=0.855, bottom=0.085, hspace=0.14)
+    ax_in = fig.add_subplot(gs[0])
+    ax_out = fig.add_subplot(gs[1])
+    for ax in (ax_in, ax_out):
+        ax.set_xlim(0, 1)
+        ax.set_ylim(1, 0)
+        ax.axis("off")
+    ax_in.imshow(band, extent=(0, 1, 1, 0), aspect="auto", interpolation="bilinear")
+    ax_in.set_title("input: the whole 360° panorama at 2048 × 4096 (street band shown)",
+                    loc="left", fontsize=12.5, color=INK, pad=4)
+    ax_out.imshow(overlay, extent=(0, 1, 1, 0), aspect="auto", interpolation="bilinear")
+    ax_out.scatter(px[strong], py[strong], s=230, facecolor="none", edgecolor="#5af0ff", lw=3,
+                   zorder=4)
+    ax_out.scatter(px[strong], py[strong], s=22, color="#5af0ff", zorder=4)
+    ax_out.scatter(px[~strong], py[~strong], s=170, facecolor="none", edgecolor="#5af0ff",
+                   lw=1.8, ls=(0, (2, 2)), zorder=4)
+    for m in missed:
+        ax_out.scatter([m["x"]], [(m["y"] - b0) / (b1 - b0)], s=200, marker="x",
+                       color="#ff7b72", lw=3, zorder=5)
+    n_strong, n_weak = int(strong.sum()), int((~strong).sum())
+    ax_out.set_title(f"output: a 512 × 1024 keypoint heatmap. Rings are peaks ≥ 0.55 "
+                     f"({n_strong}); dashed rings sit between 0.30 and 0.55 ({n_weak})"
+                     + (f"; × marks a ramp the reviewer found that the model missed "
+                        f"({len(missed)})" if missed else ""),
+                     loc="left", fontsize=12.5, color=INK, pad=4)
+
+    n_gt = sum(1 for d in verdict["dets"] if d is True) + len(missed)
+    _titles(fig, "Stage 2: one model, the whole panorama, points not boxes",
+            f"ConvNeXt V2 backbone, one-channel heatmap head. {n_gt} confirmed ramps in this "
+            f"{split} panorama, {n_strong} peaks at the deployed threshold, all of them right."
+            if n_strong == n_gt and not missed else
+            f"ConvNeXt V2 backbone, one-channel heatmap head. {n_gt} reviewer-confirmed ramps "
+            f"in this {split} panorama.")
+    cam = rec["pano"]
+    _footnote(fig, f"Panorama {pano} ({split}, {cam.get('capture_date', '?')}, "
+              f"{cam['width']}×{cam['height']} source), not in the training set. Checkpoint "
+              f"{meta['checkpoint'][:60]}, one forward pass, no flip-TTA, run {meta['run_date']} "
+              f"on {meta['device']}. Ground truth: benchmark/{split}/verdicts.json. "
+              "Heatmap saved beside this figure; regenerate with uchicago_2026_heatmap.py.",
+              width=185)
+    _save(fig, f"heatmap_demo_{split}.png")
+    plt.close(fig)
+
+
+# ---------------------------------------------------------------------------------------------
+# 7. RampNet 2.0: find, tag, rate
+# ---------------------------------------------------------------------------------------------
+
+# Text from docs/rampnet2_plan.md §1 (goal table) and §4 (experiments), read 2026-10-05.
+ROADMAP = [
+    ("FIND", "Where is every curb ramp?",
+     "Gold-set F1 0.91; leads every zero-shot model on all twelve benchmark bundles; "
+     "live in three Project Sidewalk cities.",
+     "Consumer 360° rigs (Laurens recall 0.39 per view). Merging views of one ramp: "
+     "of 74 ramps no fused site recovered, 63 fired in some view.",
+     "mostly done"),
+    ("TAG", "What kind of ramp, and what is wrong with it?",
+     "118k tagged labels in Project Sidewalk and a published DINOv2 baseline, but tags are "
+     "positive-unlabeled and rater-dependent, with no rubric.",
+     "A rubric and a two-rater agreement ceiling; field-of-view and positive-unlabeled training "
+     "experiments; then tag channels on the keypoint head.",
+     "starting"),
+    ("RATE", "How severe, in numbers a city can act on?",
+     "Recorded severity is a 3-level quality scale (88 / 9 / 3 %) that tags already predict "
+     "(κ 0.44); two trained raters agree at κ 0.21.",
+     "Width and slope from cross-view geometry and GSV depth; severity re-derived from "
+     "measurements and tags; ~50 field-measured ramps as the only route to 'better than humans'.",
+     "open"),
+]
+
+
+def fig_roadmap(plt):
+    from matplotlib.patches import FancyBboxPatch
+    import textwrap
+
+    fig, ax = plt.subplots(figsize=(13.33, 7.5))
+    fig.patch.set_facecolor(SURFACE)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    cols = [(0.015, 0.20), (0.235, 0.355), (0.605, 0.38)]
+    heads = ["", "where it stands", "what RampNet 2.0 adds"]
+    for (x, w), h in zip(cols, heads):
+        if h:
+            ax.text(x, 0.955, h, fontsize=13, color=INK_SECONDARY, va="center")
+    row_h, gap, top = 0.255, 0.035, 0.925
+    for i, (name, question, state, nxt, status) in enumerate(ROADMAP):
+        y1 = top - i * (row_h + gap)
+        y0 = y1 - row_h
+        ax.add_patch(FancyBboxPatch((0.005, y0), 0.99, row_h,
+                                    boxstyle="round,pad=0.004,rounding_size=0.012",
+                                    facecolor="#f3f2ee", edgecolor=GRID, lw=1, zorder=1))
+        x, w = cols[0]
+        ax.text(x + 0.01, y1 - 0.045, name, fontsize=22, color=BLUE if i == 0 else INK,
+                fontweight="bold", va="center", zorder=3)
+        ax.text(x + 0.01, y1 - 0.105, "\n".join(textwrap.wrap(question, 26)), fontsize=12,
+                color=INK_SECONDARY, va="top", zorder=3)
+        ax.text(x + 0.01, y0 + 0.03, status, fontsize=11, color=SURFACE, va="center",
+                fontweight="bold", zorder=4,
+                bbox=dict(boxstyle="round,pad=0.35", facecolor=BLUE if i == 0 else INK_MUTED,
+                          edgecolor="none"))
+        x, w = cols[1]
+        ax.text(x, y1 - 0.03, "\n".join(textwrap.wrap(state, 54)), fontsize=12, color=INK,
+                va="top", zorder=3, linespacing=1.35)
+        x, w = cols[2]
+        ax.text(x, y1 - 0.03, "\n".join(textwrap.wrap(nxt, 62)), fontsize=12, color=INK,
+                va="top", zorder=3, linespacing=1.35)
+    ax.plot([0.59, 0.59], [0.06, 0.93], color=GRID, lw=1, zorder=2)
+
+    _titles(fig, "RampNet 2.0: find, then tag, then rate",
+            "The goal is an AI accessibility labeller at least as good as a human. Curb ramps "
+            "first: a designed object with a measurable severity.")
+    _footnote(fig, "Data engine running alongside: AI proposals surfaced in Project Sidewalk's "
+              "expert-validate tool, human accept / reject becomes the clean training set. "
+              "Source: docs/rampnet2_plan.md §1, §4; docs/multiview_48.md.", width=185)
+    fig.subplots_adjust(left=0, right=1, top=0.88, bottom=0.07)
+    _save(fig, "rampnet2_roadmap.png")
+    plt.close(fig)
+
+
+# ---------------------------------------------------------------------------------------------
+# 8. Comparison variants: precision/recall, with manual_gold, and one city with every leg
+# ---------------------------------------------------------------------------------------------
+
+def _hbar_frame(plt, n, figsize=(13.33, 7.5)):
+    fig, ax = plt.subplots(figsize=figsize)
+    fig.patch.set_facecolor(SURFACE)
+    _style(ax)
+    ax.grid(True, axis="x", color=GRID, lw=0.8, zorder=0)
+    ax.set_axisbelow(True)
+    ax.set_xlim(0, 1.0)
+    ax.set_ylim(-0.6, n - 0.4)
+    return fig, ax
+
+
+def fig_comparison_pr(board, plt):
+    """The same eight models, precision and recall instead of F1."""
+    by_id = {m["model"]: m for m in board["models"]}
+    rows = sorted((by_id[m] for m in COMPARISON_MODELS), key=lambda m: m["f1"])
+    n = len(rows)
+    is_ref = [m["model"] == "rampnet" for m in rows]
+    fig, ax = _hbar_frame(plt, n)
+    h = 0.34
+    for i, m in enumerate(rows):
+        ax.barh(i + h / 2 + 0.02, m["precision"], height=h, color=BLUE_DEEP, zorder=3)
+        ax.barh(i - h / 2 - 0.02, m["recall"], height=h, color=BLUE, zorder=3)
+        ax.text(m["precision"] + 0.01, i + h / 2 + 0.02, f"P {m['precision']:.2f}", va="center",
+                fontsize=11.5, color=INK, fontweight="bold" if is_ref[i] else "normal")
+        ax.text(m["recall"] + 0.01, i - h / 2 - 0.02, f"R {m['recall']:.2f}", va="center",
+                fontsize=11.5, color=INK, fontweight="bold" if is_ref[i] else "normal")
+    ax.set_yticks(range(n))
+    ax.set_yticklabels([f"{m['display']}   ·   {CLASS_LABEL[m['class']]}" for m in rows], fontsize=13.5)
+    for tick, ref in zip(ax.get_yticklabels(), is_ref):
+        tick.set_color(INK if ref else INK_SECONDARY)
+        if ref:
+            tick.set_fontweight("bold")
+    ax.barh([], [], color=BLUE_DEEP, label="precision")
+    ax.barh([], [], color=BLUE, label="recall")
+    ax.legend(loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=2, fontsize=12.5, frameon=False,
+              labelcolor=INK_SECONDARY)
+    ax.set_xlabel("macro-mean over eight US benchmark cities, at each model's operating point",
+                  fontsize=12, color=INK_SECONDARY)
+    ref = by_id["rampnet"]
+    _titles(fig, "RampNet leads on precision and recall at once; challengers trade one for the other",
+            f"RampNet P {ref['precision']:.2f} / R {ref['recall']:.2f}. Chat VLMs run near 0.55–0.65 "
+            f"on both; OWLv2 finds {by_id['google/owlv2-large-patch14-ensemble']['recall']:.2f} of "
+            f"the ramps at {by_id['google/owlv2-large-patch14-ensemble']['precision']:.2f} precision.")
+    bottom = _footnote(fig,
+                       "Same eight US cities, panoramas and ramps as the F1 chart (953 panoramas, "
+                       "2,309 ramps). Operating points: RampNet 0.55, YOLO 0.25, OWLv2 0.05 floor, "
+                       "chat VLMs emit no score. A 0.30 threshold moves RampNet to P 0.92 / R 0.80 "
+                       "pooled over seven cities (docs/operating_point.md). Source: "
+                       "docs/model_scoreboard.md.")
+    fig.tight_layout(rect=(0, bottom, 1, 0.885))
+    _save(fig, "comparison_pr.png")
+    plt.close(fig)
+
+
+def fig_comparison_gold(board, plt):
+    """The F1 chart with a second mark per model: F1 on manual_gold, the in-distribution set."""
+    by_id = {m["model"]: m for m in board["models"]}
+    rows = sorted((by_id[m] for m in COMPARISON_MODELS), key=lambda m: m["f1"])
+    n = len(rows)
+    is_ref = [m["model"] == "rampnet" for m in rows]
+    fig, ax = _hbar_frame(plt, n)
+    bars = ax.barh(range(n), [m["f1"] for m in rows], height=0.6, zorder=3,
+                   color=[BLUE if r else MUTED_FILL for r in is_ref])
+    for i, (bar, m) in enumerate(zip(bars, rows)):
+        g = m.get("manual_gold_f1")
+        # The bar's value sits right of whichever mark is further out, so a diamond just past
+        # the bar end never lands on the number.
+        ax.text(max(bar.get_width(), (g or 0) + 0.02) + 0.012, i - 0.02, f"{m['f1']:.2f}",
+                va="center", fontsize=14, color=INK if is_ref[i] else INK_SECONDARY,
+                fontweight="bold" if is_ref[i] else "normal", zorder=4)
+        if g is None:
+            ax.text(0.012, i, "no manual_gold run", va="center", fontsize=10.5,
+                    color=INK_MUTED, zorder=5, style="italic")
+        else:
+            ax.scatter([g], [i], marker="D", s=120, color=BLUE_DEEP, edgecolor=SURFACE,
+                       linewidth=1.2, zorder=5)
+            ax.text(g, i + 0.42, f"{g:.2f}", ha="center", va="bottom", fontsize=10.5,
+                    color=BLUE_DEEP, zorder=5)
+    ax.set_yticks(range(n))
+    ax.set_yticklabels([f"{m['display']}   ·   {CLASS_LABEL[m['class']]}" for m in rows], fontsize=13.5)
+    for tick, ref in zip(ax.get_yticklabels(), is_ref):
+        tick.set_color(INK if ref else INK_SECONDARY)
+        if ref:
+            tick.set_fontweight("bold")
+    ax.barh([], [], color=MUTED_FILL, label="F1, eight deployment cities (bar)")
+    ax.scatter([], [], marker="D", s=120, color=BLUE_DEEP,
+               label="F1, manual_gold: 1,000 in-distribution GSV panoramas, 3,919 ramps (diamond)")
+    ax.legend(loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=2, fontsize=11.5, frameon=False,
+              labelcolor=INK_SECONDARY)
+    ax.set_xlabel("F1 at each model's operating point", fontsize=12, color=INK_SECONDARY)
+    _titles(fig, "In distribution the supervised models are close; deployed, RampNet holds up",
+            "manual_gold is held out of the pooled headline: it is GSV from the training cities, "
+            "labelled with no model in the loop.")
+    bottom = _footnote(fig,
+                       "manual_gold: RampNet 0.91 with flip-TTA at 0.55; YOLO11x 0.85, and level "
+                       "with RampNet at matched thresholds (0.911 vs 0.905). Gemini 3.1 Pro and "
+                       "Claude Opus 5 have no published manual_gold detections (the Gemini number "
+                       "in the docs, 0.57, is not re-derivable). Source: docs/model_scoreboard.md "
+                       "'In-distribution vs deployed'.")
+    fig.tight_layout(rect=(0, bottom, 1, 0.885))
+    _save(fig, "comparison_f1_with_gold.png")
+    plt.close(fig)
+
+
+CITY_CLASS_LABEL = dict(CLASS_LABEL, **{"supervised-transfer": "Mapillary Vistas transfer"})
+
+
+def fig_comparison_city(board, plt, split="annapolis"):
+    """Every leg ever scored on one split, the one with the most legs."""
+    disp = {m["model"]: m for m in board["models"]}
+    rows = sorted(((v[split]["f1"], m) for m, v in board["per_split"].items() if split in v),
+                  key=lambda t: t[0])
+    n = len(rows)
+    is_ref = [m == "rampnet" for _, m in rows]
+    fig, ax = _hbar_frame(plt, n)
+    bars = ax.barh(range(n), [f for f, _ in rows], height=0.66, zorder=3,
+                   color=[BLUE if r else MUTED_FILL for r in is_ref])
+    for i, (bar, (f, m)) in enumerate(zip(bars, rows)):
+        ax.text(bar.get_width() + 0.01, i, f"{f:.2f}", va="center", fontsize=11.5,
+                color=INK if is_ref[i] else INK_SECONDARY,
+                fontweight="bold" if is_ref[i] else "normal", zorder=4)
+    ax.set_yticks(range(n))
+    ax.set_yticklabels([f"{disp[m]['display']}  ·  {CITY_CLASS_LABEL[disp[m]['class']]}"
+                        for _, m in rows], fontsize=10.5)
+    for tick, ref in zip(ax.get_yticklabels(), is_ref):
+        tick.set_color(INK if ref else INK_SECONDARY)
+        if ref:
+            tick.set_fontweight("bold")
+    info = board["splits"][split]
+    ax.set_xlabel(f"F1 on {split} ({info['n_panos']} panoramas, {info['n_gt']} reviewer-confirmed "
+                  "ramps), at each model's operating point", fontsize=12, color=INK_SECONDARY)
+    best = rows[-2]
+    _titles(fig, f"One city, every model we have run: {n - 1} challengers on {split.title()}",
+            f"RampNet {rows[-1][0]:.2f}; the best challenger is {disp[best[1]]['display']} at "
+            f"{best[0]:.2f}. Mapillary 360° imagery from a survey rig (Trimble MX7).")
+    bottom = _footnote(fig,
+                       "Claude legs ran at two reasoning efforts; effort moved the operating point, "
+                       "not the quality (docs/claude_legs_122.md). '(anthropic)' legs billed the "
+                       "Anthropic API, the rest Vertex. The Vistas arm is Mapillary's Curb Cut class "
+                       "at 1024 px input. Source: docs/model_scoreboard.md by-split table.")
+    fig.tight_layout(rect=(0, bottom, 1, 0.885))
+    _save(fig, f"comparison_f1_{split}.png")
+    plt.close(fig)
+
+
+# ---------------------------------------------------------------------------------------------
 
 FIGURES = {
     "pipeline": lambda board, plt, pano_dir: fig_pipeline(plt, pano_dir),
+    "heatmap": lambda board, plt, pano_dir: fig_heatmap(plt, pano_dir),
+    "roadmap": lambda board, plt, _: fig_roadmap(plt),
     "comparison": lambda board, plt, _: fig_comparison(board, plt),
     "comparison_v2": lambda board, plt, _: fig_comparison(board, plt, v2=True),
+    "comparison_pr": lambda board, plt, _: fig_comparison_pr(board, plt),
+    "comparison_gold": lambda board, plt, _: fig_comparison_gold(board, plt),
+    "comparison_annapolis": lambda board, plt, _: fig_comparison_city(board, plt),
     "transfer": lambda board, plt, _: fig_transfer(board, plt),
     "transfer_us": lambda board, plt, _: fig_transfer(board, plt, us_only=True),
     "recall_by_distance": lambda board, plt, _: fig_recall_by_distance(plt),
