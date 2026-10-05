@@ -80,10 +80,10 @@ def cmd_select(args):
             negatives.append(dict(split=split, pano_id=rng.choice(tn), n_ramps=0,
                                   kind="true_negative",
                                   why="no curb ramps, and the model fired nowhere"))
+    # Order: shuffled so the video does not run city by city; the true negatives come last.
+    rng.shuffle(items)
     rng.shuffle(negatives)
     items += negatives[:NEGATIVES]
-    # Order: alternate imagery sources so the video does not run city by city.
-    rng.shuffle(items)
     os.makedirs(SHOW_DIR, exist_ok=True)
     manifest = dict(selected=datetime.date.today().isoformat(), rule=(
         f"per split: the two 'all_found' panoramas with the most confirmed ramps (>= 3) plus one "
@@ -205,10 +205,9 @@ def render_frame(it, pano_path, heat_path, index, total):
     place, imagery = SPLITS[it["split"]]
     n_peaks = len(peaks)
     if it["kind"] == "true_negative":
-        verdict = "no curb ramps here, and no detections"
+        verdict = "no curb ramps, no detections"
     else:
-        verdict = (f"{it['n_ramps']} curb ramps, {n_peaks} detected, every one confirmed by the "
-                   f"reviewer, none missed")
+        verdict = f"{it['n_ramps']} curb ramps, {n_peaks} detected"
     y_cap = 2 * PANEL_H
     d.text((40, y_cap + 42), place, font=_font(54), fill=(245, 245, 240))
     d.text((40, y_cap + 112), imagery, font=_font(30), fill=(160, 160, 155))
