@@ -267,12 +267,18 @@ def transfer_rows(board):
     return rows
 
 
-def fig_transfer(board, plt):
+def fig_transfer(board, plt, us_only=False):
+    """``us_only`` drops the non-US splits (and with them the Panoramax group), so the figure
+    reads as camera transfer alone."""
     rows = transfer_rows(board)
+    if us_only:
+        rows = [r for r in rows if r["place"].endswith(", US") or "US (" in r["place"]]
     # Within a group, in-distribution first, then by F1 descending.
     order = []
     for g in GROUP_ORDER:
         grp = [r for r in rows if r["group"] == g]
+        if not grp:
+            continue
         grp.sort(key=lambda r: (r["split"] != "manual_gold", -r["f1"]))
         order.append(grp)
 
@@ -320,16 +326,28 @@ def fig_transfer(board, plt):
     ax.legend(loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=2, fontsize=12.5,
               frameon=False, labelcolor=INK_SECONDARY)
 
-    _titles(fig, "Trained on US Google Street View, it transfers to other cameras and countries",
-            "RampNet keeps the top F1 on every split. What drops out of distribution is "
-            "recall, not precision.")
-    bottom = _footnote(fig,
-                       "Ground truth is one reviewer per split; budapest and bayonne at low / "
-                       "medium reviewer confidence. Bend is a training city (4 of its 110 "
-                       "benchmark panoramas are in the training set). Source: "
-                       "docs/model_scoreboard.md, docs/model_comparison.md, PR #239 for bayonne.")
+    if us_only:
+        _titles(fig, "Trained on Google Street View, it transfers to other cameras",
+                f"{len(rows)} US splits, two imagery sources, five camera rigs. RampNet keeps the "
+                "top F1 on every split; what drops is recall, not precision.")
+        bottom = _footnote(fig,
+                           "Ground truth is one reviewer per split. Bend is a training city (4 of "
+                           "its 110 benchmark panoramas are in the training set). Laurens is one "
+                           "town photographed by both rigs. Source: docs/model_scoreboard.md, "
+                           "docs/model_comparison.md.")
+        name = "transfer_imagery_us.png"
+    else:
+        _titles(fig, "Trained on US Google Street View, it transfers to other cameras and countries",
+                "RampNet keeps the top F1 on every split. What drops out of distribution is "
+                "recall, not precision.")
+        bottom = _footnote(fig,
+                           "Ground truth is one reviewer per split; budapest and bayonne at low / "
+                           "medium reviewer confidence. Bend is a training city (4 of its 110 "
+                           "benchmark panoramas are in the training set). Source: "
+                           "docs/model_scoreboard.md, docs/model_comparison.md, PR #239 for bayonne.")
+        name = "transfer_imagery_country.png"
     fig.tight_layout(rect=(0, bottom, 1, 0.885))
-    _save(fig, "transfer_imagery_country.png")
+    _save(fig, name)
     plt.close(fig)
     return rows
 
@@ -610,6 +628,7 @@ FIGURES = {
     "comparison": lambda board, plt, _: fig_comparison(board, plt),
     "comparison_v2": lambda board, plt, _: fig_comparison(board, plt, v2=True),
     "transfer": lambda board, plt, _: fig_transfer(board, plt),
+    "transfer_us": lambda board, plt, _: fig_transfer(board, plt, us_only=True),
     "recall_by_distance": lambda board, plt, _: fig_recall_by_distance(plt),
     "deployment": lambda board, plt, _: fig_deployment(plt),
 }

@@ -123,6 +123,7 @@ Figure: not built; the multi-view figures under `figures/multiview_48/` are cand
 | `comparison_f1.png` | 4 | `analysis_out/scoreboard.json` |
 | `comparison_f1_v2.png` | 4 | same chart with the N stated: cities, panoramas, ramps, challengers and providers (`--only comparison_v2`) |
 | `transfer_imagery_country.png` | 5 | `analysis_out/scoreboard.json`; bayonne from PR #239 (constant in the script) |
+| `transfer_imagery_us.png` | 5 | same, US splits only, so it reads as camera transfer alone (`--only transfer_us`) |
 | `recall_by_distance.png` | 6 | `docs/detection_recall_analysis.md` §1–§2 (constants in the script) |
 | `deployment_validation.png` | 7 | sidewalk-auto-labeler `docs/server-agree-check.md` at 66c76d6 (constants in the script) |
 
