@@ -322,6 +322,20 @@ def load_extract(path):
         return json.load(f)
 
 
+_UP = {}
+
+
+def up(c):
+    """``sc.upsample`` with its two bilinear matrices built once per shape (same matrices,
+    same product order, so the same floats)."""
+    h, w = c.shape
+    if (h, w) not in _UP:
+        _UP[(h, w)] = (sc.bilinear_upsample_matrix(h, h * FACTOR),
+                       sc.bilinear_upsample_matrix(w, w * FACTOR).T)
+    a, b = _UP[(h, w)]
+    return a @ c @ b
+
+
 def arm_maps(crop, arm):
     """(heatmap to find peaks on, coarse stack oriented like it, per-branch upsamples).
 
@@ -329,11 +343,11 @@ def arm_maps(crop, arm):
     ``detect_peaks(clip=True)`` does). ``tta``: evaluate.py's combine -- clip each branch
     to [0, 1], flip the mirrored one back, elementwise max."""
     c0 = np.asarray(crop["coarse"][0], dtype=np.float64)
-    h0 = sc.upsample(c0)
+    h0 = up(c0)
     if arm == "single":
         return h0, c0[None], [h0]
     c1 = np.fliplr(np.asarray(crop["coarse"][1], dtype=np.float64))
-    h1 = np.fliplr(sc.upsample(np.asarray(crop["coarse"][1], dtype=np.float64)))
+    h1 = np.fliplr(up(np.asarray(crop["coarse"][1], dtype=np.float64)))
     combined = np.maximum(np.clip(h0, 0, 1), np.clip(h1, 0, 1))
     return combined, np.stack([c0, c1]), [h0, h1]
 
@@ -342,7 +356,7 @@ def flip_commutes(crop):
     """max |upsample(fliplr(c)) - fliplr(upsample(c))| for the mirrored branch: the
     reverted branch's coarse map is only valid for decoding if this is float noise."""
     c1 = np.asarray(crop["coarse"][1], dtype=np.float64)
-    return float(np.abs(sc.upsample(np.fliplr(c1)) - np.fliplr(sc.upsample(c1))).max())
+    return float(np.abs(up(np.fliplr(c1)) - np.fliplr(up(c1))).max())
 
 
 def peaks_all(crop, arm, threshold):
@@ -418,9 +432,20 @@ def residuals(crops, pairs, cache, method, x_fix=None):
 STAT_NAMES = ("mean_px", "mean_abs_x_px", "mean_abs_y_px", "sd_x_px", "sd_y_px")
 
 
-def stat_vec(dx, dy):
-    return np.array([np.hypot(dx, dy).mean(), np.abs(dx).mean(), np.abs(dy).mean(),
-                     dx.std(), dy.std()])
+def _sums(dx, dy):
+    """Per-pair sufficient statistics for STAT_NAMES (column 0 is the count)."""
+    return np.column_stack([np.ones_like(dx), np.hypot(dx, dy), np.abs(dx), np.abs(dy),
+                            dx, dx * dx, dy, dy * dy])
+
+
+def _from_sums(S):
+    """STAT_NAMES from (summed) sufficient statistics; works row-wise on a 2-D array."""
+    S = np.atleast_2d(S)
+    n = S[:, 0]
+    mx, my = S[:, 4] / n, S[:, 6] / n
+    sdx = np.sqrt(np.maximum(S[:, 5] / n - mx * mx, 0))
+    sdy = np.sqrt(np.maximum(S[:, 7] / n - my * my, 0))
+    return np.column_stack([S[:, 1] / n, S[:, 2] / n, S[:, 3] / n, sdx, sdy])
 
 
 def stats(dx, dy):
@@ -434,21 +459,36 @@ def stats(dx, dy):
             "mean_over_sigma": e.mean() / SIGMA}
 
 
-def boot_draws(crop_idx, rng, n_reps):
-    groups = [np.flatnonzero(crop_idx == u) for u in np.unique(crop_idx)]
-    draws = []
-    for _ in range(n_reps):
-        pick = rng.integers(0, len(groups), len(groups))
-        draws.append(np.concatenate([groups[p] for p in pick]))
-    return draws
+class Boot:
+    """Crop-cluster bootstrap as a (reps x crops) count matrix.
+
+    Each replicate draws ``G`` crops with replacement from the ``G`` crops that hold a
+    pair; a replicate statistic is computed from per-crop sums weighted by those counts,
+    which is the same as concatenating the drawn crops' pairs (a mean or an SD over the
+    concatenation depends only on the summed sufficient statistics)."""
+
+    def __init__(self, crop_idx, rng, n_reps):
+        self.groups, self.gidx = np.unique(crop_idx, return_inverse=True)
+        G = len(self.groups)
+        self.C = np.zeros((n_reps, G))
+        for k in range(n_reps):
+            self.C[k] = np.bincount(rng.integers(0, G, G), minlength=G)
+
+    def per_group(self, per_pair):
+        out = np.zeros((len(self.groups), per_pair.shape[1]))
+        np.add.at(out, self.gidx, per_pair)
+        return out
+
+    def replicate(self, per_pair):
+        """(reps, k) replicate sums of a (pairs, k) per-pair array."""
+        return self.C @ self.per_group(per_pair)
 
 
-def paired_boot(draws, a, b):
+def paired_boot(boot, a, b):
     """Crop-cluster bootstrap of b - a for STAT_NAMES; a, b = (dx, dy)."""
-    allix = np.arange(len(a[0]))
-    obs = stat_vec(b[0], b[1]) - stat_vec(a[0], a[1])
-    d = np.array([stat_vec(b[0][ix], b[1][ix]) - stat_vec(a[0][ix], a[1][ix])
-                  for ix in draws])
+    sa, sb = _sums(*a), _sums(*b)
+    obs = _from_sums(sb.sum(0))[0] - _from_sums(sa.sum(0))[0]
+    d = _from_sums(boot.replicate(sb)) - _from_sums(boot.replicate(sa))
     lo, hi = np.percentile(d, [2.5, 97.5], axis=0)
     return {f"d_{nm}": {"obs": float(o), "ci95": [float(l), float(h)]}
             for nm, o, l, h in zip(STAT_NAMES, obs, lo, hi)}
@@ -491,7 +531,7 @@ def mod8(vals):
                        minlength=FACTOR).tolist()
 
 
-def x_bias(crops, pairs, cache, method, draws):
+def x_bias(crops, pairs, cache, method, boot):
     """dx (GT - det, heatmap px) regressed on the detection's x: slope (with a 95%
     crop-cluster bootstrap CI), intercept, and the x at which the fitted bias is zero;
     plus mean dx by thirds of the crop width. The training-target mismatch predicts a
@@ -501,8 +541,9 @@ def x_bias(crops, pairs, cache, method, draws):
     if len(x) < 3:
         return None
     slope, icpt = np.polyfit(x, dx, 1)
-    boot = [np.polyfit(x[ix], dx[ix], 1)[0] for ix in draws]
-    lo, hi = np.percentile(boot, [2.5, 97.5])
+    R = boot.replicate(np.column_stack([np.ones_like(x), x, dx, x * x, x * dx]))
+    n, sx, sy, sxx, sxy = R.T
+    lo, hi = np.percentile((sxy - sx * sy / n) / (sxx - sx * sx / n), [2.5, 97.5])
     thirds = [dx[(x >= HM[1] * t / 3) & (x < HM[1] * (t + 1) / 3)] for t in range(3)]
     return {"slope_px_per_px": float(slope), "slope_ci95": [float(lo), float(hi)],
             "intercept_px": float(icpt),
@@ -562,7 +603,7 @@ def report(ex, n_reps=N_REPS, seed=SEED):
             cache_by_thr[thr] = cache
             crop_idx = np.array([ci for ci, _, _ in pairs])
             rng = np.random.default_rng(seed)
-            draws = boot_draws(crop_idx, rng, n_reps) if len(pairs) else []
+            boot = Boot(crop_idx, rng, n_reps) if len(pairs) else None
             base = residuals(crops, pairs, cache, "argmax")
             t_res = {"n_pairs": len(pairs), "n_crops_with_pairs": int(len(np.unique(crop_idx))),
                      "n_peaks": int(sum(len(c["argmax"]) for c in cache)),
@@ -571,7 +612,7 @@ def report(ex, n_reps=N_REPS, seed=SEED):
                 r = residuals(crops, pairs, cache, m)
                 t_res["stats"][m] = stats(*r)
                 if m != "argmax" and len(pairs):
-                    t_res["paired_vs_argmax"][m] = paired_boot(draws, base, r)
+                    t_res["paired_vs_argmax"][m] = paired_boot(boot, base, r)
             if thr == PAIR_THRESHOLD:
                 t_res["x_fixed"] = {}
                 for how in X_FIXES:
@@ -579,11 +620,11 @@ def report(ex, n_reps=N_REPS, seed=SEED):
                     fg = residuals(crops, pairs, cache, "gaussian", x_fix=how)
                     t_res["x_fixed"][how] = {
                         "argmax": stats(*fa), "gaussian": stats(*fg),
-                        "paired_gaussian_vs_argmax": paired_boot(draws, fa, fg),
+                        "paired_gaussian_vs_argmax": paired_boot(boot, fa, fg),
                         "paired_vs_uncorrected": {
-                            m: paired_boot(draws, residuals(crops, pairs, cache, m), f)
+                            m: paired_boot(boot, residuals(crops, pairs, cache, m), f)
                             for m, f in (("argmax", fa), ("gaussian", fg))}}
-                t_res["x_bias"] = {m: x_bias(crops, pairs, cache, m, draws)
+                t_res["x_bias"] = {m: x_bias(crops, pairs, cache, m, boot)
                                    for m in ("argmax", "gaussian")}
                 t_res["subcell_fit"] = {m: subcell_fit(crops, pairs, cache, arm, m)
                                         for m in ("centre", "quarter", "parabola",
@@ -706,10 +747,13 @@ def cmd_report(args):
     print(f"wrote {args.out}" + (f" and {args.md}" if args.md else ""))
 
 
-def cmd_check(out_dir=OUT_DIR):
+def cmd_check(out_dir=OUT_DIR, only=None):
+    """Re-derive committed results from committed extracts; ``only`` limits it to the
+    listed extract file names (the test suite checks one, the CLI all three)."""
     bad = []
     n = 0
-    for ex_name, stem in COMMITTED:
+    todo = [c for c in COMMITTED if only is None or c[0] in only]
+    for ex_name, stem in todo:
         ex_path = os.path.join(out_dir, ex_name)
         if not os.path.exists(ex_path):
             bad.append(f"missing {ex_name}")
@@ -724,7 +768,7 @@ def cmd_check(out_dir=OUT_DIR):
     if bad:
         print("CHECK FAILED: " + "; ".join(bad))
         return 1
-    print(f"check ok: {n} files re-derived byte for byte from {len(COMMITTED)} extracts")
+    print(f"check ok: {n} files re-derived byte for byte from {len(todo)} extracts")
     return 0
 
 
