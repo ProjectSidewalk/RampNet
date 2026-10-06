@@ -202,7 +202,7 @@ def test_verify_rebuilds_entries_and_catches_a_hand_edit(fake_repo):
     man["panos"]["abc"]["camera_height_m"] = 2.4      # hand edit, payload untouched
     H.dump_json(os.path.join(H.split_dir(split, repo), H.MANIFEST_NAME), man)
     problems, _ = H.verify(split, repo)
-    assert problems == [f"{split}/abc: fields differ from the archive: ['camera_height_m']"]
+    assert problems == [f"{split}/abc: payload fields differ: ['camera_height_m']"]
 
 
 def test_verify_flags_an_unlisted_archive_file(fake_repo):
@@ -420,3 +420,47 @@ def test_summarize_survives_no_comparable_revisions(tmp_path):
     H.summarize(repo=str(tmp_path), out=lines.append)
     text = "\n".join(lines)
     assert "not comparable" in text and "no comparable camera heights" in text
+
+
+def test_identical_refetch_into_a_clean_clone_does_not_touch_the_record(empty_repo):
+    """Same payloads re-fetched later: the file hashes and fetch times differ, so the
+    committed record (whose file_sha256 is what analyses pin) must not be rewritten."""
+    repo, split, _ = empty_repo(2)
+    s = _Session(lambda url: _Resp(200, body=_response(1, _blob())))
+    _harvest(repo, split, s)
+    record = os.path.join(H.split_dir(split, repo), H.MANIFEST_NAME)
+    before = open(record, "rb").read()
+    ddir = H.depth_dir(split, repo)
+    for f in os.listdir(ddir):
+        os.remove(os.path.join(ddir, f))
+    old_file = json.loads(before)["panos"]["p000"]["file_sha256"]
+    # rewrite with a different fetched_at by patching the clock-derived field
+    real_now = H.datetime
+
+    class _Later(real_now):
+        @classmethod
+        def now(cls, tz=None):
+            return real_now(2031, 1, 1, tzinfo=tz)
+
+    H.datetime = _Later
+    try:
+        man, log, _ = _harvest(repo, split, s)
+    finally:
+        H.datetime = real_now
+    assert open(record, "rb").read() == before
+    assert os.path.basename(log["manifest_path"]).startswith("depth_manifest.refetch-")
+    assert man["panos"]["p000"]["sha256"] == json.loads(before)["panos"]["p000"]["sha256"]
+    assert man["panos"]["p000"]["file_sha256"] != old_file
+    problems, _ = H.verify(split, repo)
+    assert problems and all("file differs (payload identical)" in p for p in problems)
+    assert H.verify(split, repo, payload_only=True) == ([], "archive verified")
+
+
+def test_resume_over_the_same_archive_has_no_conflict():
+    for split in H.HARVEST_SPLITS:
+        prior = H.load_manifest(split)
+        ddir = H.depth_dir(split)
+        if prior is None or not os.path.isdir(ddir):
+            pytest.skip("local archive absent")
+        man = H.build_manifest(split, H.split_pano_ids(split), prior=prior)
+        assert H.conflicts_with_record(prior, man) == []

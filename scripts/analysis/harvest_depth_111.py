@@ -435,16 +435,20 @@ def load_manifest(split, repo=REPO, path=None):
 
 
 def conflicts_with_record(prior, man):
-    """Pano ids whose resolved outcome in ``prior`` (saved / gone / no_depth) ``man`` would
-    change or lose. A harvest never overwrites the committed record with those: a partial
-    rebuild in a clean clone, or a re-fetch that Google has revised, goes to a separate
-    manifest instead."""
+    """Pano ids whose resolved entry in ``prior`` (saved / gone / no_depth) ``man`` would
+    change in ANY field, or lose.
+
+    The whole entry, not just status and payload hash: an identical payload re-fetched into
+    a clean clone still has a new ``fetched_at`` and so a new ``file_sha256`` -- the hash
+    #112-style analyses pin -- and a gone entry may gain a ``code``. A harvest never writes
+    any such change into the committed record; it goes to a separate manifest instead. A
+    resumed run over the same archive rebuilds identical entries and so conflicts with
+    nothing."""
     out = []
     for pid, e in (prior or {}).get("panos", {}).items():
         if e["status"] not in (SAVED, GONE, NO_DEPTH):
             continue
-        n = man["panos"].get(pid, {})
-        if n.get("status") != e["status"] or n.get("sha256") != e.get("sha256"):
+        if _round_floats(man["panos"].get(pid, {})) != e:
             out.append(pid)
     return sorted(out)
 
@@ -649,20 +653,33 @@ def harvest(split, limit=None, resume=True, repo=REPO, session=None, archive_dir
 
 # --------------------------------------------------------------------------- verify
 
-ENTRY_FIELDS_FROM_ARCHIVE = ("sha256", "payload_b64_chars", "file_sha256", "file_bytes",
-                             "fetched_at", "n_planes", "degenerate", "camera_height_m",
-                             "ground_tilt_deg", "exactly_level", "heading_deg", "pitch_deg",
-                             "roll_deg", "capture_ym")
+# Fields decoded from the payload itself: with an identical payload sha256 these can only
+# differ if the decoder changed or the manifest was edited -- always a failure.
+PAYLOAD_FIELDS = ("payload_b64_chars", "n_planes", "degenerate", "camera_height_m",
+                  "ground_tilt_deg", "exactly_level")
+# Fields of this particular copy and fetch (the .json.gz bytes, when it was fetched, and the
+# response metadata stored beside the payload). A re-fetched or re-written copy of an
+# unchanged payload differs here and nowhere else.
+PROVENANCE_FIELDS = ("file_sha256", "file_bytes", "fetched_at", "heading_deg", "pitch_deg",
+                     "roll_deg", "capture_ym")
 
 
-def verify(split, repo=REPO, archive_dir=None):
+def verify(split, repo=REPO, archive_dir=None, payload_only=False):
     """(problems, note). Checks an archive against the committed manifest.
 
     Always: the manifest's pano set, counts, n_requested and digest. With an archive present
     (``benchmark/<split>/depth`` or ``archive_dir``): every saved pano's file is re-read and
-    its whole manifest entry rebuilt by ``entry_from_archive`` -- so a decoder change, a
-    hand-edited height, or a re-fetched payload Google has revised all fail, naming the pano
-    and the fields -- and any archived file the manifest does not list as saved is flagged.
+    its whole manifest entry rebuilt by ``entry_from_archive``, and any archived file the
+    manifest does not list as saved is flagged. Three labels, in this order per pano:
+
+    * ``payload sha256 drift`` -- the payload itself differs (Google revised it);
+    * ``payload fields differ`` -- same payload, different decoded numbers (a decoder change
+      or a hand edit);
+    * ``file differs (payload identical)`` -- same payload, but this copy's file hash,
+      fetch time or stored response metadata differ (a re-fetch or a re-written file).
+      ``payload_only`` skips this one, which is the mode for checking a re-fetched or
+      downloaded copy for real payload changes.
+
     With no archive (a clean clone) only the self-consistency is checked; that is not a
     failure.
     """
@@ -707,9 +724,13 @@ def verify(split, repo=REPO, archive_dir=None):
         if rebuilt["sha256"] != e.get("sha256"):
             problems.append(f"{split}/{pid}: payload sha256 drift")
             continue
-        bad = [k for k in ENTRY_FIELDS_FROM_ARCHIVE if rebuilt.get(k) != e.get(k)]
+        bad = [k for k in PAYLOAD_FIELDS if rebuilt.get(k) != e.get(k)]
         if bad:
-            problems.append(f"{split}/{pid}: fields differ from the archive: {bad}")
+            problems.append(f"{split}/{pid}: payload fields differ: {bad}")
+            continue
+        prov = [k for k in PROVENANCE_FIELDS if rebuilt.get(k) != e.get(k)]
+        if prov and not payload_only:
+            problems.append(f"{split}/{pid}: file differs (payload identical): {prov}")
     note = "archive verified" if not problems else f"{len(problems)} problem(s)"
     return problems, note + (f" ({archive_dir})" if archive_dir else "")
 
@@ -1008,6 +1029,9 @@ def main(argv=None):
     v.add_argument("--split", required=True)
     v.add_argument("--archive-dir", help="check this archive copy (a re-fetch, a download) "
                                          "against the committed manifest")
+    v.add_argument("--payload-only", action="store_true",
+                   help="ignore file/fetch-time/metadata differences; report only payload "
+                        "drift and decoded-field differences")
     c = sub.add_parser("compare-labeler")
     c.add_argument("--split", required=True, choices=("bend", "laurens_gsv"))
     c.add_argument("--labeler-root", required=True)
@@ -1026,7 +1050,8 @@ def main(argv=None):
                                 archive_dir=args.archive_dir, manifest_out=args.manifest_out)
         return 2 if aborted else 0
     if args.cmd == "verify":
-        problems, note = verify(args.split, archive_dir=args.archive_dir)
+        problems, note = verify(args.split, archive_dir=args.archive_dir,
+                                payload_only=args.payload_only)
         for p in problems:
             print(p)
         print(f"{args.split}: {'FAIL' if problems else 'ok'} ({note})")

@@ -118,7 +118,9 @@ Each saved entry carries two sha256 values:
 - `file_sha256` (with `file_bytes`): of the `.json.gz` file as stored. This is what
   `recall_by_depth_112.load_payload` hashes and what `sha256sum` or an LFS hash of an uploaded copy
   gives. **A #112-style analysis on this archive should pin `file_sha256`**, and an uploaded copy is
-  checked with `verify --split <s> --archive-dir <copy>`.
+  checked with `verify --split <s> --archive-dir <copy>`. A re-fetched copy differs in
+  `file_sha256` even where the payload is unchanged (new `fetched_at`, new gzip header), so it is
+  checked with `--payload-only` added.
 
 `payload_b64_chars` is the length of the base64 string. It is not a file size; the labeler's
 `bytes` column is the file size, which here is `file_bytes`.
@@ -150,17 +152,23 @@ digest, is unchanged.
   `no_depth.txt` beside the payloads are skip caches; `gone.txt` lines carry the response code
   after a tab from now on.
 - **The record is never overwritten.** `harvest` writes the committed `depth_manifest.json` only
-  when no pano the record resolved (saved / gone / no_depth) would change or disappear. A partial
-  rebuild in a clean clone, or a re-fetch Google has since revised, goes to
-  `depth_manifest.refetch-<UTC stamp>.json` beside it, and the record is left untouched.
-  `--archive-dir` keeps a re-fetch's payloads apart as well.
+  when no entry the record resolved (saved / gone / no_depth) would change in any field, or
+  disappear. Any re-fetch into a clean clone therefore leaves the record alone. That includes one
+  where every payload is unchanged, because the new files have new `file_sha256` and `fetched_at`.
+  So does a partial rebuild, or a gone entry that would gain a response `code`. The new manifest
+  goes to `depth_manifest.refetch-<UTC stamp>.json` beside it. Resuming over the same archive
+  rebuilds identical entries and writes the record as before. `--archive-dir` keeps a re-fetch's
+  payloads apart as well.
 - **What `--check` covers.** It always checks each committed manifest's pano set (against
   `records.jsonl` and `imagery_manifest.json`), counts, `n_requested` and digest, so it passes in
   a clean clone. With the archive present it also re-reads every saved payload and rebuilds its
   whole manifest entry (both hashes, plane count, ground height, tilt, stand-in flag, heading,
-  capture month). A decoder change, a hand-edited number or a revised payload therefore fails,
-  naming the pano and the field. It also flags any archived file the manifest does not list as
-  saved. The labeler height comparison inside `--check` compares two committed numbers, so it is
+  capture month). Each difference is reported under one of three labels:
+  `payload sha256 drift` (Google revised the payload), `payload fields differ` (same payload,
+  different decoded numbers: a decoder change or a hand edit) or `file differs (payload
+  identical)` (same payload, different file hash, fetch time or stored response metadata: a
+  re-fetched or re-written copy). `verify --payload-only` leaves out the third. It also flags any
+  archived file the manifest does not list as saved. The labeler height comparison inside `--check` compares two committed numbers, so it is
   a consistency check, not a decoder test; the decoder test is the rebuild above.
 - **Decoder.** A stdlib port of the labeler's `depth.parse` and `depth.ground_plane`: the 8-byte
   header `<BHHHB`, uint8 plane indices, `<ffff` planes. The ground plane is the plane with the most
@@ -192,8 +200,9 @@ corrected before the main run, and those 20 requests went out at gaps between ab
   clone has the manifests, and `--check` verifies them without the payloads. Re-running `harvest`
   in a clean clone rebuilds an archive while the endpoint serves it. Given the bend result it will
   not be these exact bytes. The committed record stays as it is (the rebuild's manifest goes to a
-  `refetch-` file), and `verify` reports each revised payload as `payload sha256 drift` against
-  the record.
+  `refetch-` file). `verify --payload-only` against the record then reports each revised payload
+  as `payload sha256 drift` and nothing for an unchanged one. Without `--payload-only` the
+  unchanged ones are also listed, as `file differs (payload identical)`.
 - **The response codes of the 351 gone panoramas** were not recorded. The harvester keeps them from
   now on. Recovering them for these 351 is a 351-request re-fetch and is Jon's call; it was not done.
 - **No depth analysis on manual_gold.** `recall_by_depth_112.py --only manual_gold` is the next step.
