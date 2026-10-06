@@ -1,6 +1,6 @@
 # Google depth for the benchmark panoramas outside a Project Sidewalk store (#111)
 
-**Status:** measured 2026-10-06 (UTC). Plan: the 2026-10-05 comment on
+**Status:** measured 2026-10-06 (UTC); review fixes 2026-10-06 (offline, no new requests). Plan: the 2026-10-05 comment on
 [#111](https://github.com/ProjectSidewalk/RampNet/issues/111#issuecomment-6009504321). Script
 `scripts/analysis/harvest_depth_111.py`; committed record `benchmark/<split>/depth_manifest.json`
 for manual_gold, bend and laurens_gsv, plus `benchmark/{bend,laurens_gsv}/depth_labeler_compare.json`;
@@ -18,13 +18,13 @@ Google still serves.
 
 | question | answer |
 |---|---|
-| How many manual_gold panoramas still have Google depth? | **649 of 1,000** (64.9%). The other **351** are gone: Google answers the id with a not-found code. **No** served panorama lacked a depth payload (0 no_depth), and no request errored. |
+| How many manual_gold panoramas still have Google depth? | **649 of 1,000** (64.9%). The other **351** are gone: Google's response code for the id is not 1 or 3, the codes streetlevel treats as served. **Which code each of the 351 got was not recorded** (the harvester stored ids only; it stores the code from now on, and recovering it would need a 351-request re-fetch, which is Jon's call). **No** served panorama lacked a depth payload (0 no_depth), and no request errored. |
 | Does availability differ by source city? | NYC 385 of 571 (67.4%), Portland 209 of 348 (60.1%), Bend 55 of 81 (67.9%). |
 | How old is the manual_gold imagery that survives? | Capture years run from 2007 to 2024; 2019 (115), 2024 (99) and 2022 (73) are the largest years, and 51 panoramas are from 2007. The capture month comes from the same response, so it is known only for the 649 served panoramas. |
-| How much of manual_gold's depth is a real measurement? | Of 649 payloads, **271 (41.8%)** have Google's exactly-level stand-in ground plane at 2.500 m, and 4 are degenerate (two planes or fewer). The **375** with a measured ground plane give a camera height median **2.377 m** (p10 2.158, p90 2.461) and a ground tilt median 1.59 deg (p90 4.04). One measured height (0.301 m) is outside the labeler's plausible 0.8–3.5 m window. |
+| How much of manual_gold's depth is a real measurement? | Under the labeler's `classify_height` precedence (degenerate, then no ground, then stand-in, then outside the plausible window): **374 measured**, **270** exactly-level stand-in ground at 2.500 m, 4 degenerate (two planes or fewer), 1 implausible (0.301 m, outside 0.8–3.5 m), 0 without a ground plane. Counting the degenerate ones too, 271 of 649 (41.8%) have the stand-in ground. The 374 measured give a camera height median **2.377 m** (p10 2.164, p90 2.461) and a ground tilt median 1.59 deg (p90 4.03). |
 | Are the payloads stable over time? | **No, not on a two-month scale.** The labeler fetched bend's payloads on 2026-08-05; tonight **106 of 110** came back with different bytes. laurens_gsv's 86, fetched by the labeler on 2026-09-27, came back **byte-identical (86 of 86)**. |
 | How big are the bend revisions? | Same capture, same 512x256 grid. Only 11 of the 106 keep their plane count. The plane-index agreement is a median 0.941 (min 0.477). The camera height is unchanged (under 1 mm) on 73 of 106, and the largest change is 0.114 m. The stand-in status flipped on 2 panoramas. |
-| Does the decoder here reproduce the labeler's? | Yes. On every byte-identical payload (86 laurens_gsv + 4 bend) the camera height matches the labeler's `index.csv` to 1e-3 (`--check` asserts it). Before any fetch it also matched on 5,137 archived labeler payloads (3,000 bend, 2,137 laurens_gsv run panos): plane count, camera height to 1e-3 and tilt to 2e-3, 0 mismatches (an ad hoc check, not committed). |
+| Does the decoder here reproduce the labeler's? | Yes. `compare-labeler --all-run-panos` decodes every payload in the labeler's two run archives and compares plane count, degenerate flag, camera height (1e-3 m) and ground tilt (1e-3 deg) with its `index.csv`: **80,685 payloads (78,548 bend + 2,137 laurens_gsv), 0 mismatches** (labeler checkout `39afcd4`, run 2026-10-06, about 14 min on the desktop CPU). It needs the unpublished labeler archive, so it is not part of `--check`. |
 
 ## Coverage, all splits
 
@@ -72,9 +72,12 @@ manual_gold depth analysis covers at most the 649. They are not a random sample:
 differs by city, so any depth-binned manual_gold number carries that selection.
 
 The stand-in share (41.8%) is far above the labeler's bend (18.2% of these 110 panos here, 16% over
-the whole bend run) and laurens_gsv (30.2% here). The likely reason is that manual_gold's imagery is
-older on average, but that is not measured here. A camera height for those 271 panoramas has to come
-from elsewhere: the plane is Google's default, not a measurement.
+the whole bend run) and laurens_gsv (30.2% here). It tracks capture age. In manual_gold the stand-in
+share is 83 of 138 (60%) for captures up to 2012, 74 of 123 (60%) for 2013–2018, and 114 of 388
+(29%) from 2019 on. bend's 110 show the same shape (9 of 9 before 2019, 11 of 101 from 2019). This
+says nothing about the gone share: a gone panorama has no capture date. Under the labeler's
+precedence the **270** stand-in panoramas (plus the 4 degenerate ones and the 1 implausible one)
+need a camera height from somewhere else; the plane is Google's default, not a measurement.
 
 Capture years of the 649 saved: 2007 51, 2008 1, 2009 27, 2011 29, 2012 30, 2013 4, 2014 17,
 2015 9, 2016 14, 2017 20, 2018 59, 2019 115, 2020 40, 2021 49, 2022 73, 2023 12, 2024 99.
@@ -82,7 +85,8 @@ Capture years of the 649 saved: 2007 51, 2008 1, 2009 27, 2011 29, 2012 30, 2013
 ## bend and laurens_gsv: re-fetch against the labeler's archive
 
 Both splits were re-archived into RampNet's own store, and each payload was compared with the
-labeler's copy by the sha256 of the base64 payload string.
+labeler's copy by the sha256 of the base64 payload string. (The file hashes cannot match: the
+labeler's files carry no `meta` key and a different `fetched_at`.)
 
 | split | labeler fetched | re-fetched | identical | revised |
 |---|---|---|---:|---:|
@@ -104,6 +108,26 @@ The general point: a depth number is a function of the fetch date as well as the
 committed manifests pin the bytes each analysis reads, and a re-fetch can be compared byte for byte.
 The bend result shows that comparison is needed.
 
+## Two hashes per payload, and which one to pin
+
+Each saved entry carries two sha256 values:
+
+- `sha256`: of the base64 `depth_b64` string. It does not depend on `fetched_at`, the `meta` dict
+  or gzip metadata, so it is the key for asking "did Google serve the same payload?" across
+  re-fetches and across the labeler's archive. The manifest `digest` is over these.
+- `file_sha256` (with `file_bytes`): of the `.json.gz` file as stored. This is what
+  `recall_by_depth_112.load_payload` hashes and what `sha256sum` or an LFS hash of an uploaded copy
+  gives. **A #112-style analysis on this archive should pin `file_sha256`**, and an uploaded copy is
+  checked with `verify --split <s> --archive-dir <copy>`.
+
+`payload_b64_chars` is the length of the base64 string. It is not a file size; the labeler's
+`bytes` column is the file size, which here is `file_bytes`.
+
+These three fields were added in review (2026-10-06). That was a deliberate schema change to the
+committed manifests: the old `bytes` field was renamed `payload_b64_chars`, and `file_sha256` /
+`file_bytes` were added, recomputed offline from the local archive. Every other field, and every
+digest, is unchanged.
+
 ## How it was built
 
 - **Pano ids.** From `benchmark/<split>/records.jsonl`, asserted equal to `imagery_manifest.json`'s
@@ -122,9 +146,22 @@ The bend result shows that comparison is needed.
   interval reached 0.41 s by the end of manual_gold.
 - **Storage.** `benchmark/<split>/depth/<pano_id>.json.gz` (gitignored), in the labeler's shape
   `{"pano_id", "depth_b64", "fetched_at"}` plus a `meta` dict (heading, pitch, roll, capture
-  month). `recall_by_depth_112.load_payload` therefore reads it unchanged. The manifest's `sha256`
-  is of the base64 string, not the gzip file, so it does not depend on `fetched_at` or gzip
-  metadata.
+  month). `recall_by_depth_112.load_payload` therefore reads it unchanged. `gone.txt` and
+  `no_depth.txt` beside the payloads are skip caches; `gone.txt` lines carry the response code
+  after a tab from now on.
+- **The record is never overwritten.** `harvest` writes the committed `depth_manifest.json` only
+  when no pano the record resolved (saved / gone / no_depth) would change or disappear. A partial
+  rebuild in a clean clone, or a re-fetch Google has since revised, goes to
+  `depth_manifest.refetch-<UTC stamp>.json` beside it, and the record is left untouched.
+  `--archive-dir` keeps a re-fetch's payloads apart as well.
+- **What `--check` covers.** It always checks each committed manifest's pano set (against
+  `records.jsonl` and `imagery_manifest.json`), counts, `n_requested` and digest, so it passes in
+  a clean clone. With the archive present it also re-reads every saved payload and rebuilds its
+  whole manifest entry (both hashes, plane count, ground height, tilt, stand-in flag, heading,
+  capture month). A decoder change, a hand-edited number or a revised payload therefore fails,
+  naming the pano and the field. It also flags any archived file the manifest does not list as
+  saved. The labeler height comparison inside `--check` compares two committed numbers, so it is
+  a consistency check, not a decoder test; the decoder test is the rebuild above.
 - **Decoder.** A stdlib port of the labeler's `depth.parse` and `depth.ground_plane`: the 8-byte
   header `<BHHHB`, uint8 plane indices, `<ffff` planes. The ground plane is the plane with the most
   pixels among those within 18 deg of horizontal and with at least 90% of their pixels below the
@@ -153,11 +190,15 @@ corrected before the main run, and those 20 requests went out at gaps between ab
 - **No upload.** The payloads are a local archive on the desktop (this worktree), the same standing
   as the labeler's archive. Whether and where to publish them is Jon's call. Until then a clean
   clone has the manifests, and `--check` verifies them without the payloads. Re-running `harvest`
-  rebuilds the archive while the endpoint serves it. Given the bend result, a rebuild will not
-  reproduce these exact bytes, and `verify` will report the drift per panorama.
+  in a clean clone rebuilds an archive while the endpoint serves it. Given the bend result it will
+  not be these exact bytes. The committed record stays as it is (the rebuild's manifest goes to a
+  `refetch-` file), and `verify` reports each revised payload as `payload sha256 drift` against
+  the record.
+- **The response codes of the 351 gone panoramas** were not recorded. The harvester keeps them from
+  now on. Recovering them for these 351 is a 351-request re-fetch and is Jon's call; it was not done.
 - **No depth analysis on manual_gold.** `recall_by_depth_112.py --only manual_gold` is the next step.
-  It needs a path option pointing at this archive, and it has to handle the 351 gone and 271
-  stand-in panoramas explicitly.
+  It needs a path option pointing at this archive, and it has to handle the 351 gone, 270
+  stand-in, 4 degenerate and 1 implausible panoramas explicitly.
 - **paterson, gainesville, sao_paulo** were not re-fetched (out of the plan's scope). Their
   stability against the labeler's copies is untested.
 - **Mapillary and Panoramax splits** have no Google depth. There was nothing to fetch.
@@ -177,11 +218,15 @@ python scripts/analysis/harvest_depth_111.py harvest --split bend --resume
 python scripts/analysis/harvest_depth_111.py harvest --split laurens_gsv --resume
 python scripts/analysis/harvest_depth_111.py compare-labeler --split bend --labeler-root D:/Git/sidewalk-auto-labeler
 python scripts/analysis/harvest_depth_111.py compare-labeler --split laurens_gsv --labeler-root D:/Git/sidewalk-auto-labeler
+python scripts/analysis/harvest_depth_111.py compare-labeler --split bend --labeler-root D:/Git/sidewalk-auto-labeler --all-run-panos
+python scripts/analysis/harvest_depth_111.py compare-labeler --split laurens_gsv --labeler-root D:/Git/sidewalk-auto-labeler --all-run-panos
 python scripts/analysis/harvest_depth_111.py summarize
 python scripts/analysis/harvest_depth_111.py --check
+python scripts/analysis/harvest_depth_111.py verify --split manual_gold --archive-dir <a downloaded or re-fetched copy>
 ```
 
-`compare-labeler` needs the labeler checkout's `runs/<split>/depth`, which is unpublished. Its
+`compare-labeler` (both forms) needs the labeler checkout's `runs/<split>/depth`, which is
+unpublished. Its
 committed output carries everything `summarize` and `--check` read. Installing streetlevel 0.12.10
 pulls `pyequilib`, which pulls the newest CPU `torch` from PyPI over whatever torch is installed.
 It also installs `pyproj`, which turns on a latent failure in

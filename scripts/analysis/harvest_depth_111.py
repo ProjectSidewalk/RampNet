@@ -16,9 +16,12 @@ Layout:
   so the readers that take a labeler depth dir (``recall_by_depth_112.load_payload``)
   read it unchanged. ``gone.txt`` / ``no_depth.txt`` beside them are skip caches.
 * ``benchmark/<split>/depth_manifest.json`` -- committed. Status per pano
-  (saved | gone | no_depth | error | not_fetched), the sha256 of the base64 payload
-  STRING (not of the gzip file, so the hash does not depend on ``fetched_at`` or gzip
-  mtime and a re-fetch compares byte for byte), and the ground-plane summary.
+  (saved | gone | no_depth | error | not_fetched; gone carries the response ``code`` when
+  recorded), two hashes per saved payload -- ``sha256`` of the base64 payload STRING
+  (independent of ``fetched_at`` and gzip metadata, so a re-fetch compares byte for byte)
+  and ``file_sha256`` of the .json.gz as stored (what #112's reader pins) -- and the
+  ground-plane summary. ``harvest`` never overwrites a resolved pano in this record: a
+  rebuild that would change one is written to ``depth_manifest.refetch-<stamp>.json``.
 * ``benchmark/<split>/depth_labeler_compare.json`` -- committed, written by
   ``compare-labeler``: per-pano payload equality against the labeler's archive, with the
   labeler's own ``camera_height_m`` quoted so the decoder here can be tested against it
@@ -30,6 +33,7 @@ imports it)::
     python scripts/analysis/harvest_depth_111.py harvest --split manual_gold --limit 20
     python scripts/analysis/harvest_depth_111.py harvest --split manual_gold --resume
     python scripts/analysis/harvest_depth_111.py verify --split manual_gold
+    python scripts/analysis/harvest_depth_111.py verify --split manual_gold --archive-dir <copy>
     python scripts/analysis/harvest_depth_111.py compare-labeler --split bend \\
         --labeler-root D:/Git/sidewalk-auto-labeler
     python scripts/analysis/harvest_depth_111.py summarize
@@ -241,13 +245,15 @@ def split_dir(split, repo=REPO):
     return os.path.join(repo, "benchmark", split)
 
 
-def depth_dir(split, repo=REPO):
-    return os.path.join(split_dir(split, repo), "depth")
+def depth_dir(split, repo=REPO, archive_dir=None):
+    """The archive directory: ``benchmark/<split>/depth`` unless ``archive_dir`` is given
+    (a re-fetch kept apart from the record, or a downloaded copy to check)."""
+    return archive_dir or os.path.join(split_dir(split, repo), "depth")
 
 
-def archive_path(split, pid, repo=REPO):
+def archive_path(split, pid, repo=REPO, archive_dir=None):
     """Path join, never a glob or a bare CLI token: ids can start with '-'."""
-    return os.path.join(depth_dir(split, repo), pid + ".json.gz")
+    return os.path.join(depth_dir(split, repo, archive_dir), pid + ".json.gz")
 
 
 def read_records(split, repo=REPO):
@@ -273,16 +279,34 @@ def split_pano_ids(split, repo=REPO):
     return ids
 
 
-def _load_ids(path):
+def _load_codes(path):
+    """{pano_id: response code or None} from a skip cache.
+
+    One id per line, optionally followed by a tab and the response code. The codes were
+    added after the 2026-10-06 harvest, whose gone.txt files hold bare ids.
+    """
     if not os.path.exists(path):
-        return set()
+        return {}
+    out = {}
     with open(path, encoding="utf-8") as fh:
-        return {ln.strip() for ln in fh if ln.strip()}
+        for ln in fh:
+            parts = ln.strip().split("\t")
+            if parts[0]:
+                code = parts[1] if len(parts) > 1 else ""
+                out[parts[0]] = int(code) if code.lstrip("-").isdigit() else None
+    return out
+
+
+def _load_ids(path):
+    return set(_load_codes(path))
 
 
 def _write_ids(path, ids):
+    """Write a skip cache from a set of ids or a {id: code} dict (code may be None)."""
+    codes = ids if isinstance(ids, dict) else dict.fromkeys(ids)
     with open(path, "w", encoding="utf-8", newline="") as fh:
-        fh.write("".join(i + "\n" for i in sorted(ids)))
+        fh.write("".join(pid + ("" if codes[pid] is None else f"\t{codes[pid]}") + "\n"
+                         for pid in sorted(codes)))
 
 
 def read_archive_file(path):
@@ -311,11 +335,26 @@ def counts_of(panos):
     return {f"n_{s}": c.get(s, 0) for s in STATUSES}
 
 
+def file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 def entry_from_archive(path):
-    """A manifest entry rebuilt from one archive file (all derived fields recomputed)."""
+    """A manifest entry rebuilt from one archive file (all derived fields recomputed).
+
+    ``sha256`` is of the base64 payload string (independent of fetch time: the key for
+    comparing re-fetches); ``file_sha256`` / ``file_bytes`` are of the .json.gz as stored,
+    which is what ``recall_by_depth_112.load_payload`` pins and what ``sha256sum`` or an
+    LFS hash of an uploaded copy gives.
+    """
     rec = read_archive_file(path)
     blob = rec["depth_b64"]
-    entry = {"status": SAVED, "sha256": payload_sha256(blob), "bytes": len(blob),
+    entry = {"status": SAVED, "sha256": payload_sha256(blob), "payload_b64_chars": len(blob),
+             "file_sha256": file_sha256(path), "file_bytes": os.path.getsize(path),
              "fetched_at": rec.get("fetched_at")}
     entry.update(ground_summary(blob))
     entry.update({k: v for k, v in (rec.get("meta") or {}).items()
@@ -323,31 +362,35 @@ def entry_from_archive(path):
     return entry
 
 
-def build_manifest(split, ids, errors=None, aborted_at=None, repo=REPO, prior=None):
-    """Manifest for every id from the local archive + skip caches + this run's errors.
+def build_manifest(split, ids, errors=None, aborted_at=None, repo=REPO, prior=None,
+                   archive_dir=None):
+    """Manifest for every id from the archive + skip caches + this run's errors.
 
     A pano with no archive file, no cache entry and no error this run keeps its prior
-    manifest entry's status if that was gone/no_depth (the caches are local, the manifest
-    is committed), else it is ``not_fetched``.
+    manifest entry if that was gone / no_depth / error (the caches are local, the manifest
+    is committed), else it is ``not_fetched``. A gone entry carries the response ``code``
+    when it was recorded (harvests after 2026-10-06).
     """
     errors = errors or {}
-    ddir = depth_dir(split, repo)
-    gone = _load_ids(os.path.join(ddir, "gone.txt"))
+    ddir = depth_dir(split, repo, archive_dir)
+    gone = _load_codes(os.path.join(ddir, "gone.txt"))
     no_depth = _load_ids(os.path.join(ddir, "no_depth.txt"))
     prior_panos = (prior or {}).get("panos", {})
     panos = {}
     for pid in ids:
-        path = archive_path(split, pid, repo)
+        path = archive_path(split, pid, repo, archive_dir)
         if os.path.exists(path):
             panos[pid] = entry_from_archive(path)
         elif pid in gone:
             panos[pid] = {"status": GONE}
+            if gone[pid] is not None:
+                panos[pid]["code"] = gone[pid]
         elif pid in no_depth:
             panos[pid] = {"status": NO_DEPTH}
         elif pid in errors:
             panos[pid] = {"status": ERROR, "error": errors[pid]}
-        elif prior_panos.get(pid, {}).get("status") in (GONE, NO_DEPTH):
-            panos[pid] = {"status": prior_panos[pid]["status"]}
+        elif prior_panos.get(pid, {}).get("status") in (GONE, NO_DEPTH, ERROR):
+            panos[pid] = dict(prior_panos[pid])
         else:
             panos[pid] = {"status": NOT_FETCHED}
     fetched = sorted(e["fetched_at"] for e in panos.values() if e.get("fetched_at"))
@@ -355,6 +398,7 @@ def build_manifest(split, ids, errors=None, aborted_at=None, repo=REPO, prior=No
            "fetched_at_utc": {"first": fetched[0] if fetched else None,
                               "last": fetched[-1] if fetched else None},
            "sha256_of": "the base64 depth_b64 string, ASCII-encoded (not the .json.gz)",
+           "file_sha256_of": "the .json.gz file as stored (what recall_by_depth_112 pins)",
            "panos": panos}
     man.update(counts_of(panos))
     man["digest"] = digest_of(panos)
@@ -382,12 +426,27 @@ def dump_json(path, obj):
         fh.write(text)
 
 
-def load_manifest(split, repo=REPO):
-    path = os.path.join(split_dir(split, repo), MANIFEST_NAME)
+def load_manifest(split, repo=REPO, path=None):
+    path = path or os.path.join(split_dir(split, repo), MANIFEST_NAME)
     if not os.path.exists(path):
         return None
     with open(path, encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def conflicts_with_record(prior, man):
+    """Pano ids whose resolved outcome in ``prior`` (saved / gone / no_depth) ``man`` would
+    change or lose. A harvest never overwrites the committed record with those: a partial
+    rebuild in a clean clone, or a re-fetch that Google has revised, goes to a separate
+    manifest instead."""
+    out = []
+    for pid, e in (prior or {}).get("panos", {}).items():
+        if e["status"] not in (SAVED, GONE, NO_DEPTH):
+            continue
+        n = man["panos"].get(pid, {})
+        if n.get("status") != e["status"] or n.get("sha256") != e.get("sha256"):
+            out.append(pid)
+    return sorted(out)
 
 
 # ---------------------------------------------------------------------------- fetch
@@ -427,29 +486,41 @@ def is_block(status_code, url, text):
             or "unusual traffic" in t)
 
 
-def fetch_one(session, pid, pacer, log):
-    """One pano: (status, blob, meta). Raises Blocked. Retries only 429/5xx/network."""
-    from streetlevel.streetview import api   # lazy: nothing but `harvest` needs streetlevel
-    import requests
+STREETLEVEL_HEADERS = {
+    "Accept": "*/*", "Host": "www.google.com", "Referer": "https://www.google.com/",
+    "Alt-Used": "www.google.com",
+    # streetlevel 0.12.10's own UA, kept as-is (pano-tools does the same).
+    "User-Agent": "Mozilla/5.0 (Windows NT 11.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0",
+}
 
-    url = api.build_find_panorama_by_id_request_url(pid, True, "en")
-    headers = {"Accept": "*/*", "Host": "www.google.com", "Referer": "https://www.google.com/",
-               "Alt-Used": "www.google.com",
-               # streetlevel 0.12.10's own UA, kept as-is (pano-tools does the same).
-               "User-Agent": "Mozilla/5.0 (Windows NT 11.0; Win64; x64; rv:151.0) "
-                             "Gecko/20100101 Firefox/151.0"}
+
+def streetlevel_url(pid):
+    """The by-id photometa URL with depth requested, built by streetlevel 0.12.10."""
+    from streetlevel.streetview import api   # lazy: nothing but `harvest` needs streetlevel
+    return api.build_find_panorama_by_id_request_url(pid, True, "en")
+
+
+def fetch_one(session, pid, pacer, log, url_builder=streetlevel_url):
+    """One pano: (status, blob, meta). Raises Blocked. Retries only 429/5xx/network.
+
+    ``session`` needs only ``get(url, headers=, timeout=)`` returning an object with
+    ``status_code``, ``url`` and ``text``; ``url_builder`` maps a pano id to the URL. Both
+    are injectable so the stop paths are tested offline.
+    """
+    url = url_builder(pid)
     last = None
-    for attempt in range(TRANSIENT_TRIES):
+    for _ in range(TRANSIENT_TRIES):
         pacer.wait()
         log["requests"] += 1
         try:
-            r = session.get(url, headers=headers, timeout=30)
-        except requests.RequestException as e:
+            r = session.get(url, headers=STREETLEVEL_HEADERS, timeout=30)
+        except Exception as e:  # noqa: BLE001 -- requests' errors, or anything the transport raises
             last = f"network: {type(e).__name__}"
+            log["push_backs"] += 1
             pacer.push_back()
             continue
         if is_block(r.status_code, r.url, r.text):
-            raise Blocked(f"HTTP {r.status_code} at {r.url[:120]}")
+            raise Blocked(f"HTTP {r.status_code} at {str(r.url)[:120]}")
         if r.status_code == 429 or r.status_code >= 500:
             last = f"HTTP {r.status_code}"
             log["push_backs"] += 1
@@ -469,50 +540,63 @@ def fetch_one(session, pid, pacer, log):
     return ERROR, None, {"reason": last}
 
 
-def harvest(split, limit=None, resume=True, repo=REPO, session=None):
-    """Fetch every pano of a split not already resolved. Returns (manifest, run log)."""
-    import requests
+def harvest(split, limit=None, resume=True, repo=REPO, session=None, archive_dir=None,
+            manifest_out=None, url_builder=streetlevel_url, pacer=None):
+    """Fetch every pano of a split not already resolved. Returns (manifest, log, aborted).
 
+    The manifest goes to ``manifest_out`` if given. Otherwise it goes to the committed
+    ``benchmark/<split>/depth_manifest.json`` only when that would not change or drop any
+    pano the committed record resolved (``conflicts_with_record``): a partial rebuild in a
+    clean clone, or a re-fetch that Google has since revised, is written beside it as
+    ``depth_manifest.refetch-<UTC stamp>.json`` and the record is left untouched. Compare the
+    two with ``verify --archive-dir`` (re-hashes a re-fetched archive against the record).
+    """
     ids = split_pano_ids(split, repo)
-    ddir = depth_dir(split, repo)
+    ddir = depth_dir(split, repo, archive_dir)
     os.makedirs(ddir, exist_ok=True)
     for f in os.listdir(ddir):                       # orphans of a hard kill
         if f.endswith(".part"):
             os.remove(os.path.join(ddir, f))
     prior = load_manifest(split, repo)
     gone_path, nd_path = os.path.join(ddir, "gone.txt"), os.path.join(ddir, "no_depth.txt")
-    gone, no_depth = _load_ids(gone_path), _load_ids(nd_path)
+    gone, no_depth = _load_codes(gone_path), _load_ids(nd_path)
     if not resume and (gone or no_depth or any(f.endswith(".json.gz") for f in os.listdir(ddir))):
         raise SystemExit(f"{ddir} already holds results; pass --resume to continue it")
     todo = [p for p in ids if p not in gone and p not in no_depth
-            and not os.path.exists(archive_path(split, p, repo))]
+            and not os.path.exists(archive_path(split, p, repo, archive_dir))]
     print(f"{split}: {len(ids)} panos, {len(ids) - len(todo)} already resolved, {len(todo)} to fetch")
     if limit is not None:
         todo = todo[:limit]
         print(f"  --limit: fetching {len(todo)}")
 
-    session = session or requests.Session()
-    pacer = Pacer()
+    if session is None:
+        import requests
+        session = requests.Session()
+    pacer = pacer or Pacer()
     log = {"requests": 0, "push_backs": 0, "attempted": 0, "outcomes": Counter()}
     errors, aborted, consecutive = {}, None, 0
     t0 = time.time()
     try:
         for i, pid in enumerate(todo):
             try:
-                status, blob, meta = fetch_one(session, pid, pacer, log)
+                status, blob, meta = fetch_one(session, pid, pacer, log, url_builder)
             except Blocked as e:
                 aborted = {"pano_id": pid, "index": i, "reason": f"blocked: {e}"}
                 print(f"  STOP: {aborted['reason']} at pano {i} ({pid}); zero retries")
                 break
+            if status == SAVED:
+                try:
+                    parse_payload(blob)              # reject a corrupt payload now
+                except (ValueError, struct.error) as e:
+                    status, meta = ERROR, {"reason": f"corrupt payload: {e}"}
             log["attempted"] += 1
             log["outcomes"][status] += 1
             if status == SAVED:
-                parse_payload(blob)                  # reject a corrupt payload now
-                write_archive_file(archive_path(split, pid, repo), pid, blob, meta,
+                write_archive_file(archive_path(split, pid, repo, archive_dir), pid, blob, meta,
                                    datetime.now(timezone.utc).isoformat(timespec="seconds"))
                 consecutive = 0
             elif status == GONE:
-                gone.add(pid)
+                gone[pid] = meta.get("code")
                 _write_ids(gone_path, gone)
                 consecutive = 0
             elif status == NO_DEPTH:
@@ -543,11 +627,21 @@ def harvest(split, limit=None, resume=True, repo=REPO, session=None):
     finally:
         log["elapsed_s"] = round(time.time() - t0, 1)
         log["slept_s"] = round(pacer.slept, 1)
-        man = build_manifest(split, ids, errors, aborted, repo, prior)
-        dump_json(os.path.join(split_dir(split, repo), MANIFEST_NAME), man)
+        man = build_manifest(split, ids, errors, aborted, repo, prior, archive_dir)
+        out_path = manifest_out
+        if out_path is None:
+            out_path = os.path.join(split_dir(split, repo), MANIFEST_NAME)
+            conflicts = conflicts_with_record(prior, man) if prior is not None else []
+            if conflicts:
+                stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+                out_path = os.path.join(split_dir(split, repo), f"depth_manifest.refetch-{stamp}.json")
+                print(f"  {len(conflicts)} pano(s) would change or lose their committed outcome "
+                      f"(e.g. {conflicts[:3]}); the committed {MANIFEST_NAME} is left untouched")
+        dump_json(out_path, man)
+        log["manifest_path"] = out_path
     log["outcomes"] = dict(log["outcomes"])
     print(f"  done: {log}")
-    print(f"  manifest: saved {man['n_saved']}, gone {man['n_gone']}, no_depth "
+    print(f"  manifest {out_path}: saved {man['n_saved']}, gone {man['n_gone']}, no_depth "
           f"{man['n_no_depth']}, error {man['n_error']}, not_fetched {man['n_not_fetched']}, "
           f"digest {man['digest']}")
     return man, log, aborted
@@ -555,11 +649,22 @@ def harvest(split, limit=None, resume=True, repo=REPO, session=None):
 
 # --------------------------------------------------------------------------- verify
 
-def verify(split, repo=REPO):
-    """(problems, note). Re-hashes local files against the committed manifest.
+ENTRY_FIELDS_FROM_ARCHIVE = ("sha256", "payload_b64_chars", "file_sha256", "file_bytes",
+                             "fetched_at", "n_planes", "degenerate", "camera_height_m",
+                             "ground_tilt_deg", "exactly_level", "heading_deg", "pitch_deg",
+                             "roll_deg", "capture_ym")
 
-    With no archive directory (a clean clone), only the manifest's self-consistency is
-    checked and the note says so; that is not a failure.
+
+def verify(split, repo=REPO, archive_dir=None):
+    """(problems, note). Checks an archive against the committed manifest.
+
+    Always: the manifest's pano set, counts, n_requested and digest. With an archive present
+    (``benchmark/<split>/depth`` or ``archive_dir``): every saved pano's file is re-read and
+    its whole manifest entry rebuilt by ``entry_from_archive`` -- so a decoder change, a
+    hand-edited height, or a re-fetched payload Google has revised all fail, naming the pano
+    and the fields -- and any archived file the manifest does not list as saved is flagged.
+    With no archive (a clean clone) only the self-consistency is checked; that is not a
+    failure.
     """
     man = load_manifest(split, repo)
     if man is None:
@@ -575,27 +680,38 @@ def verify(split, repo=REPO):
             problems.append(f"{split}: {k} says {man.get(k)}, entries say {v}")
     if man.get("n_requested") != len(ids):
         problems.append(f"{split}: n_requested {man.get('n_requested')} != {len(ids)}")
-    ddir = depth_dir(split, repo)
-    has_archive = os.path.isdir(ddir) and any(f.endswith(".json.gz") for f in os.listdir(ddir))
-    if not has_archive:
+    ddir = depth_dir(split, repo, archive_dir)
+    archived = (sorted(f[:-len(".json.gz")] for f in os.listdir(ddir) if f.endswith(".json.gz"))
+                if os.path.isdir(ddir) else [])
+    if not archived:
+        if archive_dir:
+            problems.append(f"{split}: no .json.gz files in {archive_dir}")
+            return problems, ""
         return problems, "archive absent, manifest self-consistent" if not problems else ""
-    for pid, e in sorted(man["panos"].items()):
-        path = archive_path(split, pid, repo)
-        if e["status"] != SAVED:
-            if os.path.exists(path):
-                problems.append(f"{split}/{pid}: archived but manifest says {e['status']}")
-            continue
+    saved = {pid for pid, e in man["panos"].items() if e["status"] == SAVED}
+    for pid in archived:
+        if pid not in saved:
+            status = man["panos"].get(pid, {}).get("status", "not in the manifest")
+            problems.append(f"{split}/{pid}: archived but manifest says {status}")
+    for pid in sorted(saved):
+        e = man["panos"][pid]
+        path = archive_path(split, pid, repo, archive_dir)
         if not os.path.exists(path):
             problems.append(f"{split}/{pid}: missing from the archive")
             continue
         try:
-            blob = read_archive_file(path)["depth_b64"]
+            rebuilt = _round_floats(entry_from_archive(path))
         except Exception as ex:  # noqa: BLE001 -- reported, never fatal
             problems.append(f"{split}/{pid}: unreadable ({ex})")
             continue
-        if payload_sha256(blob) != e["sha256"]:
-            problems.append(f"{split}/{pid}: sha256 drift")
-    return problems, "archive verified"
+        if rebuilt["sha256"] != e.get("sha256"):
+            problems.append(f"{split}/{pid}: payload sha256 drift")
+            continue
+        bad = [k for k in ENTRY_FIELDS_FROM_ARCHIVE if rebuilt.get(k) != e.get(k)]
+        if bad:
+            problems.append(f"{split}/{pid}: fields differ from the archive: {bad}")
+    note = "archive verified" if not problems else f"{len(problems)} problem(s)"
+    return problems, note + (f" ({archive_dir})" if archive_dir else "")
 
 
 # -------------------------------------------------------------------------- compare
@@ -661,14 +777,76 @@ def compare_labeler(split, labeler_root, repo=REPO):
     return out
 
 
+def check_decoder_on_labeler_run(split, labeler_root):
+    """Offline: decode EVERY payload in the labeler's runs/<split>/depth (the whole run, not
+    just the benchmark panos) and compare with its index.csv: plane count, degenerate flag,
+    camera height (1e-3 m) and ground tilt (1e-3 deg; the index keeps 3 dp). No network.
+    Returns (n_compared, mismatches)."""
+    import csv
+    ldir = os.path.join(labeler_root, "runs", split, "depth")
+    ipath = os.path.join(ldir, "index.csv")
+    if not os.path.exists(ipath):
+        raise SystemExit(f"no labeler index at {ipath}")
+    n, bad = 0, []
+    with open(ipath, newline="", encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            g = ground_summary(read_archive_file(os.path.join(ldir, row["filename"]))["depth_b64"])
+            n += 1
+            lab_h = row["camera_height_m"]
+            ok = (int(row["n_planes"]) == g["n_planes"]
+                  and (row["degenerate"] == "1") == g["degenerate"]
+                  and (lab_h == "") == (g["camera_height_m"] is None))
+            if ok and lab_h:
+                ok = (abs(float(lab_h) - g["camera_height_m"]) <= 1e-3
+                      and abs(float(row["ground_tilt_deg"]) - g["ground_tilt_deg"]) <= 1e-3)
+            if not ok:
+                bad.append(row["panorama_id"])
+    print(f"{split}: decoder vs labeler index.csv over the whole run: {n} payloads, "
+          f"{len(bad)} mismatch(es){'' if not bad else ', e.g. ' + str(bad[:3])}")
+    return n, bad
+
+
 # ------------------------------------------------------------------------ summarize
 
 def city_of(pano):
     lat, lon = pano.get("pano_coord") or (pano.get("lat"), pano.get("lng"))
     for name, (a, b, c, d) in CITY_BOXES.items():
-        if lat is not None and a <= lat <= b and c <= lon <= d:
+        if lat is not None and lon is not None and a <= lat <= b and c <= lon <= d:
             return name
     return "other"
+
+
+# The labeler's depth.classify_height statuses, in its precedence order.
+H_DEGENERATE, H_NO_GROUND, H_SYNTHETIC, H_IMPLAUSIBLE, H_MEASURED = (
+    "degenerate", "no_ground", "synthetic_ground", "implausible", "measured")
+
+
+def classify_height(e):
+    """A saved entry's camera-height status, with the labeler's precedence: degenerate,
+    then no ground, then the exactly-level stand-in, then outside the plausible window.
+
+    Example:
+        >>> classify_height({"degenerate": False, "camera_height_m": 2.5, "exactly_level": True})
+        'synthetic_ground'
+    """
+    if e["degenerate"]:
+        return H_DEGENERATE
+    if e["camera_height_m"] is None:
+        return H_NO_GROUND
+    if e.get("exactly_level"):
+        return H_SYNTHETIC
+    lo, hi = PLAUSIBLE_HEIGHT_M
+    if not lo <= e["camera_height_m"] <= hi:
+        return H_IMPLAUSIBLE
+    return H_MEASURED
+
+
+def capture_era(ym):
+    """Coarse capture era for the stand-in share: up to 2012, 2013-2018, 2019 on."""
+    if not ym:
+        return "unknown"
+    y = int(ym[:4])
+    return "<=2012" if y <= 2012 else ("2013-2018" if y <= 2018 else ">=2019")
 
 
 def _pct(sorted_vals, q):
@@ -710,7 +888,8 @@ def summarize(repo=REPO, out=print):
                     f"{c[ERROR] + c[NOT_FETCHED]} |")
         az = sorted(abs(((e["heading_deg"] - recs[pid]["pano_azimuth"]) + 180) % 360 - 180)
                     for pid, e in man["panos"].items()
-                    if e["status"] == SAVED and "heading_deg" in e and "pano_azimuth" in recs[pid])
+                    if e["status"] == SAVED and e.get("heading_deg") is not None
+                    and recs[pid].get("pano_azimuth") is not None)
         if az:
             out(f"response heading vs records.jsonl pano_azimuth, {len(az)} saved panos: "
                 f"max |difference| {az[-1]:.3f} deg (same panoramas)")
@@ -724,30 +903,28 @@ def summarize(repo=REPO, out=print):
         saved = [e for e in man["panos"].values() if e["status"] == SAVED]
         if not saved:
             continue
-        degenerate = sum(e["degenerate"] for e in saved)
-        no_ground = sum(e["camera_height_m"] is None for e in saved)
+        status = Counter(classify_height(e) for e in saved)
         level = sum(bool(e.get("exactly_level")) for e in saved)
-        level_25 = sum(bool(e.get("exactly_level")) and abs(e["camera_height_m"] - 2.5) < 1e-4
-                       for e in saved)
-        measured = sorted(e["camera_height_m"] for e in saved
-                          if e["camera_height_m"] is not None and not e["degenerate"]
-                          and not e.get("exactly_level"))
-        tilts = sorted(e["ground_tilt_deg"] for e in saved
-                       if e["camera_height_m"] is not None and not e["degenerate"]
-                       and not e.get("exactly_level"))
-        lo, hi = PLAUSIBLE_HEIGHT_M
-        implausible = sum(1 for e in saved if e["camera_height_m"] is not None
-                          and not e["degenerate"] and not e.get("exactly_level")
-                          and not lo <= e["camera_height_m"] <= hi)
-        out(f"measured ground outside the labeler's plausible {lo}-{hi} m window: {implausible}")
-        out(f"saved {len(saved)}: degenerate (<= {DEGENERATE_MAX_PLANES} planes) {degenerate}; "
-            f"no ground plane {no_ground}; exactly-level stand-in ground {level} "
-            f"({level / len(saved):.1%} of saved; {level_25} of them at 2.500 m)")
+        out(f"saved {len(saved)}, by camera-height status (labeler precedence: degenerate > "
+            f"no ground > stand-in > implausible): measured {status[H_MEASURED]}, "
+            f"stand-in {status[H_SYNTHETIC]}, degenerate {status[H_DEGENERATE]}, "
+            f"implausible (outside {PLAUSIBLE_HEIGHT_M[0]}-{PLAUSIBLE_HEIGHT_M[1]} m) "
+            f"{status[H_IMPLAUSIBLE]}, no ground {status[H_NO_GROUND]}")
+        out(f"exactly-level stand-in ground on {level} of {len(saved)} saved "
+            f"({level / len(saved):.1%}), counting the degenerate ones too")
+        eras = {}
+        for e in saved:
+            eras.setdefault(capture_era(e.get("capture_ym")), []).append(bool(e.get("exactly_level")))
+        out("stand-in share by capture era: " + ", ".join(
+            f"{k} {sum(v)}/{len(v)} ({sum(v) / len(v):.0%})"
+            for k, v in sorted(eras.items(), key=lambda kv: ("<", "2", ">", "u").index(kv[0][0]))))
+        measured = sorted(e["camera_height_m"] for e in saved if classify_height(e) == H_MEASURED)
+        tilts = sorted(e["ground_tilt_deg"] for e in saved if classify_height(e) == H_MEASURED)
         if measured:
-            out(f"camera height, measured ground (n={len(measured)}): min {measured[0]:.3f}  "
+            out(f"camera height, measured (n={len(measured)}): min {measured[0]:.3f}  "
                 f"p10 {_pct(measured, .1):.3f}  median {_pct(measured, .5):.3f}  "
                 f"p90 {_pct(measured, .9):.3f}  max {measured[-1]:.3f} m")
-            out(f"ground tilt, measured ground: median {_pct(tilts, .5):.2f} deg, "
+            out(f"ground tilt, measured: median {_pct(tilts, .5):.2f} deg, "
                 f"p90 {_pct(tilts, .9):.2f} deg")
         cmp_path = os.path.join(split_dir(split, repo), COMPARE_NAME)
         if os.path.exists(cmp_path):
@@ -767,10 +944,13 @@ def summarize(repo=REPO, out=print):
                     if ours.get("camera_height_m") is not None and "labeler_camera_height_m" in r:
                         dh.append(abs(ours["camera_height_m"] - r["labeler_camera_height_m"]))
                 dh.sort()
+                agree = (f"min {ag[0]:.3f} median {_pct(ag, .5):.3f} max {ag[-1]:.3f}"
+                         if ag else "not comparable (grid sizes differ)")
+                height = (f"camera height unchanged (<1 mm) {sum(d < 1e-3 for d in dh)} of "
+                          f"{len(dh)}, max change {dh[-1]:.3f} m" if dh
+                          else "no comparable camera heights")
                 out(f"revised payloads {len(diff)}: same plane count {same_np}; plane-index "
-                    f"agreement min {ag[0]:.3f} median {_pct(ag, .5):.3f} max {ag[-1]:.3f}; "
-                    f"camera height unchanged (<1 mm) {sum(d < 1e-3 for d in dh)} of {len(dh)}, "
-                    f"max change {dh[-1]:.3f} m; stand-in status flipped {flips}")
+                    f"agreement {agree}; {height}; stand-in status flipped {flips}")
 
 
 # ---------------------------------------------------------------------------- check
@@ -820,11 +1000,20 @@ def main(argv=None):
     h.add_argument("--split", required=True, choices=HARVEST_SPLITS)
     h.add_argument("--limit", type=int)
     h.add_argument("--resume", action="store_true")
+    h.add_argument("--archive-dir", help="write payloads here instead of benchmark/<split>/depth "
+                                         "(a re-fetch kept apart from the record)")
+    h.add_argument("--manifest-out", help="write the manifest here (default: the committed "
+                                          "record, unless that would change a resolved pano)")
     v = sub.add_parser("verify")
     v.add_argument("--split", required=True)
+    v.add_argument("--archive-dir", help="check this archive copy (a re-fetch, a download) "
+                                         "against the committed manifest")
     c = sub.add_parser("compare-labeler")
     c.add_argument("--split", required=True, choices=("bend", "laurens_gsv"))
     c.add_argument("--labeler-root", required=True)
+    c.add_argument("--all-run-panos", action="store_true",
+                   help="instead: decode every payload of the labeler's whole run and compare "
+                        "with its index.csv (decoder check; writes nothing)")
     sub.add_parser("summarize")
     args = ap.parse_args(argv)
 
@@ -833,15 +1022,19 @@ def main(argv=None):
     if args.cmd == "harvest":
         if args.limit is not None and args.limit < 0:
             raise SystemExit("--limit must be >= 0")
-        _, _, aborted = harvest(args.split, args.limit, args.resume)
+        _, _, aborted = harvest(args.split, args.limit, args.resume,
+                                archive_dir=args.archive_dir, manifest_out=args.manifest_out)
         return 2 if aborted else 0
     if args.cmd == "verify":
-        problems, note = verify(args.split)
+        problems, note = verify(args.split, archive_dir=args.archive_dir)
         for p in problems:
             print(p)
         print(f"{args.split}: {'FAIL' if problems else 'ok'} ({note})")
         return 1 if problems else 0
     if args.cmd == "compare-labeler":
+        if args.all_run_panos:
+            _, bad = check_decoder_on_labeler_run(args.split, args.labeler_root)
+            return 1 if bad else 0
         compare_labeler(args.split, args.labeler_root)
         return 0
     if args.cmd == "summarize":

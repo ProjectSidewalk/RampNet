@@ -169,8 +169,8 @@ REGISTRY: list = [
             "analysis_out/input_res_sweep_25/cache/r2048/", "analysis_out/op_cache/",
             "benchmark/model_detections/", "analysis_out/recall_by_depth_112.json")),
     E("benchmark_depth_111", (AN + "harvest_depth_111.py", "--check"),
-      "benchmark depth manifests are self-consistent, match the records, and re-hash against "
-      "the local archive when present; labeler camera heights agree (#111)",
+      "benchmark depth manifests are self-consistent and match the records; with the local "
+      "archive present every saved entry is re-decoded and compared field by field (#111)",
       pins=("benchmark/*/depth_manifest.json", "benchmark/*/depth_labeler_compare.json")),
     E("crossview_fresh_48", (AN + "crossview_fresh_48.py", "pairs", "--check"),
       "fresh pair list + meta re-derive byte-identical; frozen-300 and eligible lists hash to their pins (#48)",
