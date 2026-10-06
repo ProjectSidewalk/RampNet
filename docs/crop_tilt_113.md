@@ -31,8 +31,14 @@ fine-tune moves it further toward the object**: 0.71 [0.66, 0.76] overall, 0.73 
 unmatched labels, a paired gain over round 1 of 0.24 [0.19, 0.29]. These
 slopes come mostly from the |T| >= 3 degree stratum and vary with the search window (section 5);
 read the round-2 y slope as about 0.65-0.85, not as one number. In x the slopes are about 0.4 for
-both rounds, weakly identified because the x displacement is small. The held-out-city response arm
-was run but its output could not be retrieved (section 5.4).
+both rounds, weakly identified because the x displacement is small.
+
+**On 565 labels from 22 cities the crop model never trained on, the slopes are about the same as
+on the unmatched in-population labels** (section 5.4): round 1 0.44 [0.34, 0.53] in the stored
+window, 0.59 [0.52, 0.67] in the midpoint window; round 2 0.64 [0.51, 0.77] and 0.86 [0.79, 0.93].
+So the "about half way" that remains for round 1 after the training-crop overlap is set aside is
+not explained by missed round-1 labels or panos seen through other labels. Re-localizing on the
+unclipped heatmap moved no in-population slope by more than 0.03.
 
 ## 2. What was already settled elsewhere (not re-measured here)
 
@@ -173,10 +179,11 @@ the displaced target. All 600 JPEGs were found. **The pano store is an unpublish
 
 Localization caveat (review N1, not fixed in these numbers): the heatmap was clipped to [0, 1]
 before the argmax, and 27% of round-2 peaks (6% of round 1) sit on a plateau at exactly 1.0, where
-argmax returns the plateau's top-left pixel. The script now localizes on the unclipped map, but the
-re-run that does so could not be retrieved (section 5.4). The reviewer measured the round-2 y slope
-on unsaturated peaks only at 0.708 against 0.710 overall, so the y slopes are not materially
-affected.
+argmax returns the plateau's top-left pixel. The script now localizes on the unclipped map, and
+the second run (section 5.4) does so. Every y slope in the table below moved by at most 0.03 between
+the two runs (round 2 stored: 0.71 to 0.72), which confirms the reviewer's measurement on
+unsaturated peaks (0.708 against 0.710). The table keeps the first run's numbers, since the text
+and review cite them.
 
 ### 5.2 Training-set overlap (review B1)
 
@@ -235,7 +242,7 @@ slopes toward 0 for the largest displacements, which is part of why the doubled 
 higher. Excluding edge hits gives 0.41 / 0.53 (round 1, stored / x2) and 0.65 / 0.84 (round 2), so
 dropping them does not settle it either, and **the true slope is not established to lie between
 the two windows** (corrected after review). A third window centred half way between the stored
-target and the corrected point is implemented (`mid`) but its run was not retrieved.
+target and the corrected point (`mid`, same radius) was read in the second run (section 5.4).
 
 **Pitch and roll parts (the empirical sign check).** Splitting d_y into its pitch part and its
 roll part (exact geometry with the other angle zeroed) and regressing on both: round 1 0.50 (SE
@@ -249,21 +256,50 @@ identified. The x error regressed on strip x has slope -0.029 (SE 0.008) for rou
 these against the two hypotheses (on the flip-averaged target: +10, slope 0; on the object: 0,
 slope +0.031).
 
-### 5.4 The re-run that was not retrieved
+### 5.4 The second run: unclipped peaks, the `mid` window, and held-out cities
 
 After the review a second `respond` run was launched on makelab2 (2026-10-06, about 05:52Z) with
 the fixes above: unclipped localization, edge flags, the `mid` window, and the 565-label
 held-out-city sample (`sample_heldout.csv`: 22 cities, led by spgg 129, cdmx 90 and columbia-sc 88;
-only 165 labels exist at |T| >= 3). A status poll to makelab2 then timed out, and under the lab's
-rule for makelab2 (one timeout, no retries) no further connection was made. The outputs, if the
-run finished, are in `/homes/gws/jonf/wt-tilt113/analysis_out/crop_tilt_113/` on makelab2
-(`response.csv`, `response_heldout.csv`, `usage_respond*.json`). They are not in this commit, and
-**every slope in this document comes from the first run** (clipped localization, two windows),
-committed as `response_v1.csv` / `response_v1.json` so that retrieving the second run does not
-overwrite it. To finish: copy those three files into `analysis_out/crop_tilt_113/` (same names),
-run `crop_tilt_113.py fit --name response` and `crop_tilt_113.py fit --name response_heldout`, and
-`--check` will then cover all three response sets. The first run's usage record is committed as
-`usage_respond_v1.json`, so the retrieved `usage_respond.json` does not overwrite it either.
+only 165 labels exist at |T| >= 3). Both halves finished (06:05Z and 06:08Z, no pano missing). A
+status poll timed out at about 05:52Z, so the outputs were retrieved only later that day, once
+makelab2 was reachable again. They are committed as `response.csv` / `response.json` and
+`response_heldout.csv` / `response_heldout.json`, beside the first run's `response_v1.*`, and
+`--check` covers all three.
+
+y slope [95% CI], all labels in each sample (`response.json`, `response_heldout.json`):
+
+| checkpoint | window | in-population, all 600 | in-population, unmatched (282) | held-out cities, all 565 |
+| :--- | :--- | ---: | ---: | ---: |
+| round 1 | stored | 0.47 [0.42, 0.52] | 0.53 [0.46, 0.60] | 0.44 [0.34, 0.53] |
+| round 1 | stored x2 | 0.52 [0.45, 0.59] | 0.60 [0.50, 0.71] | 0.56 [0.47, 0.65] |
+| round 1 | mid | 0.54 [0.48, 0.59] | 0.61 [0.53, 0.69] | 0.59 [0.52, 0.67] |
+| round 2 | stored | 0.72 [0.67, 0.77] | 0.74 [0.67, 0.81] | 0.64 [0.51, 0.77] |
+| round 2 | stored x2 | 0.82 [0.75, 0.89] | 0.85 [0.75, 0.96] | 0.83 [0.73, 0.93] |
+| round 2 | mid | 0.84 [0.79, 0.89] | 0.86 [0.78, 0.94] | 0.86 [0.79, 0.93] |
+
+Paired round 2 minus round 1, held-out: 0.20 [0.14, 0.27] stored, 0.26 [0.20, 0.33] mid
+(in-population 0.25 and 0.30).
+
+- **Edge hits** (stored / mid window): in-population round 1 110 / 80 and round 2 147 / 87 of 600;
+  held-out round 1 168 / 146 and round 2 195 / 145 of 565. The held-out stored window clips far more
+  often, which is why its stored-window slopes sit lowest; the `mid` window agrees across samples.
+- **The `mid` window** reads highest for both checkpoints and has the fewest edge hits in-population.
+  It moves the in-population unmatched-minus-train difference for round 1 from 0.15 (SE 0.056) to
+  0.20 (SE 0.056).
+- **The 45 held-out labels that "match" a round-1 crop** are the chance matches 5.2 predicts
+  (held-out cities are not in round 1). Their slopes are not read.
+
+### 5.4.1 What the held-out arm shows
+
+Section 5.5 left three explanations for round 1's "about half way" on unmatched labels: visible
+tilt, round-1 labels the overlap test missed, or panos seen through other labels. The held-out
+cities rule out the second and third, since none of their panos are in round 1. Round 1 still
+follows the object only about half way there (0.44-0.59 across windows, against 0.53-0.61 on
+unmatched in-population labels). The remainder therefore does not need memorization. That points to
+an image cue that carries the displacement, such as visible tilt, though the held-out cities also
+differ in imagery and rig, which this run does not separate. Round 2 reaches the same 0.83-0.86 on
+held-out cities as in-population in the two wider windows.
 
 ### 5.5 Reading (corrected after review)
 
@@ -281,7 +317,8 @@ round-1 train the round-1 slope is 0.38, below the 0.53 on unmatched labels: a d
 (SE 0.056, z 2.7), and the same 0.15 (SE 0.06) within the |T| >= 3 stratum alone. But it is not the
 whole story, because even on unmatched labels round 1 follows the object
 only about half way. That remainder could be visible tilt, round-1 labels the overlap test missed, or panos seen through other labels. The
-held-out-city arm (5.4) would test the second. Round 2's manual fine-tune moves the peak toward the
+held-out-city arm (5.4.1) rules out the last two: the same half-way slope appears in cities round 1
+never trained on. Round 2's manual fine-tune moves the peak toward the
 object on both subsets (0.73 unmatched, 0.68 train), so its gain is not only forgetting round-1
 targets, though forgetting may contribute. If the true leak is beta = 0.90 rather than 1, "on the
 object" is slope 0.90, not 1.
@@ -290,11 +327,13 @@ object" is slope 0.90, not 1.
 
 If 2.0 regenerates the crop-model training set from Project Sidewalk labels, correcting `pano_y`
 by beta x T (beta between 0.90 and 1) before projecting removes a displacement whose p90 is half a
-sigma and whose largest 1% exceed a sigma. On unmatched labels the released round-2 model
-still leaves roughly 0.06-0.27 of that displacement in its peak, computed as beta minus slope
-with beta between 0.90 and 1 and point estimates only (y slopes 0.73-0.84 on that
-subset across the two windows, against 0.90-1 for "on the object"). That range comes mostly from
-labels with |T| >= 3 degrees and is not a population estimate. Whether to apply the correction is a
+sigma and whose largest 1% exceed a sigma. The released round-2 model still leaves roughly
+0.04-0.26 of that displacement in its peak on unmatched in-population labels, and 0.04-0.36 on
+held-out cities. Both are computed as beta minus slope, with beta between 0.90 and 1 and point
+estimates only (second-run y slopes 0.74-0.86 and 0.64-0.86 across the three windows, against
+0.90-1 for "on the object"). The high end comes from the stored window, which clips the most; in
+the `mid` window it is 0.04-0.14 on both. These ranges come mostly from labels with |T| >= 3 degrees
+and are not population estimates. Whether to apply the correction is a
 decision for 2.0, not made here. The effect on Stage 1 point placement, and from there on Stage 2,
 is not measured.
 
@@ -341,10 +380,12 @@ is not measured.
   whole time with two other processes (about 15 GB, 100% utilization at start and end), so
   `gpu_hours` is an upper bound (`usage_respond_v1.json`). A 3-pano smoke run (about 4 s) and the one-time download of the two
   checkpoints from Hugging Face are not counted.
-- `respond`, second run (5.4): launched on the same shared A40, timings not retrieved. Recorded as
-  `crop-tilt-113:respond-v2` with `status: in_progress` and no elapsed time; at run 1's rate expect
-  roughly 0.13 GPU-hours (an upper bound, not a measurement). The row is to be closed with the same
-  `run_id` once `usage_respond*.json` is fetched.
+- `respond`, second run (5.4): the same shared A40. 833.5 s for the 600 in-population panos and
+  120.0 s for the 565 held-out ones (`usage_respond.json`, `usage_respond_heldout.json`), 953.5 s
+  and 0.265 GPU-hours in total, an upper bound because the GPU was shared. The in-population half
+  ran 3.6x slower than the first run on the same panos, which is contention, not the code. Recorded
+  as `crop-tilt-113:respond-v2`: the `in_progress` row written at launch, then a closing `ok` row
+  with the same `run_id`.
 - External calls: Google 0, Project Sidewalk API 0. Paid APIs: none.
 
 ## 9. Reproduction
@@ -371,7 +412,10 @@ python scripts/analysis/crop_tilt_113.py overlap
 # empirical half: needs the pano store and a GPU. On makelab2 the RampNet venv lacked cv2, so
 # opencv-python-headless 4.10.0.84 was installed into a private --target dir on PYTHONPATH.
 python scripts/analysis/crop_tilt_113.py respond --sample analysis_out/crop_tilt_113/sample.csv --store /m-makeabilitylab/makeabilitylab/sidewalk_panos/Panoramas --out analysis_out/crop_tilt_113 --usage-out analysis_out/crop_tilt_113/usage_respond.json
-python scripts/analysis/crop_tilt_113.py fit --name response_v1   # the committed first run; a new run is --name response
+python scripts/analysis/crop_tilt_113.py respond --sample analysis_out/crop_tilt_113/sample_heldout.csv --store /m-makeabilitylab/makeabilitylab/sidewalk_panos/Panoramas --out analysis_out/crop_tilt_113 --suffix _heldout --usage-out analysis_out/crop_tilt_113/usage_respond_heldout.json
+python scripts/analysis/crop_tilt_113.py fit --name response_v1   # the committed first run
+python scripts/analysis/crop_tilt_113.py fit --name response
+python scripts/analysis/crop_tilt_113.py fit --name response_heldout
 # re-derive every summary from the committed CSVs, byte for byte
 python scripts/analysis/crop_tilt_113.py --check
 # and labels*.csv too, given the sibling checkout
@@ -432,3 +476,14 @@ Second review round (same day):
 - The held-out sample covers 22 cities, not 20. "The CIs touch" is replaced by the difference and
   its SE.
 - The first run's files are renamed `response_v1.csv` / `response_v1.json`.
+
+Second run retrieved (2026-10-06, later the same day):
+
+- Section 5.4 was "The re-run that was not retrieved" and said "every slope in this document comes
+  from the first run". The second run's in-population and held-out results are now in 5.4 and
+  5.4.1. Section 5.3's table still shows the first run.
+- Section 6 said "roughly 0.06-0.27 ... (y slopes 0.73-0.84 on that subset across the two
+  windows)". With the third window and the second run it is 0.04-0.26 in-population and 0.04-0.36
+  held-out.
+- Section 5.5 said the held-out arm "would test" whether missed round-1 labels explain the
+  remainder. It now rules out that explanation and the panos-seen-through-other-labels one.
