@@ -21,7 +21,8 @@ Subcommands::
     # the round-1 training keypoints, read from the Hub by column (no images), and the overlap test
     python scripts/analysis/crop_tilt_113.py fetch-keypoints
     python scripts/analysis/crop_tilt_113.py overlap
-    # empirical half: makelab2 (pano store + GPU); writes response<suffix>.csv / .json
+    # empirical half: makelab2 (pano store + GPU); respond writes response<suffix>.csv and the usage
+    # record, and `fit --name` writes the matching .json (CPU)
     python scripts/analysis/crop_tilt_113.py respond --sample analysis_out/crop_tilt_113/sample.csv \
         --store /m-makeabilitylab/makeabilitylab/sidewalk_panos/Panoramas --out analysis_out/crop_tilt_113 \
         --usage-out analysis_out/crop_tilt_113/usage_respond.json

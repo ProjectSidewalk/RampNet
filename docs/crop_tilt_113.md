@@ -100,8 +100,9 @@ measures x error as `(peak - stored) - d_x`, converting peaks to render px at x0
 as `train.py`'s targets. In that frame a peak on the flip-averaged training target predicts a
 constant +10 render px with slope 0 on strip x, and a peak exactly on the object predicts intercept
 0 and slope +0.031 (the image's true x scale is 0.515, not 0.5). Measured (section 5.3): intercepts
-+16.3 (SE 3.2) and +15.3 (SE 3.1) render px, about +10 at the strip centre, close to the
-flip-averaged target; slopes -0.029 (SE 0.008) for round 1 and -0.015 (SE 0.008) for round 2. Those
++16.3 (SE 3.2) and +15.3 (SE 3.1) render px at strip x 0, slopes -0.029 (SE 0.008) for round 1 and
+-0.015 (SE 0.008) for round 2. At the strip's centre column (x 341) that is about +10.2 for round 2,
+close to the flip-averaged target, and about +6.4 for round 1, between the two hypotheses. Those
 slopes are not agreement with either hypothesis: they are an extra pull toward the centre column,
 stronger in round 1.
 
@@ -261,7 +262,8 @@ run finished, are in `/homes/gws/jonf/wt-tilt113/analysis_out/crop_tilt_113/` on
 committed as `response_v1.csv` / `response_v1.json` so that retrieving the second run does not
 overwrite it. To finish: copy those three files into `analysis_out/crop_tilt_113/` (same names),
 run `crop_tilt_113.py fit --name response` and `crop_tilt_113.py fit --name response_heldout`, and
-`--check` will then cover all three response sets.
+`--check` will then cover all three response sets. The first run's usage record is committed as
+`usage_respond_v1.json`, so the retrieved `usage_respond.json` does not overwrite it either.
 
 ### 5.5 Reading (corrected after review)
 
@@ -299,7 +301,7 @@ is not measured.
 ## 7. Caveats
 
 - **The response sample overlaps the training set** (section 5.2): an estimated 48% of it are
-  round-1 crops, and the overlap test's sensitivity is unmeasured. The slopes on the 282 non-round-1 labels are the cleaner estimate, but their panos are
+  round-1 crops, and the overlap test's sensitivity is unmeasured. The slopes on the 282 unmatched labels are the cleaner estimate, but their panos are
   from the same deployments and may appear in round 1 through other labels.
 - **Vouched pool, not the paper's crowd sample.** The labels are pano-tools' lead-vouched pool
   (labels made or validated by two lead labellers), filtered with `download_data.py`'s
@@ -337,7 +339,7 @@ is not measured.
   JPEG decode; 164 s of render plus forward), recorded as `crop-tilt-113:respond` in
   `analysis_out/usage_log.jsonl` with `paid: false` and `gpu_hours` 0.0645. The A40 was shared the
   whole time with two other processes (about 15 GB, 100% utilization at start and end), so
-  `gpu_hours` is an upper bound. A 3-pano smoke run (about 4 s) and the one-time download of the two
+  `gpu_hours` is an upper bound (`usage_respond_v1.json`). A 3-pano smoke run (about 4 s) and the one-time download of the two
   checkpoints from Hugging Face are not counted.
 - `respond`, second run (5.4): launched on the same shared A40, timings not retrieved. Recorded as
   `crop-tilt-113:respond-v2` with `status: in_progress` and no elapsed time; at run 1's rate expect
