@@ -11,6 +11,10 @@ requires-python = ">=3.10"
 # environment (see environment.yml) and pip must not try to reinstall them.
 dependencies = []
 
+[project.scripts]
+# The benchmark scoring protocol (#150); `python -m rampnet.eval` works without installing.
+rampnet-eval = "rampnet.eval:main"
+
 [tool.setuptools]
 packages = ["rampnet"]
 

@@ -460,3 +460,8 @@ analysis_out/aug_transfer_82/finetune/*
 analysis_out/bayonne_159/**/*.jpg
 analysis_out/bayonne_159/**/*.png
 analysis_out/bayonne_159/**/*.html
+
+# #150: rampnet.eval reproduction proof (scripts/analysis/eval_protocol_150.py).
+!analysis_out/eval_protocol_150/
+analysis_out/eval_protocol_150/*
+!analysis_out/eval_protocol_150/*.json
