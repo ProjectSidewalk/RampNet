@@ -183,5 +183,10 @@ python scripts/analysis/harvest_depth_111.py --check
 
 `compare-labeler` needs the labeler checkout's `runs/<split>/depth`, which is unpublished. Its
 committed output carries everything `summarize` and `--check` read. Installing streetlevel 0.12.10
-pulls `pyequilib`, which pulls the newest `torch` from PyPI. Install it with `--no-deps` (plus
-`requests`) into an environment whose torch matters.
+pulls `pyequilib`, which pulls the newest CPU `torch` from PyPI over whatever torch is installed.
+It also installs `pyproj`, which turns on a latent failure in
+`tests/test_stage1_bearing_residual.py::test_great_circle_matches_the_geodesic_used_by_stage_1`
+(spherical vs WGS84 azimuth, 0.08 deg against a 0.01 deg bar; the test skips without pyproj). So
+install streetlevel into a separate venv for `harvest`, not the project venv. This happened on the
+desktop venv on 2026-10-05; torch was reinstalled and the streetlevel-only packages removed
+afterwards.
