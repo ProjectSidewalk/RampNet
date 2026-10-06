@@ -1,0 +1,102 @@
+{
+ "splits": {
+  "annapolis": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "f00c825a10afa4a8",
+   "n_records": 125,
+   "n_reviewed": 125,
+   "records_sha256": "4ba644a42d0baebf5a9f446650832b38bb0a7dfbbd864b1724dbf24191019cb7",
+   "verdicts_sha256": "c24ce33fc068150415f0d34cb74564d60c491cb9010b0a82a3e88a529f74a112"
+  },
+  "bend": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "8707660bd884c6df",
+   "n_records": 110,
+   "n_reviewed": 110,
+   "records_sha256": "c17c2503b22cf78f8c38ebefa445f2709845550bacd84dff75fa5e9e1616b29a",
+   "verdicts_sha256": "9d9835db27f66c1904fcfd4fc87b06f26638a3c033ef10936387db40feb84b05"
+  },
+  "budapest_district5": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "b4aae79a4edbdd46",
+   "n_records": 125,
+   "n_reviewed": 125,
+   "records_sha256": "93eb9c9a8301f25f90ac49a76236a06285206aec9a5fda4a166166cdebe29f21",
+   "verdicts_sha256": "6b22a7d6a2b72ed7758208f819887fd09adaea6e24afcf7eddca24a11189035d"
+  },
+  "clovis": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "e218ae3a9afc9ae0",
+   "n_records": 125,
+   "n_reviewed": 125,
+   "records_sha256": "20e528afd08b40aa0e6c07a946b64b5c91e939aa73f94140871d548a0588289a",
+   "verdicts_sha256": "2097b14f28b650a0b7fa06398ee1dfd893c0cac7d96549e2c2c08df17c3fd718"
+  },
+  "gainesville": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "a0d857c892a41c2a",
+   "n_records": 125,
+   "n_reviewed": 125,
+   "records_sha256": "f59e73db5c95017b30d8687eb4e14bccfc10f516bf98fbcb13e502185607c8fc",
+   "verdicts_sha256": "93e23394171cf8dd688c5fbb46fb738f8d662b610fddd5964e00721661b81745"
+  },
+  "laurens_gsv": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "2f079d63d4af4063",
+   "n_records": 86,
+   "n_reviewed": 86,
+   "records_sha256": "e76bfc7413b0a7f44088059402eae56f28628b8e38d3fcef2ff95acfb100b7c1",
+   "verdicts_sha256": "0f4608abcd6d380d388d668c4b2e48ebece2b058f8f934ab3b889d12ae9974e3"
+  },
+  "laurens_mapillary": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "7485886ea08f671b",
+   "n_records": 94,
+   "n_reviewed": 94,
+   "records_sha256": "99ca1ceb46c5b76749e5b4ce3c0d589420b536d54233a70faad9efed17603252",
+   "verdicts_sha256": "0fb67c5d6da90827049c30f17ce5150ff4b24c5ae605a3f047b0b1d6255ad49e"
+  },
+  "manual_gold": {
+   "gt_kind": "manual_labels",
+   "gt_source_sha256": "d9b19c182ec5fd22a7c7951a614d50e337788528129d749b4ef125cb05e7191a",
+   "imagery_digest": "91550b3040b95a95",
+   "labels_digest": "6d14f4c9871ef209",
+   "n_records": 1000,
+   "n_reviewed": 1000,
+   "records_sha256": "c3728e78e4633c25729a8fdde254a3a53edcb33e80448884b105a96b8f887515"
+  },
+  "morgantown": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "6550b61787e6f8e6",
+   "n_records": 125,
+   "n_reviewed": 125,
+   "records_sha256": "99f950fca2c88bf110d8a6ad621fd7c431afd2327cabd2d3acb4a6d304f775ea",
+   "verdicts_sha256": "8a919c94294ac3ae62b226be744b15c378d1537cc30b3408850379122fb0e9cd"
+  },
+  "paterson": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "18fb224f05242c89",
+   "n_records": 125,
+   "n_reviewed": 125,
+   "records_sha256": "363dba08d49d60ce9d9322115c89b27f450b35cd74598f127b261ab321979096",
+   "verdicts_sha256": "5e43c54389eb9ea1d8daf0a075e562e27eb6b484dfcb3397cb6f438619365dad"
+  },
+  "richmond": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "ec8ef3678aa9bf84",
+   "n_records": 124,
+   "n_reviewed": 124,
+   "records_sha256": "8b0669d694bd51b0e8b44ed88e4477626eb1a559f6869625c6d2d56ef950ebe9",
+   "verdicts_sha256": "3721a2ac75a056fdd1e3ab45d9fff33e118d5851ae9c50a3a16e42ae2e15562d"
+  },
+  "sao_paulo": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "650bd9ba2498b156",
+   "n_records": 125,
+   "n_reviewed": 125,
+   "records_sha256": "c483538442d84a6e29b765d9e897253e833839f240d36af84dc82c69ed1c6b90",
+   "verdicts_sha256": "dbe32bcc8f8d87b3caedcc54597b6547720d98202abe149fb707dd560aa0db4c"
+  }
+ },
+ "what": "Content hashes of the files each scored benchmark split is scored from (records.jsonl; verdicts.json or the manual labels; the imagery manifest digest). LF-normalised sha256. Regenerate with `python -m rampnet.eval pins --write`; `--verify` fails on drift. See docs/eval_protocol_150.md."
+}
