@@ -19,14 +19,16 @@ displaced the same way (mean 0.24 sigma, p90 0.51). The displacement is a sinuso
 which leaves a heading-locked sinusoid of amplitude 9.8 render px (0.10 sigma) in the bin means.
 
 **The model response is measured on panos drawn from the crop model's own training population.**
-About 43% of the 600 sampled labels are themselves round-1 crops (53.0% match a round-1 keypoint
-exactly against a 10.4% chance rate; held-out cities match at chance). Run through the released
-checkpoints, **the round-1 crop model follows the object only part of the way**: its peak moves by
-0.47 [0.42, 0.52] of the analytic displacement in y over the whole sample (slope 0 would be
-"reproduces the displaced target", 1 "sits on the object"), **0.53 [0.45, 0.60] on the 282 labels
-that are not round-1 crops**, and 0.38 [0.30, 0.46] on the 233 whose crop was in round-1 train.
-**Round 2's manual fine-tune moves it further toward the object**: 0.71 [0.66, 0.76] overall, 0.73
-[0.66, 0.80] on labels outside round 1, a paired gain over round 1 of 0.24 [0.19, 0.29]. These
+An estimated 48% of the 600 sampled labels are themselves round-1 crops (53.0% match a round-1
+keypoint exactly against a 10.4% chance rate, so (0.530 - 0.104) / (1 - 0.104) = 0.48; held-out
+cities match at chance). Run through the released checkpoints, **the round-1 crop model follows the
+object only part of the way**: its peak moves by 0.47 [0.42, 0.52] of the analytic displacement in
+y over the whole sample (slope 0 would be "reproduces the displaced target", 1 "sits on the
+object"), **0.53 [0.45, 0.60] on the 282 unmatched labels** (not found among round-1 crops; the
+test's sensitivity is unmeasured, so some may still be round-1 crops), and 0.38 [0.30, 0.46] on
+the 233 that match a round-1 train crop, a difference of 0.15 (SE 0.056, z 2.7). **Round 2's manual
+fine-tune moves it further toward the object**: 0.71 [0.66, 0.76] overall, 0.73 [0.66, 0.80] on
+unmatched labels, a paired gain over round 1 of 0.24 [0.19, 0.29]. These
 slopes come mostly from the |T| >= 3 degree stratum and vary with the search window (section 5);
 read the round-2 y slope as about 0.65-0.85, not as one number. In x the slopes are about 0.4 for
 both rounds, weakly identified because the x displacement is small. The held-out-city response arm
@@ -92,10 +94,16 @@ belongs on sidewalk-panorama-tools #54 and has not been posted there yet.
 scales target x by 0.5, but the 683-wide strip is resized to 352 (0.515), so an unflipped target
 sits 3% of its distance from the left edge too far left. Both `train.py` files also flip
 horizontally with p = 0.5, and in a flipped crop the same error points the other way. Averaged over
-flips the learned target is pulled toward the crop's centre column: in strip render px the
-predicted x error is about +10.5 - 0.031 x strip_x (zero near the centre column, about +-10 px at the
-edges). The response run agrees on the slope (section 5.3: -0.029 (SE 0.008) for round 1, -0.015
-(SE 0.008) for round 2).
+flips the learned target is pulled toward the crop's centre column. **Corrected in the second
+review round:** the first revision compared its prediction in the wrong frame. The response run
+measures x error as `(peak - stored) - d_x`, converting peaks to render px at x0.5, the same scale
+as `train.py`'s targets. In that frame a peak on the flip-averaged training target predicts a
+constant +10 render px with slope 0 on strip x, and a peak exactly on the object predicts intercept
+0 and slope +0.031 (the image's true x scale is 0.515, not 0.5). Measured (section 5.3): intercepts
++16.3 (SE 3.2) and +15.3 (SE 3.1) render px, about +10 at the strip centre, close to the
+flip-averaged target; slopes -0.029 (SE 0.008) for round 1 and -0.015 (SE 0.008) for round 2. Those
+slopes are not agreement with either hypothesis: they are an extra pull toward the centre column,
+stronger in round 1.
 
 ## 4. Analytic displacement
 
@@ -160,7 +168,7 @@ target ("stored" window); a second read uses twice that radius ("stored x2"). `p
 (render px) is regressed on the analytic d (beta = 1), SE clustered by pano (one label per pano,
 so this is HC1). Slope 1 means the peak is on the object (at beta = 1), slope 0 that it reproduces
 the displaced target. All 600 JPEGs were found. **The pano store is an unpublished local input**;
-`response.csv` is committed, so every number below re-derives from the repo with `--check`.
+`response_v1.csv` is committed, so every number below re-derives from the repo with `--check`.
 
 Localization caveat (review N1, not fixed in these numbers): the heatmap was clipped to [0, 1]
 before the argmax, and 27% of round-2 peaks (6% of round 1) sit on a plateau at exactly 1.0, where
@@ -179,24 +187,33 @@ keypoint) of all 27,704 round-1 crops from `projectsidewalk/rampnet-crop-model-d
 writes it, against each crop's first keypoint (the crop's own label). Shifting every point by 16
 offsets of 11-29 render px and matching again gives the chance rate (`overlap.json`):
 
-| labels | n | exact match | chance | excess |
+| labels | n | exact match | chance | estimated overlap f |
 | :--- | ---: | ---: | ---: | ---: |
-| 12 deployments, crowd_ok | 14,505 | 52.6% | 10.6% | 41.9% |
-| response sample | 600 | 53.0% | 10.4% | 42.7% |
-| held-out cities, crowd_ok | 3,590 | 10.8% | 10.2% | 0.5% |
+| 12 deployments, crowd_ok | 14,505 | 52.6% | 10.6% | 46.9% |
+| response sample | 600 | 53.0% | 10.4% | 47.6% |
+| held-out cities, crowd_ok | 3,590 | 10.8% | 10.2% | 0.6% |
 | held-out sample | 565 | 10.3% | 9.5% | 0.8% |
 
-The held-out cities match at chance, which validates the test. So about 43% of the response
-sample are round-1 crops; of the 318 matching labels, 233 match a train crop. Of the 282 that do
-not match, only 1 appears even as a secondary keypoint of another crop (4.75 expected by chance),
-so they are labels round 1 never saw as points. Their panos may still have been seen through other
-labels at other headings.
+If a share f of labels truly have a round-1 crop, match = f + (1 - f) x chance, so
+f = (match - chance) / (1 - chance). (The first revision reported match - chance, "about 43%", which
+understates f; corrected in the second review round.)
+
+The held-out cities match at chance, which validates the test's specificity. So an estimated 48%
+of the response sample are round-1 crops. Of the 318 matching labels about 33 are expected to be
+chance matches (`expected_chance_matches`), so the 233 that match a train crop are about 90% true
+round-1 train labels. Of the 282 unmatched labels, only 1 appears even as a secondary keypoint of
+another crop (4.75 expected by chance). **The test's sensitivity is not measured**: a true round-1
+label whose integer point differs today (for example a label edited since the 2025 fetch) would be
+missed. The match rate tops out at about 85% even among the most-agreed labels, so up to about 40
+of the 282 unmatched labels may still be round-1 crops. Below, "unmatched" means "not found among
+round-1 crops", not "never seen". Their panos may also have been seen through other labels at
+other headings.
 
 ### 5.3 Slopes
 
-y slope [95% CI] by subset (`response.json`):
+y slope [95% CI] by subset (`response_v1.json`):
 
-| checkpoint | window | all 600 | not a round-1 crop (282) | round-1 train crop (233) | population-weighted |
+| checkpoint | window | all 600 | unmatched (282) | matches a round-1 train crop (233) | population-weighted |
 | :--- | :--- | ---: | ---: | ---: | ---: |
 | round 1 | stored | 0.47 [0.42, 0.52] | 0.53 [0.45, 0.60] | 0.38 [0.30, 0.46] | 0.46 [0.39, 0.54] |
 | round 1 | stored x2 | 0.51 [0.44, 0.59] | 0.60 [0.50, 0.71] | 0.37 [0.26, 0.48] | 0.50 [0.41, 0.59] |
@@ -227,21 +244,24 @@ positive: the model's peak moves in the predicted direction for each tilt axis s
 **x.** Slopes about 0.39 (round 1) and 0.43 (round 2), CIs about +-0.2, with no detectable round-2
 gain (paired 0.04 [-0.16, 0.24]); the x displacement is small (SD 13 render px), so x is weakly
 identified. The x error regressed on strip x has slope -0.029 (SE 0.008) for round 1 and -0.015
-(SE 0.008) for round 2, against -0.031 predicted by the flip-averaged scaling quirk (section 3);
-the intercepts are +16.3 (SE 3.2) and +15.3 (SE 3.1) render px against about +10.5 predicted.
+(SE 0.008) for round 2, intercepts +16.3 (SE 3.2) and +15.3 (SE 3.1) render px. Section 3 reads
+these against the two hypotheses (on the flip-averaged target: +10, slope 0; on the object: 0,
+slope +0.031).
 
 ### 5.4 The re-run that was not retrieved
 
 After the review a second `respond` run was launched on makelab2 (2026-10-06, about 05:52Z) with
 the fixes above: unclipped localization, edge flags, the `mid` window, and the 565-label
-held-out-city sample (`sample_heldout.csv`: 20 cities, led by spgg 129, cdmx 90 and columbia-sc 88;
+held-out-city sample (`sample_heldout.csv`: 22 cities, led by spgg 129, cdmx 90 and columbia-sc 88;
 only 165 labels exist at |T| >= 3). A status poll to makelab2 then timed out, and under the lab's
 rule for makelab2 (one timeout, no retries) no further connection was made. The outputs, if the
 run finished, are in `/homes/gws/jonf/wt-tilt113/analysis_out/crop_tilt_113/` on makelab2
 (`response.csv`, `response_heldout.csv`, `usage_respond*.json`). They are not in this commit, and
-**every slope in this document comes from the first run** (clipped localization, two windows). To
-finish the held-out arm: copy those files here and run `crop_tilt_113.py fit` and
-`crop_tilt_113.py fit --suffix _heldout`.
+**every slope in this document comes from the first run** (clipped localization, two windows),
+committed as `response_v1.csv` / `response_v1.json` so that retrieving the second run does not
+overwrite it. To finish: copy those three files into `analysis_out/crop_tilt_113/` (same names),
+run `crop_tilt_113.py fit --name response` and `crop_tilt_113.py fit --name response_heldout`, and
+`--check` will then cover all three response sets.
 
 ### 5.5 Reading (corrected after review)
 
@@ -255,11 +275,12 @@ memorized training targets, or tilt that is visible in the image (leaning vertic
 horizon).
 
 The overlap split separates the two in part. Memorization is real: on labels whose crop was in
-round-1 train the round-1 slope is 0.38, below the 0.53 on labels round 1 never saw as points (the
-CIs touch). But it is not the whole story, because even on unseen labels round 1 follows the object
-only about half way. That remainder could be visible tilt, or panos seen through other labels. The
+round-1 train the round-1 slope is 0.38, below the 0.53 on unmatched labels: a difference of 0.15
+(SE 0.056, z 2.7), and the same 0.15 (SE 0.06) within the |T| >= 3 stratum alone. But it is not the
+whole story, because even on unmatched labels round 1 follows the object
+only about half way. That remainder could be visible tilt, round-1 labels the overlap test missed, or panos seen through other labels. The
 held-out-city arm (5.4) would test the second. Round 2's manual fine-tune moves the peak toward the
-object on both subsets (0.73 unseen, 0.68 train), so its gain is not only forgetting round-1
+object on both subsets (0.73 unmatched, 0.68 train), so its gain is not only forgetting round-1
 targets, though forgetting may contribute. If the true leak is beta = 0.90 rather than 1, "on the
 object" is slope 0.90, not 1.
 
@@ -267,8 +288,9 @@ object" is slope 0.90, not 1.
 
 If 2.0 regenerates the crop-model training set from Project Sidewalk labels, correcting `pano_y`
 by beta x T (beta between 0.90 and 1) before projecting removes a displacement whose p90 is half a
-sigma and whose largest 1% exceed a sigma. On labels outside round 1 the released round-2 model
-still leaves roughly 0.15-0.35 of that displacement in its peak (y slopes 0.73-0.84 on that
+sigma and whose largest 1% exceed a sigma. On unmatched labels the released round-2 model
+still leaves roughly 0.06-0.27 of that displacement in its peak, computed as beta minus slope
+with beta between 0.90 and 1 and point estimates only (y slopes 0.73-0.84 on that
 subset across the two windows, against 0.90-1 for "on the object"). That range comes mostly from
 labels with |T| >= 3 degrees and is not a population estimate. Whether to apply the correction is a
 decision for 2.0, not made here. The effect on Stage 1 point placement, and from there on Stage 2,
@@ -276,8 +298,8 @@ is not measured.
 
 ## 7. Caveats
 
-- **The response sample overlaps the training set** (section 5.2): about 43% of it are round-1
-  crops. The slopes on the 282 non-round-1 labels are the cleaner estimate, but their panos are
+- **The response sample overlaps the training set** (section 5.2): an estimated 48% of it are
+  round-1 crops, and the overlap test's sensitivity is unmeasured. The slopes on the 282 non-round-1 labels are the cleaner estimate, but their panos are
   from the same deployments and may appear in round 1 through other labels.
 - **Vouched pool, not the paper's crowd sample.** The labels are pano-tools' lead-vouched pool
   (labels made or validated by two lead labellers), filtered with `download_data.py`'s
@@ -334,7 +356,7 @@ crop keypoints from `projectsidewalk/rampnet-crop-model-dataset-round1` @
 `521f74ff752d57824400c8f7d5ca4717efa7bf16` (committed as `round1_keypoints.csv`). The `respond`
 step also needs the makelab2 panorama store
 (`/m-makeabilitylab/makeabilitylab/sidewalk_panos/Panoramas/<city>/<id[:2]>/<id>.jpg`), which is
-an **unpublished local input**; its output, `response.csv`, is committed.
+an **unpublished local input**; the first run's output, `response_v1.csv`, is committed.
 
 ```bash
 # analytic half (CPU, about 1 minute): labels*.csv and summary*.json
@@ -347,7 +369,7 @@ python scripts/analysis/crop_tilt_113.py overlap
 # empirical half: needs the pano store and a GPU. On makelab2 the RampNet venv lacked cv2, so
 # opencv-python-headless 4.10.0.84 was installed into a private --target dir on PYTHONPATH.
 python scripts/analysis/crop_tilt_113.py respond --sample analysis_out/crop_tilt_113/sample.csv --store /m-makeabilitylab/makeabilitylab/sidewalk_panos/Panoramas --out analysis_out/crop_tilt_113 --usage-out analysis_out/crop_tilt_113/usage_respond.json
-python scripts/analysis/crop_tilt_113.py fit
+python scripts/analysis/crop_tilt_113.py fit --name response_v1   # the committed first run; a new run is --name response
 # re-derive every summary from the committed CSVs, byte for byte
 python scripts/analysis/crop_tilt_113.py --check
 # and labels*.csv too, given the sibling checkout
@@ -357,7 +379,7 @@ python scripts/analysis/crop_tilt_113.py --check --pano-tools-root ../sidewalk-p
 What `--check` covers: without `--pano-tools-root` it takes `labels.csv` and `labels_heldout.csv`
 as given and copies each summary's `funnel` block from the committed file, so CI (which runs it via
 `tests/test_crop_tilt_113.py`) never re-derives the label tables or the funnel. Re-deriving those
-needs the sibling checkout and the second command. `response.csv` is the first run's file in its
+needs the sibling checkout and the second command. `response_v1.csv` is the first run's file in its
 original column layout; `--check` adapts it (`response_from_v1`) before fitting.
 
 `tests/test_crop_tilt_113.py` pins the vendored tilt functions (`rampnet/stage1_geometry.py`)
@@ -393,3 +415,18 @@ corrected; what it said before is quoted here.
 - **N2.** Section 3's table said "labels sit below the strip centre"; 93.2% sit above it.
 - **N5.** Section 2 called pano-tools' 0.93 [0.86, 0.99] "consistent with 1"; that CI excludes 1.
 - **N8.** The city range now says "cities with n >= 100" (cliffside-park, n 2, was outside it).
+
+Second review round (same day):
+
+- The first revision said "about 43%" of the sample are round-1 crops (match minus chance). The
+  estimator is (match - chance) / (1 - chance): 47.6% for the sample, 46.9% for the 14,505. It also
+  called unmatched labels "never saw" / "not a round-1 crop"; the test's sensitivity is unmeasured,
+  so they are now "unmatched".
+- The first revision's x-quirk prediction ("+10.5 - 0.031 x strip_x", and "the response run agrees
+  on the slope") compared a target-minus-object prediction with a quantity measured in the
+  stored-target frame. Section 3 now gives both hypotheses in the measured frame.
+- Section 6 said "roughly 0.15-0.35"; that mixed a CI bound into a point-estimate range. It is now
+  0.06-0.27, derived as beta minus slope.
+- The held-out sample covers 22 cities, not 20. "The CIs touch" is replaced by the difference and
+  its SE.
+- The first run's files are renamed `response_v1.csv` / `response_v1.json`.

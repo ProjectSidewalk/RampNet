@@ -25,6 +25,7 @@ Subcommands::
     python scripts/analysis/crop_tilt_113.py respond --sample analysis_out/crop_tilt_113/sample.csv \
         --store /m-makeabilitylab/makeabilitylab/sidewalk_panos/Panoramas --out analysis_out/crop_tilt_113 \
         --usage-out analysis_out/crop_tilt_113/usage_respond.json
+    python scripts/analysis/crop_tilt_113.py fit --name response      # or response_heldout, response_v1
     # re-derive every summary from the committed CSVs, byte for byte
     python scripts/analysis/crop_tilt_113.py --check
 
@@ -618,7 +619,10 @@ def overlap_report(labels, labels_heldout, sample, sample_heldout, crops):
         return {"n": len(pts), "exact_main_keypoint_match": len(hits),
                 "match_rate": rnd(len(hits) / len(pts)), "matched_crop_split": by_split,
                 "null_rate_mean": rnd(np.mean(null)), "null_rate_max": rnd(np.max(null)),
-                "excess_over_null": rnd(len(hits) / len(pts) - np.mean(null))}
+                "excess_over_null": rnd(len(hits) / len(pts) - np.mean(null)),
+                "overlap_fraction_est": rnd((len(hits) / len(pts) - np.mean(null)) / (1 - np.mean(null))),
+                "expected_chance_matches": rnd(len(pts) * np.mean(null) * (1 - (len(hits) / len(pts) - np.mean(null))
+                                                                           / (1 - np.mean(null))))}
 
     def by_uid(rr):
         return {r["label_uid"]: r for r in rr}
@@ -629,7 +633,11 @@ def overlap_report(labels, labels_heldout, sample, sample_heldout, crops):
         "note": ("A label 'matches' when download_data.py's integer point for it equals the first keypoint "
                  "of some round-1 crop (the crop's own label). The null shifts every point by 16 offsets "
                  "of 11-29 render px and matches again: that is the chance rate of hitting some other "
-                 "crop's point. excess_over_null estimates the share of labels whose crop is in round 1."),
+                 "crop's point. If a share f of labels truly have a round-1 crop, match = f + (1 - f) * null, so "
+                 "overlap_fraction_est = (match - null) / (1 - null) estimates f; expected_chance_matches is "
+                 "(1 - f) * null * n, the matched labels that are matches by chance. Sensitivity (a true "
+                 "round-1 label whose integer point differs, e.g. a label edited since 2025) is NOT measured, "
+                 "so the unmatched set can still contain round-1 labels."),
         "round1_dataset": "{}@{}".format(ROUND1_DATASET, ROUND1_DATASET_REVISION),
         "round1_crops": len(crops), "distinct_main_keypoints": len(main),
         "labels_crowd_ok": rate([r for r in labels if r["crowd_ok"] == "1"]),
@@ -880,6 +888,17 @@ def fit_response(rows, strata_share, r1_match=None):
                     ab["round1_unmatched"] = _slope_block(d[~mt], y[~mt], cl[~mt])
                     ab["round1_matched"] = _slope_block(d[mt], y[mt], cl[mt])
                     ab["round1_matched_train"] = _slope_block(d[tr], y[tr], cl[tr])
+                    # independent label sets, so SE of the difference = sqrt(se1^2 + se2^2)
+                    for tag, keep in (("all", np.ones(len(rr), bool)), ("stratum_ge3", st == "ge3")):
+                        a = _slope_block(d[~mt & keep], y[~mt & keep], cl[~mt & keep])
+                        b = _slope_block(d[tr & keep], y[tr & keep], cl[tr & keep])
+                        if "slope" in a and "slope" in b:
+                            dse = math.hypot(a["slope_se"], b["slope_se"])
+                            ab["unmatched_minus_matched_train_" + tag] = {
+                                "diff": rnd(a["slope"] - b["slope"]), "se": rnd(dse),
+                                "z": rnd((a["slope"] - b["slope"]) / dse), "unmatched": a["slope"],
+                                "unmatched_se": a["slope_se"], "matched_train": b["slope"],
+                                "matched_train_se": b["slope_se"]}
                 wb[ax] = ab
             # S2: the pitch and roll parts of d_y as separate regressors
             dp = np.array([f(r, "d_y_pitch_b100") for r in rr])
@@ -890,7 +909,10 @@ def fit_response(rows, strata_share, r1_match=None):
                 coef, se, _ = fit
                 wb["y_pitch_roll_parts"] = {"slope_pitch": rnd(coef[1]), "slope_pitch_se": rnd(se[1]),
                                             "slope_roll": rnd(coef[2]), "slope_roll_se": rnd(se[2])}
-            # S4: the x-scale quirk predicts x error = +10.5 - 0.031 * strip_x (render px) after flips
+            # S4: x error = (peak - stored) - d_x, in render px of the stored-target frame (peaks are
+            # converted at x0.5 as train.py's targets are). A peak on the flip-averaged training target
+            # predicts a constant +10 px, slope 0; a peak exactly on the object predicts +0.031 * strip_x
+            # (the image's true x scale is 352/683, not 0.5). Review of PR #244, second round.
             sxs = np.array([f(r, "strip_x") for r in rr])
             ex = np.array([f(r, wname + "_dx") - f(r, "d_x_b100") for r in rr])
             fit = _ols(np.column_stack([np.ones_like(sxs), sxs]), ex, np.array([r["pano_id"] for r in rr]))
@@ -898,7 +920,9 @@ def fit_response(rows, strata_share, r1_match=None):
                 coef, se, _ = fit
                 wb["x_error_on_strip_x"] = {"intercept_render_px": rnd(coef[0]), "intercept_se": rnd(se[0]),
                                             "slope": rnd(coef[1]), "slope_se": rnd(se[1]),
-                                            "predicted": {"intercept_render_px": 10.5, "slope": -0.031}}
+                                            "predicted_if_on_flip_averaged_target": {"intercept_render_px": 10.0,
+                                                                                     "slope": 0.0},
+                                            "predicted_if_on_object": {"intercept_render_px": 0.0, "slope": 0.031}}
             block[wname] = wb
         out[ck] = block
     # paired: the same strips under both checkpoints
@@ -923,11 +947,17 @@ def fit_response(rows, strata_share, r1_match=None):
 
 # --- check ------------------------------------------------------------------------------------------
 
-def load_response(out, stem, labels):
-    """response<stem>.csv in the current format (the first run's file is adapted) plus match flags."""
-    rows = read_csv(out / "response{}.csv".format(stem))
+#: (response file stem, labels stem): response_v1.csv is the first run (2026-10-06, clipped peaks, old
+#: column layout); response.csv and response_heldout.csv are where a respond run in the current layout
+#: lands, so retrieving the second run never overwrites the first.
+RESPONSE_SETS = [("response_v1", ""), ("response", ""), ("response_heldout", "_heldout")]
+
+
+def load_response(out, name, labels_stem, labels):
+    """<name>.csv in the current format (the first run's layout is adapted) plus round-1 match flags."""
+    rows = read_csv(out / "{}.csv".format(name))
     if rows and "stored_dy" not in rows[0]:
-        rows = response_from_v1(rows, read_csv(out / "sample{}.csv".format(stem)))
+        rows = response_from_v1(rows, read_csv(out / "sample{}.csv".format(labels_stem)))
     kp = out / "round1_keypoints.csv"
     match = round1_matches(labels, read_csv(kp)) if kp.exists() else None
     return rows, match
@@ -962,9 +992,10 @@ def cmd_check(args):
             strata_share = summary["crowd_ok"]["sample_strata_share"]
         if (out / "sample{}.csv".format(stem)).exists():
             cmp("sample{}.csv".format(stem), csv_bytes(SAMPLE_FIELDS, draw_sample(rows, args.per_stratum, args.seed)))
-        if (out / "response{}.csv".format(stem)).exists():
-            resp, match = load_response(out, stem, rows)
-            cmp("response{}.json".format(stem), json_bytes(fit_response(resp, strata_share, match)))
+        for name, lstem in RESPONSE_SETS:
+            if lstem == stem and (out / "{}.csv".format(name)).exists():
+                resp, match = load_response(out, name, lstem, rows)
+                cmp("{}.json".format(name), json_bytes(fit_response(resp, strata_share, match)))
     if (out / "round1_keypoints.csv").exists():
         cmp("overlap.json", json_bytes(overlap_report(*_overlap_inputs(out))))
     if not ok:
@@ -972,13 +1003,12 @@ def cmd_check(args):
 
 
 def cmd_fit(args):
-    """Write response<suffix>.json from response<suffix>.csv (CPU; the respond run only writes the CSV)."""
+    """Write <name>.json from <name>.csv (CPU; the respond run only writes the CSV)."""
     out = Path(args.out)
     share = json.loads((out / "summary.json").read_text(encoding="utf-8"))["crowd_ok"]["sample_strata_share"]
-    labels = read_csv(out / "labels{}.csv".format(args.suffix))
-    resp, match = load_response(out, args.suffix, labels)
-    res = fit_response(resp, share, match)
-    write_json(out / "response{}.json".format(args.suffix), res)
+    lstem = dict(RESPONSE_SETS)[args.name]
+    resp, match = load_response(out, args.name, lstem, read_csv(out / "labels{}.csv".format(lstem)))
+    write_json(out / "{}.json".format(args.name), fit_response(resp, share, match))
 
 
 def main(argv=None):
@@ -1014,7 +1044,7 @@ def main(argv=None):
     r.add_argument("--limit", type=int, default=0, help="first N sample rows only (smoke test)")
     fi = sub.add_parser("fit")
     fi.add_argument("--out", default=str(OUT_DEFAULT))
-    fi.add_argument("--suffix", default="")
+    fi.add_argument("--name", default="response", choices=[n for n, _ in RESPONSE_SETS])
     args = ap.parse_args(argv)
     if args.check:
         return cmd_check(args)

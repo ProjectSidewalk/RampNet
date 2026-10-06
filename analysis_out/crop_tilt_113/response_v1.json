@@ -146,14 +146,36 @@
       1.0303
      ],
      "slope_se": 0.3037
+    },
+    "unmatched_minus_matched_train_all": {
+     "diff": 0.2072,
+     "matched_train": 0.2775,
+     "matched_train_se": 0.1618,
+     "se": 0.2174,
+     "unmatched": 0.4847,
+     "unmatched_se": 0.1452,
+     "z": 0.9531
+    },
+    "unmatched_minus_matched_train_stratum_ge3": {
+     "diff": 0.1363,
+     "matched_train": 0.3517,
+     "matched_train_se": 0.2157,
+     "se": 0.272,
+     "unmatched": 0.488,
+     "unmatched_se": 0.1657,
+     "z": 0.5011
     }
    },
    "x_error_on_strip_x": {
     "intercept_render_px": 16.3309,
     "intercept_se": 3.1506,
-    "predicted": {
-     "intercept_render_px": 10.5,
-     "slope": -0.031
+    "predicted_if_on_flip_averaged_target": {
+     "intercept_render_px": 10.0,
+     "slope": 0.0
+    },
+    "predicted_if_on_object": {
+     "intercept_render_px": 0.0,
+     "slope": 0.031
     },
     "slope": -0.0293,
     "slope_se": 0.0082
@@ -288,6 +310,24 @@
       0.3687
      ],
      "slope_se": 0.1963
+    },
+    "unmatched_minus_matched_train_all": {
+     "diff": 0.1513,
+     "matched_train": 0.3776,
+     "matched_train_se": 0.0414,
+     "se": 0.0561,
+     "unmatched": 0.5289,
+     "unmatched_se": 0.0378,
+     "z": 2.6989
+    },
+    "unmatched_minus_matched_train_stratum_ge3": {
+     "diff": 0.1512,
+     "matched_train": 0.3783,
+     "matched_train_se": 0.0452,
+     "se": 0.0624,
+     "unmatched": 0.5295,
+     "unmatched_se": 0.043,
+     "z": 2.4236
     }
    },
    "y_pitch_roll_parts": {
@@ -435,14 +475,36 @@
       0.6653
      ],
      "slope_se": 0.3497
+    },
+    "unmatched_minus_matched_train_all": {
+     "diff": 0.4371,
+     "matched_train": 0.1898,
+     "matched_train_se": 0.1949,
+     "se": 0.2732,
+     "unmatched": 0.6269,
+     "unmatched_se": 0.1914,
+     "z": 1.6001
+    },
+    "unmatched_minus_matched_train_stratum_ge3": {
+     "diff": 0.2487,
+     "matched_train": 0.4225,
+     "matched_train_se": 0.2459,
+     "se": 0.3307,
+     "unmatched": 0.6712,
+     "unmatched_se": 0.2211,
+     "z": 0.7521
     }
    },
    "x_error_on_strip_x": {
     "intercept_render_px": 26.1206,
     "intercept_se": 4.3318,
-    "predicted": {
-     "intercept_render_px": 10.5,
-     "slope": -0.031
+    "predicted_if_on_flip_averaged_target": {
+     "intercept_render_px": 10.0,
+     "slope": 0.0
+    },
+    "predicted_if_on_object": {
+     "intercept_render_px": 0.0,
+     "slope": 0.031
     },
     "slope": -0.0574,
     "slope_se": 0.0119
@@ -577,6 +639,24 @@
       0.6132
      ],
      "slope_se": 0.2663
+    },
+    "unmatched_minus_matched_train_all": {
+     "diff": 0.2306,
+     "matched_train": 0.3706,
+     "matched_train_se": 0.054,
+     "se": 0.0762,
+     "unmatched": 0.6012,
+     "unmatched_se": 0.0538,
+     "z": 3.0252
+    },
+    "unmatched_minus_matched_train_stratum_ge3": {
+     "diff": 0.2442,
+     "matched_train": 0.3657,
+     "matched_train_se": 0.0582,
+     "se": 0.0855,
+     "unmatched": 0.6099,
+     "unmatched_se": 0.0626,
+     "z": 2.857
     }
    },
    "y_pitch_roll_parts": {
@@ -732,14 +812,36 @@
       1.4581
      ],
      "slope_se": 0.2294
+    },
+    "unmatched_minus_matched_train_all": {
+     "diff": -0.0493,
+     "matched_train": 0.4447,
+     "matched_train_se": 0.1459,
+     "se": 0.2159,
+     "unmatched": 0.3954,
+     "unmatched_se": 0.1591,
+     "z": -0.2284
+    },
+    "unmatched_minus_matched_train_stratum_ge3": {
+     "diff": -0.0005,
+     "matched_train": 0.351,
+     "matched_train_se": 0.1837,
+     "se": 0.2667,
+     "unmatched": 0.3505,
+     "unmatched_se": 0.1934,
+     "z": -0.0019
     }
    },
    "x_error_on_strip_x": {
     "intercept_render_px": 15.2648,
     "intercept_se": 3.1438,
-    "predicted": {
-     "intercept_render_px": 10.5,
-     "slope": -0.031
+    "predicted_if_on_flip_averaged_target": {
+     "intercept_render_px": 10.0,
+     "slope": 0.0
+    },
+    "predicted_if_on_object": {
+     "intercept_render_px": 0.0,
+     "slope": 0.031
     },
     "slope": -0.0147,
     "slope_se": 0.0083
@@ -874,6 +976,24 @@
       1.095
      ],
      "slope_se": 0.2021
+    },
+    "unmatched_minus_matched_train_all": {
+     "diff": 0.0548,
+     "matched_train": 0.6761,
+     "matched_train_se": 0.0459,
+     "se": 0.0575,
+     "unmatched": 0.7309,
+     "unmatched_se": 0.0347,
+     "z": 0.9524
+    },
+    "unmatched_minus_matched_train_stratum_ge3": {
+     "diff": 0.0578,
+     "matched_train": 0.6556,
+     "matched_train_se": 0.0496,
+     "se": 0.0622,
+     "unmatched": 0.7134,
+     "unmatched_se": 0.0376,
+     "z": 0.9287
     }
    },
    "y_pitch_roll_parts": {
@@ -1021,14 +1141,36 @@
       1.1968
      ],
      "slope_se": 0.3982
+    },
+    "unmatched_minus_matched_train_all": {
+     "diff": 0.3296,
+     "matched_train": 0.2649,
+     "matched_train_se": 0.1956,
+     "se": 0.2846,
+     "unmatched": 0.5945,
+     "unmatched_se": 0.2067,
+     "z": 1.1582
+    },
+    "unmatched_minus_matched_train_stratum_ge3": {
+     "diff": 0.1719,
+     "matched_train": 0.3723,
+     "matched_train_se": 0.198,
+     "se": 0.3163,
+     "unmatched": 0.5442,
+     "unmatched_se": 0.2466,
+     "z": 0.5436
     }
    },
    "x_error_on_strip_x": {
     "intercept_render_px": 20.4028,
     "intercept_se": 3.9654,
-    "predicted": {
-     "intercept_render_px": 10.5,
-     "slope": -0.031
+    "predicted_if_on_flip_averaged_target": {
+     "intercept_render_px": 10.0,
+     "slope": 0.0
+    },
+    "predicted_if_on_object": {
+     "intercept_render_px": 0.0,
+     "slope": 0.031
     },
     "slope": -0.0246,
     "slope_se": 0.0107
@@ -1163,6 +1305,24 @@
       1.2844
      ],
      "slope_se": 0.2805
+    },
+    "unmatched_minus_matched_train_all": {
+     "diff": 0.093,
+     "matched_train": 0.7492,
+     "matched_train_se": 0.0592,
+     "se": 0.08,
+     "unmatched": 0.8422,
+     "unmatched_se": 0.0538,
+     "z": 1.1626
+    },
+    "unmatched_minus_matched_train_stratum_ge3": {
+     "diff": 0.1009,
+     "matched_train": 0.7445,
+     "matched_train_se": 0.0634,
+     "se": 0.0883,
+     "unmatched": 0.8454,
+     "unmatched_se": 0.0615,
+     "z": 1.1423
     }
    },
    "y_pitch_roll_parts": {
