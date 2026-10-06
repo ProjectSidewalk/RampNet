@@ -18,6 +18,9 @@ benchmark/*/panos/
 benchmark/*/gallery/
 benchmark/*/box_gallery/
 benchmark/*/heatmap_cache/
+# #111 Google depth archive (local, unpublished); the committed record is
+# benchmark/<split>/depth_manifest.json (docs/benchmark_depth_111.md).
+benchmark/*/depth/
 .env
 view_dump/
 .model_cache/
