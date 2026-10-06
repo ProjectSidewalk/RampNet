@@ -13,8 +13,10 @@ neither belongs in a paper-era script:
    `sidewalk-panorama-tools <https://github.com/ProjectSidewalk/sidewalk-panorama-tools>`_ at commit
    ``21d10aa3767167e67a098557f58f327def2396a5`` (the 2026-09-26 tilt error study, its PR #158).
    Copied rather than imported so that RampNet's tests run from a clean clone without the sibling
-   repo. Only the functions this analysis uses are copied, unchanged apart from comments; the test
-   pins them against values computed by the original module.
+   repo. Only the functions this analysis uses are copied. They are numerically identical to the
+   original, but not textually: comments are shortened and the original's ``_rotate`` helper is
+   inlined into :func:`gravity_to_rig`. The test pins them against values computed by the original
+   module.
 
 Sign conventions (measured in pano-tools' study, endpoint F1, not assumed): pose pitch > 0 is nose
 down, roll > 0 is left side up; ``T(b) = pitch cos b + roll sin b`` is how far the gravity horizon

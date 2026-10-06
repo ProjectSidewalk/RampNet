@@ -640,6 +640,15 @@ def overlap_report(labels, labels_heldout, sample, sample_heldout, crops):
     }
     if sample_heldout:
         out["sample_heldout"] = rate([labh[s["label_uid"]] for s in sample_heldout])
+    # are the unmatched sample labels hiding as a SECONDARY keypoint of some other label's crop?
+    sec = set()
+    for c in crops:
+        sec.update(_parse_crop_id(c["crop_id"])[1:])
+    pts = [(int(lab[s["label_uid"]]["paper_x"]), int(lab[s["label_uid"]]["paper_y"])) for s in sample]
+    um = [p for p in pts if p not in main]
+    out["sample_unmatched_as_secondary_keypoint"] = {
+        "n_unmatched": len(um), "hits": sum(p in sec for p in um),
+        "null_hits_mean": rnd(np.mean([sum((x + dx, y + dy) in sec for x, y in um) for dx, dy in NULL_OFFSETS]))}
     return out
 
 
@@ -784,7 +793,42 @@ def cmd_respond(args):
 
 # --- response fit (from response*.csv, so --check re-derives it) ------------------------------------
 
-def fit_response(rows, strata_share):
+def response_from_v1(rows, sample):
+    """Map the first respond run's response.csv (2026-10-06, PR #244 as first opened) to the current
+    column names, so the review's per-stratum, edge and decomposition fits run on it.
+
+    That run localized peaks on the CLIPPED heatmap (review N1) and searched two windows centred on the
+    stored target, so it has no "mid" window and its raw value is the clipped one. Edge hits are
+    recomputed from the refined peak's distance to the window centre.
+    """
+    smp = {r["label_uid"]: r for r in sample}
+    out = []
+    for r in rows:
+        s = smp[r["label_uid"]]
+        row = {k: r[k] for k in ("stratum", "label_uid", "city", "pano_id", "checkpoint", "T_deg",
+                                 "d_x_b100", "d_y_b100")}
+        row.update({k: s[k] for k in ("strip_x", "strip_y", "d_y_pitch_b100", "d_y_roll_b100")})
+        for wname, pre, radius in (("stored", "peak", EVAL_RADIUS_HM), ("stored_x2", "peak2", 2 * EVAL_RADIUS_HM)):
+            dx, dy = float(r[pre + "_minus_stored_x"]), float(r[pre + "_minus_stored_y"])
+            dist_hm = math.hypot(dx, dy) * HM_SCALE
+            row.update({wname + "_dx": r[pre + "_minus_stored_x"], wname + "_dy": r[pre + "_minus_stored_y"],
+                        wname + "_value": r[pre + "_value"], wname + "_raw_value": r[pre + "_value"],
+                        wname + "_edge": "1" if dist_hm >= radius - EDGE_TOL_HM else "0"})
+        out.append(row)
+    return out
+
+
+def round1_matches(labels, crops):
+    """label_uid -> sorted round-1 splits whose crop's own keypoint equals the label's paper point."""
+    main = {}
+    for c in crops:
+        kps = _parse_crop_id(c["crop_id"])
+        if kps:
+            main.setdefault(kps[0], set()).add(c["split"])
+    return {r["label_uid"]: sorted(main.get((int(r["paper_x"]), int(r["paper_y"])), ())) for r in labels}
+
+
+def fit_response(rows, strata_share, r1_match=None):
     """Regress peak - stored on d (beta = 1), per checkpoint, window, axis and stratum; SE clustered by pano.
 
     ``strata_share``: the population share of each |T| stratum (summary.json's sample_strata_share for
@@ -795,7 +839,8 @@ def fit_response(rows, strata_share):
     out = {"model": "peak_minus_stored = c + slope * d_b100 (render px); slope +1 = peak on the object "
                     "(at beta = 1), 0 = peak on the displaced target; SE clustered by pano; 95% CI = "
                     "slope +/- 1.96 SE. Peaks localized on the unclipped heatmap.",
-           "windows": {w: {"radius_render_px": rnd(r / HM_SCALE), "centre": c} for w, r, c in WINDOWS},
+           "windows": {w: {"radius_render_px": rnd(r / HM_SCALE), "centre": c} for w, r, c in WINDOWS
+                       if rows and w + "_dy" in rows[0]},
            "edge_tolerance_render_px": rnd(EDGE_TOL_HM / HM_SCALE),
            "sigma_render_px": SIGMA_RENDER, "population_strata_share": strata_share}
 
@@ -807,6 +852,8 @@ def fit_response(rows, strata_share):
         n_s = {s: sum(r["stratum"] == s for r in rr) for s, _, _ in SAMPLE_STRATA}
         block = {"n": len(rr), "strata": n_s}
         for wname, _, _ in WINDOWS:
+            if wname + "_dy" not in rr[0]:
+                continue
             wb = {"edge_hits": {s: sum(r[wname + "_edge"] == "1" for r in rr if r["stratum"] == s)
                                 for s, _, _ in SAMPLE_STRATA},
                   "median_peak_value": rnd(np.median([f(r, wname + "_value") for r in rr])),
@@ -827,6 +874,12 @@ def fit_response(rows, strata_share):
                 if strata_share and all(n_s[s] for s in n_s):
                     wts = np.array([strata_share[s] / (n_s[s] / len(rr)) for s in st])
                     ab["population_weighted"] = _slope_block(d, y, cl, wts)
+                if r1_match is not None:
+                    mt = np.array([bool(r1_match.get(r["label_uid"])) for r in rr])
+                    tr = np.array(["train" in r1_match.get(r["label_uid"], []) for r in rr])
+                    ab["round1_unmatched"] = _slope_block(d[~mt], y[~mt], cl[~mt])
+                    ab["round1_matched"] = _slope_block(d[mt], y[mt], cl[mt])
+                    ab["round1_matched_train"] = _slope_block(d[tr], y[tr], cl[tr])
                 wb[ax] = ab
             # S2: the pitch and roll parts of d_y as separate regressors
             dp = np.array([f(r, "d_y_pitch_b100") for r in rr])
@@ -857,6 +910,8 @@ def fit_response(rows, strata_share):
         diff = {"n": len(pairs), "note": "(peak_round2 - peak_round1) = c + slope * d_b100, paired on strips"}
         cl = np.array([v["round1"]["pano_id"] for v in pairs])
         for wname, _, _ in WINDOWS:
+            if wname + "_dy" not in pairs[0]["round1"]:
+                continue
             for ax in ("x", "y"):
                 d = np.array([f(v["round1"], "d_{}_b100".format(ax)) for v in pairs])
                 y = np.array([f(v["round2"], "{}_d{}".format(wname, ax)) - f(v["round1"], "{}_d{}".format(wname, ax))
@@ -867,6 +922,16 @@ def fit_response(rows, strata_share):
 
 
 # --- check ------------------------------------------------------------------------------------------
+
+def load_response(out, stem, labels):
+    """response<stem>.csv in the current format (the first run's file is adapted) plus match flags."""
+    rows = read_csv(out / "response{}.csv".format(stem))
+    if rows and "stored_dy" not in rows[0]:
+        rows = response_from_v1(rows, read_csv(out / "sample{}.csv".format(stem)))
+    kp = out / "round1_keypoints.csv"
+    match = round1_matches(labels, read_csv(kp)) if kp.exists() else None
+    return rows, match
+
 
 def cmd_check(args):
     out = Path(args.out)
@@ -898,8 +963,8 @@ def cmd_check(args):
         if (out / "sample{}.csv".format(stem)).exists():
             cmp("sample{}.csv".format(stem), csv_bytes(SAMPLE_FIELDS, draw_sample(rows, args.per_stratum, args.seed)))
         if (out / "response{}.csv".format(stem)).exists():
-            cmp("response{}.json".format(stem),
-                json_bytes(fit_response(read_csv(out / "response{}.csv".format(stem)), strata_share)))
+            resp, match = load_response(out, stem, rows)
+            cmp("response{}.json".format(stem), json_bytes(fit_response(resp, strata_share, match)))
     if (out / "round1_keypoints.csv").exists():
         cmp("overlap.json", json_bytes(overlap_report(*_overlap_inputs(out))))
     if not ok:
@@ -910,7 +975,9 @@ def cmd_fit(args):
     """Write response<suffix>.json from response<suffix>.csv (CPU; the respond run only writes the CSV)."""
     out = Path(args.out)
     share = json.loads((out / "summary.json").read_text(encoding="utf-8"))["crowd_ok"]["sample_strata_share"]
-    res = fit_response(read_csv(out / "response{}.csv".format(args.suffix)), share)
+    labels = read_csv(out / "labels{}.csv".format(args.suffix))
+    resp, match = load_response(out, args.suffix, labels)
+    res = fit_response(resp, share, match)
     write_json(out / "response{}.json".format(args.suffix), res)
 
 
