@@ -36,9 +36,11 @@ both rounds, weakly identified because the x displacement is small.
 **On 565 labels from 22 cities the crop model never trained on, the slopes are about the same as
 on the unmatched in-population labels** (section 5.4): round 1 0.44 [0.34, 0.53] in the stored
 window, 0.59 [0.52, 0.67] in the midpoint window; round 2 0.64 [0.51, 0.77] and 0.86 [0.79, 0.93].
-So the "about half way" that remains for round 1 after the training-crop overlap is set aside is
-not explained by missed round-1 labels or panos seen through other labels. Re-localizing on the
-unclipped heatmap moved no in-population slope by more than 0.03.
+Held-out minus in-population unmatched, round 1, is -0.09 (SE 0.06) stored and -0.02 (SE 0.06)
+mid, with 95% upper bounds of about +0.03 to +0.10. So missed round-1 labels or panos seen through
+other labels can account for at most about 0.1 of slope, and **cannot account for most of the
+"about half way" remainder** (0.4-0.5). Re-localizing on the unclipped heatmap moved none of the
+section 5.3 table's y slopes by more than 0.03.
 
 ## 2. What was already settled elsewhere (not re-measured here)
 
@@ -181,7 +183,8 @@ Localization caveat (review N1, not fixed in these numbers): the heatmap was cli
 before the argmax, and 27% of round-2 peaks (6% of round 1) sit on a plateau at exactly 1.0, where
 argmax returns the plateau's top-left pixel. The script now localizes on the unclipped map, and
 the second run (section 5.4) does so. Every y slope in the table below moved by at most 0.03 between
-the two runs (round 2 stored: 0.71 to 0.72), which confirms the reviewer's measurement on
+the two runs (round 2 stored: 0.71 to 0.72; the largest change is 0.025). Smaller subsets moved
+more: the below-1-degree stratum about 0.055, and the |d| < 45 px subset about 0.035. The table result confirms the reviewer's measurement on
 unsaturated peaks (0.708 against 0.710). The table keeps the first run's numbers, since the text
 and review cite them.
 
@@ -281,24 +284,35 @@ y slope [95% CI], all labels in each sample (`response.json`, `response_heldout.
 Paired round 2 minus round 1, held-out: 0.20 [0.14, 0.27] stored, 0.26 [0.20, 0.33] mid
 (in-population 0.25 and 0.30).
 
-- **Edge hits** (stored / mid window): in-population round 1 110 / 80 and round 2 147 / 87 of 600;
-  held-out round 1 168 / 146 and round 2 195 / 145 of 565. The held-out stored window clips far more
-  often, which is why its stored-window slopes sit lowest; the `mid` window agrees across samples.
-- **The `mid` window** reads highest for both checkpoints and has the fewest edge hits in-population.
-  It moves the in-population unmatched-minus-train difference for round 1 from 0.15 (SE 0.056) to
-  0.20 (SE 0.056).
-- **The 45 held-out labels that "match" a round-1 crop** are the chance matches 5.2 predicts
-  (held-out cities are not in round 1). Their slopes are not read.
+- **Edge hits** (stored / stored x2 / mid window): in-population round 1 110 / 36 / 80 and round 2
+  147 / 31 / 87 of 600; held-out round 1 168 / 60 / 146 and round 2 195 / 50 / 145 of 565. The
+  doubled window clips least everywhere. Held-out clips more in every window, which is why its
+  stored-window slopes sit lowest: excluding edge hits, round 1 stored is 0.40 in both samples.
+- **The `mid` window** reads highest for both checkpoints. It clips less than the stored window but
+  more than the doubled one. It moves the in-population unmatched-minus-train difference for round 1
+  from 0.15 (SE 0.056) to 0.20 (SE 0.056).
+- **The 58 held-out labels that "match" a round-1 crop** (45 of them a train crop) are about the
+  ~54 chance matches 5.2 predicts, since held-out cities are not in round 1. Their slopes are not
+  read.
 
 ### 5.4.1 What the held-out arm shows
 
 Section 5.5 left three explanations for round 1's "about half way" on unmatched labels: visible
-tilt, round-1 labels the overlap test missed, or panos seen through other labels. The held-out
-cities rule out the second and third, since none of their panos are in round 1. Round 1 still
-follows the object only about half way there (0.44-0.59 across windows, against 0.53-0.61 on
-unmatched in-population labels). The remainder therefore does not need memorization. That points to
-an image cue that carries the displacement, such as visible tilt, though the held-out cities also
-differ in imagery and rig, which this run does not separate. Round 2 reaches the same 0.83-0.86 on
+tilt, round-1 labels the overlap test missed, or panos seen through other labels. None of the
+held-out panos are in round 1, so the second and third cannot operate there. Round 1 still follows
+the object only about half way (0.44-0.59 across windows, against 0.53-0.61 on unmatched
+in-population labels). Held-out minus in-population unmatched is -0.093 (SE 0.060) stored, -0.043
+(SE 0.072) stored x2 and -0.017 (SE 0.056) mid, with 95% upper bounds of about +0.03, +0.10 and
++0.09. So missed round-1 labels and panos seen through other labels can contribute at most about
+0.1 of slope, against a remainder of 0.4-0.5: they **cannot account for most of it**. Most of the
+remainder therefore does not need memorization, which points to an image cue that carries the
+displacement, such as visible tilt.
+
+Two confounds remain. The held-out cities differ in imagery and rig, and their panos are **out of
+domain** for the model. Median peak values are lower (round 1 0.86 against 0.92, round 2 0.91
+against 0.97), and edge hits are higher in every window, even in the below-1-degree stratum. Neither
+is separated by this run. The smaller |T| >= 3 count (165 against 200) is not a confound: within that
+stratum the comparison shows the same pattern. Round 2 reaches the same 0.83-0.86 on
 held-out cities as in-population in the two wider windows.
 
 ### 5.5 Reading (corrected after review)
@@ -317,8 +331,8 @@ round-1 train the round-1 slope is 0.38, below the 0.53 on unmatched labels: a d
 (SE 0.056, z 2.7), and the same 0.15 (SE 0.06) within the |T| >= 3 stratum alone. But it is not the
 whole story, because even on unmatched labels round 1 follows the object
 only about half way. That remainder could be visible tilt, round-1 labels the overlap test missed, or panos seen through other labels. The
-held-out-city arm (5.4.1) rules out the last two: the same half-way slope appears in cities round 1
-never trained on. Round 2's manual fine-tune moves the peak toward the
+held-out-city arm (5.4.1) shows the last two cannot account for most of the remainder (at most
+about 0.1 of slope): the same half-way slope appears in cities round 1 never trained on. Round 2's manual fine-tune moves the peak toward the
 object on both subsets (0.73 unmatched, 0.68 train), so its gain is not only forgetting round-1
 targets, though forgetting may contribute. If the true leak is beta = 0.90 rather than 1, "on the
 object" is slope 0.90, not 1.
@@ -383,7 +397,7 @@ is not measured.
 - `respond`, second run (5.4): the same shared A40. 833.5 s for the 600 in-population panos and
   120.0 s for the 565 held-out ones (`usage_respond.json`, `usage_respond_heldout.json`), 953.5 s
   and 0.265 GPU-hours in total, an upper bound because the GPU was shared. The in-population half
-  ran 3.6x slower than the first run on the same panos, which is contention, not the code. Recorded
+  ran 3.6x slower than the first run on the same panos, which points to contention, not the code: the held-out half on the same GPU ran at 0.21 s per pano, faster than run 1's 0.39. Recorded
   as `crop-tilt-113:respond-v2`: the `in_progress` row written at launch, then a closing `ok` row
   with the same `run_id`.
 - External calls: Google 0, Project Sidewalk API 0. Paid APIs: none.
@@ -486,4 +500,9 @@ Second run retrieved (2026-10-06, later the same day):
   windows)". With the third window and the second run it is 0.04-0.26 in-population and 0.04-0.36
   held-out.
 - Section 5.5 said the held-out arm "would test" whether missed round-1 labels explain the
-  remainder. It now rules out that explanation and the panos-seen-through-other-labels one.
+  remainder. It now bounds that explanation and the panos-seen-through-other-labels one at about
+  0.1 of slope. (The first wording of this revision said "rules out", which the final re-review
+  found too strong.)
+- Final re-review of this revision: the `mid` window was said to clip least (the doubled window
+  does); "45" held-out chance matches was the train-crop subset of 58; "moved no in-population slope
+  by more than 0.03" held only for the 5.3 table cells. All three are corrected above.
