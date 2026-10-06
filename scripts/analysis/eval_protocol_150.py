@@ -47,6 +47,7 @@ from export_model_cache import published_path  # noqa: E402
 from rampnet import roster  # noqa: E402
 from rampnet.eval import (  # noqa: E402
     all_pins, eval_sha256, load_predictions, score_split, scorer_fingerprint)
+from rampnet.eval import op_cache_predictions as E_op_cache_predictions  # noqa: E402
 from scoreboard_render import JSON_PRECISION  # noqa: E402
 
 OUT_DIR = os.path.join(REPO, "analysis_out", "eval_protocol_150")
@@ -66,10 +67,10 @@ def _bundle(split):
 
 
 def op_cache_predictions(split):
-    """RampNet's low-floor extraction for ``split`` in the prediction-file format."""
-    panos = SB.low_floor_panos(split)
-    return {"model": "rampnet (op_cache, 0.05 floor)", "city": split,
-            "detections": {pd["pano"]: [list(p) for p in pd["preds"]] for pd in panos}}
+    """RampNet's low-floor extraction for ``split`` in the prediction-file format, read by
+    the CLI's own converter (``--predictions rampnet-op-cache``) so that path is the one
+    proven."""
+    return E_op_cache_predictions(_bundle(split))
 
 
 def scoreboard_cells():

@@ -247,8 +247,9 @@ def op_cache_predictions(bundle_dir):
     ``records.jsonl``, down to 0.05 instead of 0.55. This is what the published RampNet
     city-split AP is read from (``scoreboard.uses_low_floor_cache``). Found relative to
     the bundle (``<bundle>/../../analysis_out/op_cache``), so it works from any cwd."""
-    split = os.path.basename(os.path.normpath(bundle_dir))
-    path = os.path.normpath(os.path.join(bundle_dir, os.pardir, os.pardir, "analysis_out",
+    split = os.path.basename(os.path.abspath(bundle_dir))
+    path = os.path.normpath(os.path.join(os.path.abspath(bundle_dir), os.pardir, os.pardir,
+                                         "analysis_out",
                                          "op_cache", f"{split}.json"))
     if not os.path.exists(path):
         raise PredictionFormatError(f"{path}: no low-floor cache for split {split!r}")
@@ -298,7 +299,7 @@ def score_split(bundle_dir, predictions, *, radius=PANO_RADIUS_NORMALIZED, wrap_
         (238, 9, 72)
     """
     records, gts, gt_kind = ground_truths(bundle_dir)
-    split = os.path.basename(os.path.normpath(bundle_dir))
+    split = os.path.basename(os.path.abspath(bundle_dir))
     warnings = []
     if isinstance(predictions, str):
         if predictions == "rampnet":
@@ -306,6 +307,21 @@ def score_split(bundle_dir, predictions, *, radius=PANO_RADIUS_NORMALIZED, wrap_
             model = model or "rampnet"
         elif predictions == "rampnet-op-cache":
             predictions = op_cache_predictions(bundle_dir)
+            # The cache is a stand-in only where the bundle's own detections are
+            # truncated (scoreboard.uses_low_floor_cache, turned around). manual_gold's
+            # bundle is already at 0.05 with flip-TTA; its op_cache is a no-TTA run that
+            # was never published, so scoring it there would quietly swap the model config.
+            own = [c for pid in gts for c in (prediction_confidence(d) for d in
+                                              records[pid].get("detections", []))
+                   if c is not None]
+            cache = [prediction_confidence(p) for pts in predictions["detections"].values()
+                     for p in pts if prediction_confidence(p) is not None]
+            if own and cache and min(own) - min(cache) <= 0.1:
+                raise PredictionFormatError(
+                    f"{split}: the bundle's own RampNet detections already reach "
+                    f"{min(own):.4f}, within 0.1 of the op_cache floor {min(cache):.4f}, so "
+                    "the op_cache is not the published source here (it is a separate no-TTA "
+                    "extraction); use --predictions rampnet")
         else:
             raise ValueError("predictions must be a parsed prediction file, 'rampnet' or "
                              "'rampnet-op-cache'")
@@ -524,13 +540,18 @@ Where committed numbers come from:
 def cli_root(cwd=None):
     """The checkout the CLI's default paths resolve against.
 
-    The current directory when it holds ``benchmark/split_pins.json`` (so a shared
-    editable install run from a worktree verifies that worktree), else the checkout this
-    module was imported from. A non-editable install has neither; pass explicit paths."""
-    cwd = os.path.abspath(cwd or os.getcwd())
-    if os.path.exists(os.path.join(cwd, "benchmark", "split_pins.json")):
-        return cwd
-    return REPO_ROOT
+    The nearest of the current directory and its parents that holds
+    ``benchmark/split_pins.json`` (so a shared editable install run from inside a
+    worktree verifies that worktree), else the checkout this module was imported from. A
+    non-editable install has neither; pass explicit paths."""
+    here = os.path.abspath(cwd or os.getcwd())
+    while True:
+        if os.path.exists(os.path.join(here, "benchmark", "split_pins.json")):
+            return here
+        parent = os.path.dirname(here)
+        if parent == here:
+            return REPO_ROOT
+        here = parent
 
 
 NAMED_PREDICTIONS = ("rampnet", "rampnet-op-cache")
@@ -625,8 +646,10 @@ def build_parser():
     s.add_argument("--predictions", required=True,
                    help="Prediction file (benchmark/model_detections format); 'rampnet' "
                         "for the bundle's own records.jsonl detections; or "
-                        "'rampnet-op-cache' for RampNet's 0.05-floor extraction in "
-                        "analysis_out/op_cache/ (the source of its published city-split AP).")
+                        "'rampnet-op-cache' for RampNet's 0.05-floor no-TTA extraction in "
+                        "analysis_out/op_cache/, the source of its published AP on the city "
+                        "splits whose bundles stop at 0.55 (refused where the bundle itself "
+                        "already reaches the floor, e.g. manual_gold).")
     s.add_argument("--op-threshold", type=float, default=0.0,
                    help="Drop predictions below this for P/R/F1 (AP is never truncated "
                         "by it). Default 0: score everything.")

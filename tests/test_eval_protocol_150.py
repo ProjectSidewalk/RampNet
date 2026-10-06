@@ -252,6 +252,20 @@ def test_op_cache_predictions_give_the_published_rampnet_ap(scoreboard_cells):
     assert res["warnings"] == []
 
 
+def test_op_cache_is_refused_where_the_bundle_already_reaches_the_floor():
+    """manual_gold's bundle is a 0.05 flip-TTA export; its op_cache is a never-published
+    no-TTA run, so substituting it would swap the model config (re-review of #245)."""
+    with pytest.raises(E.PredictionFormatError, match="use --predictions rampnet"):
+        E.score_split(os.path.join(BENCH, "manual_gold"), "rampnet-op-cache")
+
+
+def test_bundle_dot_names_the_split(monkeypatch):
+    monkeypatch.chdir(os.path.join(BENCH, "richmond"))
+    res = E.score_split(".", "rampnet", op_threshold=0.55)
+    assert res["split"] == "richmond"
+    assert E.op_cache_predictions(".")["city"] == "richmond"
+
+
 def test_borrowed_verdict_bundle_scores_and_pins():
     """A #48 bundle.json bundle used to crash in split_pins (review of #245)."""
     bdir = os.path.join(BENCH, "richmond_neighbourhood")
@@ -266,6 +280,7 @@ def test_borrowed_verdict_bundle_scores_and_pins():
 
 def test_cli_root_prefers_a_checkout_cwd(tmp_path):
     assert E.cli_root(REPO) == os.path.abspath(REPO)
+    assert E.cli_root(os.path.join(REPO, "docs")) == os.path.abspath(REPO)
     assert E.cli_root(str(tmp_path)) == E.REPO_ROOT
 
 

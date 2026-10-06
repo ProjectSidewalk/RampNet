@@ -44,7 +44,10 @@ result also carries a warning. Declaring `--floor 0.05` for a city bundle's own 
 detections, which start at 0.55, therefore warns rather than claiming a 0.05 truncation.
 `--predictions rampnet-op-cache` scores `analysis_out/op_cache/<split>.json` instead, which is
 where the published RampNet city-split AP comes from: on `richmond` it gives AP 0.8761 (the
-scoreboard's 0.876) with the same P/R/F1 at 0.55 as the bundle.
+scoreboard's 0.876) with the same P/R/F1 at 0.55 as the bundle. It is refused where the
+bundle's own detections already reach within 0.1 of the cache floor: on `manual_gold` the
+bundle is the published 0.05 flip-TTA export, and the op_cache there is a no-TTA extraction
+that was never published.
 
 ## Prediction format
 
@@ -88,8 +91,8 @@ manual_gold / rampnet @ op 0.55: P 0.9474  R 0.8727  F1 0.9085  AP 0.9173  tp/fp
 Bundles that borrow another split's verdicts through `bundle.json` (#48) score too; their
 pins record the spec and the borrowed `verdicts.json`.
 
-Default paths (`pins`, `loco`) resolve against the current directory when it is a RampNet
-checkout (it holds `benchmark/split_pins.json`), and otherwise against the checkout `rampnet`
+Default paths (`pins`, `loco`) resolve against the nearest of the current directory and its
+parents that is a RampNet checkout (holds `benchmark/split_pins.json`), and otherwise against the checkout `rampnet`
 was imported from. A non-editable install carries no `benchmark/`, so pass explicit paths
 there.
 
