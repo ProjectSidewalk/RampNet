@@ -14,6 +14,7 @@ from rampnet.metrics import (
     calculate_pr_rc_confidence_curves,
     match_predictions,
 )
+from rampnet.subcell import COARSE_ATOL, coarse_from_heatmap, coarse_mismatch, detect_peaks
 
 MODEL_CHECKPOINT_PATH = "best_model.pth"
 DATASET_ROOT_DIR = './dataset_1'
@@ -25,9 +26,17 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 RADIUS_THRESHOLD_NORMALIZED = 0.132
 PEAK_MIN_DISTANCE = 10
 PEAK_THRESHOLD_ABS = 0.0
+# Peak decode (#221). "argmax" is the historical behaviour and leaves every output,
+# cache path and file name exactly as before. "gaussian" refines each peak to its
+# sub-cell position from the raw branches' 32x11 coarse maps (rampnet/subcell.py;
+# measured on this model in docs/crop_decode_221.md). It caches those coarse maps under
+# evaluate_cache/coarse/<checkpoint fingerprint>/ (the heatmap cache holds the clipped
+# TTA combine, which cannot be decoded exactly) and tags result files with _dgaussian.
+PEAK_DECODE = "argmax"
 
 CACHE_DIR = "evaluate_cache"
 HEATMAP_CACHE_DIR = os.path.join(CACHE_DIR, "heatmaps")
+COARSE_CACHE_DIR = os.path.join(CACHE_DIR, "coarse")
 RESULTS_DIR = "evaluation_results"
 VISUALIZATIONS_BASE_DIR = "visualizations"
 
@@ -68,6 +77,36 @@ def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_
         peaks_normalized.append((x_norm, y_norm, confidence))
     return peaks_normalized
 
+def predict_heatmap_and_coarse(model, input_image_pil):
+    """evaluate.py's flip-TTA combine plus the float32 ``(2, 32, 11)`` stack of the raw
+    branches' coarse maps, each oriented like the combined heatmap (for decode="gaussian")."""
+    raws = []
+    for img in (input_image_pil, ImageOps.mirror(input_image_pil)):
+        t = preprocess_transform(img).unsqueeze(0).to(DEVICE)
+        with torch.no_grad():
+            raws.append(model(t).squeeze().cpu().numpy())
+    raws[1] = np.fliplr(raws[1])
+    combined = np.maximum(np.clip(raws[0], 0, 1), np.clip(raws[1], 0, 1))
+    coarse = np.stack([coarse_from_heatmap(h) for h in raws]).astype(np.float32)
+    return combined, coarse
+
+
+def extract_peaks_decoded(heatmap_np, coarse, min_distance, threshold_abs, heatmap_shape,
+                          decode):
+    """Like extract_peaks_from_heatmap, with a sub-cell decode read from ``coarse``.
+
+    Refuses a coarse stack that does not re-build the heatmap it is paired with (stale
+    cache from other weights or code)."""
+    worst = coarse_mismatch(heatmap_np, coarse, clip=True)
+    if worst > COARSE_ATOL:
+        raise ValueError(f"cached coarse maps disagree with the cached heatmap by {worst:.3g}; "
+                         f"delete {CACHE_DIR}/ and re-run")
+    heatmap_h, heatmap_w = heatmap_shape
+    rcs = detect_peaks(heatmap_np, threshold_abs, min_distance=min_distance, decode=decode,
+                       exclude_border=False, clip=True, coarse=coarse, wrap_x=False)
+    return [(c / heatmap_w, r / heatmap_h, s) for r, c, s in rcs]
+
+
 def get_image_files(data_dir):
     image_files = []
     IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png')
@@ -87,7 +126,9 @@ def get_image_files(data_dir):
 def main():
     os.makedirs(RESULTS_DIR, exist_ok=True)
     
-    current_visualizations_dir = os.path.join(VISUALIZATIONS_BASE_DIR, DATASET_ID_STR)
+    decode_tag = "" if PEAK_DECODE == "argmax" else f"_d{PEAK_DECODE}"
+    current_visualizations_dir = os.path.join(VISUALIZATIONS_BASE_DIR,
+                                              DATASET_ID_STR + decode_tag)
     os.makedirs(current_visualizations_dir, exist_ok=True)
     print(f"Visualizations will be saved to: {current_visualizations_dir}")
 
@@ -105,6 +146,10 @@ def main():
     heatmap_cache_dir = os.path.join(HEATMAP_CACHE_DIR, ckpt_fingerprint)
     os.makedirs(heatmap_cache_dir, exist_ok=True)
     print(f"Heatmap cache directory: {heatmap_cache_dir}")
+    coarse_cache_dir = os.path.join(COARSE_CACHE_DIR, ckpt_fingerprint)
+    if PEAK_DECODE != "argmax":
+        os.makedirs(coarse_cache_dir, exist_ok=True)
+        print(f"Peak decode: {PEAK_DECODE}; coarse cache directory: {coarse_cache_dir}")
 
     heatmap_h, heatmap_w = MODEL_HEATMAP_SIZE
     RADIUS_THRESHOLD_PIXELS = RADIUS_THRESHOLD_NORMALIZED * (341 / 4)
@@ -167,6 +212,17 @@ def main():
         
         total_gt_count += len(gt_points_normalized)
 
+        coarse_stack = None
+        if PEAK_DECODE != "argmax":
+            cached_coarse_path = os.path.join(coarse_cache_dir, f"{base_name_no_ext}_coarse.npy")
+            if os.path.exists(cached_coarse_path):
+                coarse_stack = np.load(cached_coarse_path)
+            else:
+                fresh_heatmap, coarse_stack = predict_heatmap_and_coarse(model, input_image_pil)
+                np.save(cached_coarse_path, coarse_stack)
+                if not os.path.exists(cached_heatmap_path):
+                    np.save(cached_heatmap_path, fresh_heatmap)
+
         if os.path.exists(cached_heatmap_path):
             combined_heatmap_np = np.load(cached_heatmap_path)
         else:
@@ -192,12 +248,21 @@ def main():
             combined_heatmap_np = np.maximum(pred_heatmap_original_np, pred_heatmap_flipped_reverted_np)
             np.save(cached_heatmap_path, combined_heatmap_np)
 
-        pred_peaks_normalized = extract_peaks_from_heatmap(
-            combined_heatmap_np,
-            min_distance=PEAK_MIN_DISTANCE,
-            threshold_abs=PEAK_THRESHOLD_ABS,
-            heatmap_shape=MODEL_HEATMAP_SIZE
-        )
+        if PEAK_DECODE == "argmax":
+            pred_peaks_normalized = extract_peaks_from_heatmap(
+                combined_heatmap_np,
+                min_distance=PEAK_MIN_DISTANCE,
+                threshold_abs=PEAK_THRESHOLD_ABS,
+                heatmap_shape=MODEL_HEATMAP_SIZE
+            )
+        else:
+            pred_peaks_normalized = extract_peaks_decoded(
+                combined_heatmap_np, coarse_stack,
+                min_distance=PEAK_MIN_DISTANCE,
+                threshold_abs=PEAK_THRESHOLD_ABS,
+                heatmap_shape=MODEL_HEATMAP_SIZE,
+                decode=PEAK_DECODE,
+            )
         
         all_pred_details_for_ap.extend(match_predictions(
             pred_peaks_normalized,
@@ -247,7 +312,7 @@ def main():
     print(f"Total Ground Truth Points: {total_gt_count}")
     print(f"Total Predictions (above PEAK_THRESHOLD_ABS={PEAK_THRESHOLD_ABS}): {num_pred_total_above_peak_thresh}")
 
-    params_str = f"r{RADIUS_THRESHOLD_NORMALIZED}_pt{PEAK_THRESHOLD_ABS}"
+    params_str = f"r{RADIUS_THRESHOLD_NORMALIZED}_pt{PEAK_THRESHOLD_ABS}" + decode_tag
     if num_pred_total_above_peak_thresh > 0 and total_gt_count > 0:
         plt.figure(figsize=(8, 6))
         plt.plot(recalls_curve_plot, precisions_curve_plot, marker='.', linestyle='-')
