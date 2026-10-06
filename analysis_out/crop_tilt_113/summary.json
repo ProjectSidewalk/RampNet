@@ -444,6 +444,11 @@
     "theta_deg": 180
    }
   ],
+  "sample_strata_share": {
+   "1to3": 0.3961,
+   "ge3": 0.0655,
+   "lt1": 0.5384
+  },
   "sinusoid_beta_100": {
    "a": -2.1938,
    "a_se": 0.5018,
@@ -918,6 +923,11 @@
     "theta_deg": 180
    }
   ],
+  "sample_strata_share": {
+   "1to3": 0.3968,
+   "ge3": 0.0589,
+   "lt1": 0.5443
+  },
   "sinusoid_beta_100": {
    "a": -2.0508,
    "a_se": 0.515,
@@ -947,6 +957,13 @@
   "curbramp_gsv": 27701,
   "curbramp_gsv_12_cities": 21412,
   "pool_rows": 70422,
+  "pose_npz_vs_xml_all_cities": {
+   "median_abs_pitch_diff_deg": 0.0932,
+   "median_abs_roll_diff_deg": 0.1193,
+   "n_panos": 9346,
+   "sd_pitch_diff_deg": 0.6897,
+   "sd_roll_diff_deg": 0.6615
+  },
   "posed": 17234,
   "posed_crowd_ok": 14505,
   "posed_npz": 6958,
@@ -986,7 +1003,42 @@
   },
   "render_to_input": 0.5,
   "s3_assumed_sigma_px_4096_high": 12.0,
-  "s3_sigma_understated_by": 10.1859,
+  "s3_by_depression_band": [
+   {
+    "band": "<5",
+    "depression_deg": 3.7463,
+    "p90_shift_deg": 4.8433,
+    "p90_shift_sigma": 1.121,
+    "s3_sigma_understated_by": 8.1928,
+    "sigma_deg": 4.3204
+   },
+   {
+    "band": "5-15",
+    "depression_deg": 10.8325,
+    "p90_shift_deg": 4.3754,
+    "p90_shift_sigma": 0.913,
+    "s3_sigma_understated_by": 9.0879,
+    "sigma_deg": 4.7924
+   },
+   {
+    "band": "15-30",
+    "depression_deg": 19.5337,
+    "p90_shift_deg": 3.9813,
+    "p90_shift_sigma": 0.7665,
+    "s3_sigma_understated_by": 9.8498,
+    "sigma_deg": 5.1942
+   },
+   {
+    "band": ">30",
+    "depression_deg": 33.9917,
+    "p90_shift_deg": 3.8146,
+    "p90_shift_sigma": 0.7136,
+    "s3_sigma_understated_by": 10.1366,
+    "sigma_deg": 5.3455
+   }
+  ],
+  "s3_sigma_understated_by_at_centre": 10.1859,
+  "share_above_strip_centre": 0.9321,
   "sigma_deg_at_strip_centre": 5.3715,
   "sigma_deg_labels": {
    "mean": 4.9382,
@@ -999,6 +1051,14 @@
   "sigma_heatmap_px": 12.0,
   "sigma_input_px": 48.0,
   "sigma_paper_pano_px_4096_high_at_centre": 122.231,
-  "sigma_render_px": 96.0
+  "sigma_render_px": 96.0,
+  "strip_y_labels": {
+   "mean": 774.8179,
+   "n": 17234,
+   "p50": 746.2964,
+   "p90": 967.6938,
+   "p99": 1271.8443,
+   "sd": 149.3364
+  }
  }
 }

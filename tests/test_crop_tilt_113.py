@@ -99,18 +99,20 @@ class TestProjection:
         pytest.importorskip("cv2")
         pytest.importorskip("torch")
         from rampnet.gsv import equirectangular_to_perspective
-        W, H = 4096, 2048
+        # small on purpose (1024 x 512 equirect, 512 x 512 render): the geometry is resolution-free,
+        # and the full 2048 render on CPU took ~3 minutes (review N7 on PR #244)
+        W, H, R = 1024, 512, 512
         img = np.zeros((H, W, 3), np.uint8)
         b, el, theta = 40.0, -38.0, 30
         x = (b + 180) / 360 * W
         y = (90 - el) / 180 * H
         yy, xx = np.mgrid[0:H, 0:W]
-        img[(xx - x) ** 2 + (yy - y) ** 2 <= 9] = 255
-        persp = equirectangular_to_perspective(img, 90, theta, -30, 2048, 2048)
-        ys, xs = np.nonzero(persp[..., 0] > 128)
-        px, py = sg.equirect_point_to_perspective_float(x, y, W, H, 90, theta, -30, 2048, 2048)
-        assert xs.mean() == pytest.approx(px, abs=3)
-        assert ys.mean() == pytest.approx(py, abs=3)
+        img[(xx - x) ** 2 + (yy - y) ** 2 <= 4] = 255
+        persp = equirectangular_to_perspective(img, 90, theta, -30, R, R)
+        ys, xs = np.nonzero(persp[..., 0] > 64)
+        px, py = sg.equirect_point_to_perspective_float(x, y, W, H, 90, theta, -30, R, R)
+        assert xs.mean() == pytest.approx(px, abs=1.5)
+        assert ys.mean() == pytest.approx(py, abs=1.5)
 
 
 class TestSinusoid:
@@ -135,6 +137,43 @@ class TestSinusoid:
 
     def test_sigma_is_96_render_px(self):
         assert ct.SIGMA_RENDER == 96.0
+
+    def test_pitch_and_roll_parts_add_up(self):
+        g = ct.label_geometry(5000.0, 5200.0, 16384, 8192, 1.5, -2.0)
+        assert g["d_y_pitch_b100"] + g["d_y_roll_b100"] == pytest.approx(g["d_y_b100"], abs=0.5)
+
+    def test_paper_point_is_download_data_int(self):
+        paper = _paper_point_projection()
+        x, y, w, h = 5000.0, 5200.0, 16384, 8192
+        g = ct.label_geometry(x, y, w, h, 0.0, 0.0)
+        px, py = paper(x / w * 8192, y / h * 4096, 8192, 4096, 90, g["nearest_theta"], -30, 2048, 2048)
+        assert (g["paper_x"], g["paper_y"]) == (int(px - 2048 / 3), py)
+
+
+class TestStats:
+    def test_weighted_cluster_ols_matches_plain_ols(self):
+        rng = np.random.default_rng(0)
+        d = rng.normal(size=200)
+        y = 0.5 * d + rng.normal(scale=0.1, size=200)
+        X = np.column_stack([np.ones_like(d), d])
+        b1, se1, _ = ct._ols(X, y)
+        b2, se2, _ = ct._ols(X, y, clusters=np.arange(200), weights=np.ones(200))
+        np.testing.assert_allclose(b1, b2)
+        np.testing.assert_allclose(se1, se2)
+        assert b1[1] == pytest.approx(0.5, abs=0.03)
+
+    def test_too_few_rows(self):
+        assert ct._ols(np.ones((1, 2)), np.ones(1)) is None
+
+    def test_peak_near_uses_unclipped_map_and_flags_edges(self):
+        hm = np.zeros((40, 40))
+        hm[20, 25] = 1.4      # saturated after clipping; still the unique maximum unclipped
+        hm[20, 24] = 1.2
+        hm[20, 10] = 1.3
+        x, y, v, edge = ct.peak_near(hm, 20.0, 20.0, 6.0)
+        assert (round(x), round(y), v, edge) == (25, 20, 1.4, 1)
+        x, y, v, edge = ct.peak_near(hm, 20.0, 20.0, 12.0)
+        assert edge == 0
 
 
 @pytest.mark.skipif(not (OUT / "labels.csv").exists(), reason="outputs not committed")
