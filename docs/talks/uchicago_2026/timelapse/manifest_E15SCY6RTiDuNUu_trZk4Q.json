@@ -1,0 +1,146 @@
+{
+ "pano": "E15SCY6RTiDuNUu_trZk4Q",
+ "fetched": "2026-10-05",
+ "radius_m": 25.0,
+ "captures": [
+  {
+   "pano_id": "NGkO0r2iDicMG9AIUI7HEA",
+   "date": "2012-05",
+   "heading": 86.26768,
+   "lat": 44.044244451021065,
+   "lng": -121.29875582298435,
+   "source": "GetMetadata",
+   "sha256": "e23329c5f7544d6603f80ed55a62228500ee8b2cf0c55aadd3ba78041a978e79",
+   "heat_max": 0.707
+  },
+  {
+   "pano_id": "AFNIiwSV0zybtMvbYre2Ew",
+   "date": "2017-09",
+   "heading": 266.75125,
+   "lat": 44.04429483372563,
+   "lng": -121.29876714693307,
+   "source": "GetMetadata",
+   "sha256": "08e6c59a727d86c1cf90da9600499d6b7e7fb0d32682b0b1399930e3edba932b",
+   "heat_max": 0.619
+  },
+  {
+   "pano_id": "q4ta8OnKH-thB9jkr35_uw",
+   "date": "2018-05",
+   "heading": 87.04889,
+   "lat": 44.04423886360032,
+   "lng": -121.29878129965843,
+   "source": "GetMetadata",
+   "sha256": "d3e9f1b0ab2bc0df45283512ebed68b5de495dcc60f03425fef721e35ff57a48",
+   "heat_max": 0.838
+  },
+  {
+   "pano_id": "Pc3UslCxSQujtSLqWZwSsg",
+   "date": "2019-07",
+   "heading": 300.88165,
+   "lat": 44.04424942593951,
+   "lng": -121.29880195856484,
+   "source": "GetMetadata",
+   "sha256": "1d8044c2cf1a11eabc7a0fd7b08811a031cebf032a3df1c4146dcb8f96e966a0",
+   "heat_max": 0.702
+  },
+  {
+   "pano_id": "4iiFB1qbuBlaHY1bgdpnYQ",
+   "date": "2021-07",
+   "heading": 266.77435,
+   "lat": 44.044295592056244,
+   "lng": -121.29875427476802,
+   "source": "GetMetadata",
+   "sha256": "c16bf914f23e0d1838445f8a4c0c0e230f1ca1b841d1e9b2e847694b13c6bb4a",
+   "heat_max": 0.851
+  },
+  {
+   "pano_id": "E15SCY6RTiDuNUu_trZk4Q",
+   "date": "2024-08",
+   "heading": 267.26181030273443,
+   "lat": 44.04430091807918,
+   "lng": -121.2987939401685,
+   "source": "benchmark record",
+   "sha256": "fd73af9a34bcbd0d87125e5f1203340211c2813b138c0ae721dd8c8c3008553e",
+   "heat_max": 1.0
+  }
+ ],
+ "ramps": [
+  {
+   "lat": 44.04417722200003,
+   "lng": -121.298698624,
+   "installed": "2009-11",
+   "facility_id": "SRMP00067",
+   "dist_m": 15.7
+  },
+  {
+   "lat": 44.044276111000045,
+   "lng": -121.29890587799997,
+   "installed": "2023-05",
+   "facility_id": "SRMP13228",
+   "dist_m": 9.4
+  },
+  {
+   "lat": 44.04426037500002,
+   "lng": -121.298906036,
+   "installed": "2023-05",
+   "facility_id": "SRMP13227",
+   "dist_m": 10.0
+  },
+  {
+   "lat": 44.04419981900003,
+   "lng": -121.29864934099999,
+   "installed": "2023-06",
+   "facility_id": "SRMP12481",
+   "dist_m": 16.1
+  },
+  {
+   "lat": 44.044343599,
+   "lng": -121.29890277099997,
+   "installed": "2023-06",
+   "facility_id": "SRMP12477",
+   "dist_m": 9.9
+  },
+  {
+   "lat": 44.04417598100002,
+   "lng": -121.298824781,
+   "installed": "2023-06",
+   "facility_id": "SRMP12475",
+   "dist_m": 14.1
+  },
+  {
+   "lat": 44.04436162300004,
+   "lng": -121.29882626799997,
+   "installed": "2023-06",
+   "facility_id": "SRMP12478",
+   "dist_m": 7.2
+  },
+  {
+   "lat": 44.044367272000045,
+   "lng": -121.29868519499996,
+   "installed": "2023-06",
+   "facility_id": "SRMP12479",
+   "dist_m": 11.4
+  },
+  {
+   "lat": 44.044192037000016,
+   "lng": -121.29890524399997,
+   "installed": "2023-06",
+   "facility_id": "SRMP12476",
+   "dist_m": 15.0
+  },
+  {
+   "lat": 44.04435163100004,
+   "lng": -121.29863486899995,
+   "installed": "2023-06",
+   "facility_id": "SRMP12480",
+   "dist_m": 13.9
+  }
+ ],
+ "inference": {
+  "checkpoint": "projectsidewalk/rampnet-model @ 606a11956743f7eb328d9207769034752f6191f4",
+  "device": "cuda",
+  "autocast_fp16": true,
+  "tta": false,
+  "run_date": "2026-10-05"
+ }
+}

@@ -1,0 +1,245 @@
+{
+ "selected": "2026-10-05",
+ "rule": "per split: the two 'all_found' panoramas with the most confirmed ramps (>= 3) plus one seeded-random other; then 4 true negatives (no ramps, no detections), seed 2026; from benchmark/<split>/verdicts.json",
+ "items": [
+  {
+   "split": "paterson",
+   "pano_id": "tekhQ4HQ9pcOqs_kGGpGaw",
+   "n_ramps": 9,
+   "kind": "all_found",
+   "why": "9 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "clovis",
+   "pano_id": "1115273772298326",
+   "n_ramps": 7,
+   "kind": "all_found",
+   "why": "7 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "budapest_district5",
+   "pano_id": "873103842125428",
+   "n_ramps": 3,
+   "kind": "all_found",
+   "why": "3 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "laurens_mapillary",
+   "pano_id": "25393196263651274",
+   "n_ramps": 6,
+   "kind": "all_found",
+   "why": "6 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "clovis",
+   "pano_id": "373977847581697",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "richmond",
+   "pano_id": "2263954690670646",
+   "n_ramps": 6,
+   "kind": "all_found",
+   "why": "6 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "annapolis",
+   "pano_id": "4578453255540160",
+   "n_ramps": 4,
+   "kind": "all_found",
+   "why": "4 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "gainesville",
+   "pano_id": "89lilp2BlhppxL-oQ0gLNg",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "sao_paulo",
+   "pano_id": "9ogLSXwqkmRsXUlTLya0uQ",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "paterson",
+   "pano_id": "0Drku25sOlOlWGiVf7uetw",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "richmond",
+   "pano_id": "1002881108606016",
+   "n_ramps": 3,
+   "kind": "all_found",
+   "why": "3 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "morgantown",
+   "pano_id": "701464722124781",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "bend",
+   "pano_id": "yJmMJeV6PD3UZlAmm4cmWg",
+   "n_ramps": 6,
+   "kind": "all_found",
+   "why": "6 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "paterson",
+   "pano_id": "kpvi-7jlODMmozIBUAUD_A",
+   "n_ramps": 4,
+   "kind": "all_found",
+   "why": "4 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "annapolis",
+   "pano_id": "299861069631715",
+   "n_ramps": 3,
+   "kind": "all_found",
+   "why": "3 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "bend",
+   "pano_id": "rxF0qBiSbOEnMR9wwxpjEw",
+   "n_ramps": 6,
+   "kind": "all_found",
+   "why": "6 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "morgantown",
+   "pano_id": "393398989743901",
+   "n_ramps": 4,
+   "kind": "all_found",
+   "why": "4 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "morgantown",
+   "pano_id": "4607308572828610",
+   "n_ramps": 10,
+   "kind": "all_found",
+   "why": "10 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "sao_paulo",
+   "pano_id": "LUW-LxIfrK_j7kCq16WoyQ",
+   "n_ramps": 4,
+   "kind": "all_found",
+   "why": "4 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "gainesville",
+   "pano_id": "K732QTWoB9RZwrfSmw7RYA",
+   "n_ramps": 4,
+   "kind": "all_found",
+   "why": "4 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "richmond",
+   "pano_id": "1847752429062443",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "gainesville",
+   "pano_id": "9tS6faHm3jFdOth84XlbEQ",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "sao_paulo",
+   "pano_id": "4RXNxzYjFwN0EBvKh8aHSQ",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "budapest_district5",
+   "pano_id": "945894851803282",
+   "n_ramps": 7,
+   "kind": "all_found",
+   "why": "7 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "annapolis",
+   "pano_id": "1005430537402761",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "clovis",
+   "pano_id": "3939249736143912",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "budapest_district5",
+   "pano_id": "2185625018892068",
+   "n_ramps": 4,
+   "kind": "all_found",
+   "why": "4 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "bend",
+   "pano_id": "5NVgLhChZXnD_D-z3SLZyQ",
+   "n_ramps": 8,
+   "kind": "all_found",
+   "why": "8 ramps, every detection confirmed, nothing missed"
+  },
+  {
+   "split": "gainesville",
+   "pano_id": "jqZrc8lSwNpLZbLrixSduQ",
+   "n_ramps": 0,
+   "kind": "true_negative",
+   "why": "no curb ramps, and the model fired nowhere",
+   "max": 0.044
+  },
+  {
+   "split": "laurens_mapillary",
+   "pano_id": "1535322434332846",
+   "n_ramps": 0,
+   "kind": "true_negative",
+   "why": "no curb ramps, and the model fired nowhere",
+   "max": 0.096
+  },
+  {
+   "split": "bend",
+   "pano_id": "9kW9cxpuj7q8DMzf-ClrQQ",
+   "n_ramps": 0,
+   "kind": "true_negative",
+   "why": "no curb ramps, and the model fired nowhere",
+   "max": 0.09
+  },
+  {
+   "split": "clovis",
+   "pano_id": "142003227963196",
+   "n_ramps": 0,
+   "kind": "true_negative",
+   "why": "no curb ramps, and the model fired nowhere",
+   "max": 0.02
+  }
+ ],
+ "inference": {
+  "checkpoint": "projectsidewalk/rampnet-model @ 606a11956743f7eb328d9207769034752f6191f4",
+  "device": "cuda",
+  "autocast_fp16": true,
+  "input_size": [
+   2048,
+   4096
+  ],
+  "tta": false,
+  "run_date": "2026-10-05"
+ }
+}

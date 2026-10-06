@@ -134,6 +134,7 @@ Supporting directories (not indexed row by row):
 | [`running_model_comparison.md`](running_model_comparison.md) | #145, #122 | how-to | final | The operational half of `model_comparison.md`: what is shipped, credentials for the paid legs, how to run a leg, the Hyak launchers, and the file index. | `scripts/model_comparison/compare.py` (no check) |
 | [`adding_a_benchmark_city.md`](adding_a_benchmark_city.md) | — | how-to | final | End-to-end runbook and checklist for adding a city to the validation benchmark, and the committed numbers, figures and documents a new split invalidates. | none (text only; the runbook names each script) |
 | [`tillicum.md`](tillicum.md) | #51, #70 | how-to | final (working notes; the opening banner predates the first runs) | Running RampNet jobs on Tillicum, UW-IT's usage-billed GPU cluster: access, the scheduler and cost model, migrating the Slurm scripts, and what the first runs measured. | none (text only; launchers under `scripts/model_comparison/`) |
+| [`talks/uchicago_2026/README.md`](talks/uchicago_2026/README.md) | — | talk | in progress | Slide outline and five slide-ready figures for the RampNet section of the UChicago Distinguished Lecture (Oct 2026): pipeline, comparison, imagery/country transfer, recall by distance, deployment. Every number traces to a row in `rampnet1_findings.md` or a named source. | `scripts/talks/uchicago_2026_figures.py` (no check) |
 
 ## Arriving on open PRs
 
