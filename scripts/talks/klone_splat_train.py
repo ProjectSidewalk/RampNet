@@ -114,6 +114,9 @@ def cmd_train(args):
     from gsplat.strategy import DefaultStrategy
     dev = "cuda"
     images, pts, cols = read_colmap(args.data)
+    if args.panos:
+        keep = set(args.panos.split(","))
+        images = [im for im in images if im["name"].rsplit("_", 1)[0] in keep]
     gts = load_images(args.data, images, dev)
     print(f"{len(images)} images, {len(pts):,} init points", flush=True)
     centers = np.array([np.linalg.inv(im["Twc"])[:3, 3] for im in images])
@@ -128,8 +131,8 @@ def cmd_train(args):
     })
     lrs = {"means": 1.6e-4 * scene_scale, "scales": 5e-3, "quats": 1e-3, "opacities": 5e-2, "sh0": 2.5e-3}
     opts = {k: torch.optim.Adam([{"params": [v], "lr": lrs[k], "name": k}], eps=1e-15) for k, v in params.items()}
-    strategy = DefaultStrategy(verbose=False, refine_start_iter=500, refine_stop_iter=int(args.iters * 0.6),
-                               reset_every=3000, refine_every=100, prune_opa=0.005, grow_grad2d=0.0002,
+    strategy = DefaultStrategy(verbose=False, refine_start_iter=500, refine_stop_iter=int(args.iters * 0.5),
+                               reset_every=3000, refine_every=100, prune_opa=0.005, grow_grad2d=args.grow_grad2d,
                                grow_scale3d=0.01)
     strategy.check_sanity(params, opts)
     state = strategy.initialize_state(scene_scale=scene_scale)
@@ -172,12 +175,54 @@ def cmd_train(args):
 # render
 # ---------------------------------------------------------------------------------------------
 
+def prune_near_cameras(p, data, radius):
+    """Drop Gaussians that sit within ``radius`` of a training camera and below it: the capture
+    vehicle, reconstructed under every panorama, which a camera path along the drive line would
+    otherwise pass through."""
+    images, _, _ = read_colmap(data)
+    C = torch.tensor(np.array([np.linalg.inv(im["Twc"])[:3, 3] for im in images]), dtype=torch.float32,
+                     device=p["means"].device)
+    d = torch.cdist(p["means"], C)                          # [N, cams]
+    dmin, idx = d.min(1)
+    below = p["means"][:, 2] < C[idx, 2] - 0.3
+    keep = ~((dmin < radius) & below)
+    return {k: v[keep] for k, v in p.items()}, int((~keep).sum())
+
+
+def cmd_check(args):
+    """Render training views next to their photos: the only honest quality check."""
+    from gsplat import rasterization
+    from PIL import Image
+    dev = "cuda"
+    p = torch.load(os.path.join(args.out, "gaussians.pt"))
+    p = {k: v.to(dev) for k, v in p.items()}
+    images, _, _ = read_colmap(args.data)
+    os.makedirs(os.path.join(args.out, "check"), exist_ok=True)
+    for i in args.views:
+        im = images[i]
+        gt = np.asarray(Image.open(os.path.join(args.data, "images", im["name"])).convert("RGB"))
+        H, W = gt.shape[:2]
+        Twc = torch.from_numpy(im["Twc"]).float().to(dev)[None]
+        K = torch.from_numpy(im["cam"]["K"]).float().to(dev)[None]
+        with torch.no_grad():
+            render, _, _ = rasterization(p["means"], p["quats"], torch.exp(p["scales"]),
+                                         torch.sigmoid(p["opacities"]), p["sh0"], Twc, K, W, H, sh_degree=0)
+        pred = (render[0].clamp(0, 1).cpu().numpy() * 255).astype(np.uint8)
+        psnr = 10 * np.log10(255.0 ** 2 / np.mean((pred.astype(np.float32) - gt.astype(np.float32)) ** 2))
+        both = np.concatenate([gt, pred], axis=1)
+        Image.fromarray(both).save(os.path.join(args.out, "check", f"view_{i:03d}_{im['name']}"))
+        print(f"view {i} {im['name']} psnr {psnr:.1f}", flush=True)
+
+
 def cmd_render(args):
     from gsplat import rasterization
     from PIL import Image
     dev = "cuda"
     p = torch.load(os.path.join(args.out, "gaussians.pt"))
     p = {k: v.to(dev) for k, v in p.items()}
+    if args.prune_near and args.data:
+        p, n = prune_near_cameras(p, args.data, args.prune_near)
+        print(f"pruned {n:,} Gaussians within {args.prune_near} m below a camera", flush=True)
     with open(args.path, encoding="utf-8") as f:
         path = json.load(f)
     W, H = path["width"], path["height"]
@@ -207,12 +252,20 @@ def main(argv=None):
     p.add_argument("--data", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--iters", type=int, default=15000)
+    p.add_argument("--grow-grad2d", type=float, default=0.0002)
+    p.add_argument("--panos", default=None, help="comma-separated pano ids to train on (same capture date)")
     p = sub.add_parser("render")
     p.add_argument("--out", required=True)
     p.add_argument("--path", required=True)
     p.add_argument("--step", type=int, default=1)
+    p.add_argument("--data", default=None, help="COLMAP root, for --prune-near")
+    p.add_argument("--prune-near", type=float, default=0.0, help="drop Gaussians this close below a camera")
+    p = sub.add_parser("check")
+    p.add_argument("--out", required=True)
+    p.add_argument("--data", required=True)
+    p.add_argument("--views", type=int, nargs="+", default=[0, 7, 40, 90])
     args = ap.parse_args(argv)
-    {"train": cmd_train, "render": cmd_render}[args.cmd](args)
+    {"train": cmd_train, "render": cmd_render, "check": cmd_check}[args.cmd](args)
 
 
 if __name__ == "__main__":

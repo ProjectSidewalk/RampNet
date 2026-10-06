@@ -96,17 +96,12 @@ def cmd_fuse(args):
         if i % 20 == 0:
             print("integrated", i, "/", n, flush=True)
     tm = vbg.extract_triangle_mesh(weight_threshold=args.min_weight)
-    mesh = tm.to_legacy()
-    mesh.compute_vertex_normals()
-    tri_clusters, cluster_n, _ = mesh.cluster_connected_triangles()
-    tri_clusters = np.asarray(tri_clusters)
-    cluster_n = np.asarray(cluster_n)
-    keep = cluster_n[tri_clusters] >= args.min_cluster
-    mesh.remove_triangles_by_mask(~keep)
-    mesh.remove_unreferenced_vertices()
+    # Written straight from the tensor mesh: converting a ~10M-triangle mesh to the legacy
+    # type for cluster filtering segfaults in this wheel; small floating pieces stay.
     out = os.path.join(dense_dir(args.slug), f"mesh_v{int(args.voxel * 100):02d}.ply")
-    o3d.io.write_triangle_mesh(out, mesh)
-    print(f"mesh: {len(mesh.vertices):,} vertices, {len(mesh.triangles):,} triangles -> {out}")
+    o3d.t.io.write_triangle_mesh(out, tm)
+    mesh = tm
+    print(f"mesh: {mesh.vertex.positions.shape[0]:,} vertices, {mesh.triangle.indices.shape[0]:,} triangles -> {out}", flush=True)
 
 
 # ---------------------------------------------------------------------------------------------

@@ -183,8 +183,8 @@ def main(argv=None):
     sdir = os.path.join(cdir, "sparse", "0")
     os.makedirs(sdir, exist_ok=True)
     idir = os.path.join(cdir, "images")
-    if not os.path.exists(idir):
-        os.symlink(os.path.abspath(vdir), idir)
+    if not os.path.lexists(idir):
+        os.symlink("../views", idir)          # relative: the tree is copied to other hosts
     with open(os.path.join(sdir, "cameras.txt"), "w", newline="\n") as f:
         f.write("# Camera list: CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n")
         f.write(f"1 PINHOLE {VIEW_W} {VIEW_H} {f_px:.6f} {f_px:.6f} {VIEW_W / 2:.1f} {VIEW_H / 2:.1f}\n")
