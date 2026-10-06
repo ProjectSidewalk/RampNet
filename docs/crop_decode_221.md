@@ -163,8 +163,6 @@ right scale.
 y bias comes from is not established. It is not the 8i+3 / 8i+4 straddle: those rows sit
 symmetrically about the cell centre, and the measured residues predict only about +0.04 px.
 
-
-
 | split | single pass, argmax → gaussian | TTA, argmax → gaussian |
 |---|---|---|
 | test | +0.434 → +0.027 | +0.411 → -0.008 |
@@ -332,7 +330,8 @@ What the corrected regression shows:
 
   So on test the labels sit about 0.5-0.9 px right of where the training geometry puts the
   detections. That offset is not explained. On val the single-pass offset has the opposite
-  sign, and the TTA offset is near zero. TTA moves the test offset by +0.31 px and the val
+  sign, and the TTA offset is near zero. The all-files val single-pass CI just touches zero, but
+  the deduplicated read excludes it (-0.562 [-1.059, -0.048]). TTA moves the test offset by +0.31 px and the val
   offset by +0.59 px. One untested candidate for that TTA shift is the half-pixel asymmetry of
   `np.fliplr`, which maps index p to 87 - p, against a continuous mirror of the 682-px image.
   The first version's "unexplained uniform offset" was partly this offset and partly the
@@ -340,7 +339,8 @@ What the corrected regression shows:
 - **Round 1 overshoots the prediction.** Its gaussian slope (+0.081 single pass, +0.060 TTA) has
   a CI that excludes +0.031, although its training geometry is the same as round 2's. Why round
   1 learned a stronger contraction is not established here. Its labels are Project Sidewalk
-  points, which the manual round-2 labels replaced.
+  points, which the manual round-2 labels replaced. Round 1 also has a mean offset beyond the
+  predicted line: +0.748 [+0.100, +1.386] single pass, +0.884 [+0.369, +1.403] TTA.
 - **The decode does not remove the bias, and the bias does not remove the decode's gain.** The
   slope is a property of the learned peak, not of the quantization. Correcting detections' x
   for the predicted bias does not reduce the round-2 mean error: the `flip_average` correction
