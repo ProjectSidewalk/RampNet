@@ -71,8 +71,11 @@ detector, differing only in `heatmap_size`.
 
 Both heatmap sizes are nominal. The head bilinearly upsamples the stride-32 feature map by 8 before
 a linear 1x1 conv, so peaks are quantized to an 8-pixel grid (https://github.com/ProjectSidewalk/RampNet/issues/221). For
-the Stage 2 detector, a sub-cell decode (`rampnet/subcell.py`) recovers most of that. It has not
-been measured on this crop model.
+the Stage 2 detector, a sub-cell decode (`rampnet/subcell.py`) recovers most of that. On this
+crop model (round 2, 190 manually labelled test crops) the same Gaussian decode cuts the mean
+distance from detection to label from 3.84 to 2.86 heatmap px in a single pass
+(-0.99 px, 95% CI [-1.17, -0.79]); see `docs/crop_decode_221.md` in the GitHub repo. Stage 1's
+dataset generation does not use it.
 
 ## Usage
 
