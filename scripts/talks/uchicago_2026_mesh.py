@@ -136,7 +136,10 @@ def cmd_path(args):
     gt = np.array(meta["gt_click"]["point_mapanything"], float)
     target = gt + np.array([0, 0, 0.3])
     cams = {}
+    only = set(args.panos.split(",")) if args.panos else None
     for c in meta["cameras"]:
+        if only and c["pano_id"] not in only:
+            continue
         cams.setdefault(c["pano_id"], np.array(c["cam_to_world_refined"], float)[:3, 3])
     C = np.array(list(cams.values()))
     # Drive shot: order the capture positions along their principal axis, keep the ones
@@ -163,7 +166,7 @@ def cmd_path(args):
     path = dict(slug=args.slug, width=FRAME_W, height=FRAME_H, fps=FPS,
                 K=[[f_px, 0, FRAME_W / 2], [0, f_px, FRAME_H / 2], [0, 0, 1]],
                 target=target.tolist(), frames=frames)
-    out = os.path.join(dense_dir(args.slug), "path.json")
+    out = os.path.join(dense_dir(args.slug), args.name)
     with open(out, "w", encoding="utf-8", newline="\n") as f:
         json.dump(path, f)
     print(f"{len(frames)} frames ({len(drive)} drive, {n_orbit} orbit) -> {out}")
@@ -262,6 +265,8 @@ def main(argv=None):
     p.add_argument("--orbit-r", type=float, default=11.0)
     p.add_argument("--orbit-h", type=float, default=5.0)
     p.add_argument("--fov", type=float, default=60.0)
+    p.add_argument("--panos", default=None, help="restrict the drive line to these pano ids")
+    p.add_argument("--name", default="path.json")
     p = sub.add_parser("render")
     p.add_argument("--slug", required=True)
     p.add_argument("--mesh", default=None)

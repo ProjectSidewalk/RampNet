@@ -156,13 +156,25 @@ Three more future-work figures, each from real data:
   keypoint, the whole-apron extent box from the gold set, the range from calibrated Depth
   Anything 3, the width that follows (an illustration of the geometry, labelled as such), and
   slope as the measurement that does not exist yet.
-- **3D fly-around** (not for the talk: Jon judged the 150k-point clouds unreadable, you cannot
-  tell what you are looking at; kept only because the script and data are small),
-  `flyaround/flyaround_richmond_99.mp4` and `flyaround_bend_7.mp4` (8 s orbits, 1920×1080). The MapAnything reconstructions behind the cross-view placement viewer
-  (#48, PR #210): the corner's point cloud, every camera that saw it, and the ramp's ground-truth
-  point placed in 3D. Point clouds committed as `flyaround/*.npz`; frames and mp4 gitignored,
-  `uchicago_2026_flyaround.py render` then `video` rebuilds them (CPU, a few minutes). The clouds
-  are the viewer's 150k-point subsample, which is why they read as points rather than surfaces.
+- **3D fly-around**, two generations, neither talk-ready. (v1) The 150k-point clouds from the
+  #48 viewer orbited with a numpy splatter, `flyaround_*.mp4`: Jon judged them unreadable.
+  (v2, 2026-10-05 evening) A dense pass: `uchicago_2026_dense_scene.py` runs MapAnything on six
+  posed faces of every panorama of a corner on makelab2 (132 views, 21 s, 27M points) and
+  writes point maps, a merged cloud and a COLMAP model (`flyaround/dense/<slug>/`, large files
+  gitignored, on makelab2 under `talk_dense/`). From that, two renderers:
+  `uchicago_2026_mesh.py` fuses the point maps into one TSDF surface (Open3D VoxelBlockGrid,
+  5 cm; the legacy ScalableTSDFVolume and the Filament offscreen renderer are broken in the
+  0.20 Windows wheel, pyrender draws it) and renders a shared camera path; `klone_splat_train.py`
+  trains 3D Gaussians with gsplat (klone: build from source with /sw/gcc 11 and CUDA 12.2, the
+  prebuilt wheels need glibc 2.29; makelab2: `venv_splat` with gsplat JIT-built, 15k iters in
+  4 min). Results: the fused mesh is a legible but blotchy, holed surface; splats trained on all
+  22 panoramas (three capture dates) are blurred, PSNR 20–25 dB on their own training views;
+  splats trained on the seven 2025-09 panoramas only reach 27–33 dB and look photographic from
+  those positions, but every novel viewpoint, even along the capture line, is full of
+  needle-shaped floaters, the standard failure of 3DGS from seven cameras ten metres apart.
+  Frames under `flyaround/frames/` (gitignored) and `talk_dense/splat/` on makelab2. The cheap
+  photo-real alternative is real pixels: a pan inside each panorama with the heatmap overlay,
+  cutting between panoramas, which the showcase video already does per frame.
 
 ## System diagrams, `diagrams/`
 
