@@ -40,7 +40,10 @@ elementwise max). Pairs are fixed once per arm on the argmax peaks >= 0.30 (gree
 confidence) and every decode is scored on the same pairs, so the comparison is paired.
 Residual = GT - detection, in heatmap pixels of the 256x88 grid (x: 1 px = 682/88 = 7.75
 source px = 4 model-input px; y: 1 px = 8 source px = 4 model-input px). The bootstrap
-resamples crops (the unit that shares an image), 2,000 reps, seed 221.
+resamples distinct images (sha256), 2,000 reps, seed 221: the round-2 splits store a
+multi-point crop once per point, so one image can appear as several files, and those
+files must move together. A deduplicated read (one file per image) is reported beside
+the all-files one.
 """
 import argparse
 import hashlib
@@ -460,15 +463,15 @@ def stats(dx, dy):
 
 
 class Boot:
-    """Crop-cluster bootstrap as a (reps x crops) count matrix.
+    """Cluster bootstrap as a (reps x clusters) count matrix (clusters: distinct images).
 
-    Each replicate draws ``G`` crops with replacement from the ``G`` crops that hold a
-    pair; a replicate statistic is computed from per-crop sums weighted by those counts,
-    which is the same as concatenating the drawn crops' pairs (a mean or an SD over the
+    Each replicate draws ``G`` clusters with replacement from the ``G`` that hold a
+    pair; a replicate statistic is computed from per-cluster sums weighted by those counts,
+    which is the same as concatenating the drawn clusters' pairs (a mean or an SD over the
     concatenation depends only on the summed sufficient statistics)."""
 
-    def __init__(self, crop_idx, rng, n_reps):
-        self.groups, self.gidx = np.unique(crop_idx, return_inverse=True)
+    def __init__(self, cluster_ids, rng, n_reps):
+        self.groups, self.gidx = np.unique(cluster_ids, return_inverse=True)
         G = len(self.groups)
         self.C = np.zeros((n_reps, G))
         for k in range(n_reps):
@@ -485,7 +488,7 @@ class Boot:
 
 
 def paired_boot(boot, a, b):
-    """Crop-cluster bootstrap of b - a for STAT_NAMES; a, b = (dx, dy)."""
+    """Cluster bootstrap of b - a for STAT_NAMES; a, b = (dx, dy)."""
     sa, sb = _sums(*a), _sums(*b)
     obs = _from_sums(sb.sum(0))[0] - _from_sums(sa.sum(0))[0]
     d = _from_sums(boot.replicate(sb)) - _from_sums(boot.replicate(sa))
@@ -531,36 +534,62 @@ def mod8(vals):
                        minlength=FACTOR).tolist()
 
 
-def x_bias(crops, pairs, cache, method, boot):
-    """dx (GT - det, heatmap px) regressed on the detection's x: slope (with a 95%
-    crop-cluster bootstrap CI), intercept, and the x at which the fitted bias is zero;
-    plus mean dx by thirds of the crop width. The training-target mismatch predicts a
-    slope of about +0.031 if the model learned the flip-averaged targets (``X_FIXES``)."""
-    dx, _ = residuals(crops, pairs, cache, method)
-    x = np.array([cache[ci][method][k][1] for ci, k, _ in pairs])
-    if len(x) < 3:
-        return None
-    slope, icpt = np.polyfit(x, dx, 1)
-    R = boot.replicate(np.column_stack([np.ones_like(x), x, dx, x * x, x * dx]))
+def _ols_boot(boot, x, y):
+    """OLS slope and intercept of y on x, with 95% bootstrap CIs (distinct images)."""
+    slope, icpt = np.polyfit(x, y, 1)
+    R = boot.replicate(np.column_stack([np.ones_like(x), x, y, x * x, x * y]))
     n, sx, sy, sxx, sxy = R.T
-    lo, hi = np.percentile((sxy - sx * sy / n) / (sxx - sx * sx / n), [2.5, 97.5])
-    thirds = [dx[(x >= HM[1] * t / 3) & (x < HM[1] * (t + 1) / 3)] for t in range(3)]
-    return {"slope_px_per_px": float(slope), "slope_ci95": [float(lo), float(hi)],
+    b = (sxy - sx * sy / n) / (sxx - sx * sx / n)
+    a = (sy - b * sx) / n
+    return {"slope": float(slope),
+            "slope_ci95": [float(v) for v in np.percentile(b, [2.5, 97.5])],
             "intercept_px": float(icpt),
-            "zero_at_x_px": float(-icpt / slope) if abs(slope) > 1e-9 else None,
-            "mean_dx_by_third": [float(t.mean()) if len(t) else None for t in thirds],
-            "n_by_third": [int(len(t)) for t in thirds]}
+            "intercept_ci95": [float(v) for v in np.percentile(a, [2.5, 97.5])]}
 
 
-def detection_metrics(crops, arm, method, cache_by_thr):
-    """evaluate.py's protocol at threshold 0.0: AP; plus P/R/F1 at 0.30 and 0.55."""
-    preds, n_gt = [], 0
+#: What the training-target geometry predicts for dx = GT - det against the true column t
+#: at width 682. Both rounds train with ``apply_horizontal_flip=True`` (round 1:
+#: ``ps_model/model/train.py`` L118; round 2: ``ps_and_manual_model/train.py``), so both
+#: predict the flip average of ``X_FIXES``: dx = (1 - k) t - 87.75 (1 - k) / 2, k = 682/704.
+_K682 = 682 / 704
+PREDICTED_X_BIAS = {"slope": 1 - _K682, "intercept_px": -87.75 * (1 - _K682) / 2}
+
+
+def x_bias(crops, pairs, cache, method, boot):
+    """dx (GT - det, heatmap px) regressed on x.
+
+    ``on_gt_x`` is the estimate to read: the regressor is the label's own column, measured
+    without the detection's error. ``on_det_x`` is kept as a comparison only. Its regressor
+    carries the detection error e = det - GT, which also sits (negated) in dx, so its slope
+    is pulled down by about var(e) / var(det x) (errors in variables); ``dilution`` reports
+    that ratio. Thirds are by GT x."""
+    dx, _ = residuals(crops, pairs, cache, method)
+    if len(dx) < 3:
+        return None
+    xg = np.array([crops[ci]["gt"][g][0] * HM[1] for ci, _, g in pairs])
+    xd = np.array([cache[ci][method][k][1] for ci, k, _ in pairs])
+    thirds = [dx[(xg >= HM[1] * t / 3) & (xg < HM[1] * (t + 1) / 3)] for t in range(3)]
+    return {"on_gt_x": _ols_boot(boot, xg, dx), "on_det_x": _ols_boot(boot, xd, dx),
+            "dilution": float(np.var(xd - xg) / np.var(xd)),
+            "mean_dx_by_gt_third": [float(t.mean()) if len(t) else None for t in thirds],
+            "n_by_gt_third": [int(len(t)) for t in thirds]}
+
+
+def detection_flags(crops, cache0, method):
+    """Per-peak (score, is_tp) lists per crop under evaluate.py's matching, threshold 0.0."""
+    out = []
     for ci, crop in enumerate(crops):
-        pk = cache_by_thr[0.0][ci][method]
+        pk = cache0[ci][method]
         peaks = [(c / HM[1], r / HM[0], s) for r, c, s in pk]
-        preds.extend(match_predictions(peaks, crop["gt"], RADIUS_SQ, SCALE_X, SCALE_Y,
-                                       wrap_x=False))
-        n_gt += len(crop["gt"])
+        out.append(match_predictions(peaks, crop["gt"], RADIUS_SQ, SCALE_X, SCALE_Y,
+                                     wrap_x=False))
+    return out
+
+
+def detection_metrics(crops, flags):
+    """evaluate.py's protocol at threshold 0.0: AP; plus P/R/F1 at 0.30 and 0.55."""
+    preds = [p for f in flags for p in f]
+    n_gt = sum(len(c["gt"]) for c in crops)
     ap = calculate_ap_and_pr_curve(preds, n_gt)[0]
     out = {"ap_at_0.0": ap, "n_gt": n_gt, "n_pred_at_0.0": len(preds)}
     for t in (0.30, 0.55):
@@ -573,47 +602,75 @@ def detection_metrics(crops, arm, method, cache_by_thr):
     return out
 
 
-def report(ex, n_reps=N_REPS, seed=SEED):
-    crops = ex["crops"]
-    meta = ex["meta"]
-    res = {"meta": {"extract_meta": {k: meta[k] for k in
-                                     ("model", "model_revision", "checkpoint",
-                                      "checkpoint_sha256", "dataset", "dataset_revision",
-                                      "split", "crops")},
-                    "protocol": {"pair_threshold": PAIR_THRESHOLD, "min_distance": MIN_DISTANCE,
-                                 "radius_norm": RADIUS_NORM, "scale_x": SCALE_X,
-                                 "scale_y": SCALE_Y, "radius_units": RADIUS_NORM * SCALE_X,
-                                 "wrap_x": False, "reps": n_reps, "seed": seed,
-                                 "sigma_px": SIGMA, "residual_units": "heatmap px (256x88)"},
-                    "n_crops": len(crops),
-                    "n_gt": sum(len(c["gt"]) for c in crops),
-                    "widths": sorted({c["width"] for c in crops}),
-                    "heights": sorted({c["height"] for c in crops})},
-           # strings, so the ND rounding applied to every other float does not zero them
-           "mechanism": {
-               "max_recon_rel_torch": f'{max(max(c["recon_rel"]) for c in crops):.2e}',
-               "max_recon_rel_numpy": f'{max(max(c["numpy_recon_rel"]) for c in crops):.2e}',
-               "max_flip_commute_abs": f"{max(flip_commutes(c) for c in crops):.2e}"},
-           "arms": {}}
-    for arm in ARMS:
-        cache_by_thr = {}
-        a_res = {"thresholds": {}}
-        for thr in THRESHOLDS:
-            pairs, cache = build_pairs(crops, arm, thr)
-            cache_by_thr[thr] = cache
-            crop_idx = np.array([ci for ci, _, _ in pairs])
-            rng = np.random.default_rng(seed)
-            boot = Boot(crop_idx, rng, n_reps) if len(pairs) else None
-            base = residuals(crops, pairs, cache, "argmax")
-            t_res = {"n_pairs": len(pairs), "n_crops_with_pairs": int(len(np.unique(crop_idx))),
-                     "n_peaks": int(sum(len(c["argmax"]) for c in cache)),
-                     "stats": {}, "paired_vs_argmax": {}}
-            for m in METHODS:
-                r = residuals(crops, pairs, cache, m)
-                t_res["stats"][m] = stats(*r)
-                if m != "argmax" and len(pairs):
-                    t_res["paired_vs_argmax"][m] = paired_boot(boot, base, r)
-            if thr == PAIR_THRESHOLD:
+def tp_flips(crops, cache0, fa, fg):
+    """Peaks whose TP flag differs between argmax and gaussian, at 0.30 and 0.55.
+
+    Peaks, scores and match order are identical under both decodes (only positions move),
+    so the flags pair up one to one. ``argmax_units_*`` is the range of the flipped peaks'
+    argmax distance to their nearest label, in the evaluator's units (radius 11.25)."""
+    out = {}
+    for t in (0.30, 0.55):
+        gained, lost, units = 0, 0, []
+        for ci, (a, g) in enumerate(zip(fa, fg)):
+            am = cache0[ci]["argmax"]
+            for k, (sa, ta), (sg, tg) in zip(ordered(am), a, g):
+                assert sa == sg
+                if sa < t or ta == tg:
+                    continue
+                gained += int(tg)
+                lost += int(ta)
+                r, c, _ = am[k]
+                units.append(min(math.hypot((c / HM[1] - gx) * SCALE_X,
+                                            (r / HM[0] - gy) * SCALE_Y)
+                                 for gx, gy in crops[ci]["gt"]))
+        out[f"at_{t:.2f}"] = {"gained": gained, "lost": lost,
+                              "argmax_units_min": min(units) if units else None,
+                              "argmax_units_max": max(units) if units else None}
+    return out
+
+
+def unique_image_indices(crops):
+    """One crop per distinct image (sha256), the first by filename.
+
+    The round-2 splits store a multi-point crop once per point, with the points permuted
+    in the name, so several files can hold the same bytes and the same point set."""
+    first = {}
+    for ci in sorted(range(len(crops)), key=lambda i: crops[i]["crop"]):
+        first.setdefault(crops[ci]["sha256"], ci)
+    return sorted(first.values())
+
+
+def analyse(crops, arm, thresholds, n_reps, seed, full=True):
+    """One arm on one crop list. The bootstrap resamples distinct images (sha256), so
+    duplicate files of one image move together."""
+    cache_by_thr = {}
+    a_res = {"thresholds": {}}
+    order = [PAIR_THRESHOLD] + [t for t in THRESHOLDS if t != PAIR_THRESHOLD]
+    for thr in order:
+        if thr not in thresholds and thr != 0.0:
+            continue
+        pairs, cache = build_pairs(crops, arm, thr)
+        cache_by_thr[thr] = cache
+        if thr not in thresholds:
+            continue
+        cluster = np.array([crops[ci]["sha256"] for ci, _, _ in pairs])
+        rng = np.random.default_rng(seed)
+        boot = Boot(cluster, rng, n_reps) if len(pairs) else None
+        base = residuals(crops, pairs, cache, "argmax")
+        t_res = {"n_pairs": len(pairs),
+                 "n_crops_with_pairs": len({ci for ci, _, _ in pairs}),
+                 "n_images_with_pairs": int(len(np.unique(cluster))),
+                 "n_peaks": int(sum(len(c["argmax"]) for c in cache)),
+                 "stats": {}, "paired_vs_argmax": {}}
+        for m in (METHODS if full else ("argmax", "gaussian")):
+            r = residuals(crops, pairs, cache, m)
+            t_res["stats"][m] = stats(*r) if len(pairs) else None
+            if m != "argmax" and len(pairs):
+                t_res["paired_vs_argmax"][m] = paired_boot(boot, base, r)
+        if thr == PAIR_THRESHOLD and len(pairs):
+            t_res["x_bias"] = {m: x_bias(crops, pairs, cache, m, boot)
+                               for m in ("argmax", "gaussian")}
+            if full:
                 t_res["x_fixed"] = {}
                 for how in X_FIXES:
                     fa = residuals(crops, pairs, cache, "argmax", x_fix=how)
@@ -624,8 +681,6 @@ def report(ex, n_reps=N_REPS, seed=SEED):
                         "paired_vs_uncorrected": {
                             m: paired_boot(boot, residuals(crops, pairs, cache, m), f)
                             for m, f in (("argmax", fa), ("gaussian", fg))}}
-                t_res["x_bias"] = {m: x_bias(crops, pairs, cache, m, boot)
-                                   for m in ("argmax", "gaussian")}
                 t_res["subcell_fit"] = {m: subcell_fit(crops, pairs, cache, arm, m)
                                         for m in ("centre", "quarter", "parabola",
                                                   "gaussian", "dark", "centroid")}
@@ -636,65 +691,149 @@ def report(ex, n_reps=N_REPS, seed=SEED):
                     **{m: {"x": mod8([cache[ci][m][k][1] for ci, k, _ in pairs]),
                            "y": mod8([cache[ci][m][k][0] for ci, k, _ in pairs])}
                        for m in ("argmax", "gaussian")}}
-            a_res["thresholds"][f"{thr:.2f}"] = t_res
-        a_res["detection"] = {m: detection_metrics(crops, arm, m, cache_by_thr)
-                              for m in ("argmax", "gaussian")}
-        res["arms"][arm] = a_res
+        a_res["thresholds"][f"{thr:.2f}"] = t_res
+    fl = {m: detection_flags(crops, cache_by_thr[0.0], m) for m in ("argmax", "gaussian")}
+    a_res["detection"] = {m: detection_metrics(crops, f) for m, f in fl.items()}
+    a_res["tp_flips_gaussian_vs_argmax"] = tp_flips(crops, cache_by_thr[0.0],
+                                                    fl["argmax"], fl["gaussian"])
+    return a_res
+
+
+def report(ex, n_reps=N_REPS, seed=SEED):
+    crops = ex["crops"]
+    meta = ex["meta"]
+    if not crops:
+        raise ValueError("extract holds no crops")
+    dedup = [crops[i] for i in unique_image_indices(crops)]
+    res = {"meta": {"extract_meta": {k: meta[k] for k in
+                                     ("model", "model_revision", "checkpoint",
+                                      "checkpoint_sha256", "dataset", "dataset_revision",
+                                      "split", "crops")},
+                    "protocol": {"pair_threshold": PAIR_THRESHOLD, "min_distance": MIN_DISTANCE,
+                                 "radius_norm": RADIUS_NORM, "scale_x": SCALE_X,
+                                 "scale_y": SCALE_Y, "radius_units": RADIUS_NORM * SCALE_X,
+                                 "wrap_x": False, "reps": n_reps, "seed": seed,
+                                 "bootstrap_unit": "distinct image (sha256)",
+                                 "sigma_px": SIGMA, "residual_units": "heatmap px (256x88)",
+                                 "predicted_x_bias": PREDICTED_X_BIAS},
+                    "n_crops": len(crops),
+                    "n_gt": sum(len(c["gt"]) for c in crops),
+                    "n_unique_images": len(dedup),
+                    "n_unique_points": sum(len(c["gt"]) for c in dedup),
+                    "widths": sorted({c["width"] for c in crops}),
+                    "heights": sorted({c["height"] for c in crops})},
+           # strings, so the ND rounding applied to every other float does not zero them
+           "mechanism": {
+               "max_recon_rel_torch": f'{max(max(c["recon_rel"]) for c in crops):.2e}',
+               "max_recon_rel_numpy": f'{max(max(c["numpy_recon_rel"]) for c in crops):.2e}',
+               "max_flip_commute_abs": f"{max(flip_commutes(c) for c in crops):.2e}"},
+           "arms": {}, "dedup": {}}
+    for arm in ARMS:
+        res["arms"][arm] = analyse(crops, arm, THRESHOLDS, n_reps, seed, full=True)
+        res["dedup"][arm] = analyse(dedup, arm, (PAIR_THRESHOLD,), n_reps, seed, full=False)
     return rnd(res)
 
 
 def fmt_ci(d):
+    if not d:
+        return "n/a"
     return f"{d['obs']:+.3f} [{d['ci95'][0]:+.3f}, {d['ci95'][1]:+.3f}]"
+
+
+def fv(v, spec=".3f"):
+    return "n/a" if v is None else format(v, spec)
+
+
+def _fmt_ols(o):
+    return (f"slope {o['slope']:+.4f} [{o['slope_ci95'][0]:+.4f}, {o['slope_ci95'][1]:+.4f}], "
+            f"intercept {o['intercept_px']:+.3f} [{o['intercept_ci95'][0]:+.3f}, "
+            f"{o['intercept_ci95'][1]:+.3f}]")
+
+
+def _stats_table(L, t):
+    L.append("| decode | mean px | mean abs x | mean abs y | bias x | bias y | "
+             "sd x | sd y | change in mean px [95% CI] | change in sd x | "
+             "change in sd y |")
+    L.append("|---|---|---|---|---|---|---|---|---|---|---|")
+    for meth, s in t["stats"].items():
+        if s is None:
+            L.append(f"| {meth} | n/a | | | | | | | | | |")
+            continue
+        p = t["paired_vs_argmax"].get(meth)
+        extra = ("| | | |" if p is None else
+                 f"| {fmt_ci(p['d_mean_px'])} | {fmt_ci(p['d_sd_x_px'])} | "
+                 f"{fmt_ci(p['d_sd_y_px'])} |")
+        L.append(f"| {meth} | {s['mean_px']:.3f} | {s['mean_abs_x_px']:.3f} | "
+                 f"{s['mean_abs_y_px']:.3f} | {s['bias_x_px']:+.3f} | "
+                 f"{s['bias_y_px']:+.3f} | {s['sd_x_px']:.3f} | {s['sd_y_px']:.3f} "
+                 + extra)
+    L.append("")
+
+
+def _x_bias_lines(L, t):
+    L.append("x bias (dx = GT - det, heatmap px, regressed on x; predicted from the training "
+             "geometry at width 682: slope +0.0312, intercept -1.371):")
+    L.append("")
+    for meth, xb in t["x_bias"].items():
+        if not xb:
+            continue
+        L.append(f"- {meth}, on GT x: {_fmt_ols(xb['on_gt_x'])}; mean dx by GT-x third "
+                 f"{xb['mean_dx_by_gt_third']} (n {xb['n_by_gt_third']})")
+        L.append(f"- {meth}, on detection x (comparison only, errors in variables; "
+                 f"var(e)/var(det x) = {xb['dilution']:.4f}): {_fmt_ols(xb['on_det_x'])}")
+    L.append("")
+
+
+def _detection_table(L, a):
+    L.append("Detection metrics (evaluate.py protocol: radius 0.132, threshold 0.0 for AP; "
+             "every file counted, so a duplicated image counts once per copy):")
+    L.append("")
+    L.append("| decode | AP | preds | TP@0.30 | FP@0.30 | R@0.30 | F1@0.30 | TP@0.55 | "
+             "FP@0.55 | F1@0.55 |")
+    L.append("|---|---|---|---|---|---|---|---|---|---|")
+    for meth, dm in a["detection"].items():
+        a3, a5 = dm["at_0.30"], dm["at_0.55"]
+        L.append(f"| {meth} | {dm['ap_at_0.0']:.4f} | {dm['n_pred_at_0.0']} | {a3['tp']} | "
+                 f"{a3['fp']} | {a3['recall']:.4f} | {a3['f1']:.4f} | {a5['tp']} | "
+                 f"{a5['fp']} | {a5['f1']:.4f} |")
+    L.append("")
+    for t, fl in a["tp_flips_gaussian_vs_argmax"].items():
+        L.append(f"- TP flips gaussian vs argmax {t.replace('at_', 'at ')}: "
+                 f"+{fl['gained']} gained, -{fl['lost']} lost (argmax distance of the flipped "
+                 f"peaks {fv(fl['argmax_units_min'], '.2f')} to "
+                 f"{fv(fl['argmax_units_max'], '.2f')} units; radius 11.25)")
+    L.append("")
 
 
 def render_md(res, title):
     m = res["meta"]
     em = m["extract_meta"]
     L = [f"# {title}", "",
-         f"Generated by `scripts/analysis/crop_decode_221.py report`; do not edit by hand.",
+         "Generated by `scripts/analysis/crop_decode_221.py report`; do not edit by hand.",
          "",
          f"- checkpoint `{em['checkpoint']}` @ `{em['model_revision'][:8]}`; data "
          f"`{em['dataset']}` @ `{em['dataset_revision'][:8]}`, split `{em['split']}`",
-         f"- {m['n_crops']} crops, {m['n_gt']} GT points; widths {m['widths']}, "
+         f"- {m['n_crops']} files with {m['n_gt']} GT points; {m['n_unique_images']} distinct "
+         f"images (sha256) with {m['n_unique_points']} distinct points; widths {m['widths']}, "
          f"heights {m['heights']}",
          f"- mechanism: max relative |head - upsample(coarse)| torch "
          f"{res['mechanism']['max_recon_rel_torch']}, numpy "
          f"{res['mechanism']['max_recon_rel_numpy']}; flip/upsample commute "
          f"{res['mechanism']['max_flip_commute_abs']}",
-         "- residual = GT - detection, heatmap px on the 256x88 grid; CIs are 95% "
-         "crop-cluster bootstrap of the paired change vs argmax", ""]
+         "- residual = GT - detection, heatmap px on the 256x88 grid; CIs are 95% bootstrap "
+         "of the paired change vs argmax, resampling distinct images (sha256)", ""]
     for arm, a in res["arms"].items():
-        L.append(f"## Arm: {arm}")
+        L.append(f"## Arm: {arm} (all files)")
         L.append("")
         for thr, t in a["thresholds"].items():
             L.append(f"### Pairs at threshold {thr}: {t['n_pairs']} pairs in "
-                     f"{t['n_crops_with_pairs']} crops ({t['n_peaks']} peaks)")
+                     f"{t['n_crops_with_pairs']} files / {t['n_images_with_pairs']} images "
+                     f"({t['n_peaks']} peaks)")
             L.append("")
-            L.append("| decode | mean px | mean abs x | mean abs y | bias x | bias y | "
-                     "sd x | sd y | change in mean px [95% CI] | change in sd x | "
-                     "change in sd y |")
-            L.append("|---|---|---|---|---|---|---|---|---|---|---|")
-            for meth, s in t["stats"].items():
-                p = t["paired_vs_argmax"].get(meth)
-                extra = ("| | | |" if p is None else
-                         f"| {fmt_ci(p['d_mean_px'])} | {fmt_ci(p['d_sd_x_px'])} | "
-                         f"{fmt_ci(p['d_sd_y_px'])} |")
-                L.append(f"| {meth} | {s['mean_px']:.3f} | {s['mean_abs_x_px']:.3f} | "
-                         f"{s['mean_abs_y_px']:.3f} | {s['bias_x_px']:+.3f} | "
-                         f"{s['bias_y_px']:+.3f} | {s['sd_x_px']:.3f} | {s['sd_y_px']:.3f} "
-                         + extra)
-            L.append("")
+            _stats_table(L, t)
             if "x_bias" in t:
-                L.append("x bias (dx = GT - det regressed on det x, heatmap px):")
-                L.append("")
-                for meth, xb in t["x_bias"].items():
-                    if xb:
-                        L.append(f"- {meth}: slope {xb['slope_px_per_px']:+.4f} "
-                                 f"[{xb['slope_ci95'][0]:+.4f}, {xb['slope_ci95'][1]:+.4f}], "
-                                 f"intercept "
-                                 f"{xb['intercept_px']:+.3f}, zero at x = "
-                                 f"{xb['zero_at_x_px']}; mean dx by third "
-                                 f"{xb['mean_dx_by_third']} (n {xb['n_by_third']})")
+                _x_bias_lines(L, t)
+            if "x_fixed" in t:
                 for how, xf in t["x_fixed"].items():
                     pu = xf["paired_vs_uncorrected"]
                     L.append(f"- x corrected ({how}): argmax mean {xf['argmax']['mean_px']:.3f} "
@@ -705,6 +844,7 @@ def render_md(res, title):
                              f"{fmt_ci(pu['gaussian']['d_mean_px'])}); gaussian vs argmax "
                              f"{fmt_ci(xf['paired_gaussian_vs_argmax']['d_mean_px'])}")
                 L.append("")
+            if "subcell_fit" in t:
                 L.append("Sub-cell fit (GT offset from the coarse centre on decoded offset, "
                          "cells):")
                 L.append("")
@@ -717,17 +857,19 @@ def render_md(res, title):
                 for k, v in t["mod8"].items():
                     L.append(f"- {k}: x {v['x']}, y {v['y']}")
                 L.append("")
-        L.append("Detection metrics (evaluate.py protocol: radius 0.132, threshold 0.0 for AP):")
+        _detection_table(L, a)
+    L.append(f"## Deduplicated: one file per distinct image ({m['n_unique_images']} images, "
+             f"{m['n_unique_points']} points)")
+    L.append("")
+    for arm, a in res["dedup"].items():
+        t = a["thresholds"][f"{PAIR_THRESHOLD:.2f}"]
+        L.append(f"### Arm: {arm}, pairs at {PAIR_THRESHOLD:.2f}: {t['n_pairs']} pairs in "
+                 f"{t['n_images_with_pairs']} images")
         L.append("")
-        L.append("| decode | AP | preds | TP@0.30 | FP@0.30 | R@0.30 | F1@0.30 | TP@0.55 | "
-                 "FP@0.55 | F1@0.55 |")
-        L.append("|---|---|---|---|---|---|---|---|---|---|")
-        for meth, dm in a["detection"].items():
-            a3, a5 = dm["at_0.30"], dm["at_0.55"]
-            L.append(f"| {meth} | {dm['ap_at_0.0']:.4f} | {dm['n_pred_at_0.0']} | {a3['tp']} | "
-                     f"{a3['fp']} | {a3['recall']:.4f} | {a3['f1']:.4f} | {a5['tp']} | "
-                     f"{a5['fp']} | {a5['f1']:.4f} |")
-        L.append("")
+        _stats_table(L, t)
+        if "x_bias" in t:
+            _x_bias_lines(L, t)
+        _detection_table(L, a)
     return "\n".join(L) + "\n"
 
 
@@ -761,6 +903,9 @@ def cmd_check(out_dir=OUT_DIR, only=None):
         js, md = run_report(ex_path)
         for text, ext in ((js, ".json"), (md, ".md")):
             p = os.path.join(out_dir, stem + ext)
+            if not os.path.exists(p):
+                bad.append(f"missing {stem}{ext}")
+                continue
             with open(p, encoding="utf-8", newline="") as f:
                 if f.read() != text:
                     bad.append(f"{stem}{ext} differs")

@@ -89,6 +89,36 @@ def test_x_fixes(cd):
     assert 43 < t0 < 45
 
 
+def test_duplicate_images_are_one_cluster(cd):
+    """The round-2 splits hold one file per point of a multi-point crop (same bytes,
+    points permuted in the name). Dedup keeps the first by name; the bootstrap counts
+    the image once."""
+    crops = [{"crop": "b_-_1_2.jpg", "sha256": "S"}, {"crop": "a_-_3_4_-_1_2.jpg", "sha256": "S"},
+             {"crop": "c_-_5_6.jpg", "sha256": "T"}]
+    assert cd.unique_image_indices(crops) == [1, 2]
+    boot = cd.Boot(np.array(["S", "S", "T"]), np.random.default_rng(0), 50)
+    assert boot.C.shape == (50, 2)
+    assert np.all(boot.C.sum(axis=1) == 2)
+
+
+def test_x_bias_on_gt_x_recovers_a_planted_slope(cd):
+    """dx = 0.03 * x_gt - 1.4 with a detection error that does not depend on x: the GT-x
+    regression recovers it; the detection-x regression is diluted toward zero."""
+    rng = np.random.default_rng(1)
+    n = 400
+    xg = rng.uniform(5, 83, n)
+    e = rng.normal(0, 6, n)                          # detection error, independent of x
+    xd = xg - (0.03 * xg - 1.4) + e                  # so dx = GT - det = 0.03 xg - 1.4 - e
+    crops = [{"gt": [[xg[i] / CROP[1], 0.5]], "sha256": str(i)} for i in range(n)]
+    cache = [{"gaussian": np.array([[128.0, xd[i], 1.0]])} for i in range(n)]
+    pairs = [(i, 0, 0) for i in range(n)]
+    boot = cd.Boot(np.array([str(i) for i in range(n)]), np.random.default_rng(2), 200)
+    xb = cd.x_bias(crops, pairs, cache, "gaussian", boot)
+    assert xb["on_gt_x"]["slope"] == pytest.approx(0.03, abs=0.03)
+    assert xb["on_det_x"]["slope"] < xb["on_gt_x"]["slope"]
+    assert 0 < xb["dilution"] < 1
+
+
 # --- (b) GT parser ---------------------------------------------------------------------
 
 def _evaluate_py_parse(name, w, h):

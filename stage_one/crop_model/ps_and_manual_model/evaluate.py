@@ -213,6 +213,7 @@ def main():
         total_gt_count += len(gt_points_normalized)
 
         coarse_stack = None
+        combined_heatmap_np = None
         if PEAK_DECODE != "argmax":
             cached_coarse_path = os.path.join(coarse_cache_dir, f"{base_name_no_ext}_coarse.npy")
             if os.path.exists(cached_coarse_path):
@@ -222,8 +223,11 @@ def main():
                 np.save(cached_coarse_path, coarse_stack)
                 if not os.path.exists(cached_heatmap_path):
                     np.save(cached_heatmap_path, fresh_heatmap)
+                    combined_heatmap_np = fresh_heatmap
 
-        if os.path.exists(cached_heatmap_path):
+        if combined_heatmap_np is not None:
+            pass    # just computed by the gaussian path above; no need to read it back
+        elif os.path.exists(cached_heatmap_path):
             combined_heatmap_np = np.load(cached_heatmap_path)
         else:
             if input_image_pil is None: 
