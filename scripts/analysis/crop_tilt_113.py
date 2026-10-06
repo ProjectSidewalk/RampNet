@@ -530,6 +530,8 @@ def cmd_respond(args):
     from rampnet.model import CROP_INPUT_SIZE
 
     sample = read_csv(args.sample)
+    if args.limit:
+        sample = sample[:args.limit]
     models, shas, dev = load_crop_models(args.hf_cache)
     pre = transforms.Compose([
         transforms.Resize(CROP_INPUT_SIZE, interpolation=transforms.InterpolationMode.BILINEAR),
@@ -686,6 +688,7 @@ def main(argv=None):
     r.add_argument("--out", required=True)
     r.add_argument("--usage-out", required=True)
     r.add_argument("--workers", type=int, default=4)
+    r.add_argument("--limit", type=int, default=0, help="first N sample rows only (smoke test)")
     args = ap.parse_args(argv)
     if args.check:
         return cmd_check(args)
