@@ -12806,7 +12806,6 @@
    "status": "equal"
   }
  ],
- "eval_sha256": "bb79db94b4b4",
  "float_comparison": "scoreboard floats rounded to 6 decimals as stored, then ==; benchmark_eval as printed (3 decimals) and pr_<arm>.json exactly",
  "regenerate": "python scripts/analysis/eval_protocol_150.py [--check]",
  "scorer_fingerprint": "f4aef67aba03",

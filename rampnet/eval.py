@@ -65,8 +65,9 @@ from rampnet.detection_eval import (
 from rampnet.roster import slug
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
-#: The checkout this module lives in. The CLI's default paths resolve against it, so
-#: ``python -m rampnet.eval pins --verify`` works from any working directory.
+#: The checkout this module lives in. The module-level defaults below point here; the
+#: CLI prefers the current directory when it is a checkout (see :func:`cli_root`), so an
+#: editable install shared between worktrees verifies the worktree you are in.
 REPO_ROOT = os.path.dirname(PACKAGE_DIR)
 BENCHMARK_DIR = os.path.join(REPO_ROOT, "benchmark")
 PUBLISHED_DIR = os.path.join(BENCHMARK_DIR, "model_detections")
@@ -201,10 +202,16 @@ def validate_predictions(obj, source="predictions"):
     """Check a parsed prediction file; return it unchanged or raise PredictionFormatError.
 
     The message names the pano id and the index of the offending point, so a malformed
-    file is fixable from the error alone."""
+    file is fixable from the error alone. Confidences must be non-negative (not capped at
+    1: RampNet heatmap peaks can exceed it); ``model`` and ``city``, when present, must be
+    strings."""
     if not isinstance(obj, dict):
         raise PredictionFormatError(f"{source}: top level must be an object, got "
                                     f"{type(obj).__name__}")
+    for key in ("model", "city"):
+        if key in obj and obj[key] is not None and not isinstance(obj[key], str):
+            raise PredictionFormatError(f"{source}: '{key}' must be a string, got "
+                                        f"{type(obj[key]).__name__}")
     dets = obj.get("detections")
     if not isinstance(dets, dict):
         raise PredictionFormatError(f"{source}: 'detections' must be an object mapping "
@@ -227,7 +234,31 @@ def validate_predictions(obj, source="predictions"):
             if len(p) == 3 and p[2] is not None and not _is_number(p[2]):
                 raise PredictionFormatError(f"{where}: confidence must be a number or "
                                             f"null, got {p[2]!r}")
+            # Not capped at 1: RampNet's heatmap peaks can exceed it (the committed
+            # op_cache holds a 1.011), and ranking is all AP needs.
+            if len(p) == 3 and p[2] is not None and p[2] < 0.0:
+                raise PredictionFormatError(f"{where}: confidence {p[2]} is negative")
     return obj
+
+
+def op_cache_predictions(bundle_dir):
+    """RampNet's low-floor extraction (``analysis_out/op_cache/<split>.json``, #54) for a
+    bundle, in the prediction-file format: the same no-TTA run as a city bundle's
+    ``records.jsonl``, down to 0.05 instead of 0.55. This is what the published RampNet
+    city-split AP is read from (``scoreboard.uses_low_floor_cache``). Found relative to
+    the bundle (``<bundle>/../../analysis_out/op_cache``), so it works from any cwd."""
+    split = os.path.basename(os.path.normpath(bundle_dir))
+    path = os.path.normpath(os.path.join(bundle_dir, os.pardir, os.pardir, "analysis_out",
+                                         "op_cache", f"{split}.json"))
+    if not os.path.exists(path):
+        raise PredictionFormatError(f"{path}: no low-floor cache for split {split!r}")
+    with open(path, encoding="utf-8") as fh:
+        payload = json.load(fh)
+    if payload.get("meta", {}).get("gt") == "unreviewed":
+        raise PredictionFormatError(f"{path}: an unreviewed cache; it cannot be scored")
+    return {"model": "rampnet (op_cache)", "city": split,
+            "detections": {p["pano"]: [list(t) for t in p["preds"]]
+                           for p in payload["panos"]}}
 
 
 def load_predictions(path):
@@ -267,15 +298,31 @@ def score_split(bundle_dir, predictions, *, radius=PANO_RADIUS_NORMALIZED, wrap_
         (238, 9, 72)
     """
     records, gts, gt_kind = ground_truths(bundle_dir)
+    split = os.path.basename(os.path.normpath(bundle_dir))
+    warnings = []
     if isinstance(predictions, str):
-        if predictions != "rampnet":
-            raise ValueError("predictions must be a parsed prediction file or 'rampnet'")
-        dets = rampnet_predictions(records, gts)
-        model = model or "rampnet"
-    else:
+        if predictions == "rampnet":
+            dets = rampnet_predictions(records, gts)
+            model = model or "rampnet"
+        elif predictions == "rampnet-op-cache":
+            predictions = op_cache_predictions(bundle_dir)
+        else:
+            raise ValueError("predictions must be a parsed prediction file, 'rampnet' or "
+                             "'rampnet-op-cache'")
+    if not isinstance(predictions, str):
         validate_predictions(predictions)
         dets = predictions["detections"]
         model = model or predictions.get("model")
+        city = predictions.get("city")
+        if city is not None and city != split:
+            warnings.append(f"the predictions say city {city!r} but the bundle is {split!r}")
+        if dets and not any(pid in gts for pid in dets):
+            raise PredictionFormatError(
+                f"none of the {len(dets)} prediction panos is in {split!r}; wrong split?"
+                + (f" (the file says city {city!r})" if city else ""))
+    if floor is not None and 0 < op_threshold < floor:
+        warnings.append(f"op_threshold {op_threshold} is below the declared floor {floor}: "
+                        "nothing between them exists, so the operating point is the floor")
 
     dropped = 0
     if floor is not None:
@@ -298,13 +345,24 @@ def score_split(bundle_dir, predictions, *, radius=PANO_RADIUS_NORMALIZED, wrap_
     if rep.ap is None:
         ap_note = ("no AP: at least one scored prediction carries no confidence, or "
                    "there are no predictions")
-    elif floor is not None:
-        ap_note = f"AP over predictions as given; truncated at floor {floor}"
     else:
-        ap_note = (f"AP over predictions as given; lowest confidence present "
-                   f"{lowest} (declare --floor to state the export floor)")
+        # Always the lowest confidence actually present: that, not a declared floor, is
+        # where the curve AP integrates is cut off.
+        ap_note = (f"AP over predictions as given; truncated at the lowest confidence "
+                   f"present, {lowest:.4f}")
+        if floor is not None:
+            ap_note += f" (declared floor {floor})"
+            # The same test scoreboard.uses_low_floor_cache applies before it swaps in
+            # the low-floor cache for RampNet's AP.
+            if lowest - floor > 0.1:
+                warnings.append(
+                    f"the predictions start at {lowest:.4f}, more than 0.1 above the "
+                    f"declared floor {floor}: AP is truncated there, not at the floor"
+                    + (" (for RampNet's published city-split AP use --predictions "
+                       "rampnet-op-cache)" if model == "rampnet" else ""))
+        else:
+            ap_note += " (declare --floor to state the export floor)"
 
-    split = os.path.basename(os.path.normpath(bundle_dir))
     out = {
         "split": split, "model": model, "protocol": protocol_constants(radius, wrap_x),
         "gt_kind": gt_kind, "op_threshold": op_threshold, "floor": floor,
@@ -316,6 +374,7 @@ def score_split(bundle_dir, predictions, *, radius=PANO_RADIUS_NORMALIZED, wrap_
         "fp_per_pano": rep.fp / rep.n_panos if rep.n_panos else None,
         "n_panos_without_predictions": sum(1 for pid in gts if pid not in dets),
         "n_prediction_panos_not_in_bundle": sum(1 for pid in dets if pid not in gts),
+        "warnings": warnings,
     }
     if pr_curve and rep.pr_curve is not None:
         out["pr_curve"] = {"recalls": list(rep.pr_curve[0]),
@@ -455,20 +514,38 @@ Where committed numbers come from:
       rampnet.detection_eval via scripts/analysis/scoreboard.py (this protocol)
   scripts/model_comparison/yolo_baseline/benchmark_eval/
       rampnet.detection_eval via rescore_benchmark_eval.py (this protocol)
-  README erratum manual_gold F1 0.949 (and stage_two/evaluate.py output)
+  README erratum manual_gold precision 0.949 (and stage_two/evaluate.py output)
       stage_two/evaluate.py: same 1:1 matcher, no fn gating, own decode; NOT this path
   RampNet verdict cross-check blocks
       rampnet/validation.py: per-detection verdicts, RampNet only
 """
 
 
+def cli_root(cwd=None):
+    """The checkout the CLI's default paths resolve against.
+
+    The current directory when it holds ``benchmark/split_pins.json`` (so a shared
+    editable install run from a worktree verifies that worktree), else the checkout this
+    module was imported from. A non-editable install has neither; pass explicit paths."""
+    cwd = os.path.abspath(cwd or os.getcwd())
+    if os.path.exists(os.path.join(cwd, "benchmark", "split_pins.json")):
+        return cwd
+    return REPO_ROOT
+
+
+NAMED_PREDICTIONS = ("rampnet", "rampnet-op-cache")
+
+
 def _cmd_score(args):
-    preds = "rampnet" if args.predictions == "rampnet" else load_predictions(args.predictions)
+    named = args.predictions in NAMED_PREDICTIONS
+    preds = args.predictions if named else load_predictions(args.predictions)
     res = score_split(args.bundle, preds, radius=args.radius, wrap_x=not args.no_wrap_x,
                       op_threshold=args.op_threshold, floor=args.floor, sweep=args.sweep,
                       pr_curve=args.pr_curve)
-    if preds != "rampnet":
+    if not named:
         res["predictions_sha256"] = _lf_sha256(args.predictions)
+    for w in res["warnings"]:
+        print(f"warning: {w}", file=sys.stderr)
     text = json.dumps(res, indent=1) + "\n"
     if args.out:
         os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
@@ -479,34 +556,42 @@ def _cmd_score(args):
           f"P {res['precision']:.4f}  R {res['recall']:.4f}  F1 {res['f1']:.4f}  AP {ap}  "
           f"tp/fp/fn/ign {res['tp']}/{res['fp']}/{res['fn']}/{res['ignored']}  "
           f"({res['n_panos']} panos, {res['n_gt_recall']} GT in recall pool)")
+    print(f"  {res['n_panos_without_predictions']} bundle panos had no predictions; "
+          f"{res['n_prediction_panos_not_in_bundle']} prediction panos are not in the bundle")
     print(f"  {res['ap_note']}; scorer {res['scorer_fingerprint']}"
           + (f"; written to {args.out}" if args.out else ""))
     return 0
 
 
 def _cmd_pins(args):
+    bench = os.path.join(cli_root(), "benchmark")
     if args.write:
-        with open(args.write, "w", encoding="utf-8", newline="\n") as fh:
-            fh.write(pins_payload())
-        print(f"wrote {args.write} ({len(PINNED_SPLITS)} splits)")
+        path = os.path.join(bench, "split_pins.json") if args.write is True else args.write
+        with open(path, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(pins_payload(bench))
+        print(f"wrote {path} ({len(PINNED_SPLITS)} splits)")
         return 0
     if args.verify:
-        drift = verify_pins(args.path)
+        path = args.path or os.path.join(bench, "split_pins.json")
+        drift = verify_pins(path, bench)
         if drift:
             print("split pins drifted:")
             for line in drift:
                 print("  " + line)
             return 1
-        print(f"{args.path}: all {len(PINNED_SPLITS)} pinned splits unchanged")
+        print(f"{path}: all {len(PINNED_SPLITS)} pinned splits unchanged")
         return 0
-    print(json.dumps(all_pins(), indent=1, sort_keys=True))
+    print(json.dumps(all_pins(bench), indent=1, sort_keys=True))
     return 0
 
 
 def _cmd_loco(args):
-    res = loco(args.model, predictions_dir=args.predictions_dir,
+    bench = os.path.join(cli_root(), "benchmark")
+    res = loco(args.model, predictions_dir=args.predictions_dir
+               or os.path.join(bench, "model_detections"), benchmark_dir=bench,
                op_threshold=args.op_threshold, floor=args.floor)
     if args.out:
+        os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
         with open(args.out, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(res, indent=1) + "\n")
     print(f"LOCO report for {res['model']} @ op {res['op_threshold']} "
@@ -538,14 +623,17 @@ def build_parser():
     s = sub.add_parser("score", help="Score one prediction file against one bundle.")
     s.add_argument("--bundle", required=True, help="benchmark/<split> directory")
     s.add_argument("--predictions", required=True,
-                   help="Prediction file (benchmark/model_detections format), or 'rampnet' "
-                        "for the bundle's own records.jsonl detections.")
+                   help="Prediction file (benchmark/model_detections format); 'rampnet' "
+                        "for the bundle's own records.jsonl detections; or "
+                        "'rampnet-op-cache' for RampNet's 0.05-floor extraction in "
+                        "analysis_out/op_cache/ (the source of its published city-split AP).")
     s.add_argument("--op-threshold", type=float, default=0.0,
                    help="Drop predictions below this for P/R/F1 (AP is never truncated "
                         "by it). Default 0: score everything.")
     s.add_argument("--floor", type=float, default=None,
                    help="The confidence the predictions were exported down to; anything "
-                        "below is dropped and AP is reported as truncated there.")
+                        "below is dropped, and a warning is printed when the lowest "
+                        "confidence present sits more than 0.1 above it.")
     s.add_argument("--radius", type=float, default=PANO_RADIUS_NORMALIZED)
     s.add_argument("--no-wrap-x", action="store_true",
                    help="Do not wrap x across the seam (pre-#140 audits only).")
@@ -556,16 +644,20 @@ def build_parser():
 
     p = sub.add_parser("pins", help="Show, write or verify benchmark/split_pins.json.")
     g = p.add_mutually_exclusive_group()
-    g.add_argument("--write", metavar="PATH", nargs="?", const=PINS_PATH,
-                   help=f"Write the pins file (default {os.path.relpath(PINS_PATH, REPO_ROOT)}).")
+    g.add_argument("--write", metavar="PATH", nargs="?", const=True,
+                   help="Write the pins file (default benchmark/split_pins.json).")
     g.add_argument("--verify", action="store_true", help="Exit 1 if any pinned file drifted.")
-    p.add_argument("--path", default=PINS_PATH, help="Pins file to verify against.")
+    p.add_argument("--path", default=None,
+                   help="Pins file to verify against (default benchmark/split_pins.json).")
+    p.epilog = ("Paths resolve against the current directory when it is a RampNet checkout, "
+                "else against the checkout rampnet was imported from.")
     p.set_defaults(func=_cmd_pins)
 
     lo = sub.add_parser("loco", help="Leave-one-city-out report (no retraining).")
     lo.add_argument("--model", required=True,
                     help="Published stem in --predictions-dir, or 'rampnet'.")
-    lo.add_argument("--predictions-dir", default=PUBLISHED_DIR)
+    lo.add_argument("--predictions-dir", default=None,
+                    help="Default: benchmark/model_detections (see `pins --help` on paths).")
     lo.add_argument("--op-threshold", type=float, default=0.0)
     lo.add_argument("--floor", type=float, default=None)
     lo.add_argument("--out")

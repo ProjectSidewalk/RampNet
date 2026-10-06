@@ -30,13 +30,14 @@
  "fn": 174,
  "ignored": 4,
  "ap": 0.723783847894801,
- "ap_note": "AP over predictions as given; truncated at floor 0.05",
+ "ap_note": "AP over predictions as given; truncated at the lowest confidence present, 0.0502 (declared floor 0.05)",
  "n_panos": 124,
  "n_recall_panos": 124,
  "n_gt_recall": 310,
  "fp_per_pano": 0.08870967741935484,
  "n_panos_without_predictions": 0,
  "n_prediction_panos_not_in_bundle": 0,
+ "warnings": [],
  "pins": {
   "records_sha256": "8b0669d694bd51b0e8b44ed88e4477626eb1a559f6869625c6d2d56ef950ebe9",
   "n_records": 124,
@@ -46,6 +47,6 @@
   "imagery_digest": "ec8ef3678aa9bf84"
  },
  "scorer_fingerprint": "f4aef67aba03",
- "eval_sha256": "bb79db94b4b4",
+ "eval_sha256": "1d565ab5ff9e",
  "predictions_sha256": "d51adcf67975b38e4bcb58c23f4bc4926f93b90f7bba6f71fc25846e321c867b"
 }

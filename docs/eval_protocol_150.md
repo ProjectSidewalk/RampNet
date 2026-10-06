@@ -36,9 +36,15 @@ predictions carry, so it is a function of the floor they were exported at. The p
 convention (the AP-provenance block in [`model_scoreboard.md`](model_scoreboard.md)) is that
 the YOLO and open-vocabulary detectors are exported at a 0.05 floor, and RampNet's city-split
 AP is read from `analysis_out/op_cache/` (also 0.05), because the city bundles' own detections
-stop at the deployed 0.55. Every `score_split` result carries an `ap_note` that states the floor: "AP over
-predictions as given; truncated at floor F" when `--floor` is declared, or the lowest
-confidence present when it is not.
+stop at the deployed 0.55. Every `score_split` result carries an `ap_note` that states where
+the curve is actually cut: the lowest confidence present in the predictions, with the declared
+`--floor` beside it. When the lowest confidence sits more than 0.1 above the declared floor
+(the test `scoreboard.uses_low_floor_cache` applies before it substitutes the op_cache), the
+result also carries a warning. Declaring `--floor 0.05` for a city bundle's own RampNet
+detections, which start at 0.55, therefore warns rather than claiming a 0.05 truncation.
+`--predictions rampnet-op-cache` scores `analysis_out/op_cache/<split>.json` instead, which is
+where the published RampNet city-split AP comes from: on `richmond` it gives AP 0.8761 (the
+scoreboard's 0.876) with the same P/R/F1 at 0.55 as the bundle.
 
 ## Prediction format
 
@@ -54,11 +60,15 @@ Exactly the `benchmark/model_detections/` file shape, and no second format:
 
 `x` and `y` are normalised to [0, 1] on the equirectangular panorama, and x wraps. The third
 element is a confidence, or `null` for a detector that emits none; such a model gets no AP and
-no sweep. A pano absent from `detections` is scored as zero predictions, and the result
+no sweep. Confidences must be non-negative but are not capped at 1, because RampNet's heatmap
+peaks can exceed it (the committed op_cache holds a 1.011). `model` and `city`, when present,
+must be strings. A pano absent from `detections` is scored as zero predictions, and the result
 reports how many there were (`n_panos_without_predictions`), along with prediction panos the
 bundle does not have (`n_prediction_panos_not_in_bundle`). The loader rejects a malformed file
-with a message that names the pano and the point index. `--predictions rampnet` scores the
-bundle's own `records.jsonl` detections through the same path.
+with a message that names the pano and the point index. A file whose panos are all absent
+from the bundle is an error (exit 2), and a `city` that differs from the split's name is a
+warning on stderr; both counters are printed on the console. `--predictions rampnet` scores
+the bundle's own `records.jsonl` detections through the same path.
 
 ## How to score one file
 
@@ -68,17 +78,25 @@ python -m rampnet.eval score --bundle benchmark/manual_gold --predictions rampne
 python -m rampnet.eval protocol
 ```
 
-Output of the first two on this branch:
+The headline line of the first two on this branch:
 
 ```
 richmond / y11l_pano @ op 0.25: P 0.9252  R 0.4387  F1 0.5952  AP 0.7238  tp/fp/fn/ign 136/11/174/4  (124 panos, 310 GT in recall pool)
 manual_gold / rampnet @ op 0.55: P 0.9474  R 0.8727  F1 0.9085  AP 0.9173  tp/fp/fn/ign 3420/190/499/0  (1000 panos, 3919 GT in recall pool)
 ```
 
+Bundles that borrow another split's verdicts through `bundle.json` (#48) score too; their
+pins record the spec and the borrowed `verdicts.json`.
+
+Default paths (`pins`, `loco`) resolve against the current directory when it is a RampNet
+checkout (it holds `benchmark/split_pins.json`), and otherwise against the checkout `rampnet`
+was imported from. A non-editable install carries no `benchmark/`, so pass explicit paths
+there.
+
 `--out` writes the full result: the protocol constants, the operating point and floor,
 P/R/F1 with Wilson intervals, AP and its note, the counts, `--sweep` and `--pr-curve` if
-asked, the live split pins, the scorer fingerprint, `eval_sha256` (this module's own hash),
-and `predictions_sha256`. `analysis_out/eval_protocol_150/example_richmond_y11l.json` is the
+asked, any warnings, the live split pins, the scorer fingerprint, `eval_sha256` (this
+module's own hash), and `predictions_sha256`. `analysis_out/eval_protocol_150/example_richmond_y11l.json` is the
 first command's output, committed as an example.
 
 The operating points the committed tables use are per model class
@@ -91,11 +109,15 @@ confidence, so a threshold is a no-op for them).
 ```powershell
 $env:PYTHONPATH = "<checkout>"
 python scripts/analysis/eval_protocol_150.py           # writes analysis_out/eval_protocol_150/reproduction.json
-python scripts/analysis/eval_protocol_150.py --check   # exit 1 if any cell differs or the JSON is stale
+python scripts/analysis/eval_protocol_150.py --check   # exit 1 if any cell differs or is unchecked, or the JSON is stale
 ```
 
-It runs on the CPU from committed files only and took 18 to 30 s per run (four runs) on the desktop it was written on
-(Windows, Python 3.12). Result:
+It runs on the CPU from committed files only and took 18 to 30 s per run on the desktop it was
+written on (Windows, Python 3.12). CI re-derives it too:
+`tests/test_eval_protocol_150.py::test_reproduction_rederives_in_ci` runs the same build and
+fails on any differing or unchecked cell, or when the committed `reproduction.json` is not
+byte-identical to the regeneration. The JSON does not embed `rampnet/eval.py`'s own hash (the
+script prints it), so editing the packaging layer alone does not make the proof stale. Result:
 
 | source | cells | equal | differs | unchecked | fields compared |
 |---|--:|--:|--:|--:|--:|
@@ -108,7 +130,7 @@ What is compared, and how:
   F1, AP, `ap_bundle`, tp, fp, fn, n_panos and n_gt_recall, at the cell's operating point.
   The scoreboard stores floats rounded to 6 decimals (`scoreboard_render.JSON_PRECISION`), so
   the re-derived float is rounded to 6 decimals and compared with `==`; integers are compared
-  as they are. For the 11 RampNet cells whose `ap_source` is the op_cache (every split but
+  as they are. For the 10 RampNet cells whose `ap_source` is the op_cache (every split but
   `laurens_gsv`, which has no op_cache, and `manual_gold`, whose bundle is already at 0.05),
   `analysis_out/op_cache/<split>.json` is converted to the prediction format and scored
   against the **bundle's** ground truth through `score_split`, and that AP equals the stored

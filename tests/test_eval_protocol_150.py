@@ -103,7 +103,37 @@ def test_floor_drops_and_reports(toy_bundle):
     bdir, pfile = toy_bundle
     res = E.score_split(bdir, E.load_predictions(pfile), floor=0.45)
     assert res["n_below_floor_dropped"] == 2
-    assert "truncated at floor 0.45" in res["ap_note"]
+    assert "lowest confidence present, 0.5000 (declared floor 0.45)" in res["ap_note"]
+    assert res["warnings"] == []
+
+
+def test_floor_far_below_the_predictions_warns(toy_bundle):
+    """Declaring 0.05 for detections that start at 0.6 must not read as 'truncated at
+    0.05' (review of #245): the note gives the real cut and a warning says so."""
+    bdir, _ = toy_bundle
+    res = E.score_split(bdir, "rampnet", floor=0.05)
+    assert "lowest confidence present, 0.6000" in res["ap_note"]
+    assert any("more than 0.1 above the declared floor" in w for w in res["warnings"])
+
+
+def test_op_threshold_below_floor_warns(toy_bundle):
+    bdir, pfile = toy_bundle
+    res = E.score_split(bdir, E.load_predictions(pfile), floor=0.5, op_threshold=0.25)
+    assert any("below the declared floor" in w for w in res["warnings"])
+
+
+def test_city_mismatch_warns_and_no_overlap_is_an_error(toy_bundle, capsys):
+    bdir, pfile = toy_bundle
+    preds = E.load_predictions(pfile)
+    preds["city"] = "elsewhere"
+    res = E.score_split(bdir, preds)
+    assert any("city 'elsewhere'" in w for w in res["warnings"])
+    with pytest.raises(E.PredictionFormatError, match="wrong split"):
+        E.score_split(bdir, {"city": "bend", "detections": {"zz": [[0.1, 0.1, 0.9]]}})
+    wrong = os.path.join(BENCH, "model_detections", "y11l_pano__bend.json")
+    assert E.main(["score", "--bundle", os.path.join(BENCH, "richmond"),
+                   "--predictions", wrong]) == 2
+    assert "wrong split" in capsys.readouterr().err
 
 
 def test_rampnet_predictions_score_own_detections(toy_bundle):
@@ -213,6 +243,45 @@ def test_yolo_arm_reproduces_benchmark_eval():
         assert json.load(fh)["ap"] == res["ap"]
 
 
+def test_op_cache_predictions_give_the_published_rampnet_ap(scoreboard_cells):
+    stored = scoreboard_cells["rampnet"]["richmond"]
+    res = E.score_split(os.path.join(BENCH, "richmond"), "rampnet-op-cache",
+                        op_threshold=0.55, floor=0.05)
+    assert _round(res["ap"]) == stored["ap"]
+    assert (res["tp"], res["fp"], res["fn"]) == (stored["tp"], stored["fp"], stored["fn"])
+    assert res["warnings"] == []
+
+
+def test_borrowed_verdict_bundle_scores_and_pins():
+    """A #48 bundle.json bundle used to crash in split_pins (review of #245)."""
+    bdir = os.path.join(BENCH, "richmond_neighbourhood")
+    if not os.path.exists(os.path.join(bdir, "bundle.json")):
+        pytest.skip("no bundle.json bundle in this checkout")
+    res = E.score_split(bdir, "rampnet")
+    pins = res["pins"]
+    assert pins["gt_kind"] == "borrowed_verdicts"
+    assert pins["verdicts_sha256"] == bundles.split_pins(
+        os.path.join(BENCH, "richmond"))["verdicts_sha256"]
+
+
+def test_cli_root_prefers_a_checkout_cwd(tmp_path):
+    assert E.cli_root(REPO) == os.path.abspath(REPO)
+    assert E.cli_root(str(tmp_path)) == E.REPO_ROOT
+
+
+def test_reproduction_rederives_in_ci():
+    """The whole proof, re-derived (about 20 s): every scoreboard and benchmark_eval cell
+    equal, none unchecked, and the committed reproduction.json byte-identical to a
+    regeneration. Without this, a scorer, bundle or eval.py change could leave
+    `eval_protocol_150.py --check` failing while CI stayed green (review of #245)."""
+    result = EP.build()
+    for src, summ in result["summary"].items():
+        assert summ["differs"] == 0 and summ["unchecked"] == 0, (src, summ)
+    with open(EP.OUT_JSON, "rb") as fh:
+        have = fh.read().replace(b"\r\n", b"\n").decode("utf-8")
+    assert have == EP.payload(result), "reproduction.json is stale: re-run the script"
+
+
 def test_committed_reproduction_reports_all_equal():
     with open(EP.OUT_JSON, encoding="utf-8") as fh:
         rep = json.load(fh)
@@ -244,6 +313,8 @@ def test_scorer_fingerprint_unchanged():
     ({"detections": {"pX": [[0.1]]}}, "pano pX, point 0"),
     ({"detections": {"pX": {"x": 0.1}}}, "pano pX"),
     ({"detections": []}, "'detections' must be an object"),
+    ({"detections": {"pX": [[0.1, 0.2, -0.1]]}}, "pano pX, point 0: confidence -0.1"),
+    ({"model": 3, "detections": {}}, "'model' must be a string"),
 ])
 def test_validator_names_the_pano_and_index(bad, needle):
     with pytest.raises(E.PredictionFormatError, match=needle):

@@ -21,7 +21,8 @@ has committed detections behind it, and compares:
 ::
 
     python scripts/analysis/eval_protocol_150.py           # write reproduction.json
-    python scripts/analysis/eval_protocol_150.py --check   # exit 1 on any difference
+    python scripts/analysis/eval_protocol_150.py --check   # exit 1 on any difference,
+                                                           # unchecked cell or stale JSON
 
 Reads committed files only (bundles, ``manual_labels/``, ``benchmark/model_detections/``,
 ``analysis_out/op_cache/``, ``analysis_out/scoreboard.json``, ``benchmark_eval/``). CPU, no
@@ -93,7 +94,8 @@ def scoreboard_cells():
             else:
                 path = published_path(leg.label, split, publish_as=name)
                 if not os.path.exists(path):
-                    row.update(status="unchecked", reason=f"no file {os.path.relpath(path, REPO)}")
+                    rel = os.path.relpath(path, REPO).replace(os.sep, "/")
+                    row.update(status="unchecked", reason=f"no file {rel}")
                     out.append(row)
                     continue
                 preds = load_predictions(path)
@@ -226,8 +228,9 @@ def build():
         "float_comparison": f"scoreboard floats rounded to {JSON_PRECISION} decimals as "
                             "stored, then ==; benchmark_eval as printed (3 decimals) and "
                             "pr_<arm>.json exactly",
+        # eval_sha256 is printed, not stored: storing it made any edit to rampnet/eval.py,
+        # even a comment, read as a stale proof while every cell still matched.
         "scorer_fingerprint": scorer_fingerprint(),
-        "eval_sha256": eval_sha256(),
         "split_pins": all_pins(),
         "summary": summary,
         "cells": cells,
@@ -266,13 +269,16 @@ def main(argv=None):
     elapsed = perf_counter() - t0
     print_table(result)
     print(f"scorer fingerprint {result['scorer_fingerprint']}, eval.py "
-          f"{result['eval_sha256']}, {elapsed:.1f} s")
+          f"{eval_sha256()}, {elapsed:.1f} s")
     differs = sum(s["differs"] for s in result["summary"].values())
+    unchecked = sum(s["unchecked"] for s in result["summary"].values())
     text = payload(result)
     if args.check:
         problems = []
         if differs:
             problems.append(f"{differs} cell(s) differ from the committed numbers")
+        if unchecked:
+            problems.append(f"{unchecked} cell(s) could not be checked")
         if not os.path.exists(args.out):
             problems.append(f"{args.out}: missing")
         else:
@@ -283,11 +289,11 @@ def main(argv=None):
         for p in problems:
             print("FAIL: " + p)
         return 1 if problems else 0
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     with open(args.out, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
     print(f"wrote {args.out}")
-    return 1 if differs else 0
+    return 1 if differs or unchecked else 0
 
 
 if __name__ == "__main__":

@@ -279,8 +279,9 @@ def split_pins(bundle_dir):
     """Content hashes that name the exact split files a score was computed against.
 
     Returns ``{records_sha256, n_records, gt_kind, n_reviewed, imagery_digest}`` plus
-    ``verdicts_sha256`` for a verdict bundle, or ``gt_source_sha256`` and
-    ``labels_digest`` for a manual-GT bundle. ``imagery_digest`` is read from the
+    ``verdicts_sha256`` for a verdict bundle; ``bundle_spec_sha256``, ``verdicts_from`` and
+    the borrowed ``verdicts_sha256`` for a ``bundle.json`` bundle (#48); or
+    ``gt_source_sha256`` and ``labels_digest`` for a manual-GT bundle. ``imagery_digest`` is read from the
     committed ``imagery_manifest.json`` (``None`` if the bundle has none); the images
     themselves are not re-hashed, because they are not in the repo.
 
@@ -295,10 +296,23 @@ def split_pins(bundle_dir):
         pins["n_records"] = sum(1 for line in fh if line.strip())
     vpath = os.path.join(bundle_dir, "verdicts.json")
     gpath = os.path.join(bundle_dir, "gt_source.json")
+    spath = os.path.join(bundle_dir, BUNDLE_SPEC)
     if os.path.exists(vpath):
         pins["gt_kind"] = "verdicts"
         pins["verdicts_sha256"] = normalized_sha256(vpath)
         with open(vpath, encoding="utf-8") as fh:
+            pins["n_reviewed"] = len(json.load(fh)["panos"])
+    elif os.path.exists(spath):
+        # A #48 bundle that borrows another split's review: pin its own spec and the
+        # borrowed verdicts.json, since both decide what is scored.
+        pins["gt_kind"] = "borrowed_verdicts"
+        pins["bundle_spec_sha256"] = normalized_sha256(spath)
+        with open(spath, encoding="utf-8") as fh:
+            src = json.load(fh).get("verdicts_from")
+        pins["verdicts_from"] = src
+        borrowed = os.path.normpath(os.path.join(bundle_dir, src or "", "verdicts.json"))
+        pins["verdicts_sha256"] = normalized_sha256(borrowed)
+        with open(borrowed, encoding="utf-8") as fh:
             pins["n_reviewed"] = len(json.load(fh)["panos"])
     elif os.path.exists(gpath):
         pins["gt_kind"] = "manual_labels"
@@ -307,8 +321,8 @@ def split_pins(bundle_dir):
             labels_dir = os.path.normpath(os.path.join(bundle_dir, json.load(fh)["labels_dir"]))
         pins["labels_digest"], pins["n_reviewed"] = labels_digest(labels_dir)
     else:
-        raise SystemExit(f"{bundle_dir}: no verdicts.json or gt_source.json -- split pins "
-                         "cover scored splits only")
+        raise SystemExit(f"{bundle_dir}: no verdicts.json, {BUNDLE_SPEC} or gt_source.json "
+                         "-- not a scored bundle")
     mpath = os.path.join(bundle_dir, "imagery_manifest.json")
     pins["imagery_digest"] = None
     if os.path.exists(mpath):
