@@ -114,3 +114,6 @@ data/seoul_sidewalk_217/*.csv  binary
 
 # The Seoul dataset's own summary table (#218), byte-identical to the Zenodo file so its md5 checks.
 analysis_out/perspective_photos_218/seoul/summary_attributes.csv  binary
+
+# The #113 crop-tilt outputs are byte-compared by scripts/analysis/crop_tilt_113.py --check.
+analysis_out/crop_tilt_113/** text eol=lf
