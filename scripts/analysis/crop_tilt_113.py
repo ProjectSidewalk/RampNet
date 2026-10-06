@@ -629,6 +629,26 @@ def fit_response(rows):
                     res["median_peak_value"] = rnd(np.median([float(r[pre + "_value"]) for r in sub]))
                 block["{}:{}".format(window, subset)] = res
         out[ck] = block
+    # paired: the same strips under both checkpoints, so regress the per-label difference on d
+    by = {}
+    for r in rows:
+        by.setdefault(r["label_uid"], {})[r["checkpoint"]] = r
+    pairs = [v for _, v in sorted(by.items()) if "round1" in v and "round2" in v]
+    if len(pairs) > 10:
+        diff = {"n": len(pairs), "note": "(peak_round2 - peak_round1) = c + slope * d_b100; slope is the "
+                                         "round-2 minus round-1 slope, paired on the same strips"}
+        clusters = np.array([v["round1"]["pano_id"] for v in pairs])
+        for window, pre in (("radius", "peak"), ("radius_x2", "peak2")):
+            for ax in ("x", "y"):
+                d = np.array([float(v["round1"]["d_{}_b100".format(ax)]) for v in pairs])
+                y = np.array([float(v["round2"]["{}_minus_stored_{}".format(pre, ax)])
+                              - float(v["round1"]["{}_minus_stored_{}".format(pre, ax)]) for v in pairs])
+                coef, se, _ = _ols(np.column_stack([np.ones_like(d), d]), y, clusters)
+                diff["{}:{}".format(window, ax)] = {
+                    "slope": rnd(coef[1]), "slope_se": rnd(se[1]),
+                    "slope_ci95": [rnd(coef[1] - 1.96 * se[1]), rnd(coef[1] + 1.96 * se[1])],
+                    "intercept_render_px": rnd(coef[0]), "intercept_se": rnd(se[0])}
+        out["round2_minus_round1"] = diff
     return out
 
 

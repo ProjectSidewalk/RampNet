@@ -1,0 +1,289 @@
+{
+ "eval_radius_render_px": 90.024,
+ "model": "peak_minus_stored = c + slope * d_b100 (render px); slope +1 = peak on the object, 0 = peak on the displaced target; SE clustered by pano; 95% CI = slope +/- 1.96 SE",
+ "round1": {
+  "n": 600,
+  "radius:all": {
+   "median_peak_value": 0.9183,
+   "n": 600,
+   "x": {
+    "intercept_render_px": 6.7434,
+    "intercept_se": 1.4061,
+    "resid_sd_render_px": 34.5225,
+    "sd_d_render_px": 13.3466,
+    "slope": 0.3868,
+    "slope_ci95": [
+     0.1769,
+     0.5968
+    ],
+    "slope_se": 0.1071
+   },
+   "y": {
+    "intercept_render_px": 3.4665,
+    "intercept_se": 1.347,
+    "resid_sd_render_px": 32.833,
+    "sd_d_render_px": 53.8355,
+    "slope": 0.4702,
+    "slope_ci95": [
+     0.4195,
+     0.521
+    ],
+    "slope_se": 0.0259
+   }
+  },
+  "radius:peak_ge_0.3": {
+   "median_peak_value": 0.9228,
+   "n": 574,
+   "x": {
+    "intercept_render_px": 6.464,
+    "intercept_se": 1.3688,
+    "resid_sd_render_px": 32.848,
+    "sd_d_render_px": 13.4345,
+    "slope": 0.3942,
+    "slope_ci95": [
+     0.1838,
+     0.6046
+    ],
+    "slope_se": 0.1073
+   },
+   "y": {
+    "intercept_render_px": 3.3756,
+    "intercept_se": 1.3171,
+    "resid_sd_render_px": 31.4623,
+    "sd_d_render_px": 53.8086,
+    "slope": 0.4915,
+    "slope_ci95": [
+     0.4431,
+     0.54
+    ],
+    "slope_se": 0.0247
+   }
+  },
+  "radius_x2:all": {
+   "median_peak_value": 0.9228,
+   "n": 600,
+   "x": {
+    "intercept_render_px": 7.1145,
+    "intercept_se": 1.951,
+    "resid_sd_render_px": 48.0048,
+    "sd_d_render_px": 13.3466,
+    "slope": 0.4086,
+    "slope_ci95": [
+     0.1404,
+     0.6767
+    ],
+    "slope_se": 0.1368
+   },
+   "y": {
+    "intercept_render_px": 4.7654,
+    "intercept_se": 1.8434,
+    "resid_sd_render_px": 44.9733,
+    "sd_d_render_px": 53.8355,
+    "slope": 0.5146,
+    "slope_ci95": [
+     0.4431,
+     0.586
+    ],
+    "slope_se": 0.0365
+   }
+  },
+  "radius_x2:peak_ge_0.3": {
+   "median_peak_value": 0.9243,
+   "n": 577,
+   "x": {
+    "intercept_render_px": 7.5743,
+    "intercept_se": 1.7833,
+    "resid_sd_render_px": 42.9495,
+    "sd_d_render_px": 13.4667,
+    "slope": 0.4383,
+    "slope_ci95": [
+     0.1781,
+     0.6986
+    ],
+    "slope_se": 0.1328
+   },
+   "y": {
+    "intercept_render_px": 4.3995,
+    "intercept_se": 1.6438,
+    "resid_sd_render_px": 39.4175,
+    "sd_d_render_px": 54.0574,
+    "slope": 0.5505,
+    "slope_ci95": [
+     0.4861,
+     0.6149
+    ],
+    "slope_se": 0.0329
+   }
+  },
+  "strata": {
+   "1to3": 200,
+   "ge3": 200,
+   "lt1": 200
+  }
+ },
+ "round2": {
+  "n": 600,
+  "radius:all": {
+   "median_peak_value": 0.9676,
+   "n": 600,
+   "x": {
+    "intercept_render_px": 10.5819,
+    "intercept_se": 1.3602,
+    "resid_sd_render_px": 33.2997,
+    "sd_d_render_px": 13.3466,
+    "slope": 0.4293,
+    "slope_ci95": [
+     0.2196,
+     0.639
+    ],
+    "slope_se": 0.107
+   },
+   "y": {
+    "intercept_render_px": 2.2321,
+    "intercept_se": 1.2743,
+    "resid_sd_render_px": 30.9706,
+    "sd_d_render_px": 53.8355,
+    "slope": 0.7104,
+    "slope_ci95": [
+     0.6607,
+     0.7601
+    ],
+    "slope_se": 0.0254
+   }
+  },
+  "radius:peak_ge_0.3": {
+   "median_peak_value": 0.9693,
+   "n": 579,
+   "x": {
+    "intercept_render_px": 10.9212,
+    "intercept_se": 1.3282,
+    "resid_sd_render_px": 31.9486,
+    "sd_d_render_px": 13.4789,
+    "slope": 0.4524,
+    "slope_ci95": [
+     0.2391,
+     0.6657
+    ],
+    "slope_se": 0.1088
+   },
+   "y": {
+    "intercept_render_px": 2.1474,
+    "intercept_se": 1.193,
+    "resid_sd_render_px": 28.5245,
+    "sd_d_render_px": 54.4152,
+    "slope": 0.7297,
+    "slope_ci95": [
+     0.6833,
+     0.7761
+    ],
+    "slope_se": 0.0237
+   }
+  },
+  "radius_x2:all": {
+   "median_peak_value": 0.9711,
+   "n": 600,
+   "x": {
+    "intercept_render_px": 12.3879,
+    "intercept_se": 1.8075,
+    "resid_sd_render_px": 44.2816,
+    "sd_d_render_px": 13.3466,
+    "slope": 0.453,
+    "slope_ci95": [
+     0.1891,
+     0.7169
+    ],
+    "slope_se": 0.1347
+   },
+   "y": {
+    "intercept_render_px": 2.6345,
+    "intercept_se": 1.8728,
+    "resid_sd_render_px": 45.6102,
+    "sd_d_render_px": 53.8355,
+    "slope": 0.8116,
+    "slope_ci95": [
+     0.7419,
+     0.8814
+    ],
+    "slope_se": 0.0356
+   }
+  },
+  "radius_x2:peak_ge_0.3": {
+   "median_peak_value": 0.9723,
+   "n": 582,
+   "x": {
+    "intercept_render_px": 12.5324,
+    "intercept_se": 1.6741,
+    "resid_sd_render_px": 40.3911,
+    "sd_d_render_px": 13.4444,
+    "slope": 0.5056,
+    "slope_ci95": [
+     0.2422,
+     0.769
+    ],
+    "slope_se": 0.1344
+   },
+   "y": {
+    "intercept_render_px": 2.7255,
+    "intercept_se": 1.6329,
+    "resid_sd_render_px": 39.0933,
+    "sd_d_render_px": 54.2823,
+    "slope": 0.8442,
+    "slope_ci95": [
+     0.784,
+     0.9045
+    ],
+    "slope_se": 0.0308
+   }
+  },
+  "strata": {
+   "1to3": 200,
+   "ge3": 200,
+   "lt1": 200
+  }
+ },
+ "round2_minus_round1": {
+  "n": 600,
+  "note": "(peak_round2 - peak_round1) = c + slope * d_b100; slope is the round-2 minus round-1 slope, paired on the same strips",
+  "radius:x": {
+   "intercept_render_px": 3.8385,
+   "intercept_se": 1.0521,
+   "slope": 0.0425,
+   "slope_ci95": [
+    -0.1572,
+    0.2422
+   ],
+   "slope_se": 0.1019
+  },
+  "radius:y": {
+   "intercept_render_px": -1.2344,
+   "intercept_se": 1.2545,
+   "slope": 0.2401,
+   "slope_ci95": [
+    0.1902,
+    0.29
+   ],
+   "slope_se": 0.0255
+  },
+  "radius_x2:x": {
+   "intercept_render_px": 5.2734,
+   "intercept_se": 1.6755,
+   "slope": 0.0444,
+   "slope_ci95": [
+    -0.2065,
+    0.2954
+   ],
+   "slope_se": 0.128
+  },
+  "radius_x2:y": {
+   "intercept_render_px": -2.1309,
+   "intercept_se": 1.5437,
+   "slope": 0.2971,
+   "slope_ci95": [
+    0.2341,
+    0.3601
+   ],
+   "slope_se": 0.0322
+  }
+ },
+ "sigma_render_px": 96.0
+}
