@@ -460,3 +460,9 @@ analysis_out/aug_transfer_82/finetune/*
 analysis_out/bayonne_159/**/*.jpg
 analysis_out/bayonne_159/**/*.png
 analysis_out/bayonne_159/**/*.html
+# Crop-model tilt displacement (#113, docs/crop_tilt_113.md): the derived per-label table, the
+# empirical sample and response rows, and the summaries --check re-derives from them.
+!analysis_out/crop_tilt_113/
+analysis_out/crop_tilt_113/*
+!analysis_out/crop_tilt_113/*.csv
+!analysis_out/crop_tilt_113/*.json
