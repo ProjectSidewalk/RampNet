@@ -45,7 +45,11 @@ def load_scene(slug):
 # ---------------------------------------------------------------------------------------------
 
 def cmd_fuse(args):
+    """TSDF fusion with Open3D's tensor VoxelBlockGrid (the legacy ScalableTSDFVolume returns
+    an empty mesh in the 0.20 Windows wheel, even on synthetic input). Depth goes in as uint16
+    millimetres and colour as uint8, the one input pairing that kernel accepts."""
     import open3d as o3d
+    import open3d.core as o3c
     meta, z = load_scene(args.slug)
     xyz = z["xyz"].astype(np.float32)
     conf = z["conf"].astype(np.float32)
@@ -55,9 +59,12 @@ def cmd_fuse(args):
     assert (w, h) == (mw, mh)
     gt = np.array(meta["gt_click"]["point_mapanything"], np.float32) if meta.get("gt_click") else np.zeros(3)
     thr = np.percentile(conf, args.conf_pct)
-    vol = o3d.pipelines.integration.ScalableTSDFVolume(
-        voxel_length=args.voxel, sdf_trunc=args.voxel * 4,
-        color_type=o3d.pipelines.integration.TSDFVolumeColorType.RGB8)
+    dev = o3c.Device("CPU:0")
+    vbg = o3d.t.geometry.VoxelBlockGrid(
+        attr_names=("tsdf", "weight", "color"),
+        attr_dtypes=(o3c.float32, o3c.float32, o3c.float32),
+        attr_channels=((1), (1), (3)), voxel_size=args.voxel, block_resolution=8,
+        block_count=args.blocks, device=dev)
     for i, cam in enumerate(meta["cameras"]):
         T = np.array(cam["cam_to_world_refined"], np.float64)
         K = np.array(cam["K"], np.float64)
@@ -65,24 +72,32 @@ def cmd_fuse(args):
         Km = K.copy()
         Km[0] *= sx
         Km[1] *= sy
-        Rwc, t = T[:3, :3].T, T[:3, 3]
         P = xyz[i].reshape(-1, 3)
-        Pc = (P - t) @ Rwc.T                       # camera frame, z forward
-        depth = Pc[:, 2].reshape(h, w).astype(np.float32)
+        depth = ((P - T[:3, 3]) @ T[:3, :3])[:, 2].reshape(h, w)
         ok = (conf[i] >= thr) & (depth > 0.5) & (depth < args.max_depth)
         ok &= np.linalg.norm(P - gt, axis=1).reshape(h, w) < args.radius
-        depth = np.where(ok, depth, 0.0).astype(np.float32)
-        color = o3d.geometry.Image(np.ascontiguousarray(rgb[i]))
-        rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(
-            color, o3d.geometry.Image(depth), depth_scale=1.0, depth_trunc=args.max_depth,
-            convert_rgb_to_intensity=False)
-        intr = o3d.camera.PinholeCameraIntrinsic(w, h, Km[0, 0], Km[1, 1], Km[0, 2], Km[1, 2])
-        vol.integrate(rgbd, intr, np.linalg.inv(T))
+        # the capture vehicle: anything within --vehicle-radius of the camera, below it
+        ok &= ~((np.linalg.norm(P - T[:3, 3], axis=1).reshape(h, w) < args.vehicle_radius)
+                & (P[:, 2].reshape(h, w) < T[2, 3] - 0.3))
+        dimg = o3d.t.geometry.Image(o3c.Tensor(np.where(ok, depth * 1000.0, 0).astype(np.uint16)))
+        Kt = o3c.Tensor(Km, dtype=o3c.float64)
+        Kc = Kt
+        if args.color_views:
+            # colour from the full-resolution face rather than the model-resolution copy
+            from PIL import Image
+            face = np.asarray(Image.open(os.path.join(dense_dir(args.slug), "views", cam["view"])).convert("RGB"))
+            cimg = o3d.t.geometry.Image(o3c.Tensor(np.ascontiguousarray(face)))
+            Kc = o3c.Tensor(K, dtype=o3c.float64)
+        else:
+            cimg = o3d.t.geometry.Image(o3c.Tensor(np.ascontiguousarray(rgb[i])))
+        ext = o3c.Tensor(np.linalg.inv(T), dtype=o3c.float64)
+        blocks = vbg.compute_unique_block_coordinates(dimg, Kt, ext, 1000.0, args.max_depth)
+        vbg.integrate(blocks, dimg, cimg, Kt, Kc, ext, 1000.0, args.max_depth)
         if i % 20 == 0:
             print("integrated", i, "/", n, flush=True)
-    mesh = vol.extract_triangle_mesh()
+    tm = vbg.extract_triangle_mesh(weight_threshold=args.min_weight)
+    mesh = tm.to_legacy()
     mesh.compute_vertex_normals()
-    # drop small floating pieces
     tri_clusters, cluster_n, _ = mesh.cluster_connected_triangles()
     tri_clusters = np.asarray(tri_clusters)
     cluster_n = np.asarray(cluster_n)
@@ -164,38 +179,43 @@ def cmd_path(args):
 # ---------------------------------------------------------------------------------------------
 
 def cmd_render(args):
+    """pyrender (OpenGL) rather than Open3D's Filament renderer: on this machine the latter
+    returns a black frame for any mesh larger than a few hundred thousand triangles, while
+    pyrender draws the full 9M-triangle fusion in about 3 s."""
     import open3d as o3d
-    from open3d.visualization import rendering
+    import pyrender
+    import trimesh
     from PIL import Image, ImageDraw
     meta, _ = load_scene(args.slug)
     with open(os.path.join(dense_dir(args.slug), "path.json"), encoding="utf-8") as f:
         path = json.load(f)
     mesh_path = args.mesh or sorted(p for p in os.listdir(dense_dir(args.slug)) if p.startswith("mesh_v"))[0]
-    mesh = o3d.io.read_triangle_mesh(os.path.join(dense_dir(args.slug), mesh_path))
-    mesh.compute_vertex_normals()
+    om = o3d.io.read_triangle_mesh(os.path.join(dense_dir(args.slug), mesh_path))
+    V = np.asarray(om.vertices)
+    C = (np.clip(np.asarray(om.vertex_colors), 0, 1) * 255).astype(np.uint8)
+    tm = trimesh.Trimesh(vertices=V, faces=np.asarray(om.triangles), vertex_colors=C, process=False)
+    gt = np.array(path["target"]) - np.array([0, 0, 0.3])
+    ring = trimesh.creation.torus(0.9, 0.06)
+    ring.apply_translation(gt + np.array([0, 0, 0.08]))
+    ring.visual.vertex_colors = np.tile(np.array([255, 211, 77, 255], np.uint8), (len(ring.vertices), 1))
     W, H = path["width"], path["height"]
     K = np.array(path["K"])
-    r = rendering.OffscreenRenderer(W, H)
-    r.scene.set_background([0.07, 0.08, 0.11, 1.0])
-    mat = rendering.MaterialRecord()
-    mat.shader = "defaultUnlit"
-    r.scene.add_geometry("corner", mesh, mat)
-    gt = np.array(path["target"]) - np.array([0, 0, 0.3])
-    ring = o3d.geometry.TriangleMesh.create_torus(torus_radius=0.9, tube_radius=0.06)
-    ring.translate(gt + np.array([0, 0, 0.08]))
-    ring.paint_uniform_color([1.0, 0.83, 0.3])
-    r.scene.add_geometry("ring", ring, mat)
+    scene = pyrender.Scene(bg_color=[0.07, 0.08, 0.11, 1.0], ambient_light=[1.0, 1.0, 1.0])
+    scene.add(pyrender.Mesh.from_trimesh(tm, smooth=False))
+    scene.add(pyrender.Mesh.from_trimesh(ring, smooth=False))
+    cam = pyrender.IntrinsicsCamera(fx=K[0, 0], fy=K[1, 1], cx=K[0, 2], cy=K[1, 2], znear=0.1, zfar=300.0)
+    cam_node = scene.add(cam, pose=np.eye(4))
+    flip = np.diag([1.0, -1.0, -1.0, 1.0])          # OpenCV (y down, z forward) -> OpenGL camera
+    rend = pyrender.OffscreenRenderer(W, H)
     frames_dir = os.path.join(FA_DIR, "frames", f"mesh_{args.slug}")
     os.makedirs(frames_dir, exist_ok=True)
-    intr = o3d.camera.PinholeCameraIntrinsic(W, H, K[0, 0], K[1, 1], K[0, 2], K[1, 2])
     label = f"{meta['city'].title()}, {meta['imagery']} · {meta['n_panos']} panoramas, fused surface"
     for i, fr in enumerate(path["frames"]):
         if i % args.step:
             continue
-        T = np.array(fr["T"])
-        r.setup_camera(intr, np.linalg.inv(T))
-        img = np.asarray(r.render_to_image())
-        im = Image.fromarray(img[..., :3])
+        scene.set_pose(cam_node, np.array(fr["T"]) @ flip)
+        color, _ = rend.render(scene, flags=pyrender.RenderFlags.FLAT)
+        im = Image.fromarray(color)
         d = ImageDraw.Draw(im, "RGBA")
         d.rectangle((0, H - 110, W, H), fill=(12, 12, 14, 200))
         d.text((40, H - 92), label, font=_font(38), fill=(240, 240, 236))
@@ -204,6 +224,7 @@ def cmd_render(args):
         im.save(os.path.join(frames_dir, f"frame_{i:04d}.png"))
         if i % 60 == 0:
             print("frame", i, flush=True)
+    rend.delete()
     if args.step == 1:
         out = os.path.join(FA_DIR, f"flyaround_mesh_{args.slug}.mp4")
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
@@ -232,6 +253,12 @@ def main(argv=None):
     p.add_argument("--max-depth", type=float, default=40.0)
     p.add_argument("--radius", type=float, default=45.0, help="keep points within this of the ramp")
     p.add_argument("--min-cluster", type=int, default=2000)
+    p.add_argument("--min-weight", type=float, default=2.0, help="voxels seen fewer times are dropped")
+    p.add_argument("--color-views", action="store_true", help="colour from views/*.jpg at full res")
+    p.add_argument("--vehicle-radius", type=float, default=3.5, help="mask the capture vehicle around each camera")
+    # Pre-size the block table: letting it rehash as views arrive segfaults in the 0.20
+    # Windows wheel (richmond_99 at 5 cm needs ~380k blocks; 1.5M costs ~15 GB RAM).
+    p.add_argument("--blocks", type=int, default=1_500_000)
     p = sub.add_parser("path")
     p.add_argument("--slug", required=True)
     p.add_argument("--seconds-drive", type=float, default=8.0)

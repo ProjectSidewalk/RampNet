@@ -1,2 +1,9 @@
 frames/
 *.mp4
+*.tgz
+dense/*/pointmaps.npz
+dense/*/dense.ply
+dense/*/mesh_*.ply
+dense/*/views/
+dense/*/colmap/
+dense/*/gaussians.pt

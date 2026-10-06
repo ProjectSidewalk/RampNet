@@ -18,11 +18,14 @@ cd $R
 [ -d venv ] || uv venv -q -p 3.10 venv
 . venv/bin/activate
 uv pip install -q "torch==2.4.1" "torchvision==0.19.1" --index-url https://download.pytorch.org/whl/cu121
-uv pip install -q numpy pillow tqdm imageio imageio-ffmpeg scipy packaging
-uv pip install -q gsplat --index-url https://docs.gsplat.studio/whl/pt24cu121 \
-  || { echo "wheel index failed; building gsplat from source";
-       export CUDA_HOME=/sw/cuda/12.2.2 PATH=/sw/cuda/12.2.2/bin:$PATH TORCH_CUDA_ARCH_LIST="8.9";
-       uv pip install -q --no-build-isolation gsplat; }
+uv pip install -q numpy pillow tqdm imageio imageio-ffmpeg scipy packaging setuptools wheel ninja
+# No usable prebuilt wheel: the pt24cu121 wheel needs glibc 2.29 and klone is Rocky 8
+# (glibc 2.28). Build from source with the gcc under /sw (the system gcc 8.5 is too old for
+# torch's headers) against /sw/cuda/12.2.2; gsplat JIT-compiles its kernels on first import.
+export PATH=/sw/gcc/11.2.0/bin:/sw/cuda/12.2.2/bin:$PATH CC=/sw/gcc/11.2.0/bin/gcc CXX=/sw/gcc/11.2.0/bin/g++
+export LD_LIBRARY_PATH=/sw/gcc/11.2.0/lib64:$LD_LIBRARY_PATH CUDA_HOME=/sw/cuda/12.2.2 TORCH_CUDA_ARCH_LIST="8.9"
+export MAX_JOBS=8
+python -c "from gsplat import csrc" 2>/dev/null || { uv pip uninstall -q gsplat; uv pip install -q --no-build-isolation "gsplat==1.4.0"; }
 python - <<'EOF'
 import torch, gsplat
 print("torch", torch.__version__, torch.version.cuda, "gpu", torch.cuda.get_device_name(0))
