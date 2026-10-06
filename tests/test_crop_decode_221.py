@@ -107,14 +107,16 @@ def test_x_bias_on_gt_x_recovers_a_planted_slope(cd):
     rng = np.random.default_rng(1)
     n = 400
     xg = rng.uniform(5, 83, n)
-    e = rng.normal(0, 6, n)                          # detection error, independent of x
+    e = rng.normal(0, 2, n)                          # detection error, independent of x
     xd = xg - (0.03 * xg - 1.4) + e                  # so dx = GT - det = 0.03 xg - 1.4 - e
     crops = [{"gt": [[xg[i] / CROP[1], 0.5]], "sha256": str(i)} for i in range(n)]
     cache = [{"gaussian": np.array([[128.0, xd[i], 1.0]])} for i in range(n)]
     pairs = [(i, 0, 0) for i in range(n)]
     boot = cd.Boot(np.array([str(i) for i in range(n)]), np.random.default_rng(2), 200)
     xb = cd.x_bias(crops, pairs, cache, "gaussian", boot)
-    assert xb["on_gt_x"]["slope"] == pytest.approx(0.03, abs=0.03)
+    assert xb["on_gt_x"]["slope"] == pytest.approx(0.03, abs=0.01)
+    # planted line 0.03 x - 1.4 vs predicted 0.03125 x - 1.371: the offset is near zero
+    assert abs(xb["offset_vs_predicted"]["obs"]) < 0.3
     assert xb["on_det_x"]["slope"] < xb["on_gt_x"]["slope"]
     assert 0 < xb["dilution"] < 1
 

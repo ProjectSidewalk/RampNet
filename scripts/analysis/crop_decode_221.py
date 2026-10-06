@@ -569,7 +569,16 @@ def x_bias(crops, pairs, cache, method, boot):
     xg = np.array([crops[ci]["gt"][g][0] * HM[1] for ci, _, g in pairs])
     xd = np.array([cache[ci][method][k][1] for ci, k, _ in pairs])
     thirds = [dx[(xg >= HM[1] * t / 3) & (xg < HM[1] * (t + 1) / 3)] for t in range(3)]
+    # The joint test of the predicted line: mean of dx minus the predicted dx at the
+    # label's x. Slope and intercept CIs each covering the prediction is not that test
+    # (they are wide and correlated); a mean offset can remain with the slope matching.
+    resid = dx - (PREDICTED_X_BIAS["slope"] * xg + PREDICTED_X_BIAS["intercept_px"])
+    R = boot.replicate(np.column_stack([np.ones_like(resid), resid]))
+    off = R[:, 1] / R[:, 0]
     return {"on_gt_x": _ols_boot(boot, xg, dx), "on_det_x": _ols_boot(boot, xd, dx),
+            "offset_vs_predicted": {
+                "obs": float(resid.mean()),
+                "ci95": [float(v) for v in np.percentile(off, [2.5, 97.5])]},
             "dilution": float(np.var(xd - xg) / np.var(xd)),
             "mean_dx_by_gt_third": [float(t.mean()) if len(t) else None for t in thirds],
             "n_by_gt_third": [int(len(t)) for t in thirds]}
@@ -779,6 +788,8 @@ def _x_bias_lines(L, t):
             continue
         L.append(f"- {meth}, on GT x: {_fmt_ols(xb['on_gt_x'])}; mean dx by GT-x third "
                  f"{xb['mean_dx_by_gt_third']} (n {xb['n_by_gt_third']})")
+        L.append(f"- {meth}, mean(dx - predicted dx at GT x): "
+                 f"{fmt_ci(xb['offset_vs_predicted'])} px")
         L.append(f"- {meth}, on detection x (comparison only, errors in variables; "
                  f"var(e)/var(det x) = {xb['dilution']:.4f}): {_fmt_ols(xb['on_det_x'])}")
     L.append("")

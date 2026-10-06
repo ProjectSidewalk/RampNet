@@ -402,6 +402,13 @@
          1.4685
         ]
        },
+       "offset_vs_predicted": {
+        "obs": 0.9822,
+        "ci95": [
+         0.2923,
+         1.6873
+        ]
+       },
        "dilution": 0.0424,
        "mean_dx_by_gt_third": [
         -0.6286,
@@ -437,6 +444,13 @@
         "intercept_ci95": [
          -3.0575,
          -0.117
+        ]
+       },
+       "offset_vs_predicted": {
+        "obs": 0.7481,
+        "ci95": [
+         0.0999,
+         1.386
         ]
        },
        "dilution": 0.0379,
@@ -1956,6 +1970,13 @@
          1.8051
         ]
        },
+       "offset_vs_predicted": {
+        "obs": 1.0428,
+        "ci95": [
+         0.4723,
+         1.6066
+        ]
+       },
        "dilution": 0.0317,
        "mean_dx_by_gt_third": [
         -0.0856,
@@ -1991,6 +2012,13 @@
         "intercept_ci95": [
          -1.9166,
          0.5241
+        ]
+       },
+       "offset_vs_predicted": {
+        "obs": 0.8843,
+        "ci95": [
+         0.3693,
+         1.4031
         ]
        },
        "dilution": 0.0281,
@@ -3257,6 +3285,13 @@
          1.5132
         ]
        },
+       "offset_vs_predicted": {
+        "obs": 0.8951,
+        "ci95": [
+         0.2435,
+         1.5441
+        ]
+       },
        "dilution": 0.0423,
        "mean_dx_by_gt_third": [
         -0.4923,
@@ -3292,6 +3327,13 @@
         "intercept_ci95": [
          -2.6073,
          0.0822
+        ]
+       },
+       "offset_vs_predicted": {
+        "obs": 0.7667,
+        "ci95": [
+         0.1716,
+         1.3407
         ]
        },
        "dilution": 0.0361,
@@ -3466,6 +3508,13 @@
          1.8237
         ]
        },
+       "offset_vs_predicted": {
+        "obs": 1.0109,
+        "ci95": [
+         0.4866,
+         1.5582
+        ]
+       },
        "dilution": 0.0322,
        "mean_dx_by_gt_third": [
         -0.0815,
@@ -3501,6 +3550,13 @@
         "intercept_ci95": [
          -1.978,
          0.4631
+        ]
+       },
+       "offset_vs_predicted": {
+        "obs": 0.7967,
+        "ci95": [
+         0.2788,
+         1.2888
         ]
        },
        "dilution": 0.0293,

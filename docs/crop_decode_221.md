@@ -159,8 +159,11 @@ decoded offset, in cells):
 A slope near 1 means the decoded offset carries the label's own sub-cell offset at about the
 right scale.
 
-**y bias.** The argmax's y bias is mostly its half-pixel lean (peaks on 8i+3 or 8i+4). The decode
-shifts mean dy down by about 0.4-0.6 px on both splits:
+**y bias.** The decode shifts mean dy down by about 0.4-0.6 px on both splits. Where the argmax's
+y bias comes from is not established. It is not the 8i+3 / 8i+4 straddle: those rows sit
+symmetrically about the cell centre, and the measured residues predict only about +0.04 px.
+
+
 
 | split | single pass, argmax → gaussian | TTA, argmax → gaussian |
 |---|---|---|
@@ -313,11 +316,27 @@ steps blur it" were both this artefact.
 
 What the corrected regression shows:
 
-- **Round 2 matches the predicted geometry.** On test, every gaussian slope CI covers +0.031 and
-  excludes zero, and every intercept CI covers -1.37. On val the slopes are lower (+0.020) and
-  their CIs include both zero and +0.031; the single-pass intercept (-1.367) is on the
-  prediction. The "uniform unexplained x offset" in the first version was the detection-x
-  regression's artefact plus this slope.
+- **Round 2's slope matches the predicted geometry; a mean offset remains on test.**
+  - On test, every gaussian slope CI covers +0.031 and excludes zero.
+  - On val the slopes are lower (+0.020), and their CIs include both zero and +0.031.
+  - The intercept CIs are wide and correlated with the slopes, so each one covering -1.37 does
+    not test the predicted line.
+
+  The direct test is the mean of dx minus the predicted dx at the label's x (gaussian, CIs
+  resample distinct images):
+
+  | split | single pass | TTA |
+  |---|---|---|
+  | test | +0.545 [+0.093, +1.024] | +0.852 [+0.367, +1.336] |
+  | val | -0.512 [-1.031, +0.001] | +0.077 [-0.443, +0.587] |
+
+  So on test the labels sit about 0.5-0.9 px right of where the training geometry puts the
+  detections. That offset is not explained. On val the single-pass offset has the opposite
+  sign, and the TTA offset is near zero. TTA moves the test offset by +0.31 px and the val
+  offset by +0.59 px. One untested candidate for that TTA shift is the half-pixel asymmetry of
+  `np.fliplr`, which maps index p to 87 - p, against a continuous mirror of the 682-px image.
+  The first version's "unexplained uniform offset" was partly this offset and partly the
+  detection-x regression's artefact.
 - **Round 1 overshoots the prediction.** Its gaussian slope (+0.081 single pass, +0.060 TTA) has
   a CI that excludes +0.031, although its training geometry is the same as round 2's. Why round
   1 learned a stronger contraction is not established here. Its labels are Project Sidewalk
@@ -429,7 +448,7 @@ python -c "import sys; sys.path.insert(0, '<repo>/stage_one/crop_model/ps_and_ma
 - **Stage 1 placement error with and without the decode.** This needs the crop-to-pano point
   design in section 6.
 - **A CI on the TP and AP changes.** Reported as counts only.
-- **Why round 1's x slope exceeds the predicted geometry** (section 5).
+- **Why round 1's x slope exceeds the predicted geometry, why round-2 test keeps a mean x offset, and what causes the TTA x shift** (section 5).
 - **Nothing was pushed to the Hub.** The crop model card template
   (`scripts/hf_package/README.crop_model_card.template.md`) now states the measured number. The
   live card changes only when someone republishes it.
@@ -445,15 +464,19 @@ above; the numbers re-derive from the same committed extracts, with no new GPU e
   did not change. The CIs widened by 25-40%: test single pass went from [-1.167, -0.791] to
   [-1.213, -0.744]. Every CI still excludes zero.
 - **The x-bias slope was regressed on detection x**, an errors-in-variables estimate biased
-  toward zero. Section 5 now uses GT x. That reverses the earlier conclusions: round 2 does show
-  the predicted slope, and there is no unexplained uniform offset.
+  toward zero. Section 5 now uses GT x. Round 2 does show the predicted slope, which reverses the
+  first version's "no slope". A mean x offset beyond the predicted line remains on test and is
+  not explained; it is now measured directly (section 5). On val it has the opposite sign in the
+  single pass.
 - **Round 1 was said to train without flips.** It trains with flips (`ps_model/model/train.py`
   L118). Both rounds predict the same geometry.
 - **The document said the repo held no earlier crop-model metric.** The 0.6753 PNG from the
   initial commit is now cited (section 4.5).
 - **Round-1 detection rows and per-peak TP flips were missing.** Both are added; the change can
   be negative.
-- **The y-bias claim held on test only.** Both splits are now reported (section 4.1).
+- **The y-bias claim held on test only.** Both splits are now reported (section 4.1). The
+  attribution of the argmax's y bias to the 8i+3 / 8i+4 straddle is withdrawn; it predicts about
+  +0.04 px.
 - **Smaller fixes:**
   - the evaluator's gaussian path no longer re-reads a heatmap it has just written;
   - `--check` reports a missing results file instead of raising;
