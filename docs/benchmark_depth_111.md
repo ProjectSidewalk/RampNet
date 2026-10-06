@@ -205,6 +205,9 @@ corrected before the main run, and those 20 requests went out at gaps between ab
   unchanged ones are also listed, as `file differs (payload identical)`.
 - **The response codes of the 351 gone panoramas** were not recorded. The harvester keeps them from
   now on. Recovering them for these 351 is a 351-request re-fetch and is Jon's call; it was not done.
+  If it is done, the codes land in a `depth_manifest.refetch-<stamp>.json` (adding a `code` to a
+  committed gone entry trips the record guard), which has to be promoted to `depth_manifest.json`
+  by hand after checking that only the `code` fields changed.
 - **No depth analysis on manual_gold.** `recall_by_depth_112.py --only manual_gold` is the next step.
   It needs a path option pointing at this archive, and it has to handle the 351 gone, 270
   stand-in, 4 degenerate and 1 implausible panoramas explicitly.

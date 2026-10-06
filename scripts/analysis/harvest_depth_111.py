@@ -639,8 +639,15 @@ def harvest(split, limit=None, resume=True, repo=REPO, session=None, archive_dir
             if conflicts:
                 stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
                 out_path = os.path.join(split_dir(split, repo), f"depth_manifest.refetch-{stamp}.json")
-                print(f"  {len(conflicts)} pano(s) would change or lose their committed outcome "
-                      f"(e.g. {conflicts[:3]}); the committed {MANIFEST_NAME} is left untouched")
+                rec = prior["panos"]
+                payload = [c for c in conflicts
+                           if man["panos"].get(c, {}).get("status") != rec[c]["status"]
+                           or man["panos"].get(c, {}).get("sha256") != rec[c].get("sha256")]
+                print(f"  {len(conflicts)} pano(s) would change their committed entry (status, "
+                      f"payload or file/fetch fields): {len(payload)} status/payload change(s), "
+                      f"{len(conflicts) - len(payload)} file/fetch-field-only change(s) "
+                      f"(e.g. {conflicts[:3]}); the committed {MANIFEST_NAME} is left untouched "
+                      f"and this run's manifest goes to {os.path.basename(out_path)}")
         dump_json(out_path, man)
         log["manifest_path"] = out_path
     log["outcomes"] = dict(log["outcomes"])
