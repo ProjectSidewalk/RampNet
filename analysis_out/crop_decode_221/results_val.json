@@ -43,7 +43,7 @@
  "mechanism": {
   "max_recon_rel_torch": "3.17e-07",
   "max_recon_rel_numpy": "3.09e-07",
-  "max_flip_commute_abs": "2.22e-16"
+  "max_flip_commute_abs": "0.00e+00"
  },
  "arms": {
   "single": {

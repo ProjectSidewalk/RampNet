@@ -78,6 +78,15 @@ def test_tta_combine_is_evaluate_py(cd):
     assert cd.flip_commutes(crop) < 1e-12
 
 
+def test_up_is_elementwise_and_flip_exact(cd):
+    """The report's upsample avoids BLAS (whose summation order depends on the CPU and made
+    --check fail on CI). It equals sc.upsample to float rounding and commutes with a
+    horizontal flip exactly."""
+    c = np.random.default_rng(4).uniform(-0.5, 1.5, COARSE)
+    assert np.abs(cd.up(c) - sc.upsample(c)).max() < 1e-14
+    assert np.array_equal(cd.up(np.fliplr(c)), np.fliplr(cd.up(c)))
+
+
 def test_x_fixes(cd):
     """At width 704 the training targets have no x mismatch, so both fixes are identity;
     at 682 the flip-averaged fix has its fixed point near column 44."""

@@ -328,15 +328,40 @@ def load_extract(path):
 _UP = {}
 
 
+def _taps(n_in):
+    """Per output index of a x``FACTOR`` bilinear upsample: the two source indices and
+    their weights, read off ``sc.bilinear_upsample_matrix`` (same rule as PyTorch)."""
+    U = sc.bilinear_upsample_matrix(n_in, n_in * FACTOR)
+    i0 = np.empty(len(U), dtype=int)
+    i1 = np.empty(len(U), dtype=int)
+    w0 = np.empty(len(U))
+    w1 = np.empty(len(U))
+    for d, row in enumerate(U):
+        nz = np.flatnonzero(row)
+        i0[d], i1[d] = nz[0], nz[-1]
+        w0[d], w1[d] = (row[nz[0]], row[nz[-1]]) if len(nz) == 2 else (row[nz[0]], 0.0)
+    return i0, i1, w0, w1
+
+
 def up(c):
-    """``sc.upsample`` with its two bilinear matrices built once per shape (same matrices,
-    same product order, so the same floats)."""
+    """Bilinear x``FACTOR`` upsample (``sc.upsample``, to ~1e-16), computed elementwise.
+
+    Why not ``sc.upsample``: that is two BLAS matrix products, and BLAS picks its kernel
+    (and so its summation order) by CPU. The last bit of a heatmap value then differs
+    between machines. That is harmless for a value, but not for a tie: the clipped and
+    symmetric parts of a crop heatmap hold exact ties, and which pixel ``peak_local_max``
+    keeps can change with the last bit, which changes peaks, pairs and the committed
+    results. CI's runners re-derived ``results_val.*`` differently from this desktop for
+    exactly that reason. Elementwise multiply and add are single correctly rounded IEEE
+    operations, the same on every platform, so this version gives the same floats
+    everywhere. The order is fixed: rows first, then columns."""
+    c = np.asarray(c, dtype=np.float64)
     h, w = c.shape
     if (h, w) not in _UP:
-        _UP[(h, w)] = (sc.bilinear_upsample_matrix(h, h * FACTOR),
-                       sc.bilinear_upsample_matrix(w, w * FACTOR).T)
-    a, b = _UP[(h, w)]
-    return a @ c @ b
+        _UP[(h, w)] = (_taps(h), _taps(w))
+    (r0, r1, a0, a1), (k0, k1, b0, b1) = _UP[(h, w)]
+    rows = a0[:, None] * c[r0, :] + a1[:, None] * c[r1, :]
+    return rows[:, k0] * b0[None, :] + rows[:, k1] * b1[None, :]
 
 
 def arm_maps(crop, arm):
@@ -483,8 +508,16 @@ class Boot:
         return out
 
     def replicate(self, per_pair):
-        """(reps, k) replicate sums of a (pairs, k) per-pair array."""
-        return self.C @ self.per_group(per_pair)
+        """(reps, k) replicate sums of a (pairs, k) per-pair array.
+
+        Accumulated cluster by cluster with elementwise ops rather than ``C @ S``, so the
+        summation order is fixed and the floats do not depend on the BLAS kernel (see
+        ``up``)."""
+        S = self.per_group(per_pair)
+        out = np.zeros((self.C.shape[0], S.shape[1]))
+        for g in range(S.shape[0]):
+            out += self.C[:, g:g + 1] * S[g][None, :]
+        return out
 
 
 def paired_boot(boot, a, b):

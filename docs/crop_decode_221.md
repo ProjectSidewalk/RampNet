@@ -62,8 +62,9 @@ flip branches, the largest relative residual `max|head - upsample(coarse)| / max
 | test (round-1 checkpoint) | 2.72e-07 | 2.50e-07 |
 
 That is fp32 rounding, as on the pano (#226). The bilinear upsample also commutes with a
-horizontal flip to 2.22e-16, so the mirrored branch's coarse map, flipped back, is a valid
-decode source under TTA.
+horizontal flip exactly: the difference is 0 with the report's elementwise upsample, and 2.2e-16 with
+the BLAS one. So the mirrored branch's coarse map, flipped back, is a valid decode source under
+TTA.
 
 Before decoding, 238 of the 244 argmax peak columns sit on heatmap pixel 3 or 4 mod 8 (single
 pass, test, all files). Under the gaussian decode all eight residues are populated
@@ -482,3 +483,16 @@ above; the numbers re-derive from the same committed extracts, with no new GPU e
   - `--check` reports a missing results file instead of raising;
   - the report renders an empty slice instead of failing on it;
   - section 8 gains the `.pth` download command.
+- **`--check` failed on CI (Linux) from the first push, while passing on this desktop.** The
+  report computed heatmaps with `sc.upsample`, which is two BLAS matrix products, and BLAS
+  chooses its kernel, and so its summation order, by CPU. Reproduced on WSL by forcing
+  OpenBLAS kernels (`OPENBLAS_CORETYPE=Prescott`, `Nehalem`, `Sandybridge`): `results_val.json`
+  differed. The only differing field was `max_flip_commute_abs`, an ulp-level number
+  (`2.22e-16` here, `0.00e+00` there) that was written out to three significant digits.
+  - The upsample is now elementwise in a fixed order (`up`). Elementwise IEEE operations give the
+    same floats on every CPU.
+  - The bootstrap's replicate sums now use a fixed order instead of a matrix product.
+  - All results files re-derive byte for byte under every OpenBLAS kernel tested and on Windows.
+  - Apart from that one string, nothing in the results changed. The same last-bit differences
+    could also break exact ties in `peak_local_max`; the fixed-order arithmetic removes that risk
+    too.
