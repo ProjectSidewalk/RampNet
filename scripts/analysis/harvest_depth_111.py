@@ -93,6 +93,7 @@ SKY = 0
 GROUND_MAX_TILT_DEG = 18.0
 GROUND_MIN_BELOW_HORIZON = 0.9
 DEGENERATE_MAX_PLANES = 2
+PLAUSIBLE_HEIGHT_M = (0.8, 3.5)   # labeler depth.PLAUSIBLE_HEIGHT_M; reported, not filtered
 
 # Which benchmark splits are GSV. Everything else is Mapillary / Panoramax, which serve
 # no Google depth. HOLDER says who already holds Google depth for a split before this
@@ -599,6 +600,19 @@ def verify(split, repo=REPO):
 
 # -------------------------------------------------------------------------- compare
 
+def index_agreement(b64_a, b64_b):
+    """Share of pixels whose plane id is the same in two payloads (None if sizes differ).
+
+    Plane ids are positions in each payload's own plane list, so a revision that renumbers
+    planes lowers this even where the geometry is unchanged: a floor, not an exact measure.
+    """
+    wa, ha, _, ia = parse_payload(b64_a)
+    wb, hb, _, ib = parse_payload(b64_b)
+    if (wa, ha) != (wb, hb):
+        return None
+    return round(sum(x == y for x, y in zip(ia, ib)) / len(ia), 4)
+
+
 def compare_labeler(split, labeler_root, repo=REPO):
     """Payload equality of our archive against the labeler's runs/<split>/depth."""
     import csv
@@ -624,9 +638,16 @@ def compare_labeler(split, labeler_root, repo=REPO):
             row = index.get(pid)
             if row and row.get("camera_height_m"):
                 rec["labeler_camera_height_m"] = float(row["camera_height_m"])
+            lg = ground_summary(lrec["depth_b64"])
+            rec["labeler_n_planes"] = lg["n_planes"]
+            rec["labeler_exactly_level"] = lg["exactly_level"]
             if e["status"] == SAVED:
                 rec["identical"] = rec["labeler_sha256"] == e["sha256"]
                 tally["identical" if rec["identical"] else "differs"] += 1
+                if not rec["identical"]:
+                    rec["index_agreement"] = index_agreement(
+                        read_archive_file(archive_path(split, pid, repo))["depth_b64"],
+                        lrec["depth_b64"])
             else:
                 tally[f"labeler_only (ours {e['status']})"] += 1
         else:
@@ -687,6 +708,12 @@ def summarize(repo=REPO, out=print):
                 c = by[city]
                 out(f"| {city} | {sum(c.values())} | {c[SAVED]} | {c[GONE]} | {c[NO_DEPTH]} | "
                     f"{c[ERROR] + c[NOT_FETCHED]} |")
+        az = sorted(abs(((e["heading_deg"] - recs[pid]["pano_azimuth"]) + 180) % 360 - 180)
+                    for pid, e in man["panos"].items()
+                    if e["status"] == SAVED and "heading_deg" in e and "pano_azimuth" in recs[pid])
+        if az:
+            out(f"response heading vs records.jsonl pano_azimuth, {len(az)} saved panos: "
+                f"max |difference| {az[-1]:.3f} deg (same panoramas)")
         years = Counter()
         for pid, e in man["panos"].items():
             if e["status"] == SAVED and e.get("capture_ym"):
@@ -708,6 +735,11 @@ def summarize(repo=REPO, out=print):
         tilts = sorted(e["ground_tilt_deg"] for e in saved
                        if e["camera_height_m"] is not None and not e["degenerate"]
                        and not e.get("exactly_level"))
+        lo, hi = PLAUSIBLE_HEIGHT_M
+        implausible = sum(1 for e in saved if e["camera_height_m"] is not None
+                          and not e["degenerate"] and not e.get("exactly_level")
+                          and not lo <= e["camera_height_m"] <= hi)
+        out(f"measured ground outside the labeler's plausible {lo}-{hi} m window: {implausible}")
         out(f"saved {len(saved)}: degenerate (<= {DEGENERATE_MAX_PLANES} planes) {degenerate}; "
             f"no ground plane {no_ground}; exactly-level stand-in ground {level} "
             f"({level / len(saved):.1%} of saved; {level_25} of them at 2.500 m)")
@@ -720,7 +752,25 @@ def summarize(repo=REPO, out=print):
         cmp_path = os.path.join(split_dir(split, repo), COMPARE_NAME)
         if os.path.exists(cmp_path):
             with open(cmp_path, encoding="utf-8") as fh:
-                out(f"vs the labeler archive: {json.load(fh)['tally']}")
+                cmp = json.load(fh)
+            out(f"vs the labeler archive: {cmp['tally']}; labeler fetch dates "
+                f"{dict(sorted(Counter((r.get('labeler_fetched_at') or '')[:10] for r in cmp['panos'].values()).items()))}")
+            diff = {pid: r for pid, r in cmp["panos"].items() if r.get("identical") is False}
+            if diff:
+                ag = sorted(r["index_agreement"] for r in diff.values()
+                            if r.get("index_agreement") is not None)
+                dh, flips, same_np = [], 0, 0
+                for pid, r in diff.items():
+                    ours = man["panos"][pid]
+                    same_np += ours["n_planes"] == r["labeler_n_planes"]
+                    flips += bool(ours.get("exactly_level")) != bool(r.get("labeler_exactly_level"))
+                    if ours.get("camera_height_m") is not None and "labeler_camera_height_m" in r:
+                        dh.append(abs(ours["camera_height_m"] - r["labeler_camera_height_m"]))
+                dh.sort()
+                out(f"revised payloads {len(diff)}: same plane count {same_np}; plane-index "
+                    f"agreement min {ag[0]:.3f} median {_pct(ag, .5):.3f} max {ag[-1]:.3f}; "
+                    f"camera height unchanged (<1 mm) {sum(d < 1e-3 for d in dh)} of {len(dh)}, "
+                    f"max change {dh[-1]:.3f} m; stand-in status flipped {flips}")
 
 
 # ---------------------------------------------------------------------------- check
