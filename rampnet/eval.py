@@ -394,16 +394,21 @@ def loco(model, *, predictions_dir=PUBLISHED_DIR, benchmark_dir=BENCHMARK_DIR,
                 continue
             preds = load_predictions(path)
         r = score_split(bundle, preds, op_threshold=op_threshold, floor=floor, model=model)
-        cells[s] = {k: r[k] for k in ("precision", "recall", "f1", "ap", "tp", "fp", "fn")}
+        cells[s] = {k: r[k] for k in ("precision", "recall", "f1", "ap", "tp", "fp", "fn",
+                                      "n_gt_recall")}
 
     def micro(names):
+        # Same gating as aggregate(): precision over every pano, recall over the
+        # recall-confirmed GT only (tp on unconfirmed panos is not in the recall pool).
         tp = sum(cells[n]["tp"] for n in names)
         fp = sum(cells[n]["fp"] for n in names)
         fn = sum(cells[n]["fn"] for n in names)
+        n_gt = sum(cells[n]["n_gt_recall"] for n in names)
         p = tp / (tp + fp) if tp + fp else 0.0
-        r = tp / (tp + fn) if tp + fn else 0.0
+        r = (n_gt - fn) / n_gt if n_gt else 0.0
         return {"precision": p, "recall": r,
-                "f1": 2 * p * r / (p + r) if p + r else 0.0, "tp": tp, "fp": fp, "fn": fn}
+                "f1": 2 * p * r / (p + r) if p + r else 0.0, "tp": tp, "fp": fp, "fn": fn,
+                "n_gt_recall": n_gt}
 
     def macro(names):
         out = {}
@@ -421,8 +426,9 @@ def loco(model, *, predictions_dir=PUBLISHED_DIR, benchmark_dir=BENCHMARK_DIR,
     return {"model": model, "op_threshold": op_threshold, "floor": floor,
             "pool": list(splits), "missing": missing, "rows": rows,
             "note": "Reporting convention only: no model was retrained without the "
-                    "held-out city. Micro = summed tp/fp/fn over the other splits; macro "
-                    "= mean of their per-split metrics.",
+                    "held-out city. Micro = counts summed over the other splits (precision "
+                    "over all panos, recall over recall-confirmed GT, as in aggregate()); "
+                    "macro = mean of their per-split metrics.",
             "scorer_fingerprint": scorer_fingerprint(), "eval_sha256": eval_sha256()}
 
 

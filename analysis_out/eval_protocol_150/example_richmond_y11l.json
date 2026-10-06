@@ -1,0 +1,51 @@
+{
+ "split": "richmond",
+ "model": "y11l_pano",
+ "protocol": {
+  "radius": 0.022,
+  "scale_x": 1024,
+  "scale_y": 512,
+  "wrap_x": true,
+  "matching": "greedy 1:1, confidence-descending, strict radius",
+  "recall_over": "fn_confirmed panos",
+  "ap": "VOC all-point interpolated over fn_confirmed panos, full confidence range of the predictions as given (not truncated by op_threshold)"
+ },
+ "gt_kind": "verdicts",
+ "op_threshold": 0.25,
+ "floor": 0.05,
+ "n_below_floor_dropped": 0,
+ "precision": 0.9251700680272109,
+ "recall": 0.43870967741935485,
+ "f1": 0.5951859956236324,
+ "precision_ci": [
+  0.8709784320428373,
+  0.9577054323553129
+ ],
+ "recall_ci": [
+  0.38455340773847,
+  0.4943664040391911
+ ],
+ "tp": 136,
+ "fp": 11,
+ "fn": 174,
+ "ignored": 4,
+ "ap": 0.723783847894801,
+ "ap_note": "AP over predictions as given; truncated at floor 0.05",
+ "n_panos": 124,
+ "n_recall_panos": 124,
+ "n_gt_recall": 310,
+ "fp_per_pano": 0.08870967741935484,
+ "n_panos_without_predictions": 0,
+ "n_prediction_panos_not_in_bundle": 0,
+ "pins": {
+  "records_sha256": "8b0669d694bd51b0e8b44ed88e4477626eb1a559f6869625c6d2d56ef950ebe9",
+  "n_records": 124,
+  "gt_kind": "verdicts",
+  "verdicts_sha256": "3721a2ac75a056fdd1e3ab45d9fff33e118d5851ae9c50a3a16e42ae2e15562d",
+  "n_reviewed": 124,
+  "imagery_digest": "ec8ef3678aa9bf84"
+ },
+ "scorer_fingerprint": "f4aef67aba03",
+ "eval_sha256": "bb79db94b4b4",
+ "predictions_sha256": "d51adcf67975b38e4bcb58c23f4bc4926f93b90f7bba6f71fc25846e321c867b"
+}
