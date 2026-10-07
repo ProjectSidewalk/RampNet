@@ -460,3 +460,12 @@ analysis_out/aug_transfer_82/finetune/*
 analysis_out/bayonne_159/**/*.jpg
 analysis_out/bayonne_159/**/*.png
 analysis_out/bayonne_159/**/*.html
+
+# #221 crop-model decode: Hub downloads (checkpoints + crop JPEGs) stay local; the
+# per-crop coarse-map extracts and the results re-derived from them are committed, so
+# `crop_decode_221.py --check` runs on CPU from a clean clone.
+.hf_cache/
+!analysis_out/crop_decode_221/
+analysis_out/crop_decode_221/*
+!analysis_out/crop_decode_221/*.json
+!analysis_out/crop_decode_221/*.md
