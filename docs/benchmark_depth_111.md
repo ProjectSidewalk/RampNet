@@ -207,7 +207,13 @@ corrected before the main run, and those 20 requests went out at gaps between ab
   now on. Recovering them for these 351 is a 351-request re-fetch and is Jon's call; it was not done.
   If it is done, the codes land in a `depth_manifest.refetch-<stamp>.json` (adding a `code` to a
   committed gone entry trips the record guard), which has to be promoted to `depth_manifest.json`
-  by hand after checking that only the `code` fields changed.
+  by hand after checking that only the `code` fields changed. To make exactly those 351 requests,
+  resume over the existing archive: copy `benchmark/manual_gold/depth/gone.txt` aside, empty it, and
+  run `harvest --split manual_gold --resume`. Every saved pano already has its `.json.gz`, so only the
+  351 are fetched. (A fresh `--archive-dir` has no `gone.txt` and re-fetches all 1,000.) If a gone
+  pano comes back served, `harvest` writes its `.json.gz` into the archive, and `verify` then reports
+  it as `archived but manifest says gone`. In that case, do not promote the refetch file. Move that
+  `.json.gz` out of the archive and record the pano on the issue as returned.
 - **No depth analysis on manual_gold.** `recall_by_depth_112.py --only manual_gold` is the next step.
   It needs a path option pointing at this archive, and it has to handle the 351 gone, 270
   stand-in, 4 degenerate and 1 implausible panoramas explicitly.

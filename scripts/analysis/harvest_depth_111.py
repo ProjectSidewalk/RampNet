@@ -642,9 +642,11 @@ def harvest(split, limit=None, resume=True, repo=REPO, session=None, archive_dir
                 rec = prior["panos"]
                 payload = [c for c in conflicts
                            if man["panos"].get(c, {}).get("status") != rec[c]["status"]
-                           or man["panos"].get(c, {}).get("sha256") != rec[c].get("sha256")]
+                           or man["panos"].get(c, {}).get("sha256") != rec[c].get("sha256")
+                           or any(man["panos"].get(c, {}).get(k) != rec[c].get(k)
+                                  for k in PAYLOAD_FIELDS)]
                 print(f"  {len(conflicts)} pano(s) would change their committed entry (status, "
-                      f"payload or file/fetch fields): {len(payload)} status/payload change(s), "
+                      f"payload or file/fetch fields): {len(payload)} status/payload/payload-field change(s), "
                       f"{len(conflicts) - len(payload)} file/fetch-field-only change(s) "
                       f"(e.g. {conflicts[:3]}); the committed {MANIFEST_NAME} is left untouched "
                       f"and this run's manifest goes to {os.path.basename(out_path)}")
