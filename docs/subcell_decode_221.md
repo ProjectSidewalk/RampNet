@@ -520,8 +520,8 @@ It makes the decode available wherever a peak is extracted. **Nothing in section
 and no published number changes by default.**
 
 **One entry point.** `rampnet.subcell.detect_peaks(heatmap, threshold, min_distance=10,
-decode="argmax", *, exclude_border=False, clip=False, coarse=None, wrap_x=False, factor=8,
-return_pixels=False)` returns float `(row, col, score)` rows on the heatmap's own grid.
+decode="argmax", *, exclude_border=False, clip=False, coarse=None, wrap_x=False, wrap_nms=False,
+factor=8, return_pixels=False)` returns float `(row, col, score)` rows on the heatmap's own grid.
 
 - `decode="argmax"` runs `peak_local_max(heatmap, min_distance, threshold_abs=threshold,
   exclude_border=False)` and returns those pixels unchanged. It is bit-identical to the call
@@ -535,6 +535,10 @@ return_pixels=False)` returns float `(row, col, score)` rows on the heatmap's ow
   upsampled value is highest at that pixel, which is the branch the max-combine took it from.
   **TTA decoding was not measured** (section 5).
 - `wrap_x` defaults to off, as measured.
+- `wrap_nms` (added later, [#248](https://github.com/ProjectSidewalk/RampNet/issues/248)) defaults to
+  off. When on, the peak *finding* wraps across the seam, so a ramp straddling the seam gives one peak
+  instead of two. It is independent of `wrap_x`, and with it off the output is unchanged. See
+  [`seam_nms_248.md`](seam_nms_248.md).
 - The function only needs the heatmap to be a multiple of 8. The crop model's 256x88 heatmap
   (32x11 coarse) works the same way (`wrap_x` must stay off there). It is tested on synthetic maps
   only; the crop model's decode was never measured.
@@ -545,7 +549,7 @@ return_pixels=False)` returns float `(row, col, score)` rows on the heatmap's ow
 |---|---|---|---|
 | `stage_two/evaluate.py` | `--decode {argmax,gaussian}` | `argmax` | every published number and committed `evaluation_results*/` file used argmax |
 | `stage_two/demo.py` | `--decode {argmax,gaussian}` | `argmax` | the demo draws exactly what it drew before (it keeps skimage's default `exclude_border=True`, the #132 defect, for that reason) |
-| HF package | `RampNetModel.detect(inputs, threshold=None, decode="gaussian", min_distance=None, wrap_x=False)` | `gaussian` | a new API with no published number behind it, so it defaults to the measured, recommended rule. Jon may overrule this |
+| HF package | `RampNetModel.detect(inputs, threshold=None, decode="gaussian", min_distance=None, wrap_x=False, wrap_nms=False)` | `gaussian` | a new API with no published number behind it, so it defaults to the measured, recommended rule. Jon may overrule this |
 
 **evaluate.py's cache.** `evaluate_cache/heatmaps/<fingerprint>_<dataset>_<tta|notta>/` stores
 the clipped, TTA max-combined heatmaps, not peaks. The decode does not change those maps, so it is

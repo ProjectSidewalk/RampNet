@@ -484,6 +484,7 @@ data are skipped unless `--allow local-cache` is given.
 | `manifests_sha256` | `scripts/verify_sha256sums.py` | every committed `SHA256SUMS` / `*.sha256` manifest (found with `git ls-files`) matches the files present. A manifest whose listed files are all absent is a counted skip; a partly present manifest (a committed file deleted or renamed) fails, any mismatch fails, and nothing-present fails | committed only | 2.9 |
 | `sourcing_tables` | `sourcing_tables.py --check` | the generated tables in the data-sourcing docs re-render identical from committed files (#145) | committed only | 0.1 |
 | `yolo_warmup_dip_72` | `yolo_warmup_dip_72.py --check` | the pinned facts of the YOLO warm-up LR dip hold on the committed curves (#72) | committed only | 0.1 |
+| `seam_pairs_248` | `seam_pairs_248.py --check` | the seam straddling-pair counts (114 / 72 / 58 at 0.05 / 0.30 / 0.55) re-derive from the committed Run A peaks in `docs/data/run_a_84_detections/` (#248) | committed only | 1.1 |
 | `yolo_geometry_51` | `yolo_geometry_51.py --check` | the YOLO control leg reproduces its scoreboard row, and `docs/data/yolo_geometry_51.json` matches a fresh read (#51) | committed only | 0.1 |
 | `run_b_gate_135` | `run_b_gate_135.py --check` | the Run-B gate decision re-derives from the committed CSVs and power JSON (#135) | committed only | 0.1 |
 | `seed_variance_read_51_135` | `seed_variance_read_51_135.py --check` | the seed-variance JSON matches a fresh build from `docs/data/seed_variance_51_135/` | committed only | 6.5 |
