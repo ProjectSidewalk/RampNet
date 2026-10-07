@@ -60,6 +60,12 @@ def parse_args(argv=None):
                              "'gaussian' also caches per-branch coarse maps under "
                              "<cache-dir>/coarse/ (heatmaps are clipped, so they cannot be decoded "
                              "exactly) and tags the result filenames with _dgaussian.")
+    parser.add_argument('--wrap-nms', action=argparse.BooleanOptionalAction, default=False,
+                        help="Seam-wrapped non-maximum suppression (#248; default off, which "
+                             "is the published extractor). A ramp straddling the 360-degree "
+                             "seam then yields one peak instead of one at each edge. Changes "
+                             "which peaks are found, never the cached heatmaps, and tags the "
+                             "result filenames with _wrapnms (docs/seam_nms_248.md).")
     return parser.parse_args(argv)
 
 
@@ -100,12 +106,14 @@ def prepare_cache_dirs(dirs, fresh, decode):
         os.makedirs(dirs['coarse'], exist_ok=True)
 
 
-def results_params_str(threshold, decode='argmax'):
+def results_params_str(threshold, decode='argmax', wrap_nms=False):
     """Suffix of every results filename. argmax keeps the historical name, so the
     committed evaluation_results*/ files are what an argmax run regenerates; any other
-    decode is tagged so it cannot overwrite them."""
+    decode is tagged so it cannot overwrite them, and so is ``wrap_nms`` (#248)."""
     s = f"r{RADIUS_THRESHOLD_NORMALIZED}_pt{threshold}"
-    return s if decode == 'argmax' else f"{s}_d{decode}"
+    if decode != 'argmax':
+        s = f"{s}_d{decode}"
+    return f"{s}_wrapnms" if wrap_nms else s
 
 
 def load_trained_model(checkpoint_path, heatmap_size):
@@ -131,7 +139,7 @@ class StaleCoarseCache(ValueError):
 
 
 def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_shape,
-                               decode='argmax', coarse=None):
+                               decode='argmax', coarse=None, wrap_nms=False):
     """(x_norm, y_norm, confidence) per peak, via rampnet.subcell.detect_peaks.
 
     With decode='argmax' this is the historical extractor exactly: the same
@@ -140,13 +148,14 @@ def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_
     own dtype. ``coarse`` is what a refining decode reads (see cache_dirs()). Before
     it is used, ``max_b clip(upsample(coarse_b))`` is compared with the heatmap over the
     whole map; a disagreement above COARSE_ATOL raises StaleCoarseCache.
+    ``wrap_nms=True`` wraps the peak finder's suppression across the seam (#248).
     """
     heatmap_h, heatmap_w = heatmap_shape
     if heatmap_np.ndim > 2:
         heatmap_np = heatmap_np.squeeze()
     rcs, pixels = detect_peaks(heatmap_np, threshold_abs, min_distance=min_distance,
                                decode=decode, exclude_border=False, coarse=coarse,
-                               return_pixels=True)
+                               wrap_nms=wrap_nms, return_pixels=True)
     if decode != 'argmax' and coarse is not None:
         worst = coarse_mismatch(heatmap_np, coarse, clip=True)    # whole map (N3)
         if worst > COARSE_ATOL:
@@ -291,12 +300,13 @@ def coarse_stack(raw_heatmaps):
 
 def evaluate(model, image_paths, label_paths, is_manual_dataset, heatmap_cache_dir,
              peak_threshold_abs=0.0, use_tta=True, dataset_id_str="dataset",
-             decode='argmax', coarse_cache_dir=None):
+             decode='argmax', coarse_cache_dir=None, wrap_nms=False):
     """Run detection evaluation and return a metrics dict.
 
     Importable entry point for automated pipelines (e.g. retraining gates and
     the HF model-card generator); main() adds plots/CSVs around it. A decode other
-    than 'argmax' needs ``coarse_cache_dir`` (see cache_dirs()).
+    than 'argmax' needs ``coarse_cache_dir`` (see cache_dirs()). ``wrap_nms`` is the
+    opt-in seam-wrapped peak suppression (#248); it does not change the heatmap cache.
     """
     if decode != 'argmax' and coarse_cache_dir is None:
         raise ValueError(f"decode={decode!r} needs coarse_cache_dir (see cache_dirs())")
@@ -351,6 +361,7 @@ def evaluate(model, image_paths, label_paths, is_manual_dataset, heatmap_cache_d
                 heatmap_shape=MODEL_HEATMAP_SIZE,
                 decode=decode,
                 coarse=coarse,
+                wrap_nms=wrap_nms,
             )
         except StaleCoarseCache as e:
             raise StaleCoarseCache(f"{base_name}: {e} (heatmap {cached_heatmap_path}, "
@@ -383,6 +394,7 @@ def evaluate(model, image_paths, label_paths, is_manual_dataset, heatmap_cache_d
         'radius_threshold_normalized': RADIUS_THRESHOLD_NORMALIZED,
         'tta': use_tta,
         'decode': decode,
+        'wrap_nms': wrap_nms,
         'recalls_curve': recalls_curve_plot,
         'precisions_curve': precisions_curve_plot,
         'sorted_confidences': sorted_confidences,
@@ -417,6 +429,7 @@ def main():
     if coarse_cache_dir:
         print(f"Coarse cache directory: {coarse_cache_dir}")
     print(f"Decode: {args.decode}")
+    print(f"Seam-wrapped NMS: {args.wrap_nms}")
 
     if evaluate_on_manual:
         image_paths, label_paths = get_test_files(
@@ -443,6 +456,7 @@ def main():
         dataset_id_str=dataset_id_str,
         decode=args.decode,
         coarse_cache_dir=coarse_cache_dir,
+        wrap_nms=args.wrap_nms,
     )
     ap = metrics['ap']
     total_gt_count = metrics['total_gt_points']
@@ -460,7 +474,7 @@ def main():
         print(f"Precision at threshold {args.threshold}: {metrics['precision_at_threshold']:.4f}")
         print(f"Recall at threshold {args.threshold}: {metrics['recall_at_threshold']:.4f}")
 
-    params_str = results_params_str(args.threshold, args.decode)
+    params_str = results_params_str(args.threshold, args.decode, args.wrap_nms)
 
     metrics_json = {k: v for k, v in metrics.items()
                     if k not in ('recalls_curve', 'precisions_curve', 'sorted_confidences', 'sorted_tp_flags')}

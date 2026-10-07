@@ -26,8 +26,8 @@ can be recovered at inference without retraining. This module does that:
   bit-identical to the bare ``peak_local_max`` call) or ``decode="gaussian"``. It is
   what ``stage_two/evaluate.py``, ``stage_two/demo.py`` and the Hugging Face package's
   ``RampNetModel.detect`` call. This file is shipped verbatim to the Hub as
-  ``rampnet_subcell.py``, so it must import nothing beyond numpy (scikit-image is
-  imported lazily, inside ``detect_peaks``).
+  ``rampnet_subcell.py``, so it must import nothing beyond numpy (scikit-image, and
+  scipy for the opt-in ``wrap_nms``, are imported lazily, inside ``try`` blocks).
 
 Coordinates follow the pipeline's existing convention (``stage_two/train.py`` places a
 target at pixel ``round(x_norm * W)``; every extractor reports ``x_norm = col / W``), so
@@ -354,9 +354,50 @@ def coarse_mismatch(heatmap, coarse, clip=True):
     return float(np.max(np.abs(rebuilt - hm)))
 
 
+def _cylinder_peaks(h, min_distance, threshold):
+    """``peak_local_max(h, min_distance=min_distance, threshold_abs=threshold,
+    exclude_border=False)`` with the x axis cyclic (#248; ``detect_peaks(wrap_nms=True)``).
+
+    A port of sidewalk-auto-labeler's ``detectors/decode.py::_cylinder_peaks`` (its PR
+    #138, ``--border wrap``) without the labeler's 50-peak cap, since RampNet's extractor
+    has none. Step for step what scikit-image 0.26 does, with the two seam-blind
+    operations replaced: the peak mask (maximum filter, mode ``'nearest'`` ->
+    ``('nearest', 'wrap')``; a constant image has no peak; then ``> threshold``), the
+    candidate order (row-major, stable descending sort by value) and the spacing pass
+    (greedy, reject at Chebyshev distance ``< min_distance`` -> wrapped Chebyshev
+    distance). Returns an ``(n, 2)`` intp array of ``(row, col)``, highest first.
+
+        >>> h = np.zeros((40, 100)); h[20, 99] = 0.6; h[20, 3] = 0.5; h[5, 50] = 0.4
+        >>> _cylinder_peaks(h, 10, 0.1).tolist()   # (20, 3) is 4 columns from (20, 99)
+        [[20, 99], [5, 50]]
+    """
+    try:   # optional dependency, inside try so the HF remote-code loader skips it
+        from scipy import ndimage as ndi
+    except ImportError as e:  # pragma: no cover
+        raise ImportError("detect_peaks(wrap_nms=True) needs scipy (pip install scipy)") from e
+    d = int(min_distance)
+    is_max = h == ndi.maximum_filter(h, size=2 * d + 1, mode=('nearest', 'wrap'))
+    if np.all(is_max):                       # skimage: no peak for a trivial image
+        return np.zeros((0, 2), dtype=np.intp)
+    is_max &= h > threshold
+    coord = np.argwhere(is_max)              # row-major, as np.nonzero
+    coord = coord[np.argsort(-h[is_max], kind='stable')]
+    width = h.shape[1]
+    kept = []
+    for r, c in coord:
+        if kept:
+            k = np.asarray(kept)
+            dx = np.abs(k[:, 1] - c)
+            dx = np.minimum(dx, width - dx)
+            if np.any(np.maximum(np.abs(k[:, 0] - r), dx) < d):
+                continue
+        kept.append((r, c))
+    return np.asarray(kept, dtype=np.intp).reshape(-1, 2)
+
+
 def detect_peaks(heatmap, threshold, min_distance=10, decode="argmax", *,
                  exclude_border=False, clip=False, coarse=None, wrap_x=False,
-                 factor=FACTOR, return_pixels=False):
+                 wrap_nms=False, factor=FACTOR, return_pixels=False):
     """Peaks of a RampNet heatmap as float ``(row, col, score)`` rows on its own grid.
 
     The single entry point for peak extraction (#221 items 1-2). Peaks are found with
@@ -388,6 +429,14 @@ def detect_peaks(heatmap, threshold, min_distance=10, decode="argmax", *,
 
     ``wrap_x`` is passed to :func:`refine_peaks` (default off, as measured: the network
     pads the 360 deg seam rather than wrapping). It must stay off for the crop model.
+    ``wrap_nms`` (#248, default off) replaces ``peak_local_max`` with the same
+    non-maximum suppression on a cylinder: the maximum filter and the ``min_distance``
+    spacing both wrap in x, so one ramp straddling the 360 deg seam yields one peak (the
+    stronger half) instead of one at each edge. Off, the output is unchanged
+    (bit-identical to ``peak_local_max``). It is independent of ``wrap_x``, which only
+    wraps the sub-cell decode; ``wrap_nms=True, wrap_x=True`` is the auto-labeler's
+    ``--border wrap`` combination. It cannot be combined with ``exclude_border=True``
+    (``ValueError``), must stay off for the crop model, and needs scipy.
     ``exclude_border`` defaults to False, the #132 fix. ``return_pixels=True`` also
     returns the ``(N, 2)`` integer ``(row, col)`` pixels, so a caller can read the score
     in the heatmap's own dtype.
@@ -404,14 +453,20 @@ def detect_peaks(heatmap, threshold, min_distance=10, decode="argmax", *,
         raise ImportError("detect_peaks needs scikit-image (pip install scikit-image)") from e
     if decode not in METHODS:
         raise ValueError(f"unknown decode {decode!r}; known: {', '.join(METHODS)}")
+    if wrap_nms and exclude_border:
+        raise ValueError("wrap_nms=True wraps the x border, so it cannot be combined with "
+                         "exclude_border=True")
     raw = np.asarray(heatmap)
     if raw.ndim > 2:
         raw = raw.squeeze()
     if raw.ndim != 2:
         raise ValueError(f"heatmap must be 2-D, got shape {np.asarray(heatmap).shape}")
     found = np.clip(raw, 0, 1) if clip else raw
-    pk = peak_local_max(np.ascontiguousarray(found), min_distance=min_distance,
-                        threshold_abs=threshold, exclude_border=exclude_border)
+    if wrap_nms:
+        pk = _cylinder_peaks(np.ascontiguousarray(found), min_distance, threshold)
+    else:
+        pk = peak_local_max(np.ascontiguousarray(found), min_distance=min_distance,
+                            threshold_abs=threshold, exclude_border=exclude_border)
     pk = np.asarray(pk, dtype=int).reshape(-1, 2)
     scores = found[pk[:, 0], pk[:, 1]].astype(np.float64)
     out = np.empty((len(pk), 3))

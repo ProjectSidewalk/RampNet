@@ -29,7 +29,7 @@ class RampNetModel(PreTrainedModel):
         return self.model(pixel_values)
 
     def detect(self, inputs, threshold=None, decode="gaussian", min_distance=None,
-               wrap_x=False):
+               wrap_x=False, wrap_nms=False):
         """Curb ramp detections as one ``(N, 3)`` array of ``(x, y, score)`` per image.
 
         ``inputs`` is either preprocessed ``pixel_values`` (a ``(B, 3, H, W)`` tensor; the
@@ -55,6 +55,10 @@ class RampNetModel(PreTrainedModel):
         one already clipped). A flip-TTA heatmap cannot be passed here
         (it is a max of two surfaces). ``rampnet.subcell.detect_peaks(..., coarse=<stack>)``
         decodes TTA output in the repo.
+
+        ``wrap_nms=True`` (#248, default off) wraps the peak suppression across the
+        360 deg seam, so a ramp straddling it gives one peak instead of two; it needs
+        scipy. ``wrap_x`` only wraps the sub-cell decode, and the two are independent.
         """
         if threshold is None:
             threshold = self.config.recommended_threshold
@@ -87,7 +91,7 @@ class RampNetModel(PreTrainedModel):
         out = []
         for hm in h:
             rcs = detect_peaks(hm, threshold, min_distance=min_distance, decode=decode,
-                               clip=True, wrap_x=wrap_x)
+                               clip=True, wrap_x=wrap_x, wrap_nms=wrap_nms)
             H, W = hm.shape
             out.append(np.column_stack([rcs[:, 1] / W, rcs[:, 0] / H, rcs[:, 2]]))
         return out
