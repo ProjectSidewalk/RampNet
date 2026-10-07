@@ -365,7 +365,10 @@ def _cylinder_peaks(h, min_distance, threshold):
     ``('nearest', 'wrap')``; a constant image has no peak; then ``> threshold``), the
     candidate order (row-major, stable descending sort by value) and the spacing pass
     (greedy, reject at Chebyshev distance ``< min_distance`` -> wrapped Chebyshev
-    distance). Returns an ``(n, 2)`` intp array of ``(row, col)``, highest first.
+    distance). As in skimage, ``min_distance < 1`` (or a 1-pixel image) skips the filter
+    and returns every pixel ``> threshold``, highest first. The spacing pass gives the
+    same result as the labeler's pairwise loop but runs in O(1) per candidate (a "blocked"
+    mask). Returns an ``(n, 2)`` intp array of ``(row, col)``, highest first.
 
         >>> h = np.zeros((40, 100)); h[20, 99] = 0.6; h[20, 3] = 0.5; h[5, 50] = 0.4
         >>> _cylinder_peaks(h, 10, 0.1).tolist()   # (20, 3) is 4 columns from (20, 99)
@@ -376,22 +379,29 @@ def _cylinder_peaks(h, min_distance, threshold):
     except ImportError as e:  # pragma: no cover
         raise ImportError("detect_peaks(wrap_nms=True) needs scipy (pip install scipy)") from e
     d = int(min_distance)
-    is_max = h == ndi.maximum_filter(h, size=2 * d + 1, mode=('nearest', 'wrap'))
-    if np.all(is_max):                       # skimage: no peak for a trivial image
-        return np.zeros((0, 2), dtype=np.intp)
-    is_max &= h > threshold
+    if d < 1 or h.size == 1:                 # skimage: a 1-px footprint is just "> threshold"
+        is_max = h > threshold
+    else:
+        is_max = h == ndi.maximum_filter(h, size=2 * d + 1, mode=('nearest', 'wrap'))
+        if np.all(is_max):                   # skimage: no peak for a trivial image
+            return np.zeros((0, 2), dtype=np.intp)
+        is_max &= h > threshold
     coord = np.argwhere(is_max)              # row-major, as np.nonzero
     coord = coord[np.argsort(-h[is_max], kind='stable')]
-    width = h.shape[1]
+    # Greedy spacing pass. Rather than compare each candidate with every kept peak, mark
+    # the wrapped (2d-1)-square window of each kept peak in ``blocked``: a candidate is
+    # rejected iff it lies at wrapped Chebyshev distance < d of a kept peak, i.e. iff it is
+    # blocked. O(1) per candidate, O(d^2) per kept peak (#249 review: a clipped plateau
+    # makes every one of its pixels a candidate).
+    n_rows, width = h.shape
+    blocked = np.zeros(h.shape, dtype=bool)
+    offsets = np.arange(-(d - 1), d) if d >= 1 else np.zeros(0, dtype=int)
     kept = []
     for r, c in coord:
-        if kept:
-            k = np.asarray(kept)
-            dx = np.abs(k[:, 1] - c)
-            dx = np.minimum(dx, width - dx)
-            if np.any(np.maximum(np.abs(k[:, 0] - r), dx) < d):
-                continue
+        if blocked[r, c]:
+            continue
         kept.append((r, c))
+        blocked[max(r - d + 1, 0):min(r + d, n_rows), (c + offsets) % width] = True
     return np.asarray(kept, dtype=np.intp).reshape(-1, 2)
 
 

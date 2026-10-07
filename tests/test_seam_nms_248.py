@@ -292,3 +292,79 @@ def test_hf_package_detect_wrap_nms_without_checkpoint(tmp_path):
     (g,) = model.detect(torch.from_numpy(h)[None, None], threshold=0.3, wrap_nms=True,
                         wrap_x=True)
     assert len(g) == 1
+
+
+# --- 6. review follow-ups (#249): geometry edge cases, d < 1, speed ----------------------
+
+def tie_heavy_map(rng, shape):
+    """Uniform noise quantized to a few levels (plateaus, multi-way ties), with both edge
+    columns tied at the maximum: the seam-tie case the cylinder must break row-major."""
+    h = np.round(rng.uniform(0, 1, shape) * rng.choice([4, 20, 1000])) / 1000
+    h[:, 0] = h[:, -1] = h.max()
+    return h.astype(np.float32)
+
+
+@pytest.mark.parametrize("shape", [(40, 101), (33, 15), (20, 7), (64, 21), (31, 203)])
+@pytest.mark.parametrize("d", [1, 2, 3, 10])
+def test_wrap_nms_equals_reference_on_odd_and_narrow_widths(shape, d):
+    """Odd widths, and widths narrower than the (2d+1) window, on tie-heavy maps."""
+    rng = np.random.default_rng(hash((shape, d)) % 2**32)
+    for _ in range(3):
+        h = tie_heavy_map(rng, shape)
+        for t in (0.0, 0.002):
+            got = pixels(sc.detect_peaks(h, t, min_distance=d, wrap_nms=True))
+            assert got == cylinder_reference(h, d=d, threshold=t), (shape, d, t)
+
+
+def test_y_does_not_wrap():
+    """Zenith and nadir are not neighbours: same column, rows 0 and 511, both kept."""
+    h = np.zeros(PANO, np.float32)
+    h[0, 500], h[PANO[0] - 1, 500] = 0.9, 0.8
+    assert pixels(sc.detect_peaks(h, 0.1, wrap_nms=True)) == [(0, 500), (PANO[0] - 1, 500)]
+
+
+def test_tied_straddling_pair_keeps_the_left_edge_half():
+    """An exactly tied pair across the seam on one row: row-major order, so column 0 wins."""
+    h = np.zeros(PANO, np.float32)
+    h[100, 0], h[100, W - 1] = 1.0, 1.0
+    assert pixels(sc.detect_peaks(h, 0.1, wrap_nms=True)) == [(100, 0)]
+
+
+@pytest.mark.filterwarnings("ignore:When min_distance < 1")
+def test_min_distance_zero_matches_peak_local_max():
+    """At min_distance 0 skimage skips the filter (a 1-px footprint) and returns every pixel
+    > threshold, highest first; there is no window to wrap, so the two must agree exactly.
+    (At d = 1 the 3-px window already wraps; that case is in the reference test above.)"""
+    d = 0
+    rng = np.random.default_rng(d)
+    h = (np.round(rng.uniform(0, 1, (8, 16)) * 20) / 20).astype(np.float32)   # with ties
+    want = peak_local_max(h, min_distance=d, threshold_abs=0.5, exclude_border=False)
+    _, got = sc.detect_peaks(h, 0.5, min_distance=d, wrap_nms=True, return_pixels=True)
+    assert len(want) > 0 and np.array_equal(got, want)
+
+
+@pytest.mark.parametrize("seed", [0, 1])
+def test_default_is_bare_peak_local_max_on_plateaus_and_edge_ties(seed):
+    """The default branch on the maps most likely to expose a refactor: clipped plateaus,
+    multi-way ties, and maxima sitting on columns 0 and W-1."""
+    rng = np.random.default_rng(100 + seed)
+    for h in (np.clip(random_map(rng), 0, 1), tie_heavy_map(rng, PANO)):
+        for t in (0.0, 0.3):
+            want = peak_local_max(h, min_distance=D, threshold_abs=t, exclude_border=False)
+            _, got = sc.detect_peaks(h, t, min_distance=D, return_pixels=True)
+            assert np.array_equal(got, want)
+
+
+def test_wrap_nms_is_not_quadratic_on_a_clipped_plateau():
+    """A 200x400 plateau clipped at 1.0 makes 80,000 tied candidates; the pairwise spacing
+    loop took ~16 s on one pano here, the blocked-mask pass takes well under a second."""
+    import time
+    rng = np.random.default_rng(5)
+    h = np.clip(random_map(rng, clip_ok=False), 0, 1)
+    h[100:300, 200:600] = 1.0
+    t0 = time.perf_counter()
+    got = pixels(sc.detect_peaks(h, 0.0, wrap_nms=True))
+    assert time.perf_counter() - t0 < 5.0
+    for a in range(len(got)):
+        for b in range(a + 1, len(got)):
+            assert wrapped_cheb(got[a], got[b]) >= D
