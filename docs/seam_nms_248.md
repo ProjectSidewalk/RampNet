@@ -80,6 +80,11 @@ seam ramp that was marked twice and judged one ramp; that merge has **not** been
 | 0.3 | 15 | 8 | 2 | 5 |
 | 0.55 | 11 | 8 | 2 | 1 |
 
+The join is by panorama, but the pairs are the adjudicated ramps. On every adjudicated panorama,
+every peak of every straddling pair lies within **6.36 px** (wrapped Chebyshev, on the heatmap grid)
+of one of that panorama's two adjudicated GT marks, at all three thresholds. That is well inside the
+0.022 match radius (about 22 px at 1024 wide).
+
 At 0.55, 10 of the 11 panoramas are ones the seam adjudication already looked at. Eight of those
 ten were judged one ramp, double-marked in the GT. In that case the model's split currently scores
 as **two true positives** (the `2NgKmkIoU9nUwvjk6K5wtw` row in [`seam.md`](seam.md) section 2).
@@ -90,8 +95,9 @@ those panoramas rather than gain precision. Scoring `wrap_nms` fairly needs the 
 
 - **Run A checkpoints, not the published model.** `projectsidewalk/rampnet-model`'s own peaks would
   need a GPU re-dump of its heatmaps, which was not done.
-- **The join is by panorama only.** It says where the pairs fall. It does not say that a given pair
-  is the adjudicated ramp, which would need each pair's geometry compared with the GT marks.
+- **The join is by panorama, checked by geometry.** Every pair peak on an adjudicated panorama lies
+  within 6.36 px of an adjudicated GT mark (pinned by `--check`), so the pairs are the adjudicated
+  ramps. The 21 / 5 / 1 unadjudicated panoramas have no verdict to compare with.
 - **The "drop" column is an estimate.** It runs a wrapped greedy pass over the stored peaks. The
   real `wrap_nms` also runs a wrapped maximum filter over the heatmap. That filter can drop a peak
   whose stronger neighbour across the seam was never stored as a peak, and on the 4-px edge

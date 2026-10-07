@@ -25,12 +25,13 @@ filter over the heatmap, which can drop a peak whose stronger neighbour across t
 itself never a stored peak, and can pick another pixel of an edge plateau -- neither is
 visible without the heatmap.
 
-The pairs are then joined, **by panorama only**, to the seam adjudication of the ground
+The pairs are then joined, by panorama, to the seam adjudication of the ground
 truth (``benchmark/manual_gold/seam_verdicts__jon.json``, docs/seam.md section 2): was the
 panorama one where a seam ramp was judged ``one`` ramp marked twice, ``two`` real ramps, or
 not adjudicated (``none``)? This says where the pairs fall, not that a given pair is the
-adjudicated ramp; matching pairs to marks would need the pair geometry compared with the
-marks, which is not done here.
+adjudicated ramp by itself, so the script also measures, for every pair on an adjudicated
+panorama, how far each of its peaks lies from that panorama's nearest adjudicated GT mark
+(wrapped Chebyshev, heatmap px; pinned).
 
 Caveat that travels with the numbers: these are **Run A** checkpoints (#84), not the
 published ``projectsidewalk/rampnet-model``; the published model's heatmaps would need a
@@ -68,6 +69,9 @@ PINNED = {
     "distinct_panos": {"0.05": {"one": 8, "two": 2, "none": 21},
                        "0.3": {"one": 8, "two": 2, "none": 5},
                        "0.55": {"one": 8, "two": 2, "none": 1}},
+    # farthest pair peak on an adjudicated pano from its nearest adjudicated GT mark
+    # (wrapped Chebyshev, heatmap px) -- the pairs ARE the adjudicated ramps (#249 review)
+    "pair_to_gt_max_px": {"0.05": 6.36, "0.3": 6.36, "0.55": 6.36},
 }
 
 #: What every input file must say about how its peaks were extracted.
@@ -114,14 +118,26 @@ def load(detections_dir):
 
 
 def load_verdicts(path):
+    """pano -> verdict, and pano -> its two adjudicated GT marks in heatmap pixels (x, y)."""
     with open(path, encoding="utf-8") as fh:
-        return {v["pano"]: v["verdict"] for v in json.load(fh)["verdicts"]}
+        vs = json.load(fh)["verdicts"]
+    return ({v["pano"]: v["verdict"] for v in vs},
+            {v["pano"]: [(m[0] * W, m[1] * H) for m in (v["a"], v["b"])] for v in vs})
 
 
-def measure(runs, thresholds, verdicts=None):
+def wrapped_cheb(p, q, width=W):
+    dx = abs(p[0] - q[0])
+    return max(min(dx, width - dx), abs(p[1] - q[1]))
+
+
+def measure(runs, thresholds, verdicts=None, marks=None):
     verdicts = verdicts or {}
+    marks = marks or {}
     keys = [f"{t:g}" for t in thresholds]
     pair_panos = {k: set() for k in keys}
+    # pair-level check of the pano join: the farthest any straddling-pair peak on an
+    # adjudicated pano lies from that pano's nearest adjudicated GT mark (wrapped Chebyshev px)
+    gt_dist = dict.fromkeys(keys, 0.0)
     total = {"files": len(runs), "panos": 0, "peaks": 0,
              "peaks_at": dict.fromkeys(keys, 0), "pairs": dict.fromkeys(keys, 0),
              "panos_with_pair": dict.fromkeys(keys, 0), "dropped": dict.fromkeys(keys, 0)}
@@ -144,13 +160,18 @@ def measure(runs, thresholds, verdicts=None):
         for pid, peaks in dets.items():
             for t, k in zip(thresholds, keys):
                 ps = [p for p in peaks if p[2] >= t]
-                if any(is_straddle(ps[i], ps[j])
-                       for i in range(len(ps)) for j in range(i + 1, len(ps))):
+                pairs = [(ps[i], ps[j]) for i in range(len(ps)) for j in range(i + 1, len(ps))
+                         if is_straddle(ps[i], ps[j])]
+                if pairs:
                     pair_panos[k].add(pid)
+                if pairs and pid in marks:
+                    gt_dist[k] = max(gt_dist[k], max(min(wrapped_cheb(p, m) for m in marks[pid])
+                                                     for pr in pairs for p in pr))
         per_model.append(row)
     total["distinct_panos"] = {
         k: {c: sum(verdicts.get(p, "none") == c for p in pair_panos[k]) for c in VERDICT_CLASSES}
         for k in keys}
+    total["pair_to_gt_max_px"] = {k: round(v, 2) for k, v in gt_dist.items()}
     return total, per_model
 
 
@@ -170,6 +191,10 @@ def render(total, per_model, markdown=False):
             dp = total["distinct_panos"][k]
             lines.append(f"| {k} | {sum(dp.values())} | {dp['one']} | {dp['two']} | "
                          f"{dp['none']} |")
+        lines += ["", "Farthest straddling-pair peak on an adjudicated panorama from that "
+                  "panorama's nearest adjudicated GT mark (wrapped Chebyshev, heatmap px): "
+                  + ", ".join(f"{v} at {k}" for k, v in total["pair_to_gt_max_px"].items())
+                  + "."]
         lines += ["", "| checkpoint | " + " | ".join(f"pairs >= {k}" for k in keys) + " |",
                   "| :--- | " + " | ".join("---:" for _ in keys) + " |"]
         for r in per_model:
@@ -187,6 +212,8 @@ def render(total, per_model, markdown=False):
         for k in keys:
             dp = total["distinct_panos"][k]
             lines.append(f"{k:>6} {dp['one']:>3} / {dp['two']} / {dp['none']}")
+        lines.append("pair peak -> nearest adjudicated GT mark, max px: "
+                     + "  ".join(f"{k}:{v}" for k, v in total["pair_to_gt_max_px"].items()))
         lines.append("")
         for r in per_model:
             lines.append(f"  {r['model']:<16} " + "  ".join(f"{k}:{r['pairs'][k]}" for k in keys))
@@ -208,6 +235,10 @@ def check(total):
         got = total["distinct_panos"].get(k)
         if got != v:
             bad.append(f"distinct panos at {k}: {got} != pinned {v}")
+    for k, v in PINNED["pair_to_gt_max_px"].items():
+        got = total.get("pair_to_gt_max_px", {}).get(k)
+        if got != v:
+            bad.append(f"pair-to-GT max px at {k}: {got} != pinned {v}")
     return bad
 
 
@@ -228,7 +259,7 @@ def parse_args(argv=None):
 def main(argv=None):
     args = parse_args(argv)
     total, per_model = measure(load(args.detections_dir), args.thresholds,
-                               load_verdicts(args.seam_verdicts))
+                               *load_verdicts(args.seam_verdicts))
     print(render(total, per_model, args.markdown))
     if args.check:
         bad = check(total)
