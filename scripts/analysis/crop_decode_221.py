@@ -348,11 +348,11 @@ def up(c):
 
     Why not ``sc.upsample``: that is two BLAS matrix products, and BLAS picks its kernel
     (and so its summation order) by CPU. The last bit of a heatmap value then differs
-    between machines. That is harmless for a value, but not for a tie: the clipped and
-    symmetric parts of a crop heatmap hold exact ties, and which pixel ``peak_local_max``
-    keeps can change with the last bit, which changes peaks, pairs and the committed
-    results. CI's runners re-derived ``results_val.*`` differently from this desktop for
-    exactly that reason. Elementwise multiply and add are single correctly rounded IEEE
+    between machines. That broke ``--check`` on CI: its runners re-derived ``results_val.*``
+    with a different last bit in ``max_flip_commute_abs``, the only field that differed.
+    Peaks were identical, but they need not be: the clipped and symmetric parts of a crop
+    heatmap hold exact ties, and which pixel ``peak_local_max`` keeps can change with the
+    last bit, which would change peaks, pairs and the committed results. Elementwise multiply and add are single correctly rounded IEEE
     operations, the same on every platform, so this version gives the same floats
     everywhere. The order is fixed: rows first, then columns."""
     c = np.asarray(c, dtype=np.float64)
