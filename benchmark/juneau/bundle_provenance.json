@@ -1,0 +1,35 @@
+{
+  "split": "juneau",
+  "status": "staged, NOT reviewed: no verdicts.json, nothing scored against ground truth",
+  "imagery": {
+    "source": "mapillary",
+    "sizes_in_records": {
+      "8000x4000": 121,
+      "4096x2048": 3,
+      "5760x2880": 1
+    },
+    "capture_dates": [
+      "2024-05",
+      "2025-09"
+    ]
+  },
+  "run": {
+    "repo": "ProjectSidewalk/sidewalk-auto-labeler",
+    "branch": "add-juneau-area (ProjectSidewalk/sidewalk-auto-labeler; run artifacts in edf48c1)",
+    "detection_commit": "c30fbff",
+    "command": "python main.py example_geojson/juneau.geojson --name juneau --source mapillary",
+    "host": "Hyak klone, ckpt-g2, 1x L40S (job 41691449)",
+    "model": "projectsidewalk/rampnet-model@606a11956743f7eb328d9207769034752f6191f4",
+    "thin_spacing_m": 5,
+    "panos_before_thinning": 6098,
+    "results_jsonl": "runs/juneau/results.jsonl",
+    "results_jsonl_sha256": "5f7822fb3f977d741c6b6f5d2139bdf1e54c7b5052dd73f1e061ad57c5446ee4",
+    "results_record_count": 4999,
+    "geometry": "sidewalk_juneau_ak.region (downtown minus Douglas Island, ~4.8 km2); SidewalkWebpage#5737"
+  },
+  "export": {
+    "command": "python scripts/export_benchmark.py runs/juneau/results.jsonl --bundle ../RampNet/benchmark/juneau --sample 100 --empty-sample 25",
+    "written": "2026-10-09",
+    "reconcile": "125/125, OK 1:1"
+  }
+}
