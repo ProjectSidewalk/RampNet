@@ -361,7 +361,7 @@ def fig_by_split(result, path, plt):
     fig.text(0.008, 0.012,
              "† held out of the pooled headline: laurens_gsv (second imagery arm of pooled "
              "laurens), budapest (single-rater GT at low reviewer confidence), sao_paulo "
-             "(non-US), manual_gold (in-distribution reference).",
+             "and bayonne (non-US), manual_gold (in-distribution reference).",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     fig.savefig(path, dpi=170, facecolor=fig.get_facecolor())

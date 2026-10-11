@@ -46,7 +46,7 @@ RAMP = ("#86b6ef", "#2a78d6", "#104281")
 INK, INK_MUTED, GRID = "#0b0b0b", "#52514e", "#d9d8d4"
 
 LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†",
-         "sao_paulo": "sao_paulo‡"}
+         "sao_paulo": "sao_paulo‡", "bayonne": "bayonne¶"}
 
 
 def collect(cities, cache_dir=CACHE_DIR):

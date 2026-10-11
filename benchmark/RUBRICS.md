@@ -52,6 +52,12 @@ pan/zoom so a reviewer scanning for misses sees exactly the model's pixels.
 `note` both round-trip through the tool, so re-reviewing a city revises its caveats instead of
 silently deleting them. `score_validation.py` prints `review_notes` above the numbers.
 
+### Class rulings
+
+| question | rule | stated |
+| :--- | :--- | :--- |
+| Does a curb cut for a bike lane count? | **No.** A cut that serves a bike lane, not a pedestrian crossing, is not a pedestrian curb ramp. | Jon Froehlich, 2026-10-04. It arose from a pano note in the Bayonne review (#159) and was stated after that review, so earlier splits were not re-checked against it. |
+
 ---
 
 ## 2. Incremental-FP A/B spot-check — `benchmark/<city>/incremental_fp_tags.json`
