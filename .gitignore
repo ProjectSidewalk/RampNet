@@ -473,6 +473,11 @@ analysis_out/crop_decode_221/*
 !analysis_out/crop_decode_221/*.json
 !analysis_out/crop_decode_221/*.md
 
+# #150: rampnet.eval reproduction proof (scripts/analysis/eval_protocol_150.py).
+!analysis_out/eval_protocol_150/
+analysis_out/eval_protocol_150/*
+!analysis_out/eval_protocol_150/*.json
+
 # Crop-model tilt displacement (#113, docs/crop_tilt_113.md): the derived per-label table, the
 # empirical sample and response rows, and the summaries --check re-derives from them.
 !analysis_out/crop_tilt_113/
