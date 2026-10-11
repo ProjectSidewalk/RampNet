@@ -6,15 +6,16 @@ Three kinds of directory carry a ``records.jsonl``:
   (``gt_source.json``);
 * a **borrowing bundle** (#48's neighbourhood bundles): its ``bundle.json`` borrows
   another split's verdicts, so counting it would score those judged panos twice;
-* a **staged bundle** (bayonne, #159): imagery and detections exported ahead of the
-  ground-truth review. Nothing about it can be scored yet.
+* a **staged bundle**: imagery and detections exported ahead of the ground-truth
+  review. Nothing about it can be scored yet. (Bayonne was one until its verdicts
+  landed in #239; it is now a scored split.)
 
 Only the first is a split. A script that lists ``benchmark/*/`` and keeps the first
 kind only stays reproducible when a city is staged before its review; one that keeps
 everything with a ``records.jsonl`` exits on the staged bundle (PR #234 review, B1).
 
     >>> from rampnet.bundles import is_scored_split
-    >>> is_scored_split("benchmark/richmond"), is_scored_split("benchmark/bayonne")
+    >>> is_scored_split("benchmark/richmond"), is_scored_split("benchmark/richmond_neighbourhood")
     (True, False)
 
 It also holds the bundle loaders the scorers share (#150; moved here from

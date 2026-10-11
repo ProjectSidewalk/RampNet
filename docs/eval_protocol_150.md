@@ -1,13 +1,14 @@
 # The benchmark scoring protocol as code (`rampnet.eval`)
 
 Issue [#150](https://github.com/ProjectSidewalk/RampNet/issues/150), the "evaluation protocol
-as code" item only. Written 2026-10-05.
+as code" item only. Written 2026-10-05; Bayonne added to the pinned registry 2026-10-11
+(see [Revision](#revision)).
 
 **Result.** `rampnet/eval.py` scores a prediction file against a committed benchmark bundle
 through the same functions every committed benchmark number came from, and
-`scripts/analysis/eval_protocol_150.py --check` proves it: all **165** cells of
-`analysis_out/scoreboard.json` (21 model legs, 12 splits) and all **30** (arm, split) cells of
-`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,650 and 480
+`scripts/analysis/eval_protocol_150.py --check` proves it: all **175** cells of
+`analysis_out/scoreboard.json` (21 model legs, 13 splits) and all **30** (arm, split) cells of
+`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,750 and 480
 field comparisons respectively, with **0** differing and **0** unchecked. The split files are
 pinned by content hash in `benchmark/split_pins.json`. No number changed, and the four
 fingerprinted scorer files are byte-identical to `main` (fingerprint `f4aef67aba03`).
@@ -124,7 +125,7 @@ script prints it), so editing the packaging layer alone does not make the proof 
 
 | source | cells | equal | differs | unchecked | fields compared |
 |---|--:|--:|--:|--:|--:|
-| `analysis_out/scoreboard.json` | 165 | 165 | 0 | 0 | 1,650 |
+| `analysis_out/scoreboard.json` | 175 | 175 | 0 | 0 | 1,750 |
 | `benchmark_eval/` | 30 | 30 | 0 | 0 | 480 |
 
 What is compared, and how:
@@ -200,7 +201,7 @@ per-city spread, not a held-out estimate. Whether this is what the FAIROS delive
 
 ## Split pins
 
-`benchmark/split_pins.json` holds, for each of the 12 scored splits
+`benchmark/split_pins.json` holds, for each of the 13 scored splits
 (`low_floor_sweep.ALL_SPLITS`): the LF-normalised sha256 of `records.jsonl`; of `verdicts.json`
 for a city split, or of `gt_source.json` plus a 16-hex digest over the 1,000 `manual_labels/*.txt`
 files (built like `imagery_manifest.digest_of`, `stem|sha256` sorted by stem) for
@@ -209,9 +210,9 @@ record and review counts. `python -m rampnet.eval pins --verify` exits 1 on any 
 `tests/test_eval_protocol_150.py` runs the same check in CI. Every `score` result embeds the
 live pins for its split, so a result names the exact files it was scored against.
 
-Left out on purpose: `bayonne` (staged, not reviewed), `vancouver` (#224, in flux) and the #48
+Left out on purpose: `vancouver` (#224, in flux; no bundle on `main` yet) and the #48
 neighbourhood bundles, which borrow another split's verdicts. They can be added once their
-files settle.
+files settle. `bayonne` was left out here until its review merged (#239); it is pinned now.
 
 ## Code layout
 
@@ -224,7 +225,7 @@ files settle.
   pins, `loco` and the CLI.
 - `scripts/analysis/eval_protocol_150.py`: the reproduction check.
 - `tests/test_eval_protocol_150.py`: a synthetic three-pano bundle with known counts, the
-  re-exports, all 12 bundles loading, the pins, three representative cells, the fingerprint,
+  re-exports, all 13 bundles loading, the pins, three representative cells, the fingerprint,
   the validator and the protocol constants. CPU-only and offline.
 
 **The fingerprint guard.** `rescore_benchmark_eval.py` stamps every `benchmark_eval/` file with
@@ -239,3 +240,16 @@ a message that says what to re-run if it ever changes.
 The rest of #150 is not touched: no DOI, no dataset or model card changes, no leaderboard,
 no Hugging Face upload, and no Croissant work (draft PR #190 covers that). Those are Jon's
 call.
+
+## Revision
+
+**2026-10-11: Bayonne added.** After [#239](https://github.com/ProjectSidewalk/RampNet/pull/239)
+merged Bayonne's `verdicts.json`, scoreboard cells and detections into `main`, `bayonne` became
+the thirteenth split in `low_floor_sweep.ALL_SPLITS`, so it was added to
+`rampnet.eval.PINNED_SPLITS` (between `sao_paulo` and `manual_gold`, matching that order) and
+pinned in `benchmark/split_pins.json` (125 records, 125 reviewed); the other twelve pins are
+byte-unchanged. The reproduction proof was regenerated: **175** scoreboard cells (was 165; the
+10 new ones are Bayonne's, 1,750 field comparisons) and the same **30** YOLO `benchmark_eval/`
+cells (no YOLO arm is scored on Bayonne) all re-derive equal, 0 differing, 0 unchecked.
+`POOLED_SPLITS` is unchanged: Bayonne is held out of the pool for geography
+(`low_floor_sweep.HELD_OUT`), so it is not in `US_SPLITS`.

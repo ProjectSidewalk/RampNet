@@ -8,6 +8,14 @@
    "records_sha256": "4ba644a42d0baebf5a9f446650832b38bb0a7dfbbd864b1724dbf24191019cb7",
    "verdicts_sha256": "c24ce33fc068150415f0d34cb74564d60c491cb9010b0a82a3e88a529f74a112"
   },
+  "bayonne": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "eb844c2e67625ea0",
+   "n_records": 125,
+   "n_reviewed": 125,
+   "records_sha256": "6e8abdba323f1a44cf9af354774c6782aad0b740bb161ee7ee021bdcf2e3b1f1",
+   "verdicts_sha256": "d648108d1441a6579b9ffd2fa465b9b295e0f68187c33ba1623f46bf43071d11"
+  },
   "bend": {
    "gt_kind": "verdicts",
    "imagery_digest": "8707660bd884c6df",
