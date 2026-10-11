@@ -1,0 +1,29 @@
+{
+ "batch": 4,
+ "best_epoch": 81,
+ "elapsed_s": 11682.375221,
+ "epochs": 100,
+ "gpu": "NVIDIA L40S",
+ "host": "g3120.hyak.local",
+ "lr": 1e-06,
+ "n_train": 8666,
+ "prep_s": 349.024467,
+ "seed": 86,
+ "split_csv": "split_common.csv",
+ "tagger_sha": "3b7405cd3206ece631cb7a65e22b1ab219df4b75",
+ "tags": [
+  "missing-tactile-warning",
+  "narrow",
+  "not-enough-landing-space",
+  "not-level-with-street",
+  "parallel-lines",
+  "points-into-traffic",
+  "pooled-water",
+  "steep",
+  "surface-problem",
+  "tactile-warning"
+ ],
+ "torch": "2.4.1+cu121",
+ "train_s": 11328.303691,
+ "ts": "2026-09-23T17:35:57+00:00"
+}

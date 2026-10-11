@@ -1,0 +1,8755 @@
+{
+ "images": {
+  "IMG_4282.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "52e0f673f615a38904384adbd9737c7fc6134a6d3065e1dd4fe6f4fe2e27101e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4284.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0d187c200f7795192f8ebca33e91af4cac9b46c51776ff629a196bd72c2d8453",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4286.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "356a8da2929604f4b63361c5a7a69d13981d8f700b67d528632958764f7aded5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4289.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f5ef081299cc0a834057ef492e35ca8b8b6b0263fccd04cfd9ffd7c4bc9a2e73",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4291.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1b1341dee0101914828f00f5cb49d99c91b457fdaa68c7c8051545fbc6dd49c4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4293.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d8e89a95599c84b74c6486eb5734fd677b0970d31349a83e80543ce64fcde0e5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4295.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "bd637db66fb58422dae24bf790be888985c52b19bd4ab432915e45d528110cc0",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4297.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "987139629aed5876e4860ae7921a91be13259ca7a76b231a84baf945a7c15b00",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4299.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d70a1818bead4a9ab67fc26b40aee37e9f92c64559574c080dafdbed4676ae90",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4301.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9d1455eb5642cdf3bf11ee96aab85b43544e0f748d5cc1657b019c1d4c9d4c17",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4303.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "704219428a0e3cb3276292405b2b5dfc529964cb4f1a5255ff6fbe74122ee027",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4305.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5f6602a19a4677f72494442fc178677e0a227f16ba16688b4636963fbfca3cbb",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4307.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "90ea229da53e1ab3842cc4f70d1d28ba50148a9746a2db9eb3818d6c09f24207",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4309.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cca460f501142735b4afd48ba101467191bdb25594fc58bc3efe8d823e47c573",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4312.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "bc313108bb03ecb956556eeb66ce607baa7993b4c5dc094cab9d13560d37e2b3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4315.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4fc4c3abf9a6426364f79975830d7572fe11018a756e625c1e1811faa1db0d39",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4317.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9207aa67be60bc8b431b0dfcb234d71d47b5ccf2ff3de16157c21a432d52e151",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4319.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "baf57501e1d69a192d1653844f0d742ad80a241b6b27449b5b15b1f8a9ccb216",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4321.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7e5b5c815f1297ab7a0b2d244e39c7e81710d7fbd39bd2774740e7b1f589c1b8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4323.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "966b33a9f267b37c14f4d14951fc1e611785b196903118deba92d442b7dfc305",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4325.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "575e490b67ab6560766135401c16dec1c3f2d37223a33732494108200a7ac4e5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4327.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0cf08b731110b764dfebe262c8f51a711aeac3f515e360335b526b3188c00595",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4329.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d9111afbe05a8a55542e6b1a7a4f9c328a717ef5c264ea2faf264ec2fe3acb88",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4331.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b0b03393a173cae076d0e7e1d8bbe6846153ae242b25c439d3730d93c12d6da2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4333.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "51c2a6a94b3d7d6be76ca375939380de49eae8b56ee31f51b7d3803a13634825",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4335.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6c33663ac93acc7b44490b9a82eb221aeca39d8754038fe82e4dda39c478ad89",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4337.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f361de4f4eb9e03037de4fb066b02f44940d9f3824e89acde4c509c798fd1584",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4342.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "00ebb53d14cfc8fe606e3548e825a25b4986065209093ad83f29301db1e751ea",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4344.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6b32e6d09cc50fe594f063c2c501374c8ed3b91513839ce2965e9b5408e01cea",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4346.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c618253afcd5e6586f3c97b25e859ea3a5a7649a0c78a9611e8011f29cd2cd8f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4348.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "fda864d6b9aed50c619b0d8e8b6fe676c845ab344c8005623a5e9b94bda56947",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4350.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "26950971b41c6f29c66ceff289548783730f7b80f4e78bf328f7c184b72460a3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4352.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4a5f450574a336d2dd55305d4a009e1b95589f67638391ac40bde075098b44af",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4354.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c512a767807e70b467f81d2c838175389a15e61e4383a09c26992f7d41bbed00",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4356.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "37d4d3f8a208a7557de29dad34bb21941715881af87e6e711cffb63c10ae2771",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4358.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "926bb198e827386c5c793d3829d45e18435d93a2adaaf5090ab97c7a19284434",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4360.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cf3a3cd710ce8f39b92941653c61ba1e850b5efd991aca7388c6d363c0f3ca9f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4362.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3b1e45033710c5fe55850b13ccbc66448b28eefc0e645517415b332b0d5ebc0c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4364.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2afcaedaa676aefa60f532cce02bb9ad3b68e0a0a1b209d0953f210a7eac77ea",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4366.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2a769fd24a81a56fa4d053b74947bca82aaca10048c985bf3c29e76fdf135dc8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4368.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c1762562c6278d9cb852953409f1fa3c1bbc5ac48e53eb5d776b969c68e16f85",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4370.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7fd50ba80322297f305997d62dcf1d9c6b7917fa752e3e487de2096d336691b9",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4372.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "adbe3c3b70e508e54d02867e17b9a35cc5f623f70b93380b58706c76817c176a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4375.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c113e432d236e3eea3024c4ed14f284e9121a8c8656d97878c9db9e3ed1bd969",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4377.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5fb3a705a5cc02ef53a4e29896609147ad258aa81af8766dc393d9f982300748",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4379.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "810ccf4dc4e69ab6338db5207261afdb37406f3889886d15a29b1ad40d983f56",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4381.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b4b2ab61c12c313c513d917eb7b84b2664f3de878ce0f505d5ebf306766e1114",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4383.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "826749f564ea93843bd617cdd315a8fe79856790c2d691bdc01758dace3539f4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4385.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5a71c4e068306227caad05b6f528cfc840b7edd425c578cfcd63625e2b4d8ca0",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4417.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "75fb9dc85f3d0d2d37c866b86b3a61a5398cd2a868a9f685e416569df6e20746",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4419.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "675e66e634ecb66112f788148a3f2325076e76e8bb2e4c9f69c161ccf5887fc6",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4421.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "97d1af85a28e99eecca9bd2c24924cc4983ca08bcad45ee95aff87651c227c80",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4423.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c11e4d9c53b8dae47d276b193f1c71690366f4a785b7b1a7d2fdc4976a9bfa16",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4425.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e2b5711e25f540c30f4007a221b4c39b657b3aec78702588f6d6af7c93df405f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4427.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "077571a81509918066b7be1a9148b52dcb222871eb6d3004351b6a46b77e72fc",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4429.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4bf5a28a2b001e8f3ca068ab63c6ab3af818f356cd51a535a7baddaf2e14e16f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4431.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9eafb53149f2b7b96c4f69a54f36f5a4a0e92c6fa56cb90765c65a092d20497a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4433.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ccff5b3731921d9c1faa5f84c8bd062394ade6a323297930cb1da795881e2a73",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4435.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "19a00adda4f66494eead9c20af275794fec65780a676cb37dc4fa2e4ae7fdf8a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4437.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "fabacd8192fe0938b772a08801965300d6588477faa4e382ee7aaca6e84395d0",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4439.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7116054277109b089217dfa68e09cb28cbab296ced2cd0ce80551a05cfb399eb",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4441.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c51534e0e2c6e01cb5d471bd697efe0f105e798b2111814bf1aa98b91e7cefa1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4443.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c699dfb7788ec76ba16496c76d9120719033722872fe48929fb9a7c2152c1161",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4445.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e0fdfa8e494823920c45c626c841611e6244aa9d7808cde12cf8604af651b195",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4447.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "20b0cffe7c64dfe7d98dbc6bf65df77505334ea62c01276c33c8d5eb039676be",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4449.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0bf1c92354da142fe8e02ff24353a74270bad5bf4f45a780af2738d142adc8c2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4451.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a0f8816496976b437be6a4b5428339a21600c0d2379a42fd6b138df74d1674e7",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4454.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "bb0497a974d7fe6030b4aa8e3505325da096da5186857d65fbd52d7a470d05b4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4456.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1947d661e76a11a9537dc0cf250509dcaca8a514e37e779f2a5d01148fafdedf",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4458.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "66e7b18fcc391703c58693cc9c9acb489dd7447b915c8ca0e34b27cbf6f9839b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4460.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4620d4da97dac5e2f48b776070242aa95b07b881e19df527bf827275df509826",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4462.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "550a02128b501fd5c23306e42ef0769aae2484323d5a6e56bbd8bf11fb5dedfe",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4464.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5fbb7dc867e7d70fff678894475228519f1611f05bb8bd1505e9ff52b08edcb0",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4466.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "29ae9b8257301a6d921aafca83d1d1ef0465bcda862f6286e4726a181a62e1d1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4468.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c622968cb205feedcabecfcce1fceb608865f5f50be7a027a32c6ac926fa0acb",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4470.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "fcaf548f36e5fe661441ddb644ed22a98ba4c3059757ae598ae7dc79820e5bed",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4472.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "fd32280851aa1aa3df5d4f96923c08caf1f92d87b398cbec6f418928628f1c7b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4474.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0661389ae2fad6ee7a05f4b16ecc5dec965ab4ceaa6264d3d17b4c54b2301d7b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4476.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "31d159b21ea5706eff0f74be72c93900c9a48e0b9f86712f4eb5b1224381f657",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4478.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2ac622c88b76ecc6c8a8bde2766c34253d0409ad74a82fd4296135781181c502",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4480.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "53a95050b6d955734d0212b619d554bae7ca6da29a0379666cb5ec17626bce81",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4482.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c8982e0f55cf2d103c9f719cbfeddc8672e7b49a2e0e72d99bb94c9c4a392dda",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4484.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a2cc97cd8c1793944256d5263d0c4bedf0fcd9afa2588692e69403bf45a35578",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4486.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4c1608a1b93edb9178bb27e95ac28a2e53853c6aa9f229b5af732934ba12dd29",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4488.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "91365884b9ffb8144499f39edca9391bd5f9a298acd5ec1b8f57e86b47ca5da0",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4490.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c58511905b038ca32a82414b7d7e37e1501b95b04b20e33c5ded1f4acd807499",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4492.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "212b10d98f9cfc51fddbcb941e41a699850b8b49e67f0efe49153347f9639ded",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4494.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4d5ad0f2582f3a1fa546c585df7a8a34fa270da0797c26b897f4b2db3de2b4db",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4496.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "dd58c26fdd4d7be063e0415103279432d2266bc4a48af2db56dba2c923eac127",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4498.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cfe2627d93340f3d3a1eba25ab5adab62dd37b6173fa1eb5e875a88bda3a994e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4500.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "61606a3600e289d3183086278dd8b71033b6901f0c723f0918e0e67fcb1e59d5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4502.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7f0f2a90dc0f19893b65a902e12695e91de4970aec378e834e8721a43454143f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4504.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f1a3a019ac27c5672854886949c8b4c1996b2e784256b2a00102821ca4584eea",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4506.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "605226fad29bcea14866bb20a90658e0fb550a2058efcf01955545d3c6c78049",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4508.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "da61cd9c0ab686f1fac61d94eab90c2eecb9b1d2cb3ae62da5f44e915afa45fc",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4510.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b0b0203311efaaefb316b18587f32f62dde76004f26d1a21e890a77f7905940d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4512.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e6b370ed12848c349d3b45dd6758e1baf9954aaa8a2e23584c1db6554e957b45",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4514.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e18a07d535e2b599c1a1c9957b22be323da067e43134ed74bee34abc20e67b7f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4516.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "65210eb641257b25bc7413d1a82e2a1583c4494f9c23a27b7d2d05f6c1377a61",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4518.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9dbb3c231d33c017d7817d9ce7db7f29f7c78be22e559e93c451879c5106ec5c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4520.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "51522aee798ebaf6deb4a1d3da6603e55d4ab66f62c943186a0307d03ff8ae8b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4522.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7e12025034da64bf0f7a772f549d470e23da2681b90cae87c399e8b2a1059d46",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4524.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "37c1f021ea13581686219b588e588eac41d11e0319cf3937b16d23dfb927025b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4526.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8b2ed7f53a9d25e0fef20b8e1fe6065c5b261e4c8dd99f3ab9a4915d0833467d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4528.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "be556d1fbe625279e8d5b456206aead9aa50949eb7f96eb46611b81515b5cc17",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4531.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c06641133ef6cc0632f287477d43ed9117fa541497d8209254ac2ad396529c89",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4533.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "31c9dcfae23f03483695d84a49b9ce72aa3cea85dfe893cba975e294871c41c0",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4536.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7d4dfea69cf9999502c8199905bc594edbbf0382f436d742a4dec4f9f2ec7b87",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4538.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f3f6e7fd893b43b056622c5eb534ccc1c5cd715f0a4c45210c2fee7b1f6c20a8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4540.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "928446bc43ccd87b1fff6d1c83695ac72f4f17a899e0650d86af330845190ddd",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4542.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "33932873ca57d3f2f359b001696bc81c6a748a543829868f626a214b5d2f9c00",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4544.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8929e30735ca1cd51a616d85e00b2b6e4b38e8ff854e33d21fedd20ae50b895e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4546.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c0a57382baf28ac203a3af81e86bf09f0d5dcafdb9ea68b994ed45f35d394d15",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4548.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3e5e18ca9ab8d5959acd81784039c4a3a263e2117a74bd76ab5057b2efd81c74",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4550.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "854993f06f9542f2eddb4541dddfee9a68cb48dd39a8035cf90083e4ad7f392d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4552.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f550d1f2f091bad7462b04037b0ed6504c000b92d1d4cee3b545f8c108486515",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4554.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9f7700b1b0a78dcaac0ad5fa72e2b61b4f080415501ddc3b626c611ecb201cdd",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4556.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "574e4c1af451829d1d6960b0a6a5cc46eaa788ac5d447d1c2e7acf2b65c55bf5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4558.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "30af6504cd6878e1ad41699abb69eb911de7f2f620c2f3e5a4c3624d8445fbf8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4560.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4c5604f875ccb0ea9fb7eeab62876d43c501102e292074d796015de2f3956d2b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4562.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "682aa008f0b50d4cc0b5e9e76ee03f4db4b46ac4e5da7951e03b2a2ec772b325",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4564.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9ffe1303bdea51409a9d2e497bca32acd68d05981c50a20b3c7fb6a5361e6e62",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4566.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d0497152e320744cc082dd3c5e609e16e5c1aab6eaf4645758425c3fe13c2f69",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4568.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "fe715e0eee98f5bcab04fba4e936751780f087ce17aeade97ab1f58f808c9f1d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4570.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b895ec94978fc93cf80713bc9c1e2acc1846599f926c79e2acff53e86d2c250e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4572.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a93da82c0709c9eafb6ee45356d61ea60dc1fb88b3ba2ed947596b30e0e78380",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4576.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "24361747f201bc01512b72a22a0f68f5f9f04a57efe11cd6459790419ee15753",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4578.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "59d020de6ed8b16832d1bc19b20c27c70c582713a7b34782d627d653a1d6678f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4580.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "de299652dc688c82c1d4bf11390a6775976162f52bb15df187e8b1399c67ce90",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4582.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b752527529a9670be3afc4e8dfe4bcfd10e225efd1ed736875c226a8a60704b1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4584.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "750afe6b292a8f9bf9aaa8403c26f62b9a8defb5631b4f77ed12716f406a79f2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4586.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "27d548e96ec0ad5b4bacdceccbf6cddeb156c7bc5e25dbf6e454eb0f75eb96ba",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4588.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c4f09e9e331b65078d612b7cd4375d6ff9a0a1e8b27ec6dff228d15fdfe5778b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4590.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "880b6a40cb4558dc605315c968681c5e17a726820514a224e133d7cfd5094c86",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4592.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "037b455824e10b72534edb3bc476d9ec10a1f86b57054f2831de8c8d3f36918c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4594.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "518ff1ff3180c44756a130694d93cb97d042c311f0a58dfc0add85cf81ee57fb",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4596.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4c6a4d5164cc3df901bbe9d3b49a121356115875514e082051121511c8c8d1e9",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4598.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a5009c02df62946d0f930aa9f5ce4a71f57c35783326f305ebd0b52666af27ee",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4600.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "512563d801c495ceb27f9965a9bb707992a9cc2543f3f76f0b5eff8fd9b29b10",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4603.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ab5e6efde55cfd30f958abff40966703ea44e63857fc064aa87dce6dd5c9fe18",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4605.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1a831b28c2a699af183425b5bea11c8c66cc35ec4038bfe416e7cbb48ca89981",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4607.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0e093852581bbec8317b37d11b1e0abf304f4bcf30103b1fc8c994c080f011ea",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4609.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a6567f85bfe54844f61cb982598cda3c2ed3c6ebb1ba54f36f3d2b9ada0df553",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4611.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "23437bd17f9de6ad633c99d2f06bdd6306675a63defc5407022caa45717a7a21",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4613.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4b1e1f02215359be10bcc09439cbb5f3a7c0a2afa524fc2602858810d9aed3aa",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4615.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a2c51023f86bebc7f32e076f70d4560e88ff5c4e1b7a4d567fa15735b1eda75d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4617.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "963dc15173dc905df0e291e9343e944455ead4abffb247044f15a0b4ad5bb9fa",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4619.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d6e393700c315bf72838ef5ba930d3588af7a2111fba07524a19a565c73e0e5b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4654.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1bf62c50dd54c8e939937f41b60c0519df061f028cd2f96ad718b129662cdf4a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4656.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3766efddbc1326f080212460edd47abc5e6e2f4e30da4a6391a606ae43483bfb",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4658.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "34d5bc71c078b44743e251f7f15625340428bf1d048545b756da9d3c6a468c01",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4660.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "03217951aef5be1629b4a0bbf95f4939bf22bdea7cefaf371ba97709d3b1387a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4662.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f71abf711776222c7d13cee3959fff2372c590c545528ab74186253c560461ba",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4664.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "650e867f6cffebfc61c3b581c283c39ce626ebfd21c9c034c77e484926e7e8f8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4666.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f2e760779dd0ecebf0d8fac5c28e677a3b81afe8e6a1dfad5e7ce88821f51203",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4668.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "006ebe94d5f3728b66850cf252883aa88e07ad2da17b43f3fd4839e373bee5cd",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4670.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2c3c9337965d8b6af6645fea79a0ba2f2f638388d81270ac8af44511bdb102a5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4672.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "984a0bb142f52a5712a5c846d1b2ef44d671ff6134adf6c122625a3516435246",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4674.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "13a4124cabcc41df7e6502bf11344d5871040335107ec325d2eaa28ce4a37d1f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4676.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "deb8a3790d63c6951799385135838aa60a01c58f20daf8e5df260c6262e6c537",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4678.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7d55ed44648e8424a0386782faee58571408a39812c2f9a6b0ca58bf83ee2c7d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4681.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c5771c559c22d9ff842d918109d5ddad22e19984176024c274fc47d552235baf",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4683.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "88a16e2638e7d74f6430d709c6bc85a031ff8d707ac953cb648f107aded91392",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4685.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3d5b788f25f9a61b087be785dbcf0eb16f368cbc9fe03ba940e66e056ccc05ad",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4687.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d1d7cd66c93242bfb31de839b64e8d9f3b31a6ec40071f22d3f9486d70b21421",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4689.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "94d3eaa7715bc23d206bd64f5b33fff8d8c8b803c1cc93f8f18207c676b638e4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4691.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7b760e3295a0eb8648e8a539ba19013682bd696eebc24c7b3c897204c6df1b6d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4693.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3a9cd3f3f86a56a3897a901bf2c48aa5109214638aba0721eaada1f119409e32",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4695.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1c6af3ffd3b6eb9d974c071d78977d0e6023839c790fc2b296e85dfdca5017e7",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4697.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8afe99b6780bf74ff4406a8cfb8166a7c1d88f23fdda4e381d3d4b1db3b73af9",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4699.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a1bc22118ad978c44cad002098a3025c643bb74d2105e8d114e66b18a5ada51a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4701.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0be55301867e3d708ba58de918565fb1c06e4b47aed9dad0d3089e589947d4b1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4704.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e36d478adb99d3cab409c394aca8a54d63f7855f0862846f57e51fb879f120ba",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4706.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e0de15b31999faffe9c793489923d44a32e369543486b1bd870546d16fd44fd4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4708.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d1d5f51e466889f6a7d87e84d209412cc0db3910782b14dd1a9eca74f619e9fc",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4710.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6a4e172a2ef56174f56533731cf079a73612612d61c014742ce745e71f4baf45",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4712.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d6aeaf77e86de524dad0f694b24868cd49aaa355a23bbadc6fe65f66edce197c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4714.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "25bfb2e790e0a54a669723b975dd9496588406ea7306aeb3b9c81649e1525372",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4716.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6e0874bd07f37683ee01be0f8192749a642e433b3cd5ff3fd7011c3e428ad477",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4718.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "299fc2dae87c259f3af7e7438433b0c3d29b18eba27d6bdca65c1a5b3b124031",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4721.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5655ce9e8dcaaa4a9d452b34482fb97d04a5d8f8e20e6a35d09f8fd8ee936264",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4723.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c89f0f65faac3ef8acfc87be8387c2a31ed0dee8b621f8e45da022d4c20a8f3c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4725.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a57d352dfeac5fcbd2ac8d6700a37d8944ac3a03be1901506c7da590a40a1db8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4727.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "36e7ce602b4b1ced9e4ab07def8e5f226fb9d84a845efa67e50ddcfe98ea0a53",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4729.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a8afe70a1f99a118b365c5d71edf8109e48f2d1b879b3aee7167c7d7bde5a10b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4731.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0fcf6c365e247847a81314e897b98cb50501f3a62fbd5d13f1076345c2f7b16c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4733.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c20a394ee719d1053efeec248e525439cef06e6fbc2456a4cf4eba7cb19884e3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4735.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "248fb94a32a8be21a6beaed6c082a7898ccfe72a67c730c4c7a1207661af5a07",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4737.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7f35a87893577520f11faf74ff786bc997b4195de7132729697242bfb3d4cbef",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4739.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6e879b9fcf8596cc84cd5cc321d4da0930891577c332f6215ec64c728d4ddbd8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4741.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9a00e5b22c3dde1580cc4fb662d60668593618ef39bb8210d7a1d06e524cdc3e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4743.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0778ee0bd22495d5268c8350bc0a724b9f6cd2c7a31591f2af47b64617baf3e8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4745.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "809dc9315697ff45248dd00e2ea549d8cb651a0945382b9f614675f4745dee26",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4747.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "753556adc420014fde0194fef32e05ef266777c0b87b79252d5f61f2e01e6049",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4749.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "98de41f9217dad9a5a24ddc36641b536eb45eaccc1a1742c60f13ca68d6ed5ed",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4751.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "90fd36770951d6fbfe01380be9172d1f472e4f323b5eb3b6d2bfb7d8b5aeab98",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4753.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "97a72446d32ea48457f1020d8f2ff1b049d983101fabacb19d6a1cd0b37d0c80",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4755.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ac0408b73b4b5d525a065153d769a9e4ea7c53f13ab3826be1b398f962346f64",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4757.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e8f0a086d45db1db025922ce5374007a296ec6ad089a402877019e2bacebe01e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4759.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b48219b73b159c5756d9f00cf77814d8c1f0a69e66fa56bb1b5454d1472699f4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4761.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "35ac21fa49088e25f48e21d79eeb47c2778b85acf851d7611aac04dc3f35025c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4763.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5276af0d0e5efd27d9baa198d2abbe1705add518adb56a47b970318950cc14a3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4765.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "81845e625c7732f867903f99595f9c259d03b2d80eec817e366c4a8a9252b91a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4768.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c0dd48b405abc0c5c5bfcb2bfe28e4313d9990b51f61701623fcfe8f07485ed5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4770.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3d06b91f1e95b7897e2b652df21ba461f32a95a95f37a438f8d3866733919308",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4772.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b536eeda9793e51bd499b1cf27e83c04fd1c3a964124499d16dc499a7f836ddb",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4774.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "55b07891d5d274044951253fb39ab68a3d68f509cd59108f659f63a9cbf5aa91",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4776.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a22901155fdcc38ee6754720303a3738da38bca3b1baf6353c3d1541f60c1885",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4778.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "20d24d34aa133c9ef1fb39807ef6e430cda2841c838572783494fa0002385f34",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4780.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9e4ee569ed78a645baa6276f6a547dd9261a08bd184bf2ad60a788bf344f64df",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4782.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "23f3c0040e389578a1c9f954beaa1f8a4082b8271b39a4e9d22dd6c38572dae5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4784.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8cabe0759d5ab8f8504b4e828807aae99be765554312e844b96059feb802ceba",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4786.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "442b664f38b315366421348b909078885b57b551385fdc6fb319952494c20b78",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4788.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f9b937b02d5701b254ff317a2a0867bfc26cb60c7c5008406957923efff00e35",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4790.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c3dc27ff4fd421515cf39fa9c7da60a614cccf292feb3d281ee8f271650bbd7b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4792.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cc483c2c9c274949fcd518512741c64aa54e67fe2af76c78dea1c35b625ff2df",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4794.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9d1a183ad01a7f04458501ed843addc72e55d0881ef8cc5c7efc8936954a8def",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4796.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2e3727d399bcaa5113a84154e9d3c59e2e7b74381c8fb560daf6e33b12bfc9de",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4800.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f588ba522e93a574c07df06c6f48b988222a6295a97e0e96ceadf204456b2f65",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4802.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a3f962b346b29e83e9df954b93218810de19159d4f27ebdb06b73149b09f7055",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4805.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "66a0a585d5303c4a3ab4d251e3204fad8b34411cacad9564b31b6de2fe3451f6",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4807.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b0634b5c7c5af918bfb2a9fba25dc7c0ac278805d09001fd2bf73c6ab2a393a8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4809.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2d20544ed648017dddde22a8f5c6dfd67e5685a418700ae038eb04b19d16d536",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4811.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "dfa5659f42a54b40cd807e13202bbdf581e6a6fd7d94c8f80d5705932ec14f29",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4813.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8d682727d02dfa8b273b04801f0d752941b6e3b62936e2b303d328d44b62a591",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4815.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8145b69c489494050ad46340500e926a6c7f307fa3994edb35d2485c0607568a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4818.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ac875363ebbcd8fce81c4e3264494dbbf25b2e86c5e9fa732be646790705f61a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4821.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "56742ea8f3a64ba19d60fe56a6ae03cceb1e90c4cc5682fa33615404ce9ecedc",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4823.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5933cb652b0adbed7120b98d59ceec6f7b066af444f5d90653909162b3273986",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4825.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f7b73c40d9f0349251c4596519d7f8dbb5bf6e23732549a6c4d21d21f0b234fd",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4827.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2f1c2b47c394d3d8734ff912900069b47acf719118178c2763587918959b4751",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4829.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b4579dfeccab9573dbced4c53718325c0c2b81bd0e1549ee86162554ace4771a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4831.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5f897424bc8b24c6b834e0337a741aefb7b568669545b794d846d0add2b66ca2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4833.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "11e93d16051f9c1881d25b398ad5d61d5032215103ecf7a45294e2b762bb45da",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4835.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2bba0c94e3e4c31d6a2932f35b3858cd198e674ee1563f61a2cbf71fd7c20852",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4837.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "64a5d535dcefe5dc6fb2ba63318f9111f640f47a57e9f3d7722b7db0dc057ede",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4839.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "210f73607d3254e4d4ac49c9fdacec5ddb9e962aad68ffcbf2683971c41ad0a2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4841.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "eac6f6e663906530a05b0ada174fbc99469c98ba74f0828148ca87d1a17abc99",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4843.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "91fa954892838d7f175b55bd6bc1db2237ba7e0522a08964c18404de9f1a58f9",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4845.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "77acd21d92d7dc776896381412284b41b0fdfe063223faaecadf3b481112836d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4847.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1226016fdf9b31196ffe2cc6f385e9960565f810f1bf367fd7d18f7d26aac285",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4849.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0fba598530787718797792c3c5ba7cd02617d157c76b143ce319c7c3ffe88f4a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4851.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "90d4205bf91d077fa02518f6746aad06fe4b1967e579fce23566e6328f3d2039",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4853.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "26b1a05f9301f4437c962fa227c51c3a466d3777c8bf2235b1dc61d8b0e7fb3a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4855.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ca2d382bdaaa999ac5ec1e47ca57510f6ab56a6f3df9bd9b2ebead6dedaded13",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4857.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "eecc6bedf698c5c3273f35742908e1b8196aa7a864c31f1dcde4ed104eab2b89",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4859.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e5e7d6d3fefbdf082a502392169f0f7aea1929c6bfae417438dc698790ef180c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_4861.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "025408cee0081c79016f7e88f794e6a5f66829e05b48fec3680f95395dbed1f8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6376.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "78bc7411c287ab2dff269634ef01f85173c77758fd4d5d5b552c405ce7c1ca26",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6378.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ed31872b7593a9fe5123ad146ba75ec22c7a2d52460a34ce4083fa72b99ee249",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6380.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b47d521564bb1f0fa8899ad777ae67ccfa98c25239e373d890ece9b6270b13b3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6383.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6c7e6ddf634b7115142af0c8f868759d060dfc8a0ffd3c8b3510ee58f263250d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6385.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ecb012002b014368ca52097103e75ab461d4ba2c34690af7fecf2e586a24e303",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6387.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "952ea1043dd77430b85b0f786d9fcc98b1bf7cd70f2cf0e2c4fa9a3c268defa3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6390.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9f5d455b06b42bcaa7b0598b623ced9cc3ca07482d1788cc187434873c440cc4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6392.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "985b868be44c4b7a7dc680906b271e25916f2168e061da05615cbb50ac721c83",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6394.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1a92d25289fafbe8a832d8d60576372ff35beaafae6610775b99eb83535fd2fe",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6396.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ccf8ada999bc5a7404d1bdc263f46589eba93c3209a98174d2d0abbd5022c5e9",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6398.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "bdb0ddbaf542fabe6d4b0f3916d53c0586b11c061316083c25e2bed36e70cb1b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6400.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e1a6513459065e63da0afb8cde0eb8e539bf37352ee62ac46f1dee283a627398",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6402.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b1a137c1f0028e883140ab81b459858da046f44b11e979cbb7922214b9012f19",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6404.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "30c0d046e8cfb50674048bd2a2bfb857a8c40c6b99bb7ccc0b8685456fb39386",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6406.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "91652731488937580e856ff9f6a4b23f77377718695826f916fda3cdd3fe03bd",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6408.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1ac79a39863c7f9e2ab48aaf08f2809e07341ae1918f33f3176647def4075ac1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6410.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2603d3f1e3a8512f500eec3c9ae494314633558719951d6306346d4cd3b905c1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6412.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7ef5934e1f2aae084e0ff11c045911a1572b5f3b49f5413485b8d517b2a00674",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6415.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5e729bc0903189e937794a4133f6640e14bc6d5846cd83feeabbc9d982869499",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6417.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "36a5d3ed7cae2870f83a57a2fb01ace8b1cf0bc9f2f046d417fec4c8b235979f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6419.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "59b3f7fb289a5772543f957d934cff07ff88ace843d7afdb9d8f8d941b209f78",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6421.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9de9b575e0a8cf97dbf10c96898634ead7ef5bc727aee4efa8f3ae03fa4478a9",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6423.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "da6a636ed2f5b65c0b58edc24f3b1b8dcfba55c204a0ae81a73afbd9e806df29",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6425.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "266f5f92f0458b3d2450e37c615e5d3660cb7cdcd82762517d5ecb231a9b7ca8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6427.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e7b32a10776588773553f03ed676747ed1a720d2eaba03c424ff3629b4930300",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6429.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0272676a7d9647f6bd1fe12407e0de628b7b8b6014468334d78946fd2e7c165a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6431.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "69d6bc84dcafb43fea12023e923df5ca270807fd26b887ed2c3684d406d88883",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6433.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "90daa8f7d8163cef5f0b9d3dfd0bf2af8aa12deb71befb3b52aa806303a7d167",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6435.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "41cd31f899dd7e12b62904b38fb1c57c5046b7711137246d697bd9adee7d3458",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6437.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "fbda221490e2a97550e606c9e54e38800c434c621b0288667f615567fb3c7044",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6439.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "472c9da87b58902ee030c52da64de016ecb9c43e6f3a30e365f1f48c08ac48df",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6441.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a6a866ce79ea3acf764becb61b97d5d04216cc1a39b0b51c29fe8ecbaaf61820",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6443.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0ad5124302fb05e90c1ff362ac3f171d3c760eb604a519174f2c290f0435ea53",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6445.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "51018aae9a78eb87965ef9975e0276225f9e065c95f54da6ef987d30c0ef5dcb",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6447.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b7e03f6bdbcc658a08806bbf7cfaf215d25b29bff2b2212c0f5d43221b428c41",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6449.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d2609f1f806c9a3f96b2e21886377b62a7843550127767142c5ec0ba549273f3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6451.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a337a8826e91089db8177099d4af87dba88acb085e56df855fa92dc3410d4b8c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6453.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "dc5ffc4ee9cb1208bc65824b006ead1e85680bc144cd908f2a50a554fc91377d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6455.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d1d71a794dd53ba501b82e711314706965446eb648ab49efbed87cfdf8fe3afd",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6457.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "43b3b52a0721216c2e2aa95748aa587a7ee3b8e065878d5cc10179730bd1ade2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6459.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e261d454394b7447d122652c352ccae3368037a57bbe0f8f76bc12ed31b39844",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6461.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "484a19362adfa61a6a773d12b5495bcac2ba1bed80295b53e6401dd7ccc2edea",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6464.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "efde03c85319973bca406bb6817faa9a94946c3eef3f7db6948b890e4add689a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6466.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "31cdfe362e82bb1a8a02dfe33aa872d10104feba689dfa9b6d9798bf895329d5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6468.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b6bdc0e8d4ae8d87727a16d544b80bf691a70367993e67e442dc426764de3687",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6470.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "35399e4f4ff70577ca2b21f513e511c1e7e517360dac7bd59eb3e86eaefc2446",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6472.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "51a8f0355bbb7fafa527d808e6a137193663e60dfdbfe0c08f925ee6130f3850",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6474.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c95b0b32477b456f86be4038633ff608d86ad65bf67516aef4091905505d2706",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6476.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "86a144c87976636a5e403337b98ead82edabb623379d8691fb47526c2c4c7d29",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6478.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5cc8c743279a6d67e2c56c5b603e0c8468020672d8a2f9633c1f2d920a4738f1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6481.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "14f339dfd6e14b6c3d5ff76ec042ea198402db99ce4dfbe6adf41dea2b84e90d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6483.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e12f7d76c9fec140826641d10be2f9f64eeea99ca2d726469fb998b14943a6f3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6485.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e9af349d6fc4024481aa227d8c753c74b01843a572d1ba5225f5180e32a8a3bc",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6487.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a53e27cdbff1aa744558f27274a57e0a072de50815129722afb4682a444489ab",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6489.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "77cae6c1926d26970d23f3045cb75610dec4aa1abf492ecf28c0ee3f0f8074e4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6491.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1932d13f40ba0a8b191ee1505c975a533dd5f7fb668f1125e429b83b7a4e64af",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6494.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c213d01376b3bb07dd26c9b69b44f62951786806f376063903c5c8d66a0f8d24",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6496.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8f2a759f1ceb326e10249bbfcb5551cf05269ecefbde613a00bc7c13d9560a74",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6498.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b6896d6160a1f27ad5603d76e60ad687162349940e7778784bb21d87f98ffecd",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6500.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8a48be71403641faaa9d7737c7368634db7fb6397fbc375008c936d793c91e21",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6503.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a986248a8cd48918fe4e27ece54f38e24046c430a6a01fd1328c1a5eea7ddb21",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6505.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a54821f2d1a5b0125bd68fc7cde5ee3b24dc740bcfa2cb08f21104750719c2fa",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6507.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5c2f942db8d7344c921843e1f7f1e1988e73ea3f70a97df7695d7a245064b402",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6509.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d2b0ab7718e559edcf919e1ef71b0a1426ec9fea288b88adba5bc9e386f051fb",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6511.heic": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9b236478c7f40c5d67528e937bc5741acb53bd7bc9b5c6079edf4890473df14c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6513.heic": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "258eb96564cf3ee29d0afcb4e301010dfbe1e465d640320d36e81c4c89066f72",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 3024,
+   "orig_w": 4032,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6515.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b19edbcd91aa93cdbc8df9a7506da8649514723a38e59d37477908a0fe9238f5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6517.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "676cb2493c9f95ce54567db5c1a1f617bc2455930f44df05c1d7af62e2e3f69d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6518.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "62695b171b9550467178d467f36e8d167118af004ab7d6956515b46dfbdcd0f2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6522.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "77a11147cb109253243a78b76d28224ad16b80ff6025c0845a8b7645624609d5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6524.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6f79f27e6ddf40096c1fad1f4b6531b8395d8492c0cc52dc7b5e21afebc778e5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6526.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b47cd301b788b5296b137ce4f502cbb24003c99b62f03fe2cee296dc550e9cc2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6528.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d632475ad0dd01d93f0274534e4ddaad15da7b10d37251948734fdd62533e124",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6530.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7e7d4990d2f15181a666a9acdc42355ec4cf54ef487b5f592d72e4e247786c6b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6532.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "46d09c5507f28493aecb701e21c3e51f4417ca5ec61e0f70499f2e65db0d3840",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6534.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "52936a952feb7d09e62f1eba32b508dcdf1817d3dcbbbcbb19c25fd259a79773",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6536.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7a00fea53cf54ee21cbb26f0f7c9a56e075a34ceee3513f99d3bb329406a26f1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6538.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0b1314c4de4f64f5fee3deb9d305648bdfacda4fabf491f2be1b1cabe1b885c6",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6540.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "df70ee6900035918c4a0ea1f826706963c3bb2a83cf1ae7d03ccfb44ca0d416d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6542.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b8e247e644d4863263552d2411b252269b3b437e964cb90abe3aefc3f979d570",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6544.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ff9ab1f986758552616ebccea7a2eaf359c1094d648811c23536781147927a8b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6546.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "52a99a7d994ee91e1b2747cae09ace69b9216adc3dbfcc57b6f1f2c48e3935eb",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6548.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6048d9e33e3a6d50475e52229b7096abd1b47181690b9276fa89be9265235d80",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6550.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5e1a89c5dc6e76e3f5b6a7a1840b96d8a66bb8183f369e8f010c3a92451c2e08",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6552.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "fe128d41e83f8c0541a4b698c95579baa74a52fb5efd1f212d5c22fb738aa638",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6554.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "de5297cf7950d747acc55b0335abb944cdcdc516b126aab099575436fbb0948f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6556.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f39ff67052cae8fbe526c49be3995e997ec3944012434bf3b1efa57ba4e99c7c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6558.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e8763fad0b138f4a517c30afa8078ec05b37d1ae80c32baf3ba064958f0ca907",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6560.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "494c4aec61338595d087e3be15ecb6b00da56e799b690134d706d0ca8392e267",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6562.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1154fb58de57a3f925f5d5bf81a21331f306da3afbb7d08f5cd4a447a1d1ad68",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6564.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ea5a8f80774946abd2edc04fb0d94c4e4fc19bbb0cf4b1d50059100f351ce900",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6566.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0e9d8b8d4d939ec701f7a43756caa79fe70f94fc8cebcd6b7d16e7bbd53fe9e5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6569.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cac51f88ba9c1098281f3ca91d56fdfe4e6a72bd3ac0d77a3fc849fe62fa2b71",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6571.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "68355dbe599596737baa57af1c64229b037a3b619323ced7c17e808c802ae397",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6573.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cee9616f3a004f36579e815a75bd3a81e2129539705eaae23eddfddb9644a798",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6575.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "297402f815dd5364b46e59f7526024b5c444d3142aa2051b569632e539caf399",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6577.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0960044e73860e94f6e9fb07ae899b01a9afa9d567dfdf37c56df0167b84dcf9",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6579.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a1a13206f92594e2dcca7422af371926bb4e8d3d844b1773826a1b8718cddc0f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6686.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "409f894eca000c0d19aae953f481b73dccca5d74187b97cdc6c3a0fcbf7f1db1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6688.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "96c2928fdc5a8ae98a899a1963c5fcd7b035d1686ad594169b0ece3047ade119",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6690.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "36ef4662ec5d1060046a7c183d1a22c967dce34d0b38270aeb81182dd70c237c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6692.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3eac3e2d93bffc915bc7565e734fcbfa048fe696674828d32212c02647a3b4f8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6694.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6a6660904154d30ed348c976ff830e0253105230fbdddb5079e86d4ea9814d48",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6699.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6599544684b495f453d4741d28be4dd22d50adcf09197184d814796db6444d5c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6701.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d0986e08e2a3c43ff11e193651f2316b5c7f17d01bbd51d6ab1d8f1424a1c2f3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6703.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7a40cc0d97fae5f0c8b1ba962da68c72b4dc8f764c80ba16b7be90661fd5ed46",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6705.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a9932053ff0bf2bb9d7097f8323580576bf414699feac2460f3f5a2ef7c0611d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6707.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c883277be492ba93a80ad1c1437eac264cd5e18785576e8c4d90046c295adf0e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6709.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "32c2e318fe0aa4b48fe4022681ae8145156e0bdd7bf7ed580ea473520bed8a0a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6711.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "78025132f72016442edca4983119f7dedb24eeb87443da24dbcdce9a57426607",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6713.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f12931148173cb212c943ad4a01882fa9a43af55ae2073103dfe13670b0986b3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6716.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c0d43340f4f921a61feb17ee574f78a021d63affb595b75b40a04aa5c08d07f5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6718.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "89cb1262f81a273c457d69862c1a0abcd8c7fad6f69febe9b397a7c04b43ad5b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6720.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "bb7a75ee98e8fa5be06d656c06798d98ccf5332f64560e91d65e32497221ef67",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6722.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cf4a6ed9593242c229d6a7dbc0ced18f592fd07745962fee001015312f229896",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6724.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e5dfc39d9f18a561202136d03c8ec6c2adf09896c10fd5ad664470d5ae3fd990",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6726.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ac10d7d1c51c7081c30137bf1ec827bf73adda5223cfe5c45b4a789cd9981d01",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6728.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "58e9630aa2fc5f78ba65c480ea81f2743d6118a601216d8c3fe26cc11bc92ca3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6730.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0fa8089508fe1c5c80ff8be222e9c206ce123ae4910e4bec693f6e3f86e2ef00",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6732.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "385ae81861ef3405e42aeefe56ed511316ae13b855f9dd2545302d1ff0203ae9",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6734.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "04eab3d14443b4ddb802509f1033e4748336bcd5c3adc2776c9f92800c3cd221",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6736.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "677b0001d965c8d831935d3151deb833d10a5da12d92d6a39700d07dd6a5255f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6738.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cc2f591eb18d709248ac7c2769b30b081bf7c2f05361b2879ca0dc329e42cd2d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6740.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "5489fff8cad1def5b5de50e2a6954f7ff7d975b01ad687743fe4a39a109b0faf",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6742.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2a5e3d5a45fce50470b5ba4dc1e49f1cdc98d4dc1e8b295acfc2d72e45221e24",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6744.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "870f7460966985782b7ca5421abdc55a7fc1156db4e848491eef5a4f4813a17f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6746.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7ff59a5ffbdc3abd94874f30966468bd5dff62a9a43f9a328eff0572955b037d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6748.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0d5eda5dc14feba502f0f33ae4a187686032d448107b7a0dd75cfb6d2fd8b626",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6750.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e3a5b5c7ad8a31fcf18baa93947773e7f34f9a28529f56199f717b362f936951",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6752.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8fa67a18291f1a8371be46060f78baa6e848ca82fb2e55f39d4956f4269576c5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6754.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "07d1c138b8326d557143cf4e5691b9aa227493bb9f7e6863ff563df5b8e18d17",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6756.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2604f445eb7390ba2c1bfb221cf93a2be3ed7a93954c447bd2250ffbdee2a3b4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6758.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3c556ce8748a4ff3704c7ee5e7953782d9185d6f940f09c3bf10d6e900dad14d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6760.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "76f302534876007a62f5791a8894bf13bcfad95ec6afef9a31a6db16cf615273",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6762.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "90fdc888b285e3d88b161c1772dda06cbbb77a656c446e30fe1f3e136566af52",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6764.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "20ed687fe8ddb0cdd3130eb1b46e78ec81f884fa0dc144bf694e7befb7beb3a6",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6766.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ed9550eabb0d997db4629950f761d01c601e3d448418e81578e5ad8744fc67c0",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6768.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c58b6f71699af8a1b8ecbfb64ea8dd0c8286d71e48d459a145a6de84d819991c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6770.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "29b783dd8b1eae4b156389900d02598f2becff9422312511400d8f0176541672",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6773.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7bd35c6a720e69175a313a241ff1a064081b5d623cb74f3f5777645c328a5e80",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6775.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "15ce6375ee4f291e7369e05a9c7b35a355fbecce7cb28e1755099ca72c4afa0a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6777.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ef149e518821ef8c447c550343730c8a2784a090312ad0328243240cf944d011",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6779.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "aba95f7856314b9948482d741a85c437068ce4dd5808853fa962937e528ca0e5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6781.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "91c81ee0d6f25ca7d52f2bf133dd7529bfb22d8eff12054aafaad6011ed9037f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6783.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b241f3b0e9eb19f55f0b47bb466db20d613621b18f336491d6781a8048b5a22c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6785.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "651e339cd038d9e2c7298ca94c32c7261c26b893c9019defb8d9a1672e916c08",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6788.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e85e06267f9e23b4279066b836eebc0338adf8af456e433ccde64acf72163f35",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6790.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9c9a816f37479927099d99a5792671a2bdc59f1bf17e4f10c433d1bad0446bca",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6792.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "de88376e93f95b6469b71f9d8f3727791b236164868b34c7dc4169742fe4b790",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6794.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "44d78a547c2a1d061fa84ec83ae0bf75cc3b32410a997cf04d6702f8099f0d25",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6797.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7dba8117e0b20e2d813ddc10b09fde9ebbd9b4eb5fc31b64d91f3b0181519417",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6799.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6aea4e05588b50b6a14832156c8b83d76e3a678672c6a47a00468a247783d007",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6801.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e02a78706686cd8f05d2364be02585f71ba9b2e93e6d52aacbf8394ade95483d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6803.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a95873de846e9a3f33cb0a5bad09d77efde346d7f6bed77b86e22db57a765dae",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6805.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "839ec6157c6365bc7e432ee55f201e526bfcb91520e623f4167d2a1b5d80dc79",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6807.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ef656aacee451d209e4da908d580d2fec8c56ef28fae13c013f4e6081b0e3b34",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6809.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6924b179a2cc80b152b6c9de592fa6b85f716034efc50112d73626051d4acc97",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6811.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "904d243d75110077afdc554024e75a857b2cfd3a822e898f26a44c4139767b62",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6813.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "528d99752edfdf755caa3ca5adfda3da28ace9296f8173c12efbde4caaf6652b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6815.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c00bd3a69e83e8c27b68d52511bf7aaa352f648bbe100f9a782d36fbc1d9dc4f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6817.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b5d2a4b6c7b3eb3f528693caac08195f23dea30250d1013cd3008a8b72f202b0",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6819.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "830acd0898ce997006d9f6f89bfa471ca2a59fe0214e3352862d5f6b2fa7daf8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6821.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "34890418efda7fd60fe9ada3302bbe3de657d8e2694a7903d43710ba66fbc466",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6823.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ac2b4787b35bc895feae411e69f8076e2271dc9e22440d84ee0548d779638f8e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6825.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "75b8f1e534c3f2469b28410ad6a074a9e2d18aaaa65e3429202cd1807e6745b6",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6827.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cba12ca7562c727a55ac453d09a95e79d62e79bfa5aa6b82c22c874ac22b24db",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6829.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4990cff522036f19663254f7d8f464dbdc5d2d52f36c5320e8d352e1ea5dcbc3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6831.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1a3cf262e845afc2fc1ee7746eac70a65a2ee64047a49ba5324e878881b74732",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6834.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "31f19fc1b2fa579ffe9b48620a6edf88dba448c5d867ffc81424a307ddcaad46",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6837.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d1f2a7aac44fc6a05cc89d0ad047b92c0acfb0a141f7bae7da42d8453d9f4bd1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6839.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b5ce82ed09783d9efd360557f2c835755da4c6a151b057377270ed52b1e12eb9",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6841.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6e4f29cadcc2034b14c961454b35cb03e2cd873eca0cf6f2931121703106bb35",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6843.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "457743812afe300a85833d39cd30f27567bff718c2b296c3aa761581bdcfa11b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6845.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "708ae7939849750b401ff6f4be8c5f6fdaa921fbb8f566db5d279240bed7cd33",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6847.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "baba852263adf4692372c5c628be33056e0871c001fad231a02355c93991863b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6849.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b357a140286a372beee121c1397ef0109f01bb31b7f26aea77b0aa3bf45bbe77",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6851.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1a906c944f3e8a0dc13a57d98ddd7b2cfb4b525c4cc0011c7819ac5c9cf26038",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6853.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "fa61301b2118ff0942a93226fdfa196765ddb4911e51e2b2edfed6fc5fee07e3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6855.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ed1ef49ec61194a945bed313e116667cf968721480033d8cbb9d07b128465d8e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6857.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "aaad8a5cae8c210c710360bb1403ca85c4a23b8bf906e48c284da662e2df7111",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6859.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "43de49274a9621d190ffdbcef452858c338fbffb2e241a9bba7ade8244f27f84",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6861.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "055529ccb7d3c7f72bc4b9117595052e205f1ca56e2af7502f6ee409d71c6bcf",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6863.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1c969dfa9020b013a4423d0353ea696799aff41738fed44de9dbef36d16ed401",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6865.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ec151f896aba8d919d4cc6b5665c421eb13cf3c4bb0293cfbb7776339d5d377b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6867.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "15483fc9102d82967a6fa7fb082e8c8ffaccd9c0bc85fbd1332a228a5f75e07e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6869.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "27a2d4ef5e6691cc842fb58b3dd75120c5546bff8ae6973242844b6d143c53a4",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6871.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c3800ee5d9eec24b2428ae5ac94b8b2904dea081aac4dd2f42327cf91ec1d401",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6873.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "efff0b5293bbeaa4a9ea706258dfe32f6c2e02f47c7915bc8e825455f9b61d03",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6875.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e043e2819ab7bfcff020077576a7fa82af55394fc89bc1c12cdfb6e5e295d785",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6877.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f1ccfa1dc417f602dd0999b74ec29c2a3478b266e1592fdfc02bef693253197c",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6879.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "11e38e5dd2f7367164e82184ed4b9b9ecac5fe22ff72fb357e11998296fc31ce",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6881.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "56accd783a1f6da68c268239d4e6e7245590a220bb8488ef7850403a62aad3ca",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6883.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "426f88ebd808529c70df833202f8bf296a32637edd3e82e940081ed61e739d19",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6885.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b31f7160d87c89d4d6f330ecd3770c954f76ec2f49b7372c8aafb86e317d1a25",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6887.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9848354fe5e2b7f57c913d5a2d1846bf96b56b06c3803abc54f6d25b11e944f0",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6889.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "ccefedcaae6332b8ec400406eba7f0c27e7885878d0ae7e470eedaa20fb1f372",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6891.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7ecdd2af5c2853c2553d0452f4d543d5976ec42311920a0f08aafd66d1833d92",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6893.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6d79a6d30b0139a87401c6d8fe0047a184b6b760276923e88351f256ada93492",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6895.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "55ec444472837aa3cce0452fea861b171d7966b543c1dd31f134b4a54038317b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6897.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "96ad9bc2f3925b5dba2cefd5a5341fb466c22fea94a3f01bdad8fbd162ad8afa",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6899.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6b7ac48857f422a6e49e43563bd0fb29a20158d98bbcd6d4e43af1738bdeff9a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6901.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6832e1ba38c33b85a369ff1135037537e1d10f93c5a647cebd2ef97829cb30a3",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6903.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "722a56d6b2110a0b9d8e4f870967c85b62c6d80753e411753f0d69dc2d8035d1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6905.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f9b3998635c20c07116809ae665eaabbf8e4bfed929f83494393a6545a6212aa",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6907.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "31c75e3a1a4a4611b035940d762586443b4e2487e298cca80d5b66bfee6d5511",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6909.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a8b5e846566a972b6df002cb1b56568282a4b173f8fc18d464096c6d925a4d48",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6911.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2773e41b40c4e2f3281024776fc5a00cc3931f2ba520eb04c2229caf982c4af7",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6913.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "39669169a167c3416abf4f75cb11e53697682942bbb71bffca3a8c780391364b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6915.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1f3c3757722051ae6c0c7818634f25a0f1dea97dda0cac984b65b9da43d6425f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6917.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cc2b775bb73178926df0d689d6472c8ef06db5cf1529e713edbc51ff7cc0ab6a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6919.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e47bc63514bdb0f4165e261aaff9b51f605986be25e3770916e7e0b46de91f4e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6921.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9332d80be4d88c5a31405f86d3c2b1f5efb57c499d37990f1ed18bf04c63e132",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6923.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "86dcf119ca36196218da4f99587e2357a171c879b06c84dc8604e979dce362e6",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6925.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "4c55876943a5e3461f449cc70c6358ff83151102d90dd752a39632b5ff544e21",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6927.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7b8a89f3cf0a41c39861b1a0c86234062ee9e9755f2e2cfb5e9d77cad4318a8f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_6929.HEIC": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "72aa1c249722ebaf3891e7ff17afcf1892b2cffe4e87f640deec0ccfff8c736e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8956.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "741280d4c4d628e03f2743eb83a3578e25776e2f6482f1e4bb5f3730ee3d846b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8957.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "70c38f57961ff24077770cbf21132eaf3430f2e1718dd6cc532c55b8025652a2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8959.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "dfc64799746ff2798d8f8dd7b7ab380d374241af8b340bd4989e9ba57ad8065e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8960.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "22e056e1bc6540686151e116e03fe6d336cc2f7092cfa58747e798607d806090",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8961.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "dc948e647e1773afd06815b030410b00e1acbcc8d4271a446088ae51740f0c6e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8962.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "e73c5ae09c76fcba5701276c3fc94158248cf57a308a97008b21e92c2c092af1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8963.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1a4759e54079ea870d827a72eb5c2023371a44b6c86ae3ee2bfa43e7c9b6c86a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8964.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "161cf9a39b4c43fa1ade8e5d233079b34121ea149535e966f0f17f1827730515",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8965.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cede1ae790d7e035de8b5838976ea970fc3d8355af4fcea9fac95a1c2574fb18",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8966.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "59c4fc6c5b4b401cf12e2e5d49ad4c20fac2c8f8fa22abc63dd402eb5b99d867",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8967.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "526c74dc91add7f4ddd80f81e094ee9b586684f12b9ef0b2bed21f75516930b2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8968.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "76d6c4e56f3dbfa9773d771f3be9cbb8b8a586176e7af6de7927e2d0675f962e",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8969.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "94049c1989a9c877cd4f6c282cb9ae457c04b2271806ef8024d20b48a5ccbced",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8970.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "917c6af09cef3791ea401a3ed7510210445c936790bb5955f73afa03669b7f1f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8971.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f854a20c4a1cfb0b8afb3811a65c317a57d8946504e040e51556e147c98cfd56",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8972.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "83db61934fbfc722e9e3964bcc05137ab3926fc4a778f40250eb9a0d6c019237",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8973.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3d14da2fec13ace78837a06de8dc1dda73d1723f06553dcb64f120a5d2d9a2e1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8974.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "2647129da1dbe04844561cd457abbd8ad99137caff643dc571723fe813368a1b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8975.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "dde5abeac327c3a3bf3986d1f643674c6236568c33841acfdf27b130948a6e49",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8976.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1c4907034ba88f793e4e106e1f35bf6419bacd0c0a595f5a12128b11a4536e4f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8977.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "50ac67536a9716b67bcde00d4c382c1c0928191fc64b1db8bed5b01dc2452cf1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8979.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "a360b60d321e471553d341ebe3697218d894bb3477d1ce07a423b08c0e159958",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8980.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "83b9080af40bea7330e8bac214539a0a7f91c389287ae1977b4dec7ef17657e5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8981.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c5854ba4cc6af39d8c93b26cd09eda19fe48875e2f49e414c2a9c100c9b283ee",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8982.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "c715a278f5a33c5b4399784cbb52e155f2b38d3ecf47c9cb163e9e6b48b72fe1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8983.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b83fd834096bd9c5e60a177de460b966fbf4fa1a20c7165108b98d401f31aa45",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8984.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b605e290d79814566ed14a93f3e8c5eea83ab79279c3db20ee4db493168a82e8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8985.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "21b9a919ad7824f528312ddb967f2b8207fd2020d4c7fb376430c36c870c9b10",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8986.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "6621898534409e8a496353d3cc67c069928d2af56df55fee409156afa59c667f",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8987.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "1ef51d963a91f40852018fc712b9a323c0a823883d5f6b2ce61565a663046243",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8988.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "0284c29d733cf8efb2c65785addc278219c80c3bc7dff0499782d4813a3f5e31",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8989.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "00b02985d40288b3a6b1bb232d3a31e84d63e504b597005f6dfc741b7a67df7a",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8990.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "9f46909c91f075aec090faa143154bff9aa1c4ecd3ed1d149f289d339b821ec5",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8991.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b56f46d35d04dfde7ba1b5efa3e1ec65fe17a0486ef82f45fd74b91ad71b2167",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8992.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "f9635d2c23040481d83482b08127ab3f3d9150054fab99e30599b0d7e3c1bae2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8993.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "8e701622951ad34fcec78d17edbacfae24cf7053a1b47b17b7754ed69ff5415b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8994.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "510f5e6fa5761848986f14f488b484fe99c09155c8ec575c00fff3ce11cd3058",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8995.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b01c3e433fd26dc0ccec60c792bf131112fac97dfc39c15d4254b610ade6f505",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8996.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "d188a9a9934988951ccecfa593391d109bb67c0c84472e3ab1cb5ead6365f7f8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8997.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "b4f501c4f84d646ea757113b3a2f8e13264e67b3f468d0b7ba2bf15af744d3d6",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8998.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "92d4e7c2b67363c40c5b5b27595618a5beb4d6eaae0edf3031a5076c71061ea6",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_8999.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "cfbfe161e50ffaa411809a2b91cae2fde3200403a139ef26f3dd583afa44ed89",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_9002.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "df8ee006cf8fa640f9c9387d856c700a70c6f103188c794eed76002a6a58b6f8",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_9004.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7f9f5d1e3936085ceb37aa634d61379a223e56bd7a93ebd4cf45b179a526cc0b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_9006.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "330674d5411dae2f56a932c2bb29d0bf4ca04a86a1a9c7edb793e2ca8096d639",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_9009.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "738593f3e882cfbe6aac6d7288cb18ec4bb1f91c5634514afc96f97c275ce9ee",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_9011.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "3bba948df5cef31b95288724846593567120e8777e51e506b60c18f00a63236b",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_9013.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "376e15a857186f133d53bebdfdf0895b81b40cb7052f2d5a3021e00dfe38cd9d",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_9015.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "7845f73e31cd7751fe4a983bcc447ff77af8f383c3f9379831405225211000b2",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  },
+  "IMG_9017.JPG": {
+   "f35_mm": null,
+   "focal_mm": null,
+   "label_png_sha256": "542213939c97f7c9278119993403e70974b3184895177d139105588dfa21a8b1",
+   "lens": null,
+   "make": null,
+   "model": null,
+   "orientation": null,
+   "orig_h": 4284,
+   "orig_w": 5712,
+   "seg_input": [
+    768,
+    1024
+   ],
+   "work_h": 1080,
+   "work_w": 1440
+  }
+ },
+ "run": {
+  "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+  "device": "cuda",
+  "elapsed_s": 489.9,
+  "gpu": "NVIDIA A40",
+  "loop_s": 488.7,
+  "n": 514,
+  "revision": "4772b6bf101d91f2534c106dc524d906aeb3c68a",
+  "torch": "2.8.0+cu128",
+  "transformers": "4.57.6",
+  "ts": "2026-09-30T18:53:48Z",
+  "work_w": 1440
+ }
+}

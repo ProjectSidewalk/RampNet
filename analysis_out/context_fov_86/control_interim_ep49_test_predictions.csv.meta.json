@@ -1,0 +1,39 @@
+{
+ "file": "control_interim_ep49_test_predictions.csv",
+ "filter": "rows whose label is test under split_csv (tag_benchmark_86.py test-only)",
+ "labels_sha256": "20731670b66e09df8b6b1e0facb8b55155ba6a4b5f76d616b4a19fdcd6cfa5ec",
+ "n_rows": 2182,
+ "predictions_sha256": "ee5a0d6f5491828ea062f13af126fe502b4b7dd97d9271efe711599847dae571",
+ "source_file": "control_interim_ep49_predictions_all.csv",
+ "source_meta": {
+  "checkpoint": "best_after_ep49.pth",
+  "checkpoint_sha256": "f22a2f0954d866a2aea06b0b2d06f3e8660dddc4911a8a43a5edc69e9b4bf036",
+  "csv": "hf_curbramp_labels.csv",
+  "elapsed_s": 476.291227,
+  "gpu": "NVIDIA A40",
+  "host": "makelab2.cs.washington.edu",
+  "infer_s": 466.004323,
+  "load_s": 6.49058,
+  "n_listed": 10857,
+  "n_scored": 10857,
+  "predictions_sha256": "fb134349362f1eaf890634c408189a44372492aee4c28e503152e61844f53166",
+  "tagger_sha": "3b7405cd3206ece631cb7a65e22b1ab219df4b75",
+  "tags": [
+   "missing-tactile-warning",
+   "narrow",
+   "not-enough-landing-space",
+   "not-level-with-street",
+   "parallel-lines",
+   "points-into-traffic",
+   "pooled-water",
+   "steep",
+   "surface-problem",
+   "tactile-warning"
+  ],
+  "torch": "2.4.1+cu121",
+  "ts": "2026-09-24T04:53:14+00:00"
+ },
+ "source_sha256": "fb134349362f1eaf890634c408189a44372492aee4c28e503152e61844f53166",
+ "split_csv": "split_common.csv",
+ "split_csv_sha256": "6611c4aaf24e4e36c5a578003f49dbcf8bca26a8323f91aa8c5d60e31bd2b939"
+}

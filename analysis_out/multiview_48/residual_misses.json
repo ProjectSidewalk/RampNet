@@ -1,0 +1,2362 @@
+{
+ "by_city_class": {
+  "bend": {
+   "association_placement": 4,
+   "coverage_gap_unknown_below_055": 1,
+   "never_fired_unknown_below_055": 8,
+   "self_detected_site_displaced": 2
+  },
+  "gainesville": {
+   "association_placement": 7,
+   "self_detected_site_displaced": 2,
+   "sub_threshold_only": 9
+  },
+  "paterson": {
+   "association_placement": 9,
+   "never_fired": 2,
+   "self_detected_site_displaced": 4,
+   "sub_threshold_only": 2
+  },
+  "richmond": {
+   "association_placement": 6,
+   "self_detected_site_displaced": 11,
+   "sub_threshold_only": 9
+  },
+  "sao_paulo": {
+   "association_placement": 9,
+   "self_detected_site_displaced": 4,
+   "sub_threshold_only": 8
+  }
+ },
+ "n": 97,
+ "ramps": [
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": 0.2417,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "1023400645666420",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5434,
+   "lng": -77.4357,
+   "n_other_captures_18m": 2,
+   "nearest_op_site_m": 9.4899,
+   "source_panos": [
+    "1023400645666420"
+   ],
+   "uid": "richmond:3"
+  },
+  {
+   "best_pixel_conf": 0.3921,
+   "best_world_conf": 0.3921,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "1023400645666420",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5433,
+   "lng": -77.4356,
+   "n_other_captures_18m": 2,
+   "nearest_op_site_m": 9.6963,
+   "source_panos": [
+    "1023400645666420"
+   ],
+   "uid": "richmond:4"
+  },
+  {
+   "best_pixel_conf": 0.9467,
+   "best_world_conf": 0.9467,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "1051211967136526",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5336,
+   "lng": -77.4312,
+   "n_other_captures_18m": 10,
+   "nearest_op_site_m": 5.4425,
+   "source_panos": [
+    "1051211967136526"
+   ],
+   "uid": "richmond:15"
+  },
+  {
+   "best_pixel_conf": 0.2902,
+   "best_world_conf": 0.2902,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "1110314244387816",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5437,
+   "lng": -77.4311,
+   "n_other_captures_18m": 19,
+   "nearest_op_site_m": 5.7981,
+   "source_panos": [
+    "1110314244387816"
+   ],
+   "uid": "richmond:35"
+  },
+  {
+   "best_pixel_conf": 0.8385,
+   "best_world_conf": 0.6324,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "1130501775077894",
+     9
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5463,
+   "lng": -77.4429,
+   "n_other_captures_18m": 9,
+   "nearest_op_site_m": 2.4067,
+   "source_panos": [
+    "1130501775077894"
+   ],
+   "uid": "richmond:46"
+  },
+  {
+   "best_pixel_conf": 0.931,
+   "best_world_conf": 1.0007,
+   "bucket": "unmatched",
+   "city": "richmond",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "1263975528308076",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5433,
+   "lng": -77.433,
+   "n_other_captures_18m": 16,
+   "nearest_op_site_m": 5.1852,
+   "source_panos": [
+    "1263975528308076"
+   ],
+   "uid": "richmond:66"
+  },
+  {
+   "best_pixel_conf": 0.5189,
+   "best_world_conf": 0.5189,
+   "bucket": "unmatched",
+   "city": "richmond",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "1288163659019705",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5464,
+   "lng": -77.4455,
+   "n_other_captures_18m": 12,
+   "nearest_op_site_m": 2.7431,
+   "source_panos": [
+    "1288163659019705"
+   ],
+   "uid": "richmond:83"
+  },
+  {
+   "best_pixel_conf": 0.9611,
+   "best_world_conf": 0.9611,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "1294705618516185",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5502,
+   "lng": -77.4417,
+   "n_other_captures_18m": 12,
+   "nearest_op_site_m": 8.9101,
+   "source_panos": [
+    "1294705618516185"
+   ],
+   "uid": "richmond:84"
+  },
+  {
+   "best_pixel_conf": 0.9174,
+   "best_world_conf": 0.9174,
+   "bucket": "unmatched",
+   "city": "richmond",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "1327023138707493",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5395,
+   "lng": -77.4408,
+   "n_other_captures_18m": 15,
+   "nearest_op_site_m": 5.1238,
+   "source_panos": [
+    "1327023138707493"
+   ],
+   "uid": "richmond:95"
+  },
+  {
+   "best_pixel_conf": 0.98,
+   "best_world_conf": 0.98,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "1483585545954157",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5415,
+   "lng": -77.4443,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 6.1324,
+   "source_panos": [
+    "1483585545954157"
+   ],
+   "uid": "richmond:104"
+  },
+  {
+   "best_pixel_conf": 0.9554,
+   "best_world_conf": 0.9554,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "1847752429062443",
+     1
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5434,
+   "lng": -77.4469,
+   "n_other_captures_18m": 0,
+   "nearest_op_site_m": 5.6741,
+   "source_panos": [
+    "1847752429062443"
+   ],
+   "uid": "richmond:120"
+  },
+  {
+   "best_pixel_conf": 0.5812,
+   "best_world_conf": 0.5812,
+   "bucket": "unmatched",
+   "city": "richmond",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "1905003193597285",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5352,
+   "lng": -77.4381,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 2.3589,
+   "source_panos": [
+    "1905003193597285"
+   ],
+   "uid": "richmond:130"
+  },
+  {
+   "best_pixel_conf": 0.2481,
+   "best_world_conf": 0.2481,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "1905003193597285",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5353,
+   "lng": -77.4382,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 5.1114,
+   "source_panos": [
+    "1905003193597285"
+   ],
+   "uid": "richmond:131"
+  },
+  {
+   "best_pixel_conf": 0.2468,
+   "best_world_conf": 0.2021,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "1905003193597285",
+     5
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5353,
+   "lng": -77.4382,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 9.6972,
+   "source_panos": [
+    "1905003193597285"
+   ],
+   "uid": "richmond:132"
+  },
+  {
+   "best_pixel_conf": 0.9681,
+   "best_world_conf": 0.9543,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "2067733823644753",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5377,
+   "lng": -77.4354,
+   "n_other_captures_18m": 15,
+   "nearest_op_site_m": 6.0532,
+   "source_panos": [
+    "2067733823644753"
+   ],
+   "uid": "richmond:135"
+  },
+  {
+   "best_pixel_conf": 0.7727,
+   "best_world_conf": 0.8112,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "372149922554566",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5463,
+   "lng": -77.4385,
+   "n_other_captures_18m": 11,
+   "nearest_op_site_m": 5.9754,
+   "source_panos": [
+    "372149922554566"
+   ],
+   "uid": "richmond:157"
+  },
+  {
+   "best_pixel_conf": 0.8958,
+   "best_world_conf": 0.8958,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "383880874806933",
+     1
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5392,
+   "lng": -77.4314,
+   "n_other_captures_18m": 17,
+   "nearest_op_site_m": 5.296,
+   "source_panos": [
+    "383880874806933"
+   ],
+   "uid": "richmond:159"
+  },
+  {
+   "best_pixel_conf": 0.9261,
+   "best_world_conf": 0.9261,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "3956582084664486",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.549,
+   "lng": -77.443,
+   "n_other_captures_18m": 18,
+   "nearest_op_site_m": 6.8764,
+   "source_panos": [
+    "3956582084664486"
+   ],
+   "uid": "richmond:164"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": 0.5437,
+   "bucket": "unmatched",
+   "city": "richmond",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "432356313302579",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5483,
+   "lng": -77.4463,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 12.2784,
+   "source_panos": [
+    "432356313302579"
+   ],
+   "uid": "richmond:182"
+  },
+  {
+   "best_pixel_conf": 0.5437,
+   "best_world_conf": 0.4075,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "432356313302579",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5483,
+   "lng": -77.4463,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 13.9514,
+   "source_panos": [
+    "432356313302579"
+   ],
+   "uid": "richmond:183"
+  },
+  {
+   "best_pixel_conf": 0.9298,
+   "best_world_conf": 0.9298,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "514363767744061",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5415,
+   "lng": -77.4345,
+   "n_other_captures_18m": 13,
+   "nearest_op_site_m": 6.7312,
+   "source_panos": [
+    "514363767744061"
+   ],
+   "uid": "richmond:196"
+  },
+  {
+   "best_pixel_conf": 0.909,
+   "best_world_conf": 0.909,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "593421160518191",
+     2
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5439,
+   "lng": -77.4295,
+   "n_other_captures_18m": 12,
+   "nearest_op_site_m": 6.6902,
+   "source_panos": [
+    "593421160518191"
+   ],
+   "uid": "richmond:206"
+  },
+  {
+   "best_pixel_conf": 0.9095,
+   "best_world_conf": 0.9095,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "593421160518191",
+     6
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5442,
+   "lng": -77.4294,
+   "n_other_captures_18m": 13,
+   "nearest_op_site_m": 5.2034,
+   "source_panos": [
+    "593421160518191"
+   ],
+   "uid": "richmond:210"
+  },
+  {
+   "best_pixel_conf": 0.4478,
+   "best_world_conf": 0.5459,
+   "bucket": "subthreshold_only",
+   "city": "richmond",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "839655921736413",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 37.5346,
+   "lng": -77.4371,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 5.519,
+   "source_panos": [
+    "839655921736413"
+   ],
+   "uid": "richmond:226"
+  },
+  {
+   "best_pixel_conf": 0.5887,
+   "best_world_conf": 0.8402,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "843075271274817",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5512,
+   "lng": -77.4434,
+   "n_other_captures_18m": 6,
+   "nearest_op_site_m": 6.2745,
+   "source_panos": [
+    "843075271274817"
+   ],
+   "uid": "richmond:227"
+  },
+  {
+   "best_pixel_conf": 0.9902,
+   "best_world_conf": 0.9129,
+   "bucket": "self_detected",
+   "city": "richmond",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "8726984263984099",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 37.5458,
+   "lng": -77.4487,
+   "n_other_captures_18m": 13,
+   "nearest_op_site_m": 5.0734,
+   "source_panos": [
+    "8726984263984099"
+   ],
+   "uid": "richmond:228"
+  },
+  {
+   "best_pixel_conf": 0.3409,
+   "best_world_conf": 0.9377,
+   "bucket": "subthreshold_only",
+   "city": "paterson",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "0-zmUwLwl5ENJgqxheDklQ",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9289,
+   "lng": -74.1797,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 2.7902,
+   "source_panos": [
+    "0-zmUwLwl5ENJgqxheDklQ"
+   ],
+   "uid": "paterson:3"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": 0.9173,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "0-zmUwLwl5ENJgqxheDklQ",
+     5
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9288,
+   "lng": -74.1796,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 1.9122,
+   "source_panos": [
+    "0-zmUwLwl5ENJgqxheDklQ"
+   ],
+   "uid": "paterson:4"
+  },
+  {
+   "best_pixel_conf": 0.9038,
+   "best_world_conf": 0.9038,
+   "bucket": "self_detected",
+   "city": "paterson",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "21Gw_VuYrSK42PCF32UGUw",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 40.9284,
+   "lng": -74.146,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 4.7527,
+   "source_panos": [
+    "21Gw_VuYrSK42PCF32UGUw"
+   ],
+   "uid": "paterson:24"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": 0.9799,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "2lovLRC7Pv6S94tMW3mDug",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9033,
+   "lng": -74.1467,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 2.427,
+   "source_panos": [
+    "2lovLRC7Pv6S94tMW3mDug"
+   ],
+   "uid": "paterson:32"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "never_fired",
+   "gt_refs": [
+    [
+     "2lovLRC7Pv6S94tMW3mDug",
+     7
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9033,
+   "lng": -74.147,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 4.6053,
+   "source_panos": [
+    "2lovLRC7Pv6S94tMW3mDug"
+   ],
+   "uid": "paterson:33"
+  },
+  {
+   "best_pixel_conf": 0.7906,
+   "best_world_conf": 0.8026,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "3BTAarqIRrxbpFHUFJhtSQ",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9099,
+   "lng": -74.1969,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 3.3211,
+   "source_panos": [
+    "3BTAarqIRrxbpFHUFJhtSQ"
+   ],
+   "uid": "paterson:36"
+  },
+  {
+   "best_pixel_conf": 0.6842,
+   "best_world_conf": 0.6842,
+   "bucket": "self_detected",
+   "city": "paterson",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "4cXVf74zyKLTQLiQtBObww",
+     2
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 40.9233,
+   "lng": -74.1437,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 2.0096,
+   "source_panos": [
+    "4cXVf74zyKLTQLiQtBObww"
+   ],
+   "uid": "paterson:44"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": 0.3879,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "RGAxlzGeyK3ncjFZ9VXpBA",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9202,
+   "lng": -74.1502,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 5.5925,
+   "source_panos": [
+    "RGAxlzGeyK3ncjFZ9VXpBA"
+   ],
+   "uid": "paterson:118"
+  },
+  {
+   "best_pixel_conf": 0.9245,
+   "best_world_conf": 0.9245,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "bfc5Mq-kfwj29vGpOPKS2A",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9205,
+   "lng": -74.1839,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 2.3059,
+   "source_panos": [
+    "bfc5Mq-kfwj29vGpOPKS2A"
+   ],
+   "uid": "paterson:180"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "never_fired",
+   "gt_refs": [
+    [
+     "e2tMNl4AQvYcYtzyd9aTOg",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9231,
+   "lng": -74.187,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 3.5692,
+   "source_panos": [
+    "e2tMNl4AQvYcYtzyd9aTOg"
+   ],
+   "uid": "paterson:194"
+  },
+  {
+   "best_pixel_conf": 0.8567,
+   "best_world_conf": 0.282,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "e2tMNl4AQvYcYtzyd9aTOg",
+     5
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9232,
+   "lng": -74.187,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 5.2255,
+   "source_panos": [
+    "e2tMNl4AQvYcYtzyd9aTOg"
+   ],
+   "uid": "paterson:195"
+  },
+  {
+   "best_pixel_conf": 0.6299,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "fSQ5B3z1vT-Ym1-siL8iOA",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9153,
+   "lng": -74.1637,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 2.7714,
+   "source_panos": [
+    "fSQ5B3z1vT-Ym1-siL8iOA"
+   ],
+   "uid": "paterson:209"
+  },
+  {
+   "best_pixel_conf": 0.8067,
+   "best_world_conf": 0.8067,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "gZ3Acgi38PrzOVBkW-Il4Q",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.934,
+   "lng": -74.1595,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 5.1715,
+   "source_panos": [
+    "gZ3Acgi38PrzOVBkW-Il4Q"
+   ],
+   "uid": "paterson:212"
+  },
+  {
+   "best_pixel_conf": 0.8367,
+   "best_world_conf": 0.8367,
+   "bucket": "self_detected",
+   "city": "paterson",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "hV6LwTvkCzyX_vQF3ZG5qQ",
+     1
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 40.9181,
+   "lng": -74.1322,
+   "n_other_captures_18m": 7,
+   "nearest_op_site_m": 1.1149,
+   "source_panos": [
+    "hV6LwTvkCzyX_vQF3ZG5qQ"
+   ],
+   "uid": "paterson:216"
+  },
+  {
+   "best_pixel_conf": 0.1323,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "jtPd8YX0gkDeQe6dq9mk4A",
+     5
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.8961,
+   "lng": -74.1477,
+   "n_other_captures_18m": 6,
+   "nearest_op_site_m": 3.6133,
+   "source_panos": [
+    "jtPd8YX0gkDeQe6dq9mk4A"
+   ],
+   "uid": "paterson:235"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": 0.7465,
+   "bucket": "unmatched",
+   "city": "paterson",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "k3ipUDBk_fu7EXSVSNGaig",
+     7
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 40.9141,
+   "lng": -74.1475,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 4.5393,
+   "source_panos": [
+    "k3ipUDBk_fu7EXSVSNGaig"
+   ],
+   "uid": "paterson:242"
+  },
+  {
+   "best_pixel_conf": 0.9085,
+   "best_world_conf": 0.9085,
+   "bucket": "self_detected",
+   "city": "paterson",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "qL5hz8oXZM0g4pKxGR3Yyw",
+     1
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 40.9277,
+   "lng": -74.1784,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 3.7949,
+   "source_panos": [
+    "qL5hz8oXZM0g4pKxGR3Yyw"
+   ],
+   "uid": "paterson:264"
+  },
+  {
+   "best_pixel_conf": 0.7457,
+   "best_world_conf": 0.7457,
+   "bucket": "self_detected",
+   "city": "gainesville",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "4My9h4mmpjE82U1up3jWOA",
+     1
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 29.6502,
+   "lng": -82.3222,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 3.4996,
+   "source_panos": [
+    "4My9h4mmpjE82U1up3jWOA"
+   ],
+   "uid": "gainesville:11"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": 0.6147,
+   "bucket": "unmatched",
+   "city": "gainesville",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "4My9h4mmpjE82U1up3jWOA",
+     7
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6504,
+   "lng": -82.3222,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 3.491,
+   "source_panos": [
+    "4My9h4mmpjE82U1up3jWOA"
+   ],
+   "uid": "gainesville:17"
+  },
+  {
+   "best_pixel_conf": 0.5915,
+   "best_world_conf": 0.5915,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "6HfrzDBSveHUN1NpGsF31Q",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6537,
+   "lng": -82.3073,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 8.284,
+   "source_panos": [
+    "6HfrzDBSveHUN1NpGsF31Q"
+   ],
+   "uid": "gainesville:28"
+  },
+  {
+   "best_pixel_conf": 0.2867,
+   "best_world_conf": 0.2867,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "A44roYJy6tdzAK9yLNS_qQ",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6516,
+   "lng": -82.337,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 6.8426,
+   "source_panos": [
+    "A44roYJy6tdzAK9yLNS_qQ"
+   ],
+   "uid": "gainesville:61"
+  },
+  {
+   "best_pixel_conf": 0.79,
+   "best_world_conf": 0.4056,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "DXKg24FIKMrGUX6ilHn5Ew",
+     0
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6585,
+   "lng": -82.3447,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 5.4564,
+   "source_panos": [
+    "DXKg24FIKMrGUX6ilHn5Ew"
+   ],
+   "uid": "gainesville:68"
+  },
+  {
+   "best_pixel_conf": 0.4098,
+   "best_world_conf": 0.475,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "GRTC3zOCFSc8QMIrAtwtzw",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6534,
+   "lng": -82.3209,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 6.4385,
+   "source_panos": [
+    "GRTC3zOCFSc8QMIrAtwtzw"
+   ],
+   "uid": "gainesville:76"
+  },
+  {
+   "best_pixel_conf": 0.3907,
+   "best_world_conf": 0.5713,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "Idfm_UDnRFcD78ZVeNnhVg",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6524,
+   "lng": -82.3711,
+   "n_other_captures_18m": 7,
+   "nearest_op_site_m": 6.7181,
+   "source_panos": [
+    "Idfm_UDnRFcD78ZVeNnhVg"
+   ],
+   "uid": "gainesville:88"
+  },
+  {
+   "best_pixel_conf": 0.6063,
+   "best_world_conf": 0.4146,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "KbZFzQai9wfXijoQDscWFw",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6528,
+   "lng": -82.3432,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 7.5307,
+   "source_panos": [
+    "KbZFzQai9wfXijoQDscWFw"
+   ],
+   "uid": "gainesville:100"
+  },
+  {
+   "best_pixel_conf": 0.4641,
+   "best_world_conf": 0.4641,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "KqZzM0v2PbaoxQmq6wk3Xw",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6458,
+   "lng": -82.3312,
+   "n_other_captures_18m": 2,
+   "nearest_op_site_m": 8.7254,
+   "source_panos": [
+    "KqZzM0v2PbaoxQmq6wk3Xw"
+   ],
+   "uid": "gainesville:102"
+  },
+  {
+   "best_pixel_conf": 0.9548,
+   "best_world_conf": 0.1625,
+   "bucket": "unmatched",
+   "city": "gainesville",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "dVrNCxUTFAfeyVNMXQ1LTw",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6539,
+   "lng": -82.3149,
+   "n_other_captures_18m": 7,
+   "nearest_op_site_m": 6.5399,
+   "source_panos": [
+    "dVrNCxUTFAfeyVNMXQ1LTw"
+   ],
+   "uid": "gainesville:145"
+  },
+  {
+   "best_pixel_conf": 0.9968,
+   "best_world_conf": 0.8428,
+   "bucket": "self_detected",
+   "city": "gainesville",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "g7ZWUQeOp1Kl0LrWi0qrWw",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 29.6401,
+   "lng": -82.3392,
+   "n_other_captures_18m": 7,
+   "nearest_op_site_m": 5.6119,
+   "source_panos": [
+    "g7ZWUQeOp1Kl0LrWi0qrWw"
+   ],
+   "uid": "gainesville:150"
+  },
+  {
+   "best_pixel_conf": 0.5484,
+   "best_world_conf": 0.5484,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "g8Jd1uL_FE_9eave1z2OpA",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6554,
+   "lng": -82.3239,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 16.5579,
+   "source_panos": [
+    "g8Jd1uL_FE_9eave1z2OpA"
+   ],
+   "uid": "gainesville:152"
+  },
+  {
+   "best_pixel_conf": 0.198,
+   "best_world_conf": 0.4986,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "ipoVm9spHhQGCMROwSdmmA",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6483,
+   "lng": -82.3496,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 6.7661,
+   "source_panos": [
+    "ipoVm9spHhQGCMROwSdmmA"
+   ],
+   "uid": "gainesville:157"
+  },
+  {
+   "best_pixel_conf": 0.3386,
+   "best_world_conf": 0.9415,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "jL3wxV95A0lO2xKUQukpIg",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6568,
+   "lng": -82.3209,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 4.4776,
+   "source_panos": [
+    "jL3wxV95A0lO2xKUQukpIg"
+   ],
+   "uid": "gainesville:161"
+  },
+  {
+   "best_pixel_conf": 0.4178,
+   "best_world_conf": 0.4178,
+   "bucket": "unmatched",
+   "city": "gainesville",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "pM_zjaOL4jt8_niIC0EU2Q",
+     7
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6528,
+   "lng": -82.3217,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 8.806,
+   "source_panos": [
+    "pM_zjaOL4jt8_niIC0EU2Q"
+   ],
+   "uid": "gainesville:188"
+  },
+  {
+   "best_pixel_conf": 0.4152,
+   "best_world_conf": 0.4152,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "qAP6awcZVDK19stGxM31jQ",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6475,
+   "lng": -82.3345,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 6.9716,
+   "source_panos": [
+    "qAP6awcZVDK19stGxM31jQ"
+   ],
+   "uid": "gainesville:191"
+  },
+  {
+   "best_pixel_conf": 0.3532,
+   "best_world_conf": 0.2154,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "sIW4u-Mq7TORFHbsswcCzQ",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.658,
+   "lng": -82.3206,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 8.3101,
+   "source_panos": [
+    "sIW4u-Mq7TORFHbsswcCzQ"
+   ],
+   "uid": "gainesville:205"
+  },
+  {
+   "best_pixel_conf": 0.4082,
+   "best_world_conf": 0.4082,
+   "bucket": "subthreshold_only",
+   "city": "gainesville",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "smIcY196GPbaTpEbjkA7aA",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 29.6452,
+   "lng": -82.333,
+   "n_other_captures_18m": 1,
+   "nearest_op_site_m": 6.8584,
+   "source_panos": [
+    "smIcY196GPbaTpEbjkA7aA"
+   ],
+   "uid": "gainesville:207"
+  },
+  {
+   "best_pixel_conf": 0.7843,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "87nWq0hrTZLm2_UXRgPhZQ",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0419,
+   "lng": -121.3325,
+   "n_other_captures_18m": 6,
+   "nearest_op_site_m": 6.6592,
+   "source_panos": [
+    "87nWq0hrTZLm2_UXRgPhZQ"
+   ],
+   "uid": "bend:46"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "never_fired_unknown_below_055",
+   "gt_refs": [
+    [
+     "8KtYwvo9b34f3zm-afipNg",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0395,
+   "lng": -121.3353,
+   "n_other_captures_18m": 1,
+   "nearest_op_site_m": 13.172,
+   "source_panos": [
+    "8KtYwvo9b34f3zm-afipNg"
+   ],
+   "uid": "bend:51"
+  },
+  {
+   "best_pixel_conf": 0.7196,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "8cphEWdm85w5CwOw4rm0_A",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.008,
+   "lng": -121.2845,
+   "n_other_captures_18m": 6,
+   "nearest_op_site_m": 3.0288,
+   "source_panos": [
+    "8cphEWdm85w5CwOw4rm0_A"
+   ],
+   "uid": "bend:56"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "never_fired_unknown_below_055",
+   "gt_refs": [
+    [
+     "9DA1aapwjQcdUP2HEfrhfg",
+     5
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0189,
+   "lng": -121.2963,
+   "n_other_captures_18m": 2,
+   "nearest_op_site_m": 1.7869,
+   "source_panos": [
+    "9DA1aapwjQcdUP2HEfrhfg"
+   ],
+   "uid": "bend:64"
+  },
+  {
+   "best_pixel_conf": 0.6492,
+   "best_world_conf": 0.7556,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "E15SCY6RTiDuNUu_trZk4Q",
+     9
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0443,
+   "lng": -121.2989,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 1.2809,
+   "source_panos": [
+    "E15SCY6RTiDuNUu_trZk4Q"
+   ],
+   "uid": "bend:87"
+  },
+  {
+   "best_pixel_conf": 1.0204,
+   "best_world_conf": 1.0204,
+   "bucket": "self_detected",
+   "city": "bend",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "Kv2haiYlkJCiaO61RVWwQA",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 44.0388,
+   "lng": -121.2955,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 6.9785,
+   "source_panos": [
+    "Kv2haiYlkJCiaO61RVWwQA"
+   ],
+   "uid": "bend:100"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "never_fired_unknown_below_055",
+   "gt_refs": [
+    [
+     "NS7lT-itv0JiN6UHVvBxsg",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0767,
+   "lng": -121.2637,
+   "n_other_captures_18m": 2,
+   "nearest_op_site_m": 9.1261,
+   "source_panos": [
+    "NS7lT-itv0JiN6UHVvBxsg"
+   ],
+   "uid": "bend:123"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "never_fired_unknown_below_055",
+   "gt_refs": [
+    [
+     "NS7lT-itv0JiN6UHVvBxsg",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0767,
+   "lng": -121.2638,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 3.966,
+   "source_panos": [
+    "NS7lT-itv0JiN6UHVvBxsg"
+   ],
+   "uid": "bend:124"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "never_fired_unknown_below_055",
+   "gt_refs": [
+    [
+     "NzRL8weHSGkfduBHnrgd5g",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0557,
+   "lng": -121.2939,
+   "n_other_captures_18m": 7,
+   "nearest_op_site_m": 2.8646,
+   "source_panos": [
+    "NzRL8weHSGkfduBHnrgd5g"
+   ],
+   "uid": "bend:134"
+  },
+  {
+   "best_pixel_conf": 0.8765,
+   "best_world_conf": 0.8765,
+   "bucket": "self_detected",
+   "city": "bend",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "OedGesfk606bGhg4OQESiQ",
+     1
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": 44.0976,
+   "lng": -121.2879,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 2.4831,
+   "source_panos": [
+    "OedGesfk606bGhg4OQESiQ"
+   ],
+   "uid": "bend:139"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "never_fired_unknown_below_055",
+   "gt_refs": [
+    [
+     "VIMFndX_oqm7vJJD8gDyEA",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0421,
+   "lng": -121.3319,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 2.6661,
+   "source_panos": [
+    "VIMFndX_oqm7vJJD8gDyEA"
+   ],
+   "uid": "bend:167"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "never_fired_unknown_below_055",
+   "gt_refs": [
+    [
+     "WGdZz7jOkmmmyQYpbw3F8w",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0552,
+   "lng": -121.2577,
+   "n_other_captures_18m": 2,
+   "nearest_op_site_m": 20.4528,
+   "source_panos": [
+    "WGdZz7jOkmmmyQYpbw3F8w"
+   ],
+   "uid": "bend:179"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "never_fired_unknown_below_055",
+   "gt_refs": [
+    [
+     "ZO7V6RR9LtZT8l9-SjIQUg",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.037,
+   "lng": -121.2782,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 6.2157,
+   "source_panos": [
+    "ZO7V6RR9LtZT8l9-SjIQUg"
+   ],
+   "uid": "bend:194"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "coverage_gap_unknown_below_055",
+   "gt_refs": [
+    [
+     "m7R9z8VWIY94LLSiDgBdBQ",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0454,
+   "lng": -121.3141,
+   "n_other_captures_18m": 0,
+   "nearest_op_site_m": 8.3564,
+   "source_panos": [
+    "m7R9z8VWIY94LLSiDgBdBQ"
+   ],
+   "uid": "bend:228"
+  },
+  {
+   "best_pixel_conf": 0.8901,
+   "best_world_conf": 0.9301,
+   "bucket": "unmatched",
+   "city": "bend",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "qNYRurrxEhqZvO8GrwE9nA",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": 44.0757,
+   "lng": -121.3653,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 5.428,
+   "source_panos": [
+    "qNYRurrxEhqZvO8GrwE9nA"
+   ],
+   "uid": "bend:239"
+  },
+  {
+   "best_pixel_conf": 0.6433,
+   "best_world_conf": 0.7021,
+   "bucket": "unmatched",
+   "city": "sao_paulo",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "-pcHlrGDC4hPPRHVxU3W3Q",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.569,
+   "lng": -46.6236,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 4.2995,
+   "source_panos": [
+    "-pcHlrGDC4hPPRHVxU3W3Q"
+   ],
+   "uid": "sao_paulo:4"
+  },
+  {
+   "best_pixel_conf": null,
+   "best_world_conf": 0.6894,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "-pcHlrGDC4hPPRHVxU3W3Q",
+     5
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5691,
+   "lng": -46.6236,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 2.5274,
+   "source_panos": [
+    "-pcHlrGDC4hPPRHVxU3W3Q"
+   ],
+   "uid": "sao_paulo:5"
+  },
+  {
+   "best_pixel_conf": 0.7589,
+   "best_world_conf": 0.2656,
+   "bucket": "unmatched",
+   "city": "sao_paulo",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "3SnxAqXSf1WzcWlp76h_2Q",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5635,
+   "lng": -46.6115,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 2.306,
+   "source_panos": [
+    "3SnxAqXSf1WzcWlp76h_2Q"
+   ],
+   "uid": "sao_paulo:34"
+  },
+  {
+   "best_pixel_conf": 0.6189,
+   "best_world_conf": 0.6489,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "3SnxAqXSf1WzcWlp76h_2Q",
+     5
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5637,
+   "lng": -46.6114,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 4.4424,
+   "source_panos": [
+    "3SnxAqXSf1WzcWlp76h_2Q"
+   ],
+   "uid": "sao_paulo:36"
+  },
+  {
+   "best_pixel_conf": 0.4817,
+   "best_world_conf": 0.4346,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "7um0A6G_bSJ3Hn6nRbixvA",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5259,
+   "lng": -46.6309,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 1.4833,
+   "source_panos": [
+    "7um0A6G_bSJ3Hn6nRbixvA"
+   ],
+   "uid": "sao_paulo:75"
+  },
+  {
+   "best_pixel_conf": 0.8397,
+   "best_world_conf": 0.8397,
+   "bucket": "self_detected",
+   "city": "sao_paulo",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "I0LGgFwBsGIYNbIsIaLgpQ",
+     4
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": -23.5548,
+   "lng": -46.6292,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 3.2306,
+   "source_panos": [
+    "I0LGgFwBsGIYNbIsIaLgpQ"
+   ],
+   "uid": "sao_paulo:112"
+  },
+  {
+   "best_pixel_conf": 0.3333,
+   "best_world_conf": 0.3333,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "IAF46f7Lfz65Y2vjckHeMA",
+     0
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5227,
+   "lng": -46.6498,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 16.1633,
+   "source_panos": [
+    "IAF46f7Lfz65Y2vjckHeMA"
+   ],
+   "uid": "sao_paulo:116"
+  },
+  {
+   "best_pixel_conf": 0.4045,
+   "best_world_conf": 0.4045,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "IAF46f7Lfz65Y2vjckHeMA",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5228,
+   "lng": -46.6498,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 14.0878,
+   "source_panos": [
+    "IAF46f7Lfz65Y2vjckHeMA"
+   ],
+   "uid": "sao_paulo:117"
+  },
+  {
+   "best_pixel_conf": 0.2384,
+   "best_world_conf": 0.2384,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "IAF46f7Lfz65Y2vjckHeMA",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5228,
+   "lng": -46.6498,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 6.9263,
+   "source_panos": [
+    "IAF46f7Lfz65Y2vjckHeMA"
+   ],
+   "uid": "sao_paulo:118"
+  },
+  {
+   "best_pixel_conf": 0.3985,
+   "best_world_conf": 0.3985,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "IAF46f7Lfz65Y2vjckHeMA",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5226,
+   "lng": -46.6499,
+   "n_other_captures_18m": 2,
+   "nearest_op_site_m": 29.7274,
+   "source_panos": [
+    "IAF46f7Lfz65Y2vjckHeMA"
+   ],
+   "uid": "sao_paulo:119"
+  },
+  {
+   "best_pixel_conf": 0.1792,
+   "best_world_conf": 0.2153,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "M5mjc-BAtPFJppa9npq4xA",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5545,
+   "lng": -46.6355,
+   "n_other_captures_18m": 7,
+   "nearest_op_site_m": 2.1658,
+   "source_panos": [
+    "M5mjc-BAtPFJppa9npq4xA"
+   ],
+   "uid": "sao_paulo:134"
+  },
+  {
+   "best_pixel_conf": 0.9246,
+   "best_world_conf": 0.9246,
+   "bucket": "unmatched",
+   "city": "sao_paulo",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "MBuniYPiSz9apm9agSpqPw",
+     3
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5669,
+   "lng": -46.6073,
+   "n_other_captures_18m": 4,
+   "nearest_op_site_m": 0.9585,
+   "source_panos": [
+    "MBuniYPiSz9apm9agSpqPw"
+   ],
+   "uid": "sao_paulo:140"
+  },
+  {
+   "best_pixel_conf": 0.4614,
+   "best_world_conf": 0.919,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "RFpFHgDV38a8Q-_kF4VJMg",
+     0
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5571,
+   "lng": -46.6191,
+   "n_other_captures_18m": 7,
+   "nearest_op_site_m": 5.1469,
+   "source_panos": [
+    "RFpFHgDV38a8Q-_kF4VJMg"
+   ],
+   "uid": "sao_paulo:154"
+  },
+  {
+   "best_pixel_conf": 0.8187,
+   "best_world_conf": 0.8187,
+   "bucket": "self_detected",
+   "city": "sao_paulo",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "Sg0GiqhXxeFwuhRVQZGWfw",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": -23.5221,
+   "lng": -46.6303,
+   "n_other_captures_18m": 9,
+   "nearest_op_site_m": 4.3729,
+   "source_panos": [
+    "Sg0GiqhXxeFwuhRVQZGWfw"
+   ],
+   "uid": "sao_paulo:165"
+  },
+  {
+   "best_pixel_conf": 0.1176,
+   "best_world_conf": null,
+   "bucket": "unmatched",
+   "city": "sao_paulo",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "Sg0GiqhXxeFwuhRVQZGWfw",
+     1
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5221,
+   "lng": -46.6301,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 5.1547,
+   "source_panos": [
+    "Sg0GiqhXxeFwuhRVQZGWfw"
+   ],
+   "uid": "sao_paulo:166"
+  },
+  {
+   "best_pixel_conf": 0.9081,
+   "best_world_conf": 0.9081,
+   "bucket": "self_detected",
+   "city": "sao_paulo",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "WC5s83YNe-hRPVOd0KZQrA",
+     1
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": -23.5702,
+   "lng": -46.6239,
+   "n_other_captures_18m": 2,
+   "nearest_op_site_m": 3.0296,
+   "source_panos": [
+    "WC5s83YNe-hRPVOd0KZQrA"
+   ],
+   "uid": "sao_paulo:168"
+  },
+  {
+   "best_pixel_conf": 0.2429,
+   "best_world_conf": 0.2429,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "sub_threshold_only",
+   "gt_refs": [
+    [
+     "el13lYhzqKSZJwWb5w5vUg",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5496,
+   "lng": -46.6365,
+   "n_other_captures_18m": 3,
+   "nearest_op_site_m": 9.2466,
+   "source_panos": [
+    "el13lYhzqKSZJwWb5w5vUg"
+   ],
+   "uid": "sao_paulo:191"
+  },
+  {
+   "best_pixel_conf": 0.9357,
+   "best_world_conf": 0.9357,
+   "bucket": "unmatched",
+   "city": "sao_paulo",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "ilpqlnL95rHOAj1Q46fLuw",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.551,
+   "lng": -46.6252,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 2.5916,
+   "source_panos": [
+    "ilpqlnL95rHOAj1Q46fLuw"
+   ],
+   "uid": "sao_paulo:199"
+  },
+  {
+   "best_pixel_conf": 0.8586,
+   "best_world_conf": 0.8661,
+   "bucket": "self_detected",
+   "city": "sao_paulo",
+   "class": "self_detected_site_displaced",
+   "gt_refs": [
+    [
+     "oubzmEZebW0xt9hWWIgN3Q",
+     0
+    ]
+   ],
+   "kinds": [
+    "det"
+   ],
+   "lat": -23.5668,
+   "lng": -46.6094,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 5.0917,
+   "source_panos": [
+    "oubzmEZebW0xt9hWWIgN3Q"
+   ],
+   "uid": "sao_paulo:223"
+  },
+  {
+   "best_pixel_conf": 0.5821,
+   "best_world_conf": 0.5821,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "xyyjv_yjywf2p-XYB-9qDg",
+     2
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5259,
+   "lng": -46.6295,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 5.0716,
+   "source_panos": [
+    "xyyjv_yjywf2p-XYB-9qDg"
+   ],
+   "uid": "sao_paulo:244"
+  },
+  {
+   "best_pixel_conf": 0.8474,
+   "best_world_conf": 0.8474,
+   "bucket": "subthreshold_only",
+   "city": "sao_paulo",
+   "class": "association_placement",
+   "gt_refs": [
+    [
+     "zrChULSCpDxHp7XG9HdGzw",
+     4
+    ]
+   ],
+   "kinds": [
+    "missed"
+   ],
+   "lat": -23.5212,
+   "lng": -46.6468,
+   "n_other_captures_18m": 5,
+   "nearest_op_site_m": 1.7895,
+   "source_panos": [
+    "zrChULSCpDxHp7XG9HdGzw"
+   ],
+   "uid": "sao_paulo:254"
+  }
+ ]
+}

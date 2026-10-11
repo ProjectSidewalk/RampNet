@@ -173,8 +173,11 @@ ROSTER = (
              "published 2026-09-20 from the same host and env. The handicap was "
              "real and it was recall: 0.694 -> 0.884, AP 0.510 -> 0.649, precision "
              "slightly worse, F1 +0.018, so 'transfers but does not compete' "
-             "stands. richmond only. Density 6.2 boxes/pano, read off the published "
-             "detections with null_recall.py (docs/model_comparison.md, Resolution "
+             "stands. richmond, plus bend/paterson/gainesville/annapolis for the #35 "
+             "cascade transfer read (klone job 40774146, 2026-09-27, L40S; "
+             "docs/cascade_cost_35.md, Transfer). Density 6.2 boxes/pano on richmond "
+             "(5.0-7.0 on the other four), read off the published "
+             "detections with null_recall.py (docs/vistas_transfer_126.md, Resolution "
              "parity): above the 1-4 band the module docstring quotes for sparse, "
              "but 1.4x its 384 sibling's 4.48 and an order of magnitude under the "
              "open detectors' 55-88, so it is classed with the sibling -- unlike the "
@@ -550,7 +553,7 @@ REPLICATES = (
              "without this the parity delta would confound input size with the "
              "environment. First run 2026-08-18 into a private cache that was later "
              "lost; this is the 2026-09-20 re-run, same host, same env. Read against "
-             "the published file in docs/model_comparison.md, Resolution parity."),
+             "the published file in docs/vistas_transfer_126.md, Resolution parity."),
 )
 
 #: Every replicate by its tag -- the directory name, so unique by construction.

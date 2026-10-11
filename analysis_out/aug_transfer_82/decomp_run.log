@@ -1,0 +1,12 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+device=cuda gpus=['NVIDIA A40'] arms=4 torch=2.6.0+cu124
+  laurens_gsv: 25/86  wall 65s
+  laurens_gsv: 50/86  wall 128s
+  laurens_gsv: 75/86  wall 190s
+laurens_gsv done: 4 arms x 86 panos; gpu 213s wait 5s wall 218s
+  bend: 25/110  wall 283s
+  bend: 50/110  wall 345s
+  bend: 75/110  wall 410s
+  bend: 100/110  wall 474s
+bend done: 4 arms x 110 panos; gpu 488s wait 12s wall 500s
+usage_log row (ok) -> /homes/gws/jonf/wt-aug82/analysis_out/usage_log.jsonl

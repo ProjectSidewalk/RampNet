@@ -1,0 +1,41 @@
+{
+ "cluster": "klone",
+ "cuda": "12.6",
+ "cudnn": 91002,
+ "driver": "580.178.04",
+ "elapsed_s": 265,
+ "gpu": "NVIDIA L40S",
+ "host": "g3104.hyak.local",
+ "model": {
+  "file": "model.safetensors",
+  "repo_id": "projectsidewalk/rampnet-model",
+  "revision": "606a11956743f7eb328d9207769034752f6191f4"
+ },
+ "numpy": "2.2.6",
+ "os": "Linux-4.18.0-553.147.1.el8_10.x86_64-x86_64-with-glibc2.28",
+ "panos": {
+  "checked_against_committed_manifests": true,
+  "cities": {
+   "annapolis": 125,
+   "bend": 110,
+   "clovis": 125,
+   "gainesville": 125,
+   "morgantown": 125,
+   "paterson": 125,
+   "richmond": 124
+  },
+  "config": "native",
+  "repo_id": "projectsidewalk/rampnet-benchmark",
+  "revision": "63d5ffd0e4b6795702db40be89ea4d9672d91ab5"
+ },
+ "pillow": "12.0.0",
+ "python": "3.10.20",
+ "result": "analysis_out/silent_activation_replica.json",
+ "result_sha256": "69ed63890b92cefd4dabae0689d8d23736e2d896ae25c42afc4507206cc03955",
+ "scikit_image": "0.25.2",
+ "slurm_job_id": "40546727",
+ "started": "2026-09-24T06:53:23Z",
+ "timm": "1.0.28",
+ "torch": "2.6.0",
+ "what": "scripts/analysis/silent_activation.py --json-out (the #46 Phase 1 study), re-run for #131"
+}

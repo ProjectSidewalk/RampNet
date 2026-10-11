@@ -145,18 +145,18 @@ Three things, in decreasing order of how much they turned out to matter.
 
 **The data engine.** Stage 1 is the contribution. It converts a government point inventory into
 per-panorama pixel labels without a human in the loop, at 97.91% yield over the panoramas Google
-would serve, and its labels agree with hand labels at 0.94 precision as published, at most 0.91 once redundant
-points count as false positives, and 0.92 recall. No other curb-ramp dataset of this size exists.
+would serve, and its labels agree with hand labels at 0.94 precision as published, 0.92 once redundant
+points count as false positives and matching claims the nearest unclaimed ramp (#172), and 0.93 recall. No other curb-ramp dataset of this size exists.
 The Stage 1 label recall, stratified by distance, is flatter than the detector's own recall (0.78
 at 25 to 40 m against the model's 0.49), so the labels are not the ceiling the detector is hitting
-(`curb_ramp_data_sourcing.md` §0). That is an in-distribution result: the gold set is drawn from
+(`data_scaling_59.md` §0). That is an in-distribution result: the gold set is drawn from
 the NYC/Portland/Bend test split, so it says nothing about the out-of-distribution failure
 vocabularies of §6.10.
 
 **Government coordinates as priors.** Stage 1 consumes the published coordinate only for its
 bearing from the panorama; range is computed and discarded. The tolerance is therefore angular,
 ±18.37°, and a coordinate error of 0.29 m (Denver) costs 0.25% of labels while 1.75 m (Seattle)
-costs 8.87% (`curb_ramp_data_sourcing.md` §5g for Denver's tolerance curve, §5l for Seattle's own
+costs 8.87% (`location_precision_assessment_96.md` §5g for Denver's tolerance curve, §5l for Seattle's own
 measured loss; §5g's curve read at 1.74 m gives 16.5%, because it scales Denver's distribution). That is why "location precision" was the paper's
 gate for admitting a city, and why it remains the gate for scaling (§6.10). It is also the
 advantage no zero-shot model has: RampNet's training labels come from a source that knows where
@@ -214,8 +214,9 @@ and did not count redundant detections as false positives. Both biases are upwar
 greedy one-to-one matching, the released model reads precision 0.949, recall 0.873 and AP 0.9205
 instead of 0.938 / 0.935 / 0.9236; the matching rule alone moves precision −1.0 and recall −4.4
 points (`README.md` §Erratum, [#9](https://github.com/ProjectSidewalk/RampNet/issues/9)). The
-Stage 1 precision of 94.0% has the same flaw and has not been re-measured; 91.2% is an upper
-bound on the corrected figure. The repository is tagged `v1.0-iccv2025` at paper state and
+Stage 1 agreement of 94.0% precision / 92.5% recall had the same flaws; re-measured under the
+shared matcher it is precision 0.9152 / recall 0.9275
+([#172](https://github.com/ProjectSidewalk/RampNet/issues/172)). The repository is tagged `v1.0-iccv2025` at paper state and
 `v1.1-corrected-eval` with the corrected scorer.
 
 ### 5.4 The post-publication benchmark
@@ -426,12 +427,20 @@ knob was added, deliberately.
 not fall with distance; beyond 25 m it is 1.000. Culling detections beyond 18 m would lose 132
 true ramps to remove 4 false ones. When RampNet sees a distant ramp it is almost always right; it
 usually does not see it (`detection_recall_analysis.md`). The distance axis is a flat-ground
-estimate at an assumed 2.5 m camera height, and GSV's own depth says real camera heights are
-lower, stretching the metre labels by about 1.3× ([#112](https://github.com/ProjectSidewalk/RampNet/issues/112));
-the band ordering is unaffected.
+estimate at an assumed 2.5 m camera height. Re-measured on GSV's own depth
+(`detection_recall_analysis.md` §0, [#112](https://github.com/ProjectSidewalk/RampNet/issues/112)),
+that axis is about 1.06–1.08× long on bend, whose rig sits at 2.4 m, so 18 m / 25 m read
+16.9 m / 23.3 m there. On Google's 2025–26 rig (camera at 1.8–1.9 m; paterson's 2025 and
+gainesville's 2026 imagery, reported by capture year rather than by split) it is ~1.4× long, and
+the same thresholds are 13.1 m / 18.7 m. Richmond is Mapillary and has no depth. The band
+ordering is unaffected. Two caveats travel with these factors. The GSV depth payloads they come
+from are an unpublished input (per-file sha256 pinned; every table re-derives from the committed
+per-point rows). And the depth axis covers only panoramas with a measured ground plane (bend 254
+of 327 GT points), whose flat-axis recall differs from the excluded panoramas' by up to ~10
+points.
 
 **Mechanism.** Of the 427 misses at 0.30 across the seven US splits
-(`curb_ramp_data_sourcing.md` §0a–§0c, [#46](https://github.com/ProjectSidewalk/RampNet/issues/46)):
+(`data_scaling_59.md` §0a–§0c, [#46](https://github.com/ProjectSidewalk/RampNet/issues/46)):
 
 | bucket | share | what it is |
 |---|--:|---|
@@ -479,7 +488,7 @@ were wrong and are recorded in §7.
 Mapillary Vistas' public Mask2Former checkpoint carries a `Curb Cut` class. Run on richmond at
 input parity (1024×1024 views), it reaches F1 0.534 (P 0.383 / R 0.884 / AP 0.649) against
 RampNet's 0.855; the published 384×384 run was 0.517, so the resolution handicap was real and was
-not the reason it does not compete (`model_comparison.md`, "Supervised transfer";
+not the reason it does not compete (`vistas_transfer_126.md`, "Supervised transfer";
 [#126](https://github.com/ProjectSidewalk/RampNet/issues/126)). Two things about it matter for
 2.0. It out-recalls RampNet (0.884 vs 0.768 at 0.55), and after re-basing RampNet at 0.30 and
 discounting chance it finds about 30 of the 53 ramps RampNet misses on that split. And a naive
@@ -610,8 +619,10 @@ Things this report states as caveats rather than resolves:
   that split and changes recall by at most 10 in 3,919.
 - **The Stage 1 dataset carries its 1% duplication defect** into any model trained on it. The fix
   is in the generator for 2.0.
-- **`silent_activation.json` has one provenance**: produced once on one local GPU
-  ([#131](https://github.com/ProjectSidewalk/RampNet/issues/131)). §6.6's 8/62/30 split rests on it.
+- **`silent_activation.json` now has two provenances**: the RTX 3070 original and a klone L40S
+  replica from the published inputs ([#131](https://github.com/ProjectSidewalk/RampNet/issues/131),
+  2026-09-24). Every number §6.6's 8/62/30 split rests on reproduces; the raw activations differ
+  by at most 7 × 10⁻⁵ (`data_scaling_59.md` §0c).
 - **The YOLO baseline is untuned**, so the 0.016 gap is against a lower bound; a tuned schedule
   is a different recipe with its own replicates
   ([#90](https://github.com/ProjectSidewalk/RampNet/issues/90) and
@@ -619,8 +630,11 @@ Things this report states as caveats rather than resolves:
 - **Several inputs live only on cluster storage**: the YOLO checkpoints and the tiles arm's
   detections, Run A's and the cosine rung's eight checkpoints each, and the 13 GB evaluation
   heatmap caches. Publishing them is a storage decision, not a technical one.
-- **The distance axis is ~1.3× stretched** in `detection_recall_analysis.md` and the miss
-  taxonomy's 18 m boundary inherits it ([#112](https://github.com/ProjectSidewalk/RampNet/issues/112)).
+- **The distance axis is stretched by a rig-dependent factor** in `detection_recall_analysis.md`
+  (~1.06–1.08× on bend's 2.4 m rig, ~1.4× on the 2025–26 GSV rig, unmeasured on Mapillary) and the
+  miss taxonomy's 18 m boundary inherits it ([#112](https://github.com/ProjectSidewalk/RampNet/issues/112),
+  measured in `detection_recall_analysis.md` §0). The depth payloads behind it are unpublished,
+  and the depth axis covers only measured-ground panoramas.
 - **The 0.30 operating point is tuned on the benchmark** and has no held-out validation.
 - **Two Laurens bundles are not yet on the Hub**, and the review notes and Bend overlap flag are
   not yet in the published benchmark ([#127](https://github.com/ProjectSidewalk/RampNet/issues/127)).

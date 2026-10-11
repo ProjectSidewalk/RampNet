@@ -2393,3 +2393,69 @@ def test_vistas_constructs_without_weights_or_network():
     det = VistasDetector(class_set="curb-cut")
     assert det.class_ids == (9,)
     assert det._model is None
+
+
+# --------------------------------------------------------------------------- #
+# #48 neighbourhood bundles: borrowed verdicts + detect-only panos
+# --------------------------------------------------------------------------- #
+class _CountingDetector:
+    """Caches like a real leg (has a signature) and records what it was asked."""
+    name = "counting"
+
+    def __init__(self):
+        self.seen = []
+
+    def prepare(self):
+        pass
+
+    def signature(self):
+        return {"provider": "counting"}
+
+    def detect(self, sample):
+        self.seen.append(sample.pano_id)
+        return [(0.5, 0.5, 0.9)]
+
+
+def test_detect_only_panos_are_cached_but_never_scored(tmp_path):
+    records, gts = _aligned_gts()
+    records = dict(records)
+    records["n1"] = {"detections": [], "pano": {"width": 1, "height": 1}}
+    det = _CountingDetector()
+    cache = DetectionCache(str(tmp_path))
+    run = score_model(det, records, gts, "", radius_sq_for(), "counting", "hood", cache,
+                      detect_only=["n1"])
+    assert run.report.n_panos == len(gts)             # n1 is not scored
+    assert "n1" in det.seen
+    assert cache.get(cache_key("counting", det.signature(), "hood", "n1")) == [[0.5, 0.5, 0.9]]
+    # A second run finds everything cached, so the model is never asked again.
+    det2 = _CountingDetector()
+    score_model(det2, records, gts, "", radius_sq_for(), "counting", "hood", cache,
+                detect_only=["n1"])
+    assert det2.seen == []
+
+
+def test_detect_only_is_skipped_for_a_detector_without_a_cache():
+    records = {"p1": {"detections": [], "pano": {"width": 1, "height": 1}},
+               "n1": {"detections": [], "pano": {"width": 1, "height": 1}}}
+    gts = {"p1": GroundTruth([(0.5, 0.5)], [], True)}
+    det = _FlakyDetector()                            # signature() is None
+    score_model(det, records, gts, "", radius_sq_for(), "flaky", "hood",
+                DetectionCache("x", enabled=False), detect_only=["n1"])
+    assert det.calls == 1                             # p1 only
+
+
+def test_bundle_json_borrows_the_verdicts_of_another_bundle(tmp_path):
+    src = tmp_path / "richmond"
+    hood = tmp_path / "richmond_neighbourhood"
+    src.mkdir()
+    hood.mkdir()
+    (src / "verdicts.json").write_text(json.dumps(
+        {"panos": {"p1": {"dets": [], "missed": [], "no_missed": True}}}), encoding="utf-8")
+    rec = {"pano": {"panorama_id": "p1"}, "detections": []}
+    nb = {"pano": {"panorama_id": "n1"}, "detections": []}
+    (hood / "records.jsonl").write_text(json.dumps(rec) + "\n" + json.dumps(nb) + "\n",
+                                        encoding="utf-8")
+    (hood / "bundle.json").write_text(json.dumps({"verdicts_from": "../richmond"}),
+                                      encoding="utf-8")
+    records, verdicts, _ = load_bundle(str(hood))
+    assert set(records) == {"p1", "n1"} and set(verdicts) == {"p1"}

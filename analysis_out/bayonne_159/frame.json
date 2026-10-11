@@ -1,0 +1,150 @@
+{
+ "note": "GT-free. Normalized y of every interior peak (border ring dropped, as in firing) at each threshold, GoPro Max panos only. The band and rig shares use y >= 0.791 (labeler LOGO_BAND_Y) and y >= 0.772 (labeler NADIR_MASK_DEG 49); only bayonne's municipal panos actually carry the band, so for the other splits that column is a counterfactual: the share of their peaks a band like Bayonne's would have covered.",
+ "splits": {
+  "bayonne": {
+   "panos": 125,
+   "t0.30": {
+    "n_peaks": 208,
+    "share_y_ge_0_70": 0.024,
+    "share_y_ge_band": 0.0,
+    "share_y_ge_rig_mask": 0.0,
+    "y": {
+     "p10": 0.5234,
+     "p25": 0.5391,
+     "p50": 0.5703,
+     "p75": 0.6016,
+     "p90": 0.6484
+    }
+   },
+   "t0.55": {
+    "n_peaks": 147,
+    "share_y_ge_0_70": 0.0136,
+    "share_y_ge_band": 0.0,
+    "share_y_ge_rig_mask": 0.0,
+    "y": {
+     "p10": 0.5234,
+     "p25": 0.5391,
+     "p50": 0.5703,
+     "p75": 0.5996,
+     "p90": 0.6484
+    }
+   }
+  },
+  "budapest_district5": {
+   "panos": 124,
+   "t0.30": {
+    "n_peaks": 291,
+    "share_y_ge_0_70": 0.0241,
+    "share_y_ge_band": 0.0,
+    "share_y_ge_rig_mask": 0.0034,
+    "y": {
+     "p10": 0.5234,
+     "p25": 0.5391,
+     "p50": 0.5703,
+     "p75": 0.6016,
+     "p90": 0.6328
+    }
+   },
+   "t0.55": {
+    "n_peaks": 189,
+    "share_y_ge_0_70": 0.0159,
+    "share_y_ge_band": 0.0,
+    "share_y_ge_rig_mask": 0.0,
+    "y": {
+     "p10": 0.5234,
+     "p25": 0.5391,
+     "p50": 0.5703,
+     "p75": 0.6016,
+     "p90": 0.6328
+    }
+   }
+  },
+  "laurens_mapillary": {
+   "panos": 94,
+   "t0.30": {
+    "n_peaks": 153,
+    "share_y_ge_0_70": 0.0131,
+    "share_y_ge_band": 0.0,
+    "share_y_ge_rig_mask": 0.0,
+    "y": {
+     "p10": 0.5391,
+     "p25": 0.5684,
+     "p50": 0.5703,
+     "p75": 0.5859,
+     "p90": 0.6152
+    }
+   },
+   "t0.55": {
+    "n_peaks": 111,
+    "share_y_ge_0_70": 0.009,
+    "share_y_ge_band": 0.0,
+    "share_y_ge_rig_mask": 0.0,
+    "y": {
+     "p10": 0.5547,
+     "p25": 0.5684,
+     "p50": 0.5703,
+     "p75": 0.5859,
+     "p90": 0.6152
+    }
+   }
+  },
+  "morgantown": {
+   "panos": 125,
+   "t0.30": {
+    "n_peaks": 254,
+    "share_y_ge_0_70": 0.0276,
+    "share_y_ge_band": 0.0079,
+    "share_y_ge_rig_mask": 0.0079,
+    "y": {
+     "p10": 0.5371,
+     "p25": 0.5527,
+     "p50": 0.5703,
+     "p75": 0.6152,
+     "p90": 0.6328
+    }
+   },
+   "t0.55": {
+    "n_peaks": 209,
+    "share_y_ge_0_70": 0.0096,
+    "share_y_ge_band": 0.0048,
+    "share_y_ge_rig_mask": 0.0048,
+    "y": {
+     "p10": 0.5391,
+     "p25": 0.5547,
+     "p50": 0.5703,
+     "p75": 0.6152,
+     "p90": 0.6328
+    }
+   }
+  },
+  "richmond": {
+   "panos": 33,
+   "t0.30": {
+    "n_peaks": 65,
+    "share_y_ge_0_70": 0.0,
+    "share_y_ge_band": 0.0,
+    "share_y_ge_rig_mask": 0.0,
+    "y": {
+     "p10": 0.5078,
+     "p25": 0.5234,
+     "p50": 0.5391,
+     "p75": 0.5703,
+     "p90": 0.6016
+    }
+   },
+   "t0.55": {
+    "n_peaks": 52,
+    "share_y_ge_0_70": 0.0,
+    "share_y_ge_band": 0.0,
+    "share_y_ge_rig_mask": 0.0,
+    "y": {
+     "p10": 0.5215,
+     "p25": 0.5371,
+     "p50": 0.5527,
+     "p75": 0.5703,
+     "p90": 0.6016
+    }
+   }
+  }
+ }
+}

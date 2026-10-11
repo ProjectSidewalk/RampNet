@@ -1,0 +1,323 @@
+{
+ "reference": "viewport",
+ "reference_labels": "labels_viewport.csv",
+ "reference_pred": "train_viewport_final_test_predictions.csv",
+ "rows": [
+  {
+   "a": "train_fov25_final_test_predictions.csv",
+   "a_mAP": 0.349421,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.024101,
+      0.024661
+     ],
+     "point": 0.003901
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.045394,
+      0.01845
+     ],
+     "point": -0.013418
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.005216,
+      0.023438
+     ],
+     "point": 0.009203
+    }
+   },
+   "a_sha256": "afe0e4dad10b89313169ce4f88724794950f4b7b29d75d4faca68c79733f7e4c",
+   "arm": "fov25",
+   "b": "train_viewport_final_test_predictions.csv",
+   "b_mAP": 0.34552,
+   "b_sha256": "01c39b6f5ec2b4e32db2387fd9f41ff129f1922cf90c0629714baa45a15026a6",
+   "n": 2182,
+   "n_boot": 1000,
+   "n_panos": 1868,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.00143,
+      0.016517
+     ],
+     "point": 0.007241
+    },
+    "narrow": {
+     "ci95": [
+      -0.022687,
+      0.092221
+     ],
+     "point": 0.033549
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.076112,
+      0.027983
+     ],
+     "point": -0.018909
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.084713,
+      0.047832
+     ],
+     "point": -0.019771
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.016617,
+      0.076491
+     ],
+     "point": 0.030464
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.0911,
+      0.160816
+     ],
+     "point": 0.03671
+    },
+    "steep": {
+     "ci95": [
+      -0.179401,
+      0.009959
+     ],
+     "point": -0.046666
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.038769,
+      0.063906
+     ],
+     "point": 0.008592
+    }
+   },
+   "reference": "viewport",
+   "seed": 86,
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
+  },
+  {
+   "a": "train_fov50_final_test_predictions.csv",
+   "a_mAP": 0.319403,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.053028,
+      -0.002482
+     ],
+     "point": -0.026117
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.073384,
+      -0.003246
+     ],
+     "point": -0.037519
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.030046,
+      0.002883
+     ],
+     "point": -0.01393
+    }
+   },
+   "a_sha256": "5b780ed094429720927b3e6ac2edcf5d4f0dc045f4a4b4fb74bcaf0ac67e1080",
+   "arm": "fov50",
+   "b": "train_viewport_final_test_predictions.csv",
+   "b_mAP": 0.34552,
+   "b_sha256": "01c39b6f5ec2b4e32db2387fd9f41ff129f1922cf90c0629714baa45a15026a6",
+   "n": 2182,
+   "n_boot": 1000,
+   "n_panos": 1868,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.023847,
+      0.000604
+     ],
+     "point": -0.011714
+    },
+    "narrow": {
+     "ci95": [
+      -0.052699,
+      0.063565
+     ],
+     "point": 0.003818
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.032392,
+      0.086844
+     ],
+     "point": 0.026778
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.113809,
+      0.03269
+     ],
+     "point": -0.036439
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.027359,
+      0.07161
+     ],
+     "point": 0.022684
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.19848,
+      0.028257
+     ],
+     "point": -0.085427
+    },
+    "steep": {
+     "ci95": [
+      -0.193475,
+      -0.007129
+     ],
+     "point": -0.066902
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.116954,
+      -0.011217
+     ],
+     "point": -0.061737
+    }
+   },
+   "reference": "viewport",
+   "seed": 86,
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
+  },
+  {
+   "a": "train_fov90_final_test_predictions.csv",
+   "a_mAP": 0.280352,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.093399,
+      -0.042217
+     ],
+     "point": -0.065168
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.114173,
+      -0.044532
+     ],
+     "point": -0.079999
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.072254,
+      -0.038341
+     ],
+     "point": -0.055149
+    }
+   },
+   "a_sha256": "1a5026662a7d8f21117c9325e28199cac075abf3096f3396516d2084a19fd271",
+   "arm": "fov90",
+   "b": "train_viewport_final_test_predictions.csv",
+   "b_mAP": 0.34552,
+   "b_sha256": "01c39b6f5ec2b4e32db2387fd9f41ff129f1922cf90c0629714baa45a15026a6",
+   "n": 2182,
+   "n_boot": 1000,
+   "n_panos": 1868,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.055168,
+      -0.025879
+     ],
+     "point": -0.039936
+    },
+    "narrow": {
+     "ci95": [
+      -0.112561,
+      -0.00405
+     ],
+     "point": -0.054602
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.077166,
+      0.051369
+     ],
+     "point": -0.015519
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.125011,
+      0.018874
+     ],
+     "point": -0.046779
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.06269,
+      0.036094
+     ],
+     "point": -0.014325
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.291152,
+      -0.053994
+     ],
+     "point": -0.168664
+    },
+    "steep": {
+     "ci95": [
+      -0.184786,
+      0.005266
+     ],
+     "point": -0.051271
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.184066,
+      -0.074076
+     ],
+     "point": -0.130249
+    }
+   },
+   "reference": "viewport",
+   "seed": 86,
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
+  }
+ ],
+ "ts": "2026-09-24T07:10:47+00:00"
+}

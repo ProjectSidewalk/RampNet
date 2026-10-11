@@ -72,7 +72,7 @@ We re-evaluated the released model on the same 1,000-panorama gold set with gree
 
 ¹ Uninterpolated AP under the paper's matching protocol. ² Interpolated AP under one-to-one matching — the conventions differ, so compare with care.
 
-Swapping only the matching rule on identical model outputs moves precision by −1.0 points and recall by −4.4 points; the remaining difference is reproduction drift (environment, JPEG re-encoding). The paper's Stage 1 dataset-agreement precision (94.0%) is also slightly optimistic because redundant points were ignored rather than counted as false positives; its recall is unaffected. That number has **not** yet been re-measured, and when it is, two changes will move it, not one: `stage_one/dataset_evaluation/evaluate.py` now counts redundant points as false positives *and* matches through the same `rampnet/metrics.py` core as Stage 2 — nearest unclaimed ground truth rather than first-in-list-order — so the two evaluators no longer implement different rules (see [issue #18](https://github.com/ProjectSidewalk/RampNet/issues/18)). The comparison with prior work is unaffected (both systems were scored under the same protocol, and the gap is far larger than the correction).
+Swapping only the matching rule on identical model outputs moves precision by −1.0 points and recall by −4.4 points; the remaining difference is reproduction drift (environment, JPEG re-encoding). The paper's Stage 1 dataset-agreement precision (94.0%) is also slightly optimistic because redundant points were ignored rather than counted as false positives; its recall is unaffected by that change, though the matching change below moves it +0.3 points. Re-measured under the shared matcher (`stage_one/dataset_evaluation/evaluate.py` now counts redundant points as false positives *and* matches through the same `rampnet/metrics.py` core as Stage 2 — nearest unclaimed ground truth rather than first-in-list-order — so the two evaluators no longer implement different rules), the Stage 1 agreement is **precision 0.9152 / recall 0.9275** on the same 1,000 panoramas (−2.5 / +0.3 points; `docs/stage1_generation_cost.md`, [issue #172](https://github.com/ProjectSidewalk/RampNet/issues/172), earlier [issue #18](https://github.com/ProjectSidewalk/RampNet/issues/18)). The comparison with prior work is unaffected (both systems were scored under the same protocol, and the gap is far larger than the correction).
 
 Full analysis — including the exact published code, executable traces, and visual examples of double-counted detections — is in [`docs/eval_protocol_verification.html`](docs/eval_protocol_verification.html) (open in a browser) and [issue #9](https://github.com/ProjectSidewalk/RampNet/issues/9). Corrected result curves and metrics are committed in [`stage_two/evaluation_results_new/`](stage_two/evaluation_results_new/); the as-published results remain unchanged in [`stage_two/evaluation_results/`](stage_two/evaluation_results/).
 
@@ -93,6 +93,8 @@ Full analysis — including two findings we initially reported and then withdrew
 ## Post-publication findings (September 2026)
 
 Everything we measured about RampNet 1.0 after the paper — the corrected evaluation, the benchmark against off-the-shelf models and a supervised baseline, the operating point, where recall is lost, the training recipe, and what we withdrew — is indexed one line per result in [`docs/rampnet1_findings.md`](docs/rampnet1_findings.md), each with the document that holds it and the caveat that travels with it. The long-form internal report is [`docs/rampnet1_report.md`](docs/rampnet1_report.md).
+
+[`docs/README.md`](docs/README.md) is the index of every document in `docs/`: one row per document, with its issue, kind, status, headline and the script that reproduces it.
 
 ## Curb Ramp Detection Example
 *For a step-by-step walkthrough, see our [Google Colab notebook](https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing), which includes a visualization in addition to the code below.*
@@ -131,6 +133,39 @@ coordinates = [(int(c * scale_w), int(r * scale_h)) for r, c in peaks]
 # Coordinates of detected curb ramps
 print(coordinates)
 ```
+
+**Sub-cell decode (recommended for localization).** The 512x1024 heatmap size is nominal: its
+effective resolution is **64x128**. The backbone has stride 32 and the head ends in a linear 1x1
+conv after a bilinear x8 upsample, so the heatmap is exactly a bilinear upsample of a 64x128 map,
+and the `peak_local_max` pixels above are quantized to an 8-px grid (rows and columns 3 or 4 mod
+8; 2.8 degrees, a half-cell floor of 1.4 degrees per axis). A Gaussian (log-parabola) decode of
+each peak's 3x3 coarse neighbourhood recovers the sub-cell position without retraining. On the
+1,000-panorama gold set it cuts the mean distance to independent human box centres from 5.08 to
+4.35 heatmap px, while matched detection counts move by at most one per split
+([`docs/subcell_decode_221.md`](docs/subcell_decode_221.md), [#221](https://github.com/ProjectSidewalk/RampNet/issues/221)):
+```py
+# Works today, inside this repo (pip install -e .): heatmap-grid positions, scaled to the image.
+from rampnet.subcell import detect_peaks
+rcs = detect_peaks(heatmap, 0.5, decode="gaussian", clip=True)   # (N, 3) row, col, score
+coordinates = [(c * scale_w, r * scale_h) for r, c, _ in rcs]
+
+# NOT YET ON THE HUB (as of 2026-09-30): the published projectsidewalk/rampnet-model has
+# no detect() until the package is re-exported, so this raises AttributeError today.
+# detections = model.detect(heatmap, threshold=0.5, decode="gaussian")[0]   # (x, y, score)
+```
+Pass the **raw, single-pass** heatmap (as above: not clipped, not TTA-combined); `clip=True` finds
+peaks on `clip(heatmap, 0, 1)` as the snippet above does, while decoding from the raw values.
+`decode="argmax"` returns exactly the `peak_local_max` pixels (with `exclude_border=False`, as
+`stage_two/evaluate.py` uses). `stage_two/evaluate.py` and `stage_two/demo.py` take
+`--decode {argmax,gaussian}`, default `argmax` so the published numbers reproduce unchanged.
+
+**Seam-wrapped NMS (opt-in).** `peak_local_max` does not wrap in x, so a ramp on the 360-degree
+seam can come back as two peaks, one at each edge. `detect_peaks(..., wrap_nms=True)` runs the
+same non-maximum suppression with x cyclic, so it keeps only the stronger half. The default is off,
+which leaves the published extractor bit-identical. `stage_two/evaluate.py` takes `--wrap-nms`
+(result files tagged `_wrapnms`), and the repo's HF package `detect()` takes `wrap_nms=`.
+`wrap_x=True` wraps only the sub-cell decode, and the two flags are independent
+([`docs/seam_nms_248.md`](docs/seam_nms_248.md), [#248](https://github.com/ProjectSidewalk/RampNet/issues/248)).
 
 | Predicted Heatmap   | Extracted Points |
 | -------- | ------- |
@@ -299,9 +334,9 @@ Precision (TP / (TP + FP)): 0.9403
 Recall    (TP / Total GT):  0.9245
 ```
 
-These are the as-published Stage 1 agreement numbers. Note that the precision figure is slightly optimistic — redundant generated points near an already-matched ground-truth ramp were ignored rather than counted as false positives (see the [Erratum](#erratum-evaluation-metrics-july-2026)); the recall figure is unaffected.
+These are the as-published Stage 1 agreement numbers. Note that the precision figure is slightly optimistic — redundant generated points near an already-matched ground-truth ramp were ignored rather than counted as false positives (see the [Erratum](#erratum-evaluation-metrics-july-2026)); the recall figure is unaffected by that change, though the matching change described next moves it +0.3 points.
 
-**A re-run will not reproduce these numbers.** The current script differs from the published one in two ways: redundant points now count as false positives, and matching now goes through the shared `rampnet/metrics.py` core (nearest unclaimed ground truth, where the published script took the first ground-truth ramp in list order). Both changes are expected to be small, and they can pull in opposite directions — the first lowers precision, the second can raise it by assigning points to ramps more sensibly. Note the second change moves **recall** as well: which ground-truth ramps end up claimed can differ, so the true-positive count itself shifts. Attribute any corrected figures to both changes, not to redundancy alone. Re-measuring needs the generated Stage 1 dataset, which is not in git; see [issue #18](https://github.com/ProjectSidewalk/RampNet/issues/18).
+**A re-run will not reproduce these numbers.** The current script differs from the published one in two ways: redundant points now count as false positives, and matching now goes through the shared `rampnet/metrics.py` core (nearest unclaimed ground truth, where the published script took the first ground-truth ramp in list order). Both changes are expected to be small, and they can pull in opposite directions — the first lowers precision, the second can raise it by assigning points to ramps more sensibly. Note the second change moves **recall** as well: which ground-truth ramps end up claimed can differ, so the true-positive count itself shifts. Re-measured on the same 1,000 panoramas with the Stage 1 points read from the published dataset's test split, the corrected agreement is **precision 0.9152 / recall 0.9275**: redundant points cost 2.8 points of precision, nearest-unclaimed matching gives 0.3 back and adds 0.3 of recall, a net +12 true positives: 13 gained and 1 lost across 14 panoramas (`python scripts/analysis/stage1_agreement_172.py score`; `docs/stage1_generation_cost.md`, [issue #172](https://github.com/ProjectSidewalk/RampNet/issues/172)).
 
 ## Stage 2: Curb Ramp Detection
 We detail how to reproduce our Stage 2 results.

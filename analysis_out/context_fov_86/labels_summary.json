@@ -1,0 +1,38 @@
+{
+ "common_by_split": {
+  "test": 2182,
+  "train": 8666
+ },
+ "dropped_status": {
+  "fov25": {
+   "absent": 4,
+   "missing_pano": 5
+  },
+  "fov50": {
+   "absent": 4,
+   "missing_pano": 5
+  },
+  "fov90": {
+   "absent": 4,
+   "missing_pano": 5
+  },
+  "viewport": {
+   "absent": 4,
+   "missing_pano": 5
+  }
+ },
+ "labels_sha256": "20731670b66e09df8b6b1e0facb8b55155ba6a4b5f76d616b4a19fdcd6cfa5ec",
+ "manifests": [
+  "manifest_fov.jsonl",
+  "manifest_viewport.jsonl"
+ ],
+ "n_common": 10848,
+ "n_labels": 10857,
+ "per_arm_ok": {
+  "fov25": 10848,
+  "fov50": 10848,
+  "fov90": 10848,
+  "viewport": 10848
+ },
+ "ts": "2026-09-23T13:21:01+00:00"
+}

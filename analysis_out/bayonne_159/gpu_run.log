@@ -1,0 +1,119 @@
+python 3.12.13 torch 2.13.0+cu130 cuda True
+NVIDIA A40, 5689 MiB, 46068 MiB
+=== repro laurens_mapillary 2026-10-02T09:45:46-07:00
+device=cuda model=projectsidewalk/rampnet-model score_floor=0.05 min_distance=10 tta=False
+  laurens_mapillary: 50/94
+laurens_mapillary: 94 panos -> analysis_out/bayonne_159/repro_op_cache/laurens_mapillary.json
+=== repro done 2026-10-02T09:48:36-07:00
+=== extract bayonne 2026-10-02T09:48:36-07:00
+device=cuda model=projectsidewalk/rampnet-model score_floor=0.05 min_distance=10 tta=False
+  bayonne: 50/125
+  bayonne: 100/125
+bayonne: 125 panos -> analysis_out/bayonne_159/op_cache/bayonne.json
+=== extract done 2026-10-02T09:51:52-07:00
+split                   records   cache   exact  within tol   med R   max R  verdict
+--------------------------------------------------------------------------------------------
+bayonne                     147     150  98.0%      98.0%   0.000   0.000  OK
+
+Displacements are in match radii (R); tolerance 0.5 R. 'exact' = peak landed in the identical heatmap cell.
+
+bayonne: reproduces within tolerance but not exactly (98.0% identical cells).
+  Expected where the production run fed the model a different resample of the same pano —
+  the GSV path built a 4096x2048 intermediate, so bundle native-res != production input.
+  Every displacement is under 0.00 R, so no scoring outcome changes.
+
+Parity gate: PASS — the cache reproduces the committed detections.
+=== yolo 2026-10-02T09:51:52-07:00
+WARNING: --usage-log points inside this worktree (/homes/gws/jonf/wt-bayonne159), not the main checkout (/homes/gws/jonf/RampNet). A worktree is deleted when its session ends and takes the ledger with it; commit the log or point it at the main checkout.
+
+Bundle: benchmark/bayonne  (0 scored panos, 125 unjudged detect-only)  match radius 0.022  ground truth: none (unreviewed bundle)
+Detection cache: /homes/gws/jonf/wt-bayonne159/.model_cache
+
+[y11l_pano] time this run: 48.8s wall  (4.8s model load, 41.1s inference over 125 pano(s), 0.33 s/pano)
+[y11l_pano] usage logged to /homes/gws/jonf/wt-bayonne159/analysis_out/usage_log.jsonl
+[y11l_pano] ledger now: 200 rows, $131.45, 183.7 h (of which $70.09 recovered, not measured)
+[y26_pano] time this run: 40.4s wall  (0.4s model load, 38.7s inference over 125 pano(s), 0.31 s/pano)
+[y26_pano] usage logged to /homes/gws/jonf/wt-bayonne159/analysis_out/usage_log.jsonl
+[y26_pano] ledger now: 201 rows, $131.45, 183.7 h (of which $70.09 recovered, not measured)
+[y11x_pano_h200] time this run: 40.1s wall  (0.4s model load, 37.9s inference over 125 pano(s), 0.30 s/pano)
+[y11x_pano_h200] usage logged to /homes/gws/jonf/wt-bayonne159/analysis_out/usage_log.jsonl
+[y11x_pano_h200] ledger now: 202 rows, $131.45, 183.7 h (of which $70.09 recovered, not measured)
+Unreviewed bundle: 125 panos per model detected and cached under /homes/gws/jonf/wt-bayonne159/.model_cache; nothing scored.
+  y11l_pano: 0 pano failure(s)
+  y26_pano: 0 pano failure(s)
+  y11x_pano_h200: 0 pano failure(s)
+=== yolo done 2026-10-02T09:54:03-07:00
+=== owlv2 + gdino 2026-10-02T09:54:03-07:00
+WARNING: --usage-log points inside this worktree (/homes/gws/jonf/wt-bayonne159), not the main checkout (/homes/gws/jonf/RampNet). A worktree is deleted when its session ends and takes the ledger with it; commit the log or point it at the main checkout.
+
+Bundle: benchmark/bayonne  (0 scored panos, 125 unjudged detect-only)  match radius 0.022  ground truth: none (unreviewed bundle)
+Detection cache: /homes/gws/jonf/wt-bayonne159/.model_cache
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[google/owlv2-large-patch14-ensemble] time this run: 1,495.5s wall  (81.1s model load, 1,413.5s inference over 125 pano(s), 11.31 s/pano)
+[google/owlv2-large-patch14-ensemble] usage logged to /homes/gws/jonf/wt-bayonne159/analysis_out/usage_log.jsonl
+[google/owlv2-large-patch14-ensemble] ledger now: 203 rows, $131.45, 184.2 h (of which $70.09 recovered, not measured)
+[IDEA-Research/grounding-dino-base] time this run: 655.8s wall  (17.1s model load, 638.1s inference over 125 pano(s), 5.10 s/pano)
+[IDEA-Research/grounding-dino-base] usage logged to /homes/gws/jonf/wt-bayonne159/analysis_out/usage_log.jsonl
+[IDEA-Research/grounding-dino-base] ledger now: 204 rows, $131.45, 184.3 h (of which $70.09 recovered, not measured)
+Unreviewed bundle: 125 panos per model detected and cached under /homes/gws/jonf/wt-bayonne159/.model_cache; nothing scored.
+  google/owlv2-large-patch14-ensemble: 0 pano failure(s)
+  IDEA-Research/grounding-dino-base: 0 pano failure(s)
+=== open done 2026-10-02T10:29:55-07:00
+=== qwen 8B 2026-10-02T10:29:55-07:00
+WARNING: --usage-log points inside this worktree (/homes/gws/jonf/wt-bayonne159), not the main checkout (/homes/gws/jonf/RampNet). A worktree is deleted when its session ends and takes the ledger with it; commit the log or point it at the main checkout.
+
+Bundle: benchmark/bayonne  (0 scored panos, 125 unjudged detect-only)  match radius 0.022  ground truth: none (unreviewed bundle)
+Detection cache: /homes/gws/jonf/wt-bayonne159/.model_cache
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /homes/gws/jonf/RampNet/.venv-eval/lib/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /homes/gws/jonf/RampNet/.venv-eval/lib/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[Qwen/Qwen3-VL-8B-Instruct] time this run: 2,942.6s wall  (180.3s model load, 2,761.9s inference over 125 pano(s), 22.10 s/pano)
+[Qwen/Qwen3-VL-8B-Instruct] usage logged to /homes/gws/jonf/wt-bayonne159/analysis_out/usage_log.jsonl
+[Qwen/Qwen3-VL-8B-Instruct] ledger now: 205 rows, $131.45, 185.2 h (of which $70.09 recovered, not measured)
+Unreviewed bundle: 125 panos per model detected and cached under /homes/gws/jonf/wt-bayonne159/.model_cache; nothing scored.
+  Qwen/Qwen3-VL-8B-Instruct: 0 pano failure(s)
+=== qwen done 2026-10-02T11:18:59-07:00
+=== molmo 2026-10-02T11:18:59-07:00
+WARNING: --usage-log points inside this worktree (/homes/gws/jonf/wt-bayonne159), not the main checkout (/homes/gws/jonf/RampNet). A worktree is deleted when its session ends and takes the ledger with it; commit the log or point it at the main checkout.
+
+Bundle: benchmark/bayonne  (0 scored panos, 125 unjudged detect-only)  match radius 0.022  ground truth: none (unreviewed bundle)
+Detection cache: /homes/gws/jonf/wt-bayonne159/.model_cache
+
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+Some parameters are on the meta device because they were offloaded to the cpu.
+[allenai/Molmo2-8B] time this run: 284.5s wall  (276.5s model load, 8.0s inference over 10 pano(s), 0.80 s/pano)
+[allenai/Molmo2-8B] usage logged to /homes/gws/jonf/wt-bayonne159/analysis_out/usage_log.jsonl
+[allenai/Molmo2-8B] ledger now: 206 rows, $131.45, 185.2 h (of which $70.09 recovered, not measured)
+[allenai/Molmo2-8B] 11 pano failure(s) isolated (excluded from the score):
+    019f4d23-478a-4a48-816b-364caa2f1e51: NotImplementedError: Cannot copy out of meta tensor; no data!
+    01c159b3-125f-4291-8a3d-de3b2d624741: NotImplementedError: Cannot copy out of meta tensor; no data!
+    038fc119-c08d-4812-bbab-5919b8f5ff31: NotImplementedError: Cannot copy out of meta tensor; no data!
+    071afe3d-14d6-4faa-a74c-271d94dbab5d: NotImplementedError: Cannot copy out of meta tensor; no data!
+    0c1ccac3-fe6c-451b-921c-b1b5344b2c06: NotImplementedError: Cannot copy out of meta tensor; no data!
+    ... and 6 more
+
+Unreviewed bundle: 125 panos per model detected and cached under /homes/gws/jonf/wt-bayonne159/.model_cache; nothing scored.
+  allenai/Molmo2-8B: 11 pano failure(s)
+=== molmo done 2026-10-02T11:23:46-07:00
+=== export 2026-10-02T11:23:46-07:00
+wrote 3 file(s), 0.1 MB total -> analysis_out/bayonne_159/model_detections
+
+                                     model                split  panos  uncached      KB
+                                 y11l_pano              bayonne    125         0      27
+                                  y26_pano              bayonne    125         0      40
+                            y11x_pano_h200              bayonne    125         0      22
+
+Now run --verify before committing.
+wrote 3 file(s), 1.2 MB total -> analysis_out/bayonne_159/model_detections
+
+                                     model                split  panos  uncached      KB
+       google/owlv2-large-patch14-ensemble              bayonne    125         0     509
+         IDEA-Research/grounding-dino-base              bayonne    125         0     601
+                 Qwen/Qwen3-VL-8B-Instruct              bayonne    125         0      22
+  (no cache: allenai/Molmo2-8B / bayonne)
+
+Now run --verify before committing.
+=== export done 2026-10-02T11:23:48-07:00
+ALL_STEPS_DONE

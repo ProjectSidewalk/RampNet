@@ -82,13 +82,20 @@ Nine of the eleven splits are published, four configs each — `records`, `nativ
 `galleries` (#21, verified against the live repo 2026-08-17). **The two Laurens arms are in
 `BENCHMARK_SPLITS` but have not been pushed to the Hub yet** — they were built after that
 verification, so the exporter would include them on the next run and the live repo does not
-carry them today. That is a stated gap, not an omission. `scripts/build_benchmark_dataset.py` is the
-two-city predecessor and publishes nothing; don't run it.
+carry them today. That is a stated gap, not an omission. The next `records` push adds their ground
+truth to the `records` config only; their imagery stays unpublished until the imagery configs are
+rebuilt, and the dataset card names them as records-only. `scripts/build_benchmark_dataset.py`, the
+two-city predecessor, was removed in #127; the training-overlap list it carried now lives in
+`benchmark/train_overlap.json`.
 
-What the published copy still does not carry is the reviewer's own commentary: `review_notes` and
-per-pano `note` stay in git here rather than travelling into the parquet rows or the dataset card,
-and Bend's four training-overlap panoramas (below) are unflagged there. Both are tracked in #127 —
-the caveats should reach the audience that runs `load_dataset` and never opens this repo.
+Since #127 the reviewer's own commentary travels with the rows, for the audience that runs
+`load_dataset` and never opens this repo. `scripts/export_benchmark.py` copies each split's
+`review_notes` block onto every `records` row (`reviewer`, `reviewed_at`, `review_confidence`
+verbatim, `review_summary`, `review_caveats`; all null for a split with no block, which means "not
+recorded", not "no caveats"; `review_caveats` is `[]` only when a block records an empty list), carries each per-pano `note`, and sets `train_overlap` from
+`benchmark/train_overlap.json` (below). It refuses to export a split that has no entry in that
+file. The copy on the Hub gains these columns at the next `records` push; until then it is the #21
+schema.
 
 The GT gallery and scorer are **canonical in RampNet** (`scripts/gt_gallery.py`,
 `rampnet/validation.py` — decoupled from any imagery source, no network). The auto-labeler
@@ -110,6 +117,7 @@ marked for deletion; run the RampNet versions, not those.
 | sao_paulo ‡ | GSV (Google Street View) | 125 | 0.888 | 0.676 |
 | laurens_mapillary § | Mapillary 360 (GoPro Max) | 94 | 0.898 | 0.390 |
 | laurens_gsv § | GSV (Google Street View) | 86 | 0.925 | 0.505 |
+| bayonne ¶ | Panoramax (GoPro Max) | 125 | 0.824 | 0.372 |
 
 † **Budapest is not comparable to the seven US splits without its caveats** — the reviewer rated
 their own pass low confidence and the rubric does not transfer cleanly. Read the section below
@@ -127,7 +135,12 @@ a `laurens_mapillary` one, so pooling both double-counts the same physical ramps
 independence the Wilson intervals assume. Held out for non-independence, **not** for GT quality.
 Read the section below before quoting either row.
 
-All eleven city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+¶ **Bayonne is the third non-US split and the first from Panoramax**, reviewed at **medium**
+confidence by a single rater, who found French crossing design hard to judge against a rubric
+written around US corners. Held out of the pooled recommendation for geography; read its section
+below before quoting it.
+
+All twelve city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
@@ -153,6 +166,7 @@ hand-picked high-density panos — is the honest between-city comparison, and
 | sao_paulo ‡ | 120 | 0.869 | 0.626 |
 | laurens_mapillary § | 89 | 0.863 | 0.325 |
 | laurens_gsv § | 81 | 0.904 | 0.459 |
+| bayonne ¶ | 120 | 0.785 | 0.322 |
 
 Clovis is below the other cities on both metrics because it is 100% soft, 2018-era GoPro Fusion
 360 imagery, where richmond mixes in the sharper NCTECH iSTAR Pulsar (camera provenance is in the
@@ -165,9 +179,12 @@ paper's three training cities. An exact-id check on 2026-07-22 found `6WC0hdAYRs
 reviewed panos — in `rampnet-dataset`'s train/val splits. Dropping them (measured 2026-08-18 with
 `score_validation.py`) moves the headline **0.954 / 0.758 → 0.956 / 0.753** and the unbiased subset
 **0.972 / 0.738 → 0.976 / 0.731**: inside the Wilson intervals both ways, so nothing here rests on
-it. Bend is the only split where this can happen — the other three GSV splits are not training
-cities and Mapillary ids are a different id space — but that is a prediction, not a measurement,
-and the published dataset carries no `train_overlap` column to filter on yet (#127).
+it. `scripts/analysis/train_overlap_check.py` re-ran the exact-id check on 2026-09-26 for all eleven
+splits, and again on 2026-10-04 for all twelve with bayonne (12 min 00 s), the Mapillary ones included, and found the same four in bend and none in any other split
+(`benchmark/train_overlap.json`), so "only bend" is now a measurement rather than a prediction. The
+`records` config carries a `train_overlap` column to filter on (#127), and
+`python scripts/score_validation.py benchmark/bend --exclude-train-overlap` prints the numbers with
+the four dropped; `tests/test_train_overlap.py` pins all four rows above.
 
 **Precision tracks the camera across the US Mapillary splits**, now that every split carries
 `camera_make`/`camera_model`: clovis (100% GoPro Fusion, 2018) 0.914 → richmond (62% iSTAR Pulsar,
@@ -452,6 +469,68 @@ mostly, not entirely, right. A live Project Sidewalk deployment
 (sidewalk-sao-paulo.cs.washington.edu) sits inside the footprint, so an agree-rate comparison
 is possible later; it covers Brás only and is 8.2% audited, so that comparison would be thin.
 
+## Bayonne — the first Panoramax split, and the lowest recall in the benchmark
+
+`benchmark/bayonne/` (issue #159) is 125 panos of Bayonne, France: 123 from the municipal
+producer `sig_bayonne` on Panoramax and 2 from another producer, all GoPro Max. It is the
+ground-truth gate for the first Panoramax Project Sidewalk city. The split's build, the
+pre-review reads and every command are in [`docs/bayonne_split_159.md`](../docs/bayonne_split_159.md).
+
+**Recall is the lowest in the benchmark.** All panos: P 0.824 [0.751, 0.878], R 0.372
+[0.319, 0.428]. Unbiased subset: P 0.785 [0.698, 0.852], R 0.322 [0.268, 0.381], level with
+`laurens_mapillary` (0.325) and below Budapest (0.459). The reviewer marked 189 missed ramps
+(+53 unsure) against 112 confirmed detections. Bayonne and `laurens_mapillary` are both GoPro
+Max imagery with the lowest recall in the benchmark, but the camera alone does not explain it:
+morgantown is GoPro Max too, at 0.730. Bayonne has no second imagery arm and its GT is medium
+confidence, so city, rubric and capture setup are confounded here.
+
+**Challengers** (`docs/model_comparison.md`, bayonne block): RampNet keeps the top F1, 0.517,
+but by 0.086 over gemini-3.1-pro-preview (0.431; pano-bootstrap 95% CI of the difference
+[0.005, 0.168]), the narrowest lead over a zero-shot challenger on any split. It is not the
+narrowest lead overall: the supervised YOLO arms come closer elsewhere, and beat RampNet on
+`laurens_mapillary`. gemini-3.6-flash's recall point estimate is above RampNet's at 0.55 (0.419 vs
+0.375), but the paired difference is not significant (exact McNemar p = 0.25,
+`analysis_out/bayonne_159/paired_tests.json`).
+
+**The misses are not far-field.** Using the flat-ground distance estimate, recall at 0.55 is
+0.450 near (< 12.5 m), 0.320 mid and 0.302 far (`low_floor_sweep.py distance`), so RampNet misses
+more than half of the ramps within 12.5 m of the camera. The estimate assumes one camera height,
+and Bayonne mixes car and two-wheeler mounts, so the band edges in metres are approximate; recall
+is low in every band either way. Lowering the threshold helps: 0.55 to
+0.30 moves recall 0.379 to 0.498 and precision 0.820 to 0.754 on all 125 panos (`sweep`, from
+the op_cache), and the F1 optimum sits at 0.20. About 28% of the GT ramps (recall ceiling 0.721
+at the 0.05 extraction floor, `floor`) produce no candidate at any threshold, so a lower threshold
+cannot reach them.
+
+**What fought the review** (`review_notes`, confidence medium, reviewer jonf, 2026-10-04):
+
+- **Bollards as crossing cues.** Crossings are often marked by bollards rather than a US-style
+  ramp with a tactile strip.
+- **Speed bumps vs raised crossings.** Speed bumps can look like crosswalks or raised walkways.
+- **Roundabouts and complex junctions** carry many ramps each, which makes per-corner judgments
+  and the completeness of the missed marks harder than on US grid corners.
+- **Bike-lane cuts.** One pano (`b517b388`) has a detection at a bike-lane cut, marked unsure.
+  The rubric was ruled afterwards: a bike-lane cut is not a pedestrian curb ramp
+  (`RUBRICS.md` §1, Class rulings). The verdict was left as recorded (unsure, so it abstains).
+
+No detection was marked duplicate. The negative check: 21 of the 25 `empty`-stratum panos were
+clean, and the other 4 held 8 missed ramps (+2 unsure). Abstention is 7.5% of detections and 21.9% of missed
+marks.
+
+**The logo band.** 124 panos carry a burned-in band that runs from its top edge to the bottom
+of the frame; the top edge sits at y 0.771-0.791 on the municipal panos and 0.8008 on the one
+measured by hand. The gallery hatched it, and a ramp under the band is invisible to the model and the
+reviewer alike, so it is outside the ground truth by construction. It covers ramps within about
+2 m of the camera.
+
+**The panos are not yet published** to the `rampnet-benchmark` dataset on Hugging Face (Jon's
+call, `docs/bayonne_split_159.md` §10), so a clean clone cannot re-run the numbers above from
+the Hub. They are public on Panoramax under the ids in `records.jsonl`, and
+`benchmark/bayonne/imagery_manifest.json` pins every file's sha256 and size, so a re-fetched
+copy can be checked with `python scripts/analysis/bayonne_159.py verify`. Nobody has tried a
+re-fetch yet, so whether Panoramax serves byte-identical files is unchecked. They are also in the makelab2
+archive (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/bayonne/panos/`).
+
 ## Laurens, IA — one town, two rigs, and the split that tests the rig itself
 
 The benchmark's first **rural** split (2026-08-31), and the only one that exists twice. Both arms
@@ -482,12 +561,14 @@ physical ramps. `laurens_gsv` is therefore held out of the pooled basis and the 
 reason is recorded in `HELD_OUT` (`scripts/analysis/miss_decomposition.py`) and the scorers print
 it.
 
-⚠️ **Neither arm carries a `review_notes` block**, so the "high confidence" rating quoted for both
-in `docs/model_comparison.md` lives only in that write-up — not in the artifact, where §1 of
-`RUBRICS.md` says it belongs and where `score_validation.py` looks for it. `annapolis` has the same
-gap; `sao_paulo`, `gainesville` and `budapest_district5` all carry theirs. Writing the three
-missing blocks is an open item, and until it is done the confidence rating for these splits is not
-reproducible from the bundle. The comparison is also **unpaired** — different panorama sets with different ground truth
+⚠️ **Both arms now carry a `review_notes` block (#127), but with `confidence` recorded as
+`unrecorded`.** The blocks hold only what the bundles measure — abstained misses, strata, capture
+date and camera, and for `laurens_gsv` the unpaired-arm caveat below — and the Mapillary block
+points to its three per-pano leaf notes. The "high confidence" rating quoted for both arms in
+`docs/model_comparison.md` is therefore still not in the artifact, where §1 of `RUBRICS.md` says it
+belongs; only the reviewer can write it in. `annapolis`, `bend`, `clovis`, `morgantown` and
+`richmond` still have no block; `budapest_district5`, `gainesville`, `paterson` and `sao_paulo`
+carry theirs. The comparison is also **unpaired** — different panorama sets with different ground truth
 (249 ramps against 220) — so Δ between the arms compares two samples of one town, not the same
 corner twice. The ~51 corners within 20 m of each other are the paired subset that would turn this
 into a measurement rather than a strong signal; both arms' detections are committed, so that

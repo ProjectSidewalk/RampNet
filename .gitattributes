@@ -49,3 +49,73 @@ stage_two/run_a_84_events/SHA256SUMS text eol=lf
 scripts/model_comparison/yolo_baseline/benchmark_eval/*.txt   text eol=lf
 scripts/model_comparison/yolo_baseline/benchmark_eval/*.md    text eol=lf
 scripts/model_comparison/yolo_baseline/benchmark_eval/*/*.json text eol=lf
+
+# The #86 tag benchmark outputs are hash-pinned: docs/tag_benchmark_86.md §6 quotes their
+# sha256, and the score JSONs and .meta.json files carry the sha256 of the files they read.
+# A core.autocrlf=true clone would check them out CRLF and every one of those hashes would
+# fail for files that are byte-correct. tag_benchmark_86.py writes them LF on every platform.
+analysis_out/tag_benchmark_86/** text eol=lf
+# The #86 context experiment (docs/context_fov_86.md) is scored the same way.
+analysis_out/context_fov_86/** text eol=lf
+# ...except the gzipped cutter manifests, which are bytes.
+analysis_out/context_fov_86/*.gz binary
+
+# The tag review pass (#86 item 3): the list's sha256 is quoted in docs/tag_rubric_draft.md
+# and carried inside every per-rater export, and the exports are written LF by
+# rampnet.tag_review.write_json. Pin both LF so an autocrlf=true clone keeps the hash true.
+benchmark/tag_review/*.csv  text eol=lf
+benchmark/tag_review/*.json text eol=lf
+
+# The #131 Phase 1 replicas: their .run.json files record the replica's sha256
+# (result_sha256), and tests/test_compare_silent_activation.py compares the two replicas
+# byte for byte. An autocrlf=true clone would check them out CRLF and the recorded hash
+# would stop matching a file that is byte-correct.
+analysis_out/silent_activation_replica*.json -text
+
+# #25 input-size sweep: SHA256SUMS pins these bytes (results, instrument check, caches)
+analysis_out/input_res_sweep_25/** text eol=lf
+
+# #35 cascade cost and transfer read: every per-pair file, summary.json and transfer/transfer.json
+# is byte-compared against a fresh re-derivation (cascade_cost_35.py --check, the tests), which
+# writes LF. An autocrlf=true clone would otherwise fail those checks for byte-correct files.
+analysis_out/cascade_cost_35/** text eol=lf
+# The transfer run's logs and records (docs/data/cascade_transfer_35/), kept as the job wrote them.
+docs/data/cascade_transfer_35/* -text
+# #101 DA3 calibration: SHA256SUMS pins these bytes and --check compares tables.md to the
+# rendered tables. An autocrlf=true clone would otherwise check them out CRLF (review of #203, B1).
+analysis_out/da3_calibration_101/** text eol=lf
+# #112's rows, which #101 joins to and hashes: written LF by recall_by_depth_112.py.
+analysis_out/recall_by_depth_112.json text eol=lf
+analysis_out/recall_by_depth_112.md text eol=lf
+# #48 multi-view evidence and challenger outputs: written LF by multiview_evidence_48.py and
+# multiview_challengers_48.py, and tests/test_multiview_48.py checks they are LF and that
+# `score` re-derives them byte for byte. An autocrlf=true clone would otherwise check them out
+# CRLF and fail both checks for files that are byte-correct (review of #200, should-fix 4).
+analysis_out/multiview_48/** text eol=lf
+# The Richmond neighbourhood bundle's records, whose sha256 is pinned in its bundle.json:
+# kept exactly as written, like the sacct dumps above.
+benchmark/richmond_neighbourhood/records.jsonl -text
+# The klone offload's pano list, read by make_shards.py on Linux.
+scripts/analysis/multiview_48_klone/new_panos.txt text eol=lf
+# #48 cross-view placement harness: pairs.csv and fresh/pairs.csv are sha256-pinned
+# (PAIRS_SHA256, FRESH_PAIRS_SHA256) and read_frozen_pairs refuses any other bytes; every
+# prediction meta, results.json and fresh/confirmation.json are re-derived byte for byte by
+# the tests. All are written LF. An autocrlf=true clone would otherwise check them out CRLF
+# and fail those checks for files that are byte-correct (review of #220).
+analysis_out/crossview_align_48/** text eol=lf
+# #221 sub-cell decode: detections.json sha256 is quoted in docs/subcell_decode_221.md, and
+# the tests re-derive results.json from it. Written LF by subcell_decode_221.py.
+analysis_out/subcell_decode_221/** text eol=lf
+
+# #217: the Seoul GT table is kept byte-identical to the Zenodo file (its md5 is checked
+# against the manifest's Zenodo md5 by `seoul_fetch_217.py verify` and by
+# tests/test_sidewalk_width_217.py).
+data/seoul_sidewalk_217/*.csv  binary
+
+# The Seoul dataset's own summary table (#218), byte-identical to the Zenodo file so its md5 checks.
+analysis_out/perspective_photos_218/seoul/summary_attributes.csv  binary
+
+# #111 depth manifests are hash-bearing records written LF by harvest_depth_111.py; keep them LF
+# whatever a contributor's core.autocrlf says (docs/benchmark_depth_111.md).
+benchmark/*/depth_manifest.json        text eol=lf
+benchmark/*/depth_labeler_compare.json text eol=lf

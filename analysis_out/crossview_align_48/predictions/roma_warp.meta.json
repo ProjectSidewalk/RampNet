@@ -1,0 +1,39 @@
+{
+ "arm": "roma_warp",
+ "config": {
+  "cert_min": 0.05,
+  "matcher": "RoMa outdoor (romatch 0.1.2), dense warp at the GT point",
+  "pre_specified": true,
+  "view": [
+   1024,
+   768,
+   75.0
+  ]
+ },
+ "description": "RoMa dense warp read at the GT point (no plane); falls back below certainty 0.05",
+ "elapsed_s": 310.7339,
+ "fallback": 126,
+ "gpu_visible": "NVIDIA GeForce RTX 3070",
+ "host": "jonfhome",
+ "missing_inputs": 0,
+ "needs": [
+  "views"
+ ],
+ "pairs": 300,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "provenance_correction": {
+  "date": "2026-09-29",
+  "post_hoc": true,
+  "source": "review of PR #210 (git history); docs/crossview_align_48.md 'post hoc'",
+  "supersedes": "config.pre_specified = true, inherited from the family's shared config; left as run so the recorded config is unchanged",
+  "why": "added after `roma` was scored and did not beat auto on GSV"
+ },
+ "ts": "2026-09-29T01:24:54Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "kornia": "0.8.3",
+  "numpy": "2.5.1",
+  "python": "3.12.10",
+  "torch": "2.6.0+cu126"
+ }
+}

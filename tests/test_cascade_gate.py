@@ -5,7 +5,7 @@ Pure logic plus a drift guard on the committed artifacts — no GPU, no imagery,
 the script; what these protect is the bookkeeping the write-up quotes.
 
 ``summarize`` is the whole reporting surface: every number in the cascade tables in
-``docs/model_comparison.md`` is one of its keys, and it is re-derivable from the
+``docs/vistas_transfer_126.md`` is one of its keys, and it is re-derivable from the
 ``sites`` list committed alongside it. So the guard here is that ``summarize`` applied
 to a committed run's ``sites`` reproduces that run's ``cells`` exactly — which also
 pins which *subset* each figure is a median of, the thing a hand-copied number gets
@@ -312,7 +312,7 @@ def test_both_artifacts_record_the_threshold_key_and_the_current_envelope():
     # Until #163 cascade_gate.json predated --rampnet-op-threshold entering the payload
     # and lacked the key; both files were regenerated on 2026-09-20 from the published
     # parity detections, so both now carry the full current envelope. Stated in
-    # docs/model_comparison.md beside them.
+    # docs/vistas_transfer_126.md beside them.
     shipped, op030 = _payload(SHIPPED), _payload(OP030)
     assert shipped["rampnet_op_threshold"] is None
     assert op030["rampnet_op_threshold"] == 0.3
@@ -323,7 +323,7 @@ def test_both_artifacts_record_the_threshold_key_and_the_current_envelope():
 
 
 def test_the_cascade_ceiling_is_nineteen_promotable_ramps():
-    # docs/model_comparison.md, "The cascade gate": of the 38 genuinely-complementary
+    # docs/vistas_transfer_126.md, "The cascade gate": of the 38 genuinely-complementary
     # ramps at rampnet@0.30, 19 carry a floor peak in radius scoring 0.05-0.30 (the
     # promotable set), 4 carry one at >= 0.30 that the greedy matcher gave to an
     # adjacent GT, and 15 carry none inside the radius.
@@ -367,7 +367,7 @@ def _claimed_at_030(payload):
 
 
 def test_the_no_peak_row_is_mostly_a_neighbours_shoulder_not_unpeaked_mass():
-    # docs/model_comparison.md, the "no floor peak in radius" row of the cascade
+    # docs/vistas_transfer_126.md, the "no floor peak in radius" row of the cascade
     # table. The first write-up read these 15 as "unpeaked heatmap mass
     # peak_local_max never called a maximum". The artifact's own columns say
     # otherwise: for 11 of the 15 the nearest floor peak is 1-2 R away (median 35.0
@@ -437,7 +437,7 @@ def test_the_committed_nulls_are_seeded_per_site_and_agree_across_the_two_files(
     # it, so the 53 sites that carry a null in both files now agree on every one -- as
     # act and nearest_peak_px always did. The regeneration moved the two null medians
     # the doc quotes (challenger_only 0.88 -> 0.865, neither 0.925 -> 0.905 at
-    # rampnet@0.30) and nothing else: docs/model_comparison.md, "A negative worth
+    # rampnet@0.30) and nothing else: docs/vistas_transfer_126.md, "A negative worth
     # recording".
     shipped, op030 = _payload(SHIPPED), _payload(OP030)
     key = lambda s: (s["pano"], s["x"], s["y"])  # noqa: E731
@@ -456,7 +456,7 @@ def test_the_committed_nulls_are_seeded_per_site_and_agree_across_the_two_files(
 
 
 def test_moving_to_the_recommended_threshold_takes_sixteen_from_the_recovered_cell():
-    # docs/model_comparison.md: RampNet gains 19 hits going 0.55 -> 0.30 (72 -> 53
+    # docs/vistas_transfer_126.md: RampNet gains 19 hits going 0.55 -> 0.30 (72 -> 53
     # misses), of which 16 come out of challenger_only and 3 out of neither. The
     # complementary-gain headline is the challenger_only figure, so it falls by 16.
     shipped = {c["cell"]: c["n"] for c in _payload(SHIPPED)["cells"]}

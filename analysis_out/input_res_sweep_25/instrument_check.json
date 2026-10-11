@@ -1,0 +1,730 @@
+{
+ "score_tolerance": 0.0002,
+ "pass": true,
+ "cities": [
+  {
+   "city": "annapolis",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 6,
+    "max_abs_score_diff": 4.141e-05,
+    "n_over_1e4": 0,
+    "extra": 7,
+    "extra_in_border": 7,
+    "extra_at_seam": 7,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 4.141e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      238,
+      26,
+      56
+     ],
+     "as_extracted": [
+      238,
+      26,
+      56
+     ],
+     "r2048_with_border_peaks": [
+      238,
+      28,
+      56
+     ],
+     "P": 0.8947,
+     "R": 0.8095,
+     "F1": 0.85,
+     "P_op_cache": 0.9015,
+     "R_op_cache": 0.8095,
+     "F1_op_cache": 0.853
+    },
+    "0.55": {
+     "op_cache": [
+      217,
+      6,
+      77
+     ],
+     "as_extracted": [
+      217,
+      6,
+      77
+     ],
+     "r2048_with_border_peaks": [
+      217,
+      7,
+      77
+     ],
+     "P": 0.9688,
+     "R": 0.7381,
+     "F1": 0.8378,
+     "P_op_cache": 0.9731,
+     "R_op_cache": 0.7381,
+     "F1_op_cache": 0.8395
+    }
+   }
+  },
+  {
+   "city": "bend",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 7,
+    "max_abs_score_diff": 6.833e-05,
+    "n_over_1e4": 0,
+    "extra": 10,
+    "extra_in_border": 10,
+    "extra_at_seam": 10,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 6.833e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      269,
+      22,
+      58
+     ],
+     "as_extracted": [
+      269,
+      22,
+      58
+     ],
+     "r2048_with_border_peaks": [
+      271,
+      25,
+      56
+     ],
+     "P": 0.9155,
+     "R": 0.8287,
+     "F1": 0.87,
+     "P_op_cache": 0.9244,
+     "R_op_cache": 0.8226,
+     "F1_op_cache": 0.8706
+    },
+    "0.55": {
+     "op_cache": [
+      247,
+      5,
+      80
+     ],
+     "as_extracted": [
+      247,
+      5,
+      80
+     ],
+     "r2048_with_border_peaks": [
+      249,
+      7,
+      78
+     ],
+     "P": 0.9727,
+     "R": 0.7615,
+     "F1": 0.8542,
+     "P_op_cache": 0.9802,
+     "R_op_cache": 0.7554,
+     "F1_op_cache": 0.8532
+    }
+   }
+  },
+  {
+   "city": "budapest_district5",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 43,
+    "max_abs_score_diff": 6.555e-05,
+    "n_over_1e4": 0,
+    "extra": 58,
+    "extra_in_border": 58,
+    "extra_at_seam": 58,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 6.555e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      193,
+      80,
+      107
+     ],
+     "as_extracted": [
+      193,
+      80,
+      107
+     ],
+     "r2048_with_border_peaks": [
+      193,
+      91,
+      107
+     ],
+     "P": 0.6796,
+     "R": 0.6433,
+     "F1": 0.661,
+     "P_op_cache": 0.707,
+     "R_op_cache": 0.6433,
+     "F1_op_cache": 0.6736
+    },
+    "0.55": {
+     "op_cache": [
+      153,
+      22,
+      147
+     ],
+     "as_extracted": [
+      153,
+      22,
+      147
+     ],
+     "r2048_with_border_peaks": [
+      153,
+      23,
+      147
+     ],
+     "P": 0.8693,
+     "R": 0.51,
+     "F1": 0.6429,
+     "P_op_cache": 0.8743,
+     "R_op_cache": 0.51,
+     "F1_op_cache": 0.6442
+    }
+   }
+  },
+  {
+   "city": "clovis",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 15,
+    "max_abs_score_diff": 5.395e-05,
+    "n_over_1e4": 0,
+    "extra": 18,
+    "extra_in_border": 18,
+    "extra_at_seam": 18,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 5.395e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      160,
+      28,
+      35
+     ],
+     "as_extracted": [
+      160,
+      28,
+      35
+     ],
+     "r2048_with_border_peaks": [
+      160,
+      31,
+      35
+     ],
+     "P": 0.8377,
+     "R": 0.8205,
+     "F1": 0.829,
+     "P_op_cache": 0.8511,
+     "R_op_cache": 0.8205,
+     "F1_op_cache": 0.8355
+    },
+    "0.55": {
+     "op_cache": [
+      139,
+      13,
+      56
+     ],
+     "as_extracted": [
+      139,
+      13,
+      56
+     ],
+     "r2048_with_border_peaks": [
+      139,
+      14,
+      56
+     ],
+     "P": 0.9085,
+     "R": 0.7128,
+     "F1": 0.7989,
+     "P_op_cache": 0.9145,
+     "R_op_cache": 0.7128,
+     "F1_op_cache": 0.8012
+    }
+   }
+  },
+  {
+   "city": "gainesville",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 13,
+    "max_abs_score_diff": 5.258e-05,
+    "n_over_1e4": 0,
+    "extra": 15,
+    "extra_in_border": 15,
+    "extra_at_seam": 15,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 5.258e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      210,
+      35,
+      62
+     ],
+     "as_extracted": [
+      210,
+      35,
+      62
+     ],
+     "r2048_with_border_peaks": [
+      210,
+      36,
+      62
+     ],
+     "P": 0.8537,
+     "R": 0.7721,
+     "F1": 0.8108,
+     "P_op_cache": 0.8571,
+     "R_op_cache": 0.7721,
+     "F1_op_cache": 0.8124
+    },
+    "0.55": {
+     "op_cache": [
+      183,
+      10,
+      89
+     ],
+     "as_extracted": [
+      183,
+      10,
+      89
+     ],
+     "r2048_with_border_peaks": [
+      183,
+      11,
+      89
+     ],
+     "P": 0.9433,
+     "R": 0.6728,
+     "F1": 0.7854,
+     "P_op_cache": 0.9482,
+     "R_op_cache": 0.6728,
+     "F1_op_cache": 0.7871
+    }
+   }
+  },
+  {
+   "city": "laurens_gsv",
+   "checked": false
+  },
+  {
+   "city": "laurens_mapillary",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=False (post-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 3.007e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 4,
+    "max_abs_score_diff": 3.007e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 4
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      131,
+      17,
+      118
+     ],
+     "as_extracted": [
+      131,
+      17,
+      118
+     ],
+     "r2048_with_border_peaks": [
+      131,
+      17,
+      118
+     ],
+     "P": 0.8851,
+     "R": 0.5261,
+     "F1": 0.6599,
+     "P_op_cache": 0.8851,
+     "R_op_cache": 0.5261,
+     "F1_op_cache": 0.6599
+    },
+    "0.55": {
+     "op_cache": [
+      97,
+      11,
+      152
+     ],
+     "as_extracted": [
+      97,
+      11,
+      152
+     ],
+     "r2048_with_border_peaks": [
+      97,
+      11,
+      152
+     ],
+     "P": 0.8981,
+     "R": 0.3896,
+     "F1": 0.5434,
+     "P_op_cache": 0.8981,
+     "R_op_cache": 0.3896,
+     "F1_op_cache": 0.5434
+    }
+   }
+  },
+  {
+   "city": "morgantown",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 18,
+    "max_abs_score_diff": 5.022e-05,
+    "n_over_1e4": 0,
+    "extra": 24,
+    "extra_in_border": 24,
+    "extra_at_seam": 24,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 5.022e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      215,
+      27,
+      52
+     ],
+     "as_extracted": [
+      215,
+      27,
+      52
+     ],
+     "r2048_with_border_peaks": [
+      217,
+      30,
+      50
+     ],
+     "P": 0.8785,
+     "R": 0.8127,
+     "F1": 0.8444,
+     "P_op_cache": 0.8884,
+     "R_op_cache": 0.8052,
+     "F1_op_cache": 0.8448
+    },
+    "0.55": {
+     "op_cache": [
+      195,
+      5,
+      72
+     ],
+     "as_extracted": [
+      195,
+      5,
+      72
+     ],
+     "r2048_with_border_peaks": [
+      196,
+      5,
+      71
+     ],
+     "P": 0.9751,
+     "R": 0.7341,
+     "F1": 0.8376,
+     "P_op_cache": 0.975,
+     "R_op_cache": 0.7303,
+     "F1_op_cache": 0.8351
+    }
+   }
+  },
+  {
+   "city": "paterson",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 12,
+    "max_abs_score_diff": 0.00010375,
+    "n_over_1e4": 1,
+    "extra": 13,
+    "extra_in_border": 13,
+    "extra_at_seam": 13,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 0.00010375,
+    "n_over_1e4": 1,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      284,
+      15,
+      111
+     ],
+     "as_extracted": [
+      284,
+      15,
+      111
+     ],
+     "r2048_with_border_peaks": [
+      286,
+      16,
+      109
+     ],
+     "P": 0.947,
+     "R": 0.7241,
+     "F1": 0.8207,
+     "P_op_cache": 0.9498,
+     "R_op_cache": 0.719,
+     "F1_op_cache": 0.8184
+    },
+    "0.55": {
+     "op_cache": [
+      269,
+      8,
+      126
+     ],
+     "as_extracted": [
+      269,
+      8,
+      126
+     ],
+     "r2048_with_border_peaks": [
+      270,
+      9,
+      125
+     ],
+     "P": 0.9677,
+     "R": 0.6835,
+     "F1": 0.8012,
+     "P_op_cache": 0.9711,
+     "R_op_cache": 0.681,
+     "F1_op_cache": 0.8006
+    }
+   }
+  },
+  {
+   "city": "richmond",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 11,
+    "max_abs_score_diff": 5.367e-05,
+    "n_over_1e4": 0,
+    "extra": 12,
+    "extra_in_border": 12,
+    "extra_at_seam": 12,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 5.367e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      257,
+      28,
+      53
+     ],
+     "as_extracted": [
+      257,
+      28,
+      53
+     ],
+     "r2048_with_border_peaks": [
+      258,
+      31,
+      52
+     ],
+     "P": 0.8927,
+     "R": 0.8323,
+     "F1": 0.8614,
+     "P_op_cache": 0.9018,
+     "R_op_cache": 0.829,
+     "F1_op_cache": 0.8639
+    },
+    "0.55": {
+     "op_cache": [
+      238,
+      9,
+      72
+     ],
+     "as_extracted": [
+      238,
+      9,
+      72
+     ],
+     "r2048_with_border_peaks": [
+      239,
+      11,
+      71
+     ],
+     "P": 0.956,
+     "R": 0.771,
+     "F1": 0.8536,
+     "P_op_cache": 0.9636,
+     "R_op_cache": 0.7677,
+     "F1_op_cache": 0.8546
+    }
+   }
+  },
+  {
+   "city": "sao_paulo",
+   "checked": true,
+   "ok": true,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 16,
+    "max_abs_score_diff": 5.093e-05,
+    "n_over_1e4": 0,
+    "extra": 16,
+    "extra_in_border": 16,
+    "extra_at_seam": 16,
+    "missing": 0
+   },
+   "as_extracted": {
+    "panos_mismatched": 0,
+    "max_abs_score_diff": 5.093e-05,
+    "n_over_1e4": 0,
+    "extra": 0,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 0
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      224,
+      55,
+      57
+     ],
+     "as_extracted": [
+      224,
+      55,
+      57
+     ],
+     "r2048_with_border_peaks": [
+      224,
+      55,
+      57
+     ],
+     "P": 0.8029,
+     "R": 0.7972,
+     "F1": 0.8,
+     "P_op_cache": 0.8029,
+     "R_op_cache": 0.7972,
+     "F1_op_cache": 0.8
+    },
+    "0.55": {
+     "op_cache": [
+      183,
+      19,
+      98
+     ],
+     "as_extracted": [
+      183,
+      19,
+      98
+     ],
+     "r2048_with_border_peaks": [
+      183,
+      19,
+      98
+     ],
+     "P": 0.9059,
+     "R": 0.6512,
+     "F1": 0.7578,
+     "P_op_cache": 0.9059,
+     "R_op_cache": 0.6512,
+     "F1_op_cache": 0.7578
+    }
+   }
+  }
+ ]
+}

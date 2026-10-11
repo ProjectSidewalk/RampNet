@@ -1,0 +1,10 @@
+label_uid,filename,split,status_viewport,status_fov25,status_fov50,status_fov90
+newberg-or:10543,gsv-newberg-10543-CurbRamp.png,test,missing_pano,missing_pano,missing_pano,missing_pano
+seattle-wa:275934,gsv-seattle-275934-CurbRamp.png,train,absent,absent,absent,absent
+seattle-wa:496,gsv-seattle-496-CurbRamp.png,train,absent,absent,absent,absent
+seattle-wa:99143,gsv-seattle-99143-CurbRamp.png,train,absent,absent,absent,absent
+seattle-wa:499,gsv-seattle-499-CurbRamp.png,train,absent,absent,absent,absent
+newberg-or:10802,gsv-newberg-10802-CurbRamp.png,train,missing_pano,missing_pano,missing_pano,missing_pano
+newberg-or:10548,gsv-newberg-10548-CurbRamp.png,train,missing_pano,missing_pano,missing_pano,missing_pano
+newberg-or:10827,gsv-newberg-10827-CurbRamp.png,train,missing_pano,missing_pano,missing_pano,missing_pano
+newberg-or:10545,gsv-newberg-10545-CurbRamp.png,train,missing_pano,missing_pano,missing_pano,missing_pano

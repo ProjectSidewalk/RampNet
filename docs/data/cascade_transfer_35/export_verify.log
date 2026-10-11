@@ -1,0 +1,5 @@
+# export_model_cache.py --verify --models vistas:curb-cut --splits bend,paterson,gainesville,annapolis --vistas-input-size 1024 1024
+# run 2026-09-27 after review (N6) on jonfhome against the job 40774146 cache: /gscratch/scrubbed/jfroehli/cascade_35/model_cache, copied as model_cache_vistas1024.tgz sha256 4a29323382e91086ca705a0aaba075bda524d1f8fe3649c3c974f43335433ed4 (485 shards)
+# cache path below is the local unpacked copy
+compared 4 (model, split) pair(s) against C:\Users\jonf\AppData\Local\Temp\claude\D--Git-RampNet\95989e9c-9dbc-462c-8e0b-4973f4bd296d\scratchpad\mc\model_cache
+4 pair(s): published detections score IDENTICALLY to the cache

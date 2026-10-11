@@ -107,12 +107,22 @@ def append_rows(path, rows):
 
 
 def row_key(rec):
-    """(cluster, job id, start) for a compute row — not the job id alone.
+    """The supersede key of a row, or None if the row is never superseded.
 
-    With `sacct -D` a requeued job appears once per incarnation under the same id,
-    and on `ckpt` that is routine: collapsing them on job id would throw away most
-    of a preempted run's compute."""
-    return (rec.get("cluster"), rec.get("job_id"), rec.get("start"))
+    - A compute row (has ``job_id``): (cluster, job id, start) — not the job id alone.
+      With `sacct -D` a requeued job appears once per incarnation under the same id,
+      and on `ckpt` that is routine: collapsing them on job id would throw away most
+      of a preempted run's compute.
+    - A usage row with a ``run_id``: ``("run_id", run_id)``. This is for a long run on
+      a host without Slurm (makelab2), recorded as ``status: in_progress`` while it is
+      still going and again when it ends; the final row carries the same ``run_id``
+      and replaces the interim one in every total (#86 item 2, PR #178).
+    - Any other row (an API leg): None."""
+    if rec.get("job_id") is not None:
+        return (rec.get("cluster"), rec.get("job_id"), rec.get("start"))
+    if rec.get("run_id") is not None:
+        return ("run_id", rec["run_id"])
+    return None
 
 
 def latest_rows(rows):
@@ -121,16 +131,18 @@ def latest_rows(rows):
     The compute ledger re-appends a job that was first recorded while RUNNING once
     it finishes (`slurm_usage.new_rows`), so the file holds both the understated
     row and the final one, and summing every row bills that job twice. The key is
-    (cluster, job id, start), so separate requeued incarnations are untouched. A
-    row with no ``job_id`` is an API leg from usage_log.jsonl: every one of those
-    is its own spend, and none is ever superseded, so they pass through as-is.
-    Order is preserved; a superseding row takes its predecessor's place."""
+    (cluster, job id, start), so separate requeued incarnations are untouched.
+    usage_log.jsonl rows that carry a ``run_id`` behave the same way: an
+    ``in_progress`` row is replaced by the final row of the same run. A row with
+    neither is an API leg: every one of those is its own spend, and none is ever
+    superseded, so they pass through as-is. Order is preserved; a superseding row
+    takes its predecessor's place."""
     seen, out = {}, []
     for rec in rows:
-        if rec.get("job_id") is None:
+        key = row_key(rec)
+        if key is None:
             out.append(rec)
             continue
-        key = row_key(rec)
         if key in seen:
             out[seen[key]] = rec
         else:
@@ -149,7 +161,8 @@ def ledger_totals(path):
 
     Reads through :func:`latest_rows`, so a compute-ledger job recorded while
     RUNNING and again when finished is counted once, at its final size; ``rows``
-    is that de-duplicated count. For usage_log.jsonl it is every row.
+    is that de-duplicated count. For usage_log.jsonl it is every row except an
+    interim row superseded by a later row with the same ``run_id``.
 
     ``recovered`` is the part of the USD total that came from :data:`RECOVERED` rows
     rather than from measurement. It is reported separately, not subtracted: the

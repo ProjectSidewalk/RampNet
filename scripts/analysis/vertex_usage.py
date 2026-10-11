@@ -298,7 +298,7 @@ def print_reconciliation(rows):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     # Same env var the Gemini legs run under (detectors.py GeminiDetector, and the
-    # .env setup in docs/model_comparison.md), so following those instructions is
+    # .env setup in docs/running_model_comparison.md), so following those instructions is
     # enough to run this too. Defaulting to a hardcoded project id would send
     # someone else's ADC at a project that isn't theirs and 403 with no hint why.
     ap.add_argument("--project", default=os.environ.get("GOOGLE_CLOUD_PROJECT"),
