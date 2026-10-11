@@ -1,6 +1,6 @@
 # Scoreboard: every model, one table
 
-Twenty-one model legs, twelve splits (eight of them pooled), one page. This is the summary
+Twenty-one model legs, thirteen splits (eight of them pooled), one page. This is the summary
 view of the curb-ramp benchmark — **rows are models, columns are metrics** — for the
 question "which model is best, and by how much".
 
@@ -204,29 +204,29 @@ numbers are directly above them in `model_comparison.md`:
 
 <!-- BEGIN GENERATED: by-split (scripts/analysis/scoreboard.py) -->
 
-| model | rich | bend | clovis | morg | annap | pater | gaines | laur_mly | **pooled** | laur_gsv † | budapest † | sao_paulo † | manual_gold † |
-|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| **RampNet** | **0.855** | **0.850** | **0.801** | **0.835** | **0.839** | **0.805** | **0.803** | 0.543 | **0.792** | **0.659** | **0.644** | **0.777** | **0.908** |
-| YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.563 | 0.599 | 0.587 | 0.247 | 0.662 | 0.839 |
-| YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.529 | 0.569 | 0.568 | 0.221 | 0.659 | 0.851 |
-| YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | **0.574** | 0.553 | 0.538 | 0.277 | 0.605 | 0.739 |
-| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.575 | 0.279 | 0.381 | 0.454 | – |
-| Claude Opus 5 (low) | 0.601 | 0.604 | 0.550 | 0.649 | 0.588 | 0.642 | 0.479 | 0.430 | 0.568 | 0.437 | 0.378 | 0.468 | – |
-| Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.281 | 0.539 | 0.261 | 0.338 | 0.358 | 0.527 |
-| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.528 | 0.274 | 0.336 | 0.346 | – |
-| Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.210 | 0.322 | 0.161 | 0.169 | 0.219 | 0.386 |
-| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.066 | 0.320 | 0.018 | 0.079 | 0.218 | 0.285 |
-| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.419 | 0.307 | 0.274 | 0.326 | 0.422 |
-| OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.065 | 0.055 | 0.062 | 0.052 | 0.088 |
-| Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.054 | 0.042 | 0.049 | 0.082 |
-| Mask2Former Vistas (curb cut, 1024) | 0.534 | 0.509 | – | – | 0.587 | 0.510 | 0.527 | – | – | – | – | – | – |
-| Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – |
-| Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – |
-| Claude Fable 5 (low, anthropic) | – | – | – | – | 0.611 | – | – | – | – | – | – | – | – |
-| Claude Fable 5.1 (low, anthropic) | – | – | – | – | 0.610 | – | – | – | – | – | – | – | – |
-| Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – | – | – |
-| Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – | – | – |
-| Claude Sonnet 5 (high) | – | – | – | – | 0.456 | – | – | – | – | – | – | – | – |
+| model | rich | bend | clovis | morg | annap | pater | gaines | laur_mly | **pooled** | laur_gsv † | budapest † | sao_paulo † | bayonne † | manual_gold † |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| **RampNet** | **0.855** | **0.850** | **0.801** | **0.835** | **0.839** | **0.805** | **0.803** | 0.543 | **0.792** | **0.659** | **0.644** | **0.777** | **0.517** | **0.908** |
+| YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.563 | 0.599 | 0.587 | 0.247 | 0.662 | 0.249 | 0.839 |
+| YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.529 | 0.569 | 0.568 | 0.221 | 0.659 | 0.296 | 0.851 |
+| YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | **0.574** | 0.553 | 0.538 | 0.277 | 0.605 | 0.261 | 0.739 |
+| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.575 | 0.279 | 0.381 | 0.454 | 0.431 | – |
+| Claude Opus 5 (low) | 0.601 | 0.604 | 0.550 | 0.649 | 0.588 | 0.642 | 0.479 | 0.430 | 0.568 | 0.437 | 0.378 | 0.468 | – | – |
+| Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.281 | 0.539 | 0.261 | 0.338 | 0.358 | 0.351 | 0.527 |
+| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.528 | 0.274 | 0.336 | 0.346 | 0.393 | – |
+| Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.210 | 0.322 | 0.161 | 0.169 | 0.219 | 0.173 | 0.386 |
+| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.066 | 0.320 | 0.018 | 0.079 | 0.218 | – | 0.285 |
+| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.419 | 0.307 | 0.274 | 0.326 | – | 0.422 |
+| OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.065 | 0.055 | 0.062 | 0.052 | 0.065 | 0.088 |
+| Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.054 | 0.042 | 0.049 | 0.048 | 0.082 |
+| Mask2Former Vistas (curb cut, 1024) | 0.534 | 0.509 | – | – | 0.587 | 0.510 | 0.527 | – | – | – | – | – | – | – |
+| Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – | – |
+| Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – | – |
+| Claude Fable 5 (low, anthropic) | – | – | – | – | 0.611 | – | – | – | – | – | – | – | – | – |
+| Claude Fable 5.1 (low, anthropic) | – | – | – | – | 0.610 | – | – | – | – | – | – | – | – | – |
+| Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – | – | – | – |
+| Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – | – | – | – |
+| Claude Sonnet 5 (high) | – | – | – | – | 0.456 | – | – | – | – | – | – | – | – | – |
 
 <!-- END GENERATED: by-split -->
 
@@ -237,7 +237,7 @@ shown because omitting them would be worse, not because they belong in the headl
 
 Three things this matrix settles that no single-number ranking can:
 
-- **RampNet has the top score in eleven of the twelve splits.** The exception is
+- **RampNet has the top score in twelve of the thirteen splits.** The exception is
   `laurens_mapillary`, where two YOLO pano arms at conf 0.25 beat it: YOLO26 0.574 and
   YOLO11l 0.563, against RampNet's 0.543. It is an operating-point result: read full-range,
   RampNet's AP there is still the highest of the four, but only just: 0.691 against YOLO11l's
@@ -355,17 +355,17 @@ the table above is what settled it.
 
 ## How to read this
 
-**The pool is eight cities, not all twelve splits.** The split registry is imported from
+**The pool is eight cities, not all thirteen splits.** The split registry is imported from
 `low_floor_sweep.US_SPLITS`, the same one `miss_decomposition.py` and the operating-point
-sweep use, so a split cannot be pooled here and held out there. The four held-out splits
+sweep use, so a split cannot be pooled here and held out there. The five held-out splits
 carry their documented reasons in the table below. `model_comparison.md` states outright that
 budapest's numbers "must not be pooled with the US splits or averaged into a headline"; this
 page obeys that.
 
 **Macro, not micro.** Each city contributes equally. Pooling raw counts would weight paterson
 (395 GT ramps) twice as heavily as clovis (195), and folding in `manual_gold` would be far
-worse — its 3,919 GT points outnumber all eleven city splits combined (3,110), so a
-count-pooled headline over all twelve would be 56% one split that is in-distribution for
+worse — its 3,919 GT points outnumber all twelve city splits combined (3,411), so a
+count-pooled headline over all thirteen would be 53% one split that is in-distribution for
 exactly one model on the board.
 
 **Operating points differ by model class, and are inherited rather than chosen here.**
@@ -411,6 +411,7 @@ apart without failing CI:
 | `laurens_gsv` | 0.494 | 0.494 | bundle — 0.55 floor, no `op_cache` | **truncated**; not comparable with the rows above |
 | `budapest_district5` | 0.478 | **0.648** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `sao_paulo` | 0.666 | **0.812** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `bayonne` | 0.344 | **0.587** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `manual_gold` | 0.917 | 0.917 | bundle — already at 0.05 | no truncation to undo; flip-TTA export |
 
 <!-- END GENERATED: ap-provenance -->
@@ -509,6 +510,7 @@ Omissions are content, so they are named rather than left as blanks:
 | `laurens_gsv` | held out † | 86 | 220 | second imagery arm of laurens, which is already pooled through laurens_mapillary -- the two arms sample one town and largely the same physical ramps (59% of gsv panos within 20 m of a mapillary one, median NN 17.2 m), so pooling both would double-count them and break the independence the Wilson intervals assume (GT is HIGH confidence; held out for non-independence, not GT quality) |
 | `budapest_district5` | held out † | 125 | 300 | single-rater GT at low reviewer confidence (docs/model_comparison.md: do not pool) |
 | `sao_paulo` | held out † | 125 | 281 | non-US city — the pooled recommendation is a US-deployment basis (GT is HIGH reviewer confidence; held out for geography, not GT quality) |
+| `bayonne` | held out † | 125 | 301 | non-US city -- the pooled recommendation is a US-deployment basis (first Panoramax split; held out for geography). Caveat, not a second reason: GT is single-rater at MEDIUM reviewer confidence, and French infrastructure fought the US-written rubric (bollards as crossing cues, speed bumps vs raised crossings, roundabouts with many ramps per junction) |
 | `manual_gold` | held out † | 1000 | 3919 | in-distribution GSV + independently-labelled GT (in-domain reference, not a deployment city) |
 
 <!-- END GENERATED: coverage -->

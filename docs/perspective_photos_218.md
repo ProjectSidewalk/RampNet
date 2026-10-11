@@ -647,6 +647,35 @@ manifest digest `a1484360ce2df9a6`.
     excluded and counted.
   - **Card `d001` was viewed before rating** (the tactile-paving ramp in §Summary). The
     rater should know that; its verdict is not blind.
+  - **Optional click mark: where the ramp the ring was aiming at actually is.** On every
+    card the rater may click the image (or, keyboard: Tab to it, Enter puts the mark on
+    the ring, arrows move it, Shift for bigger steps, Delete clears it) where the curb
+    ramp the ring seems to be aiming at is, whatever the yes/no/can't-tell answer, and
+    leave it unmarked if there is none. The mark (magenta crosshair; the ring is green)
+    is saved with the answer as `click: [fx, fy]`, fractions of the crop, 4 dp. It
+    measures how far, and in which direction, a detection that is near a ramp is off
+    it: a "No" with a mark one ramp-width away is a localisation miss, not a
+    hallucination, and a one-sided horizontal offset across cards would be the
+    systematic bearing error §5 looked for and did not find in the pose. `rates` maps
+    each mark through the item's `crop_box` to original-image pixels (the thumbnail the
+    detector saw) and reports its offset from the detection (u, v): n marked, median and
+    p90 distance, median signed dx and dy (+ = right, down), and the same in degrees
+    (angle between the two camera rays, and signed horizontal angle in the camera frame)
+    from the committed `images.csv` camera; a pixel the distortion model cannot invert
+    gets px only. It splits these by answer and by stratum (unmatched / matched control).
+    The mark does not enter precision, and an export without marks scores exactly as
+    before. The rule that asks for it was added after the gallery was built and before
+    any rating; the item set and `manifest_digest` (`f5567bf82fe0e2e3`) are unchanged,
+    only the manifest's rules list. The Seoul page has no mark (the option is off by
+    default there).
+  - **Ring placement fix (PR #240 review).** Before it, the shared page stretched the ring
+    overlay across the whole text column, not the image. On any window wider than about
+    750 px, a 720 px Richmond crop showed its ring off the detection: on `d001` at a
+    1280 px window, 190 px right of it and squashed into an ellipse. Any Richmond answer
+    given on the earlier page in a wide window therefore judged a misplaced ring, and
+    should be re-checked before it is used. The fix sizes the image wrapper to the image.
+    It changed the Seoul page's CSS and JS bytes but not how it looks: Seoul has no ring,
+    and its images are wider than the column.
 - **A second rater.** Both `rates` commands take several exports and report pairwise
   agreement (Cohen's kappa), and both refuse an export whose digest, item list, question,
   rubric or rules differ from the committed gallery's. No second rater has been asked.

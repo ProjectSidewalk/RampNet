@@ -114,3 +114,8 @@ data/seoul_sidewalk_217/*.csv  binary
 
 # The Seoul dataset's own summary table (#218), byte-identical to the Zenodo file so its md5 checks.
 analysis_out/perspective_photos_218/seoul/summary_attributes.csv  binary
+
+# #111 depth manifests are hash-bearing records written LF by harvest_depth_111.py; keep them LF
+# whatever a contributor's core.autocrlf says (docs/benchmark_depth_111.md).
+benchmark/*/depth_manifest.json        text eol=lf
+benchmark/*/depth_labeler_compare.json text eol=lf
