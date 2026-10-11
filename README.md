@@ -159,6 +159,14 @@ peaks on `clip(heatmap, 0, 1)` as the snippet above does, while decoding from th
 `stage_two/evaluate.py` uses). `stage_two/evaluate.py` and `stage_two/demo.py` take
 `--decode {argmax,gaussian}`, default `argmax` so the published numbers reproduce unchanged.
 
+**Seam-wrapped NMS (opt-in).** `peak_local_max` does not wrap in x, so a ramp on the 360-degree
+seam can come back as two peaks, one at each edge. `detect_peaks(..., wrap_nms=True)` runs the
+same non-maximum suppression with x cyclic, so it keeps only the stronger half. The default is off,
+which leaves the published extractor bit-identical. `stage_two/evaluate.py` takes `--wrap-nms`
+(result files tagged `_wrapnms`), and the repo's HF package `detect()` takes `wrap_nms=`.
+`wrap_x=True` wraps only the sub-cell decode, and the two flags are independent
+([`docs/seam_nms_248.md`](docs/seam_nms_248.md), [#248](https://github.com/ProjectSidewalk/RampNet/issues/248)).
+
 | Predicted Heatmap   | Extracted Points |
 | -------- | ------- |
 | ![Predicted Heatmap](/assets/heatmap.png "Predicted Heatmap")  | ![Extracted Points](/assets/labeled.png "Extracted Points")    |
