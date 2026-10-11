@@ -488,3 +488,10 @@ analysis_out/eval_protocol_150/*
 analysis_out/crop_tilt_113/*
 !analysis_out/crop_tilt_113/*.csv
 !analysis_out/crop_tilt_113/*.json
+
+# PU training plan (#86 item 5): the derived numbers the plan doc cites
+# (scripts/analysis/pu_training_86_plan.py), and later the committed exclusion list.
+!analysis_out/pu_training_86/
+analysis_out/pu_training_86/*
+!analysis_out/pu_training_86/*.json
+!analysis_out/pu_training_86/*.csv
