@@ -264,8 +264,10 @@ def test_hook_number_rules():
 def test_arriving_docs_are_not_yet_on_this_branch():
     """A doc listed under "Arriving on open PRs" must not exist yet. When its PR merges this
     fails, which is the prompt to move the line into a real row."""
+    header_line = "| " + " | ".join(ARRIVING_HEADER) + " |"
+    assert header_line in INDEX.read_text(encoding="utf-8"), (
+        "the 'Arriving on open PRs' table header is missing (an empty table is fine)")
     rows = list(_table(ARRIVING_HEADER))
-    assert rows, "the 'Arriving on open PRs' table did not parse"
     for n, row in rows:
         paths = re.findall(r"`(docs/[^`]+)`", row["file"])
         assert len(paths) == 1, f"docs/README.md:{n}: arriving row should name one docs/ path"
