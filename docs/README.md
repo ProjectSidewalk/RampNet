@@ -75,6 +75,7 @@ Supporting directories (not indexed row by row):
 | [`benchmark_depth_111.md`](benchmark_depth_111.md) | #111 | ledger | final | Google depth archived for the GSV benchmark panos outside a Project Sidewalk store: 649 of manual_gold's 1,000 still served (351 gone, 0 without depth), and Google revised 106 of bend's 110 payloads between August and October. | `scripts/analysis/harvest_depth_111.py` (check) |
 | [`data_scaling_59.md`](data_scaling_59.md) | #59 | negative result | final | Would more training data buy recall? E1: the harm hypothesis is NOT supported (verdict FLAT: the model's distance cliff is ~2.5× steeper than Stage 1's label recall), plus the miss buckets. | `scripts/analysis/stage1_label_recall.py` (no check), `scripts/analysis/miss_decomposition.py` (no check), `scripts/analysis/silent_activation.py` (no check) |
 | [`location_precision_assessment_96.md`](location_precision_assessment_96.md) | #96, #103 | result | final | The location-precision assessment, city by city, that gates every route to 500k: the temporal gate, the Stage 1 tolerance curve, Denver (Good under our own stated threshold, not the paper's), Seattle's offset, and the street-level review instrument. | `scripts/analysis/stage1_offset_tolerance.py` (no check), `scripts/analysis/temporal_gap.py` (no check), `scripts/analysis/inventory_review_summary.py` (no check), `scripts/analysis/sourcing_tables.py` (check) |
+| [`fair_metadata_150.md`](fair_metadata_150.md) | #150 | how-to | in progress (awaiting Jon's decisions: DOI, version label, benchmark creator; nothing uploaded to the Hub) | Hand-written Croissant 1.1 + GeoCroissant 1.0 + RAI metadata for the dataset and the benchmark, each pinned to a Hub revision, what every field came from, what is left blank and why, and how to validate them; the DOI is a placeholder that `--release` refuses. | `scripts/validate_croissant.py` (no check) validates both files offline by default; `--mlcroissant`, `--hub` and `--release` add the stricter passes |
 
 ## Recall & geometry analyses
 
@@ -145,5 +146,4 @@ into the right group above; `tests/test_docs_index.py` fails until it does.
 
 | file | PR | what it is |
 |---|---|---|
-| `docs/fair_metadata_150.md` | #190 | Croissant 1.1 + GeoCroissant 1.0 + RAI metadata for the dataset and benchmark (#150). |
 | `docs/pu_training_86.md` | #182 | Plan: PU training of the tag head (#86 item 5), proposed. |
