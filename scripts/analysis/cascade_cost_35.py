@@ -878,7 +878,8 @@ def all_benchmark_splits():
     # Scored splits only (rampnet.bundles): a bundle.json bundle (#48's neighbourhood
     # bundles) borrows another split's verdicts and adds unjudged panos, and a bundle
     # with neither verdicts.json nor gt_source.json is staged ahead of its review
-    # (bayonne, #159); neither is a split, and listing one would add a gap row.
+    # (as bayonne was until its 2026-10-04 review, #159); neither is a split, and
+    # listing one would add a gap row.
     from rampnet.bundles import scored_splits
     return scored_splits(os.path.join(REPO, "benchmark"))
 

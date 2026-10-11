@@ -686,7 +686,9 @@ def cmd_checks(args):
 # --------------------------------------------------------------------------- #
 # candidates: where RampNet is silent and >= 2 challenger legs agree
 # --------------------------------------------------------------------------- #
-DETECTIONS_DIR = os.path.join(OUT_DIR, "model_detections")
+# Exported to analysis_out/bayonne_159/model_detections/ before the review (2026-10-02),
+# moved unchanged into benchmark/model_detections/ once the split was registered.
+DETECTIONS_DIR = os.path.join(REPO, "benchmark", "model_detections")
 #: Each leg's operating point for this list. YOLO: the #71 protocol's headline conf.
 #: OWLv2 / Grounding DINO: the thresholds their best-F1 sweeps land on across the
 #: published splits (docs/model_comparison.md: OWLv2 0.25 on most, Grounding DINO
