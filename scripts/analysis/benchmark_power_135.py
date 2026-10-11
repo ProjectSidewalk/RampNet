@@ -181,7 +181,8 @@ def discover_splits(repo):
     """Every committed benchmark bundle, in sorted order."""
     # Scored splits only: a bundle.json bundle (#48's neighbourhood bundles) borrows
     # another split's verdicts, so counting it would score those judged panos twice,
-    # and a staged bundle with no review yet (bayonne, #159) cannot be scored at all.
+    # and a staged bundle with no review yet (as bayonne was until 2026-10-04, #159)
+    # cannot be scored at all.
     from rampnet.bundles import scored_splits
     return scored_splits(str(Path(repo) / "benchmark"))
 
