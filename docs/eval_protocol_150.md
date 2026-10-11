@@ -134,7 +134,7 @@ What is compared, and how:
   F1, AP, `ap_bundle`, tp, fp, fn, n_panos and n_gt_recall, at the cell's operating point.
   The scoreboard stores floats rounded to 6 decimals (`scoreboard_render.JSON_PRECISION`), so
   the re-derived float is rounded to 6 decimals and compared with `==`; integers are compared
-  as they are. For the 10 RampNet cells whose `ap_source` is the op_cache (every split but
+  as they are. For the 11 RampNet cells whose `ap_source` is the op_cache (every split but
   `laurens_gsv`, which has no op_cache, and `manual_gold`, whose bundle is already at 0.05),
   `analysis_out/op_cache/<split>.json` is converted to the prediction format and scored
   against the **bundle's** ground truth through `score_split`, and that AP equals the stored
@@ -250,6 +250,6 @@ the thirteenth split in `low_floor_sweep.ALL_SPLITS`, so it was added to
 pinned in `benchmark/split_pins.json` (125 records, 125 reviewed); the other twelve pins are
 byte-unchanged. The reproduction proof was regenerated: **175** scoreboard cells (was 165; the
 10 new ones are Bayonne's, 1,750 field comparisons) and the same **30** YOLO `benchmark_eval/`
-cells (no YOLO arm is scored on Bayonne) all re-derive equal, 0 differing, 0 unchecked.
+cells (no YOLO arm is scored on Bayonne) all re-derive equal, including Bayonne's RampNet cell, whose AP comes from `analysis_out/op_cache/bayonne.json` (11 op_cache cells, was 10), 0 differing, 0 unchecked.
 `POOLED_SPLITS` is unchanged: Bayonne is held out of the pool for geography
 (`low_floor_sweep.HELD_OUT`), so it is not in `US_SPLITS`.
