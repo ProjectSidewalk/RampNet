@@ -119,3 +119,6 @@ analysis_out/perspective_photos_218/seoul/summary_attributes.csv  binary
 # whatever a contributor's core.autocrlf says (docs/benchmark_depth_111.md).
 benchmark/*/depth_manifest.json        text eol=lf
 benchmark/*/depth_labeler_compare.json text eol=lf
+
+# The #113 crop-tilt outputs are byte-compared by scripts/analysis/crop_tilt_113.py --check.
+analysis_out/crop_tilt_113/** text eol=lf
