@@ -110,8 +110,8 @@ cutter.
 - **Cards.** 110 cards with 220 crops.
 - **Files:**
   - page: `benchmark/mined_label_check_158/gallery.html` (open it locally);
-  - rater file: `analysis_out/mined_label_check_158/mined_label_check__jonf.json`,
-    verdicts empty;
+  - rater file: `analysis_out/mined_label_check_158/mined_label_check__jonf.json`
+    (committed empty at build time; rated since, see Pass 1 below);
   - `manifest.json` holds each crop's sha256 (digest `bf3c00686e50e0da`).
 - **Scoring:** `python scripts/analysis/mined_label_check_158.py rates <file> [<file2>]`.
   It reports precision (Yes / (Yes + No), Wilson) pooled and per band, read against #158's
@@ -155,12 +155,22 @@ valid, and the context view is pass 1's crop.
 **What changed, and why (2026-10-01).** The first pass-2 page (2026-09-30) kept the pass-1
 crops and added brightness / contrast / saturation sliders. Jon's first look at it: the
 sliders did not rescue the washed-out cards, and the ring itself hides the spot it marks.
-Measured on the 32 pass-1 Can't tell crops (`scripts/analysis/mined_label_check_158.py`'s
-inputs; the numbers below are from a one-off read of the crop pixels, not a committed script):
+Measured on the 32 pass-1 Can't tell crops:
 
-- **Clipping is in the source.** In the 9 cards whose note says washed out, 30–76% of the
-  pixels in the ring area are ≥ 245 in all three channels. The camera wrote them as white;
-  no filter brings them back.
+- **Clipping is in the source.** `mined_label_check_158.py clipping <pass-1 file>` reads
+  the committed pass-1 target crops. For each Can't tell card it takes the disc the ring
+  encloses (radius 14 px on the 360 px crop) and counts the pixels that are ≥ 245 in all
+  three channels. 11 Can't tell notes say "washed out". On those cards the clipped share is
+  **0–51%, median 36%, and at least 25% on 8 of the 11**. The camera wrote those pixels as
+  white, and no filter brings them back. Pinned in `tests/test_mined_label_check_158.py`.
+  *Correction (2026-10-11):* this bullet first said "30–76% in the 9 cards whose note says
+  washed out", from a one-off read with no committed script. That figure does not
+  re-derive from a recorded definition. A disc four ring-radii wide (`--radius-px 56`)
+  gives exactly 30–76% on 9 of the 11 cards, but which 9 cards and which area were used
+  was not written down. The committed definition above replaces it. The conclusion does
+  not change: the cards that read washed out are largely clipped at the ring. The
+  exception is `c42904dcc` (0%), where the note blames the lighting but the ring area itself
+  is not clipped.
 - **Resolution was thrown away by us.** The 36° window is 1,100 px wide on an 11,000 px pano
   and was resized to 360 px (JPEG q82) before anyone looked. 23 of the 31 panos behind these
   cards are 11,000 px wide (one is 12,288, one 5,760); 6 are 4,096 px, where native is 410
@@ -237,11 +247,14 @@ under a non-default filter: `cb1b24868` (local contrast 53, saturation 114, Yes)
 `cf923fecb` (gamma 0.91, Yes). None used the black point, the control aimed at the clipped
 cards.
 
-The pass-2 subset (32 cards: 30 sample, 2 instrument):
+The pass-2 subset: 32 cards, 30 sample and 2 instrument. The precision row counts sample
+cards only. The 2 instrument items have known answers, so they are scored with the
+instrument agreement below. (Before 2026-10-11 this row counted all 32 cards: 13 Yes,
+2 No, 0.867 [0.621, 0.963].)
 
 | | Yes | No | Can't tell | precision [95% Wilson] |
 |---|--:|--:|--:|---:|
-| pass-2 subset (32) | 13 | 2 | 17 | 0.867 [0.621, 0.963] |
+| pass-2 subset, sample cards (30) | 12 | 1 | 17 | 0.923 [0.667, 0.986] |
 
 **Combined** (pass 1 with the pass-2 answers written over its Can't tells; this is the
 step-4 number), sample cards only:
@@ -349,15 +362,25 @@ python scripts/analysis/mined_click_check_158.py score \
     analysis_out/mined_label_check_158/mined_click_check__jonf.json --n-decided 83
 ```
 
-**Status (2026-10-02):** the page is built (`benchmark/mined_label_check_158/gallery_click.html`),
-and the rater file is empty (0 of 71).
+**Status (2026-10-02, superseded by the result below):** the page was built
+(`benchmark/mined_label_check_158/gallery_click.html`) and the rater file committed empty
+(0 of 71). It has been rated since: 71 of 71.
 
 ### Click pass result (Jon, 2026-10-04): 71 of 71 placed
 
-All 71 cards are placed. No card is marked "two ramps" or "can't place". The rater file was
-exported under the id `jonf-step4` and committed as `jonf`, the id the plan names. Only the
-`rater` field was changed, as was done for pass 2. Reproduce the numbers with the `score`
-command above.
+All 71 cards are placed. No card is marked "two ramps" or "can't place". Reproduce the
+numbers with the `score` command above. The headline numbers are pinned in
+`tests/test_mined_click_check_158.py`.
+
+**Provenance of the rater file.** Jon exported it under the id `jonf-step4`
+(`exported_at` `2026-10-04T18:47:51.518Z`). It was committed in 929ff8f as
+`mined_click_check__jonf.json`, under `jonf`, the id the plan names. Only the `rater`
+field was changed, as was done for pass 2. The committed file's sha256 is
+`d42b56012d18e794a5d38bfc7a23390c2e7ab7629956834d587da8f5a55decbc`. **The raw export's
+sha256 was not recorded and is not recoverable**: the raw file was not kept, and a full-disk search of the Mac on
+2026-10-11 found no `mined_click_check__jonf-step4*` file. So, unlike pass 2, the rename cannot be checked against the
+original bytes. The rater-file schema has no field for the export id; pass 2 records its
+rename in this doc too, not in the file.
 
 Offsets are measured on the 512×1024 heatmap, where 1 px = 0.35°:
 
@@ -383,6 +406,20 @@ spread is labelling convention, not miner error. Jon's note on the pass: there i
 right way to place a point label on a curb ramp; most points were not far off, but some
 clearly were, and he corrected those. Snapping each point to the nearest peak is not needed
 as step 5.
+
+**Against #158's rule** (≥ 0.80 build, 0.50–0.80 visibility, < 0.50 drop), the click-pass
+precisions read as follows:
+- 0.831 [0.737, 0.897] at the eval radius has a *build* point estimate, but its interval
+  spans visibility..build, so the reading is **not decisive**. This is the same reading as
+  0.855.
+- 0.651 [0.543, 0.744] at the 10 px sigma (54/83) reads **visibility**. Here the whole
+  interval sits inside the 0.50–0.80 band.
+
+So "about as good as a hand label" holds at the radius RampNet is *evaluated* at. At the
+radius it is *trained* at, about one mined label in three is a Yes whose point is more than
+one sigma off the rater's click, or is not a Yes at all. Part of that is labelling
+convention (above). Without a second rater, how much is convention and how much is miner
+error stays unseparated.
 
 **Caveats.** One rater, who has seen every card three times. The convention is his. A second
 rater on the same 71 cards (`score A B`) would separate convention from miner error.
