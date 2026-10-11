@@ -23,6 +23,35 @@ def _ring(it):
             f'r="{r:.1f}"/></svg>')
 
 
+def _wrap_open(it, key, click):
+    """The image wrapper. With the click mark on it is focusable and takes the mark's
+    keyboard path (role=application so a screen reader passes the arrow keys through)."""
+    if not click:
+        return '<span class="ringwrap">'
+    return (f'<span class="ringwrap clickable" tabindex="0" role="application" '
+            f'aria-roledescription="ramp marker" aria-describedby="ms_{key}" '
+            f'aria-label="{html.escape(it["name"])} image: click, or press Enter, to mark where '
+            f'the ramp is; arrow keys move the mark (Shift for bigger steps); Delete clears it">')
+
+
+def _mark_svg(it):
+    """The rater's mark, not displayed until placed (an SVG ``display`` attribute: the HTML
+    ``hidden`` attribute does not hide an SVG ``<g>`` in Chromium): a magenta crosshair in a diamond with a
+    black under-stroke, so it reads on any photo and never looks like the green ring."""
+    w, h = it["w"], it["h"]
+    r = max(10.0, 0.035 * w)
+    d = (f"M0 {-r:.1f} L{r:.1f} 0 L0 {r:.1f} L{-r:.1f} 0 Z "
+         f"M0 {-1.6 * r:.1f} V{1.6 * r:.1f} M{-1.6 * r:.1f} 0 H{1.6 * r:.1f}")
+    return (f'<svg class="mark" viewBox="0 0 {w} {h}" preserveAspectRatio="none" '
+            f'aria-hidden="true" focusable="false"><g display="none"><path class="o" d="{d}"/>'
+            f'<path d="{d}"/></g></svg>')
+
+
+def _mark_bar(key):
+    return (f'<div class="markbar"><span class="muted" id="ms_{key}">No ramp mark.</span> '
+            f'<button type="button" class="clearmark">Clear mark</button></div>')
+
+
 def _caption(it):
     if not it.get("caption"):
         return ""
@@ -33,7 +62,12 @@ def render(items, digest, cfg):
     """``items``: [{"name", "img" (relative path), "w", "h", optional "ring": (fx, fy)
     as fractions of the image, optional "caption", optional "alt"}]. ``cfg``: title, h1,
     intro (HTML), question, rubric [(key, label, definition)], rules, keys {letter: key},
-    task, export_prefix, storage_prefix, gallery_rel, commit_dir."""
+    task, export_prefix, storage_prefix, gallery_rel, commit_dir; optional ``click_mark``
+    (default False): when True, each card's image also takes an optional "where the ramp
+    is" mark (click, or keyboard on the focused image), saved with the answer as
+    ``click: [fx, fy]`` (fractions of the image width and height, 4 dp). With it off the
+    page is byte-identical to the page this function wrote before the option existed."""
+    CLICK = bool(cfg.get("click_mark", False))
     QUESTION, RUBRIC, RULES = cfg["question"], cfg["rubric"], cfg["rules"]
     EXPORT_PREFIX, EXPORT_SUFFIX = cfg["export_prefix"], ".json"
     GALLERY_REL = cfg["gallery_rel"]
@@ -46,9 +80,10 @@ def render(items, digest, cfg):
         cards.append(
             f'<section class="card" data-uid="{html.escape(it["name"])}" aria-labelledby="h_{key}">'
             f'<h2 id="h_{key}">{n}. {html.escape(it["name"])}</h2>'
-            f'<span class="ringwrap"><img src="{html.escape(it["img"])}" width="{it["w"]}" '
+            f'{_wrap_open(it, key, CLICK)}<img src="{html.escape(it["img"])}" width="{it["w"]}" '
             f'height="{it["h"]}" loading="lazy" alt="{html.escape(it.get("alt", it["name"]))}">'
-            f'{_ring(it)}</span>'
+            f'{_ring(it)}{_mark_svg(it) if CLICK else ""}</span>'
+            f'{_mark_bar(key) if CLICK else ""}'
             f'{_caption(it)}'
             f'<fieldset><legend>{html.escape(QUESTION)}</legend><div class="opts">'
             f'{radios(key)}</div><label class="note">Note (optional) '
@@ -63,6 +98,7 @@ def render(items, digest, cfg):
                        "manifest_digest": digest, "gallery": GALLERY_REL})
     meta_js = meta.replace("</", "<" + chr(92) + "/")
     keys = cfg["keys"]
+    C = _click_parts(CLICK)
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -81,10 +117,10 @@ fieldset {{ border:1px solid var(--line); border-radius:6px; background:var(--pa
 legend {{ font-weight:600; padding:0 4px; }}
 .opts {{ display:flex; flex-wrap:wrap; gap:4px 18px; }}
 .opts label {{ cursor:pointer; padding:2px 0; }}
-.ringwrap {{ position:relative; display:block; }}
+.ringwrap {{ position:relative; display:block; width:fit-content; max-width:100%; }}
 .halo {{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }}
-.halo circle {{ fill:none; stroke:#00e676; stroke-width:2.5; }}
-.halo circle.o {{ stroke:#000; stroke-width:1.2; }}
+.halo circle {{ fill:none; stroke:#00e676; stroke-width:2.5; vector-effect:non-scaling-stroke; }}
+.halo circle.o {{ stroke:#000; stroke-width:1.2; }}{C["css"]}
 .note {{ display:block; margin-top:6px; font-size:13px; color:var(--muted); }}
 textarea {{ display:block; width:100%; box-sizing:border-box; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:4px; }}
 :focus-visible {{ outline:3px solid var(--focus); outline-offset:2px; }}
@@ -101,7 +137,7 @@ dt {{ font-weight:600; }} dd {{ margin:0 0 6px 16px; }}
 <code>?rater=yourid</code> in the address). Answers are saved in this browser per rater as you
 go; Export writes <code>{EXPORT_PREFIX}&lt;rater&gt;{EXPORT_SUFFIX}</code>, to be committed under
 <code>{html.escape(cfg['commit_dir'])}</code>. Keys: {html.escape(", ".join(k.upper() for k in keys))} answer the card that
-has focus or else the topmost card on screen (not inside a text field).</p>
+has focus or else the topmost card on screen (not inside a text field).{C["help"]}</p>
 <div class="bar"><label for="rater">Rater id</label>
 <input id="rater" type="text" size="10" autocomplete="off" spellcheck="false" aria-describedby="msg">
 <button type="button" id="export">Export verdicts JSON</button>
@@ -135,7 +171,7 @@ function render() {{
   CARDS.forEach(card => {{
     const cur = saved[card.dataset.uid] || {{}};
     card.querySelectorAll('input[type=radio]').forEach(inp => {{ inp.checked = cur.answer === inp.value; }});
-    card.querySelector('textarea').value = cur.note || "";
+    card.querySelector('textarea').value = cur.note || "";{C["render"]}
   }});
   update();
 }}
@@ -157,7 +193,7 @@ CARDS.forEach(card => {{
     if (needRater()) {{ ta.value = ""; return; }}
     saved[uid] = Object.assign(saved[uid] || {{}}, {{note: ta.value}}); persist();
   }});
-}});
+}});{C["js"]}
 function topCard() {{
   const barBottom = document.querySelector('.bar').getBoundingClientRect().bottom;
   return CARDS.find(c => c.getBoundingClientRect().bottom > barBottom + 40);
@@ -173,7 +209,7 @@ document.addEventListener('keydown', ev => {{
   ev.preventDefault();
   if (needRater()) return;
   const inp = card.querySelector('input[value="' + k + '"]');
-  inp.checked = true; inp.focus(); inp.dispatchEvent(new Event('change'));
+  inp.checked = true; if (!(t.closest && t.closest('.ringwrap'))) inp.focus(); inp.dispatchEvent(new Event('change'));
 }});
 load(); render();
 document.getElementById('next').addEventListener('click', () => {{
@@ -185,8 +221,8 @@ document.getElementById('export').addEventListener('click', () => {{
   const verdicts = {{}};
   META.items.forEach(u => {{
     const v = saved[u];
-    if (!v || (!v.answer && !(v.note || "").trim())) return;
-    verdicts[u] = {{answer: v.answer || null, note: (v.note || "").trim()}};
+    if (!v || (!v.answer && !(v.note || "").trim(){C["export_keep"]})) return;
+    verdicts[u] = {{answer: v.answer || null, note: (v.note || "").trim()}};{C["export_add"]}
   }});
   const out = {{task: {json.dumps(cfg["task"])},
     question: META.question, rubric: META.rubric, rules: META.rules, rater: rater,
@@ -204,6 +240,76 @@ document.getElementById('export').addEventListener('click', () => {{
 """
 
 
+def _click_parts(click):
+    """The page fragments the click mark adds; every one is empty when it is off, so the
+    page without it is unchanged byte for byte."""
+    if not click:
+        return dict.fromkeys(("css", "help", "render", "js", "export_keep", "export_add"), "")
+    return {
+        "css": """
+.mark { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.mark path { fill:none; stroke:#ff2bd6; stroke-width:2.5; stroke-linejoin:round; vector-effect:non-scaling-stroke; }
+.mark path.o { stroke:#000; stroke-width:5.5; }
+.ringwrap.clickable { cursor:crosshair; }
+.markbar { display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center; margin-top:6px; }""",
+        "help": (" Optional ramp mark: click the image where the ramp is (click again to "
+                 "move it, Clear mark to remove it); or Tab to the image, press Enter to put "
+                 "the mark at the ring, arrow keys to move it (Shift for bigger steps), "
+                 "Delete or Backspace to clear it; an answer key pressed there answers the "
+                 "card and leaves focus on the image. The mark is magenta; the ring is green."),
+        "render": "\n    drawMark(card, cur.click);",
+        "js": r"""
+function pct(f) { return Math.round(f * 100) + "%"; }
+function drawMark(card, c) {
+  const g = card.querySelector('.mark g');
+  const st = card.querySelector('.markbar .muted');
+  if (!c) { g.setAttribute('display', 'none'); st.textContent = "No ramp mark."; return; }
+  const vb = card.querySelector('.mark').viewBox.baseVal;
+  g.setAttribute('transform', 'translate(' + (c[0] * vb.width).toFixed(1) + ' ' + (c[1] * vb.height).toFixed(1) + ')');
+  g.removeAttribute('display');
+  st.textContent = "Ramp mark at " + pct(c[0]) + " across, " + pct(c[1]) + " down.";
+}
+function r4(x) { return Math.round(Math.min(1, Math.max(0, x)) * 10000) / 10000; }
+function setMark(card, c) {
+  if (needRater()) return;
+  const uid = card.dataset.uid;
+  if (!c && !(saved[uid] || {}).click) { say(uid + ": no ramp mark to clear."); return; }
+  const cur = Object.assign(saved[uid] || {}, {});
+  if (c) cur.click = [r4(c[0]), r4(c[1])]; else delete cur.click;
+  saved[uid] = cur; persist(); drawMark(card, cur.click);
+  say(uid + ": " + (cur.click ? "ramp mark at " + pct(cur.click[0]) + " across, " + pct(cur.click[1]) + " down." : "ramp mark cleared."));
+}
+function startMark(card) {
+  const ring = card.querySelector('.halo circle:not(.o)');
+  const vb = card.querySelector('.mark').viewBox.baseVal;
+  return ring ? [ring.cx.baseVal.value / vb.width, ring.cy.baseVal.value / vb.height] : [0.5, 0.5];
+}
+CARDS.forEach(card => {
+  const wrap = card.querySelector('.ringwrap.clickable');
+  const img = wrap.querySelector('img');
+  wrap.addEventListener('click', ev => {
+    const r = img.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    setMark(card, [(ev.clientX - r.left) / r.width, (ev.clientY - r.top) / r.height]);
+  });
+  wrap.addEventListener('keydown', ev => {
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    const cur = (saved[card.dataset.uid] || {}).click;
+    const step = ev.shiftKey ? 0.05 : 0.01;
+    const mv = {ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step]}[ev.key];
+    if (ev.key === 'Enter') { setMark(card, cur || startMark(card)); }
+    else if (mv) { const b = cur || startMark(card); setMark(card, [b[0] + mv[0], b[1] + mv[1]]); }
+    else if (ev.key === 'Delete' || ev.key === 'Backspace') { setMark(card, null); }
+    else return;
+    ev.preventDefault(); ev.stopPropagation();
+  });
+  card.querySelector('.clearmark').addEventListener('click', () => setMark(card, null));
+});""",
+        "export_keep": " && !v.click",
+        "export_add": "\n    if (v.click) verdicts[u].click = v.click;",
+    }
+
+
 # --------------------------------------------------------------------------- #
 # reading a rater's export back (for ``rates``)
 # --------------------------------------------------------------------------- #
@@ -215,7 +321,8 @@ def load_verdicts(path, reference, export_prefix):
     - its ``manifest_digest`` and item list (in order) equal ``reference``'s;
     - its ``question``, ``rubric`` and ``rules`` equal ``reference``'s, so a verdict made
       under an older rubric cannot be mixed in silently;
-    - every verdict is for a listed item, with a rubric answer or null.
+    - every verdict is for a listed item, with a rubric answer or null, and an optional
+      ``click`` of [fx, fy] fractions in [0, 1] (the click-mark pages only).
 
     ``reference``: {"manifest_digest", "items", "question", "rubric" (list of
     {key, label, definition}), "rules"} -- the committed gallery, re-derived by the caller.
@@ -245,6 +352,11 @@ def load_verdicts(path, reference, export_prefix):
         if (v or {}).get("answer") not in answers | {None}:
             raise ValueError(f"{path}: {uid} has answer {v.get('answer')!r}, not in "
                              f"{sorted(answers)}")
+        c = (v or {}).get("click")
+        if c is not None and not (isinstance(c, list) and len(c) == 2 and all(
+                isinstance(x, (int, float)) and not isinstance(x, bool) and 0 <= x <= 1
+                for x in c)):
+            raise ValueError(f"{path}: {uid} has click {c!r}, not [fx, fy] in [0, 1]")
     return d
 
 

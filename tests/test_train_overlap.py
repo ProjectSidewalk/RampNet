@@ -119,6 +119,7 @@ def test_per_pano_notes_travel_only_where_they_were_written(built):
     counts = dict((city, sum(1 for n in t.column("note").to_pylist() if n is not None))
                   for city, t in tables.items())
     assert counts.pop("laurens_mapillary") == 3
+    assert counts.pop("bayonne") == 1             # b517b388, the bike-lane cut (#159)
     assert set(counts.values()) == {0}
 
 
