@@ -90,6 +90,15 @@ panos). The one-to-one matching keeps 47 pairs. The minimum spacing within each 
 26.2 m Mapillary) is larger than the 20 m pairing radius, and the matching is one-to-one, so each
 pano is in at most one pair and no two pairs share a pano.
 
+The Mapillary arm's 26.2 m minimum is below the 30 m its `sample.json` declares: 6 of the 94
+`laurens_mapillary` panos are in a pair under 30 m (26.2 to 29.4 m). That is a labeler bug, not a
+sampling choice: `geo.LatLngSpacingIndex._key` sized longitude grid cells with each point's own
+cos(lat), so nearby points could land two cells apart and never be compared (found on the Juneau
+bundle, where it was worse, in #250; fixed in
+[sidewalk-auto-labeler PR 165](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/165)).
+The verdicts exist, so this split is not re-sampled; the pairing above is unaffected because it
+uses the 20 m radius, not the sampler's spacing.
+
 ## 2. The physical ramps
 
 | | laurens_gsv | laurens_mapillary |
