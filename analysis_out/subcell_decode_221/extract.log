@@ -1,0 +1,21 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  manual_gold: 100/1000
+  manual_gold: 200/1000
+  manual_gold: 300/1000
+  manual_gold: 400/1000
+  manual_gold: 500/1000
+  manual_gold: 600/1000
+  manual_gold: 700/1000
+  manual_gold: 800/1000
+  manual_gold: 900/1000
+  manual_gold: 1000/1000
+manual_gold: 1000 panos, 3868 peaks >= 0.3
+  annapolis: 100/125
+annapolis: 125 panos, 272 peaks >= 0.3
+  paterson: 100/125
+paterson: 125 panos, 312 peaks >= 0.3
+  richmond: 100/124
+richmond: 124 panos, 328 peaks >= 0.3
+  sao_paulo: 100/125
+sao_paulo: 125 panos, 320 peaks >= 0.3
+done: 1499 panos, wall 2579s, forward 1812s -> /homes/gws/jonf/wt-subcell221/analysis_out/subcell_decode_221/detections.json

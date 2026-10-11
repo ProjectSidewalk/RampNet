@@ -1,0 +1,436 @@
+{
+ "ramp_uid": "paterson:92",
+ "city": "paterson",
+ "imagery": "gsv",
+ "frame": "Frame: east-north-up metres (x east, y north, z up), origin on the ground below the source camera (labeler LocalFrame at the source pano); z = 0 is flat ground and each camera sits at its 'auto' height. Camera poses are camera-to-world 4x4 with OpenCV camera axes (x right, y down, z forward). Rays: origin + t * dir, t >= 0.",
+ "scene": "scene.ply",
+ "scene_source": "MapAnything facebook/map-anything@a1d87e9, given intrinsics and pose priors, 5 views; lowest 30% confidence dropped; 400000 points",
+ "n_points": 400000,
+ "cameras": [
+  {
+   "pano_id": "L8lyOJwUI8j3Mk_cV-R80Q",
+   "role": "src",
+   "is_source": true,
+   "view": "p084_src.jpg",
+   "pair_id": null,
+   "capture_date": "2021-10",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.073242,
+    0.539062
+   ],
+   "heading_deg": -171.112808,
+   "camera_height_m": 2.5,
+   "cam_to_world_prior": [
+    [
+     0.816598,
+     -0.070655,
+     0.572866,
+     0.0
+    ],
+    [
+     -0.577207,
+     -0.099959,
+     0.810457,
+     0.0
+    ],
+    [
+     0.0,
+     -0.99248,
+     -0.122409,
+     2.5
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     0.816598,
+     -0.070655,
+     0.572866,
+     0.0
+    ],
+    [
+     -0.577207,
+     -0.099959,
+     0.810457,
+     0.0
+    ],
+    [
+     0.0,
+     -0.99248,
+     -0.122409,
+     2.5
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "pano_id": "V9reTGq-f5hcz7aqpIIoVQ",
+   "role": "oth",
+   "is_source": false,
+   "view": "p084_oth.jpg",
+   "pair_id": "p084",
+   "capture_date": "2021-10",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.127371,
+    0.563694
+   ],
+   "heading_deg": -170.673767,
+   "camera_height_m": 2.5,
+   "cam_to_world_prior": [
+    [
+     0.571003,
+     -0.163178,
+     0.804567,
+     1.643413
+    ],
+    [
+     -0.820948,
+     -0.113497,
+     0.55961,
+     9.894047
+    ],
+    [
+     0.0,
+     -0.980047,
+     -0.198768,
+     2.5
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     0.571023,
+     -0.162773,
+     0.804635,
+     1.663463
+    ],
+    [
+     -0.820929,
+     -0.116585,
+     0.559002,
+     9.902202
+    ],
+    [
+     0.002817,
+     -0.979751,
+     -0.200198,
+     2.458561
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "pano_id": "m51HzAfp-wowFf4O3FoyVQ",
+   "role": "oth",
+   "is_source": false,
+   "view": "p085_oth.jpg",
+   "pair_id": "p085",
+   "capture_date": "2021-10",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.341975,
+    0.574304
+   ],
+   "heading_deg": -170.763214,
+   "camera_height_m": 2.5,
+   "cam_to_world_prior": [
+    [
+     -0.673629,
+     -0.170961,
+     0.719025,
+     4.085916
+    ],
+    [
+     -0.73907,
+     0.155823,
+     -0.655359,
+     24.580184
+    ],
+    [
+     0.0,
+     -0.972878,
+     -0.231319,
+     2.5
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     -0.676465,
+     -0.170131,
+     0.716555,
+     4.128834
+    ],
+    [
+     -0.736475,
+     0.155712,
+     -0.6583,
+     24.516602
+    ],
+    [
+     0.000421,
+     -0.973041,
+     -0.230631,
+     2.405834
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "pano_id": "nduvxCXz4YlPKBv4Yw-hzA",
+   "role": "extra",
+   "is_source": false,
+   "view": "paterson_92_nduvxCXz4YlPKBv4Yw-hzA.jpg",
+   "pair_id": null,
+   "capture_date": "2018-07",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.095882,
+    0.560168
+   ],
+   "heading_deg": 101.101479,
+   "camera_height_m": 2.5,
+   "cam_to_world_prior": [
+    [
+     0.714705,
+     0.131422,
+     -0.686968,
+     21.67346
+    ],
+    [
+     0.699426,
+     -0.134293,
+     0.701975,
+     7.501001
+    ],
+    [
+     0.0,
+     -0.982188,
+     -0.1879,
+     2.5
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     0.715839,
+     0.126662,
+     -0.686682,
+     21.630067
+    ],
+    [
+     0.69826,
+     -0.133752,
+     0.703238,
+     7.474973
+    ],
+    [
+     -0.002772,
+     -0.982887,
+     -0.184188,
+     2.402038
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "pano_id": "dxk56ZkZB557clwnW7StNw",
+   "role": "extra",
+   "is_source": false,
+   "view": "paterson_92_dxk56ZkZB557clwnW7StNw.jpg",
+   "pair_id": null,
+   "capture_date": "2018-07",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.463351,
+    0.535251
+   ],
+   "heading_deg": -46.582825,
+   "camera_height_m": 2.5,
+   "cam_to_world_prior": [
+    [
+     0.503373,
+     0.095496,
+     -0.858776,
+     32.370737
+    ],
+    [
+     0.864069,
+     -0.055633,
+     0.50029,
+     5.44486
+    ],
+    [
+     0.0,
+     -0.993874,
+     -0.110519,
+     2.5
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     0.505162,
+     0.091548,
+     -0.858155,
+     32.320977
+    ],
+    [
+     0.863019,
+     -0.057001,
+     0.501945,
+     5.438703
+    ],
+    [
+     -0.002964,
+     -0.994168,
+     -0.107802,
+     2.348659
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ]
+}

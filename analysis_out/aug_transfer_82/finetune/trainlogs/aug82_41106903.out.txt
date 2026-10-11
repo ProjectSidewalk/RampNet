@@ -1,0 +1,31 @@
+--- #82 fine-tune screen ---
+Job ID:      41106903   restarts: 0
+Arm / seed:  control / 2
+Aug flags:   none
+Repo:        /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82  commit 35d1ff0  dirty files: 12
+Run dir:     /gscratch/scrubbed/jfroehli/aug82/control_s2
+Data root:   /gscratch/scrubbed/jfroehli/rampnet_dataset
+Init:        /gscratch/scrubbed/jfroehli/aug82/released_rampnet_state_dict.pth  sha256 024a987cabed7cc9
+GPUs:        1 x 4 (world 4) x accum 4 = global batch 16
+Steps:       2000 optimizer steps, LR 1e-5 constant, ckpt every 400 micro-batches
+Node list:   g3104
+      4 NVIDIA L40S
+----------------------------
+Initialized EquiHeatmapDataset for split 'train' with 150063 samples. Horizontal flip: True
+Initialized EquiHeatmapDataset for split 'val' with 42875 samples. Horizontal flip: False
+Preset: scratch, lr: 1e-05, epochs: 1, data root: /gscratch/scrubbed/jfroehli/rampnet_dataset
+Seed: 2 (sampler seed: 2), checkpoint dir: /gscratch/scrubbed/jfroehli/aug82/control_s2/checkpoints
+Augmentation (#82): none; grad accum: 4 (global batch 16); max optimizer steps: 2000
+LR schedule: constant (no decay, as in the paper)
+Warm-started model weights from /gscratch/scrubbed/jfroehli/aug82/released_rampnet_state_dict.pth
+Saved latest checkpoint at step 400
+Saved latest checkpoint at step 800
+Saved latest checkpoint at step 1200
+Saved latest checkpoint at step 1600
+Saved latest checkpoint at step 2000
+Saved latest checkpoint at step 2400
+Saved latest checkpoint at step 2800
+Saved latest checkpoint at step 3200
+Saved latest checkpoint at step 3600
+Saved latest checkpoint at step 4000
+Saved latest checkpoint at step 4400

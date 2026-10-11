@@ -153,8 +153,9 @@ def test_checkpoint_interval_default_is_still_the_paper_recipe():
     checkpointing granularity along with it.
     """
     import argparse
+    from rampnet import augment  # parse_args validates --aug through it (#82)
     mod = load_from_train_py("parse_args", "PRESET_LR", "LR_SCHEDULES",
-                             argparse=argparse, HISTORICAL_SEED=HISTORICAL_SEED)
+                             argparse=argparse, HISTORICAL_SEED=HISTORICAL_SEED, A=augment)
     argv = sys.argv
     try:
         sys.argv = ["train.py"]

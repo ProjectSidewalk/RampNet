@@ -1,0 +1,452 @@
+{
+ "ramp_uid": "richmond:180",
+ "city": "richmond",
+ "imagery": "mapillary",
+ "frame": "Frame: east-north-up metres (x east, y north, z up), origin on the ground below the source camera (labeler LocalFrame at the source pano); z = 0 is flat ground and each camera sits at its 'auto' height. Camera poses are camera-to-world 4x4 with OpenCV camera axes (x right, y down, z forward). Rays: origin + t * dir, t >= 0.",
+ "scene": "scene.ply",
+ "scene_source": "MapAnything facebook/map-anything@a1d87e9, given intrinsics and pose priors, 5 views; lowest 30% confidence dropped; 400000 points",
+ "n_points": 400000,
+ "cameras": [
+  {
+   "pano_id": "432356313302579",
+   "role": "src",
+   "is_source": true,
+   "view": "p000_src.jpg",
+   "pair_id": null,
+   "capture_date": "2024-09",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.621094,
+    0.552734
+   ],
+   "heading_deg": 125.341804,
+   "camera_height_m": 2.6,
+   "cam_to_world_prior": [
+    [
+     -0.981412,
+     -0.031648,
+     0.189284,
+     0.0
+    ],
+    [
+     -0.191911,
+     0.161847,
+     -0.967975,
+     0.0
+    ],
+    [
+     0.0,
+     -0.986308,
+     -0.164912,
+     2.6
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     -0.981412,
+     -0.031648,
+     0.189284,
+     -0.0
+    ],
+    [
+     -0.191911,
+     0.161847,
+     -0.967975,
+     -0.0
+    ],
+    [
+     0.0,
+     -0.986308,
+     -0.164912,
+     2.6
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "pano_id": "892562259502473",
+   "role": "oth",
+   "is_source": false,
+   "view": "p000_oth.jpg",
+   "pair_id": "p000",
+   "capture_date": "2024-09",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.740881,
+    0.575808
+   ],
+   "heading_deg": 124.545304,
+   "camera_height_m": 2.6,
+   "cam_to_world_prior": [
+    [
+     -0.854799,
+     0.122429,
+     -0.504311,
+     8.542261
+    ],
+    [
+     0.518959,
+     0.201658,
+     -0.830672,
+     -6.106177
+    ],
+    [
+     0.0,
+     -0.971774,
+     -0.235913,
+     2.6
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     -0.856105,
+     0.12278,
+     -0.502005,
+     8.430019
+    ],
+    [
+     0.516796,
+     0.198861,
+     -0.832692,
+     -6.017037
+    ],
+    [
+     -0.002409,
+     -0.972306,
+     -0.233698,
+     2.641504
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "pano_id": "570754238769520",
+   "role": "oth",
+   "is_source": false,
+   "view": "p001_oth.jpg",
+   "pair_id": "p001",
+   "capture_date": "2024-09",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.869115,
+    0.557239
+   ],
+   "heading_deg": 124.780317,
+   "camera_height_m": 2.6,
+   "cam_to_world_prior": [
+    [
+     -0.213683,
+     0.174723,
+     -0.961151,
+     16.956355
+    ],
+    [
+     0.976903,
+     0.038218,
+     -0.210238,
+     -12.204769
+    ],
+    [
+     0.0,
+     -0.983876,
+     -0.178854,
+     2.6
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     -0.220414,
+     0.173384,
+     -0.959873,
+     16.679224
+    ],
+    [
+     0.975406,
+     0.038985,
+     -0.216939,
+     -12.038193
+    ],
+    [
+     -0.000193,
+     -0.984082,
+     -0.177713,
+     2.66626
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "pano_id": "1565178380761735",
+   "role": "extra",
+   "is_source": false,
+   "view": "richmond_180_1565178380761735.jpg",
+   "pair_id": null,
+   "capture_date": "2024-09",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.922276,
+    0.536543
+   ],
+   "heading_deg": 126.017819,
+   "camera_height_m": 2.6,
+   "cam_to_world_prior": [
+    [
+     0.139815,
+     0.113425,
+     -0.98366,
+     25.310888
+    ],
+    [
+     0.990178,
+     -0.016016,
+     0.138895,
+     -18.413648
+    ],
+    [
+     0.0,
+     -0.993417,
+     -0.11455,
+     2.6
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     0.139167,
+     0.114373,
+     -0.983642,
+     24.985326
+    ],
+    [
+     0.990264,
+     -0.019293,
+     0.13786,
+     -18.224839
+    ],
+    [
+     -0.00321,
+     -0.993251,
+     -0.115944,
+     2.69797
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "pano_id": "471100249299698",
+   "role": "extra",
+   "is_source": false,
+   "view": "richmond_180_471100249299698.jpg",
+   "pair_id": null,
+   "capture_date": "2024-09",
+   "width": 1024,
+   "height": 768,
+   "K": [
+    [
+     667.251391,
+     0.0,
+     512.0
+    ],
+    [
+     0.0,
+     667.251391,
+     384.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "view_centre_equirect": [
+    0.572041,
+    0.533642
+   ],
+   "heading_deg": 126.198596,
+   "camera_height_m": 2.6,
+   "cam_to_world_prior": [
+    [
+     -0.884038,
+     -0.04931,
+     0.464806,
+     -8.471326
+    ],
+    [
+     -0.467415,
+     0.093261,
+     -0.879105,
+     6.405259
+    ],
+    [
+     0.0,
+     -0.99442,
+     -0.105494,
+     2.6
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "cam_to_world_mapanything": [
+    [
+     -0.883799,
+     -0.049762,
+     0.465212,
+     -8.44802
+    ],
+    [
+     -0.467866,
+     0.093756,
+     -0.878812,
+     6.312222
+    ],
+    [
+     0.000115,
+     -0.994351,
+     -0.106143,
+     2.54788
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "splat": {
+  "file": "splat.ply",
+  "source": "InstantSplat pilot (NVlabs b951567), 1000 iterations",
+  "gaussians_kept": 100000,
+  "gaussians_total": 971414,
+  "kept": "most opaque",
+  "similarity_scale": 6.641279,
+  "camera_centre_residual_m": [
+   0.199,
+   0.335,
+   0.144,
+   0.427,
+   0.404
+  ],
+  "note": "pilot splat; it overfits its training views (docs/crossview_align_48/multiview_3d.md); SH bands beyond DC are not rotated into this frame"
+ }
+}

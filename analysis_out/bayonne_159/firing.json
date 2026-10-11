@@ -1,0 +1,7150 @@
+{
+ "note": "GT-free. Peaks per pano from each split's low-floor cache, by sampler stratum. 'interior' drops peaks within 10 heatmap cells of any edge from EVERY split, which is what the pre-f4c71c8 extractor behind ten of the eleven committed op_caches did (laurens_mapillary's was built after the fix); read cross-split comparisons off 'interior'. The 'random' stratum is conditioned on >= 1 detection at 0.55 and 'empty' on none, so neither is a city rate.",
+ "splits": {
+  "annapolis": {
+   "cache": "analysis_out/op_cache/annapolis.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.352,
+       "share_panos_firing": 0.928,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.728,
+       "share_panos_firing": 0.872,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.504,
+       "share_panos_firing": 0.848,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.344,
+       "share_panos_firing": 0.84,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.272,
+       "share_panos_firing": 0.832,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.16,
+       "share_panos_firing": 0.816,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.08,
+       "share_panos_firing": 0.816,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.008,
+       "share_panos_firing": 0.816,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.936,
+       "share_panos_firing": 0.8,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.872,
+       "share_panos_firing": 0.8,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.816,
+       "share_panos_firing": 0.8,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.704,
+       "share_panos_firing": 0.768,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.464,
+       "share_panos_firing": 0.664,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.176,
+       "share_panos_firing": 0.584,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.544,
+       "share_panos_firing": 0.36,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.24,
+       "share_panos_firing": 0.64,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.56,
+       "share_panos_firing": 0.36,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.32,
+       "share_panos_firing": 0.24,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.28,
+       "share_panos_firing": 0.2,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.16,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.5789,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.9474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.7158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.5263,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.4632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.3684,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.2632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.1684,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.0947,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.0105,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.9368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.8,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.5158,
+       "share_panos_firing": 0.8211,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.2316,
+       "share_panos_firing": 0.7158,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.5263,
+       "share_panos_firing": 0.4211,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 9.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 9.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 3.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.352,
+       "share_panos_firing": 0.928,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.728,
+       "share_panos_firing": 0.872,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.504,
+       "share_panos_firing": 0.848,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.344,
+       "share_panos_firing": 0.84,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.272,
+       "share_panos_firing": 0.832,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.16,
+       "share_panos_firing": 0.816,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.08,
+       "share_panos_firing": 0.816,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.008,
+       "share_panos_firing": 0.816,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.936,
+       "share_panos_firing": 0.8,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.872,
+       "share_panos_firing": 0.8,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.816,
+       "share_panos_firing": 0.8,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.704,
+       "share_panos_firing": 0.768,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.464,
+       "share_panos_firing": 0.664,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.176,
+       "share_panos_firing": 0.584,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.544,
+       "share_panos_firing": 0.36,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.24,
+       "share_panos_firing": 0.64,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.56,
+       "share_panos_firing": 0.36,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.32,
+       "share_panos_firing": 0.24,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.28,
+       "share_panos_firing": 0.2,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.16,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.5789,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.9474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.7158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.5263,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.4632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.3684,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.2632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.1684,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.0947,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.0105,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.9368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.8,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.5158,
+       "share_panos_firing": 0.8211,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.2316,
+       "share_panos_firing": 0.7158,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.5263,
+       "share_panos_firing": 0.4211,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 9.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 9.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 3.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "bayonne": {
+   "cache": "analysis_out/bayonne_159/op_cache/bayonne.json",
+   "extractor_excludes_border": false,
+   "interior": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 4.208,
+       "share_panos_firing": 0.912,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.04,
+       "share_panos_firing": 0.888,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.496,
+       "share_panos_firing": 0.856,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.176,
+       "share_panos_firing": 0.856,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 1.952,
+       "share_panos_firing": 0.832,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.664,
+       "share_panos_firing": 0.824,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.568,
+       "share_panos_firing": 0.816,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.424,
+       "share_panos_firing": 0.8,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.336,
+       "share_panos_firing": 0.8,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.232,
+       "share_panos_firing": 0.8,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.176,
+       "share_panos_firing": 0.8,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.008,
+       "share_panos_firing": 0.696,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.568,
+       "share_panos_firing": 0.392,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.36,
+       "share_panos_firing": 0.248,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.088,
+       "share_panos_firing": 0.072,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.44,
+       "share_panos_firing": 0.56,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.76,
+       "share_panos_firing": 0.44,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.36,
+       "share_panos_firing": 0.28,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.36,
+       "share_panos_firing": 0.28,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.16,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.12,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 4.6737,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.3895,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.7789,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.3579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.1053,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.7895,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.6737,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.5263,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.4211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.3053,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.2316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.0632,
+       "share_panos_firing": 0.8632,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.5684,
+       "share_panos_firing": 0.4737,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.3368,
+       "share_panos_firing": 0.2842,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0632,
+       "share_panos_firing": 0.0632,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 6.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 6.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 5.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 3.4,
+       "share_panos_firing": 0.8,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 2.6,
+       "share_panos_firing": 0.8,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 1.0,
+       "share_panos_firing": 0.6,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 4.52,
+       "share_panos_firing": 0.92,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.16,
+       "share_panos_firing": 0.896,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.552,
+       "share_panos_firing": 0.864,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.208,
+       "share_panos_firing": 0.864,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 1.984,
+       "share_panos_firing": 0.84,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.696,
+       "share_panos_firing": 0.832,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.6,
+       "share_panos_firing": 0.824,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.448,
+       "share_panos_firing": 0.808,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.36,
+       "share_panos_firing": 0.808,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.256,
+       "share_panos_firing": 0.808,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.2,
+       "share_panos_firing": 0.808,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.008,
+       "share_panos_firing": 0.696,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.568,
+       "share_panos_firing": 0.392,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.36,
+       "share_panos_firing": 0.248,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.088,
+       "share_panos_firing": 0.072,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.64,
+       "share_panos_firing": 0.6,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.8,
+       "share_panos_firing": 0.48,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.4,
+       "share_panos_firing": 0.32,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.4,
+       "share_panos_firing": 0.32,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.24,
+       "share_panos_firing": 0.2,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.16,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.12,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 5.0105,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.5263,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.8421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.3895,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.1368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.8211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.7053,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.5474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.4421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.3263,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.2526,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.0632,
+       "share_panos_firing": 0.8632,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.5684,
+       "share_panos_firing": 0.4737,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.3368,
+       "share_panos_firing": 0.2842,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0632,
+       "share_panos_firing": 0.0632,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 6.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 6.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 5.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 3.4,
+       "share_panos_firing": 0.8,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 2.6,
+       "share_panos_firing": 0.8,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 1.0,
+       "share_panos_firing": 0.6,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "bend": {
+   "cache": "analysis_out/op_cache/bend.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 110,
+     "rows": [
+      {
+       "peaks_per_pano": 3.7818,
+       "share_panos_firing": 0.9545,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.3455,
+       "share_panos_firing": 0.9364,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.1545,
+       "share_panos_firing": 0.9182,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.9818,
+       "share_panos_firing": 0.9182,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.9,
+       "share_panos_firing": 0.9182,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.7909,
+       "share_panos_firing": 0.9091,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.7091,
+       "share_panos_firing": 0.9091,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.6182,
+       "share_panos_firing": 0.9,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.5545,
+       "share_panos_firing": 0.9,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.4545,
+       "share_panos_firing": 0.9,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.3364,
+       "share_panos_firing": 0.8818,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.2273,
+       "share_panos_firing": 0.8727,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.9182,
+       "share_panos_firing": 0.7636,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.5273,
+       "share_panos_firing": 0.6455,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7545,
+       "share_panos_firing": 0.4364,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 10,
+     "rows": [
+      {
+       "peaks_per_pano": 0.7,
+       "share_panos_firing": 0.5,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.4,
+       "share_panos_firing": 0.3,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.1,
+       "share_panos_firing": 0.1,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.1,
+       "share_panos_firing": 0.1,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.1,
+       "share_panos_firing": 0.1,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.8105,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.3368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.1474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.9474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.8526,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.7368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.6421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.5368,
+       "share_panos_firing": 0.9895,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.4737,
+       "share_panos_firing": 0.9895,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.3895,
+       "share_panos_firing": 0.9895,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.2526,
+       "share_panos_firing": 0.9684,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.1474,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.8211,
+       "share_panos_firing": 0.8316,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.4842,
+       "share_panos_firing": 0.6947,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7263,
+       "share_panos_firing": 0.4526,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 9.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 7.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 5.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 2.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 110,
+     "rows": [
+      {
+       "peaks_per_pano": 3.7818,
+       "share_panos_firing": 0.9545,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.3455,
+       "share_panos_firing": 0.9364,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.1545,
+       "share_panos_firing": 0.9182,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.9818,
+       "share_panos_firing": 0.9182,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.9,
+       "share_panos_firing": 0.9182,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.7909,
+       "share_panos_firing": 0.9091,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.7091,
+       "share_panos_firing": 0.9091,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.6182,
+       "share_panos_firing": 0.9,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.5545,
+       "share_panos_firing": 0.9,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.4545,
+       "share_panos_firing": 0.9,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.3364,
+       "share_panos_firing": 0.8818,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.2273,
+       "share_panos_firing": 0.8727,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.9182,
+       "share_panos_firing": 0.7636,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.5273,
+       "share_panos_firing": 0.6455,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7545,
+       "share_panos_firing": 0.4364,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 10,
+     "rows": [
+      {
+       "peaks_per_pano": 0.7,
+       "share_panos_firing": 0.5,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.4,
+       "share_panos_firing": 0.3,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.1,
+       "share_panos_firing": 0.1,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.1,
+       "share_panos_firing": 0.1,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.1,
+       "share_panos_firing": 0.1,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.8105,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.3368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.1474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.9474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.8526,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.7368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.6421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.5368,
+       "share_panos_firing": 0.9895,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.4737,
+       "share_panos_firing": 0.9895,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.3895,
+       "share_panos_firing": 0.9895,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.2526,
+       "share_panos_firing": 0.9684,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.1474,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.8211,
+       "share_panos_firing": 0.8316,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.4842,
+       "share_panos_firing": 0.6947,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7263,
+       "share_panos_firing": 0.4526,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 9.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 7.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 5.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 2.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "budapest_district5": {
+   "cache": "analysis_out/op_cache/budapest_district5.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 4.688,
+       "share_panos_firing": 0.984,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.736,
+       "share_panos_firing": 0.96,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.256,
+       "share_panos_firing": 0.928,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.848,
+       "share_panos_firing": 0.896,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.616,
+       "share_panos_firing": 0.888,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.328,
+       "share_panos_firing": 0.88,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.136,
+       "share_panos_firing": 0.848,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.976,
+       "share_panos_firing": 0.84,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.848,
+       "share_panos_firing": 0.824,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.688,
+       "share_panos_firing": 0.816,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.512,
+       "share_panos_firing": 0.8,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.224,
+       "share_panos_firing": 0.728,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.848,
+       "share_panos_firing": 0.544,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.432,
+       "share_panos_firing": 0.36,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.072,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 3.12,
+       "share_panos_firing": 0.92,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.08,
+       "share_panos_firing": 0.8,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 1.52,
+       "share_panos_firing": 0.64,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 1.08,
+       "share_panos_firing": 0.48,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.8,
+       "share_panos_firing": 0.44,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.6,
+       "share_panos_firing": 0.4,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.32,
+       "share_panos_firing": 0.24,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.2,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.12,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 4.8316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.8737,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.4316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 3.0211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.8105,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.4842,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.3158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.1579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.0211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.8316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.6316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.3368,
+       "share_panos_firing": 0.9053,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.8842,
+       "share_panos_firing": 0.6632,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.4632,
+       "share_panos_firing": 0.4211,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0842,
+       "share_panos_firing": 0.0737,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 7.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 7.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 6.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 5.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 4.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 2.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.4,
+       "share_panos_firing": 0.4,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 4.688,
+       "share_panos_firing": 0.984,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.736,
+       "share_panos_firing": 0.96,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.256,
+       "share_panos_firing": 0.928,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.848,
+       "share_panos_firing": 0.896,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.616,
+       "share_panos_firing": 0.888,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.328,
+       "share_panos_firing": 0.88,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.136,
+       "share_panos_firing": 0.848,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.976,
+       "share_panos_firing": 0.84,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.848,
+       "share_panos_firing": 0.824,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.688,
+       "share_panos_firing": 0.816,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.512,
+       "share_panos_firing": 0.8,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.224,
+       "share_panos_firing": 0.728,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.848,
+       "share_panos_firing": 0.544,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.432,
+       "share_panos_firing": 0.36,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.072,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 3.12,
+       "share_panos_firing": 0.92,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.08,
+       "share_panos_firing": 0.8,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 1.52,
+       "share_panos_firing": 0.64,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 1.08,
+       "share_panos_firing": 0.48,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.8,
+       "share_panos_firing": 0.44,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.6,
+       "share_panos_firing": 0.4,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.32,
+       "share_panos_firing": 0.24,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.2,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.12,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 4.8316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.8737,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.4316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 3.0211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.8105,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.4842,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.3158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.1579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.0211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.8316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.6316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.3368,
+       "share_panos_firing": 0.9053,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.8842,
+       "share_panos_firing": 0.6632,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.4632,
+       "share_panos_firing": 0.4211,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0842,
+       "share_panos_firing": 0.0737,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 7.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 7.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 6.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 5.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 4.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 2.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.4,
+       "share_panos_firing": 0.4,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "clovis": {
+   "cache": "analysis_out/op_cache/clovis.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.136,
+       "share_panos_firing": 0.952,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.296,
+       "share_panos_firing": 0.88,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.048,
+       "share_panos_firing": 0.848,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 1.928,
+       "share_panos_firing": 0.84,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 1.72,
+       "share_panos_firing": 0.824,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.624,
+       "share_panos_firing": 0.816,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.544,
+       "share_panos_firing": 0.8,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.464,
+       "share_panos_firing": 0.8,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.392,
+       "share_panos_firing": 0.8,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.344,
+       "share_panos_firing": 0.8,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.312,
+       "share_panos_firing": 0.8,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.192,
+       "share_panos_firing": 0.728,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.968,
+       "share_panos_firing": 0.608,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.608,
+       "share_panos_firing": 0.408,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.136,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.16,
+       "share_panos_firing": 0.76,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.52,
+       "share_panos_firing": 0.4,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.28,
+       "share_panos_firing": 0.24,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.2,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.12,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.3789,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.4947,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.2316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.1158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 1.8632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.7474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.6632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.5579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.4632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.3579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.2211,
+       "share_panos_firing": 0.9053,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.9895,
+       "share_panos_firing": 0.7474,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.5895,
+       "share_panos_firing": 0.4842,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.1684,
+       "share_panos_firing": 0.1368,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 7.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 7.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 6.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 5.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 4.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 1.8,
+       "share_panos_firing": 0.8,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.136,
+       "share_panos_firing": 0.952,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.296,
+       "share_panos_firing": 0.88,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.048,
+       "share_panos_firing": 0.848,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 1.928,
+       "share_panos_firing": 0.84,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 1.72,
+       "share_panos_firing": 0.824,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.624,
+       "share_panos_firing": 0.816,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.544,
+       "share_panos_firing": 0.8,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.464,
+       "share_panos_firing": 0.8,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.392,
+       "share_panos_firing": 0.8,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.344,
+       "share_panos_firing": 0.8,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.312,
+       "share_panos_firing": 0.8,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.192,
+       "share_panos_firing": 0.728,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.968,
+       "share_panos_firing": 0.608,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.608,
+       "share_panos_firing": 0.408,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.136,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.16,
+       "share_panos_firing": 0.76,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.52,
+       "share_panos_firing": 0.4,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.28,
+       "share_panos_firing": 0.24,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.2,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.12,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.3789,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.4947,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.2316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.1158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 1.8632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.7474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.6632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.5579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.4632,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.3579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.2211,
+       "share_panos_firing": 0.9053,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.9895,
+       "share_panos_firing": 0.7474,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.5895,
+       "share_panos_firing": 0.4842,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.1684,
+       "share_panos_firing": 0.1368,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 7.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 7.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 6.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 5.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 4.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 1.8,
+       "share_panos_firing": 0.8,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "gainesville": {
+   "cache": "analysis_out/op_cache/gainesville.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.44,
+       "share_panos_firing": 0.84,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.8,
+       "share_panos_firing": 0.816,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.464,
+       "share_panos_firing": 0.808,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.28,
+       "share_panos_firing": 0.808,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.144,
+       "share_panos_firing": 0.808,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.016,
+       "share_panos_firing": 0.808,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.96,
+       "share_panos_firing": 0.808,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.856,
+       "share_panos_firing": 0.808,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.728,
+       "share_panos_firing": 0.776,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.656,
+       "share_panos_firing": 0.768,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.576,
+       "share_panos_firing": 0.736,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.44,
+       "share_panos_firing": 0.696,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.136,
+       "share_panos_firing": 0.608,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.832,
+       "share_panos_firing": 0.488,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.376,
+       "share_panos_firing": 0.272,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 0.6,
+       "share_panos_firing": 0.2,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.08,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.04,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.04,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.04,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.04,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.04,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.8421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.1368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.7474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.5158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.3368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.1789,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.1158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.9895,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.8316,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.7474,
+       "share_panos_firing": 0.9474,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.6421,
+       "share_panos_firing": 0.9053,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.4947,
+       "share_panos_firing": 0.8632,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.1684,
+       "share_panos_firing": 0.7474,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.8421,
+       "share_panos_firing": 0.5895,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.3579,
+       "share_panos_firing": 0.3053,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 10.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 7.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 6.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 4.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 2.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.44,
+       "share_panos_firing": 0.84,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.8,
+       "share_panos_firing": 0.816,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.464,
+       "share_panos_firing": 0.808,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.28,
+       "share_panos_firing": 0.808,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.144,
+       "share_panos_firing": 0.808,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.016,
+       "share_panos_firing": 0.808,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.96,
+       "share_panos_firing": 0.808,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.856,
+       "share_panos_firing": 0.808,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.728,
+       "share_panos_firing": 0.776,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.656,
+       "share_panos_firing": 0.768,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.576,
+       "share_panos_firing": 0.736,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.44,
+       "share_panos_firing": 0.696,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.136,
+       "share_panos_firing": 0.608,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.832,
+       "share_panos_firing": 0.488,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.376,
+       "share_panos_firing": 0.272,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 0.6,
+       "share_panos_firing": 0.2,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.08,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.04,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.04,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.04,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.04,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.04,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.8421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.1368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.7474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.5158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.3368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.1789,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.1158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.9895,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.8316,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.7474,
+       "share_panos_firing": 0.9474,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.6421,
+       "share_panos_firing": 0.9053,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.4947,
+       "share_panos_firing": 0.8632,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.1684,
+       "share_panos_firing": 0.7474,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.8421,
+       "share_panos_firing": 0.5895,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.3579,
+       "share_panos_firing": 0.3053,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 10.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 7.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 6.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 4.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 2.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "laurens_mapillary": {
+   "cache": "analysis_out/op_cache/laurens_mapillary.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 94,
+     "rows": [
+      {
+       "peaks_per_pano": 3.9362,
+       "share_panos_firing": 0.9255,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.7766,
+       "share_panos_firing": 0.8511,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.3191,
+       "share_panos_firing": 0.8191,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.0,
+       "share_panos_firing": 0.7766,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 1.8085,
+       "share_panos_firing": 0.7766,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.6277,
+       "share_panos_firing": 0.766,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.5319,
+       "share_panos_firing": 0.766,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.4043,
+       "share_panos_firing": 0.766,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.266,
+       "share_panos_firing": 0.734,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.2021,
+       "share_panos_firing": 0.734,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.1809,
+       "share_panos_firing": 0.734,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.0426,
+       "share_panos_firing": 0.6277,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.7234,
+       "share_panos_firing": 0.4468,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.4894,
+       "share_panos_firing": 0.3191,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.1064,
+       "share_panos_firing": 0.1064,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.76,
+       "share_panos_firing": 0.72,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.76,
+       "share_panos_firing": 0.44,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.44,
+       "share_panos_firing": 0.32,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.28,
+       "share_panos_firing": 0.16,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.24,
+       "share_panos_firing": 0.16,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.12,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.12,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.12,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 64,
+     "rows": [
+      {
+       "peaks_per_pano": 4.5,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.25,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.7656,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.3594,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.0938,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.875,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.75,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.5781,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.4219,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.3281,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.2969,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.1094,
+       "share_panos_firing": 0.8438,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.7344,
+       "share_panos_firing": 0.5781,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.5156,
+       "share_panos_firing": 0.4062,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.125,
+       "share_panos_firing": 0.125,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 7.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 6.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 5.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 5.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 4.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 2.6,
+       "share_panos_firing": 0.8,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.4,
+       "share_panos_firing": 0.4,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 94,
+     "rows": [
+      {
+       "peaks_per_pano": 3.9787,
+       "share_panos_firing": 0.9362,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.7979,
+       "share_panos_firing": 0.8511,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.3191,
+       "share_panos_firing": 0.8191,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.0,
+       "share_panos_firing": 0.7766,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 1.8085,
+       "share_panos_firing": 0.7766,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.6277,
+       "share_panos_firing": 0.766,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.5319,
+       "share_panos_firing": 0.766,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.4043,
+       "share_panos_firing": 0.766,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.266,
+       "share_panos_firing": 0.734,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.2021,
+       "share_panos_firing": 0.734,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.1809,
+       "share_panos_firing": 0.734,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.0426,
+       "share_panos_firing": 0.6277,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.7234,
+       "share_panos_firing": 0.4468,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.4894,
+       "share_panos_firing": 0.3191,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.1064,
+       "share_panos_firing": 0.1064,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.84,
+       "share_panos_firing": 0.76,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.76,
+       "share_panos_firing": 0.44,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.44,
+       "share_panos_firing": 0.32,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.28,
+       "share_panos_firing": 0.16,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.24,
+       "share_panos_firing": 0.16,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.12,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.12,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.12,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 64,
+     "rows": [
+      {
+       "peaks_per_pano": 4.5156,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.2656,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.7656,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.3594,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.0938,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 1.875,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.75,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.5781,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.4219,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.3281,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.2969,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.1094,
+       "share_panos_firing": 0.8438,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.7344,
+       "share_panos_firing": 0.5781,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.5156,
+       "share_panos_firing": 0.4062,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.125,
+       "share_panos_firing": 0.125,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 7.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 6.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 5.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 5.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 4.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 2.6,
+       "share_panos_firing": 0.8,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.4,
+       "share_panos_firing": 0.4,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "morgantown": {
+   "cache": "analysis_out/op_cache/morgantown.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.84,
+       "share_panos_firing": 0.936,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.952,
+       "share_panos_firing": 0.864,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.56,
+       "share_panos_firing": 0.832,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.296,
+       "share_panos_firing": 0.816,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.104,
+       "share_panos_firing": 0.808,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.032,
+       "share_panos_firing": 0.808,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.936,
+       "share_panos_firing": 0.8,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.864,
+       "share_panos_firing": 0.8,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.776,
+       "share_panos_firing": 0.8,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.704,
+       "share_panos_firing": 0.8,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.672,
+       "share_panos_firing": 0.8,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.56,
+       "share_panos_firing": 0.752,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.288,
+       "share_panos_firing": 0.616,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.992,
+       "share_panos_firing": 0.528,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.456,
+       "share_panos_firing": 0.288,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.0,
+       "share_panos_firing": 0.68,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.32,
+       "share_panos_firing": 0.32,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.16,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 4.3053,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.3368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.8842,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.5579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.3158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.2316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.1158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.0211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.9053,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.8105,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.7684,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.6211,
+       "share_panos_firing": 0.9368,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.3053,
+       "share_panos_firing": 0.7579,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.9684,
+       "share_panos_firing": 0.6421,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.3789,
+       "share_panos_firing": 0.3263,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 7.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 6.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 4.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.84,
+       "share_panos_firing": 0.936,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.952,
+       "share_panos_firing": 0.864,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.56,
+       "share_panos_firing": 0.832,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.296,
+       "share_panos_firing": 0.816,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.104,
+       "share_panos_firing": 0.808,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.032,
+       "share_panos_firing": 0.808,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 1.936,
+       "share_panos_firing": 0.8,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 1.864,
+       "share_panos_firing": 0.8,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.776,
+       "share_panos_firing": 0.8,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.704,
+       "share_panos_firing": 0.8,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.672,
+       "share_panos_firing": 0.8,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.56,
+       "share_panos_firing": 0.752,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.288,
+       "share_panos_firing": 0.616,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.992,
+       "share_panos_firing": 0.528,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.456,
+       "share_panos_firing": 0.288,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.0,
+       "share_panos_firing": 0.68,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.32,
+       "share_panos_firing": 0.32,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.16,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 4.3053,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.3368,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.8842,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.5579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.3158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.2316,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.1158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.0211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 1.9053,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.8105,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.7684,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.6211,
+       "share_panos_firing": 0.9368,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.3053,
+       "share_panos_firing": 0.7579,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.9684,
+       "share_panos_firing": 0.6421,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.3789,
+       "share_panos_firing": 0.3263,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 9.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 7.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 6.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 4.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "paterson": {
+   "cache": "analysis_out/op_cache/paterson.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.112,
+       "share_panos_firing": 0.872,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.832,
+       "share_panos_firing": 0.824,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.736,
+       "share_panos_firing": 0.816,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.648,
+       "share_panos_firing": 0.816,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.528,
+       "share_panos_firing": 0.816,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.472,
+       "share_panos_firing": 0.8,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.408,
+       "share_panos_firing": 0.8,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.352,
+       "share_panos_firing": 0.792,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.336,
+       "share_panos_firing": 0.784,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.288,
+       "share_panos_firing": 0.768,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.248,
+       "share_panos_firing": 0.76,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.168,
+       "share_panos_firing": 0.752,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 2.008,
+       "share_panos_firing": 0.728,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.552,
+       "share_panos_firing": 0.64,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.656,
+       "share_panos_firing": 0.44,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 0.52,
+       "share_panos_firing": 0.36,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.12,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.08,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.08,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.4947,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.2211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.1053,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.9895,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.8421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.7895,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.7158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.6421,
+       "share_panos_firing": 0.9895,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.6211,
+       "share_panos_firing": 0.9789,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.5579,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.5158,
+       "share_panos_firing": 0.9474,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.4211,
+       "share_panos_firing": 0.9368,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 2.2316,
+       "share_panos_firing": 0.9053,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.7474,
+       "share_panos_firing": 0.7895,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7895,
+       "share_panos_firing": 0.5368,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 1.4,
+       "share_panos_firing": 0.8,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 3.112,
+       "share_panos_firing": 0.872,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 2.832,
+       "share_panos_firing": 0.824,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 2.736,
+       "share_panos_firing": 0.816,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.648,
+       "share_panos_firing": 0.816,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.528,
+       "share_panos_firing": 0.816,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.472,
+       "share_panos_firing": 0.8,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.408,
+       "share_panos_firing": 0.8,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.352,
+       "share_panos_firing": 0.792,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.336,
+       "share_panos_firing": 0.784,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.288,
+       "share_panos_firing": 0.768,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.248,
+       "share_panos_firing": 0.76,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.168,
+       "share_panos_firing": 0.752,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 2.008,
+       "share_panos_firing": 0.728,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.552,
+       "share_panos_firing": 0.64,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.656,
+       "share_panos_firing": 0.44,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 0.52,
+       "share_panos_firing": 0.36,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.12,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.08,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.12,
+       "share_panos_firing": 0.08,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.08,
+       "share_panos_firing": 0.08,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 3.4947,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.2211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.1053,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.9895,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.8421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.7895,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.7158,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.6421,
+       "share_panos_firing": 0.9895,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.6211,
+       "share_panos_firing": 0.9789,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.5579,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.5158,
+       "share_panos_firing": 0.9474,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.4211,
+       "share_panos_firing": 0.9368,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 2.2316,
+       "share_panos_firing": 0.9053,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.7474,
+       "share_panos_firing": 0.7895,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7895,
+       "share_panos_firing": 0.5368,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 5.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 1.4,
+       "share_panos_firing": 0.8,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "richmond": {
+   "cache": "analysis_out/op_cache/richmond.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 124,
+     "rows": [
+      {
+       "peaks_per_pano": 4.3306,
+       "share_panos_firing": 0.9435,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.5242,
+       "share_panos_firing": 0.871,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.1774,
+       "share_panos_firing": 0.8306,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.9274,
+       "share_panos_firing": 0.8065,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.7581,
+       "share_panos_firing": 0.8065,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.6129,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.5161,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.4032,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.2984,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.2258,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.1532,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.0484,
+       "share_panos_firing": 0.7419,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.7661,
+       "share_panos_firing": 0.6613,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.4597,
+       "share_panos_firing": 0.5645,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7419,
+       "share_panos_firing": 0.3629,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.44,
+       "share_panos_firing": 0.72,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.48,
+       "share_panos_firing": 0.36,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.16,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 94,
+     "rows": [
+      {
+       "peaks_per_pano": 4.7553,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.9787,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.617,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 3.3298,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 3.1064,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.9362,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.8191,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.6915,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.5638,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.4681,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.383,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.2447,
+       "share_panos_firing": 0.9255,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.9043,
+       "share_panos_firing": 0.8191,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.5638,
+       "share_panos_firing": 0.6915,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7234,
+       "share_panos_firing": 0.4255,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 10.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 10.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 10.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 9.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 9.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 9.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 9.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 6.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 4.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 124,
+     "rows": [
+      {
+       "peaks_per_pano": 4.3306,
+       "share_panos_firing": 0.9435,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.5242,
+       "share_panos_firing": 0.871,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.1774,
+       "share_panos_firing": 0.8306,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.9274,
+       "share_panos_firing": 0.8065,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.7581,
+       "share_panos_firing": 0.8065,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.6129,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.5161,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.4032,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.2984,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.2258,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.1532,
+       "share_panos_firing": 0.7984,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.0484,
+       "share_panos_firing": 0.7419,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.7661,
+       "share_panos_firing": 0.6613,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.4597,
+       "share_panos_firing": 0.5645,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7419,
+       "share_panos_firing": 0.3629,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.44,
+       "share_panos_firing": 0.72,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 0.48,
+       "share_panos_firing": 0.36,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.16,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 94,
+     "rows": [
+      {
+       "peaks_per_pano": 4.7553,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.9787,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.617,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 3.3298,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 3.1064,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.9362,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.8191,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.6915,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.5638,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.4681,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 2.383,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 2.2447,
+       "share_panos_firing": 0.9255,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.9043,
+       "share_panos_firing": 0.8191,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.5638,
+       "share_panos_firing": 0.6915,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.7234,
+       "share_panos_firing": 0.4255,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 10.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 10.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 10.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 9.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 9.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 9.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 9.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 9.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 8.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 6.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 4.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  },
+  "sao_paulo": {
+   "cache": "analysis_out/op_cache/sao_paulo.json",
+   "extractor_excludes_border": true,
+   "interior": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 4.096,
+       "share_panos_firing": 0.904,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.52,
+       "share_panos_firing": 0.888,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.168,
+       "share_panos_firing": 0.872,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.872,
+       "share_panos_firing": 0.856,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.696,
+       "share_panos_firing": 0.848,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.56,
+       "share_panos_firing": 0.832,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.44,
+       "share_panos_firing": 0.824,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.336,
+       "share_panos_firing": 0.808,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.128,
+       "share_panos_firing": 0.776,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.928,
+       "share_panos_firing": 0.744,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.824,
+       "share_panos_firing": 0.72,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.728,
+       "share_panos_firing": 0.704,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.384,
+       "share_panos_firing": 0.6,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.976,
+       "share_panos_firing": 0.416,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.504,
+       "share_panos_firing": 0.28,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.32,
+       "share_panos_firing": 0.52,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 1.0,
+       "share_panos_firing": 0.44,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.72,
+       "share_panos_firing": 0.36,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.52,
+       "share_panos_firing": 0.28,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.28,
+       "share_panos_firing": 0.24,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.16,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.12,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 4.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.9474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.5579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 3.2211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 3.0526,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.8947,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.7474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.6421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.3684,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.1158,
+       "share_panos_firing": 0.9263,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.9789,
+       "share_panos_firing": 0.8947,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.8632,
+       "share_panos_firing": 0.8737,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.4737,
+       "share_panos_firing": 0.7368,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.0316,
+       "share_panos_firing": 0.4947,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.4947,
+       "share_panos_firing": 0.3158,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 6.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 4.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 3.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   },
+   "raw": {
+    "all": {
+     "panos": 125,
+     "rows": [
+      {
+       "peaks_per_pano": 4.096,
+       "share_panos_firing": 0.904,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.52,
+       "share_panos_firing": 0.888,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.168,
+       "share_panos_firing": 0.872,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 2.872,
+       "share_panos_firing": 0.856,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 2.696,
+       "share_panos_firing": 0.848,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.56,
+       "share_panos_firing": 0.832,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.44,
+       "share_panos_firing": 0.824,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.336,
+       "share_panos_firing": 0.808,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.128,
+       "share_panos_firing": 0.776,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 1.928,
+       "share_panos_firing": 0.744,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.824,
+       "share_panos_firing": 0.72,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.728,
+       "share_panos_firing": 0.704,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.384,
+       "share_panos_firing": 0.6,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.976,
+       "share_panos_firing": 0.416,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.504,
+       "share_panos_firing": 0.28,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "empty": {
+     "panos": 25,
+     "rows": [
+      {
+       "peaks_per_pano": 1.32,
+       "share_panos_firing": 0.52,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 1.0,
+       "share_panos_firing": 0.44,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 0.72,
+       "share_panos_firing": 0.36,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 0.52,
+       "share_panos_firing": 0.28,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 0.28,
+       "share_panos_firing": 0.24,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 0.2,
+       "share_panos_firing": 0.16,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 0.16,
+       "share_panos_firing": 0.12,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 0.04,
+       "share_panos_firing": 0.04,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.0,
+       "share_panos_firing": 0.0,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "random": {
+     "panos": 95,
+     "rows": [
+      {
+       "peaks_per_pano": 4.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 3.9474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 3.5579,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 3.2211,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 3.0526,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 2.8947,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 2.7474,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 2.6421,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 2.3684,
+       "share_panos_firing": 0.9579,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 2.1158,
+       "share_panos_firing": 0.9263,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 1.9789,
+       "share_panos_firing": 0.8947,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 1.8632,
+       "share_panos_firing": 0.8737,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 1.4737,
+       "share_panos_firing": 0.7368,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 1.0316,
+       "share_panos_firing": 0.4947,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 0.4947,
+       "share_panos_firing": 0.3158,
+       "threshold": 0.9
+      }
+     ]
+    },
+    "top": {
+     "panos": 5,
+     "rows": [
+      {
+       "peaks_per_pano": 8.4,
+       "share_panos_firing": 1.0,
+       "threshold": 0.05
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.1
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.15
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.2
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.25
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.3
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.35
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.4
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.45
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.5
+      },
+      {
+       "peaks_per_pano": 8.0,
+       "share_panos_firing": 1.0,
+       "threshold": 0.55
+      },
+      {
+       "peaks_per_pano": 7.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.6
+      },
+      {
+       "peaks_per_pano": 6.6,
+       "share_panos_firing": 1.0,
+       "threshold": 0.7
+      },
+      {
+       "peaks_per_pano": 4.8,
+       "share_panos_firing": 1.0,
+       "threshold": 0.8
+      },
+      {
+       "peaks_per_pano": 3.2,
+       "share_panos_firing": 1.0,
+       "threshold": 0.9
+      }
+     ]
+    }
+   }
+  }
+ },
+ "thresholds": [
+  0.05,
+  0.1,
+  0.15,
+  0.2,
+  0.25,
+  0.3,
+  0.35,
+  0.4,
+  0.45,
+  0.5,
+  0.55,
+  0.6,
+  0.7,
+  0.8,
+  0.9
+ ]
+}

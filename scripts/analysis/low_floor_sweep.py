@@ -67,7 +67,8 @@ from operating_point_curve import (  # noqa: E402
 # The seven US city splits carry verdict-grade GT and are the recommendation's basis.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
              "gainesville", "laurens_mapillary")
-CITY_SPLITS = US_SPLITS + ("laurens_gsv", "budapest_district5", "sao_paulo")
+CITY_SPLITS = US_SPLITS + ("laurens_gsv", "budapest_district5", "sao_paulo",
+                            "bayonne")
 ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 
 # Why a split is swept but not pooled. Printed with the results so an omission can
@@ -91,6 +92,12 @@ HELD_OUT = {
     "sao_paulo": "non-US city — the pooled recommendation is a US-deployment "
                  "basis (GT is HIGH reviewer confidence; held out for "
                  "geography, not GT quality)",
+    "bayonne": "non-US city -- the pooled recommendation is a US-deployment "
+               "basis (first Panoramax split; held out for geography). Caveat, "
+               "not a second reason: GT is single-rater at MEDIUM reviewer "
+               "confidence, and French infrastructure fought the US-written "
+               "rubric (bollards as crossing cues, speed bumps vs raised "
+               "crossings, roundabouts with many ramps per junction)",
     "manual_gold": "in-distribution GSV + independently-labelled GT "
                    "(in-domain reference, not a deployment city)",
 }
@@ -381,9 +388,11 @@ def load_records(city, repo=REPO):
     return out
 
 
-def load_split(city, cache_dir=CACHE_DIR, repo=REPO):
-    """Cached low-floor panos for a split, each tagged with its imagery tier."""
-    panos, meta = read_cache(os.path.join(cache_dir, f"{city}.json"))
+def load_split(city, cache_dir=CACHE_DIR, repo=REPO, allow_unreviewed=False):
+    """Cached low-floor panos for a split, each tagged with its imagery tier.
+    ``allow_unreviewed`` is for readers that never touch GT (parity)."""
+    panos, meta = read_cache(os.path.join(cache_dir, f"{city}.json"),
+                             allow_unreviewed=allow_unreviewed)
     records = load_records(city, repo)
     fallback = SPLIT_IMAGERY_FALLBACK.get(city)
     for pd in panos:
@@ -540,7 +549,7 @@ def cmd_parity(args):
           f"{'med R':>7} {'max R':>7}  verdict")
     print("-" * 92)
     for city in args.cities:
-        panos, meta = load_split(city, args.cache)
+        panos, meta = load_split(city, args.cache, allow_unreviewed=True)
         cache_tta = bool(meta.get("tta", False))
         res = parity_for(panos, load_records(city), args.threshold, args.tol_radii)
         rows.append((city, res, cache_tta))

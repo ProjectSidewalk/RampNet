@@ -115,9 +115,59 @@ def test_the_doc_section_0_tables_are_the_committed_tables(committed):
     with open(os.path.join(REPO, "docs", "detection_recall_analysis.md"), encoding="utf-8") as fh:
         doc = fh.read().replace("\r\n", "\n")
     tabs = rbd.doc_tables(committed, rbd.tables(committed))
-    assert len(tabs) == 9
+    assert len(tabs) == 10   # nine pooled-split tables + laurens_gsv's own distance table (#151)
     for name, tab in tabs.items():
         assert tab in doc, f"§0 table {name!r} in the doc does not match the committed rows"
+
+
+def test_laurens_gsv_is_held_out_of_every_pooled_table(committed):
+    """#151: laurens_gsv has depth rows, appended after every pre-existing row, tabulated on
+    its own, and absent from the pooled splits' tables (whose populations are pinned here)."""
+    c = committed["constants"]
+    assert c["held_out_depth_splits"] == ["laurens_gsv"]
+    assert "laurens_gsv" not in c["depth_splits"]
+    t = committed["tables"]
+    assert t["deflation"]["gsv_pooled"]["n"] == 1100
+    assert t["recall_distance"]["gsv_pooled"]["depth"][-1]["n"] == 1100
+    assert all("laurens" not in r["group"] for r in t["by_capture_year"])
+    h = t["held_out"]["laurens_gsv"]
+    assert h["inventory"]["panos"] == 86 and h["inventory"]["sha256_verified"] == 86
+    assert h["inventory"]["status"] == {"measured": 60, "synthetic_ground": 26}
+    assert h["inventory"]["camera_height_median_m"] == 2.4094
+    assert h["deflation"]["n"] == 151 and h["deflation"]["median_ratio"] == 1.041
+    assert [w["deflated_m"] for w in h["thresholds"]["window"]] == [17.4, 23.4]
+    # rows: laurens last, and no depth x scale column (no measured scale for the city)
+    cities = [p["city"] for p in committed["points"]]
+    first = cities.index("laurens_gsv")
+    assert set(cities[first:]) == {"laurens_gsv"} and cities.count("laurens_gsv") == 220
+    assert all(p["depth_range_scaled"] is None for p in committed["points"][first:])
+    prov = committed["held_out_provenance"]["laurens_gsv"]
+    assert prov["parity_splits"] == c["depth_splits"] and len(prov["labeler_commit"]) == 40
+
+
+def test_pre_existing_rows_and_tables_are_the_pre_151_content(committed):
+    """PR #201 review N1: the pooled splits' and richmond's rows and every non-held-out table
+    hash to what main held before laurens_gsv was added (origin/main 5a3efe3)."""
+    assert rbd.base_sha256(committed) == rbd.BASE_SHA256_PRE_151
+
+
+def test_laurens_gsv_alignment_evidence():
+    """analysis_out/depth_image_alignment_151_laurens_gsv.json, pinned as the doc reports it: on
+    this split the mapping is carried over from the pooled four, not independently confirmed.
+    Check C (edges at zero shift) is the direct evidence for it; check A at zero shift goes the
+    other way (open rural sky); B barely discriminates; D is the ray formula, not alignment."""
+    with open(os.path.join(REPO, "analysis_out", "depth_image_alignment_151_laurens_gsv.json"),
+              encoding="utf-8") as fh:
+        al = json.load(fh)
+    assert al["splits"] == ["laurens_gsv"]
+    gt = al["B_ground_under_point"]["gt_points"]
+    assert (gt["n"], gt["raw"], gt["flip"]) == (151, 151, 148)
+    seam = al["D_seam_continuity"]
+    assert seam["raw_formula"]["median_abs_log_ratio"] < seam["mirrored_formula"]["median_abs_log_ratio"] / 5
+    diag = al["A_sky_diagnostics"]
+    assert (diag["prominent_panos"], diag["prominent_raw_best_within_8"]) == (7, 5)
+    assert al["C_edges"]["pooled"]["raw_beats_flip_at_zero_shift"] == 56
+    assert (al["A_sky"]["pooled"]["panos"], al["A_sky"]["pooled"]["raw_beats_flip_at_zero_shift"]) == (56, 23)
 
 
 def test_the_alignment_evidence_favours_the_mapping_the_script_uses():

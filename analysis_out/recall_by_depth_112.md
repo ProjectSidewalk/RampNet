@@ -32,6 +32,7 @@ Thresholds: 18 m and 25 m on the flat axis divided by the median flat/depth rati
 | gainesville | 249 | 14.95 / 12.08 = 1.24 | 1.372 (1.05–1.93) | 13.8 m (103) | 19.7 m (66) | 15.2 m / 21.6 m |
 | sao_paulo | 237 | 11.46 / 11.13 = 1.03 | 1.083 (1.00–1.31) | 16.9 m (77) | 22.8 m (48) | 19.6 m / 26.4 m |
 | GSV pooled | 1,100 | 14.41 / 12.24 = 1.18 | 1.133 (1.00–1.61) | 16.2 m (414) | 21.7 m (253) | 17.4 m / 23.5 m |
+| laurens_gsv (held out, not pooled) | 151 | 13.95 / 12.45 = 1.12 | 1.041 (1.00–1.19) | 17.4 m (47) | 23.4 m (26) | – |
 
 ## By capture year (the rig), not by split
 
@@ -50,6 +51,7 @@ Thresholds: 18 m and 25 m on the flat axis divided by the median flat/depth rati
 | sao_paulo 2025 | 91 (23) | 2.25 m | 1.105 (1.00–1.32) | 1.15 | 17.7 m (34) | 23.5 m (18) |
 | 2025-26 rig (paterson 2025 + gainesville 2026) | 366 (112) | 1.83 m | 1.399 (1.16–1.90) | 1.45 | 13.1 m (139) | 18.7 m (97) |
 | older US vintages (bend, paterson, gainesville; the rest) | 497 (144) | 2.36 m | 1.063 (1.00–1.24) | 1.11 | 17.1 m (198) | 23.2 m (108) |
+| laurens_gsv 2024 | 151 (41) | 2.40 m | 1.041 (1.00–1.19) | 1.08 | 17.4 m (47) | 23.4 m (26) |
 
 ## The doc's population reproduces: richmond + bend n = 637, hit 487, recall 0.7645 (per city {'richmond': {'n': 310, 'hit': 238}, 'bend': {'n': 327, 'hit': 249}})
 
@@ -282,4 +284,50 @@ Excluded from the depth axis (non-measured ground): 43 GT points, recall on the 
 | all | 817 | 0.946 | 817 | 0.946 | 817 | 0.946 |
 
 Excluded from the depth axis (non-measured ground): 174 GT points, recall on the flat axis 0.741 vs 0.703 for the included. Depth source of the included points: {'fallback_wall': 4, 'fallback_wall_none': 1, 'pixel_plane': 1096}.
+
+
+## laurens_gsv (held out of every pooled row; #151)
+
+Labeler parser at `29dc605bd64bc7b50b78ec25bfdaa45dcfc6169d`; the same checkout reproduced every committed row of ['bend', 'paterson', 'gainesville', 'sao_paulo'] byte for byte before these rows were added. No depth-frame scale was measured for this city, so there is no depth × scale column.
+
+Inventory: 86 panos, {'measured': 60, 'synthetic_ground': 26}, sha256 verified 86, index.csv sha256 3e11306de0882173c3c723a62a496df17dc4e298d531a48f8c23539b7a738a2d; camera height median / min / max 2.409 / 1.990 / 2.492 m.
+
+Issue check (operational detections, flat @ 2.6 m vs depth): 77 detections on 45 panos, ratio of medians 1.0475, median per-detection ratio 1.0809, after height only 0.9859.
+
+
+### laurens_gsv: recall by distance
+
+| bucket | n (flat 2.5 m) | recall (flat 2.5 m) | n (depth) | recall (depth) |
+|---|---:|---:|---:|---:|
+| 0-8 m | 26 | 0.615 | 28 | 0.607 |
+| 8-12 m | 46 | 0.500 | 46 | 0.478 |
+| 12-18 m | 31 | 0.581 | 37 | 0.622 |
+| 18-25 m | 25 | 0.560 | 22 | 0.455 |
+| 25-40 m | 20 | 0.100 | 18 | 0.056 |
+| 40 m+ | 3 | 0.000 |  |  |
+| all | 151 | 0.483 | 151 | 0.483 |
+
+### laurens_gsv: recall by apparent size
+
+| bucket | n (flat 2.5 m) | recall (flat 2.5 m) | n (depth) | recall (depth) |
+|---|---:|---:|---:|---:|
+| 12-20 px | 3 | 0.000 |  |  |
+| 20-32 px | 21 | 0.095 | 19 | 0.053 |
+| 32-50 px | 29 | 0.483 | 33 | 0.455 |
+| 50-80 px | 56 | 0.571 | 52 | 0.596 |
+| 80 px+ | 42 | 0.595 | 47 | 0.553 |
+| all | 151 | 0.483 | 151 | 0.483 |
+
+### laurens_gsv: precision by distance (measured panos, TP+FP)
+
+| bucket | n (flat 2.5 m) | precision (flat 2.5 m) | n (depth) | precision (depth) |
+|---|---:|---:|---:|---:|
+| 0-8 m | 16 | 1.000 | 17 | 1.000 |
+| 8-12 m | 24 | 0.958 | 23 | 0.957 |
+| 12-18 m | 21 | 0.857 | 26 | 0.885 |
+| 18-25 m | 14 | 1.000 | 10 | 1.000 |
+| 25-40 m | 2 | 1.000 | 1 | 1.000 |
+| all | 77 | 0.948 | 77 | 0.948 |
+
+Excluded from the depth axis (non-measured ground): 69 GT points, recall on the flat axis 0.565 vs 0.483 for the included. Depth source of the included points: {'pixel_plane': 151}.
 

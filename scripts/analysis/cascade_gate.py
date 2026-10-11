@@ -95,6 +95,7 @@ from detectors import build_detector                                   # noqa: E
 from complementarity import (                                          # noqa: E402
     CELLS, cell_of, compare_args, floor_gap_warning, load_floor_peaks, model_spec,
     partition_cells)
+from operating_point_curve import UnreviewedCache                      # noqa: E402
 from silent_activation import (                                        # noqa: E402
     NULL_SEED, NULL_TRIALS, class_of, nearest_peak, null_percentile, seam_of,
     site_profile)
@@ -237,6 +238,22 @@ def summarize(rows, cell):
     return out
 
 
+def floor_peaks_or_fallback(split):
+    """``(peaks, source label, have_op_cache)`` for a split's floor peaks.
+
+    A missing or unreadable op_cache falls back to the bundle records, labelled
+    MISSING. An unreviewed cache (``UnreviewedCache``, a ``ValueError``) is re-raised
+    first: it exists but its GT is a placeholder, and falling back would hide that
+    behind a "MISSING" label (PR #234 re-review, N1)."""
+    try:
+        return load_floor_peaks(split), "op_cache", True
+    except UnreviewedCache:
+        raise
+    except (OSError, ValueError, KeyError):
+        return {}, ("MISSING (fell back to bundle records -- distances are to the "
+                    "shipped operating point, not the 0.05 floor)"), False
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0],
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -281,13 +298,8 @@ def main(argv=None):
 
     # Floor peaks (>= 0.05). Used for the sub-threshold probe always, and to
     # DEFINE rampnet's hits when --rampnet-op-threshold is given.
-    floor_peaks, floor_src, have_op_cache = {}, "op_cache", True
-    try:
-        floor_peaks = load_floor_peaks(args.split)
-    except (OSError, ValueError, KeyError):
-        have_op_cache = False
-        floor_src = ("MISSING (fell back to bundle records -- distances are to the "
-                     "shipped operating point, not the 0.05 floor)")
+    floor_peaks, floor_src, have_op_cache = floor_peaks_or_fallback(args.split)
+    if not have_op_cache:
         if args.rampnet_op_threshold is not None:
             sys.exit("--rampnet-op-threshold needs analysis_out/op_cache/"
                      f"{args.split}.json, which could not be read.")

@@ -1,0 +1,27 @@
+{
+ "arm": "ncc",
+ "config": {
+  "min_score": 0.5,
+  "template_px": 64,
+  "window_px": 200
+ },
+ "description": "range-scaled NCC template search within +-200 px of the projection",
+ "elapsed_s": 5.5815,
+ "fallback": 72,
+ "gpu_visible": "NVIDIA GeForce RTX 3070",
+ "host": "jonfhome",
+ "missing_inputs": 0,
+ "needs": [
+  "views"
+ ],
+ "pairs": 300,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "ts": "2026-09-29T00:25:33Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "kornia": "0.8.3",
+  "numpy": "2.5.1",
+  "python": "3.12.10",
+  "torch": "2.6.0+cu126"
+ }
+}

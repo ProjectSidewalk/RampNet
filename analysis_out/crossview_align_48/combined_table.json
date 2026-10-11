@@ -1,0 +1,5845 @@
+{
+ "config": {
+  "aligned": "the family docs' definition: the pairs the arm did not fall back on only",
+  "ci": "2.5-97.5 percentile, ramps resampled",
+  "else_auto": "the same, but a fallback is scored as proj_height_auto's point: one common rule for every arm",
+  "gain": "median per-pair (proj_height_auto error - arm error), deg, over all pairs of the stratum; a fallback is scored as the 2.6 m projection",
+  "n_boot": 2000,
+  "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+  "richmond_only": [
+   "flat_gs",
+   "flat_mvs",
+   "flat_sfm",
+   "mlypano_sfm",
+   "noflat_sfm"
+  ],
+  "seed": 48
+ },
+ "gsv_ci_clear_vs_auto": {
+  "mapa_k_pair": {
+   "ci": [
+    0.1225,
+    0.7738
+   ],
+   "gain_vs_auto": 0.3348
+  },
+  "mapa_posed_corner": {
+   "ci": [
+    0.231,
+    0.8439
+   ],
+   "gain_vs_auto": 0.5087
+  },
+  "mapa_posed_pair": {
+   "ci": [
+    0.2817,
+    0.9245
+   ],
+   "gain_vs_auto": 0.6328
+  },
+  "mapa_posed_poseonly": {
+   "ci": [
+    0.018,
+    0.0882
+   ],
+   "gain_vs_auto": 0.0492
+  },
+  "sem_chamfer_auto": {
+   "ci": [
+    0.0186,
+    0.5617
+   ],
+   "gain_vs_auto": 0.3383
+  }
+ },
+ "multiplicity": {
+  "all": {
+   "dust3r_pair": {
+    "bonferroni_lower": -0.0529,
+    "gain_vs_auto": 0.4682,
+    "share_resamples_le_0": 0.0021,
+    "survives": false
+   },
+   "mapa_k_corner": {
+    "bonferroni_lower": -0.0714,
+    "gain_vs_auto": 0.5656,
+    "share_resamples_le_0": 0.0016,
+    "survives": false
+   },
+   "mapa_k_pair": {
+    "bonferroni_lower": 0.1346,
+    "gain_vs_auto": 0.7199,
+    "share_resamples_le_0": 0.0001,
+    "survives": true
+   },
+   "mapa_posed_corner": {
+    "bonferroni_lower": 0.1566,
+    "gain_vs_auto": 0.6053,
+    "share_resamples_le_0": 0.0,
+    "survives": true
+   },
+   "mapa_posed_depthonly": {
+    "bonferroni_lower": -0.0386,
+    "gain_vs_auto": 0.3759,
+    "share_resamples_le_0": 0.0129,
+    "survives": false
+   },
+   "mapa_posed_pair": {
+    "bonferroni_lower": 0.2705,
+    "gain_vs_auto": 0.723,
+    "share_resamples_le_0": 0.0,
+    "survives": true
+   },
+   "mapa_posed_poseonly": {
+    "bonferroni_lower": 0.0212,
+    "gain_vs_auto": 0.0714,
+    "share_resamples_le_0": 0.0,
+    "survives": true
+   },
+   "mast3r_pair": {
+    "bonferroni_lower": -0.167,
+    "gain_vs_auto": 0.4487,
+    "share_resamples_le_0": 0.014,
+    "survives": false
+   },
+   "mono_da3_hcal": {
+    "bonferroni_lower": -0.2433,
+    "gain_vs_auto": 0.1587,
+    "share_resamples_le_0": 0.0679,
+    "survives": false
+   },
+   "mono_da3_plane": {
+    "bonferroni_lower": -0.4571,
+    "gain_vs_auto": 0.1009,
+    "share_resamples_le_0": 0.2203,
+    "survives": false
+   },
+   "mono_da3_plane_hcal": {
+    "bonferroni_lower": -0.2765,
+    "gain_vs_auto": 0.0918,
+    "share_resamples_le_0": 0.1618,
+    "survives": false
+   },
+   "mono_da3_point": {
+    "bonferroni_lower": -0.4303,
+    "gain_vs_auto": 0.0715,
+    "share_resamples_le_0": 0.2217,
+    "survives": false
+   },
+   "mono_unidepth_plane": {
+    "bonferroni_lower": -0.3927,
+    "gain_vs_auto": 0.2872,
+    "share_resamples_le_0": 0.0541,
+    "survives": false
+   },
+   "mono_unidepth_point": {
+    "bonferroni_lower": -0.4462,
+    "gain_vs_auto": 0.1833,
+    "share_resamples_le_0": 0.1432,
+    "survives": false
+   },
+   "mv3d_consensus": {
+    "bonferroni_lower": -0.3023,
+    "gain_vs_auto": 0.3242,
+    "share_resamples_le_0": 0.0642,
+    "survives": false
+   },
+   "roma": {
+    "bonferroni_lower": -0.5912,
+    "gain_vs_auto": 0.0332,
+    "share_resamples_le_0": 0.3403,
+    "survives": false
+   },
+   "roma_epi": {
+    "bonferroni_lower": -0.0153,
+    "gain_vs_auto": 0.0242,
+    "share_resamples_le_0": 0.0175,
+    "survives": false
+   },
+   "roma_local": {
+    "bonferroni_lower": -0.3241,
+    "gain_vs_auto": 0.2988,
+    "share_resamples_le_0": 0.0432,
+    "survives": false
+   },
+   "roma_magsac": {
+    "bonferroni_lower": -0.7464,
+    "gain_vs_auto": 0.0907,
+    "share_resamples_le_0": 0.3045,
+    "survives": false
+   },
+   "roma_warp": {
+    "bonferroni_lower": -0.1666,
+    "gain_vs_auto": 0.1212,
+    "share_resamples_le_0": 0.0857,
+    "survives": false
+   },
+   "sem_chamfer": {
+    "bonferroni_lower": -0.3848,
+    "gain_vs_auto": 0.0739,
+    "share_resamples_le_0": 0.3423,
+    "survives": false
+   },
+   "sem_chamfer_auto": {
+    "bonferroni_lower": -0.0119,
+    "gain_vs_auto": 0.4203,
+    "share_resamples_le_0": 0.0009,
+    "survives": false
+   },
+   "sem_chamfer_curb": {
+    "bonferroni_lower": -0.6342,
+    "gain_vs_auto": 0.0586,
+    "share_resamples_le_0": 0.3331,
+    "survives": false
+   },
+   "vggt_corner": {
+    "bonferroni_lower": -0.4323,
+    "gain_vs_auto": 0.2635,
+    "share_resamples_le_0": 0.058,
+    "survives": false
+   },
+   "vggt_pair": {
+    "bonferroni_lower": -0.4711,
+    "gain_vs_auto": 0.4069,
+    "share_resamples_le_0": 0.0254,
+    "survives": false
+   }
+  },
+  "all_survivors": [
+   "mapa_k_pair",
+   "mapa_posed_corner",
+   "mapa_posed_pair",
+   "mapa_posed_poseonly"
+  ],
+  "config": {
+   "alpha": 0.05,
+   "correction": "Bonferroni over n_arms",
+   "n_arms": 83,
+   "n_boot": 20000,
+   "percentile": 0.0602,
+   "resample": "ramps with replacement, one draw shared by all arms",
+   "seed": 48,
+   "sided": "one (gain > 0)"
+  },
+  "gsv": {
+   "dust3r_pair": {
+    "bonferroni_lower": -0.3033,
+    "gain_vs_auto": 0.2416,
+    "share_resamples_le_0": 0.0795,
+    "survives": false
+   },
+   "mapa_k_corner": {
+    "bonferroni_lower": -0.3495,
+    "gain_vs_auto": 0.2738,
+    "share_resamples_le_0": 0.0673,
+    "survives": false
+   },
+   "mapa_k_pair": {
+    "bonferroni_lower": -0.1264,
+    "gain_vs_auto": 0.3348,
+    "share_resamples_le_0": 0.004,
+    "survives": false
+   },
+   "mapa_posed_corner": {
+    "bonferroni_lower": 0.0779,
+    "gain_vs_auto": 0.5087,
+    "share_resamples_le_0": 0.0001,
+    "survives": true
+   },
+   "mapa_posed_depthonly": {
+    "bonferroni_lower": -0.1445,
+    "gain_vs_auto": 0.3759,
+    "share_resamples_le_0": 0.0593,
+    "survives": false
+   },
+   "mapa_posed_pair": {
+    "bonferroni_lower": 0.1589,
+    "gain_vs_auto": 0.6328,
+    "share_resamples_le_0": 0.0,
+    "survives": true
+   },
+   "mapa_posed_poseonly": {
+    "bonferroni_lower": -0.0069,
+    "gain_vs_auto": 0.0492,
+    "share_resamples_le_0": 0.0017,
+    "survives": false
+   },
+   "mast3r_pair": {
+    "bonferroni_lower": -0.5681,
+    "gain_vs_auto": 0.1249,
+    "share_resamples_le_0": 0.2401,
+    "survives": false
+   },
+   "mono_da3_hcal": {
+    "bonferroni_lower": -0.4793,
+    "gain_vs_auto": 0.0753,
+    "share_resamples_le_0": 0.293,
+    "survives": false
+   },
+   "mono_da3_plane_hcal": {
+    "bonferroni_lower": -0.4824,
+    "gain_vs_auto": 0.0005,
+    "share_resamples_le_0": 0.4626,
+    "survives": false
+   },
+   "mono_unidepth_plane": {
+    "bonferroni_lower": -0.7951,
+    "gain_vs_auto": 0.0826,
+    "share_resamples_le_0": 0.3679,
+    "survives": false
+   },
+   "mv3d_consensus": {
+    "bonferroni_lower": -0.789,
+    "gain_vs_auto": 0.0121,
+    "share_resamples_le_0": 0.4885,
+    "survives": false
+   },
+   "roma_epi": {
+    "bonferroni_lower": -0.1079,
+    "gain_vs_auto": 0.0036,
+    "share_resamples_le_0": 0.3916,
+    "survives": false
+   },
+   "roma_warp": {
+    "bonferroni_lower": -0.6118,
+    "gain_vs_auto": 0.0313,
+    "share_resamples_le_0": 0.4464,
+    "survives": false
+   },
+   "sem_chamfer_auto": {
+    "bonferroni_lower": -0.1147,
+    "gain_vs_auto": 0.3383,
+    "share_resamples_le_0": 0.0107,
+    "survives": false
+   },
+   "vggt_pair": {
+    "bonferroni_lower": -0.9608,
+    "gain_vs_auto": 0.1042,
+    "share_resamples_le_0": 0.2919,
+    "survives": false
+   }
+  },
+  "gsv_survivors": [
+   "mapa_posed_corner",
+   "mapa_posed_pair"
+  ]
+ },
+ "rows": [
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": -0.0004,
+     "gain_vs_auto_ci": [
+      -0.433,
+      0.0
+     ],
+     "gain_vs_projection": 0.0,
+     "gain_vs_projection_ci": [
+      0.0,
+      0.0
+     ],
+     "harm_share": 0.2833,
+     "help_share": 0.1,
+     "median_ci": [
+      4.525,
+      6.56
+     ],
+     "median_deg": 5.6229,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.19
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -0.0004,
+    "gain_vs_auto_ci": [
+     -0.433,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.525,
+     6.56
+    ],
+    "median_deg": 5.6229,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.19
+   },
+   "arm": "projection",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.0004,
+     "gain_vs_auto_ci": [
+      -0.433,
+      0.0
+     ],
+     "median_ci": [
+      4.525,
+      6.56
+     ],
+     "median_deg": 5.6229
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.6749,
+     "gain_vs_auto_ci": [
+      -1.199,
+      -0.25
+     ],
+     "median_ci": [
+      4.525,
+      7.033
+     ],
+     "median_deg": 6.0939
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.868,
+      5.574
+     ],
+     "median_deg": 4.5636
+    }
+   },
+   "family": "baseline",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": -0.6749,
+     "gain_vs_auto_ci": [
+      -1.199,
+      -0.25
+     ],
+     "gain_vs_projection": 0.0,
+     "gain_vs_projection_ci": [
+      0.0,
+      0.0
+     ],
+     "harm_share": 0.3542,
+     "help_share": 0.125,
+     "median_ci": [
+      4.525,
+      7.033
+     ],
+     "median_deg": 6.0939,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.2125
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -0.6749,
+    "gain_vs_auto_ci": [
+     -1.199,
+     -0.25
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.525,
+     7.033
+    ],
+    "median_deg": 6.0939,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2125
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.0,
+     "gain_vs_projection_ci": [
+      0.0,
+      0.0
+     ],
+     "harm_share": 0.0,
+     "help_share": 0.0,
+     "median_ci": [
+      3.868,
+      5.574
+     ],
+     "median_deg": 4.5636,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.1
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.868,
+     5.574
+    ],
+    "median_deg": 4.5636,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "today's 2.6 m flat-ground projection"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.0004,
+     "gain_vs_projection_ci": [
+      0.0,
+      0.433
+     ],
+     "harm_share": 0.0,
+     "help_share": 0.0,
+     "median_ci": [
+      3.664,
+      4.557
+     ],
+     "median_deg": 4.0565,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.24
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.0004,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.433
+    ],
+    "median_ci": [
+     3.664,
+     4.557
+    ],
+    "median_deg": 4.0565,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.24
+   },
+   "arm": "proj_height_auto",
+   "family": "baseline",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.6749,
+     "gain_vs_projection_ci": [
+      0.25,
+      1.199
+     ],
+     "harm_share": 0.0,
+     "help_share": 0.0,
+     "median_ci": [
+      3.531,
+      4.359
+     ],
+     "median_deg": 3.9151,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.275
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.6749,
+    "gain_vs_projection_ci": [
+     0.25,
+     1.199
+    ],
+    "median_ci": [
+     3.531,
+     4.359
+    ],
+    "median_deg": 3.9151,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.275
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.0,
+     "gain_vs_projection_ci": [
+      0.0,
+      0.0
+     ],
+     "harm_share": 0.0,
+     "help_share": 0.0,
+     "median_ci": [
+      3.868,
+      5.574
+     ],
+     "median_deg": 4.5636,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.1
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.868,
+     5.574
+    ],
+    "median_deg": 4.5636,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "labeler 'auto' per-rig camera height"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": -0.8432,
+     "gain_vs_auto_ci": [
+      -1.256,
+      -0.359
+     ],
+     "gain_vs_projection": -0.5123,
+     "gain_vs_projection_ci": [
+      -1.135,
+      0.285
+     ],
+     "harm_share": 0.3167,
+     "help_share": 0.1292,
+     "median_ci": [
+      4.549,
+      5.888
+     ],
+     "median_deg": 4.9572,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.1375
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.2,
+    "gain_vs_auto": -0.1281,
+    "gain_vs_auto_ci": [
+     -0.682,
+     -0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     -0.193,
+     0.0
+    ],
+    "median_ci": [
+     4.5,
+     5.648
+    ],
+    "median_deg": 4.8178,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.13
+   },
+   "arm": "proj_gsv_depth",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.2,
+     "gain_vs_auto": -0.1281,
+     "gain_vs_auto_ci": [
+      -0.682,
+      0.0
+     ],
+     "median_ci": [
+      4.5,
+      5.648
+     ],
+     "median_deg": 4.8178
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.8432,
+     "gain_vs_auto_ci": [
+      -1.256,
+      -0.359
+     ],
+     "median_ci": [
+      4.549,
+      5.888
+     ],
+     "median_deg": 4.9572
+    },
+    "mapillary": {
+     "auto_prior_share": 1.0,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.868,
+      5.574
+     ],
+     "median_deg": 4.5636
+    }
+   },
+   "family": "geometry (pilot)",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": -0.8432,
+     "gain_vs_auto_ci": [
+      -1.256,
+      -0.359
+     ],
+     "gain_vs_projection": -0.5123,
+     "gain_vs_projection_ci": [
+      -1.135,
+      0.285
+     ],
+     "harm_share": 0.3167,
+     "help_share": 0.1292,
+     "median_ci": [
+      4.549,
+      5.888
+     ],
+     "median_deg": 4.9572,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.1375
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -0.8432,
+    "gain_vs_auto_ci": [
+     -1.256,
+     -0.359
+    ],
+    "gain_vs_projection": -0.5123,
+    "gain_vs_projection_ci": [
+     -1.135,
+     0.285
+    ],
+    "median_ci": [
+     4.549,
+     5.888
+    ],
+    "median_deg": 4.9572,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.1375
+   },
+   "mapillary": {
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 1.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.868,
+     5.574
+    ],
+    "median_deg": 4.5636,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "negative"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 2.9934,
+     "auto_within_2deg": 0.2921,
+     "gain_vs_auto": 0.4486,
+     "gain_vs_auto_ci": [
+      -0.264,
+      0.926
+     ],
+     "gain_vs_projection": 0.8804,
+     "gain_vs_projection_ci": [
+      0.346,
+      2.125
+     ],
+     "harm_share": 0.2809,
+     "help_share": 0.3146,
+     "median_ci": [
+      1.914,
+      2.872
+     ],
+     "median_deg": 2.4124,
+     "n": 89,
+     "projection_median_deg": 4.3967,
+     "within_2deg": 0.4045
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.7033,
+    "gain_vs_auto": -0.0006,
+    "gain_vs_auto_ci": [
+     -0.436,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.51,
+     6.007
+    ],
+    "median_deg": 4.7893,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2467
+   },
+   "arm": "lg",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.7033,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.418,
+      4.306
+     ],
+     "median_deg": 3.7858
+    },
+    "gsv": {
+     "auto_prior_share": 0.7583,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.567,
+      4.566
+     ],
+     "median_deg": 3.9966
+    },
+    "mapillary": {
+     "auto_prior_share": 0.4833,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.474
+     ],
+     "median_ci": [
+      2.388,
+      4.335
+     ],
+     "median_deg": 3.0541
+    }
+   },
+   "family": "matching (pilot)",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.3956,
+     "auto_within_2deg": 0.3966,
+     "gain_vs_auto": -0.1465,
+     "gain_vs_auto_ci": [
+      -0.979,
+      0.449
+     ],
+     "gain_vs_projection": 0.4673,
+     "gain_vs_projection_ci": [
+      0.009,
+      1.647
+     ],
+     "harm_share": 0.3276,
+     "help_share": 0.1897,
+     "median_ci": [
+      2.061,
+      3.7
+     ],
+     "median_deg": 2.6363,
+     "n": 58,
+     "projection_median_deg": 4.297,
+     "within_2deg": 0.3621
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.7583,
+    "gain_vs_auto": -0.5222,
+    "gain_vs_auto_ci": [
+     -1.199,
+     -0.111
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.152,
+     6.685
+    ],
+    "median_deg": 5.9141,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2333
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5445,
+     "auto_within_2deg": 0.0968,
+     "gain_vs_auto": 2.2508,
+     "gain_vs_auto_ci": [
+      0.88,
+      3.635
+     ],
+     "gain_vs_projection": 2.2506,
+     "gain_vs_projection_ci": [
+      0.88,
+      3.635
+     ],
+     "harm_share": 0.1935,
+     "help_share": 0.5484,
+     "median_ci": [
+      1.189,
+      2.443
+     ],
+     "median_deg": 2.1036,
+     "n": 31,
+     "projection_median_deg": 4.5445,
+     "within_2deg": 0.4839
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.4833,
+    "gain_vs_auto": 0.0003,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.474
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.474
+    ],
+    "median_ci": [
+     2.388,
+     4.334
+    ],
+    "median_deg": 3.0541,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3
+   },
+   "post_hoc": true,
+   "post_hoc_why": "5 deg ground band chosen after the 0.5 deg band's failures",
+   "richmond_only": false,
+   "role": "ALIKED+LightGlue homography; 5 deg ground band post hoc"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0544,
+     "auto_within_2deg": 0.2424,
+     "gain_vs_auto": 0.4303,
+     "gain_vs_auto_ci": [
+      0.148,
+      0.711
+     ],
+     "gain_vs_projection": 0.8526,
+     "gain_vs_projection_ci": [
+      0.589,
+      1.568
+     ],
+     "harm_share": 0.1178,
+     "help_share": 0.2458,
+     "median_ci": [
+      2.927,
+      4.027
+     ],
+     "median_deg": 3.277,
+     "n": 297,
+     "projection_median_deg": 5.5718,
+     "within_2deg": 0.2559
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.01,
+    "gain_vs_auto": 0.4203,
+    "gain_vs_auto_ci": [
+     0.145,
+     0.711
+    ],
+    "gain_vs_projection": 0.8482,
+    "gain_vs_projection_ci": [
+     0.537,
+     1.497
+    ],
+    "median_ci": [
+     2.95,
+     4.105
+    ],
+    "median_deg": 3.3017,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2533
+   },
+   "arm": "sem_chamfer_auto",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.01,
+     "gain_vs_auto": 0.4028,
+     "gain_vs_auto_ci": [
+      0.137,
+      0.705
+     ],
+     "median_ci": [
+      2.95,
+      4.048
+     ],
+     "median_deg": 3.3017
+    },
+    "gsv": {
+     "auto_prior_share": 0.0125,
+     "gain_vs_auto": 0.3201,
+     "gain_vs_auto_ci": [
+      0.015,
+      0.539
+     ],
+     "median_ci": [
+      2.813,
+      3.95
+     ],
+     "median_deg": 3.2259
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.7482,
+     "gain_vs_auto_ci": [
+      0.383,
+      1.684
+     ],
+     "median_ci": [
+      2.731,
+      4.239
+     ],
+     "median_deg": 3.8371
+    }
+   },
+   "family": "semantic",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.903,
+     "auto_within_2deg": 0.2785,
+     "gain_vs_auto": 0.3442,
+     "gain_vs_auto_ci": [
+      0.035,
+      0.575
+     ],
+     "gain_vs_projection": 1.1193,
+     "gain_vs_projection_ci": [
+      0.528,
+      1.873
+     ],
+     "harm_share": 0.135,
+     "help_share": 0.2363,
+     "median_ci": [
+      2.705,
+      3.821
+     ],
+     "median_deg": 3.18,
+     "n": 237,
+     "projection_median_deg": 6.0398,
+     "within_2deg": 0.2658
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0125,
+    "gain_vs_auto": 0.3383,
+    "gain_vs_auto_ci": [
+     0.019,
+     0.562
+    ],
+    "gain_vs_projection": 0.9553,
+    "gain_vs_projection_ci": [
+     0.507,
+     1.772
+    ],
+    "median_ci": [
+     2.813,
+     4.117
+    ],
+    "median_deg": 3.2259,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2625
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.7482,
+     "gain_vs_auto_ci": [
+      0.383,
+      1.684
+     ],
+     "gain_vs_projection": 0.7482,
+     "gain_vs_projection_ci": [
+      0.383,
+      1.684
+     ],
+     "harm_share": 0.05,
+     "help_share": 0.2833,
+     "median_ci": [
+      2.731,
+      4.239
+     ],
+     "median_deg": 3.8371,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.2167
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.7482,
+    "gain_vs_auto_ci": [
+     0.383,
+     1.684
+    ],
+    "gain_vs_projection": 0.7482,
+    "gain_vs_projection_ci": [
+     0.383,
+     1.684
+    ],
+    "median_ci": [
+     2.731,
+     4.239
+    ],
+    "median_deg": 3.8371,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.2167
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "best of family"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0586,
+     "auto_within_2deg": 0.2422,
+     "gain_vs_auto": -0.4627,
+     "gain_vs_auto_ci": [
+      -0.738,
+      -0.12
+     ],
+     "gain_vs_projection": 0.1785,
+     "gain_vs_projection_ci": [
+      -0.157,
+      0.385
+     ],
+     "harm_share": 0.3287,
+     "help_share": 0.1765,
+     "median_ci": [
+      4.264,
+      5.951
+     ],
+     "median_deg": 4.8908,
+     "n": 289,
+     "projection_median_deg": 5.5718,
+     "within_2deg": 0.1834
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0367,
+    "gain_vs_auto": -0.45,
+    "gain_vs_auto_ci": [
+     -0.737,
+     -0.131
+    ],
+    "gain_vs_projection": 0.0843,
+    "gain_vs_projection_ci": [
+     -0.054,
+     0.31
+    ],
+    "median_ci": [
+     4.281,
+     6.044
+    ],
+    "median_deg": 4.9155,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.18
+   },
+   "arm": "lsd_chamfer",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0367,
+     "gain_vs_auto": -0.2979,
+     "gain_vs_auto_ci": [
+      -0.69,
+      -0.008
+     ],
+     "median_ci": [
+      4.264,
+      5.952
+     ],
+     "median_deg": 4.8832
+    },
+    "gsv": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": -0.6325,
+     "gain_vs_auto_ci": [
+      -1.207,
+      -0.241
+     ],
+     "median_ci": [
+      4.357,
+      6.663
+     ],
+     "median_deg": 5.1003
+    },
+    "mapillary": {
+     "auto_prior_share": 0.05,
+     "gain_vs_auto": 0.3112,
+     "gain_vs_auto_ci": [
+      0.0,
+      1.098
+     ],
+     "median_ci": [
+      2.932,
+      5.44
+     ],
+     "median_deg": 3.7069
+    }
+   },
+   "family": "semantic",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.2759,
+     "gain_vs_auto": -0.6925,
+     "gain_vs_auto_ci": [
+      -1.459,
+      -0.318
+     ],
+     "gain_vs_projection": 0.0068,
+     "gain_vs_projection_ci": [
+      -0.382,
+      0.335
+     ],
+     "harm_share": 0.3793,
+     "help_share": 0.1638,
+     "median_ci": [
+      4.357,
+      6.534
+     ],
+     "median_deg": 5.1003,
+     "n": 232,
+     "projection_median_deg": 6.0131,
+     "within_2deg": 0.1853
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0333,
+    "gain_vs_auto": -0.7002,
+    "gain_vs_auto_ci": [
+     -1.511,
+     -0.318
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     -0.323,
+     0.272
+    ],
+    "median_ci": [
+     4.376,
+     6.694
+    ],
+    "median_deg": 5.3148,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.1833
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5701,
+     "auto_within_2deg": 0.1053,
+     "gain_vs_auto": 0.3536,
+     "gain_vs_auto_ci": [
+      0.107,
+      1.107
+     ],
+     "gain_vs_projection": 0.3534,
+     "gain_vs_projection_ci": [
+      0.108,
+      1.107
+     ],
+     "harm_share": 0.1228,
+     "help_share": 0.2281,
+     "median_ci": [
+      2.934,
+      5.695
+     ],
+     "median_deg": 3.7089,
+     "n": 57,
+     "projection_median_deg": 4.5701,
+     "within_2deg": 0.1754
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.05,
+    "gain_vs_auto": 0.3112,
+    "gain_vs_auto_ci": [
+     0.0,
+     1.098
+    ],
+    "gain_vs_projection": 0.3112,
+    "gain_vs_projection_ci": [
+     0.0,
+     1.099
+    ],
+    "median_ci": [
+     2.932,
+     5.44
+    ],
+    "median_deg": 3.7069,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1667
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "negative: raw line segments"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.9598,
+     "auto_within_2deg": 0.25,
+     "gain_vs_auto": -0.0837,
+     "gain_vs_auto_ci": [
+      -0.271,
+      0.188
+     ],
+     "gain_vs_projection": 0.4383,
+     "gain_vs_projection_ci": [
+      0.103,
+      0.927
+     ],
+     "harm_share": 0.1937,
+     "help_share": 0.2007,
+     "median_ci": [
+      3.353,
+      4.068
+     ],
+     "median_deg": 3.7765,
+     "n": 284,
+     "projection_median_deg": 5.5555,
+     "within_2deg": 0.2148
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0533,
+    "gain_vs_auto": -0.0004,
+    "gain_vs_auto_ci": [
+     -0.233,
+     0.163
+    ],
+    "gain_vs_projection": 0.2231,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.627
+    ],
+    "median_ci": [
+     3.437,
+     4.361
+    ],
+    "median_deg": 3.826,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.21
+   },
+   "arm": "sem_snap_auto",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0533,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      -0.216,
+      0.087
+     ],
+     "median_ci": [
+      3.458,
+      4.361
+     ],
+     "median_deg": 3.8187
+    },
+    "gsv": {
+     "auto_prior_share": 0.0458,
+     "gain_vs_auto": -0.1405,
+     "gain_vs_auto_ci": [
+      -0.379,
+      0.0
+     ],
+     "median_ci": [
+      3.458,
+      4.408
+     ],
+     "median_deg": 3.8552
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0833,
+     "gain_vs_auto": 0.1475,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.449
+     ],
+     "median_ci": [
+      2.918,
+      5.244
+     ],
+     "median_deg": 3.5992
+    }
+   },
+   "family": "semantic",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.7867,
+     "auto_within_2deg": 0.2838,
+     "gain_vs_auto": -0.2226,
+     "gain_vs_auto_ci": [
+      -0.414,
+      0.096
+     ],
+     "gain_vs_projection": 0.5477,
+     "gain_vs_projection_ci": [
+      0.071,
+      1.377
+     ],
+     "harm_share": 0.2052,
+     "help_share": 0.1965,
+     "median_ci": [
+      3.419,
+      4.341
+     ],
+     "median_deg": 3.8294,
+     "n": 229,
+     "projection_median_deg": 6.148,
+     "within_2deg": 0.2314
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0458,
+    "gain_vs_auto": -0.1816,
+    "gain_vs_auto_ci": [
+     -0.399,
+     0.122
+    ],
+    "gain_vs_projection": 0.3676,
+    "gain_vs_projection_ci": [
+     0.0,
+     1.015
+    ],
+    "median_ci": [
+     3.445,
+     4.408
+    ],
+    "median_deg": 3.8552,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2292
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.2585,
+     "auto_within_2deg": 0.1091,
+     "gain_vs_auto": 0.2008,
+     "gain_vs_auto_ci": [
+      -0.016,
+      0.732
+     ],
+     "gain_vs_projection": 0.2006,
+     "gain_vs_projection_ci": [
+      -0.016,
+      0.732
+     ],
+     "harm_share": 0.1455,
+     "help_share": 0.2182,
+     "median_ci": [
+      2.722,
+      4.559
+     ],
+     "median_deg": 3.3295,
+     "n": 55,
+     "projection_median_deg": 4.2585,
+     "within_2deg": 0.1455
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0833,
+    "gain_vs_auto": 0.1475,
+    "gain_vs_auto_ci": [
+     -0.0,
+     0.449
+    ],
+    "gain_vs_projection": 0.1474,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.449
+    ],
+    "median_ci": [
+     2.918,
+     5.244
+    ],
+    "median_deg": 3.5992,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1333
+   },
+   "post_hoc": true,
+   "post_hoc_why": "added after the first semantic arms were scored",
+   "richmond_only": false,
+   "role": "negative: snap to curb"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0544,
+     "auto_within_2deg": 0.2366,
+     "gain_vs_auto": 0.1208,
+     "gain_vs_auto_ci": [
+      -0.188,
+      0.485
+     ],
+     "gain_vs_projection": 0.8865,
+     "gain_vs_projection_ci": [
+      0.392,
+      1.601
+     ],
+     "harm_share": 0.2939,
+     "help_share": 0.276,
+     "median_ci": [
+      2.722,
+      4.557
+     ],
+     "median_deg": 3.509,
+     "n": 279,
+     "projection_median_deg": 5.5718,
+     "within_2deg": 0.3369
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.07,
+    "gain_vs_auto": 0.0332,
+    "gain_vs_auto_ci": [
+     -0.222,
+     0.431
+    ],
+    "gain_vs_projection": 0.5335,
+    "gain_vs_projection_ci": [
+     0.001,
+     1.102
+    ],
+    "median_ci": [
+     2.925,
+     4.695
+    ],
+    "median_deg": 3.5148,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3233
+   },
+   "arm": "roma",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.07,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      -0.071,
+      0.256
+     ],
+     "median_ci": [
+      2.924,
+      4.624
+     ],
+     "median_deg": 3.5416
+    },
+    "gsv": {
+     "auto_prior_share": 0.0792,
+     "gain_vs_auto": -0.0281,
+     "gain_vs_auto_ci": [
+      -0.416,
+      0.0
+     ],
+     "median_ci": [
+      3.233,
+      5.681
+     ],
+     "median_deg": 4.1766
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": 1.7515,
+     "gain_vs_auto_ci": [
+      0.826,
+      2.772
+     ],
+     "median_ci": [
+      2.158,
+      3.38
+     ],
+     "median_deg": 2.5824
+    }
+   },
+   "family": "matching",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.7867,
+     "auto_within_2deg": 0.276,
+     "gain_vs_auto": -0.1391,
+     "gain_vs_auto_ci": [
+      -0.969,
+      0.112
+     ],
+     "gain_vs_projection": 0.5057,
+     "gain_vs_projection_ci": [
+      -0.066,
+      1.316
+     ],
+     "harm_share": 0.3348,
+     "help_share": 0.2217,
+     "median_ci": [
+      3.197,
+      5.753
+     ],
+     "median_deg": 4.1895,
+     "n": 221,
+     "projection_median_deg": 6.0398,
+     "within_2deg": 0.3348
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0792,
+    "gain_vs_auto": -0.193,
+    "gain_vs_auto_ci": [
+     -0.906,
+     0.121
+    ],
+    "gain_vs_projection": 0.1014,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.887
+    ],
+    "median_ci": [
+     3.261,
+     5.79
+    ],
+    "median_deg": 4.4072,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3167
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5917,
+     "auto_within_2deg": 0.0862,
+     "gain_vs_auto": 1.9209,
+     "gain_vs_auto_ci": [
+      0.967,
+      2.788
+     ],
+     "gain_vs_projection": 1.9209,
+     "gain_vs_projection_ci": [
+      0.967,
+      2.788
+     ],
+     "harm_share": 0.1379,
+     "help_share": 0.4828,
+     "median_ci": [
+      2.158,
+      3.383
+     ],
+     "median_deg": 2.5824,
+     "n": 58,
+     "projection_median_deg": 4.5915,
+     "within_2deg": 0.3448
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0333,
+    "gain_vs_auto": 1.7515,
+    "gain_vs_auto_ci": [
+     0.826,
+     2.772
+    ],
+    "gain_vs_projection": 1.7515,
+    "gain_vs_projection_ci": [
+     0.826,
+     2.772
+    ],
+    "median_ci": [
+     2.158,
+     3.38
+    ],
+    "median_deg": 2.5824,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.35
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "RoMa + ground homography"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0319,
+     "auto_within_2deg": 0.2403,
+     "gain_vs_auto": 0.3368,
+     "gain_vs_auto_ci": [
+      -0.03,
+      0.674
+     ],
+     "gain_vs_projection": 0.9856,
+     "gain_vs_projection_ci": [
+      0.396,
+      1.699
+     ],
+     "harm_share": 0.2721,
+     "help_share": 0.318,
+     "median_ci": [
+      2.693,
+      4.064
+     ],
+     "median_deg": 3.2274,
+     "n": 283,
+     "projection_median_deg": 5.5718,
+     "within_2deg": 0.3251
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0567,
+    "gain_vs_auto": 0.2988,
+    "gain_vs_auto_ci": [
+     -0.096,
+     0.659
+    ],
+    "gain_vs_projection": 0.738,
+    "gain_vs_projection_ci": [
+     0.169,
+     1.452
+    ],
+    "median_ci": [
+     2.916,
+     4.21
+    ],
+    "median_deg": 3.2904,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3133
+   },
+   "arm": "roma_local",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0567,
+     "gain_vs_auto": 0.2135,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.468
+     ],
+     "median_ci": [
+      2.873,
+      4.149
+     ],
+     "median_deg": 3.2904
+    },
+    "gsv": {
+     "auto_prior_share": 0.0625,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      -0.242,
+      0.219
+     ],
+     "median_ci": [
+      3.195,
+      4.958
+     ],
+     "median_deg": 3.9761
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": 1.8682,
+     "gain_vs_auto_ci": [
+      0.976,
+      2.884
+     ],
+     "median_ci": [
+      1.832,
+      2.944
+     ],
+     "median_deg": 2.3682
+    }
+   },
+   "family": "matching",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.785,
+     "auto_within_2deg": 0.28,
+     "gain_vs_auto": 0.0176,
+     "gain_vs_auto_ci": [
+      -0.388,
+      0.337
+     ],
+     "gain_vs_projection": 0.6768,
+     "gain_vs_projection_ci": [
+      -0.011,
+      1.532
+     ],
+     "harm_share": 0.3111,
+     "help_share": 0.2667,
+     "median_ci": [
+      3.046,
+      4.958
+     ],
+     "median_deg": 3.8946,
+     "n": 225,
+     "projection_median_deg": 6.0188,
+     "within_2deg": 0.3067
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0625,
+    "gain_vs_auto": -0.0734,
+    "gain_vs_auto_ci": [
+     -0.478,
+     0.337
+    ],
+    "gain_vs_projection": 0.3534,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.986
+    ],
+    "median_ci": [
+     3.192,
+     5.184
+    ],
+    "median_deg": 4.0553,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2917
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5917,
+     "auto_within_2deg": 0.0862,
+     "gain_vs_auto": 2.1848,
+     "gain_vs_auto_ci": [
+      1.097,
+      3.034
+     ],
+     "gain_vs_projection": 2.1848,
+     "gain_vs_projection_ci": [
+      1.097,
+      3.034
+     ],
+     "harm_share": 0.1207,
+     "help_share": 0.5172,
+     "median_ci": [
+      1.832,
+      2.984
+     ],
+     "median_deg": 2.3682,
+     "n": 58,
+     "projection_median_deg": 4.5915,
+     "within_2deg": 0.3966
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0333,
+    "gain_vs_auto": 1.8682,
+    "gain_vs_auto_ci": [
+     0.976,
+     2.884
+    ],
+    "gain_vs_projection": 1.868,
+    "gain_vs_projection_ci": [
+     0.976,
+     2.884
+    ],
+    "median_ci": [
+     1.832,
+     2.944
+    ],
+    "median_deg": 2.3682,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.4
+   },
+   "post_hoc": true,
+   "post_hoc_why": "added after `roma` was scored and did not beat auto on GSV",
+   "richmond_only": false,
+   "role": "best Mapillary matcher"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.4774,
+     "auto_within_2deg": 0.2931,
+     "gain_vs_auto": 0.5821,
+     "gain_vs_auto_ci": [
+      0.35,
+      1.209
+     ],
+     "gain_vs_projection": 1.3738,
+     "gain_vs_projection_ci": [
+      0.75,
+      2.741
+     ],
+     "harm_share": 0.1667,
+     "help_share": 0.3391,
+     "median_ci": [
+      1.698,
+      2.515
+     ],
+     "median_deg": 2.1093,
+     "n": 174,
+     "projection_median_deg": 4.4081,
+     "within_2deg": 0.477
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.42,
+    "gain_vs_auto": 0.1212,
+    "gain_vs_auto_ci": [
+     -0.0,
+     0.537
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     2.732,
+     4.433
+    ],
+    "median_deg": 3.2478,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.34
+   },
+   "arm": "roma_warp",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.42,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.749,
+      3.931
+     ],
+     "median_deg": 3.1101
+    },
+    "gsv": {
+     "auto_prior_share": 0.4542,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.816,
+      4.284
+     ],
+     "median_deg": 3.578
+    },
+    "mapillary": {
+     "auto_prior_share": 0.2833,
+     "gain_vs_auto": 1.222,
+     "gain_vs_auto_ci": [
+      0.0,
+      2.741
+     ],
+     "median_ci": [
+      1.708,
+      3.327
+     ],
+     "median_deg": 2.584
+    }
+   },
+   "family": "matching",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.9681,
+     "auto_within_2deg": 0.3588,
+     "gain_vs_auto": 0.3742,
+     "gain_vs_auto_ci": [
+      -0.034,
+      0.568
+     ],
+     "gain_vs_projection": 0.7944,
+     "gain_vs_projection_ci": [
+      0.297,
+      2.045
+     ],
+     "harm_share": 0.1908,
+     "help_share": 0.2443,
+     "median_ci": [
+      1.854,
+      2.79
+     ],
+     "median_deg": 2.1745,
+     "n": 131,
+     "projection_median_deg": 4.1973,
+     "within_2deg": 0.458
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.4542,
+    "gain_vs_auto": 0.0313,
+    "gain_vs_auto_ci": [
+     -0.365,
+     0.429
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     2.79,
+     5.701
+    ],
+    "median_deg": 3.9924,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3208
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.557,
+     "auto_within_2deg": 0.093,
+     "gain_vs_auto": 2.8519,
+     "gain_vs_auto_ci": [
+      1.438,
+      3.498
+     ],
+     "gain_vs_projection": 2.8522,
+     "gain_vs_projection_ci": [
+      1.438,
+      3.497
+     ],
+     "harm_share": 0.093,
+     "help_share": 0.6279,
+     "median_ci": [
+      1.269,
+      2.72
+     ],
+     "median_deg": 1.8791,
+     "n": 43,
+     "projection_median_deg": 4.557,
+     "within_2deg": 0.5349
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.2833,
+    "gain_vs_auto": 1.222,
+    "gain_vs_auto_ci": [
+     0.0,
+     2.741
+    ],
+    "gain_vs_projection": 1.2219,
+    "gain_vs_projection_ci": [
+     0.0,
+     2.741
+    ],
+    "median_ci": [
+     1.707,
+     3.327
+    ],
+    "median_deg": 2.5842,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.4167
+   },
+   "post_hoc": true,
+   "post_hoc_why": "added after `roma` was scored and did not beat auto on GSV",
+   "richmond_only": false,
+   "role": "RoMa dense warp read at the GT point"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.919,
+     "gain_vs_projection_ci": [
+      0.442,
+      1.74
+     ],
+     "harm_share": 0.0967,
+     "help_share": 0.1967,
+     "median_ci": [
+      2.749,
+      3.931
+     ],
+     "median_deg": 3.1101,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.3467
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.919,
+    "gain_vs_projection_ci": [
+     0.442,
+     1.74
+    ],
+    "median_ci": [
+     2.749,
+     3.931
+    ],
+    "median_deg": 3.1101,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3467
+   },
+   "arm": "roma_warp_hyb",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.42,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.749,
+      3.931
+     ],
+     "median_deg": 3.1101
+    },
+    "gsv": {
+     "auto_prior_share": 0.4542,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.816,
+      4.284
+     ],
+     "median_deg": 3.578
+    },
+    "mapillary": {
+     "auto_prior_share": 0.2833,
+     "gain_vs_auto": 1.222,
+     "gain_vs_auto_ci": [
+      0.0,
+      2.741
+     ],
+     "median_ci": [
+      1.708,
+      3.327
+     ],
+     "median_deg": 2.584
+    }
+   },
+   "family": "matching",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.8432,
+     "gain_vs_projection_ci": [
+      0.297,
+      1.877
+     ],
+     "harm_share": 0.1042,
+     "help_share": 0.1333,
+     "median_ci": [
+      2.816,
+      4.284
+     ],
+     "median_deg": 3.578,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.3292
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.8432,
+    "gain_vs_projection_ci": [
+     0.297,
+     1.877
+    ],
+    "median_ci": [
+     2.816,
+     4.284
+    ],
+    "median_deg": 3.578,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3292
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 1.222,
+     "gain_vs_auto_ci": [
+      0.0,
+      2.741
+     ],
+     "gain_vs_projection": 1.2219,
+     "gain_vs_projection_ci": [
+      0.0,
+      2.741
+     ],
+     "harm_share": 0.0667,
+     "help_share": 0.45,
+     "median_ci": [
+      1.708,
+      3.327
+     ],
+     "median_deg": 2.584,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.4167
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 1.222,
+    "gain_vs_auto_ci": [
+     0.0,
+     2.741
+    ],
+    "gain_vs_projection": 1.2219,
+    "gain_vs_projection_ci": [
+     0.0,
+     2.741
+    ],
+    "median_ci": [
+     1.708,
+     3.327
+    ],
+    "median_deg": 2.584,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.4167
+   },
+   "post_hoc": true,
+   "post_hoc_why": "added after `roma` was scored and did not beat auto on GSV",
+   "richmond_only": false,
+   "role": "RoMa dense warp, else auto"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 2.8993,
+     "auto_within_2deg": 0.3462,
+     "gain_vs_auto": 0.1465,
+     "gain_vs_auto_ci": [
+      -0.211,
+      0.938
+     ],
+     "gain_vs_projection": 0.437,
+     "gain_vs_projection_ci": [
+      -0.035,
+      1.732
+     ],
+     "harm_share": 0.2308,
+     "help_share": 0.2692,
+     "median_ci": [
+      1.878,
+      3.155
+     ],
+     "median_deg": 2.5621,
+     "n": 78,
+     "projection_median_deg": 4.2279,
+     "within_2deg": 0.3974
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.74,
+    "gain_vs_auto": -0.0674,
+    "gain_vs_auto_ci": [
+     -0.459,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.809,
+     6.18
+    ],
+    "median_deg": 4.9808,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2267
+   },
+   "arm": "sp_lg",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.74,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.548,
+      4.284
+     ],
+     "median_deg": 3.7858
+    },
+    "gsv": {
+     "auto_prior_share": 0.8,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.586,
+      4.581
+     ],
+     "median_deg": 4.0625
+    },
+    "mapillary": {
+     "auto_prior_share": 0.5,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.859,
+      3.919
+     ],
+     "median_deg": 3.4081
+    }
+   },
+   "family": "matching",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 1.9915,
+     "auto_within_2deg": 0.5,
+     "gain_vs_auto": -0.2064,
+     "gain_vs_auto_ci": [
+      -0.768,
+      0.104
+     ],
+     "gain_vs_projection": -0.0038,
+     "gain_vs_projection_ci": [
+      -0.461,
+      0.461
+     ],
+     "harm_share": 0.2917,
+     "help_share": 0.1042,
+     "median_ci": [
+      1.923,
+      3.934
+     ],
+     "median_deg": 2.6738,
+     "n": 48,
+     "projection_median_deg": 3.1828,
+     "within_2deg": 0.375
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.8,
+    "gain_vs_auto": -0.6233,
+    "gain_vs_auto_ci": [
+     -1.199,
+     -0.221
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.55,
+     6.909
+    ],
+    "median_deg": 6.0169,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2167
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.6724,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 3.539,
+     "gain_vs_auto_ci": [
+      0.712,
+      4.485
+     ],
+     "gain_vs_projection": 3.539,
+     "gain_vs_projection_ci": [
+      0.712,
+      4.484
+     ],
+     "harm_share": 0.1333,
+     "help_share": 0.5333,
+     "median_ci": [
+      1.247,
+      3.337
+     ],
+     "median_deg": 2.3217,
+     "n": 30,
+     "projection_median_deg": 4.6722,
+     "within_2deg": 0.4333
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.5,
+    "gain_vs_auto": 0.0002,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.001
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     2.859,
+     3.919
+    ],
+    "median_deg": 3.4081,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.2667
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "negative: SuperPoint+LightGlue"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.578,
+     "auto_within_2deg": 0.2381,
+     "gain_vs_auto": -2.6978,
+     "gain_vs_auto_ci": [
+      -5.046,
+      -0.189
+     ],
+     "gain_vs_projection": -1.3422,
+     "gain_vs_projection_ci": [
+      -4.972,
+      0.167
+     ],
+     "harm_share": 0.5476,
+     "help_share": 0.1905,
+     "median_ci": [
+      3.849,
+      10.267
+     ],
+     "median_deg": 6.2992,
+     "n": 42,
+     "projection_median_deg": 4.2279,
+     "within_2deg": 0.1429
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.86,
+    "gain_vs_auto": -0.3284,
+    "gain_vs_auto_ci": [
+     -0.794,
+     -0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.978,
+     6.958
+    ],
+    "median_deg": 6.0293,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.1833
+   },
+   "arm": "loftr",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.86,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.787,
+      5.137
+     ],
+     "median_deg": 4.2812
+    },
+    "gsv": {
+     "auto_prior_share": 0.9167,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.71,
+      5.126
+     ],
+     "median_deg": 4.219
+    },
+    "mapillary": {
+     "auto_prior_share": 0.6333,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.501,
+      5.872
+     ],
+     "median_deg": 4.6548
+    }
+   },
+   "family": "matching",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.3956,
+     "auto_within_2deg": 0.35,
+     "gain_vs_auto": -4.512,
+     "gain_vs_auto_ci": [
+      -11.905,
+      -2.595
+     ],
+     "gain_vs_projection": -4.3431,
+     "gain_vs_projection_ci": [
+      -12.755,
+      -0.743
+     ],
+     "harm_share": 0.75,
+     "help_share": 0.0,
+     "median_ci": [
+      6.621,
+      18.941
+     ],
+     "median_deg": 10.8004,
+     "n": 20,
+     "projection_median_deg": 4.4219,
+     "within_2deg": 0.05
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.9167,
+    "gain_vs_auto": -0.7946,
+    "gain_vs_auto_ci": [
+     -1.628,
+     -0.348
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     5.348,
+     7.671
+    ],
+    "median_deg": 6.5266,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.1958
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 3.9202,
+     "auto_within_2deg": 0.1364,
+     "gain_vs_auto": -0.2697,
+     "gain_vs_auto_ci": [
+      -4.741,
+      3.206
+     ],
+     "gain_vs_projection": -0.2697,
+     "gain_vs_projection_ci": [
+      -4.741,
+      3.206
+     ],
+     "harm_share": 0.3636,
+     "help_share": 0.3636,
+     "median_ci": [
+      2.623,
+      6.958
+     ],
+     "median_deg": 3.6594,
+     "n": 22,
+     "projection_median_deg": 3.9202,
+     "within_2deg": 0.2273
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.6333,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     -0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.501,
+     5.872
+    ],
+    "median_deg": 4.6545,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1333
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "negative"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.1911,
+     "auto_within_2deg": 0.223,
+     "gain_vs_auto": 0.2199,
+     "gain_vs_auto_ci": [
+      -0.035,
+      0.607
+     ],
+     "gain_vs_projection": 0.8425,
+     "gain_vs_projection_ci": [
+      0.264,
+      1.368
+     ],
+     "harm_share": 0.223,
+     "help_share": 0.2379,
+     "median_ci": [
+      3.249,
+      4.602
+     ],
+     "median_deg": 4.0386,
+     "n": 269,
+     "projection_median_deg": 6.0074,
+     "within_2deg": 0.223
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.1033,
+    "gain_vs_auto": 0.1587,
+    "gain_vs_auto_ci": [
+     -0.03,
+     0.465
+    ],
+    "gain_vs_projection": 0.3048,
+    "gain_vs_projection_ci": [
+     0.001,
+     1.03
+    ],
+    "median_ci": [
+     3.236,
+     4.566
+    ],
+    "median_deg": 3.7483,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2433
+   },
+   "arm": "mono_da3_hcal",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.1033,
+     "gain_vs_auto": 0.0304,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.292
+     ],
+     "median_ci": [
+      3.243,
+      4.547
+     ],
+     "median_deg": 3.7483
+    },
+    "gsv": {
+     "auto_prior_share": 0.1083,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.179
+     ],
+     "median_ci": [
+      3.149,
+      4.556
+     ],
+     "median_deg": 3.6633
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0833,
+     "gain_vs_auto": 0.3949,
+     "gain_vs_auto_ci": [
+      0.002,
+      1.037
+     ],
+     "median_ci": [
+      3.244,
+      5.227
+     ],
+     "median_deg": 4.1857
+    }
+   },
+   "family": "depth",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 4.0738,
+     "auto_within_2deg": 0.2664,
+     "gain_vs_auto": 0.0886,
+     "gain_vs_auto_ci": [
+      -0.246,
+      0.484
+     ],
+     "gain_vs_projection": 1.0454,
+     "gain_vs_projection_ci": [
+      0.146,
+      1.818
+     ],
+     "harm_share": 0.2383,
+     "help_share": 0.2477,
+     "median_ci": [
+      3.158,
+      4.65
+     ],
+     "median_deg": 3.8436,
+     "n": 214,
+     "projection_median_deg": 6.4731,
+     "within_2deg": 0.2383
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.1083,
+    "gain_vs_auto": 0.0753,
+    "gain_vs_auto_ci": [
+     -0.249,
+     0.396
+    ],
+    "gain_vs_projection": 0.3012,
+    "gain_vs_projection_ci": [
+     0.0,
+     1.356
+    ],
+    "median_ci": [
+     3.084,
+     4.565
+    ],
+    "median_deg": 3.5757,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2542
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5701,
+     "auto_within_2deg": 0.0545,
+     "gain_vs_auto": 0.6157,
+     "gain_vs_auto_ci": [
+      0.138,
+      1.115
+     ],
+     "gain_vs_projection": 0.6157,
+     "gain_vs_projection_ci": [
+      0.139,
+      1.115
+     ],
+     "harm_share": 0.1636,
+     "help_share": 0.2,
+     "median_ci": [
+      3.255,
+      5.293
+     ],
+     "median_deg": 4.1937,
+     "n": 55,
+     "projection_median_deg": 4.5701,
+     "within_2deg": 0.1636
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0833,
+    "gain_vs_auto": 0.3949,
+    "gain_vs_auto_ci": [
+     0.002,
+     1.037
+    ],
+    "gain_vs_projection": 0.3948,
+    "gain_vs_projection_ci": [
+     0.002,
+     1.037
+    ],
+    "median_ci": [
+     3.244,
+     5.227
+    ],
+    "median_deg": 4.1857,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.2
+   },
+   "post_hoc": true,
+   "post_hoc_why": "picked for this table from 17 depth arms scored on these pairs",
+   "richmond_only": false,
+   "role": "best GSV depth arm (picked from 17)"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.1833,
+     "gain_vs_auto_ci": [
+      -0.151,
+      0.475
+     ],
+     "gain_vs_projection": 0.5416,
+     "gain_vs_projection_ci": [
+      0.322,
+      1.037
+     ],
+     "harm_share": 0.27,
+     "help_share": 0.23,
+     "median_ci": [
+      3.481,
+      4.728
+     ],
+     "median_deg": 4.0443,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.2133
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.1833,
+    "gain_vs_auto_ci": [
+     -0.151,
+     0.475
+    ],
+    "gain_vs_projection": 0.5416,
+    "gain_vs_projection_ci": [
+     0.322,
+     1.037
+    ],
+    "median_ci": [
+     3.481,
+     4.728
+    ],
+    "median_deg": 4.0443,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2133
+   },
+   "arm": "mono_unidepth_point",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.1833,
+     "gain_vs_auto_ci": [
+      -0.151,
+      0.475
+     ],
+     "median_ci": [
+      3.481,
+      4.728
+     ],
+     "median_deg": 4.0443
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.0148,
+     "gain_vs_auto_ci": [
+      -0.459,
+      0.369
+     ],
+     "median_ci": [
+      3.593,
+      4.978
+     ],
+     "median_deg": 4.1778
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.8585,
+     "gain_vs_auto_ci": [
+      0.471,
+      1.309
+     ],
+     "median_ci": [
+      2.715,
+      4.557
+     ],
+     "median_deg": 3.4411
+    }
+   },
+   "family": "depth",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": -0.0148,
+     "gain_vs_auto_ci": [
+      -0.459,
+      0.369
+     ],
+     "gain_vs_projection": 0.4803,
+     "gain_vs_projection_ci": [
+      0.1,
+      1.062
+     ],
+     "harm_share": 0.2958,
+     "help_share": 0.225,
+     "median_ci": [
+      3.593,
+      4.978
+     ],
+     "median_deg": 4.1778,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.2042
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -0.0148,
+    "gain_vs_auto_ci": [
+     -0.459,
+     0.369
+    ],
+    "gain_vs_projection": 0.4803,
+    "gain_vs_projection_ci": [
+     0.1,
+     1.062
+    ],
+    "median_ci": [
+     3.593,
+     4.978
+    ],
+    "median_deg": 4.1778,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2042
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.8585,
+     "gain_vs_auto_ci": [
+      0.471,
+      1.309
+     ],
+     "gain_vs_projection": 0.8587,
+     "gain_vs_projection_ci": [
+      0.471,
+      1.309
+     ],
+     "harm_share": 0.1667,
+     "help_share": 0.25,
+     "median_ci": [
+      2.715,
+      4.557
+     ],
+     "median_deg": 3.4411,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.25
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.8585,
+    "gain_vs_auto_ci": [
+     0.471,
+     1.309
+    ],
+    "gain_vs_projection": 0.8587,
+    "gain_vs_projection_ci": [
+     0.471,
+     1.309
+    ],
+    "median_ci": [
+     2.715,
+     4.557
+    ],
+    "median_deg": 3.4411,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.25
+   },
+   "post_hoc": true,
+   "post_hoc_why": "picked for this table from 17 depth arms scored on these pairs",
+   "richmond_only": false,
+   "role": "best Mapillary depth arm (picked from 17)"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": -14.4279,
+     "gain_vs_auto_ci": [
+      -16.763,
+      -12.716
+     ],
+     "gain_vs_projection": -13.212,
+     "gain_vs_projection_ci": [
+      -15.132,
+      -11.309
+     ],
+     "harm_share": 0.93,
+     "help_share": 0.0,
+     "median_ci": [
+      17.569,
+      22.507
+     ],
+     "median_deg": 19.2323,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.0067
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -14.4279,
+    "gain_vs_auto_ci": [
+     -16.763,
+     -12.716
+    ],
+    "gain_vs_projection": -13.212,
+    "gain_vs_projection_ci": [
+     -15.132,
+     -11.309
+    ],
+    "median_ci": [
+     17.569,
+     22.507
+    ],
+    "median_deg": 19.2323,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.0067
+   },
+   "arm": "mono_depthpro_point",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -14.4279,
+     "gain_vs_auto_ci": [
+      -16.763,
+      -12.716
+     ],
+     "median_ci": [
+      17.569,
+      22.507
+     ],
+     "median_deg": 19.2323
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -15.3906,
+     "gain_vs_auto_ci": [
+      -18.544,
+      -13.245
+     ],
+     "median_ci": [
+      18.648,
+      24.658
+     ],
+     "median_deg": 20.8099
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -10.7815,
+     "gain_vs_auto_ci": [
+      -14.7,
+      -8.443
+     ],
+     "median_ci": [
+      13.873,
+      19.501
+     ],
+     "median_deg": 16.5504
+    }
+   },
+   "family": "depth",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": -15.3906,
+     "gain_vs_auto_ci": [
+      -18.544,
+      -13.245
+     ],
+     "gain_vs_projection": -13.988,
+     "gain_vs_projection_ci": [
+      -17.054,
+      -11.821
+     ],
+     "harm_share": 0.9292,
+     "help_share": 0.0,
+     "median_ci": [
+      18.648,
+      24.658
+     ],
+     "median_deg": 20.8099,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.0083
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -15.3906,
+    "gain_vs_auto_ci": [
+     -18.544,
+     -13.245
+    ],
+    "gain_vs_projection": -13.988,
+    "gain_vs_projection_ci": [
+     -17.054,
+     -11.821
+    ],
+    "median_ci": [
+     18.648,
+     24.658
+    ],
+    "median_deg": 20.8099,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.0083
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": -10.7815,
+     "gain_vs_auto_ci": [
+      -14.7,
+      -8.443
+     ],
+     "gain_vs_projection": -10.7817,
+     "gain_vs_projection_ci": [
+      -14.7,
+      -8.443
+     ],
+     "harm_share": 0.9333,
+     "help_share": 0.0,
+     "median_ci": [
+      13.873,
+      19.501
+     ],
+     "median_deg": 16.5504,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.0
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -10.7815,
+    "gain_vs_auto_ci": [
+     -14.7,
+     -8.443
+    ],
+    "gain_vs_projection": -10.7817,
+    "gain_vs_projection_ci": [
+     -14.7,
+     -8.443
+    ],
+    "median_ci": [
+     13.873,
+     19.501
+    ],
+    "median_deg": 16.5504,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.0
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "negative"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.723,
+     "gain_vs_auto_ci": [
+      0.416,
+      1.014
+     ],
+     "gain_vs_projection": 1.3509,
+     "gain_vs_projection_ci": [
+      0.835,
+      2.364
+     ],
+     "harm_share": 0.1133,
+     "help_share": 0.32,
+     "median_ci": [
+      2.49,
+      3.07
+     ],
+     "median_deg": 2.8018,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.3233
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.723,
+    "gain_vs_auto_ci": [
+     0.416,
+     1.014
+    ],
+    "gain_vs_projection": 1.3509,
+    "gain_vs_projection_ci": [
+     0.835,
+     2.364
+    ],
+    "median_ci": [
+     2.49,
+     3.07
+    ],
+    "median_deg": 2.8018,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3233
+   },
+   "arm": "mapa_posed_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.723,
+     "gain_vs_auto_ci": [
+      0.416,
+      1.014
+     ],
+     "median_ci": [
+      2.49,
+      3.07
+     ],
+     "median_deg": 2.8018
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.6328,
+     "gain_vs_auto_ci": [
+      0.282,
+      0.925
+     ],
+     "median_ci": [
+      2.579,
+      3.392
+     ],
+     "median_deg": 2.8532
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.7325,
+     "gain_vs_auto_ci": [
+      0.83,
+      2.768
+     ],
+     "median_ci": [
+      1.891,
+      3.008
+     ],
+     "median_deg": 2.2648
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.6328,
+     "gain_vs_auto_ci": [
+      0.282,
+      0.925
+     ],
+     "gain_vs_projection": 1.2876,
+     "gain_vs_projection_ci": [
+      0.688,
+      2.6
+     ],
+     "harm_share": 0.1167,
+     "help_share": 0.2875,
+     "median_ci": [
+      2.579,
+      3.392
+     ],
+     "median_deg": 2.8532,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.3083
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.6328,
+    "gain_vs_auto_ci": [
+     0.282,
+     0.925
+    ],
+    "gain_vs_projection": 1.2876,
+    "gain_vs_projection_ci": [
+     0.688,
+     2.6
+    ],
+    "median_ci": [
+     2.579,
+     3.392
+    ],
+    "median_deg": 2.8532,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3083
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 1.7325,
+     "gain_vs_auto_ci": [
+      0.83,
+      2.768
+     ],
+     "gain_vs_projection": 1.7324,
+     "gain_vs_projection_ci": [
+      0.83,
+      2.768
+     ],
+     "harm_share": 0.1,
+     "help_share": 0.45,
+     "median_ci": [
+      1.891,
+      3.008
+     ],
+     "median_deg": 2.2648,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.3833
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 1.7325,
+    "gain_vs_auto_ci": [
+     0.83,
+     2.768
+    ],
+    "gain_vs_projection": 1.7324,
+    "gain_vs_projection_ci": [
+     0.83,
+     2.768
+    ],
+    "median_ci": [
+     1.891,
+     3.008
+    ],
+    "median_deg": 2.2648,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3833
+   },
+   "post_hoc": true,
+   "post_hoc_why": "registered in 0428bb7, after mapa_posed_corner's 300-pair result was seen; no pilot",
+   "richmond_only": false,
+   "role": "best of family (post hoc: needs the fresh-pair re-test)"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.6053,
+     "gain_vs_auto_ci": [
+      0.358,
+      0.883
+     ],
+     "gain_vs_projection": 1.4209,
+     "gain_vs_projection_ci": [
+      0.665,
+      2.256
+     ],
+     "harm_share": 0.1267,
+     "help_share": 0.3067,
+     "median_ci": [
+      2.561,
+      3.307
+     ],
+     "median_deg": 2.8596,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.35
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.6053,
+    "gain_vs_auto_ci": [
+     0.358,
+     0.883
+    ],
+    "gain_vs_projection": 1.4209,
+    "gain_vs_projection_ci": [
+     0.665,
+     2.256
+    ],
+    "median_ci": [
+     2.561,
+     3.307
+    ],
+    "median_deg": 2.8596,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.35
+   },
+   "arm": "mapa_posed_corner",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.6053,
+     "gain_vs_auto_ci": [
+      0.358,
+      0.883
+     ],
+     "median_ci": [
+      2.561,
+      3.307
+     ],
+     "median_deg": 2.8596
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.5087,
+     "gain_vs_auto_ci": [
+      0.231,
+      0.844
+     ],
+     "median_ci": [
+      2.575,
+      3.392
+     ],
+     "median_deg": 3.0035
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.9386,
+     "gain_vs_auto_ci": [
+      0.424,
+      2.438
+     ],
+     "median_ci": [
+      1.946,
+      3.715
+     ],
+     "median_deg": 2.6802
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.5087,
+     "gain_vs_auto_ci": [
+      0.231,
+      0.844
+     ],
+     "gain_vs_projection": 1.4551,
+     "gain_vs_projection_ci": [
+      0.623,
+      2.565
+     ],
+     "harm_share": 0.125,
+     "help_share": 0.2792,
+     "median_ci": [
+      2.575,
+      3.392
+     ],
+     "median_deg": 3.0035,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.3417
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.5087,
+    "gain_vs_auto_ci": [
+     0.231,
+     0.844
+    ],
+    "gain_vs_projection": 1.4551,
+    "gain_vs_projection_ci": [
+     0.623,
+     2.565
+    ],
+    "median_ci": [
+     2.575,
+     3.392
+    ],
+    "median_deg": 3.0035,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3417
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.9386,
+     "gain_vs_auto_ci": [
+      0.424,
+      2.438
+     ],
+     "gain_vs_projection": 0.9384,
+     "gain_vs_projection_ci": [
+      0.424,
+      2.438
+     ],
+     "harm_share": 0.1333,
+     "help_share": 0.4167,
+     "median_ci": [
+      1.946,
+      3.715
+     ],
+     "median_deg": 2.6802,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.3833
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.9386,
+    "gain_vs_auto_ci": [
+     0.424,
+     2.438
+    ],
+    "gain_vs_projection": 0.9384,
+    "gain_vs_projection_ci": [
+     0.424,
+     2.438
+    ],
+    "median_ci": [
+     1.946,
+     3.715
+    ],
+    "median_deg": 2.6802,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3833
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "with pose priors, up to 12 corner views"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0544,
+     "auto_within_2deg": 0.2424,
+     "gain_vs_auto": 0.7295,
+     "gain_vs_auto_ci": [
+      0.302,
+      1.087
+     ],
+     "gain_vs_projection": 1.236,
+     "gain_vs_projection_ci": [
+      0.86,
+      2.532
+     ],
+     "harm_share": 0.1785,
+     "help_share": 0.3535,
+     "median_ci": [
+      2.417,
+      3.562
+     ],
+     "median_deg": 2.9616,
+     "n": 297,
+     "projection_median_deg": 5.5718,
+     "within_2deg": 0.3401
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.01,
+    "gain_vs_auto": 0.7199,
+    "gain_vs_auto_ci": [
+     0.285,
+     1.073
+    ],
+    "gain_vs_projection": 1.1909,
+    "gain_vs_projection_ci": [
+     0.796,
+     2.227
+    ],
+    "median_ci": [
+     2.418,
+     3.665
+    ],
+    "median_deg": 2.9865,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3367
+   },
+   "arm": "mapa_k_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.01,
+     "gain_vs_auto": 0.7199,
+     "gain_vs_auto_ci": [
+      0.257,
+      1.073
+     ],
+     "median_ci": [
+      2.426,
+      3.665
+     ],
+     "median_deg": 2.9865
+    },
+    "gsv": {
+     "auto_prior_share": 0.0125,
+     "gain_vs_auto": 0.3348,
+     "gain_vs_auto_ci": [
+      0.097,
+      0.774
+     ],
+     "median_ci": [
+      2.614,
+      3.961
+     ],
+     "median_deg": 3.2783
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 2.5958,
+     "gain_vs_auto_ci": [
+      1.087,
+      3.228
+     ],
+     "median_ci": [
+      1.471,
+      2.903
+     ],
+     "median_deg": 2.1587
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.903,
+     "auto_within_2deg": 0.2785,
+     "gain_vs_auto": 0.3517,
+     "gain_vs_auto_ci": [
+      0.132,
+      0.774
+     ],
+     "gain_vs_projection": 0.9535,
+     "gain_vs_projection_ci": [
+      0.519,
+      2.094
+     ],
+     "harm_share": 0.1983,
+     "help_share": 0.3038,
+     "median_ci": [
+      2.578,
+      3.945
+     ],
+     "median_deg": 3.2644,
+     "n": 237,
+     "projection_median_deg": 6.0398,
+     "within_2deg": 0.3122
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0125,
+    "gain_vs_auto": 0.3348,
+    "gain_vs_auto_ci": [
+     0.122,
+     0.774
+    ],
+    "gain_vs_projection": 0.9271,
+    "gain_vs_projection_ci": [
+     0.483,
+     1.679
+    ],
+    "median_ci": [
+     2.614,
+     3.961
+    ],
+    "median_deg": 3.2783,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3083
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 2.5958,
+     "gain_vs_auto_ci": [
+      1.087,
+      3.228
+     ],
+     "gain_vs_projection": 2.5958,
+     "gain_vs_projection_ci": [
+      1.087,
+      3.228
+     ],
+     "harm_share": 0.1,
+     "help_share": 0.55,
+     "median_ci": [
+      1.471,
+      2.903
+     ],
+     "median_deg": 2.1587,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.45
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 2.5958,
+    "gain_vs_auto_ci": [
+     1.087,
+     3.228
+    ],
+    "gain_vs_projection": 2.5958,
+    "gain_vs_projection_ci": [
+     1.087,
+     3.228
+    ],
+    "median_ci": [
+     1.471,
+     2.903
+    ],
+    "median_deg": 2.1587,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.45
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": "no pose priors"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0022,
+     "auto_within_2deg": 0.2463,
+     "gain_vs_auto": 0.5697,
+     "gain_vs_auto_ci": [
+      0.177,
+      1.016
+     ],
+     "gain_vs_projection": 1.1977,
+     "gain_vs_projection_ci": [
+      0.545,
+      2.318
+     ],
+     "harm_share": 0.2127,
+     "help_share": 0.347,
+     "median_ci": [
+      2.441,
+      3.613
+     ],
+     "median_deg": 2.9617,
+     "n": 268,
+     "projection_median_deg": 5.518,
+     "within_2deg": 0.3619
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.1067,
+    "gain_vs_auto": 0.4487,
+    "gain_vs_auto_ci": [
+     0.059,
+     0.745
+    ],
+    "gain_vs_projection": 0.6507,
+    "gain_vs_projection_ci": [
+     0.036,
+     1.395
+    ],
+    "median_ci": [
+     2.662,
+     3.779
+    ],
+    "median_deg": 3.2035,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3367
+   },
+   "arm": "mast3r_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.1067,
+     "gain_vs_auto": 0.3178,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.614
+     ],
+     "median_ci": [
+      2.642,
+      3.754
+     ],
+     "median_deg": 3.0877
+    },
+    "gsv": {
+     "auto_prior_share": 0.125,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.362
+     ],
+     "median_ci": [
+      2.76,
+      4.125
+     ],
+     "median_deg": 3.5957
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": 2.2223,
+     "gain_vs_auto_ci": [
+      1.072,
+      3.063
+     ],
+     "median_ci": [
+      1.571,
+      3.195
+     ],
+     "median_deg": 1.9341
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.7848,
+     "auto_within_2deg": 0.2905,
+     "gain_vs_auto": 0.3321,
+     "gain_vs_auto_ci": [
+      -0.063,
+      0.612
+     ],
+     "gain_vs_projection": 0.7195,
+     "gain_vs_projection_ci": [
+      0.124,
+      2.116
+     ],
+     "harm_share": 0.2381,
+     "help_share": 0.2905,
+     "median_ci": [
+      2.653,
+      4.039
+     ],
+     "median_deg": 3.2439,
+     "n": 210,
+     "projection_median_deg": 6.0293,
+     "within_2deg": 0.3238
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.125,
+    "gain_vs_auto": 0.1249,
+    "gain_vs_auto_ci": [
+     -0.25,
+     0.467
+    ],
+    "gain_vs_projection": 0.1776,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.85
+    ],
+    "median_ci": [
+     2.883,
+     4.287
+    ],
+    "median_deg": 3.6577,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2958
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.0862,
+     "gain_vs_auto": 2.3451,
+     "gain_vs_auto_ci": [
+      1.128,
+      3.331
+     ],
+     "gain_vs_projection": 2.3452,
+     "gain_vs_projection_ci": [
+      1.128,
+      3.331
+     ],
+     "harm_share": 0.1207,
+     "help_share": 0.5517,
+     "median_ci": [
+      1.571,
+      3.195
+     ],
+     "median_deg": 1.9341,
+     "n": 58,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.5
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0333,
+    "gain_vs_auto": 2.2223,
+    "gain_vs_auto_ci": [
+     1.072,
+     3.063
+    ],
+    "gain_vs_projection": 2.2221,
+    "gain_vs_projection_ci": [
+     1.072,
+     3.063
+    ],
+    "median_ci": [
+     1.571,
+     3.195
+    ],
+    "median_deg": 1.9341,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.5
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": ""
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0431,
+     "auto_within_2deg": 0.2381,
+     "gain_vs_auto": 0.4742,
+     "gain_vs_auto_ci": [
+      0.168,
+      0.834
+     ],
+     "gain_vs_projection": 1.3872,
+     "gain_vs_projection_ci": [
+      0.76,
+      2.406
+     ],
+     "harm_share": 0.2007,
+     "help_share": 0.3333,
+     "median_ci": [
+      2.561,
+      3.486
+     ],
+     "median_deg": 3.0663,
+     "n": 294,
+     "projection_median_deg": 5.5667,
+     "within_2deg": 0.3469
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.02,
+    "gain_vs_auto": 0.4682,
+    "gain_vs_auto_ci": [
+     0.161,
+     0.785
+    ],
+    "gain_vs_projection": 1.2958,
+    "gain_vs_projection_ci": [
+     0.628,
+     2.167
+    ],
+    "median_ci": [
+     2.586,
+     3.59
+    ],
+    "median_deg": 3.082,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3433
+   },
+   "arm": "dust3r_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.02,
+     "gain_vs_auto": 0.4359,
+     "gain_vs_auto_ci": [
+      0.12,
+      0.785
+     ],
+     "median_ci": [
+      2.583,
+      3.502
+     ],
+     "median_deg": 3.0727
+    },
+    "gsv": {
+     "auto_prior_share": 0.025,
+     "gain_vs_auto": 0.1722,
+     "gain_vs_auto_ci": [
+      -0.029,
+      0.472
+     ],
+     "median_ci": [
+      2.911,
+      4.021
+     ],
+     "median_deg": 3.2907
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 2.6033,
+     "gain_vs_auto_ci": [
+      1.28,
+      3.069
+     ],
+     "median_ci": [
+      1.555,
+      2.748
+     ],
+     "median_deg": 2.109
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.8448,
+     "auto_within_2deg": 0.2735,
+     "gain_vs_auto": 0.2416,
+     "gain_vs_auto_ci": [
+      -0.064,
+      0.502
+     ],
+     "gain_vs_projection": 1.1232,
+     "gain_vs_projection_ci": [
+      0.308,
+      2.036
+     ],
+     "harm_share": 0.2179,
+     "help_share": 0.2735,
+     "median_ci": [
+      2.799,
+      4.002
+     ],
+     "median_deg": 3.2833,
+     "n": 234,
+     "projection_median_deg": 6.0293,
+     "within_2deg": 0.3162
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.025,
+    "gain_vs_auto": 0.2416,
+    "gain_vs_auto_ci": [
+     -0.069,
+     0.479
+    ],
+    "gain_vs_projection": 0.9798,
+    "gain_vs_projection_ci": [
+     0.153,
+     1.909
+    ],
+    "median_ci": [
+     2.934,
+     4.04
+    ],
+    "median_deg": 3.3006,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3125
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 2.6033,
+     "gain_vs_auto_ci": [
+      1.28,
+      3.069
+     ],
+     "gain_vs_projection": 2.6033,
+     "gain_vs_projection_ci": [
+      1.28,
+      3.069
+     ],
+     "harm_share": 0.1333,
+     "help_share": 0.5667,
+     "median_ci": [
+      1.555,
+      2.748
+     ],
+     "median_deg": 2.109,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.4667
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 2.6033,
+    "gain_vs_auto_ci": [
+     1.28,
+     3.069
+    ],
+    "gain_vs_projection": 2.6033,
+    "gain_vs_projection_ci": [
+     1.28,
+     3.069
+    ],
+    "median_ci": [
+     1.555,
+     2.748
+    ],
+    "median_deg": 2.109,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.4667
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": ""
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0134,
+     "auto_within_2deg": 0.2461,
+     "gain_vs_auto": 0.4069,
+     "gain_vs_auto_ci": [
+      -0.159,
+      0.88
+     ],
+     "gain_vs_projection": 1.0267,
+     "gain_vs_projection_ci": [
+      0.525,
+      1.687
+     ],
+     "harm_share": 0.2852,
+     "help_share": 0.3359,
+     "median_ci": [
+      2.723,
+      4.243
+     ],
+     "median_deg": 3.351,
+     "n": 256,
+     "projection_median_deg": 5.5555,
+     "within_2deg": 0.3242
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.1467,
+    "gain_vs_auto": 0.4069,
+    "gain_vs_auto_ci": [
+     -0.055,
+     0.771
+    ],
+    "gain_vs_projection": 0.4103,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.862
+    ],
+    "median_ci": [
+     2.922,
+     4.732
+    ],
+    "median_deg": 3.5115,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3067
+   },
+   "arm": "vggt_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.1467,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.263
+     ],
+     "median_ci": [
+      3.008,
+      4.291
+     ],
+     "median_deg": 3.6111
+    },
+    "gsv": {
+     "auto_prior_share": 0.1792,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.405,
+      5.16
+     ],
+     "median_deg": 4.1841
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0167,
+     "gain_vs_auto": 1.9733,
+     "gain_vs_auto_ci": [
+      1.297,
+      3.257
+     ],
+     "median_ci": [
+      1.516,
+      2.963
+     ],
+     "median_deg": 2.0615
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.7727,
+     "auto_within_2deg": 0.2944,
+     "gain_vs_auto": 0.0337,
+     "gain_vs_auto_ci": [
+      -0.849,
+      0.409
+     ],
+     "gain_vs_projection": 0.6061,
+     "gain_vs_projection_ci": [
+      0.181,
+      1.301
+     ],
+     "harm_share": 0.3147,
+     "help_share": 0.2843,
+     "median_ci": [
+      3.057,
+      5.261
+     ],
+     "median_deg": 3.9969,
+     "n": 197,
+     "projection_median_deg": 6.0398,
+     "within_2deg": 0.2741
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.1792,
+    "gain_vs_auto": 0.1042,
+    "gain_vs_auto_ci": [
+     -0.553,
+     0.441
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.456
+    ],
+    "median_ci": [
+     3.344,
+     5.674
+    ],
+    "median_deg": 4.4394,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2583
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5701,
+     "auto_within_2deg": 0.0847,
+     "gain_vs_auto": 2.1096,
+     "gain_vs_auto_ci": [
+      1.297,
+      3.342
+     ],
+     "gain_vs_projection": 2.1092,
+     "gain_vs_projection_ci": [
+      1.297,
+      3.342
+     ],
+     "harm_share": 0.1864,
+     "help_share": 0.5085,
+     "median_ci": [
+      1.516,
+      2.964
+     ],
+     "median_deg": 2.1487,
+     "n": 59,
+     "projection_median_deg": 4.5701,
+     "within_2deg": 0.4915
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0167,
+    "gain_vs_auto": 1.9733,
+    "gain_vs_auto_ci": [
+     1.297,
+     3.257
+    ],
+    "gain_vs_projection": 1.9732,
+    "gain_vs_projection_ci": [
+     1.297,
+     3.257
+    ],
+    "median_ci": [
+     1.516,
+     2.963
+    ],
+    "median_deg": 2.0615,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.5
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": false,
+   "role": ""
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.4774,
+     "auto_within_2deg": 0.2965,
+     "gain_vs_auto": 0.8443,
+     "gain_vs_auto_ci": [
+      0.416,
+      1.244
+     ],
+     "gain_vs_projection": 1.2474,
+     "gain_vs_projection_ci": [
+      0.852,
+      2.473
+     ],
+     "harm_share": 0.1047,
+     "help_share": 0.3547,
+     "median_ci": [
+      1.843,
+      2.45
+     ],
+     "median_deg": 2.1096,
+     "n": 172,
+     "projection_median_deg": 4.1915,
+     "within_2deg": 0.4767
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.4267,
+    "gain_vs_auto": 0.3242,
+    "gain_vs_auto_ci": [
+     -0.001,
+     0.636
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     2.691,
+     4.161
+    ],
+    "median_deg": 3.1082,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.33
+   },
+   "arm": "mv3d_consensus",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.4267,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.578,
+      3.721
+     ],
+     "median_deg": 3.026
+    },
+    "gsv": {
+     "auto_prior_share": 0.4958,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.859,
+      4.132
+     ],
+     "median_deg": 3.5397
+    },
+    "mapillary": {
+     "auto_prior_share": 0.15,
+     "gain_vs_auto": 1.7695,
+     "gain_vs_auto_ci": [
+      0.869,
+      2.971
+     ],
+     "median_ci": [
+      1.448,
+      2.822
+     ],
+     "median_deg": 1.9802
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.8312,
+     "auto_within_2deg": 0.3884,
+     "gain_vs_auto": 0.4036,
+     "gain_vs_auto_ci": [
+      0.053,
+      0.676
+     ],
+     "gain_vs_projection": 0.8588,
+     "gain_vs_projection_ci": [
+      0.34,
+      1.793
+     ],
+     "harm_share": 0.124,
+     "help_share": 0.2562,
+     "median_ci": [
+      1.937,
+      2.692
+     ],
+     "median_deg": 2.2591,
+     "n": 121,
+     "projection_median_deg": 4.0056,
+     "within_2deg": 0.4463
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.4958,
+    "gain_vs_auto": 0.0121,
+    "gain_vs_auto_ci": [
+     -0.488,
+     0.413
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     2.947,
+     5.272
+    ],
+    "median_deg": 3.9259,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2875
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5445,
+     "auto_within_2deg": 0.0784,
+     "gain_vs_auto": 2.6111,
+     "gain_vs_auto_ci": [
+      1.244,
+      3.674
+     ],
+     "gain_vs_projection": 2.6108,
+     "gain_vs_projection_ci": [
+      1.243,
+      3.674
+     ],
+     "harm_share": 0.0588,
+     "help_share": 0.5882,
+     "median_ci": [
+      1.359,
+      2.534
+     ],
+     "median_deg": 1.8083,
+     "n": 51,
+     "projection_median_deg": 4.5445,
+     "within_2deg": 0.549
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.15,
+    "gain_vs_auto": 1.7695,
+    "gain_vs_auto_ci": [
+     0.869,
+     2.971
+    ],
+    "gain_vs_projection": 1.7695,
+    "gain_vs_projection_ci": [
+     0.869,
+     2.971
+    ],
+    "median_ci": [
+     1.448,
+     2.821
+    ],
+    "median_deg": 1.9802,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.5
+   },
+   "post_hoc": true,
+   "post_hoc_why": "defined after both components were scored",
+   "richmond_only": false,
+   "role": "MapAnything+MASt3R midpoint where they agree"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 1.0931,
+     "gain_vs_projection_ci": [
+      0.612,
+      1.688
+     ],
+     "harm_share": 0.06,
+     "help_share": 0.2033,
+     "median_ci": [
+      2.578,
+      3.721
+     ],
+     "median_deg": 3.026,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.3433
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 1.0931,
+    "gain_vs_projection_ci": [
+     0.612,
+     1.688
+    ],
+    "median_ci": [
+     2.578,
+     3.721
+    ],
+    "median_deg": 3.026,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3433
+   },
+   "arm": "mv3d_consensus_else_auto",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.4267,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.578,
+      3.721
+     ],
+     "median_deg": 3.026
+    },
+    "gsv": {
+     "auto_prior_share": 0.4958,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.859,
+      4.132
+     ],
+     "median_deg": 3.5397
+    },
+    "mapillary": {
+     "auto_prior_share": 0.15,
+     "gain_vs_auto": 1.7695,
+     "gain_vs_auto_ci": [
+      0.869,
+      2.971
+     ],
+     "median_ci": [
+      1.448,
+      2.822
+     ],
+     "median_deg": 1.9802
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.9271,
+     "gain_vs_projection_ci": [
+      0.468,
+      1.681
+     ],
+     "harm_share": 0.0625,
+     "help_share": 0.1292,
+     "median_ci": [
+      2.859,
+      4.132
+     ],
+     "median_deg": 3.5397,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.3042
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.9271,
+    "gain_vs_projection_ci": [
+     0.468,
+     1.681
+    ],
+    "median_ci": [
+     2.859,
+     4.132
+    ],
+    "median_deg": 3.5397,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3042
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 1.7695,
+     "gain_vs_auto_ci": [
+      0.869,
+      2.971
+     ],
+     "gain_vs_projection": 1.7695,
+     "gain_vs_projection_ci": [
+      0.869,
+      2.971
+     ],
+     "harm_share": 0.05,
+     "help_share": 0.5,
+     "median_ci": [
+      1.448,
+      2.822
+     ],
+     "median_deg": 1.9802,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.5
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 1.7695,
+    "gain_vs_auto_ci": [
+     0.869,
+     2.971
+    ],
+    "gain_vs_projection": 1.7695,
+    "gain_vs_projection_ci": [
+     0.869,
+     2.971
+    ],
+    "median_ci": [
+     1.448,
+     2.822
+    ],
+    "median_deg": 1.9802,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.5
+   },
+   "post_hoc": true,
+   "post_hoc_why": "defined after both components were scored",
+   "richmond_only": false,
+   "role": "MapAnything+MASt3R agreement, else auto"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.0714,
+     "gain_vs_auto_ci": [
+      0.034,
+      0.103
+     ],
+     "gain_vs_projection": 0.3912,
+     "gain_vs_projection_ci": [
+      0.224,
+      0.628
+     ],
+     "harm_share": 0.0,
+     "help_share": 0.0,
+     "median_ci": [
+      3.449,
+      4.397
+     ],
+     "median_deg": 3.8985,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.25
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0714,
+    "gain_vs_auto_ci": [
+     0.034,
+     0.103
+    ],
+    "gain_vs_projection": 0.3912,
+    "gain_vs_projection_ci": [
+     0.224,
+     0.628
+    ],
+    "median_ci": [
+     3.449,
+     4.397
+    ],
+    "median_deg": 3.8985,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.25
+   },
+   "arm": "mapa_posed_poseonly",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.0714,
+     "gain_vs_auto_ci": [
+      0.034,
+      0.103
+     ],
+     "median_ci": [
+      3.449,
+      4.397
+     ],
+     "median_deg": 3.8985
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.0492,
+     "gain_vs_auto_ci": [
+      0.018,
+      0.088
+     ],
+     "median_ci": [
+      3.268,
+      4.366
+     ],
+     "median_deg": 3.8
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.173,
+     "gain_vs_auto_ci": [
+      0.065,
+      0.254
+     ],
+     "median_ci": [
+      3.717,
+      5.448
+     ],
+     "median_deg": 4.1401
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.0492,
+     "gain_vs_auto_ci": [
+      0.018,
+      0.088
+     ],
+     "gain_vs_projection": 0.725,
+     "gain_vs_projection_ci": [
+      0.361,
+      1.348
+     ],
+     "harm_share": 0.0,
+     "help_share": 0.0,
+     "median_ci": [
+      3.268,
+      4.366
+     ],
+     "median_deg": 3.8,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.2792
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0492,
+    "gain_vs_auto_ci": [
+     0.018,
+     0.088
+    ],
+    "gain_vs_projection": 0.725,
+    "gain_vs_projection_ci": [
+     0.361,
+     1.348
+    ],
+    "median_ci": [
+     3.268,
+     4.366
+    ],
+    "median_deg": 3.8,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2792
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.173,
+     "gain_vs_auto_ci": [
+      0.065,
+      0.254
+     ],
+     "gain_vs_projection": 0.1727,
+     "gain_vs_projection_ci": [
+      0.065,
+      0.254
+     ],
+     "harm_share": 0.0,
+     "help_share": 0.0,
+     "median_ci": [
+      3.717,
+      5.448
+     ],
+     "median_deg": 4.1401,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.1333
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.173,
+    "gain_vs_auto_ci": [
+     0.065,
+     0.254
+    ],
+    "gain_vs_projection": 0.1727,
+    "gain_vs_projection_ci": [
+     0.065,
+     0.254
+    ],
+    "median_ci": [
+     3.717,
+     5.448
+    ],
+    "median_deg": 4.1401,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1333
+   },
+   "post_hoc": true,
+   "post_hoc_why": "registered in 0428bb7, after mapa_posed_corner's 300-pair result was seen",
+   "richmond_only": false,
+   "role": "MapAnything's relative pose only"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0544,
+     "auto_within_2deg": 0.2419,
+     "gain_vs_auto": -0.1874,
+     "gain_vs_auto_ci": [
+      -0.439,
+      0.007
+     ],
+     "gain_vs_projection": 0.4456,
+     "gain_vs_projection_ci": [
+      0.021,
+      0.838
+     ],
+     "harm_share": 0.1733,
+     "help_share": 0.1119,
+     "median_ci": [
+      3.673,
+      5.322
+     ],
+     "median_deg": 4.3634,
+     "n": 277,
+     "projection_median_deg": 5.5495,
+     "within_2deg": 0.231
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0767,
+    "gain_vs_auto": -0.238,
+    "gain_vs_auto_ci": [
+     -0.469,
+     -0.021
+    ],
+    "gain_vs_projection": 0.2016,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.62
+    ],
+    "median_ci": [
+     3.69,
+     5.712
+    ],
+    "median_deg": 4.4268,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2267
+   },
+   "arm": "mast3r_poseonly",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0767,
+     "gain_vs_auto": -0.0725,
+     "gain_vs_auto_ci": [
+      -0.306,
+      0.0
+     ],
+     "median_ci": [
+      3.673,
+      5.345
+     ],
+     "median_deg": 4.3763
+    },
+    "gsv": {
+     "auto_prior_share": 0.0875,
+     "gain_vs_auto": -0.2721,
+     "gain_vs_auto_ci": [
+      -0.473,
+      -0.043
+     ],
+     "median_ci": [
+      3.652,
+      5.869
+     ],
+     "median_deg": 4.6509
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": 0.5912,
+     "gain_vs_auto_ci": [
+      0.285,
+      1.263
+     ],
+     "median_ci": [
+      3.15,
+      5.08
+     ],
+     "median_deg": 4.0757
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.7867,
+     "auto_within_2deg": 0.2831,
+     "gain_vs_auto": -0.4285,
+     "gain_vs_auto_ci": [
+      -0.631,
+      -0.139
+     ],
+     "gain_vs_projection": 0.2403,
+     "gain_vs_projection_ci": [
+      -0.326,
+      0.995
+     ],
+     "harm_share": 0.1963,
+     "help_share": 0.0685,
+     "median_ci": [
+      3.527,
+      5.881
+     ],
+     "median_deg": 4.6293,
+     "n": 219,
+     "projection_median_deg": 6.0398,
+     "within_2deg": 0.242
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0875,
+    "gain_vs_auto": -0.4546,
+    "gain_vs_auto_ci": [
+     -0.701,
+     -0.147
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.52
+    ],
+    "median_ci": [
+     3.695,
+     5.958
+    ],
+    "median_deg": 4.8121,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2333
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.0862,
+     "gain_vs_auto": 0.6713,
+     "gain_vs_auto_ci": [
+      0.303,
+      1.271
+     ],
+     "gain_vs_projection": 0.6712,
+     "gain_vs_projection_ci": [
+      0.303,
+      1.271
+     ],
+     "harm_share": 0.0862,
+     "help_share": 0.2759,
+     "median_ci": [
+      3.15,
+      5.07
+     ],
+     "median_deg": 4.0757,
+     "n": 58,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.1897
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0333,
+    "gain_vs_auto": 0.5912,
+    "gain_vs_auto_ci": [
+     0.285,
+     1.263
+    ],
+    "gain_vs_projection": 0.5911,
+    "gain_vs_projection_ci": [
+     0.285,
+     1.264
+    ],
+    "median_ci": [
+     3.15,
+     5.08
+    ],
+    "median_deg": 4.0757,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.2
+   },
+   "post_hoc": true,
+   "post_hoc_why": "registered in bb6cd3c at 18:18, three minutes after 0214816 quoted the 30-pair pilot's scores (a subset of these pairs); that the pilot was seen first is inferred from commit times, not stated in a commit message",
+   "richmond_only": false,
+   "role": "negative: learned pose only"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": -0.5038,
+     "gain_vs_auto_ci": [
+      -1.027,
+      -0.037
+     ],
+     "gain_vs_projection": 0.0735,
+     "gain_vs_projection_ci": [
+      -0.457,
+      0.528
+     ],
+     "harm_share": 0.36,
+     "help_share": 0.19,
+     "median_ci": [
+      4.374,
+      5.528
+     ],
+     "median_deg": 4.9359,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.17
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -0.5038,
+    "gain_vs_auto_ci": [
+     -1.027,
+     -0.037
+    ],
+    "gain_vs_projection": 0.0735,
+    "gain_vs_projection_ci": [
+     -0.457,
+     0.528
+    ],
+    "median_ci": [
+     4.374,
+     5.528
+    ],
+    "median_deg": 4.9359,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.17
+   },
+   "arm": "mapa_mono_depthonly",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.5038,
+     "gain_vs_auto_ci": [
+      -1.027,
+      -0.037
+     ],
+     "median_ci": [
+      4.374,
+      5.528
+     ],
+     "median_deg": 4.9359
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.5447,
+     "gain_vs_auto_ci": [
+      -1.392,
+      -0.037
+     ],
+     "median_ci": [
+      4.314,
+      5.68
+     ],
+     "median_deg": 4.9486
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.4202,
+     "gain_vs_auto_ci": [
+      -1.115,
+      0.662
+     ],
+     "median_ci": [
+      3.392,
+      6.363
+     ],
+     "median_deg": 4.807
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": -0.5447,
+     "gain_vs_auto_ci": [
+      -1.392,
+      -0.037
+     ],
+     "gain_vs_projection": 0.1948,
+     "gain_vs_projection_ci": [
+      -0.465,
+      0.766
+     ],
+     "harm_share": 0.3708,
+     "help_share": 0.1667,
+     "median_ci": [
+      4.314,
+      5.68
+     ],
+     "median_deg": 4.9486,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.1708
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -0.5447,
+    "gain_vs_auto_ci": [
+     -1.392,
+     -0.037
+    ],
+    "gain_vs_projection": 0.1948,
+    "gain_vs_projection_ci": [
+     -0.465,
+     0.766
+    ],
+    "median_ci": [
+     4.314,
+     5.68
+    ],
+    "median_deg": 4.9486,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.1708
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": -0.4202,
+     "gain_vs_auto_ci": [
+      -1.115,
+      0.662
+     ],
+     "gain_vs_projection": -0.4202,
+     "gain_vs_projection_ci": [
+      -1.115,
+      0.661
+     ],
+     "harm_share": 0.3167,
+     "help_share": 0.2833,
+     "median_ci": [
+      3.392,
+      6.363
+     ],
+     "median_deg": 4.807,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.1667
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -0.4202,
+    "gain_vs_auto_ci": [
+     -1.115,
+     0.662
+    ],
+    "gain_vs_projection": -0.4202,
+    "gain_vs_projection_ci": [
+     -1.115,
+     0.661
+    ],
+    "median_ci": [
+     3.392,
+     6.363
+    ],
+    "median_deg": 4.807,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1667
+   },
+   "post_hoc": true,
+   "post_hoc_why": "registered in c84dc74, after the posed MapAnything results were seen",
+   "richmond_only": false,
+   "role": "negative: source view only"
+  },
+  {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.3295,
+     "auto_within_2deg": 0.2075,
+     "gain_vs_auto": -0.2952,
+     "gain_vs_auto_ci": [
+      -0.839,
+      0.066
+     ],
+     "gain_vs_projection": 0.0103,
+     "gain_vs_projection_ci": [
+      -0.593,
+      0.881
+     ],
+     "harm_share": 0.3585,
+     "help_share": 0.2972,
+     "median_ci": [
+      3.809,
+      6.218
+     ],
+     "median_deg": 4.9892,
+     "n": 212,
+     "projection_median_deg": 5.884,
+     "within_2deg": 0.2264
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.2933,
+    "gain_vs_auto": -0.2962,
+    "gain_vs_auto_ci": [
+     -0.756,
+     0.017
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.809,
+     6.218
+    ],
+    "median_deg": 4.9,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.24
+   },
+   "arm": "sfm_colmap",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.2933,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.648,
+      5.08
+     ],
+     "median_deg": 4.1389
+    },
+    "gsv": {
+     "auto_prior_share": 0.3667,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.938,
+      5.815
+     ],
+     "median_deg": 4.5176
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.7025,
+     "gain_vs_auto_ci": [
+      0.246,
+      2.811
+     ],
+     "median_ci": [
+      2.06,
+      3.725
+     ],
+     "median_deg": 2.519
+    }
+   },
+   "family": "multi-view 3D",
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 4.2812,
+     "auto_within_2deg": 0.25,
+     "gain_vs_auto": -0.9165,
+     "gain_vs_auto_ci": [
+      -2.62,
+      -0.247
+     ],
+     "gain_vs_projection": -0.5465,
+     "gain_vs_projection_ci": [
+      -2.528,
+      0.528
+     ],
+     "harm_share": 0.4211,
+     "help_share": 0.2237,
+     "median_ci": [
+      5.037,
+      8.839
+     ],
+     "median_deg": 6.2954,
+     "n": 152,
+     "projection_median_deg": 6.5468,
+     "within_2deg": 0.1776
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.3667,
+    "gain_vs_auto": -0.6749,
+    "gain_vs_auto_ci": [
+     -1.506,
+     -0.243
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.391,
+     7.38
+    ],
+    "median_deg": 5.8569,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2125
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 1.7025,
+     "gain_vs_auto_ci": [
+      0.246,
+      2.811
+     ],
+     "gain_vs_projection": 1.7023,
+     "gain_vs_projection_ci": [
+      0.246,
+      2.811
+     ],
+     "harm_share": 0.2,
+     "help_share": 0.4833,
+     "median_ci": [
+      2.06,
+      3.725
+     ],
+     "median_deg": 2.519,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.35
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 1.7025,
+    "gain_vs_auto_ci": [
+     0.246,
+     2.811
+    ],
+    "gain_vs_projection": 1.7023,
+    "gain_vs_projection_ci": [
+     0.246,
+     2.811
+    ],
+    "median_ci": [
+     2.06,
+     3.725
+    ],
+    "median_deg": 2.519,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.35
+   },
+   "post_hoc": true,
+   "post_hoc_why": "gravity-level ground lift chosen after the 30-pair pilot (a subset of these pairs)",
+   "richmond_only": false,
+   "role": "negative on GSV: per-corner COLMAP"
+  },
+  {
+   "arm": "flat_sfm",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.7353,
+     "gain_vs_auto_ci": [
+      0.62,
+      2.705
+     ],
+     "median_ci": [
+      1.786,
+      3.97
+     ],
+     "median_deg": 2.5341
+    }
+   },
+   "family": "flat Mapillary (Richmond only)",
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 1.7353,
+     "gain_vs_auto_ci": [
+      0.62,
+      2.705
+     ],
+     "gain_vs_projection": 1.7353,
+     "gain_vs_projection_ci": [
+      0.62,
+      2.705
+     ],
+     "harm_share": 0.2,
+     "help_share": 0.4667,
+     "median_ci": [
+      1.786,
+      3.97
+     ],
+     "median_deg": 2.5341,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.3833
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 1.7353,
+    "gain_vs_auto_ci": [
+     0.62,
+     2.705
+    ],
+    "gain_vs_projection": 1.7353,
+    "gain_vs_projection_ci": [
+     0.62,
+     2.705
+    ],
+    "median_ci": [
+     1.786,
+     3.97
+    ],
+    "median_deg": 2.5341,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3833
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": true,
+   "role": "SfM with flat images, sparse lift"
+  },
+  {
+   "arm": "noflat_sfm",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.6921,
+     "gain_vs_auto_ci": [
+      0.54,
+      2.55
+     ],
+     "median_ci": [
+      2.18,
+      3.518
+     ],
+     "median_deg": 2.6186
+    }
+   },
+   "family": "flat Mapillary (Richmond only)",
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 1.6921,
+     "gain_vs_auto_ci": [
+      0.54,
+      2.55
+     ],
+     "gain_vs_projection": 1.6921,
+     "gain_vs_projection_ci": [
+      0.54,
+      2.55
+     ],
+     "harm_share": 0.2,
+     "help_share": 0.4667,
+     "median_ci": [
+      2.18,
+      3.518
+     ],
+     "median_deg": 2.6186,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.35
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 1.6921,
+    "gain_vs_auto_ci": [
+     0.54,
+     2.55
+    ],
+    "gain_vs_projection": 1.6921,
+    "gain_vs_projection_ci": [
+     0.54,
+     2.55
+    ],
+    "median_ci": [
+     2.18,
+     3.518
+    ],
+    "median_deg": 2.6186,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.35
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": true,
+   "role": "control: same SfM, 360 panos only"
+  },
+  {
+   "arm": "mlypano_sfm",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.6547,
+     "gain_vs_auto_ci": [
+      0.554,
+      2.63
+     ],
+     "median_ci": [
+      2.177,
+      3.299
+     ],
+     "median_deg": 2.7003
+    }
+   },
+   "family": "flat Mapillary (Richmond only)",
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 1.6547,
+     "gain_vs_auto_ci": [
+      0.554,
+      2.63
+     ],
+     "gain_vs_projection": 1.6544,
+     "gain_vs_projection_ci": [
+      0.554,
+      2.629
+     ],
+     "harm_share": 0.1667,
+     "help_share": 0.4667,
+     "median_ci": [
+      2.177,
+      3.299
+     ],
+     "median_deg": 2.7003,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.3333
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 1.6547,
+    "gain_vs_auto_ci": [
+     0.554,
+     2.63
+    ],
+    "gain_vs_projection": 1.6544,
+    "gain_vs_projection_ci": [
+     0.554,
+     2.629
+    ],
+    "median_ci": [
+     2.177,
+     3.299
+    ],
+    "median_deg": 2.7003,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3333
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": true,
+   "role": "+ un-thinned Mapillary panos"
+  },
+  {
+   "arm": "flat_mvs",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.05,
+     "gain_vs_auto": 0.2608,
+     "gain_vs_auto_ci": [
+      -1.397,
+      2.074
+     ],
+     "median_ci": [
+      2.652,
+      7.259
+     ],
+     "median_deg": 3.9497
+    }
+   },
+   "family": "flat Mapillary (Richmond only)",
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.6132,
+     "auto_within_2deg": 0.0877,
+     "gain_vs_auto": 0.6637,
+     "gain_vs_auto_ci": [
+      -2.023,
+      2.218
+     ],
+     "gain_vs_projection": 0.6637,
+     "gain_vs_projection_ci": [
+      -2.023,
+      2.218
+     ],
+     "harm_share": 0.3509,
+     "help_share": 0.386,
+     "median_ci": [
+      2.614,
+      7.955
+     ],
+     "median_deg": 4.4386,
+     "n": 57,
+     "projection_median_deg": 4.6128,
+     "within_2deg": 0.3158
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.05,
+    "gain_vs_auto": 0.2608,
+    "gain_vs_auto_ci": [
+     -1.397,
+     2.074
+    ],
+    "gain_vs_projection": 0.2608,
+    "gain_vs_projection_ci": [
+     -1.397,
+     2.074
+    ],
+    "median_ci": [
+     2.652,
+     7.259
+    ],
+    "median_deg": 3.9497,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3167
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": true,
+   "role": "negative: MVS depth lift"
+  },
+  {
+   "arm": "flat_gs",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.0167,
+     "gain_vs_auto": -7.33,
+     "gain_vs_auto_ci": [
+      -12.566,
+      -0.333
+     ],
+     "median_ci": [
+      5.216,
+      21.212
+     ],
+     "median_deg": 10.4777
+    }
+   },
+   "family": "flat Mapillary (Richmond only)",
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5701,
+     "auto_within_2deg": 0.1017,
+     "gain_vs_auto": -7.386,
+     "gain_vs_auto_ci": [
+      -13.702,
+      -0.774
+     ],
+     "gain_vs_projection": -7.3864,
+     "gain_vs_projection_ci": [
+      -13.702,
+      -0.774
+     ],
+     "harm_share": 0.5932,
+     "help_share": 0.1864,
+     "median_ci": [
+      5.216,
+      21.674
+     ],
+     "median_deg": 10.71,
+     "n": 59,
+     "projection_median_deg": 4.5701,
+     "within_2deg": 0.1186
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0167,
+    "gain_vs_auto": -7.33,
+    "gain_vs_auto_ci": [
+     -12.566,
+     -0.333
+    ],
+    "gain_vs_projection": -7.33,
+    "gain_vs_projection_ci": [
+     -12.566,
+     -0.333
+    ],
+    "median_ci": [
+     5.216,
+     21.212
+    ],
+    "median_deg": 10.4777,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1167
+   },
+   "post_hoc": false,
+   "post_hoc_why": null,
+   "richmond_only": true,
+   "role": "negative: splat depth lift"
+  }
+ ]
+}
