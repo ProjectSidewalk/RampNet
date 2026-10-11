@@ -48,12 +48,12 @@ arbiter of whether the difference matters.
 After any fetch the imagery is checked against
 ``benchmark/manual_gold/imagery_manifest.json`` — a sha256 per pano, the same content
 hash the nine city splits carry, written and verified by
-``scripts/analysis/imagery_manifest.py``. **That file does not exist yet**: nobody has run
-the writer on a machine holding all 1,000 panos, so today the check prints the command
-that would create it instead of verifying anything, and manual_gold is the one split whose
-imagery has no committed hash. Until it exists, ``bundle_meta.json``'s recorded source and
-the per-pano pixel size in ``records.jsonl`` are the only evidence that the imagery under
-the committed records is the imagery those records describe.
+``scripts/analysis/imagery_manifest.py``. It was committed on 2026-08-18 (285c2cd, all
+1,000 panos, digest ``91550b3040b95a95``), so a fetch that does not reproduce the committed
+bytes fails the check. Re-check an existing copy with
+``python scripts/analysis/imagery_manifest.py --verify --cities manual_gold``. If the
+manifest is ever missing, the check prints the command that writes it instead of
+verifying anything.
 
 Stage-1's auto-generated labels (``curb_ramp_points_normalized`` etc.) are
 deliberately NOT copied into the records: the bundle's ground truth is the

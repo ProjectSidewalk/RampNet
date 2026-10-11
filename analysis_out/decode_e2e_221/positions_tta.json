@@ -1,0 +1,323 @@
+{
+  "branch_select": {
+    "all_peaks": [
+      2004,
+      1977
+    ],
+    "note": "[original, flipped] branch chosen by the shipped rule",
+    "paired_peaks": [
+      1782,
+      1789
+    ]
+  },
+  "cache_key": "f7f255c586ba_manual_tta",
+  "decodes": {
+    "argmax": {
+      "stats": {
+        "bias_x_px": 0.530592,
+        "bias_y_px": 0.888481,
+        "mean_deg": 1.722,
+        "mean_px": 5.06591,
+        "median_deg": 1.51285,
+        "median_px": 4.41885,
+        "rms_x_px": 5.04542,
+        "rms_y_px": 3.36725,
+        "sd_x_px": 5.01744,
+        "sd_y_px": 3.24792
+      }
+    },
+    "branch_mean": {
+      "stats": {
+        "bias_x_px": 0.486144,
+        "bias_y_px": 0.620321,
+        "mean_deg": 1.48038,
+        "mean_px": 4.37246,
+        "median_deg": 1.21407,
+        "median_px": 3.53345,
+        "rms_x_px": 4.77779,
+        "rms_y_px": 2.65487,
+        "sd_x_px": 4.75299,
+        "sd_y_px": 2.58139
+      },
+      "vs_argmax": {
+        "d_mean_deg": {
+          "ci95": [
+            -0.263533,
+            -0.219438
+          ],
+          "obs": -0.241626
+        },
+        "d_mean_px": {
+          "ci95": [
+            -0.757549,
+            -0.628671
+          ],
+          "obs": -0.693452
+        },
+        "d_sd_x_px": {
+          "ci95": [
+            -0.345091,
+            -0.181007
+          ],
+          "obs": -0.264451
+        },
+        "d_sd_y_px": {
+          "ci95": [
+            -0.732361,
+            -0.597983
+          ],
+          "obs": -0.666535
+        }
+      }
+    },
+    "flip_branch": {
+      "stats": {
+        "bias_x_px": 0.65999,
+        "bias_y_px": 0.625845,
+        "mean_deg": 1.49776,
+        "mean_px": 4.42465,
+        "median_deg": 1.23129,
+        "median_px": 3.58252,
+        "rms_x_px": 4.85922,
+        "rms_y_px": 2.65749,
+        "sd_x_px": 4.81419,
+        "sd_y_px": 2.58275
+      },
+      "vs_argmax": {
+        "d_mean_deg": {
+          "ci95": [
+            -0.247389,
+            -0.202295
+          ],
+          "obs": -0.22424
+        },
+        "d_mean_px": {
+          "ci95": [
+            -0.709927,
+            -0.576409
+          ],
+          "obs": -0.641262
+        },
+        "d_sd_x_px": {
+          "ci95": [
+            -0.297676,
+            -0.103906
+          ],
+          "obs": -0.203248
+        },
+        "d_sd_y_px": {
+          "ci95": [
+            -0.729536,
+            -0.600797
+          ],
+          "obs": -0.665172
+        }
+      }
+    },
+    "gaussian": {
+      "stats": {
+        "bias_x_px": 0.483117,
+        "bias_y_px": 0.636858,
+        "mean_deg": 1.47796,
+        "mean_px": 4.36625,
+        "median_deg": 1.21077,
+        "median_px": 3.52491,
+        "rms_x_px": 4.76731,
+        "rms_y_px": 2.67622,
+        "sd_x_px": 4.74277,
+        "sd_y_px": 2.59934
+      },
+      "vs_argmax": {
+        "d_mean_deg": {
+          "ci95": [
+            -0.26326,
+            -0.225844
+          ],
+          "obs": -0.244046
+        },
+        "d_mean_px": {
+          "ci95": [
+            -0.75507,
+            -0.645149
+          ],
+          "obs": -0.699659
+        },
+        "d_sd_x_px": {
+          "ci95": [
+            -0.332742,
+            -0.219355
+          ],
+          "obs": -0.274671
+        },
+        "d_sd_y_px": {
+          "ci95": [
+            -0.705886,
+            -0.589292
+          ],
+          "obs": -0.648586
+        }
+      }
+    },
+    "orig_branch": {
+      "stats": {
+        "bias_x_px": 0.312299,
+        "bias_y_px": 0.614797,
+        "mean_deg": 1.50381,
+        "mean_px": 4.43992,
+        "median_deg": 1.2086,
+        "median_px": 3.51982,
+        "rms_x_px": 4.93337,
+        "rms_y_px": 2.75184,
+        "sd_x_px": 4.92347,
+        "sd_y_px": 2.68228
+      },
+      "vs_argmax": {
+        "d_mean_deg": {
+          "ci95": [
+            -0.242835,
+            -0.192778
+          ],
+          "obs": -0.218194
+        },
+        "d_mean_px": {
+          "ci95": [
+            -0.698375,
+            -0.552407
+          ],
+          "obs": -0.625991
+        },
+        "d_sd_x_px": {
+          "ci95": [
+            -0.225924,
+            0.0611199
+          ],
+          "obs": -0.0939679
+        },
+        "d_sd_y_px": {
+          "ci95": [
+            -0.652353,
+            -0.475443
+          ],
+          "obs": -0.565639
+        }
+      }
+    }
+  },
+  "elapsed_s": 193.755,
+  "gt_points": 3919,
+  "pair_panos": 790,
+  "pairs": 3571,
+  "panos": 1000,
+  "peaks_ge_0.30": 3981,
+  "protocol": "peaks >= 0.30 via evaluate.extract_peaks_from_heatmap; pairs matched once on argmax positions (greedy by confidence, radius 0.022, x wrapped); pano-cluster bootstrap, 2000 reps, seed 221",
+  "shipped_minus_alternative": {
+    "branch_mean": {
+      "d_mean_deg": {
+        "ci95": [
+          -0.0131738,
+          0.00856613
+        ],
+        "obs": -0.00242021
+      },
+      "d_mean_px": {
+        "ci95": [
+          -0.038357,
+          0.0262405
+        ],
+        "obs": -0.00620747
+      },
+      "d_sd_x_px": {
+        "ci95": [
+          -0.0720593,
+          0.0496266
+        ],
+        "obs": -0.0102203
+      },
+      "d_sd_y_px": {
+        "ci95": [
+          -0.0160859,
+          0.0519323
+        ],
+        "obs": 0.0179488
+      }
+    },
+    "flip_branch": {
+      "d_mean_deg": {
+        "ci95": [
+          -0.0330073,
+          -0.00609891
+        ],
+        "obs": -0.0198058
+      },
+      "d_mean_px": {
+        "ci95": [
+          -0.097047,
+          -0.0172409
+        ],
+        "obs": -0.0583969
+      },
+      "d_sd_x_px": {
+        "ci95": [
+          -0.155846,
+          0.00453765
+        ],
+        "obs": -0.0714234
+      },
+      "d_sd_y_px": {
+        "ci95": [
+          -0.0128865,
+          0.0511628
+        ],
+        "obs": 0.0165863
+      }
+    },
+    "orig_branch": {
+      "d_mean_deg": {
+        "ci95": [
+          -0.0445877,
+          -0.00919223
+        ],
+        "obs": -0.0258518
+      },
+      "d_mean_px": {
+        "ci95": [
+          -0.129253,
+          -0.0239887
+        ],
+        "obs": -0.0736683
+      },
+      "d_sd_x_px": {
+        "ci95": [
+          -0.324535,
+          -0.0552435
+        ],
+        "obs": -0.180703
+      },
+      "d_sd_y_px": {
+        "ci95": [
+          -0.153392,
+          -0.0217092
+        ],
+        "obs": -0.0829471
+      }
+    }
+  },
+  "tp_rematched": {
+    "0.30": {
+      "argmax": 3571,
+      "branch_mean": 3569,
+      "flip_branch": 3568,
+      "gaussian": 3572,
+      "orig_branch": 3566
+    },
+    "0.55": {
+      "argmax": 3420,
+      "branch_mean": 3422,
+      "flip_branch": 3418,
+      "gaussian": 3421,
+      "orig_branch": 3420
+    }
+  },
+  "tta": true,
+  "what": "position error of evaluate.py's decodes vs manual_gold box centres, from evaluate.py's own caches (#221 end-to-end check)"
+}

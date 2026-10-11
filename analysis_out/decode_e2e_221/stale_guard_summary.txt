@@ -1,0 +1,8 @@
+1_fresh_gaussian expect=ok got=ok rc=0 coarse_files=3
+2_offset_2e-3 expect=stale got=stale rc=1 coarse_files=3
+3_offset_5e-4_below_atol expect=ok got=ok rc=0 coarse_files=3
+4_swapped_pano expect=stale got=stale rc=1 coarse_files=3
+5_single_branch_in_tta_key expect=stale got=stale rc=1 coarse_files=3
+6_branches_swapped_order_invariant expect=ok got=ok rc=0 coarse_files=3
+7_argmax_fresh_clears_coarse expect=ok got=ok rc=0 coarse_files=0
+8_gaussian_after_argmax_fresh expect=ok got=ok rc=0 coarse_files=3

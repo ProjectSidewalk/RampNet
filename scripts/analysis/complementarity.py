@@ -57,7 +57,7 @@ from rampnet.detection_eval import (                                      # noqa
 from rampnet.metrics import greedy_match                                  # noqa: E402
 from compare import load_bundle, DetectionCache, cache_key                # noqa: E402
 from detectors import build_detector, parse_model_spec, PROVIDERS         # noqa: E402
-from operating_point_curve import CACHE_DIR, read_cache                   # noqa: E402
+from operating_point_curve import CACHE_DIR, UnreviewedCache, read_cache  # noqa: E402
 
 #: The four complementarity cells, in table order.
 CELLS = ("both", "rampnet_only", "challenger_only", "neither")
@@ -76,6 +76,9 @@ def load_floor_peaks(split):
     Raises ``OSError`` / ``ValueError`` / ``KeyError`` exactly as ``read_cache`` does;
     callers decide whether a missing op_cache is fatal (this script: it is, the
     threshold has nothing to apply to) or a fallback (``cascade_gate.py``).
+    ``UnreviewedCache`` (a ``ValueError``) is never a fallback case: callers re-raise
+    it before any broad except, because a placeholder-GT cache is a wrong input, not
+    a missing one (PR #234 re-review, N1).
     """
     cached, _ = read_cache(os.path.join(CACHE_DIR, f"{split}.json"))
     return {pd["pano"]: pd["preds"] for pd in cached}
@@ -320,6 +323,8 @@ def main():
     if args.rampnet_op_threshold is not None:
         try:
             floor_peaks = load_floor_peaks(args.split)
+        except UnreviewedCache:
+            raise
         except (OSError, ValueError, KeyError) as e:
             sys.exit("--rampnet-op-threshold needs analysis_out/op_cache/"
                      f"{args.split}.json, which could not be read ({e}). Generate it "

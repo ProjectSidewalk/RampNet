@@ -1,0 +1,50 @@
+{
+ "canvas_level": {
+  "dets_per_image@0.3": 0.1109,
+  "dets_per_image@0.55": 0.0214,
+  "fill_peaks": 18,
+  "forward_m_at_1m_p10_p50_p90@0.3": [
+   2.085,
+   3.24,
+   7.75
+  ],
+  "forward_m_at_1m_p10_p50_p90@0.55": [
+   2.06,
+   3.24,
+   5.27
+  ],
+  "hfov_deg_p10_p50_p90": [
+   70.0,
+   70.0,
+   70.0
+  ],
+  "n_images": 514,
+  "n_with_exif_f35": 0,
+  "share_fired@0.3": 0.0934,
+  "share_fired@0.55": 0.0214
+ },
+ "stretch": {
+  "dets_per_image@0.3": 0.4572,
+  "dets_per_image@0.55": 0.1167,
+  "fill_peaks": 0,
+  "forward_m_at_1m_p10_p50_p90@0.3": [
+   2.99,
+   7.16,
+   24.22
+  ],
+  "forward_m_at_1m_p10_p50_p90@0.55": [
+   3.672,
+   7.16,
+   17.97
+  ],
+  "hfov_deg_p10_p50_p90": [
+   70.0,
+   70.0,
+   70.0
+  ],
+  "n_images": 514,
+  "n_with_exif_f35": 0,
+  "share_fired@0.3": 0.3152,
+  "share_fired@0.55": 0.1051
+ }
+}

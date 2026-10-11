@@ -37,6 +37,8 @@ KLONE_DUMP_C35 = os.path.join(REPO_ROOT, "docs", "data", "compute",
                               "sacct_klone_2026-09-27_cascade35.txt")
 KLONE_DUMP_DA3 = os.path.join(REPO_ROOT, "docs", "data", "compute",
                               "sacct_klone_2026-09-27_da3_101.txt")
+KLONE_DUMP_AUG82 = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                                "sacct_klone_2026-10-03_aug82.txt")
 HYAKUSAGE_REPORT = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                 "hyakusage_tillicum_2026-09-21.txt")
 
@@ -352,12 +354,13 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     """docs/compute_cost.md's numbers are claimed re-derivable from a clean clone.
     That is only true if the ledger is the dump's parse and nothing else: same
     rows, same order, differing only in the recorded_at stamp."""
-    # Eight dumps, appended in this order: klone on 2026-08-19; Tillicum on 2026-09-21; two
+    # Nine dumps, appended in this order: klone on 2026-08-19; Tillicum on 2026-09-21; two
     # klone pulls by job id on 2026-09-24, the three jobs of the #131 Phase 1 replication
     # (#185, merged first) and the five of the #86 context experiment (docs/context_fov_86.md);
     # the klone pull of 2026-09-26, the #86 resolution and seed arms (#187); and three klone
     # pulls on 2026-09-27, the ten jobs of the #48 pass-2 offload (#200), the #35 cascade
-    # transfer job and the three #101 DA3 calibration jobs.
+    # transfer job and the three #101 DA3 calibration jobs; then the klone pull of 2026-10-03,
+    # the 43 allocations of the #82 augmentation fine-tune screen.
     parsed, stamps = [], []
     for dump, cluster, stamp in ((KLONE_DUMP, "klone", "2026-08-19T"),
                                  (TILLICUM_DUMP, "tillicum", "2026-09-21T"),
@@ -366,14 +369,20 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
                                  (KLONE_DUMP_CTX2, "klone", "2026-09-26T"),
                                  (KLONE_DUMP_MV48, "klone", "2026-09-27T"),
                                  (KLONE_DUMP_C35, "klone", "2026-09-27T"),
-                                 (KLONE_DUMP_DA3, "klone", "2026-09-27T")):
+                                 (KLONE_DUMP_DA3, "klone", "2026-09-27T"),
+                                 (KLONE_DUMP_AUG82, "klone", "2026-10-03T")):
         with open(dump, encoding="utf-8") as fh:
             rows = parse_sacct(fh.read(), cluster=cluster, user="jfroehli")
         parsed += rows
         stamps += [stamp] * len(rows)
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
-    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 10 + 1 + 3
+    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 10 + 1 + 3 + 43
+    # The #82 screen (docs/compute_cost.md, klone 2026-10-03): 108.66 GPU-hours, all free.
+    aug = [r for r in committed if r["cluster"] == "klone"
+           and r["job_name"].startswith("aug82")]
+    assert len(aug) == 43 and all(r["est_cost_usd"] == 0.0 for r in aug)
+    assert round(sum(r["gpu_hours"] for r in aug), 2) == 108.66
     for have, want, stamp in zip(committed, parsed, stamps):
         have = dict(have)
         assert have.pop("recorded_at").startswith(stamp)
@@ -519,6 +528,12 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     assert hashlib.sha256(raw_d).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
     assert f"({len(raw_d):,} bytes" in doc
     assert raw_d.count(b"\r\n") == 0
+    # ...and the 2026-10-03 klone pull for the #82 augmentation screen.
+    with open(KLONE_DUMP_AUG82, "rb") as fh:
+        raw_a = fh.read()
+    assert hashlib.sha256(raw_a).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_a):,} bytes" in doc
+    assert raw_a.count(b"\r\n") == 0
     # The pin only holds if git never normalises the dump's line endings: a
     # core.autocrlf=true clone checks it out CRLF and the hash above fails for a
     # file that is byte-correct. So .gitattributes must mark it -text (or binary),
