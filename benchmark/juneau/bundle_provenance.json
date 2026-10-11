@@ -1,0 +1,74 @@
+{
+  "split": "juneau",
+  "issue": "https://github.com/ProjectSidewalk/RampNet/issues/254",
+  "status": "staged, NOT reviewed: no verdicts.json, nothing scored against ground truth",
+  "imagery": {
+    "source": "mapillary",
+    "rig": "Trimble MX7 (120 of 125 panos, Mapillary contributor rking, the same contributor and rig as all of annapolis); 4 GoPro Max at 4096x2048 (tdbowthorpe_AKDOT) and 1 GoPro Max at 5760x2880 (kinneyeng)",
+    "native_sizes": {
+      "8000x4000": 120,
+      "4096x2048": 4,
+      "5760x2880": 1
+    },
+    "capture_dates": [
+      "2024-05",
+      "2025-09"
+    ],
+    "credit": "(c) rking, tdbowthorpe_AKDOT, kinneyeng via Mapillary, CC BY-SA 4.0; per pano in the copyright and license fields of records.jsonl."
+  },
+  "run": {
+    "repo": "ProjectSidewalk/sidewalk-auto-labeler",
+    "pr": "https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/164",
+    "branch": "add-juneau-area (area and detection code in c30fbff; run artifacts manifest.json, area.geojson, position_check.* in aa3f339; edf48c1 is a later docs commit)",
+    "detection_commit": "c30fbff",
+    "command": "python main.py example_geojson/juneau.geojson --name juneau --source mapillary",
+    "host": "Hyak klone, ckpt-g2, 1x L40S (job 41691449), run started 2026-10-10T02:26Z",
+    "model": "projectsidewalk/rampnet-model@606a11956743f7eb328d9207769034752f6191f4",
+    "thin_spacing_m": 5,
+    "panos_before_thinning": 6098,
+    "results_jsonl": "runs/juneau/results.jsonl",
+    "results_jsonl_sha256": "5f7822fb3f977d741c6b6f5d2139bdf1e54c7b5052dd73f1e061ad57c5446ee4",
+    "results_record_count": 4999,
+    "geometry": "sidewalk_juneau_ak.region (downtown minus Douglas Island, ~4.8 km2); SidewalkWebpage#5737",
+    "archive": "NOT yet in a durable store. results.jsonl (sha256 above) is on Jon's Mac at ~/Git/sidewalk-auto-labeler/runs/juneau/ and is not committed (8.5 MB); the klone job wrote it under the labeler checkout there. The 125 native panos are in the RampNet checkout on the same Mac (benchmark/juneau/panos/, git-ignored) and re-fetch from Mapillary by id. Copying both to makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/juneau/ as bayonne did is open on #254."
+  },
+  "export": {
+    "command": "python scripts/export_benchmark.py runs/juneau/results.jsonl --bundle <scratch>/juneau-bundle --sample 100 --empty-sample 25",
+    "exporter": "scripts/export_benchmark.py unchanged; geo.LatLngSpacingIndex as fixed in sidewalk-auto-labeler 8d772c9 (PR 165), run from a worktree of that commit",
+    "written": "2026-10-11 ~14:50 -0700",
+    "reconcile": "125/125, OK 1:1 (exporter output: 119 panos reused from the first export's archive, 6 fetched, 0 failed)"
+  },
+  "resample": {
+    "why": "The first export (RampNet d6fee0f, written 2026-10-09 local) had 7 pano pairs under the declared 30 m spacing (min 15.8 m): geo.LatLngSpacingIndex._key sized longitude cells with each point's own cos(lat), so at 58.3 N / 134.4 W points ~30 m apart in latitude landed two cells apart and were never compared. Found by the Opus 5.5 review of PR 250; fixed in sidewalk-auto-labeler PR 165. No verdicts existed, so nothing was discarded.",
+    "same": "seed 0, strata 5/95/25, min_confidence 0.55, min_spacing 30 m, same results.jsonl",
+    "unchanged_panos": 119,
+    "dropped": [
+      "1003262377862639",
+      "1124711765440864",
+      "1482251382408127",
+      "3736473406600352",
+      "7959633580768578",
+      "990432702116937"
+    ],
+    "added": [
+      "1192184441916327",
+      "3571238823181754",
+      "3660908084149636",
+      "3846973858966985",
+      "477346361421188",
+      "977977957067847"
+    ],
+    "spacing_after": "0 pairs under 30 m; closest pair 30.7 m (haversine over records.jsonl lat/lng)"
+  },
+  "staged": {
+    "date": "2026-10-11",
+    "from": "<scratch>/juneau-bundle/ (copied, not moved)",
+    "files": [
+      "records.jsonl",
+      "sample.json",
+      "imagery_manifest.json (committed pin, digest f37ab52d9d1165cf)",
+      "index.csv and panos/ (git-ignored, travel with the imagery)"
+    ],
+    "verified": "python scripts/analysis/imagery_manifest.py --verify --cities juneau --panos-root <checkout>: every pano's bytes and sha256 match the manifest written from the exporter's archive"
+  }
+}
