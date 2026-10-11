@@ -37,7 +37,7 @@ both rounds, weakly identified because the x displacement is small.
 on the unmatched in-population labels** (section 5.4): round 1 0.44 [0.34, 0.53] in the stored
 window, 0.59 [0.52, 0.67] in the midpoint window; round 2 0.64 [0.51, 0.77] and 0.86 [0.79, 0.93].
 Held-out minus in-population unmatched, round 1, is -0.09 (SE 0.06) stored and -0.02 (SE 0.06)
-mid, with 95% upper bounds of about +0.03 to +0.10. So missed round-1 labels or panos seen through
+mid, with 95% upper bounds of about +0.03 and +0.09 (+0.10 in the doubled window). So missed round-1 labels or panos seen through
 other labels can account for at most about 0.1 of slope, and **cannot account for most of the
 "about half way" remainder** (0.4-0.5). Re-localizing on the unclipped heatmap moved none of the
 section 5.3 table's y slopes by more than 0.03.
@@ -183,8 +183,9 @@ Localization caveat (review N1, not fixed in these numbers): the heatmap was cli
 before the argmax, and 27% of round-2 peaks (6% of round 1) sit on a plateau at exactly 1.0, where
 argmax returns the plateau's top-left pixel. The script now localizes on the unclipped map, and
 the second run (section 5.4) does so. Every y slope in the table below moved by at most 0.03 between
-the two runs (round 2 stored: 0.71 to 0.72; the largest change is 0.025). Smaller subsets moved
-more: the below-1-degree stratum about 0.055, and the |d| < 45 px subset about 0.035. The table result confirms the reviewer's measurement on
+the two runs (round 2 stored: 0.71 to 0.72; the largest change is 0.025). Some subsets moved
+more: the below-1-degree stratum about 0.055, the 1-3 degree stratum up to 0.038 (round 2 stored x2,
+0.826 to 0.864), and the |d| < 45 px subset about 0.035. The table result confirms the reviewer's measurement on
 unsaturated peaks (0.708 against 0.710). The table keeps the first run's numbers, since the text
 and review cite them.
 
@@ -310,7 +311,9 @@ displacement, such as visible tilt.
 
 Two confounds remain. The held-out cities differ in imagery and rig, and their panos are **out of
 domain** for the model. Median peak values are lower (round 1 0.86 against 0.92, round 2 0.91
-against 0.97), and edge hits are higher in every window, even in the below-1-degree stratum. Neither
+against 0.97), and edge hits are higher in every window; below 1 degree they are higher in the stored and mid
+windows (and for round 1 in all three), but round 2 in the doubled window has fewer held-out edge
+hits (8 against 14 of 200). Neither
 is separated by this run. The smaller |T| >= 3 count (165 against 200) is not a confound: within that
 stratum the comparison shows the same pattern. Round 2 reaches the same 0.83-0.86 on
 held-out cities as in-population in the two wider windows.
@@ -438,7 +441,7 @@ python scripts/analysis/crop_tilt_113.py --check --pano-tools-root ../sidewalk-p
 
 What `--check` covers: without `--pano-tools-root` it takes `labels.csv` and `labels_heldout.csv`
 as given and copies each summary's `funnel` block from the committed file, so CI (which runs it via
-`tests/test_crop_tilt_113.py`) never re-derives the label tables or the funnel. Re-deriving those
+`tests/test_crop_tilt_113.py` and the `crop_tilt_113` entry of `scripts/check_all.py --ci`) never re-derives the label tables or the funnel. Re-deriving those
 needs the sibling checkout and the second command. `response_v1.csv` is the first run's file in its
 original column layout; `--check` adapts it (`response_from_v1`) before fitting.
 
@@ -506,3 +509,17 @@ Second run retrieved (2026-10-06, later the same day):
 - Final re-review of this revision: the `mid` window was said to clip least (the doubled window
   does); "45" held-out chance matches was the train-crop subset of 58; "moved no in-population slope
   by more than 0.03" held only for the 5.3 table cells. All three are corrected above.
+
+Second final re-review ([review](https://github.com/ProjectSidewalk/RampNet/pull/244#pullrequestreview-5483636470), 2026-10-11):
+
+- Section 5.4.1 said held-out edge hits are higher "in every window, even in the below-1-degree
+  stratum". Below 1 degree, round 2 in the doubled window has 8 held-out edge hits against 14
+  in-population (of 200 each), so the clause is now scoped to the stored and mid windows (and all
+  three for round 1). The inference does not change.
+- Section 1 gave the held-out upper bounds as "+0.03 to +0.10" after naming only the stored and mid
+  windows, whose bounds are +0.03 and +0.09; the +0.10 belongs to the doubled window and is now
+  labelled as such.
+- Section 5.3's "Smaller subsets moved more" omitted the 1-3 degree stratum, which moved 0.038 in
+  round 2 stored x2. It now says "some subsets" and lists it.
+- `crop_tilt_113.py --check` is now registered in `scripts/check_all.py` (runs in `--ci`) with a row
+  in `docs/replication.md`.
