@@ -478,6 +478,13 @@ analysis_out/crop_decode_221/*
 analysis_out/eval_protocol_150/*
 !analysis_out/eval_protocol_150/*.json
 
+# Crop-model tilt displacement (#113, docs/crop_tilt_113.md): the derived per-label table, the
+# empirical sample and response rows, and the summaries --check re-derives from them.
+!analysis_out/crop_tilt_113/
+analysis_out/crop_tilt_113/*
+!analysis_out/crop_tilt_113/*.csv
+!analysis_out/crop_tilt_113/*.json
+
 # PU training plan (#86 item 5): the derived numbers the plan doc cites
 # (scripts/analysis/pu_training_86_plan.py), and later the committed exclusion list.
 !analysis_out/pu_training_86/
