@@ -38,11 +38,12 @@ is asserted too, against ``ap_bundle``, so the exception cannot silently widen.
 **Aggregation.** The headline is the **macro-mean over the seven US city splits** — the
 pool is ``low_floor_sweep.US_SPLITS``, imported rather than restated, because a third copy
 of that registry is how a split ends up silently in one headline and out of another. The
-three held-out splits keep their own columns and their documented reasons travel with
-them: ``docs/model_comparison.md`` states outright that budapest's numbers "must not be
-pooled with the US splits or averaged into a headline", ``sao_paulo`` is held out for
-geography rather than GT quality, and ``manual_gold`` is the in-distribution reference,
-not a deployment city.
+held-out splits (``low_floor_sweep.HELD_OUT``: five as of 2026-10-04) keep their own
+columns and their documented reasons travel with them: ``docs/model_comparison.md`` states
+outright that budapest's numbers "must not be pooled with the US splits or averaged into a
+headline", ``laurens_gsv`` is a second imagery arm of a pooled town, ``sao_paulo`` and
+``bayonne`` are held out for geography, and ``manual_gold`` is the in-distribution
+reference, not a deployment city.
 
 Macro rather than micro even within the pool: pooling counts would weight paterson (395 GT
 ramps) twice as heavily as clovis (195) for no reason anyone would defend, and pooling
