@@ -1,0 +1,7 @@
+               split  panos             digest  status
+                bend    110   8707660bd884c6df  OK
+            paterson    125   18fb224f05242c89  OK
+         gainesville    125   a0d857c892a41c2a  OK
+           annapolis    125   f00c825a10afa4a8  OK
+
+Every reviewed panorama matches the bytes recorded at review time.

@@ -29,7 +29,7 @@ boxes per pano: at high density a share of "hits" are what the match radius hand
 out for free, and that share inflates the complementary set too.
 
 Usage -- the positional form is the one three call sites in
-``docs/model_comparison.md`` use, and it still means what it did:
+``docs/vistas_transfer_126.md`` use, and it still means what it did:
 
     python scripts/analysis/complementarity.py                       # gemini-3.6-flash, richmond
     python scripts/analysis/complementarity.py gemini-3.1-pro-preview paterson
@@ -57,7 +57,7 @@ from rampnet.detection_eval import (                                      # noqa
 from rampnet.metrics import greedy_match                                  # noqa: E402
 from compare import load_bundle, DetectionCache, cache_key                # noqa: E402
 from detectors import build_detector, parse_model_spec, PROVIDERS         # noqa: E402
-from operating_point_curve import CACHE_DIR, read_cache                   # noqa: E402
+from operating_point_curve import CACHE_DIR, UnreviewedCache, read_cache  # noqa: E402
 
 #: The four complementarity cells, in table order.
 CELLS = ("both", "rampnet_only", "challenger_only", "neither")
@@ -76,6 +76,9 @@ def load_floor_peaks(split):
     Raises ``OSError`` / ``ValueError`` / ``KeyError`` exactly as ``read_cache`` does;
     callers decide whether a missing op_cache is fatal (this script: it is, the
     threshold has nothing to apply to) or a fallback (``cascade_gate.py``).
+    ``UnreviewedCache`` (a ``ValueError``) is never a fallback case: callers re-raise
+    it before any broad except, because a placeholder-GT cache is a wrong input, not
+    a missing one (PR #234 re-review, N1).
     """
     cached, _ = read_cache(os.path.join(CACHE_DIR, f"{split}.json"))
     return {pd["pano"]: pd["preds"] for pd in cached}
@@ -176,7 +179,7 @@ def matched_gt(preds, gt_points, radius_sq):
     at >= 0.5519, >= 0.30 and >= 0.05, and zero on the published Vistas 384 arm
     (richmond); the paterson #35 gate reproduces unchanged. The parity 1024 arm could
     not be re-checked -- its detections are not published (see the note beside the
-    parity table in ``docs/model_comparison.md``) -- so the bound there is the doc's
+    parity table in ``docs/vistas_transfer_126.md``) -- so the bound there is the doc's
     own seam count, 1 site in 38.
     """
     confs = [prediction_confidence(p) for p in preds]
@@ -320,6 +323,8 @@ def main():
     if args.rampnet_op_threshold is not None:
         try:
             floor_peaks = load_floor_peaks(args.split)
+        except UnreviewedCache:
+            raise
         except (OSError, ValueError, KeyError) as e:
             sys.exit("--rampnet-op-threshold needs analysis_out/op_cache/"
                      f"{args.split}.json, which could not be read ({e}). Generate it "

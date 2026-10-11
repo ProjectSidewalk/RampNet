@@ -18,6 +18,9 @@ benchmark/*/panos/
 benchmark/*/gallery/
 benchmark/*/box_gallery/
 benchmark/*/heatmap_cache/
+# #111 Google depth archive (local, unpublished); the committed record is
+# benchmark/<split>/depth_manifest.json (docs/benchmark_depth_111.md).
+benchmark/*/depth/
 .env
 view_dump/
 .model_cache/
@@ -47,6 +50,16 @@ analysis_out/op/*
 !analysis_out/op/*.csv
 !analysis_out/op/*.json
 
+# The gated-cascade cost read (#35): one JSON per (split, challenger) plus summary.json,
+# all re-derivable on CPU from committed inputs by scripts/analysis/cascade_cost_35.py.
+!analysis_out/cascade_cost_35/
+analysis_out/cascade_cost_35/*
+!analysis_out/cascade_cost_35/*.json
+# the #35 transfer read (cascade_transfer_35.py)
+!analysis_out/cascade_cost_35/transfer/
+analysis_out/cascade_cost_35/transfer/*
+!analysis_out/cascade_cost_35/transfer/*.json
+
 # Stage 1's coordinate-tolerance result (#96): a few KB, and it is what converts an
 # offset distribution into a decision. Re-derivable on CPU from the committed
 # benchmark bundles plus any verdicts file.
@@ -68,6 +81,10 @@ analysis_out/op/*
 # size class, and it carries the per-bucket counts docs/curb_ramp_data_sourcing.md
 # quotes -- so the 3.8x correction is checkable without re-running anything.
 !analysis_out/miss_taxonomy.json
+# overlap_test.py's per-GT-ramp hits at four thresholds (#171). ~90 KB, image-free, and the
+# only record of the re-inference behind docs/detection_recall_analysis.md sections 3 and 5;
+# regenerating it needs a GPU and the native-res benchmark panos.
+!analysis_out/overlap.json
 # The FP-side taxonomy (#46). Larger than its siblings but still text, and it is the
 # only committed record of what the challengers' 60,000-strong FP floods are made of
 # -- .model_cache itself is gitignored, so without this the table is unreproducible
@@ -251,3 +268,207 @@ analysis_out/context_fov_86/*
 # the corrected P/R re-derives on CPU and tests/test_stage1_agreement_172.py checks it byte for byte.
 !analysis_out/stage1_agreement_172.json
 !analysis_out/stage1_agreement_172/
+
+# #25 frozen-model input-size sweep: per-arm low-floor peak caches (op_cache schema, a few
+# MB in all), the report and their SHA256SUMS are committed so every table re-derives on
+# CPU; run.log is not.
+!analysis_out/input_res_sweep_25/
+analysis_out/input_res_sweep_25/*
+!analysis_out/input_res_sweep_25/results.json
+!analysis_out/input_res_sweep_25/results.md
+!analysis_out/input_res_sweep_25/instrument_check.json
+!analysis_out/input_res_sweep_25/SHA256SUMS
+!analysis_out/input_res_sweep_25/cache/
+analysis_out/input_res_sweep_25/cache/*
+!analysis_out/input_res_sweep_25/cache/*/
+!analysis_out/input_res_sweep_25/cache/*/*.json
+
+# #48 multi-view evidence (scripts/analysis/multiview_evidence_48.py and
+# multiview_challengers_48.py): the per-(ramp, capture) table, the result JSONs, the
+# empty-then-filled one-rater verdicts, and the challenger detections, fused sites and
+# scores. B.1/B.2 re-derive on CPU from the committed CSV alone; the challenger scores
+# re-derive on CPU from the committed detections; everything else needs the labeler
+# inputs listed in docs/multiview_48.md §10. The two open-vocab site files (8-10 MB each)
+# are ignored below; `score` re-derives them. Crops for the gallery live under
+# benchmark/multiview_residual_48/.
+!analysis_out/multiview_48/
+analysis_out/multiview_48/*
+!analysis_out/multiview_48/*.json
+!analysis_out/multiview_48/*.csv
+!analysis_out/multiview_48/challengers/
+analysis_out/multiview_48/challengers/*
+!analysis_out/multiview_48/challengers/*.json
+!analysis_out/multiview_48/challengers/*.jsonl
+!analysis_out/multiview_48/challengers/detections/
+analysis_out/multiview_48/challengers/sites__google__owlv2-large-patch14-ensemble__0.05.jsonl
+analysis_out/multiview_48/challengers/sites__IDEA-Research__grounding-dino-base__0.05.jsonl
+
+# Two-scale inference (#197): the report, re-derived by two_scale_197.py report --check
+!analysis_out/two_scale_197/
+analysis_out/two_scale_197/*
+!analysis_out/two_scale_197/results.json
+!analysis_out/two_scale_197/results.md
+
+# #151: the Laurens paired analysis (per-pano rows; tables re-derive by laurens_paired_151.py
+# --check) and the held-out GSV arm's image<->payload alignment check
+!analysis_out/depth_image_alignment_151_laurens_gsv.json
+!analysis_out/laurens_paired_151.json
+!analysis_out/laurens_paired_151.md
+
+# DA3 calibration against GSV depth (#101): raw per-pano DA3 rows from the klone run, the
+# derived rows and tables, and their SHA256SUMS. --check re-derives everything from them.
+!analysis_out/da3_calibration_101/
+# Cross-view alignment pilot (#48): the pair lists, per-pair match results and summaries
+# are committed; the rectilinear views cut from the native-res archive are not.
+!analysis_out/crossview_align_48/
+analysis_out/crossview_align_48/*
+!analysis_out/crossview_align_48/*.csv
+!analysis_out/crossview_align_48/*.json
+!analysis_out/crossview_align_48/*.jsonl
+!analysis_out/crossview_align_48/predictions/
+analysis_out/crossview_align_48/predictions/*
+!analysis_out/crossview_align_48/predictions/*.jsonl
+!analysis_out/crossview_align_48/predictions/*.json
+# ... and the fresh-pair confirmation set (follow-up 1): its pair list, manifest, results and
+# predictions, kept apart from the 300-pair files
+!analysis_out/crossview_align_48/fresh/
+analysis_out/crossview_align_48/fresh/*
+!analysis_out/crossview_align_48/fresh/*.csv
+!analysis_out/crossview_align_48/fresh/*.json
+!analysis_out/crossview_align_48/fresh/predictions/
+analysis_out/crossview_align_48/fresh/predictions/*
+!analysis_out/crossview_align_48/fresh/predictions/*.jsonl
+!analysis_out/crossview_align_48/fresh/predictions/*.json
+# the GPU chain's timing log, copied from makelab2 (review of #220)
+!analysis_out/crossview_align_48/fresh/logs/
+analysis_out/crossview_align_48/fresh/logs/*
+!analysis_out/crossview_align_48/fresh/logs/gpu_times.txt
+# Cross-view #48 depth arms: per-click monocular depth rows and their summaries.
+!analysis_out/crossview_align_48/depth/
+# ... and the 3D viewer bundles: their JSON is committed; the scene .ply files live on
+# makelab2 (/homes/gws/jonf/crossview48/scenes/), pinned by sha256 in scenes_manifest.json
+!analysis_out/crossview_align_48/scenes/
+analysis_out/crossview_align_48/scenes/*
+!analysis_out/crossview_align_48/scenes/*.json
+!analysis_out/crossview_align_48/scenes/*/
+analysis_out/crossview_align_48/scenes/*/*
+!analysis_out/crossview_align_48/scenes/*/*.json
+# Flat Mapillary 3D (#214): census tables, manifest, per-corner result JSON and the viewer
+# bundle's JSON. Images, raw API responses and large scene files are never committed.
+!analysis_out/flat_mapillary_3d/
+analysis_out/flat_mapillary_3d/*
+!analysis_out/flat_mapillary_3d/*.csv
+!analysis_out/flat_mapillary_3d/*.json
+!analysis_out/flat_mapillary_3d/*.jsonl
+!analysis_out/flat_mapillary_3d/*.md
+!analysis_out/flat_mapillary_3d/census/
+!analysis_out/flat_mapillary_3d/corners/
+!analysis_out/flat_mapillary_3d/scenes/
+analysis_out/flat_mapillary_3d/raw_api_cache/
+!analysis_out/flat_mapillary_3d/predictions/
+# #158 phase 2: image-based placement of mined targets (scripts/analysis/mined_placement_158.py).
+# Pair list, key map, corner manifest and per-arm predictions + meta; no imagery.
+!analysis_out/mined_placement_158/
+analysis_out/mined_placement_158/*
+!analysis_out/mined_placement_158/*.csv
+!analysis_out/mined_placement_158/*.json
+!analysis_out/mined_placement_158/predictions/
+analysis_out/mined_placement_158/predictions/*
+!analysis_out/mined_placement_158/predictions/*.jsonl
+!analysis_out/mined_placement_158/predictions/*.json
+
+# #221 sub-cell decode: per-peak coarse neighbourhoods + report (the coarse maps stay on makelab2)
+!analysis_out/subcell_decode_221/
+analysis_out/subcell_decode_221/*
+!analysis_out/subcell_decode_221/*.json
+!analysis_out/subcell_decode_221/*.md
+!analysis_out/subcell_decode_221/extract.log
+
+# #217 sidewalk width (Seoul): the widths table every number is scored from, the scored
+# results, and the label-map sha256 manifest. The label maps themselves are not committed.
+!analysis_out/sidewalk_width_217/
+analysis_out/sidewalk_width_217/*
+!analysis_out/sidewalk_width_217/*.json
+!analysis_out/sidewalk_width_217/widths.csv.gz
+
+# RampNet on perspective photos (#218): detections, image lists, sha256 manifests and result
+# tables are committed; images never are (Mapillary thumbnails and the Seoul photos are
+# re-fetched by id / filename and checked against the committed sha256).
+!analysis_out/perspective_photos_218/
+analysis_out/perspective_photos_218/*
+!analysis_out/perspective_photos_218/*.csv
+!analysis_out/perspective_photos_218/*.json
+!analysis_out/perspective_photos_218/*.jsonl
+!analysis_out/perspective_photos_218/*.md
+!analysis_out/perspective_photos_218/seoul/
+analysis_out/perspective_photos_218/seoul/*
+!analysis_out/perspective_photos_218/seoul/*.csv
+!analysis_out/perspective_photos_218/seoul/*.json
+!analysis_out/perspective_photos_218/seoul/*.jsonl
+# the bearing audit (#218, docs/bearing_audit_218.md): summary and offset histograms
+!analysis_out/perspective_photos_218/bearing_audit/
+analysis_out/perspective_photos_218/bearing_audit/*
+!analysis_out/perspective_photos_218/bearing_audit/*.csv
+!analysis_out/perspective_photos_218/bearing_audit/*.json
+benchmark/seoul_presence_218/img/
+benchmark/richmond_flat_fp_218/img/
+
+# #38 per-ramp recall + miss correlation: derived tables, re-derived by
+# scripts/analysis/per_ramp_recall_38.py check from the committed multiview_48 captures.
+!analysis_out/per_ramp_recall_38/
+analysis_out/per_ramp_recall_38/*
+!analysis_out/per_ramp_recall_38/*.json
+!analysis_out/per_ramp_recall_38/*.csv
+
+# scripts/check_all.py --json: the committed result of the last full gate run on main.
+!analysis_out/check_all/
+analysis_out/check_all/*
+!analysis_out/check_all/latest.json
+
+# #221 end-to-end check of the shipped decode: JSON results + evaluate.py metrics/logs (caches stay on makelab2)
+!analysis_out/decode_e2e_221/
+analysis_out/decode_e2e_221/*
+!analysis_out/decode_e2e_221/*.json
+!analysis_out/decode_e2e_221/*.md
+!analysis_out/decode_e2e_221/*.txt
+!analysis_out/decode_e2e_221/metrics/
+analysis_out/decode_e2e_221/metrics/*
+!analysis_out/decode_e2e_221/metrics/*.json
+
+# #82 augmentation transfer (scripts/analysis/aug_probe_82.py, aug_finetune_82.py): rig
+# statistics, the probe's per-arm caches, the fine-tune screen's per-checkpoint caches, the
+# scoring driver logs and both reports. Every table in docs/aug_transfer_82.md re-derives on
+# CPU from these.
+!analysis_out/aug_transfer_82/
+analysis_out/aug_transfer_82/*
+!analysis_out/aug_transfer_82/*.json
+!analysis_out/aug_transfer_82/*.md
+!analysis_out/aug_transfer_82/*.log
+!analysis_out/aug_transfer_82/probe/
+analysis_out/aug_transfer_82/probe/*
+!analysis_out/aug_transfer_82/probe/*/
+!analysis_out/aug_transfer_82/probe/*/*.json
+!analysis_out/aug_transfer_82/finetune/
+analysis_out/aug_transfer_82/finetune/*
+!analysis_out/aug_transfer_82/finetune/*.log
+!analysis_out/aug_transfer_82/finetune/*.txt
+!analysis_out/aug_transfer_82/finetune/*/
+!analysis_out/aug_transfer_82/finetune/*/*.json
+!analysis_out/aug_transfer_82/finetune/trainlogs/*.txt
+# Bayonne staged ahead of its review (#159): the unreviewed low-floor cache, the
+# challenger detections, the GT-free reads and the AI pre-read are all small JSON/CSV
+# and re-derivable only with a GPU, so they are committed. Crops rendered for viewing
+# regenerate from the (git-ignored) panos and stay out.
+!analysis_out/bayonne_159/
+analysis_out/bayonne_159/**/*.jpg
+analysis_out/bayonne_159/**/*.png
+analysis_out/bayonne_159/**/*.html
+
+# #221 crop-model decode: Hub downloads (checkpoints + crop JPEGs) stay local; the
+# per-crop coarse-map extracts and the results re-derived from them are committed, so
+# `crop_decode_221.py --check` runs on CPU from a clean clone.
+.hf_cache/
+!analysis_out/crop_decode_221/
+analysis_out/crop_decode_221/*
+!analysis_out/crop_decode_221/*.json
+!analysis_out/crop_decode_221/*.md

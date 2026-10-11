@@ -1,0 +1,50 @@
+{
+ "arm": "sem_curb_shift",
+ "config": {
+  "camera_height_m": 2.6,
+  "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+  "curb_edge": "Curb/Sidewalk/Pedestrian Area touching road-like classes",
+  "ground_margin_deg": 5.0,
+  "input_hw": [
+   768,
+   1024
+  ],
+  "keep_m": 10.0,
+  "marking_edge": "outline of Lane Marking - Crosswalk / - General",
+  "max_range_m": 30.0,
+  "revision": "4772b6bf101d91f2534c106dc524d906aeb3c68a",
+  "snap_m": 2.5,
+  "suppressed_class": "Curb Cut (9)"
+ },
+ "description": "shift W by (source's nearest curb point - other's nearest curb point)",
+ "elapsed_s": 26.1261,
+ "fallback": 23,
+ "gpu_visible": "NVIDIA GeForce RTX 3070",
+ "host": "jonfhome",
+ "labeler": {
+  "files": {
+   "depth.py": "a9e6f5d4e517efc5c2929d75666cc7f045052265e5ba9a33a8e14e329c67ee6b",
+   "detectors/__init__.py": "5209ca3fd523f4374cc0dbe4477d8586984668b2e72bea646f7b36e69e2bdf55",
+   "geo.py": "c60fe4bf3152df88297345bded4226ec5b40f83e1eb9a1391849a70158b3e919",
+   "scripts/eval_sites.py": "a4b1b71bf4797abc5ede8559a91e2a78b84ad5ce2990103fbb6d5a1d78afe81b",
+   "scripts/fuse_sites.py": "cc454530fffe9202a98b5ead67b4173c3e273405bd7e9e1444c0bc70383f4200"
+  },
+  "git_commit": "39afcd4bd03597740b10235bdce39a5eadbb85d0",
+  "git_dirty_files": []
+ },
+ "missing_inputs": 0,
+ "needs": [
+  "views",
+  "labeler",
+  "panos"
+ ],
+ "pairs": 300,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "ts": "2026-09-29T01:06:50Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "numpy": "2.5.1",
+  "python": "3.12.10",
+  "torch": "2.6.0+cu126"
+ }
+}

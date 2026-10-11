@@ -1,0 +1,10 @@
+40770073|mv48-setup|klone|ckpt-all|ckpt|COMPLETED|2026-09-27T08:14:41|2026-09-27T08:14:43|2026-09-27T08:28:40|837|billing=8,cpu=8,mem=32G,node=1|1|0:0
+40770191_0|mv48-molmo|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T08:29:27|2026-09-27T08:40:23|2026-09-27T09:32:41|3138|billing=8,cpu=8,gres/gpu:l40s=1,gres/gpu=1,mem=64G,node=1|1|0:0
+40770191_1|mv48-molmo|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T08:29:27|2026-09-27T08:47:48|2026-09-27T10:00:37|4369|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+40770191_2|mv48-molmo|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T08:29:27|2026-09-27T08:47:48|2026-09-27T09:47:36|3588|billing=8,cpu=8,gres/gpu:a100=1,gres/gpu=1,mem=64G,node=1|1|0:0
+40770191_3|mv48-molmo|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T08:29:27|2026-09-27T08:48:21|2026-09-27T10:00:27|4326|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+40770192_0|mv48-qwen8b|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T08:29:27|2026-09-27T08:48:21|2026-09-27T09:44:45|3384|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+40770192_1|mv48-qwen8b|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T08:29:27|2026-09-27T08:49:24|2026-09-27T09:46:44|3440|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+40770192_2|mv48-qwen8b|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T08:29:27|2026-09-27T08:49:24|2026-09-27T09:46:43|3439|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+40770193_0|mv48-open|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T08:29:27|2026-09-27T08:50:27|2026-09-27T09:59:27|4140|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+40770193_1|mv48-open|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T08:29:27|2026-09-27T08:50:27|2026-09-27T09:49:01|3514|billing=8,cpu=8,gres/gpu:a100=1,gres/gpu=1,mem=64G,node=1|1|0:0

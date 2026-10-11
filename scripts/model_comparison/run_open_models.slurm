@@ -21,7 +21,7 @@
 # --sweep). Lowering the floor later re-runs the model: it is in the cache key.
 #
 # PYTHON is the interpreter to run with; default is whatever `python` resolves to
-# after the env is activated (see the runbook in docs/model_comparison.md).
+# after the env is activated (see the runbook in docs/running_model_comparison.md).
 #
 # Detections land in .model_cache/, whose key contains nothing machine-specific —
 # rsync that directory back and score locally with no GPU.

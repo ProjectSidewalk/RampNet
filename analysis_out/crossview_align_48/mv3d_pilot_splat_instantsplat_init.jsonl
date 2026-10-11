@@ -1,0 +1,30 @@
+{"baseline_dir_vs_prior_deg": 1.545321, "click_alpha": 0.983478, "click_depth": 2.07212, "n_views": 5, "pair_id": "p000", "psnr_train_median": 18.132104, "rel_rot_vs_prior_deg": 0.504376, "u": 599.179973, "v": 392.813527, "x": 0.762219, "y": 0.579324}
+{"baseline_dir_vs_prior_deg": 1.372836, "click_alpha": 0.983478, "click_depth": 2.07212, "n_views": 5, "pair_id": "p001", "psnr_train_median": 18.132104, "rel_rot_vs_prior_deg": 1.737142, "u": 599.705855, "v": 383.79661, "x": 0.890251, "y": 0.556649}
+{"pair_id": "p002", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p003", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p004", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p005", "reason": "no_splat_output", "x": null, "y": null}
+{"baseline_dir_vs_prior_deg": 0.730135, "click_alpha": 0.996419, "click_depth": 2.015953, "n_views": 6, "pair_id": "p060", "psnr_train_median": 17.209724, "rel_rot_vs_prior_deg": 0.582455, "u": 458.30155, "v": 390.016467, "x": 0.801937, "y": 0.610316}
+{"baseline_dir_vs_prior_deg": 0.541891, "click_alpha": 0.996419, "click_depth": 2.015953, "n_views": 6, "pair_id": "p061", "psnr_train_median": 17.209724, "rel_rot_vs_prior_deg": 0.621427, "u": 453.975056, "v": 368.146374, "x": 0.605863, "y": 0.573109}
+{"pair_id": "p062", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p063", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p064", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p065", "reason": "no_splat_output", "x": null, "y": null}
+{"baseline_dir_vs_prior_deg": 1.461666, "click_alpha": 0.962405, "click_depth": 0.476814, "n_views": 8, "pair_id": "p120", "psnr_train_median": 15.521312, "rel_rot_vs_prior_deg": 3.223077, "u": 339.810388, "v": 318.405403, "x": 0.587154, "y": 0.556589}
+{"pair_id": "p121", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p122", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p123", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p124", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p125", "reason": "no_splat_output", "x": null, "y": null}
+{"baseline_dir_vs_prior_deg": 2.489416, "click_alpha": 0.955678, "click_depth": 0.974529, "n_views": 9, "pair_id": "p180", "psnr_train_median": 13.730279, "rel_rot_vs_prior_deg": 0.840466, "u": 530.259229, "v": 350.545291, "x": 0.412092, "y": 0.562734}
+{"pair_id": "p181", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p182", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p183", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p184", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p185", "reason": "no_splat_output", "x": null, "y": null}
+{"baseline_dir_vs_prior_deg": 0.583173, "click_alpha": 0.999897, "click_depth": 0.861903, "n_views": 8, "pair_id": "p240", "psnr_train_median": 13.458999, "reason": "behind_other", "rel_rot_vs_prior_deg": 0.584711, "x": null, "y": null}
+{"baseline_dir_vs_prior_deg": 2.31534, "click_alpha": 0.999897, "click_depth": 0.861903, "n_views": 8, "pair_id": "p241", "psnr_train_median": 13.458999, "rel_rot_vs_prior_deg": 2.462847, "u": 1463.60066, "v": 282.718845, "x": 0.125382, "y": 0.500911}
+{"pair_id": "p242", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p243", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p244", "reason": "no_splat_output", "x": null, "y": null}
+{"pair_id": "p245", "reason": "no_splat_output", "x": null, "y": null}

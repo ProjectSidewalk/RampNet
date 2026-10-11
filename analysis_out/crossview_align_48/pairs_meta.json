@@ -1,0 +1,71 @@
+{
+ "eligible_pairs": 1723,
+ "labeler": {
+  "files": {
+   "depth.py": "fb1481eac5d3eb58b15a7fa0a64a739c7ebc138f683794ffda6ad87c58f8ab5b",
+   "detectors/__init__.py": "5209ca3fd523f4374cc0dbe4477d8586984668b2e72bea646f7b36e69e2bdf55",
+   "geo.py": "c60fe4bf3152df88297345bded4226ec5b40f83e1eb9a1391849a70158b3e919",
+   "scripts/eval_sites.py": "2ae4852c2dd5f2b390310d6b708cb6aea7f74e9c9ca3c85879f67e287dcb8110",
+   "scripts/fuse_sites.py": "f5924529d88fb1b437ea5e03a0e8e46b24af76d1cb608cbd5c4a4aa5e90cb924"
+  }
+ },
+ "per_city": {
+  "bend": {
+   "claimed": 487,
+   "claimed_but_ambiguous": 154,
+   "eligible_pairs": 333,
+   "other_views_within_R": 678,
+   "ramp_ambiguous_neighbour": 66,
+   "ramp_no_det_source": 54,
+   "ramps_considered": 176
+  },
+  "gainesville": {
+   "claimed": 225,
+   "claimed_but_ambiguous": 28,
+   "eligible_pairs": 197,
+   "other_views_within_R": 599,
+   "ramp_ambiguous_neighbour": 28,
+   "ramp_no_det_source": 47,
+   "ramps_considered": 144
+  },
+  "paterson": {
+   "claimed": 268,
+   "claimed_but_ambiguous": 42,
+   "eligible_pairs": 226,
+   "other_views_within_R": 459,
+   "ramp_ambiguous_neighbour": 126,
+   "ramp_no_det_source": 72,
+   "ramps_considered": 106
+  },
+  "richmond": {
+   "claimed": 956,
+   "claimed_but_ambiguous": 172,
+   "eligible_pairs": 784,
+   "other_views_within_R": 1744,
+   "ramp_ambiguous_neighbour": 38,
+   "ramp_no_det_source": 43,
+   "ramps_considered": 172
+  },
+  "sao_paulo": {
+   "claimed": 231,
+   "claimed_but_ambiguous": 48,
+   "eligible_pairs": 183,
+   "other_views_within_R": 416,
+   "ramp_ambiguous_neighbour": 93,
+   "ramp_no_det_source": 71,
+   "ramps_considered": 91
+  }
+ },
+ "sampled_pairs": 300,
+ "selection": {
+  "ambig_det_m": 8.0,
+  "ambig_ramp_m": 6.0,
+  "camera_height_m": 2.6,
+  "max_pairs_per_ramp": 2,
+  "operational": 0.55,
+  "pairs_per_city": 60,
+  "r_other_m": 18.0,
+  "seed": 48,
+  "world_hit_m": 5.0
+ }
+}

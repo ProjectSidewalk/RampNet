@@ -39,16 +39,18 @@ opencv-python-headless
 # would leave it pinned only on machines that happen to have the full
 # requirements.txt stack -- which is where it passed while CI was failing.
 scikit-image
-# Needed only because scripts/build_benchmark_dataset.py imports it at module
-# level, and tests/test_benchmark_dataset.py imports that module.
-datasets
-# Arrives transitively with datasets, but scripts/export_crop_dataset.py builds
-# Parquet with it directly and tests/test_export_crop_dataset.py imports it by
-# name — so declare it rather than rely on someone else's dependency.
+# scripts/export_crop_dataset.py and scripts/export_benchmark.py build Parquet with
+# it directly, and tests/test_export_crop_dataset.py and tests/test_train_overlap.py
+# import it by name. (`datasets` used to be listed here and brought this in; it was
+# needed only by scripts/build_benchmark_dataset.py, removed in #127.)
 pyarrow
-# Arrives transitively with datasets, but tests/test_ps_supervision_audit.py relies on
-# pd.to_datetime(format="ISO8601"), which pandas added in 2.0.
+# tests/test_ps_supervision_audit.py relies on pd.to_datetime(format="ISO8601"),
+# which pandas added in 2.0.
 pandas>=2.0
+# scripts/analysis/ps_supervision_audit.py imports it at module level and
+# tests/test_ps_supervision_audit.py imports that module. It used to arrive
+# transitively with `datasets`; declared so it does not depend on that.
+requests
 # The #86 tag benchmark's metrics (scripts/analysis/tag_benchmark_86.py tagger_metrics: AP,
 # F1, PR curves) and so tests/test_tag_benchmark_86.py and tests/test_context_fov_86.py,
 # which re-derive committed scores and contrasts on CPU. Without it the first module

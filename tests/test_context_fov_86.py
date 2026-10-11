@@ -174,3 +174,87 @@ def test_crops_as_trained_listing_matches_the_labels_and_the_manifests():
             assert h != cut[name]["sha256"], name
         else:
             assert h == cut[name]["sha256"], name
+
+
+def test_matched_px_reproduces_the_docs_resolution_numbers():
+    """docs/context_fov_86.md section 2: 10.1 / 4.8 / 2.2 px per degree at the model's 256 px
+    input for 25 / 50 / 90 deg, and section 4's "a 25 deg view rendered at about 57 px"."""
+    assert round(cf.centre_px_per_deg(25, 256), 1) == 10.1
+    assert round(cf.centre_px_per_deg(50, 256), 1) == 4.8
+    assert round(cf.centre_px_per_deg(90, 256), 1) == 2.2
+    assert cf.matched_px(25, 90) == 57
+    assert cf.matched_px(25, 50) == 122
+    assert cf.matched_px(25, 25) == 256
+    assert cf.RES_ARMS == ("fov25px122", "fov25px57")
+
+
+def test_downsample_writes_px_crops_and_labels_and_is_resumable(tmp_path):
+    from PIL import Image
+    images = tmp_path / "crops"
+    images.mkdir()
+    rows = []
+    for city, lid in (("amsterdam", 10087), ("seattle", 5)):
+        name = cf.crop_name(city, lid, "fov25")
+        Image.new("RGB", (640, 640), (120, 80, 40)).save(images / name, quality=92)
+        rows.append({"label_uid": f"{city}:{lid}", "city": city, "label_id": lid, "split": "train",
+                     "filename": name, "missing tactile warning": 1})
+    lab = pd.DataFrame(rows)
+    t, summary, listing = cf.downsample_arm(lab, "fov25", "fov90", str(images))
+    assert list(t.filename) == ["amsterdam__10087__fov25px57.jpg", "seattle__5__fov25px57.jpg"]
+    assert summary["px"] == 57 and summary["written"] == 2 and summary["kept"] == 0
+    for name in t.filename:
+        with Image.open(images / name) as im:
+            assert im.size == (57, 57)
+    assert [n for n, _ in listing] == list(t.filename)
+    # the label columns other than filename are untouched
+    assert list(t["missing tactile warning"]) == [1, 1]
+    # a second pass keeps what is on disk
+    t2, summary2, _ = cf.downsample_arm(lab, "fov25", "fov90", str(images))
+    assert summary2["written"] == 0 and summary2["kept"] == 2
+    assert list(t2.filename) == list(t.filename)
+
+
+def test_downsample_redoes_a_truncated_crop(tmp_path):
+    """A crop cut short by a killed job has a valid header, so ``Image.open`` alone reports the
+    right size; the resume check must decode it in full and write it again."""
+    from PIL import Image
+    images = tmp_path / "crops"
+    images.mkdir()
+    name = cf.crop_name("seattle", 5, "fov25")
+    Image.new("RGB", (640, 640), (120, 80, 40)).save(images / name, quality=92)
+    lab = pd.DataFrame([{"label_uid": "seattle:5", "city": "seattle", "label_id": 5, "split": "train",
+                         "filename": name}])
+    t, _, listing = cf.downsample_arm(lab, "fov25", "fov90", str(images))
+    out = images / t.filename[0]
+    good = out.read_bytes()
+    sos = good.index(bytes([0xFF, 0xDA]))  # start of scan: everything before it is header
+    out.write_bytes(good[: sos + (len(good) - sos) // 2])  # header intact, scan data cut
+    with Image.open(out) as im:
+        assert im.size == (57, 57)  # what the old header-only check saw
+    t2, summary2, listing2 = cf.downsample_arm(lab, "fov25", "fov90", str(images))
+    assert summary2["written"] == 1 and summary2["kept"] == 0
+    assert out.read_bytes() == good and listing2 == listing
+    assert not list(images.glob("*.part"))
+
+
+def test_resolution_arm_listings_match_their_label_tables():
+    """crops_as_trained_<arm>.sha256 for the two resolution arms: LF, one line per crop the arm
+    trains or is scored on (its labels_<arm>.csv), 10,848 each."""
+    out = os.path.join(REPO, "analysis_out", "context_fov_86")
+    for arm in cf.RES_ARMS:
+        with open(os.path.join(out, f"crops_as_trained_{arm}.sha256"), "rb") as fh:
+            raw = fh.read()
+        assert b"\r" not in raw
+        listing = {}
+        for line in raw.decode("utf-8").splitlines():
+            h, name = line.split("  ", 1)
+            assert len(h) == 64 and name not in listing
+            listing[name] = h
+        names = set(pd.read_csv(os.path.join(out, f"labels_{arm}.csv")).filename)
+        assert set(listing) == names and len(names) == 10848, arm
+
+
+def test_a_second_seed_scores_against_the_first_seeds_labels():
+    assert cf.arm_labels_path("o", "fov90_s87").endswith("labels_fov90.csv")
+    assert cf.arm_labels_path("o", "fov25px57").endswith("labels_fov25px57.csv")
+    assert cf.arm_labels_path("o", "fov25").endswith("labels_fov25.csv")

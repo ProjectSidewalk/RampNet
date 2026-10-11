@@ -1,0 +1,68 @@
+{
+ "checked": "2026-09-30T20:30:12Z",
+ "host": "makelab2.cs.washington.edu",
+ "panos_root": "/homes/gws/jonf/RampNet",
+ "splits": {
+  "annapolis": {
+   "changed": [],
+   "digest_of_panos_read": "f00c825a10afa4a8",
+   "hashed": 125,
+   "manifest_digest": "f00c825a10afa4a8",
+   "manifest_n": 125,
+   "match": 125,
+   "missing": [],
+   "not_in_manifest": [],
+   "panos": 125,
+   "status": "ok"
+  },
+  "manual_gold": {
+   "changed": [],
+   "digest_of_panos_read": "91550b3040b95a95",
+   "hashed": 1000,
+   "manifest_digest": "91550b3040b95a95",
+   "manifest_n": 1000,
+   "match": 1000,
+   "missing": [],
+   "not_in_manifest": [],
+   "panos": 1000,
+   "status": "ok"
+  },
+  "paterson": {
+   "changed": [],
+   "digest_of_panos_read": "18fb224f05242c89",
+   "hashed": 125,
+   "manifest_digest": "18fb224f05242c89",
+   "manifest_n": 125,
+   "match": 125,
+   "missing": [],
+   "not_in_manifest": [],
+   "panos": 125,
+   "status": "ok"
+  },
+  "richmond": {
+   "changed": [],
+   "digest_of_panos_read": "ec8ef3678aa9bf84",
+   "hashed": 124,
+   "manifest_digest": "ec8ef3678aa9bf84",
+   "manifest_n": 124,
+   "match": 124,
+   "missing": [],
+   "not_in_manifest": [],
+   "panos": 124,
+   "status": "ok"
+  },
+  "sao_paulo": {
+   "changed": [],
+   "digest_of_panos_read": "650bd9ba2498b156",
+   "hashed": 125,
+   "manifest_digest": "650bd9ba2498b156",
+   "manifest_n": 125,
+   "match": 125,
+   "missing": [],
+   "not_in_manifest": [],
+   "panos": 125,
+   "status": "ok"
+  }
+ },
+ "status": "ok"
+}

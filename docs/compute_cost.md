@@ -198,7 +198,7 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 | 40546727 `sa131_phase1` | `silent_activation.py`, lab allocation | gpu-l40s, L40S on g3104 | 271 s | 0.075 |
 
 The two GPU jobs are the same run twice; both replicas are byte-identical
-([`curb_ramp_data_sourcing.md` §0c](curb_ramp_data_sourcing.md), #131). A pull by job id is the
+([`data_scaling_59.md` §0c](data_scaling_59.md), #131). A pull by job id is the
 right shape for a small experiment: it adds exactly its own rows, so the ledger stays the sum of
 its committed dumps and two experiments pulled the same day cannot re-record each other's jobs.
 (A pull by date range would also have re-recorded the plan-item-4 arms running that day, which
@@ -230,8 +230,159 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 The pull is by job id rather than a date window, so that a window would not sweep in other jobs
 run on the account the same day (the #131 replication ran on klone that night and records its
 own). The ledger is rebuilt in append order: klone 2026-08-19, Tillicum 2026-09-21, the #131
-pull `sacct_klone_2026-09-24_sa131.txt` (above), then this file; `tests/test_slurm_usage.py`
-compares all four. What the five rows are is in [`context_fov_86.md`](context_fov_86.md) §5.
+pull `sacct_klone_2026-09-24_sa131.txt` (above), this file, then the 2026-09-26, 2026-09-27 and 2026-10-03 pulls below;
+`tests/test_slurm_usage.py` compares all nine. What the five rows are is in
+[`context_fov_86.md`](context_fov_86.md) §5.
+
+## klone, 2026-09-26: the context experiment's resolution and seed arms, 13.6 GPU-hours, $0
+
+Five more jobs for the same experiment (PR #187): the CPU downsample on `ckpt-all` and four
+L40S jobs on the lab's allocation (the two resolution arms `fov25px57` / `fov25px122` and the
+seed-87 runs of fov25 and fov90), one incarnation each, all COMPLETED. Pulled by job id on
+2026-09-26 into `docs/data/compute/sacct_klone_2026-09-26.txt` (895 bytes, sha256
+`a7b0e91eb2ae29272ef8672a55d3e038147c7788400821565d43e170c07ded16`) on a klone login node:
+
+```bash
+sacct -X -D -P -n \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j 40599892,40599914,40599915,40599943,40599944 > sacct_klone_2026-09-26.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-26.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+`tests/test_slurm_usage.py` pins the five rows' names, GPU counts and 13.61 GPU-hours, by job
+id. What each row is, with the per-arm training time, is in
+[`context_fov_86.md`](context_fov_86.md) §5.
+
+## klone, 2026-09-27: the #48 pass-2 challenger offload, 9.26 GPU-hours, $0
+
+Ten jobs for #48 (PR #200): a CPU-only env build and model download on `ckpt-all`
+(`mv48-setup`), then three arrays on `ckpt-all`. The arrays ran Molmo2-8B in 4 shards,
+Qwen3-VL-8B in 3, and OWLv2 + Grounding DINO in 2, over the 1,307 panos the 30 m
+widening added to the Richmond neighbourhood bundle. Each shard took one GPU. The arrays
+were submitted for L40S and widened to any 40 GB+ GPU while pending, so they ran on 1 L40S,
+6 A40 and 2 A100. All incarnations COMPLETED with no requeues, so all are free. The per-leg
+wall-clock and s/pano rows are in `analysis_out/usage_log.jsonl`, 11 rows,
+one per leg per shard. The scripts and the runbook are in `scripts/analysis/multiview_48_klone/`.
+Pulled by job id on 2026-09-27 into `docs/data/compute/sacct_klone_2026-09-27_mv48.txt`
+(1,811 bytes, sha256
+`3000de53d4c0da2ce64a242a49adcfa9b8e8e9a19899fc2c9e9d77847aaffb76`) on a klone login node:
+
+```bash
+sacct -X -D -P -n \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j 40770073,40770191,40770192,40770193 > sacct_mv48.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-27_mv48.txt \
+    --out analysis_out/compute_log.jsonl
+```
+
+`tests/test_slurm_usage.py` pins the dump's hash and includes its ten rows in the
+ledger-equals-dumps check.
+
+## klone, 2026-09-27: the #35 cascade transfer run, 0.49 GPU-hours, $0
+
+One L40S job on the lab's allocation (`gpu-l40s`, QOS normal, no preemption, one incarnation):
+the Vistas parity arm on four splits and RampNet's 1× pass timed on the same GPU. Pulled by job
+id on 2026-09-27 into `docs/data/compute/sacct_klone_2026-09-27_cascade35.txt` (189 bytes,
+sha256 `b2d52b30f955189e557cefde4209ee3977b0023c79dad5cbceede6e3d41679b8`) on a klone login node
+with the `--print-command` invocation plus `-j 40774146`, and parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-27_cascade35.txt --out analysis_out/compute_log.jsonl
+```
+
+| job | what | partition | elapsed | GPU-h |
+| :--- | :--- | :--- | ---: | ---: |
+| 40774146 `cascade35_transfer` | `scripts/analysis/cascade_transfer_35.slurm` | gpu-l40s, L40S on g3102 | 1,780 s | 0.494 |
+
+The per-leg split of that time (model load, inference, s/pano) is in the job's eight `paid: false`
+rows in `analysis_out/usage_log.jsonl` and in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md).
+The four RampNet rows (labels `input-res-25:*`, because the job reused the #25 sweep's `extract`)
+were written with `"issue": 25`; that field was corrected to 35 by hand after review, and nothing
+else in those rows changed. `extract` now takes `--issue`, which the launcher passes.
+
+## klone, 2026-09-27: the DA3 calibration (#101), 1.94 GPU-hours, $0
+
+Three jobs of `scripts/analysis/da3_calibration_101.slurm`, all on `ckpt-all`, one incarnation
+each, all COMPLETED (none preempted): the smoke test `40774578` (A40, 159 s), the first full
+extraction `40774944` (A40, 2,625 s) and the re-extraction with the lowest-plane ground fit
+`40777019` (Quadro RTX 6000, 4,208 s). Pulled by job id on 2026-09-27 into
+`docs/data/compute/sacct_klone_2026-09-27_da3_101.txt` (556 bytes, sha256
+`245b344601738e7a0ec1954ad64aa13f93dcb2d8df75c750bf3ff6a685773774`) on a klone login node:
+
+```bash
+sacct -X -D -P -n -u jfroehli \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j 40774578,40774944,40777019 > sacct_klone_2026-09-27_da3_101.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-27_da3_101.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+The per-pano timings (the script's own `paid: false` rows in `analysis_out/usage_log.jsonl`) and
+what each run produced are in [`da3_calibration_101.md`](da3_calibration_101.md) §9 (the
+ground-fit change between the two full runs is §8). Two of the three usage rows were relabelled by
+hand when appended; §9 says which.
+
+## klone, 2026-10-03: the augmentation fine-tune screen (#82), 108.66 GPU-hours, $0
+
+Every klone allocation of the #82 screen: the eight 2,000-step fine-tunes (four arms x two
+seeds, 4 GPUs each), their requeued, preempted, failed and cancelled incarnations, the CPU job
+that packed the conda env into a tarball, and the nine scoring jobs (the released checkpoint and
+the eight fine-tunes, one GPU each), all on `ckpt-all`. Pulled by job id on 2026-10-03 into
+`docs/data/compute/sacct_klone_2026-10-03_aug82.txt` (7,381 bytes, sha256
+`befd499289889b6a71037d3fdea1355a5cb37be956b638d26c9e60bc6df1b4c1`) on a klone login node. The
+job ids are every job named `aug82*` on the account since 2026-10-01:
+
+```bash
+IDS=$(sacct -X -D -P -n -u jfroehli -S 2026-10-01 --format=JobID,JobName%60 \
+      | awk -F'|' '$2 ~ /^aug82/ {print $1}' | sort -u | paste -sd,)
+sacct -X -D -P -n -u jfroehli -S 2026-07-01 \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j "$IDS" > sacct_klone_2026-10-03_aug82.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-10-03_aug82.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+| what | records | GPU-h |
+| :--- | ---: | ---: |
+| fine-tunes, the incarnation that finished (8 runs) | 8 | 79.51 |
+| fine-tunes, incarnations preempted or requeued before finishing | 7 | 23.13 |
+| fine-tunes, failed at start (dangling HF cache link, jobs 41103263-70) | 8 | 0.15 |
+| fine-tunes, cancelled before starting | 10 | 0 |
+| scoring on all 12 bundles (released + 8 fine-tunes) | 9 | 5.87 |
+| env tarball (CPU) | 1 | 0 |
+| **total** | **43** | **108.66** |
+
+A preempted incarnation's work is not all lost: training resumes from `latest_checkpoint.pth`,
+so part of those 23.13 GPU-hours carried into the finished runs. The frozen probe (Step 1) ran on
+makelab2, which has no Slurm; its four `paid: false` rows (`aug-probe-82:*`, 3.97 h of A40 time
+for extraction plus a 624 s CPU stats pass) are in `analysis_out/usage_log.jsonl`. What the runs
+produced is in [`aug_transfer_82.md`](aug_transfer_82.md).
 
 ## Gaps, stated
 
@@ -255,5 +406,5 @@ compares all four. What the five rows are is in [`context_fov_86.md`](context_fo
   append-only ledger the paid API legs use, as a `paid: false` row with the host, GPU and
   `elapsed_s`. The two #163 Vistas re-runs are the example: 237.153 s and 191.318 s on
   makelab2, recorded there and quoted, with the per-stage breakdown, in the cost paragraph of
-  [`model_comparison.md` §Resolution parity](model_comparison.md). At $0 it changes no total,
+  [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md). At $0 it changes no total,
   but a reader who starts here should not conclude the time went unrecorded.

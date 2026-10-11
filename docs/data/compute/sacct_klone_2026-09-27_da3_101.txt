@@ -1,0 +1,3 @@
+40774578|da3_calib_101|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T10:57:00|2026-09-27T10:57:31|2026-09-27T11:00:10|159|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=48G,node=1|1|0:0
+40774944|da3_calib_101|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T11:00:57|2026-09-27T11:01:43|2026-09-27T11:45:28|2625|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=48G,node=1|1|0:0
+40777019|da3_calib_101|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-09-27T11:50:57|2026-09-27T11:51:17|2026-09-27T13:01:25|4208|billing=8,cpu=8,gres/gpu:rtx6k=1,gres/gpu=1,mem=48G,node=1|1|0:0

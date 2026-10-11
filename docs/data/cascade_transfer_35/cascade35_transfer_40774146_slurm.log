@@ -1,0 +1,304 @@
+=== 2026-09-27T17:49:27Z job=40774146 host=g3102.hyak.local commit=84db34e97bcdbbf5bfcae7296272760022caac12
+name, driver_version, memory.used [MiB], memory.total [MiB]
+NVIDIA L40S, 580.178.04, 0 MiB, 46068 MiB
+python 3.10.20
+torch 2.6.0 cuda 12.6
+torchvision 0.21.0
+transformers 5.15.0
+timm 1.0.28
+scikit-image 0.25.2
+CPU(s):              128
+Model name:          AMD EPYC 9534 64-Core Processor
+               split  panos             digest  status
+                bend    110   8707660bd884c6df  OK
+            paterson    125   18fb224f05242c89  OK
+         gainesville    125   a0d857c892a41c2a  OK
+           annapolis    125   f00c825a10afa4a8  OK
+
+Every reviewed panorama matches the bytes recorded at review time.
+=== vistas bend 2026-09-27T17:53:40Z
+Bundle: benchmark/bend  (110 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /gscratch/scrubbed/jfroehli/cascade_35/model_cache
+
+Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights:  21%|██        | 158/758 [00:00<00:00, 1136.57it/s]Loading weights:  36%|███▌      | 272/758 [00:00<00:01, 358.10it/s] Loading weights:  44%|████▍     | 332/758 [00:00<00:01, 330.61it/s]Loading weights:  50%|████▉     | 377/758 [00:01<00:01, 296.49it/s]Loading weights:  56%|█████▋    | 428/758 [00:01<00:00, 333.78it/s]Loading weights:  65%|██████▌   | 493/758 [00:01<00:00, 397.33it/s]Loading weights:  72%|███████▏  | 543/758 [00:01<00:00, 240.78it/s]Loading weights:  79%|███████▉  | 599/758 [00:01<00:00, 272.35it/s]Loading weights: 100%|██████████| 758/758 [00:01<00:00, 386.53it/s]
+[transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
+Key                                                                                                                      | Status     | 
+-------------------------------------------------------------------------------------------------------------------------+------------+-
+model.pixel_level_module.encoder.swin.encoder.layers.{0, 1, 2, 3}.blocks.{0...17}.attention.self.relative_position_index | UNEXPECTED | 
+model.pixel_level_module.encoder.swin.layernorm.weight                                                                   | MISSING    | 
+model.pixel_level_module.encoder.swin.layernorm.bias                                                                     | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[mask2former-vistas-curb-cut] time this run: 227.5s wall  (46.1s model load, 181.1s inference over 110 pano(s), 1.65 s/pano)
+[mask2former-vistas-curb-cut] usage logged to /gscratch/scrubbed/jfroehli/cascade_35/usage_log.jsonl
+[mask2former-vistas-curb-cut] ledger now: 1 rows, $0.00, 0.1 h
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+rampnet                               0.961   (0.930-0.979)  0.761   (0.712-0.804)  0.850  0.754        249/10/78/6
+mask2former-vistas-curb-cut           0.367   (0.333-0.402)  0.832   (0.787-0.868)  0.509  0.425      272/469/55/32
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   110 (of 110 seen)
+Detections judged:    260  (correct 248, incorrect 12)
+Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    5  (abstained — not in precision or recall)
+Missed ramps marked:  79  (+72 unsure, abstained)
+Precision: 0.954  (95% CI 0.921-0.973)
+Recall:    0.758  (95% CI 0.709-0.802)  [vs ramps visible in the 110 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    260      0.954    0.758
+     0.60    252      0.952    0.734
+     0.65    244      0.959    0.716
+     0.70    221      0.973    0.657
+     0.75    195      0.974    0.581
+     0.80    171      0.988    0.517
+     0.85    138      0.986    0.416
+     0.90     81      0.975    0.242
+     0.95     31      0.968    0.092
+=== vistas paterson 2026-09-27T17:57:35Z
+Bundle: benchmark/paterson  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /gscratch/scrubbed/jfroehli/cascade_35/model_cache
+
+Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights: 100%|██████████| 758/758 [00:00<00:00, 17205.03it/s]
+[transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
+Key                                                                                                                      | Status     | 
+-------------------------------------------------------------------------------------------------------------------------+------------+-
+model.pixel_level_module.encoder.swin.encoder.layers.{0, 1, 2, 3}.blocks.{0...17}.attention.self.relative_position_index | UNEXPECTED | 
+model.pixel_level_module.encoder.swin.layernorm.weight                                                                   | MISSING    | 
+model.pixel_level_module.encoder.swin.layernorm.bias                                                                     | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[mask2former-vistas-curb-cut] time this run: 203.7s wall  (8.3s model load, 195.2s inference over 125 pano(s), 1.56 s/pano)
+[mask2former-vistas-curb-cut] usage logged to /gscratch/scrubbed/jfroehli/cascade_35/usage_log.jsonl
+[mask2former-vistas-curb-cut] ledger now: 2 rows, $0.00, 0.1 h
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+rampnet                               0.975   (0.949-0.988)  0.686   (0.639-0.730)  0.805  0.681        271/7/124/6
+mask2former-vistas-curb-cut           0.401   (0.365-0.438)  0.701   (0.654-0.744)  0.510  0.430     277/414/118/17
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    277  (correct 270, incorrect 7)
+Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    7  (abstained — not in precision or recall)
+Missed ramps marked:  125  (+36 unsure, abstained)
+Precision: 0.975  (95% CI 0.949-0.988)
+Recall:    0.684  (95% CI 0.636-0.727)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    277      0.975    0.684
+     0.60    270      0.974    0.666
+     0.65    259      0.977    0.641
+     0.70    248      0.984    0.618
+     0.75    222      0.982    0.552
+     0.80    199      0.980    0.494
+     0.85    156      1.000    0.395
+     0.90     88      1.000    0.223
+     0.95     25      1.000    0.063
+=== vistas gainesville 2026-09-27T18:00:59Z
+Bundle: benchmark/gainesville  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /gscratch/scrubbed/jfroehli/cascade_35/model_cache
+
+Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights: 100%|██████████| 758/758 [00:00<00:00, 10771.31it/s]
+[transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
+Key                                                                                                                      | Status     | 
+-------------------------------------------------------------------------------------------------------------------------+------------+-
+model.pixel_level_module.encoder.swin.encoder.layers.{0, 1, 2, 3}.blocks.{0...17}.attention.self.relative_position_index | UNEXPECTED | 
+model.pixel_level_module.encoder.swin.layernorm.weight                                                                   | MISSING    | 
+model.pixel_level_module.encoder.swin.layernorm.bias                                                                     | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[mask2former-vistas-curb-cut] time this run: 208.7s wall  (12.1s model load, 196.5s inference over 125 pano(s), 1.57 s/pano)
+[mask2former-vistas-curb-cut] usage logged to /gscratch/scrubbed/jfroehli/cascade_35/usage_log.jsonl
+[mask2former-vistas-curb-cut] ledger now: 3 rows, $0.00, 0.2 h
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+rampnet                               0.945   (0.905-0.969)  0.699   (0.642-0.750)  0.803  0.691        190/11/82/4
+mask2former-vistas-curb-cut           0.383   (0.345-0.422)  0.846   (0.798-0.884)  0.527  0.521      230/371/42/19
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    200  (correct 189, incorrect 11)
+Detections duplicate: 2  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    5  (abstained — not in precision or recall)
+Missed ramps marked:  83  (+31 unsure, abstained)
+Precision: 0.945  (95% CI 0.904-0.969)
+Recall:    0.695  (95% CI 0.638-0.747)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    200      0.945    0.695
+     0.60    180      0.961    0.636
+     0.65    164      0.970    0.585
+     0.70    150      0.973    0.537
+     0.75    128      0.984    0.463
+     0.80    103      1.000    0.379
+     0.85     79      1.000    0.290
+     0.90     45      1.000    0.165
+     0.95     16      1.000    0.059
+=== vistas annapolis 2026-09-27T18:04:29Z
+Bundle: benchmark/annapolis  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /gscratch/scrubbed/jfroehli/cascade_35/model_cache
+
+Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights: 100%|██████████| 758/758 [00:00<00:00, 11129.29it/s]
+[transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
+Key                                                                                                                      | Status     | 
+-------------------------------------------------------------------------------------------------------------------------+------------+-
+model.pixel_level_module.encoder.swin.encoder.layers.{0, 1, 2, 3}.blocks.{0...17}.attention.self.relative_position_index | UNEXPECTED | 
+model.pixel_level_module.encoder.swin.layernorm.bias                                                                     | MISSING    | 
+model.pixel_level_module.encoder.swin.layernorm.weight                                                                   | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[mask2former-vistas-curb-cut] time this run: 126.6s wall  (9.0s model load, 117.3s inference over 125 pano(s), 0.94 s/pano)
+[mask2former-vistas-curb-cut] usage logged to /gscratch/scrubbed/jfroehli/cascade_35/usage_log.jsonl
+[mask2former-vistas-curb-cut] ledger now: 4 rows, $0.00, 0.2 h
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+rampnet                               0.973   (0.943-0.988)  0.738   (0.685-0.785)  0.839  0.734         217/6/77/4
+mask2former-vistas-curb-cut           0.436   (0.397-0.475)  0.898   (0.858-0.928)  0.587  0.526      264/342/30/17
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    222  (correct 214, incorrect 8)
+Detections duplicate: 3  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    5  (abstained — not in precision or recall)
+Missed ramps marked:  80  (+34 unsure, abstained)
+Precision: 0.964  (95% CI 0.931-0.982)
+Recall:    0.728  (95% CI 0.674-0.776)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    222      0.964    0.728
+     0.60    208      0.976    0.690
+     0.65    193      0.990    0.650
+     0.70    181      0.989    0.609
+     0.75    164      0.994    0.554
+     0.80    145      0.993    0.490
+     0.85    117      0.991    0.395
+     0.90     68      1.000    0.231
+     0.95     26      1.000    0.088
+=== rampnet r2048 fp32 2026-09-27T18:06:37Z
+device=cuda gpus=['NVIDIA L40S'] arms=['r2048'] native_cap=(5500, 11000) torch=2.6.0
+  bend: 25/110
+  bend: 50/110
+  bend: 75/110
+  bend: 100/110
+bend r2048: 110 panos  P/R/F1@0.30 = 0.916/0.829/0.870
+bend done; GPU-side s so far r2048=47; waiting on CPU prep 52s (CPU prep total 97s, overlapped); wall 100s; peak GPU mem 4.2 GiB
+  paterson: 25/125
+  paterson: 50/125
+  paterson: 75/125
+  paterson: 100/125
+  paterson: 125/125
+paterson r2048: 125 panos  P/R/F1@0.30 = 0.947/0.724/0.821
+paterson done; GPU-side s so far r2048=97; waiting on CPU prep 112s (CPU prep total 207s, overlapped); wall 210s; peak GPU mem 4.2 GiB
+  gainesville: 25/125
+  gainesville: 50/125
+  gainesville: 75/125
+  gainesville: 100/125
+  gainesville: 125/125
+gainesville r2048: 125 panos  P/R/F1@0.30 = 0.854/0.772/0.811
+gainesville done; GPU-side s so far r2048=147; waiting on CPU prep 174s (CPU prep total 319s, overlapped); wall 322s; peak GPU mem 4.2 GiB
+  annapolis: 25/125
+  annapolis: 50/125
+  annapolis: 75/125
+  annapolis: 100/125
+  annapolis: 125/125
+annapolis r2048: 125 panos  P/R/F1@0.30 = 0.895/0.810/0.850
+annapolis done; GPU-side s so far r2048=197; waiting on CPU prep 175s (CPU prep total 358s, overlapped); wall 372s; peak GPU mem 4.2 GiB
+usage_log: +2 rows (ok) -> /gscratch/scrubbed/jfroehli/cascade_35/usage_log.jsonl
+extract done
+                bend: PASS  [exclude_border=True (pre-f4c71c8)]  strict: +10 peaks (10 in the seam strip, 10 in the border band) / -0;  as-extracted: 0/110 panos differ, max|score diff| 6.35e-05 (0 > 1e-4)  @0.30: [269, 22, 58] vs [269, 22, 58] (with border [271, 25, 56])  @0.55: [247, 5, 80] vs [247, 5, 80] (with border [249, 7, 78])
+            paterson: PASS  [exclude_border=True (pre-f4c71c8)]  strict: +13 peaks (13 in the seam strip, 13 in the border band) / -0;  as-extracted: 0/125 panos differ, max|score diff| 1.12e-04 (1 > 1e-4)  @0.30: [284, 15, 111] vs [284, 15, 111] (with border [286, 16, 109])  @0.55: [269, 8, 126] vs [269, 8, 126] (with border [270, 9, 125])
+         gainesville: PASS  [exclude_border=True (pre-f4c71c8)]  strict: +15 peaks (15 in the seam strip, 15 in the border band) / -0;  as-extracted: 0/125 panos differ, max|score diff| 6.36e-05 (0 > 1e-4)  @0.30: [210, 35, 62] vs [210, 35, 62] (with border [210, 36, 62])  @0.55: [183, 10, 89] vs [183, 10, 89] (with border [183, 11, 89])
+           annapolis: PASS  [exclude_border=True (pre-f4c71c8)]  strict: +7 peaks (7 in the seam strip, 7 in the border band) / -0;  as-extracted: 0/125 panos differ, max|score diff| 5.58e-05 (0 > 1e-4)  @0.30: [238, 26, 56] vs [238, 26, 56] (with border [238, 28, 56])  @0.55: [217, 6, 77] vs [217, 6, 77] (with border [217, 7, 77])
+INSTRUMENT CHECK: PASS
+=== rampnet r2048 fp16 2026-09-27T18:12:59Z
+device=cuda gpus=['NVIDIA L40S'] arms=['r2048'] native_cap=(5500, 11000) torch=2.6.0
+  bend: 25/110
+  bend: 50/110
+  bend: 75/110
+  bend: 100/110
+bend r2048: 110 panos  P/R/F1@0.30 = 0.916/0.829/0.870
+bend done; GPU-side s so far r2048=32; waiting on CPU prep 66s (CPU prep total 96s, overlapped); wall 98s; peak GPU mem 3.7 GiB
+  paterson: 25/125
+  paterson: 50/125
+  paterson: 75/125
+  paterson: 100/125
+  paterson: 125/125
+paterson r2048: 125 panos  P/R/F1@0.30 = 0.944/0.724/0.819
+paterson done; GPU-side s so far r2048=65; waiting on CPU prep 143s (CPU prep total 206s, overlapped); wall 208s; peak GPU mem 3.7 GiB
+  gainesville: 25/125
+  gainesville: 50/125
+  gainesville: 75/125
+  gainesville: 100/125
+  gainesville: 125/125
+gainesville r2048: 125 panos  P/R/F1@0.30 = 0.854/0.772/0.811
+gainesville done; GPU-side s so far r2048=99; waiting on CPU prep 218s (CPU prep total 315s, overlapped); wall 317s; peak GPU mem 3.7 GiB
+  annapolis: 25/125
+  annapolis: 50/125
+  annapolis: 75/125
+  annapolis: 100/125
+  annapolis: 125/125
+annapolis r2048: 125 panos  P/R/F1@0.30 = 0.898/0.810/0.852
+annapolis done; GPU-side s so far r2048=132; waiting on CPU prep 225s (CPU prep total 356s, overlapped); wall 358s; peak GPU mem 3.7 GiB
+usage_log: +2 rows (ok) -> /gscratch/scrubbed/jfroehli/cascade_35/usage_log.jsonl
+extract done
+                bend: FAIL  [exclude_border=True (pre-f4c71c8)]  strict: +14 peaks (10 in the seam strip, 10 in the border band) / -4;  as-extracted: 100/110 panos differ, max|score diff| 3.12e-03 (348 > 1e-4)  @0.30: [269, 22, 58] vs [269, 22, 58] (with border [271, 25, 56])  @0.55: [247, 5, 80] vs [247, 5, 80] (with border [249, 7, 78])
+                      0CvMs02xHlg3mCMHJdc6Xg: +0 / -0 peaks, max |score diff| 5.28e-04
+                      0FMaNGiSOoTGqLgh8jHfYQ: +0 / -0 peaks, max |score diff| 1.15e-03
+                      E15SCY6RTiDuNUu_trZk4Q: +0 / -0 peaks, max |score diff| 8.92e-04
+                      Kv2haiYlkJCiaO61RVWwQA: +0 / -0 peaks, max |score diff| 1.15e-03
+                      LN819vhVLLeYwzRsBh2zAg: +0 / -0 peaks, max |score diff| 1.16e-03
+                      5NVgLhChZXnD_D-z3SLZyQ: +0 / -0 peaks, max |score diff| 4.08e-04
+                      Noi7DhIT3xbCjA2Ip4QOyg: +0 / -0 peaks, max |score diff| 1.81e-03
+                      9DA1aapwjQcdUP2HEfrhfg: +0 / -0 peaks, max |score diff| 1.03e-03
+                      VMjtxZNqxl9E6oUXnsdI8Q: +0 / -0 peaks, max |score diff| 1.23e-03
+                      ZlXmdBYkhIpp-wNfPlSIFw: +0 / -0 peaks, max |score diff| 6.34e-04
+            paterson: FAIL  [exclude_border=True (pre-f4c71c8)]  strict: +19 peaks (13 in the seam strip, 13 in the border band) / -6;  as-extracted: 100/125 panos differ, max|score diff| 2.11e-03 (312 > 1e-4)  @0.30: [284, 16, 111] vs [284, 15, 111] (with border [286, 17, 109])  @0.55: [268, 8, 127] vs [269, 8, 126] (with border [269, 9, 126])
+                      Q5D74UJFt5D2PVhGxRh1sw: +0 / -0 peaks, max |score diff| 5.77e-04
+                      21Gw_VuYrSK42PCF32UGUw: +0 / -0 peaks, max |score diff| 5.65e-04
+                      hMx_5PxQtlixa9LRSNnKFQ: +0 / -0 peaks, max |score diff| 4.31e-04
+                      y8Q6XDfEoPt5K6ONqi406w: +0 / -0 peaks, max |score diff| 5.40e-04
+                      zzWJ9LWjpfDZLBT7W8o8zw: +0 / -0 peaks, max |score diff| 6.93e-04
+                      3Tw1W-lv133l2efDeoEAYQ: +0 / -0 peaks, max |score diff| 3.78e-04
+                      fGd6JE4qvoG1uOVvOjBBmg: +0 / -0 peaks, max |score diff| 4.42e-04
+                      kpvi-7jlODMmozIBUAUD_A: +0 / -0 peaks, max |score diff| 3.97e-04
+                      BvnpSlTjHxKyBiX5tQ02Mg: +0 / -0 peaks, max |score diff| 1.47e-03
+                      L8lyOJwUI8j3Mk_cV-R80Q: +0 / -0 peaks, max |score diff| 2.55e-04
+         gainesville: FAIL  [exclude_border=True (pre-f4c71c8)]  strict: +25 peaks (15 in the seam strip, 15 in the border band) / -11;  as-extracted: 97/125 panos differ, max|score diff| 1.94e-03 (331 > 1e-4)  @0.30: [210, 35, 62] vs [210, 35, 62] (with border [210, 36, 62])  @0.55: [183, 10, 89] vs [183, 10, 89] (with border [183, 11, 89])
+                      vbW2W3-AE2tr1NJYHCuHgw: +0 / -1 peaks, max |score diff| 8.21e-04
+                      q2yX7pwQF7_3SFGxEqlDHQ: +0 / -0 peaks, max |score diff| 8.13e-04
+                      9QF3VpTsXpZei70YvA-H6w: +0 / -0 peaks, max |score diff| 1.63e-03
+                      xMY6EkmbN9OZqwHeC_S7Zg: +1 / -1 peaks, max |score diff| 3.99e-04
+                      -FMeOe5iGG-5JFxSF0lxaQ: +0 / -0 peaks, max |score diff| 1.74e-03
+                      21qHYEKoNSGw9O3wF_dvBg: +1 / -1 peaks, max |score diff| 7.82e-04
+                      VYsAOBkJ-7hdoDBIOhr-nQ: +0 / -0 peaks, max |score diff| 4.92e-04
+                      89lilp2BlhppxL-oQ0gLNg: +0 / -0 peaks, max |score diff| 1.22e-03
+                      4My9h4mmpjE82U1up3jWOA: +0 / -0 peaks, max |score diff| 1.05e-03
+                      g7ZWUQeOp1Kl0LrWi0qrWw: +0 / -0 peaks, max |score diff| 4.46e-04
+           annapolis: FAIL  [exclude_border=True (pre-f4c71c8)]  strict: +14 peaks (7 in the seam strip, 7 in the border band) / -7;  as-extracted: 104/125 panos differ, max|score diff| 2.43e-03 (335 > 1e-4)  @0.30: [238, 25, 56] vs [238, 26, 56] (with border [238, 27, 56])  @0.55: [216, 6, 78] vs [217, 6, 77] (with border [216, 7, 78])
+                      371650204319915: +0 / -0 peaks, max |score diff| 5.48e-04
+                      340722771792916: +0 / -0 peaks, max |score diff| 6.96e-04
+                      653812816884043: +0 / -0 peaks, max |score diff| 9.86e-04
+                      1554822665323668: +0 / -0 peaks, max |score diff| 9.27e-04
+                      272909839049970: +0 / -0 peaks, max |score diff| 1.03e-03
+                      1040516234061456: +0 / -0 peaks, max |score diff| 7.26e-04
+                      928118321383655: +0 / -0 peaks, max |score diff| 1.16e-03
+                      1005430537402761: +0 / -0 peaks, max |score diff| 3.57e-04
+                      1027083038026430: +0 / -0 peaks, max |score diff| 7.11e-04
+                      1424988461692696: +0 / -0 peaks, max |score diff| 1.82e-03
+INSTRUMENT CHECK: FAIL
+check fp16 did not pass (see log)
+EXIT 0 2026-09-27T18:19:07Z

@@ -1,0 +1,56 @@
+{
+ "reference": "analysis_out/input_res_sweep_25/cache/r2048",
+ "score_tolerance": 0.0002,
+ "pass": true,
+ "cities": [
+  {
+   "city": "laurens_gsv",
+   "n_panos": 86,
+   "panos_mismatched": 0,
+   "max_abs_score_diff": 0.0,
+   "details": []
+  },
+  {
+   "city": "laurens_mapillary",
+   "n_panos": 94,
+   "panos_mismatched": 0,
+   "max_abs_score_diff": 0.0,
+   "details": []
+  },
+  {
+   "city": "clovis",
+   "n_panos": 125,
+   "panos_mismatched": 0,
+   "max_abs_score_diff": 0.0,
+   "details": []
+  },
+  {
+   "city": "bend",
+   "n_panos": 110,
+   "panos_mismatched": 0,
+   "max_abs_score_diff": 0.0,
+   "details": []
+  },
+  {
+   "city": "richmond",
+   "n_panos": 124,
+   "panos_mismatched": 0,
+   "max_abs_score_diff": 0.0,
+   "details": []
+  },
+  {
+   "city": "gainesville",
+   "n_panos": 125,
+   "panos_mismatched": 0,
+   "max_abs_score_diff": 0.0,
+   "details": []
+  },
+  {
+   "city": "paterson",
+   "n_panos": 125,
+   "panos_mismatched": 0,
+   "max_abs_score_diff": 0.0,
+   "details": []
+  }
+ ]
+}

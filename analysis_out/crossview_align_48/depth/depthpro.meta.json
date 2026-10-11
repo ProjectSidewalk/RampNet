@@ -1,0 +1,54 @@
+{
+ "clicks": 174,
+ "constants": {
+  "BAND": [
+   20.0,
+   45.0
+  ],
+  "BAND_MIN_POINTS": 200,
+  "BAND_MIN_SHARE": 0.25,
+  "GRID": 504,
+  "LOCAL_MIN_DEP_DEG": 2.0,
+  "LOCAL_MIN_POINTS": 50,
+  "LOCAL_MIN_SHARE": 0.3,
+  "LOCAL_RADIUS_M": 2.5,
+  "LOCAL_STRIDE": 2,
+  "PANO_MAX_EDGE": 4096,
+  "views": "default_views() 6 x 90deg, pitch -30"
+ },
+ "elapsed_s": 547.1,
+ "gpu": "NVIDIA A40",
+ "host": "makelab2.cs.washington.edu",
+ "label": "Depth Pro (apple/DepthPro)",
+ "model": "depthpro",
+ "model_load_s": 154.01,
+ "model_s": 353.96,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "panos": 144,
+ "prov": {
+  "code": "ml-depth-pro",
+  "code_commit": "9e65e4dbe9568d23c546fcec53302b10445e109e",
+  "hf": "apple/DepthPro",
+  "hf_revision": "ccd1350a774eb2248bcdfb3be430e38f1d3087ef",
+  "probe_estimated_focal_px": [
+   579.3,
+   612.2,
+   524.4,
+   666.5,
+   641.5,
+   571.8,
+   618.4,
+   558.1,
+   545.5,
+   496.6,
+   556.3,
+   500.4
+  ]
+ },
+ "ts": "2026-09-29T01:32:07Z",
+ "versions": {
+  "numpy": "2.5.3",
+  "python": "3.12.13",
+  "torch": "2.13.0+cu130"
+ }
+}

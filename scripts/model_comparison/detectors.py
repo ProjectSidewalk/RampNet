@@ -10,7 +10,7 @@ model-agnostic ground truth (see ``rampnet/detection_eval.py``).
   reprojects the pano into rectilinear views (``equirect_tiling``), runs the model
   per view, and maps boxes back to pano coordinates.
 - ``QwenDetector`` is **live** (open weights via transformers; intended for a GPU
-  cluster — see the Hyak runbook in ``docs/model_comparison.md``). Same tiled path
+  cluster — see the Hyak runbook in ``docs/running_model_comparison.md``). Same tiled path
   as Gemini; the model is loaded once per run in ``_ensure_ready``.
 - ``OwlV2Detector`` / ``GroundingDinoDetector`` are **live** open-vocabulary
   *detectors* (not chat models): text query in, boxes **with calibrated scores**

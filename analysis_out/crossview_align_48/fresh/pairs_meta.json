@@ -1,0 +1,47 @@
+{
+ "eligible_sha256": "9ec142e39503733c345ec195c06446975820a3d13f563546d06885908abbd134",
+ "frozen300_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "max_pairs_per_ramp": 2,
+ "pairs": 807,
+ "pairs_on_new_ramps": 686,
+ "pairs_sha256": "4ae009bfc4a767c3a176c7707cbace77a09932d69e44792bdc3adc97d51e9f7a",
+ "per_city": {
+  "bend": {
+   "eligible_not_in_300": 273,
+   "new_ramps": 111,
+   "pairs": 211,
+   "pairs_on_new_ramps": 189,
+   "ramps": 127
+  },
+  "gainesville": {
+   "eligible_not_in_300": 137,
+   "new_ramps": 69,
+   "pairs": 119,
+   "pairs_on_new_ramps": 109,
+   "ramps": 78
+  },
+  "paterson": {
+   "eligible_not_in_300": 166,
+   "new_ramps": 62,
+   "pairs": 127,
+   "pairs_on_new_ramps": 108,
+   "ramps": 77
+  },
+  "richmond": {
+   "eligible_not_in_300": 724,
+   "new_ramps": 111,
+   "pairs": 259,
+   "pairs_on_new_ramps": 209,
+   "ramps": 138
+  },
+  "sao_paulo": {
+   "eligible_not_in_300": 123,
+   "new_ramps": 42,
+   "pairs": 91,
+   "pairs_on_new_ramps": 71,
+   "ramps": 57
+  }
+ },
+ "per_city_cap": null,
+ "seed": "48:fresh"
+}

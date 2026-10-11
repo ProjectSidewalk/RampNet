@@ -2,8 +2,12 @@
 
 Threshold recovers ramps the model saw weakly; resolution targets small/distant ones.
 If distant ramps are exactly the weak-response ones, the two gains OVERLAP rather
-than add. Records per-GT-ramp recovery at several thresholds, then cross-tabs by
-DA3 metric depth.
+than add. Records per-GT-ramp recovery at several thresholds to analysis_out/overlap.json.
+
+It does NOT cross-tab by depth, although an earlier version of this docstring said so:
+``DA3_SRC`` below is read and never used, and nothing here opens ``gt_depth_da3.json``.
+The per-band table in docs/detection_recall_analysis.md section 5 came from a join of
+overlap.json to that depth file that was never committed (#171).
 """
 import os as _os, sys as _sys
 REPO = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))

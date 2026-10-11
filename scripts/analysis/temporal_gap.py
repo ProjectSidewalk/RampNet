@@ -1,7 +1,7 @@
 """How far apart are a city's curb-ramp inventory and its street-level imagery?
 
 Sourcing gate for a larger Stage 1 corpus (issues #59, #86). See
-``docs/curb_ramp_data_sourcing.md`` §5a for why this is a gate at all.
+``docs/location_precision_assessment_96.md`` §5a for why this is a gate at all.
 
 Positional precision (paper Tab. 1) asks *is the coordinate on the ramp?*
 This asks the independent question *did the ramp and the pixels exist at the same

@@ -35,13 +35,32 @@ Subcommands (CPU; the GPU work is ``tag_benchmark_86.py train`` / ``infer``, seq
 Every arm is resized to 256x256 before the model sees it (``tag_benchmark_86.IMAGE_DIMENSION``),
 so a wider field of view is also a coarser angular resolution at the model's input: the arms
 vary context and resolution together (``docs/context_fov_86.md`` section 4, reading 3).
+
+The resolution arms separate the two (section 4's "arm that separates resolution from
+context"): the fov25 crops downsampled to the centre resolution a wider arm has at the
+model's input, then trained with the same recipe. Same scene as fov25, fov90's (or fov50's)
+pixels:
+
+  fov25px57   fov25 at fov90's centre resolution (2.2 px/deg at 256 px -> a 25 deg view is 57 px)
+  fov25px122  fov25 at fov50's centre resolution (4.8 px/deg -> 122 px)
+
+  downsample  from the fov25 crops on disk: the resolution arms' crops (LANCZOS, JPEG at the
+              cutter's quality) and their label tables, plus a sha256 listing of what trains
+
+If fov25px57 loses what fov90 loses, the fov90 loss is resolution; if it keeps fov25's
+scores, the loss goes with the wider crop. That second term is two things at once: more street,
+and a smaller ramp at the model's input, since the trainer upsamples a 57 px crop to 256 px and
+the ramp then fills the frame, where inside fov90 the same central 25 deg is 57 of 256 px
+(docs/context_fov_86.md section 4.2).
 """
 from __future__ import annotations
 
 import argparse
 import datetime as dt
 import json
+import math
 import os
+import re
 import sys
 
 import pandas as pd
@@ -55,6 +74,9 @@ import tag_benchmark_86 as tb  # noqa: E402  (same directory)
 OUT_DIR = os.path.join(REPO, "analysis_out", "context_fov_86")
 COVERAGE_INPUT = os.path.join(REPO, "docs", "data", "crop_cutter", "coverage_input.csv")
 ARMS = ("viewport", "fov25", "fov50", "fov90")
+ARM_FOV = {"fov25": 25.0, "fov50": 50.0, "fov90": 90.0}  # horizontal field of view of the label-centred arms
+RES_SRC = "fov25"  # the arm the resolution arms are downsampled from
+RES_TARGETS = ("fov50", "fov90")  # the arms whose centre resolution they match
 CROP_BOX = 320  # the tagger's crop.py: a 640 px box, +-320 around the label point
 VIEWPORT_SIZE = (1440, 960)  # the cutter's default viewport crop, the HF crop's size
 
@@ -192,6 +214,114 @@ def cmd_crop640(a):
     print(f"cropped {n} viewport crops in place to {2 * CROP_BOX} px boxes (quality {a.quality})")
 
 
+# ----------------------------------------------------------------------------- downsample
+
+def centre_px_per_deg(fov_deg, size_px):
+    """Pixels per degree at the centre of a square gnomonic crop ``size_px`` wide covering
+    ``fov_deg`` horizontally: the focal length (size/2) / tan(fov/2) px per radian, in degrees.
+
+    >>> round(centre_px_per_deg(90, 256), 1), round(centre_px_per_deg(25, 256), 1)
+    (2.2, 10.1)
+    """
+    return (size_px / 2.0) / math.tan(math.radians(fov_deg) / 2.0) * math.pi / 180.0
+
+
+def matched_px(src_fov, target_fov, model_px=tb.IMAGE_DIMENSION):
+    """The side, in pixels, at which a ``src_fov`` crop has the centre resolution a
+    ``target_fov`` crop has at the model's ``model_px`` input (both resized to ``model_px``
+    by the trainer, so the ratio of focal lengths is the ratio of px/deg).
+
+    >>> matched_px(25, 90), matched_px(25, 50)
+    (57, 122)
+    """
+    return int(round(model_px * centre_px_per_deg(target_fov, model_px) / centre_px_per_deg(src_fov, model_px)))
+
+
+def res_arm_name(src, target):
+    """``fov25px57``: the fov25 crops at fov90's centre resolution."""
+    return f"{src}px{matched_px(ARM_FOV[src], ARM_FOV[target])}"
+
+
+RES_ARMS = tuple(res_arm_name(RES_SRC, t) for t in RES_TARGETS)  # ("fov25px122", "fov25px57")
+
+
+def _complete_image(path, size):
+    """True if ``path`` exists, decodes in full (``load()``, which raises on a truncated JPEG,
+    where ``Image.open`` reads only the header), and is ``size``."""
+    from PIL import Image
+    if not os.path.exists(path):
+        return False
+    try:
+        with Image.open(path) as im:
+            im.load()
+            return im.size == size
+    except (OSError, SyntaxError):  # PIL raises OSError on truncation, SyntaxError on some bad headers
+        return False
+
+
+def downsample_arm(lab, src, target, images, quality=92):
+    """Write one resolution arm's crops beside the source arm's, from the source crops on
+    disk, and return (label table with ``filename`` pointing at them, summary dict).
+
+    LANCZOS (antialiased) to px x px, saved as JPEG at ``quality``, the cutter's default. This
+    is a second JPEG encode of the cutter's output, and it is not comparable to the viewport
+    arm's ``crop640``: that one is at 640 px and is shrunk 2.5x to the model's 256 px, while
+    these are enlarged to 256 px (4.5x at 57 px, 2.1x at 122 px), so their 8x8 compression
+    blocks reach the model enlarged, about 36 px and 17 px across (docs/context_fov_86.md
+    section 6). A lossless format would have avoided that at no cost.
+
+    Resumable: a crop already on disk is kept only if it decodes in full at the right size,
+    so one truncated by a killed job is written again. Each crop is written to a temporary
+    name and moved into place, so a kill leaves no partial file under the final name.
+    """
+    from PIL import Image
+    px = matched_px(ARM_FOV[src], ARM_FOV[target])
+    arm = res_arm_name(src, target)
+    names, written, kept, listing = [], 0, 0, []
+    for fn in lab.filename:
+        assert fn.endswith(f"__{src}.jpg"), fn
+        out_name = fn[: -len(f"__{src}.jpg")] + f"__{arm}.jpg"
+        out_path = os.path.join(images, out_name)
+        if _complete_image(out_path, (px, px)):
+            kept += 1
+        else:
+            with Image.open(os.path.join(images, fn)) as im:
+                small = im.convert("RGB").resize((px, px), Image.LANCZOS)
+            tmp_path = out_path + ".part"
+            small.save(tmp_path, format="JPEG", quality=quality)
+            os.replace(tmp_path, out_path)
+            written += 1
+        names.append(out_name)
+        listing.append((out_name, tb.sha256_file(out_path)))
+    t = lab.copy()
+    t["filename"] = names
+    summary = {"arm": arm, "source_arm": src, "target_arm": target, "px": px,
+               "centre_px_per_deg_at_model_input": {
+                   src: round(centre_px_per_deg(ARM_FOV[src], tb.IMAGE_DIMENSION), 3),
+                   target: round(centre_px_per_deg(ARM_FOV[target], tb.IMAGE_DIMENSION), 3)},
+               "model_input_px": tb.IMAGE_DIMENSION, "resample": "LANCZOS", "jpeg_quality": quality,
+               "n": int(len(t)), "written": written, "kept": kept}
+    return t, summary, listing
+
+
+def cmd_downsample(a):
+    lab = pd.read_csv(a.labels)
+    os.makedirs(a.out_dir, exist_ok=True)
+    for target in a.targets:
+        t, summary, listing = downsample_arm(lab, a.src, target, a.images, quality=a.quality)
+        arm = summary["arm"]
+        tb.write_csv(t, os.path.join(a.out_dir, f"labels_{arm}.csv"))
+        with open(os.path.join(a.out_dir, f"crops_as_trained_{arm}.sha256"), "w", encoding="utf-8",
+                  newline="\n") as fh:
+            for name, digest in sorted(listing):
+                fh.write(f"{digest}  {name}\n")
+        summary["source_labels"] = os.path.basename(a.labels)
+        summary["source_labels_sha256"] = tb.sha256_file(a.labels)
+        summary["ts"] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+        tb.write_json(summary, os.path.join(a.out_dir, f"downsample_{arm}.json"))
+        print(json.dumps(summary, indent=1))
+
+
 # ----------------------------------------------------------------------------- report
 
 def score_row(name, path, tags):
@@ -315,11 +445,25 @@ def paired_contrast(pred_a, labels_a, pred_b, labels_b, split_csv, tags_fixed=No
             "per_tag_ap_a_minus_b": {t: {"point": _pt(t), "ci95": tb._ci(per_tag[t])} for t in fixed}}
 
 
+def arm_labels_path(out_dir, arm):
+    """``labels_<arm>.csv``; a second seed of an arm (``<arm>_s<seed>``, ``context_fov_86.slurm``
+    with ``SEED``) trains on the first seed's table, so it scores against ``labels_<arm>.csv``.
+    Any name ending in ``_s<digits>`` is read as a seed run, so an arm's own name must never end
+    that way (none does: ``viewport``, ``fov25``, ``fov50``, ``fov90``, ``fov25px122``, ``fov25px57``).
+
+    >>> os.path.basename(arm_labels_path("x", "fov90_s87"))
+    'labels_fov90.csv'
+    """
+    m = re.fullmatch(r"(.+)_s(\d+)", arm)
+    base = m.group(1) if m else arm
+    return os.path.join(out_dir, f"labels_{base}.csv")
+
+
 def cmd_contrast(a):
     rows = []
     for arm in a.arms:
         pred = os.path.join(a.out_dir, f"train_{arm}_final_test_predictions.csv")
-        labels = os.path.join(a.out_dir, f"labels_{arm}.csv")
+        labels = arm_labels_path(a.out_dir, arm)
         if not os.path.exists(pred):
             print(f"{arm}: not run ({os.path.basename(pred)} missing)")
             continue
@@ -359,6 +503,15 @@ def main(argv=None):
     p.add_argument("--images", required=True)
     p.add_argument("--quality", type=int, default=92, help="JPEG quality (the cutter's default)")
     p.set_defaults(fn=cmd_crop640)
+
+    p = sub.add_parser("downsample", help="the resolution arms: fov25 crops at a wider arm's centre resolution")
+    p.add_argument("--labels", default=os.path.join(OUT_DIR, f"labels_{RES_SRC}.csv"))
+    p.add_argument("--images", required=True, help="the crop dir holding the source arm; the new crops go beside them")
+    p.add_argument("--src", default=RES_SRC, choices=sorted(ARM_FOV))
+    p.add_argument("--targets", nargs="+", default=list(RES_TARGETS), choices=sorted(ARM_FOV))
+    p.add_argument("--quality", type=int, default=92, help="JPEG quality (the cutter's default)")
+    p.add_argument("--out-dir", default=OUT_DIR)
+    p.set_defaults(fn=cmd_downsample)
 
     p = sub.add_parser("report", help="one table over the arms and the re-scored control")
     p.add_argument("--out-dir", default=OUT_DIR)

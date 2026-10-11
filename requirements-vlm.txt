@@ -17,7 +17,7 @@ google-auth
 requests
 
 # Qwen3-VL (open weights; run on a cluster GPU — see the Hyak runbook in
-# docs/model_comparison.md). torch comes from the conda env; these are the extras:
+# docs/running_model_comparison.md). torch comes from the conda env; these are the extras:
 #   - transformers 4.57 is the first release with Qwen3-VL.
 #   - accelerate enables device_map="auto", needed to shard Qwen3-VL-32B-Instruct
 #     (~64 GB in bf16) across two GPUs; 8B fits one 48 GB card.

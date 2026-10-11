@@ -1,0 +1,4281 @@
+{
+ "arms": {
+  "disk_lg": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.0658,
+     "auto_within_2deg": 0.2766,
+     "gain_vs_auto": -0.2358,
+     "gain_vs_auto_ci": [
+      -0.719,
+      0.489
+     ],
+     "gain_vs_projection": 0.0036,
+     "gain_vs_projection_ci": [
+      -0.681,
+      1.927
+     ],
+     "harm_share": 0.3191,
+     "help_share": 0.2553,
+     "median_ci": [
+      1.889,
+      5.17
+     ],
+     "median_deg": 3.0001,
+     "n": 47,
+     "projection_median_deg": 4.4471,
+     "within_2deg": 0.3617
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.8433,
+    "gain_vs_auto": -0.198,
+    "gain_vs_auto_ci": [
+     -0.472,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.42,
+     6.519
+    ],
+    "median_deg": 5.524,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2167
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.0291,
+     "auto_within_2deg": 0.4444,
+     "gain_vs_auto": -0.3013,
+     "gain_vs_auto_ci": [
+      -3.41,
+      0.242
+     ],
+     "gain_vs_projection": -0.0184,
+     "gain_vs_projection_ci": [
+      -0.951,
+      3.016
+     ],
+     "harm_share": 0.3704,
+     "help_share": 0.1852,
+     "median_ci": [
+      1.529,
+      6.494
+     ],
+     "median_deg": 2.8392,
+     "n": 27,
+     "projection_median_deg": 4.1973,
+     "within_2deg": 0.4444
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.8875,
+    "gain_vs_auto": -0.5659,
+    "gain_vs_auto_ci": [
+     -1.102,
+     -0.23
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.74,
+     6.873
+    ],
+    "median_deg": 6.0939,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2292
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5573,
+     "auto_within_2deg": 0.05,
+     "gain_vs_auto": 0.3325,
+     "gain_vs_auto_ci": [
+      -0.911,
+      2.819
+     ],
+     "gain_vs_projection": 0.3324,
+     "gain_vs_projection_ci": [
+      -0.911,
+      2.819
+     ],
+     "harm_share": 0.25,
+     "help_share": 0.35,
+     "median_ci": [
+      2.223,
+      5.17
+     ],
+     "median_deg": 3.3088,
+     "n": 20,
+     "projection_median_deg": 4.5573,
+     "within_2deg": 0.25
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.6667,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.473,
+     5.18
+    ],
+    "median_deg": 3.9653,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1667
+   }
+  },
+  "disk_lg_epi": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.7182,
+     "auto_within_2deg": 0.274,
+     "gain_vs_auto": 0.0012,
+     "gain_vs_auto_ci": [
+      -0.043,
+      0.066
+     ],
+     "gain_vs_projection": 0.4678,
+     "gain_vs_projection_ci": [
+      0.173,
+      0.876
+     ],
+     "harm_share": 0.1096,
+     "help_share": 0.0274,
+     "median_ci": [
+      2.812,
+      5.135
+     ],
+     "median_deg": 3.9795,
+     "n": 146,
+     "projection_median_deg": 4.6331,
+     "within_2deg": 0.274
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.5133,
+    "gain_vs_auto": -0.0,
+    "gain_vs_auto_ci": [
+     -0.047,
+     0.02
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.192,
+     6.16
+    ],
+    "median_deg": 5.0915,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2367
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.2706,
+     "auto_within_2deg": 0.3491,
+     "gain_vs_auto": -0.0127,
+     "gain_vs_auto_ci": [
+      -0.106,
+      0.045
+     ],
+     "gain_vs_projection": 0.6725,
+     "gain_vs_projection_ci": [
+      0.228,
+      1.87
+     ],
+     "harm_share": 0.1038,
+     "help_share": 0.0189,
+     "median_ci": [
+      2.126,
+      5.135
+     ],
+     "median_deg": 3.6927,
+     "n": 106,
+     "projection_median_deg": 5.1823,
+     "within_2deg": 0.3113
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.5583,
+    "gain_vs_auto": -0.0559,
+    "gain_vs_auto_ci": [
+     -0.259,
+     0.049
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.995,
+     6.387
+    ],
+    "median_deg": 5.2038,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2542
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.4015,
+     "auto_within_2deg": 0.075,
+     "gain_vs_auto": 0.1344,
+     "gain_vs_auto_ci": [
+      0.01,
+      0.52
+     ],
+     "gain_vs_projection": 0.1343,
+     "gain_vs_projection_ci": [
+      0.01,
+      0.52
+     ],
+     "harm_share": 0.125,
+     "help_share": 0.05,
+     "median_ci": [
+      2.814,
+      7.316
+     ],
+     "median_deg": 4.4911,
+     "n": 40,
+     "projection_median_deg": 4.4015,
+     "within_2deg": 0.175
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.3333,
+    "gain_vs_auto": 0.0002,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.037
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.037
+    ],
+    "median_ci": [
+     3.877,
+     6.863
+    ],
+    "median_deg": 4.6072,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1667
+   }
+  },
+  "lg": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 2.9934,
+     "auto_within_2deg": 0.2921,
+     "gain_vs_auto": 0.4486,
+     "gain_vs_auto_ci": [
+      -0.264,
+      0.926
+     ],
+     "gain_vs_projection": 0.8804,
+     "gain_vs_projection_ci": [
+      0.346,
+      2.125
+     ],
+     "harm_share": 0.2809,
+     "help_share": 0.3146,
+     "median_ci": [
+      1.914,
+      2.872
+     ],
+     "median_deg": 2.4124,
+     "n": 89,
+     "projection_median_deg": 4.3967,
+     "within_2deg": 0.4045
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.7033,
+    "gain_vs_auto": -0.0006,
+    "gain_vs_auto_ci": [
+     -0.436,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.51,
+     6.007
+    ],
+    "median_deg": 4.7893,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2467
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.3956,
+     "auto_within_2deg": 0.3966,
+     "gain_vs_auto": -0.1465,
+     "gain_vs_auto_ci": [
+      -0.979,
+      0.449
+     ],
+     "gain_vs_projection": 0.4673,
+     "gain_vs_projection_ci": [
+      0.009,
+      1.647
+     ],
+     "harm_share": 0.3276,
+     "help_share": 0.1897,
+     "median_ci": [
+      2.061,
+      3.7
+     ],
+     "median_deg": 2.6363,
+     "n": 58,
+     "projection_median_deg": 4.297,
+     "within_2deg": 0.3621
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.7583,
+    "gain_vs_auto": -0.5222,
+    "gain_vs_auto_ci": [
+     -1.199,
+     -0.111
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.152,
+     6.685
+    ],
+    "median_deg": 5.9141,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2333
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5445,
+     "auto_within_2deg": 0.0968,
+     "gain_vs_auto": 2.2508,
+     "gain_vs_auto_ci": [
+      0.88,
+      3.635
+     ],
+     "gain_vs_projection": 2.2506,
+     "gain_vs_projection_ci": [
+      0.88,
+      3.635
+     ],
+     "harm_share": 0.1935,
+     "help_share": 0.5484,
+     "median_ci": [
+      1.189,
+      2.443
+     ],
+     "median_deg": 2.1036,
+     "n": 31,
+     "projection_median_deg": 4.5445,
+     "within_2deg": 0.4839
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.4833,
+    "gain_vs_auto": 0.0003,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.474
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.474
+    ],
+    "median_ci": [
+     2.388,
+     4.334
+    ],
+    "median_deg": 3.0541,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3
+   }
+  },
+  "lg_epi": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.7845,
+     "auto_within_2deg": 0.2564,
+     "gain_vs_auto": -0.0001,
+     "gain_vs_auto_ci": [
+      -0.083,
+      0.054
+     ],
+     "gain_vs_projection": 0.4908,
+     "gain_vs_projection_ci": [
+      0.065,
+      0.844
+     ],
+     "harm_share": 0.1128,
+     "help_share": 0.0256,
+     "median_ci": [
+      3.065,
+      4.845
+     ],
+     "median_deg": 3.799,
+     "n": 195,
+     "projection_median_deg": 4.6128,
+     "within_2deg": 0.2462
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.35,
+    "gain_vs_auto": -0.0122,
+    "gain_vs_auto_ci": [
+     -0.132,
+     0.005
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.799,
+     6.116
+    ],
+    "median_deg": 4.892,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2267
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.5622,
+     "auto_within_2deg": 0.3176,
+     "gain_vs_auto": -0.0608,
+     "gain_vs_auto_ci": [
+      -0.205,
+      0.005
+     ],
+     "gain_vs_projection": 0.5639,
+     "gain_vs_projection_ci": [
+      -0.069,
+      1.251
+     ],
+     "harm_share": 0.1216,
+     "help_share": 0.0,
+     "median_ci": [
+      2.792,
+      5.272
+     ],
+     "median_deg": 3.771,
+     "n": 148,
+     "projection_median_deg": 4.8427,
+     "within_2deg": 0.2838
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.3833,
+    "gain_vs_auto": -0.1758,
+    "gain_vs_auto_ci": [
+     -0.271,
+     -0.012
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.793,
+     6.359
+    ],
+    "median_deg": 5.2722,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2458
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.557,
+     "auto_within_2deg": 0.0638,
+     "gain_vs_auto": 0.1739,
+     "gain_vs_auto_ci": [
+      0.03,
+      0.71
+     ],
+     "gain_vs_projection": 0.1743,
+     "gain_vs_projection_ci": [
+      0.03,
+      0.71
+     ],
+     "harm_share": 0.0851,
+     "help_share": 0.1064,
+     "median_ci": [
+      2.797,
+      6.772
+     ],
+     "median_deg": 4.1619,
+     "n": 47,
+     "projection_median_deg": 4.557,
+     "within_2deg": 0.1277
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.2167,
+    "gain_vs_auto": 0.0321,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.398
+    ],
+    "gain_vs_projection": 0.0319,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.398
+    ],
+    "median_ci": [
+     3.115,
+     6.772
+    ],
+    "median_deg": 4.296,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.15
+   }
+  },
+  "lg_hyb": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.471,
+     "gain_vs_projection_ci": [
+      0.034,
+      1.147
+     ],
+     "harm_share": 0.16,
+     "help_share": 0.1033,
+     "median_ci": [
+      3.548,
+      5.067
+     ],
+     "median_deg": 4.0759,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.2467
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.471,
+    "gain_vs_projection_ci": [
+     0.034,
+     1.147
+    ],
+    "median_ci": [
+     3.548,
+     5.067
+    ],
+    "median_deg": 4.0759,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2467
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.5885,
+     "gain_vs_projection_ci": [
+      0.083,
+      1.434
+     ],
+     "harm_share": 0.1583,
+     "help_share": 0.0458,
+     "median_ci": [
+      3.71,
+      5.418
+     ],
+     "median_deg": 4.3286,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.2292
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.5885,
+    "gain_vs_projection_ci": [
+     0.083,
+     1.434
+    ],
+    "median_ci": [
+     3.71,
+     5.418
+    ],
+    "median_deg": 4.3286,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2292
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.0904,
+     "gain_vs_auto_ci": [
+      0.0,
+      1.664
+     ],
+     "gain_vs_projection": 0.0904,
+     "gain_vs_projection_ci": [
+      0.0,
+      1.664
+     ],
+     "harm_share": 0.1667,
+     "help_share": 0.3333,
+     "median_ci": [
+      2.356,
+      4.059
+     ],
+     "median_deg": 3.108,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.3167
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0904,
+    "gain_vs_auto_ci": [
+     0.0,
+     1.664
+    ],
+    "gain_vs_projection": 0.0904,
+    "gain_vs_projection_ci": [
+     0.0,
+     1.664
+    ],
+    "median_ci": [
+     2.356,
+     4.059
+    ],
+    "median_deg": 3.108,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3167
+   },
+   "via": {
+    "auto_prior": 105,
+    "epipolar": 105,
+    "homography": 90
+   }
+  },
+  "lg_magsac": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 2.9887,
+     "auto_within_2deg": 0.3023,
+     "gain_vs_auto": 0.3226,
+     "gain_vs_auto_ci": [
+      -0.145,
+      0.837
+     ],
+     "gain_vs_projection": 0.859,
+     "gain_vs_projection_ci": [
+      0.553,
+      2.109
+     ],
+     "harm_share": 0.2326,
+     "help_share": 0.2791,
+     "median_ci": [
+      1.869,
+      3.037
+     ],
+     "median_deg": 2.4541,
+     "n": 86,
+     "projection_median_deg": 4.4219,
+     "within_2deg": 0.4419
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.7133,
+    "gain_vs_auto": -0.0004,
+    "gain_vs_auto_ci": [
+     -0.407,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.686,
+     6.042
+    ],
+    "median_deg": 4.7187,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2567
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.1766,
+     "auto_within_2deg": 0.4182,
+     "gain_vs_auto": -0.1289,
+     "gain_vs_auto_ci": [
+      -1.013,
+      0.428
+     ],
+     "gain_vs_projection": 0.6523,
+     "gain_vs_projection_ci": [
+      -0.082,
+      1.239
+     ],
+     "harm_share": 0.2909,
+     "help_share": 0.1455,
+     "median_ci": [
+      1.893,
+      4.392
+     ],
+     "median_deg": 2.88,
+     "n": 55,
+     "projection_median_deg": 4.3967,
+     "within_2deg": 0.4182
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.7708,
+    "gain_vs_auto": -0.5124,
+    "gain_vs_auto_ci": [
+     -1.102,
+     -0.106
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.311,
+     6.891
+    ],
+    "median_deg": 5.9171,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2458
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5445,
+     "auto_within_2deg": 0.0968,
+     "gain_vs_auto": 2.109,
+     "gain_vs_auto_ci": [
+      0.773,
+      3.755
+     ],
+     "gain_vs_projection": 2.109,
+     "gain_vs_projection_ci": [
+      0.773,
+      3.755
+     ],
+     "harm_share": 0.129,
+     "help_share": 0.5161,
+     "median_ci": [
+      1.291,
+      2.732
+     ],
+     "median_deg": 2.1867,
+     "n": 31,
+     "projection_median_deg": 4.5445,
+     "within_2deg": 0.4839
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.4833,
+    "gain_vs_auto": 0.0003,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.092
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.092
+    ],
+    "median_ci": [
+     2.507,
+     4.322
+    ],
+    "median_deg": 3.3458,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3
+   }
+  },
+  "loftr": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.578,
+     "auto_within_2deg": 0.2381,
+     "gain_vs_auto": -2.6978,
+     "gain_vs_auto_ci": [
+      -5.046,
+      -0.189
+     ],
+     "gain_vs_projection": -1.3422,
+     "gain_vs_projection_ci": [
+      -4.972,
+      0.167
+     ],
+     "harm_share": 0.5476,
+     "help_share": 0.1905,
+     "median_ci": [
+      3.849,
+      10.267
+     ],
+     "median_deg": 6.2992,
+     "n": 42,
+     "projection_median_deg": 4.2279,
+     "within_2deg": 0.1429
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.86,
+    "gain_vs_auto": -0.3284,
+    "gain_vs_auto_ci": [
+     -0.794,
+     -0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.978,
+     6.958
+    ],
+    "median_deg": 6.0293,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.1833
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.3956,
+     "auto_within_2deg": 0.35,
+     "gain_vs_auto": -4.512,
+     "gain_vs_auto_ci": [
+      -11.905,
+      -2.595
+     ],
+     "gain_vs_projection": -4.3431,
+     "gain_vs_projection_ci": [
+      -12.755,
+      -0.743
+     ],
+     "harm_share": 0.75,
+     "help_share": 0.0,
+     "median_ci": [
+      6.621,
+      18.941
+     ],
+     "median_deg": 10.8004,
+     "n": 20,
+     "projection_median_deg": 4.4219,
+     "within_2deg": 0.05
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.9167,
+    "gain_vs_auto": -0.7946,
+    "gain_vs_auto_ci": [
+     -1.628,
+     -0.348
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     5.348,
+     7.671
+    ],
+    "median_deg": 6.5266,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.1958
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 3.9202,
+     "auto_within_2deg": 0.1364,
+     "gain_vs_auto": -0.2697,
+     "gain_vs_auto_ci": [
+      -4.741,
+      3.206
+     ],
+     "gain_vs_projection": -0.2697,
+     "gain_vs_projection_ci": [
+      -4.741,
+      3.206
+     ],
+     "harm_share": 0.3636,
+     "help_share": 0.3636,
+     "median_ci": [
+      2.623,
+      6.958
+     ],
+     "median_deg": 3.6594,
+     "n": 22,
+     "projection_median_deg": 3.9202,
+     "within_2deg": 0.2273
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.6333,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     -0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.501,
+     5.872
+    ],
+    "median_deg": 4.6545,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1333
+   }
+  },
+  "loftr_epi": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.6155,
+     "auto_within_2deg": 0.2695,
+     "gain_vs_auto": -0.0176,
+     "gain_vs_auto_ci": [
+      -0.064,
+      0.016
+     ],
+     "gain_vs_projection": 0.4181,
+     "gain_vs_projection_ci": [
+      0.063,
+      0.823
+     ],
+     "harm_share": 0.1377,
+     "help_share": 0.018,
+     "median_ci": [
+      3.5,
+      5.849
+     ],
+     "median_deg": 4.4897,
+     "n": 167,
+     "projection_median_deg": 4.7743,
+     "within_2deg": 0.2395
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.4433,
+    "gain_vs_auto": -0.0017,
+    "gain_vs_auto_ci": [
+     -0.067,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.231,
+     6.357
+    ],
+    "median_deg": 5.47,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2233
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.4753,
+     "auto_within_2deg": 0.336,
+     "gain_vs_auto": -0.0444,
+     "gain_vs_auto_ci": [
+      -0.155,
+      -0.002
+     ],
+     "gain_vs_projection": 0.7702,
+     "gain_vs_projection_ci": [
+      -0.097,
+      1.196
+     ],
+     "harm_share": 0.152,
+     "help_share": 0.0,
+     "median_ci": [
+      3.038,
+      6.1
+     ],
+     "median_deg": 4.4897,
+     "n": 125,
+     "projection_median_deg": 5.348,
+     "within_2deg": 0.28
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.4792,
+    "gain_vs_auto": -0.0783,
+    "gain_vs_auto_ci": [
+     -0.26,
+     -0.001
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.178,
+     6.434
+    ],
+    "median_deg": 5.8233,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2458
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.4015,
+     "auto_within_2deg": 0.0714,
+     "gain_vs_auto": 0.1318,
+     "gain_vs_auto_ci": [
+      -0.014,
+      0.503
+     ],
+     "gain_vs_projection": 0.1315,
+     "gain_vs_projection_ci": [
+      -0.014,
+      0.503
+     ],
+     "harm_share": 0.0952,
+     "help_share": 0.0714,
+     "median_ci": [
+      2.998,
+      6.764
+     ],
+     "median_deg": 4.5139,
+     "n": 42,
+     "projection_median_deg": 4.4015,
+     "within_2deg": 0.119
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.3,
+    "gain_vs_auto": 0.0003,
+    "gain_vs_auto_ci": [
+     -0.0,
+     0.082
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.082
+    ],
+    "median_ci": [
+     3.659,
+     6.671
+    ],
+    "median_deg": 4.625,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1333
+   }
+  },
+  "loftr_hyb": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.0004,
+     "gain_vs_projection_ci": [
+      -0.14,
+      0.418
+     ],
+     "harm_share": 0.1533,
+     "help_share": 0.0333,
+     "median_ci": [
+      4.329,
+      6.297
+     ],
+     "median_deg": 5.1584,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.2067
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.0004,
+    "gain_vs_projection_ci": [
+     -0.14,
+     0.418
+    ],
+    "median_ci": [
+     4.329,
+     6.297
+    ],
+    "median_deg": 5.1584,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2067
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.2837,
+     "gain_vs_projection_ci": [
+      -0.518,
+      0.874
+     ],
+     "harm_share": 0.1417,
+     "help_share": 0.0,
+     "median_ci": [
+      4.278,
+      6.428
+     ],
+     "median_deg": 5.1254,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.2208
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.2837,
+    "gain_vs_projection_ci": [
+     -0.518,
+     0.874
+    ],
+    "median_ci": [
+     4.278,
+     6.428
+    ],
+    "median_deg": 5.1254,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2208
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      -0.001,
+      0.0
+     ],
+     "gain_vs_projection": 0.0,
+     "gain_vs_projection_ci": [
+      -0.001,
+      0.001
+     ],
+     "harm_share": 0.2,
+     "help_share": 0.1667,
+     "median_ci": [
+      3.903,
+      7.161
+     ],
+     "median_deg": 5.3772,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.15
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     -0.001,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     -0.001,
+     0.001
+    ],
+    "median_ci": [
+     3.903,
+     7.161
+    ],
+    "median_deg": 5.3772,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.15
+   },
+   "via": {
+    "auto_prior": 133,
+    "epipolar": 125,
+    "homography": 42
+   }
+  },
+  "roma": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0544,
+     "auto_within_2deg": 0.2366,
+     "gain_vs_auto": 0.1208,
+     "gain_vs_auto_ci": [
+      -0.188,
+      0.485
+     ],
+     "gain_vs_projection": 0.8865,
+     "gain_vs_projection_ci": [
+      0.392,
+      1.601
+     ],
+     "harm_share": 0.2939,
+     "help_share": 0.276,
+     "median_ci": [
+      2.722,
+      4.557
+     ],
+     "median_deg": 3.509,
+     "n": 279,
+     "projection_median_deg": 5.5718,
+     "within_2deg": 0.3369
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.07,
+    "gain_vs_auto": 0.0332,
+    "gain_vs_auto_ci": [
+     -0.222,
+     0.431
+    ],
+    "gain_vs_projection": 0.5335,
+    "gain_vs_projection_ci": [
+     0.001,
+     1.102
+    ],
+    "median_ci": [
+     2.925,
+     4.695
+    ],
+    "median_deg": 3.5148,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3233
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.7867,
+     "auto_within_2deg": 0.276,
+     "gain_vs_auto": -0.1391,
+     "gain_vs_auto_ci": [
+      -0.969,
+      0.112
+     ],
+     "gain_vs_projection": 0.5057,
+     "gain_vs_projection_ci": [
+      -0.066,
+      1.316
+     ],
+     "harm_share": 0.3348,
+     "help_share": 0.2217,
+     "median_ci": [
+      3.197,
+      5.753
+     ],
+     "median_deg": 4.1895,
+     "n": 221,
+     "projection_median_deg": 6.0398,
+     "within_2deg": 0.3348
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0792,
+    "gain_vs_auto": -0.193,
+    "gain_vs_auto_ci": [
+     -0.906,
+     0.121
+    ],
+    "gain_vs_projection": 0.1014,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.887
+    ],
+    "median_ci": [
+     3.261,
+     5.79
+    ],
+    "median_deg": 4.4072,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3167
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5917,
+     "auto_within_2deg": 0.0862,
+     "gain_vs_auto": 1.9209,
+     "gain_vs_auto_ci": [
+      0.967,
+      2.788
+     ],
+     "gain_vs_projection": 1.9209,
+     "gain_vs_projection_ci": [
+      0.967,
+      2.788
+     ],
+     "harm_share": 0.1379,
+     "help_share": 0.4828,
+     "median_ci": [
+      2.158,
+      3.383
+     ],
+     "median_deg": 2.5824,
+     "n": 58,
+     "projection_median_deg": 4.5915,
+     "within_2deg": 0.3448
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0333,
+    "gain_vs_auto": 1.7515,
+    "gain_vs_auto_ci": [
+     0.826,
+     2.772
+    ],
+    "gain_vs_projection": 1.7515,
+    "gain_vs_projection_ci": [
+     0.826,
+     2.772
+    ],
+    "median_ci": [
+     2.158,
+     3.38
+    ],
+    "median_deg": 2.5824,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.35
+   }
+  },
+  "roma_epi": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0319,
+     "auto_within_2deg": 0.2441,
+     "gain_vs_auto": 0.0259,
+     "gain_vs_auto_ci": [
+      0.004,
+      0.082
+     ],
+     "gain_vs_projection": 0.4797,
+     "gain_vs_projection_ci": [
+      0.149,
+      0.759
+     ],
+     "harm_share": 0.1017,
+     "help_share": 0.0441,
+     "median_ci": [
+      3.644,
+      5.225
+     ],
+     "median_deg": 4.27,
+     "n": 295,
+     "projection_median_deg": 5.5495,
+     "within_2deg": 0.2339
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0167,
+    "gain_vs_auto": 0.0242,
+    "gain_vs_auto_ci": [
+     0.003,
+     0.076
+    ],
+    "gain_vs_projection": 0.4586,
+    "gain_vs_projection_ci": [
+     0.133,
+     0.692
+    ],
+    "median_ci": [
+     3.772,
+     5.381
+    ],
+    "median_deg": 4.3375,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.23
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.7867,
+     "auto_within_2deg": 0.2809,
+     "gain_vs_auto": 0.0073,
+     "gain_vs_auto_ci": [
+      -0.051,
+      0.034
+     ],
+     "gain_vs_projection": 0.5533,
+     "gain_vs_projection_ci": [
+      -0.139,
+      0.962
+     ],
+     "harm_share": 0.1277,
+     "help_share": 0.0255,
+     "median_ci": [
+      3.765,
+      5.536
+     ],
+     "median_deg": 4.3836,
+     "n": 235,
+     "projection_median_deg": 6.0074,
+     "within_2deg": 0.2638
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0208,
+    "gain_vs_auto": 0.0036,
+    "gain_vs_auto_ci": [
+     -0.054,
+     0.024
+    ],
+    "gain_vs_projection": 0.4906,
+    "gain_vs_projection_ci": [
+     -0.074,
+     0.91
+    ],
+    "median_ci": [
+     3.793,
+     5.804
+    ],
+    "median_deg": 4.5076,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2583
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.3432,
+     "gain_vs_auto_ci": [
+      0.133,
+      0.598
+     ],
+     "gain_vs_projection": 0.3432,
+     "gain_vs_projection_ci": [
+      0.133,
+      0.598
+     ],
+     "harm_share": 0.0,
+     "help_share": 0.1167,
+     "median_ci": [
+      2.886,
+      4.642
+     ],
+     "median_deg": 3.6611,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.1167
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.3432,
+    "gain_vs_auto_ci": [
+     0.133,
+     0.598
+    ],
+    "gain_vs_projection": 0.3432,
+    "gain_vs_projection_ci": [
+     0.133,
+     0.598
+    ],
+    "median_ci": [
+     2.886,
+     4.642
+    ],
+    "median_deg": 3.6611,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1167
+   }
+  },
+  "roma_hyb": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": -0.0007,
+     "gain_vs_auto_ci": [
+      -0.33,
+      0.303
+     ],
+     "gain_vs_projection": 0.6874,
+     "gain_vs_projection_ci": [
+      0.14,
+      1.166
+     ],
+     "harm_share": 0.3,
+     "help_share": 0.2567,
+     "median_ci": [
+      3.158,
+      4.852
+     ],
+     "median_deg": 3.7872,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.3167
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -0.0007,
+    "gain_vs_auto_ci": [
+     -0.33,
+     0.303
+    ],
+    "gain_vs_projection": 0.6874,
+    "gain_vs_projection_ci": [
+     0.14,
+     1.166
+    ],
+    "median_ci": [
+     3.158,
+     4.852
+    ],
+    "median_deg": 3.7872,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3167
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": -0.29,
+     "gain_vs_auto_ci": [
+      -0.969,
+      0.0
+     ],
+     "gain_vs_projection": 0.4166,
+     "gain_vs_projection_ci": [
+      -0.313,
+      0.984
+     ],
+     "harm_share": 0.3417,
+     "help_share": 0.2042,
+     "median_ci": [
+      3.448,
+      5.836
+     ],
+     "median_deg": 4.8283,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.3125
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": -0.29,
+    "gain_vs_auto_ci": [
+     -0.969,
+     0.0
+    ],
+    "gain_vs_projection": 0.4166,
+    "gain_vs_projection_ci": [
+     -0.313,
+     0.984
+    ],
+    "median_ci": [
+     3.448,
+     5.836
+    ],
+    "median_deg": 4.8283,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3125
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 1.7515,
+     "gain_vs_auto_ci": [
+      0.826,
+      2.772
+     ],
+     "gain_vs_projection": 1.7515,
+     "gain_vs_projection_ci": [
+      0.826,
+      2.772
+     ],
+     "harm_share": 0.1333,
+     "help_share": 0.4667,
+     "median_ci": [
+      2.293,
+      3.38
+     ],
+     "median_deg": 2.6455,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.3333
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 1.7515,
+    "gain_vs_auto_ci": [
+     0.826,
+     2.772
+    ],
+    "gain_vs_projection": 1.7515,
+    "gain_vs_projection_ci": [
+     0.826,
+     2.772
+    ],
+    "median_ci": [
+     2.293,
+     3.38
+    ],
+    "median_deg": 2.6455,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.3333
+   },
+   "via": {
+    "auto_prior": 2,
+    "epipolar": 19,
+    "homography": 279
+   }
+  },
+  "roma_local": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0319,
+     "auto_within_2deg": 0.2403,
+     "gain_vs_auto": 0.3368,
+     "gain_vs_auto_ci": [
+      -0.03,
+      0.674
+     ],
+     "gain_vs_projection": 0.9856,
+     "gain_vs_projection_ci": [
+      0.396,
+      1.699
+     ],
+     "harm_share": 0.2721,
+     "help_share": 0.318,
+     "median_ci": [
+      2.693,
+      4.064
+     ],
+     "median_deg": 3.2274,
+     "n": 283,
+     "projection_median_deg": 5.5718,
+     "within_2deg": 0.3251
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0567,
+    "gain_vs_auto": 0.2988,
+    "gain_vs_auto_ci": [
+     -0.096,
+     0.659
+    ],
+    "gain_vs_projection": 0.738,
+    "gain_vs_projection_ci": [
+     0.169,
+     1.452
+    ],
+    "median_ci": [
+     2.916,
+     4.21
+    ],
+    "median_deg": 3.2904,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3133
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.785,
+     "auto_within_2deg": 0.28,
+     "gain_vs_auto": 0.0176,
+     "gain_vs_auto_ci": [
+      -0.388,
+      0.337
+     ],
+     "gain_vs_projection": 0.6768,
+     "gain_vs_projection_ci": [
+      -0.011,
+      1.532
+     ],
+     "harm_share": 0.3111,
+     "help_share": 0.2667,
+     "median_ci": [
+      3.046,
+      4.958
+     ],
+     "median_deg": 3.8946,
+     "n": 225,
+     "projection_median_deg": 6.0188,
+     "within_2deg": 0.3067
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0625,
+    "gain_vs_auto": -0.0734,
+    "gain_vs_auto_ci": [
+     -0.478,
+     0.337
+    ],
+    "gain_vs_projection": 0.3534,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.986
+    ],
+    "median_ci": [
+     3.192,
+     5.184
+    ],
+    "median_deg": 4.0553,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2917
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5917,
+     "auto_within_2deg": 0.0862,
+     "gain_vs_auto": 2.1848,
+     "gain_vs_auto_ci": [
+      1.097,
+      3.034
+     ],
+     "gain_vs_projection": 2.1848,
+     "gain_vs_projection_ci": [
+      1.097,
+      3.034
+     ],
+     "harm_share": 0.1207,
+     "help_share": 0.5172,
+     "median_ci": [
+      1.832,
+      2.984
+     ],
+     "median_deg": 2.3682,
+     "n": 58,
+     "projection_median_deg": 4.5915,
+     "within_2deg": 0.3966
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0333,
+    "gain_vs_auto": 1.8682,
+    "gain_vs_auto_ci": [
+     0.976,
+     2.884
+    ],
+    "gain_vs_projection": 1.868,
+    "gain_vs_projection_ci": [
+     0.976,
+     2.884
+    ],
+    "median_ci": [
+     1.832,
+     2.944
+    ],
+    "median_deg": 2.3682,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.4
+   }
+  },
+  "roma_magsac": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0319,
+     "auto_within_2deg": 0.2403,
+     "gain_vs_auto": 0.1125,
+     "gain_vs_auto_ci": [
+      -0.204,
+      0.463
+     ],
+     "gain_vs_projection": 0.8104,
+     "gain_vs_projection_ci": [
+      0.337,
+      1.574
+     ],
+     "harm_share": 0.2898,
+     "help_share": 0.2756,
+     "median_ci": [
+      2.848,
+      4.608
+     ],
+     "median_deg": 3.6981,
+     "n": 283,
+     "projection_median_deg": 5.5615,
+     "within_2deg": 0.2968
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0567,
+    "gain_vs_auto": 0.0907,
+    "gain_vs_auto_ci": [
+     -0.293,
+     0.463
+    ],
+    "gain_vs_projection": 0.5883,
+    "gain_vs_projection_ci": [
+     0.051,
+     1.131
+    ],
+    "median_ci": [
+     2.954,
+     4.829
+    ],
+    "median_deg": 3.8896,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2867
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.7858,
+     "auto_within_2deg": 0.2768,
+     "gain_vs_auto": -0.2024,
+     "gain_vs_auto_ci": [
+      -0.911,
+      0.121
+     ],
+     "gain_vs_projection": 0.5374,
+     "gain_vs_projection_ci": [
+      -0.186,
+      1.145
+     ],
+     "harm_share": 0.3348,
+     "help_share": 0.2188,
+     "median_ci": [
+      3.402,
+      5.769
+     ],
+     "median_deg": 4.3267,
+     "n": 224,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.2812
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0667,
+    "gain_vs_auto": -0.2372,
+    "gain_vs_auto_ci": [
+     -0.916,
+     0.167
+    ],
+    "gain_vs_projection": 0.3042,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.879
+    ],
+    "median_ci": [
+     3.426,
+     5.794
+    ],
+    "median_deg": 4.4891,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2708
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5701,
+     "auto_within_2deg": 0.1017,
+     "gain_vs_auto": 1.7872,
+     "gain_vs_auto_ci": [
+      0.714,
+      2.747
+     ],
+     "gain_vs_projection": 1.7872,
+     "gain_vs_projection_ci": [
+      0.714,
+      2.747
+     ],
+     "harm_share": 0.1186,
+     "help_share": 0.4915,
+     "median_ci": [
+      2.013,
+      3.134
+     ],
+     "median_deg": 2.2826,
+     "n": 59,
+     "projection_median_deg": 4.5701,
+     "within_2deg": 0.3559
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0167,
+    "gain_vs_auto": 1.7625,
+    "gain_vs_auto_ci": [
+     0.699,
+     2.65
+    ],
+    "gain_vs_projection": 1.7625,
+    "gain_vs_projection_ci": [
+     0.699,
+     2.649
+    ],
+    "median_ci": [
+     2.028,
+     2.926
+    ],
+    "median_deg": 2.4006,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.35
+   }
+  },
+  "roma_warp": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.4774,
+     "auto_within_2deg": 0.2931,
+     "gain_vs_auto": 0.5821,
+     "gain_vs_auto_ci": [
+      0.35,
+      1.209
+     ],
+     "gain_vs_projection": 1.3738,
+     "gain_vs_projection_ci": [
+      0.75,
+      2.741
+     ],
+     "harm_share": 0.1667,
+     "help_share": 0.3391,
+     "median_ci": [
+      1.698,
+      2.515
+     ],
+     "median_deg": 2.1093,
+     "n": 174,
+     "projection_median_deg": 4.4081,
+     "within_2deg": 0.477
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.42,
+    "gain_vs_auto": 0.1212,
+    "gain_vs_auto_ci": [
+     -0.0,
+     0.537
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     2.732,
+     4.433
+    ],
+    "median_deg": 3.2478,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.34
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.9681,
+     "auto_within_2deg": 0.3588,
+     "gain_vs_auto": 0.3742,
+     "gain_vs_auto_ci": [
+      -0.034,
+      0.568
+     ],
+     "gain_vs_projection": 0.7944,
+     "gain_vs_projection_ci": [
+      0.297,
+      2.045
+     ],
+     "harm_share": 0.1908,
+     "help_share": 0.2443,
+     "median_ci": [
+      1.854,
+      2.79
+     ],
+     "median_deg": 2.1745,
+     "n": 131,
+     "projection_median_deg": 4.1973,
+     "within_2deg": 0.458
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.4542,
+    "gain_vs_auto": 0.0313,
+    "gain_vs_auto_ci": [
+     -0.365,
+     0.429
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     2.79,
+     5.701
+    ],
+    "median_deg": 3.9924,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3208
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.557,
+     "auto_within_2deg": 0.093,
+     "gain_vs_auto": 2.8519,
+     "gain_vs_auto_ci": [
+      1.438,
+      3.498
+     ],
+     "gain_vs_projection": 2.8522,
+     "gain_vs_projection_ci": [
+      1.438,
+      3.497
+     ],
+     "harm_share": 0.093,
+     "help_share": 0.6279,
+     "median_ci": [
+      1.269,
+      2.72
+     ],
+     "median_deg": 1.8791,
+     "n": 43,
+     "projection_median_deg": 4.557,
+     "within_2deg": 0.5349
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.2833,
+    "gain_vs_auto": 1.222,
+    "gain_vs_auto_ci": [
+     0.0,
+     2.741
+    ],
+    "gain_vs_projection": 1.2219,
+    "gain_vs_projection_ci": [
+     0.0,
+     2.741
+    ],
+    "median_ci": [
+     1.707,
+     3.327
+    ],
+    "median_deg": 2.5842,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.4167
+   }
+  },
+  "roma_warp_hyb": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.919,
+     "gain_vs_projection_ci": [
+      0.442,
+      1.74
+     ],
+     "harm_share": 0.0967,
+     "help_share": 0.1967,
+     "median_ci": [
+      2.749,
+      3.931
+     ],
+     "median_deg": 3.1101,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.3467
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.919,
+    "gain_vs_projection_ci": [
+     0.442,
+     1.74
+    ],
+    "median_ci": [
+     2.749,
+     3.931
+    ],
+    "median_deg": 3.1101,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.3467
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.8432,
+     "gain_vs_projection_ci": [
+      0.297,
+      1.877
+     ],
+     "harm_share": 0.1042,
+     "help_share": 0.1333,
+     "median_ci": [
+      2.816,
+      4.284
+     ],
+     "median_deg": 3.578,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.3292
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.8432,
+    "gain_vs_projection_ci": [
+     0.297,
+     1.877
+    ],
+    "median_ci": [
+     2.816,
+     4.284
+    ],
+    "median_deg": 3.578,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.3292
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 1.222,
+     "gain_vs_auto_ci": [
+      0.0,
+      2.741
+     ],
+     "gain_vs_projection": 1.2219,
+     "gain_vs_projection_ci": [
+      0.0,
+      2.741
+     ],
+     "harm_share": 0.0667,
+     "help_share": 0.45,
+     "median_ci": [
+      1.708,
+      3.327
+     ],
+     "median_deg": 2.584,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.4167
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 1.222,
+    "gain_vs_auto_ci": [
+     0.0,
+     2.741
+    ],
+    "gain_vs_projection": 1.2219,
+    "gain_vs_projection_ci": [
+     0.0,
+     2.741
+    ],
+    "median_ci": [
+     1.708,
+     3.327
+    ],
+    "median_deg": 2.584,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.4167
+   }
+  },
+  "siftlg": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.0658,
+     "auto_within_2deg": 0.3111,
+     "gain_vs_auto": 0.0935,
+     "gain_vs_auto_ci": [
+      -1.005,
+      0.621
+     ],
+     "gain_vs_projection": 0.0582,
+     "gain_vs_projection_ci": [
+      -1.164,
+      1.919
+     ],
+     "harm_share": 0.3111,
+     "help_share": 0.2444,
+     "median_ci": [
+      1.895,
+      5.125
+     ],
+     "median_deg": 2.986,
+     "n": 45,
+     "projection_median_deg": 4.1973,
+     "within_2deg": 0.3556
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.85,
+    "gain_vs_auto": -0.0009,
+    "gain_vs_auto_ci": [
+     -0.519,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.475,
+     6.535
+    ],
+    "median_deg": 5.4188,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.21
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.2628,
+     "auto_within_2deg": 0.4231,
+     "gain_vs_auto": -0.2514,
+     "gain_vs_auto_ci": [
+      -3.991,
+      0.407
+     ],
+     "gain_vs_projection": -0.9239,
+     "gain_vs_projection_ci": [
+      -3.046,
+      0.777
+     ],
+     "harm_share": 0.4231,
+     "help_share": 0.1154,
+     "median_ci": [
+      2.48,
+      6.771
+     ],
+     "median_deg": 4.6632,
+     "n": 26,
+     "projection_median_deg": 4.3222,
+     "within_2deg": 0.3077
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.8917,
+    "gain_vs_auto": -0.6749,
+    "gain_vs_auto_ci": [
+     -1.374,
+     -0.198
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.651,
+     7.053
+    ],
+    "median_deg": 6.2369,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2167
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 3.6807,
+     "auto_within_2deg": 0.1579,
+     "gain_vs_auto": 1.5914,
+     "gain_vs_auto_ci": [
+      -0.403,
+      3.373
+     ],
+     "gain_vs_projection": 1.5914,
+     "gain_vs_projection_ci": [
+      -0.403,
+      3.374
+     ],
+     "harm_share": 0.1579,
+     "help_share": 0.4211,
+     "median_ci": [
+      1.203,
+      3.567
+     ],
+     "median_deg": 2.198,
+     "n": 19,
+     "projection_median_deg": 3.6805,
+     "within_2deg": 0.4211
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.6833,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.211,
+     5.125
+    ],
+    "median_deg": 3.9653,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1833
+   }
+  },
+  "siftlg_epi": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.3344,
+     "auto_within_2deg": 0.313,
+     "gain_vs_auto": 0.0227,
+     "gain_vs_auto_ci": [
+      -0.027,
+      0.102
+     ],
+     "gain_vs_projection": 0.3074,
+     "gain_vs_projection_ci": [
+      0.093,
+      0.719
+     ],
+     "harm_share": 0.1145,
+     "help_share": 0.0305,
+     "median_ci": [
+      2.54,
+      4.416
+     ],
+     "median_deg": 3.3297,
+     "n": 131,
+     "projection_median_deg": 4.5445,
+     "within_2deg": 0.2748
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.5633,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     -0.076,
+     0.025
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.157,
+     6.019
+    ],
+    "median_deg": 4.7871,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.22
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 2.6405,
+     "auto_within_2deg": 0.4086,
+     "gain_vs_auto": -0.0518,
+     "gain_vs_auto_ci": [
+      -0.168,
+      0.023
+     ],
+     "gain_vs_projection": 0.6074,
+     "gain_vs_projection_ci": [
+      -0.096,
+      1.29
+     ],
+     "harm_share": 0.1613,
+     "help_share": 0.0215,
+     "median_ci": [
+      2.103,
+      4.726
+     ],
+     "median_deg": 2.7067,
+     "n": 93,
+     "projection_median_deg": 4.5118,
+     "within_2deg": 0.3548
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.6125,
+    "gain_vs_auto": -0.1406,
+    "gain_vs_auto_ci": [
+     -0.348,
+     0.041
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.21,
+     6.397
+    ],
+    "median_deg": 5.3586,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.25
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5573,
+     "auto_within_2deg": 0.0789,
+     "gain_vs_auto": 0.201,
+     "gain_vs_auto_ci": [
+      0.068,
+      0.613
+     ],
+     "gain_vs_projection": 0.2012,
+     "gain_vs_projection_ci": [
+      0.068,
+      0.613
+     ],
+     "harm_share": 0.0,
+     "help_share": 0.0526,
+     "median_ci": [
+      2.844,
+      5.659
+     ],
+     "median_deg": 3.7772,
+     "n": 38,
+     "projection_median_deg": 4.5573,
+     "within_2deg": 0.0789
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.3667,
+    "gain_vs_auto": 0.0004,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.094
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.094
+    ],
+    "median_ci": [
+     3.28,
+     5.18
+    ],
+    "median_deg": 4.1103,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.1
+   }
+  },
+  "sp_lg": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 2.8993,
+     "auto_within_2deg": 0.3462,
+     "gain_vs_auto": 0.1465,
+     "gain_vs_auto_ci": [
+      -0.211,
+      0.938
+     ],
+     "gain_vs_projection": 0.437,
+     "gain_vs_projection_ci": [
+      -0.035,
+      1.732
+     ],
+     "harm_share": 0.2308,
+     "help_share": 0.2692,
+     "median_ci": [
+      1.878,
+      3.155
+     ],
+     "median_deg": 2.5621,
+     "n": 78,
+     "projection_median_deg": 4.2279,
+     "within_2deg": 0.3974
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.74,
+    "gain_vs_auto": -0.0674,
+    "gain_vs_auto_ci": [
+     -0.459,
+     0.0
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     3.809,
+     6.18
+    ],
+    "median_deg": 4.9808,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2267
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 1.9915,
+     "auto_within_2deg": 0.5,
+     "gain_vs_auto": -0.2064,
+     "gain_vs_auto_ci": [
+      -0.768,
+      0.104
+     ],
+     "gain_vs_projection": -0.0038,
+     "gain_vs_projection_ci": [
+      -0.461,
+      0.461
+     ],
+     "harm_share": 0.2917,
+     "help_share": 0.1042,
+     "median_ci": [
+      1.923,
+      3.934
+     ],
+     "median_deg": 2.6738,
+     "n": 48,
+     "projection_median_deg": 3.1828,
+     "within_2deg": 0.375
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.8,
+    "gain_vs_auto": -0.6233,
+    "gain_vs_auto_ci": [
+     -1.199,
+     -0.221
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.55,
+     6.909
+    ],
+    "median_deg": 6.0169,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.2167
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.6724,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 3.539,
+     "gain_vs_auto_ci": [
+      0.712,
+      4.485
+     ],
+     "gain_vs_projection": 3.539,
+     "gain_vs_projection_ci": [
+      0.712,
+      4.484
+     ],
+     "harm_share": 0.1333,
+     "help_share": 0.5333,
+     "median_ci": [
+      1.247,
+      3.337
+     ],
+     "median_deg": 2.3217,
+     "n": 30,
+     "projection_median_deg": 4.6722,
+     "within_2deg": 0.4333
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.5,
+    "gain_vs_auto": 0.0002,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.001
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     2.859,
+     3.919
+    ],
+    "median_deg": 3.4081,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.2667
+   }
+  },
+  "sp_lg_epi": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 3.8262,
+     "auto_within_2deg": 0.2697,
+     "gain_vs_auto": -0.0021,
+     "gain_vs_auto_ci": [
+      -0.078,
+      0.04
+     ],
+     "gain_vs_projection": 0.277,
+     "gain_vs_projection_ci": [
+      -0.037,
+      0.74
+     ],
+     "harm_share": 0.1517,
+     "help_share": 0.0281,
+     "median_ci": [
+      3.262,
+      5.963
+     ],
+     "median_deg": 4.4005,
+     "n": 178,
+     "projection_median_deg": 4.8955,
+     "within_2deg": 0.2472
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.4067,
+    "gain_vs_auto": -0.0014,
+    "gain_vs_auto_ci": [
+     -0.133,
+     0.001
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.162,
+     6.135
+    ],
+    "median_deg": 5.2264,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.23
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.6412,
+     "auto_within_2deg": 0.3358,
+     "gain_vs_auto": -0.0295,
+     "gain_vs_auto_ci": [
+      -0.198,
+      0.004
+     ],
+     "gain_vs_projection": 0.3781,
+     "gain_vs_projection_ci": [
+      -0.377,
+      1.012
+     ],
+     "harm_share": 0.1642,
+     "help_share": 0.0149,
+     "median_ci": [
+      2.817,
+      6.135
+     ],
+     "median_deg": 4.4001,
+     "n": 134,
+     "projection_median_deg": 5.6637,
+     "within_2deg": 0.2836
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.4417,
+    "gain_vs_auto": -0.1431,
+    "gain_vs_auto_ci": [
+     -0.292,
+     0.001
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.0
+    ],
+    "median_ci": [
+     4.152,
+     6.397
+    ],
+    "median_deg": 5.7312,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.25
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5507,
+     "auto_within_2deg": 0.0682,
+     "gain_vs_auto": 0.1817,
+     "gain_vs_auto_ci": [
+      0.018,
+      0.634
+     ],
+     "gain_vs_projection": 0.1818,
+     "gain_vs_projection_ci": [
+      0.018,
+      0.634
+     ],
+     "harm_share": 0.1136,
+     "help_share": 0.0682,
+     "median_ci": [
+      2.865,
+      6.86
+     ],
+     "median_deg": 4.4031,
+     "n": 44,
+     "projection_median_deg": 4.5507,
+     "within_2deg": 0.1364
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.2667,
+    "gain_vs_auto": 0.0003,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.176
+    ],
+    "gain_vs_projection": 0.0,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.177
+    ],
+    "median_ci": [
+     3.13,
+     6.137
+    ],
+    "median_deg": 4.5164,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.15
+   }
+  },
+  "sp_lg_hyb": {
+   "all": {
+    "aligned": {
+     "auto_median_deg": 4.0565,
+     "auto_within_2deg": 0.24,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.1774,
+     "gain_vs_projection_ci": [
+      -0.0,
+      0.673
+     ],
+     "harm_share": 0.1433,
+     "help_share": 0.0767,
+     "median_ci": [
+      3.586,
+      5.04
+     ],
+     "median_deg": 4.1303,
+     "n": 300,
+     "projection_median_deg": 5.6229,
+     "within_2deg": 0.2367
+    },
+    "auto_median_deg": 4.0565,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.1774,
+    "gain_vs_projection_ci": [
+     -0.0,
+     0.673
+    ],
+    "median_ci": [
+     3.586,
+     5.04
+    ],
+    "median_deg": 4.1303,
+    "n": 300,
+    "projection_median_deg": 5.6229,
+    "within_2deg": 0.2367
+   },
+   "gsv": {
+    "aligned": {
+     "auto_median_deg": 3.9151,
+     "auto_within_2deg": 0.275,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_projection": 0.3054,
+     "gain_vs_projection_ci": [
+      -0.384,
+      0.74
+     ],
+     "harm_share": 0.1458,
+     "help_share": 0.025,
+     "median_ci": [
+      3.713,
+      5.868
+     ],
+     "median_deg": 4.3444,
+     "n": 240,
+     "projection_median_deg": 6.0939,
+     "within_2deg": 0.225
+    },
+    "auto_median_deg": 3.9151,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.0
+    ],
+    "gain_vs_projection": 0.3054,
+    "gain_vs_projection_ci": [
+     -0.384,
+     0.74
+    ],
+    "median_ci": [
+     3.713,
+     5.868
+    ],
+    "median_deg": 4.3444,
+    "n": 240,
+    "projection_median_deg": 6.0939,
+    "within_2deg": 0.225
+   },
+   "mapillary": {
+    "aligned": {
+     "auto_median_deg": 4.5636,
+     "auto_within_2deg": 0.1,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.922
+     ],
+     "gain_vs_projection": 0.0006,
+     "gain_vs_projection_ci": [
+      0.0,
+      0.921
+     ],
+     "harm_share": 0.1333,
+     "help_share": 0.2833,
+     "median_ci": [
+      2.642,
+      4.059
+     ],
+     "median_deg": 3.2331,
+     "n": 60,
+     "projection_median_deg": 4.5636,
+     "within_2deg": 0.2833
+    },
+    "auto_median_deg": 4.5636,
+    "fallback_rate": 0.0,
+    "gain_vs_auto": 0.0,
+    "gain_vs_auto_ci": [
+     0.0,
+     0.922
+    ],
+    "gain_vs_projection": 0.0006,
+    "gain_vs_projection_ci": [
+     0.0,
+     0.921
+    ],
+    "median_ci": [
+     2.642,
+     4.059
+    ],
+    "median_deg": 3.2331,
+    "n": 60,
+    "projection_median_deg": 4.5636,
+    "within_2deg": 0.2833
+   },
+   "via": {
+    "auto_prior": 122,
+    "epipolar": 100,
+    "homography": 78
+   }
+  }
+ },
+ "config": {
+  "ci": "2.5-97.5 percentile, ramps resampled",
+  "harm_deg": 2.0,
+  "n_boot": 2000,
+  "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+  "prior_arm": "proj_height_auto",
+  "seed": 48
+ },
+ "fallback_by": {
+  "disk_lg": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.8699,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.6111,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 1.0,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.8667,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.9167,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.85,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.6667,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.9167,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.945,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.7853,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.8875,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.6667,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.8095,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.8017,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.8797,
+     "n": 158
+    }
+   }
+  },
+  "disk_lg_epi": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.5342,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.2083,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.7439,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.5833,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.6,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.5167,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.3333,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.5333,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.6881,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.4136,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.5583,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.3333,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.7619,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.4132,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.557,
+     "n": 158
+    }
+   }
+  },
+  "lg": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.7397,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.2917,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 1.0,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.6333,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.8333,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.75,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.4833,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.8167,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.8165,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.6387,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.7583,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.4833,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.7619,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.6446,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.7405,
+     "n": 158
+    }
+   }
+  },
+  "lg_epi": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.3699,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.125,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.5122,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.3333,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.4667,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.4,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.2167,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.3333,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.4404,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.2984,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.3833,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.2167,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.619,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.2397,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.3987,
+     "n": 158
+    }
+   }
+  },
+  "lg_magsac": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.7466,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.3194,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 1.0,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.6667,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.8667,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.7333,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.4833,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.8167,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.8165,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.6545,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.7708,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.4833,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.7619,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.6529,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.7532,
+     "n": 158
+    }
+   }
+  },
+  "loftr": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.9178,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.5833,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 1.0,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.8333,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 1.0,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.85,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.6333,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.9833,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.9083,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.8325,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.9167,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.6333,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.7619,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.843,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.8861,
+     "n": 158
+    }
+   }
+  },
+  "loftr_epi": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.4384,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.1667,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.6951,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.4167,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.4667,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.5333,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.3,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.5,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.6422,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.3298,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.4792,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.3,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.7143,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.3471,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.481,
+     "n": 158
+    }
+   }
+  },
+  "roma": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.0274,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.0139,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.1951,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.0667,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.0833,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.0833,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.0333,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.0833,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.0826,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.0628,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.0792,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.0333,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.0476,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.0661,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.0759,
+     "n": 158
+    }
+   }
+  },
+  "roma_epi": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.0068,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.0,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.0488,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.0167,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.0167,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.05,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.0,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.0,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.0183,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.0157,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.0208,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.0,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.0952,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.0,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.019,
+     "n": 158
+    }
+   }
+  },
+  "roma_local": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.0205,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.0,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.1707,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.0667,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.0333,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.0667,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.0333,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.0833,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.0826,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.0419,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.0625,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.0333,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.0476,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.0579,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.057,
+     "n": 158
+    }
+   }
+  },
+  "roma_magsac": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.0274,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.0,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.1585,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.0667,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.05,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.0833,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.0167,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.0667,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.0459,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.0628,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.0667,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.0167,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.0,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.0413,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.0759,
+     "n": 158
+    }
+   }
+  },
+  "roma_warp": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.3767,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.1528,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.7317,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.35,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.4,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.4833,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.2833,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.5833,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.5138,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.3665,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.4542,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.2833,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.619,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.3471,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.4494,
+     "n": 158
+    }
+   }
+  },
+  "siftlg": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.8767,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.625,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 1.0,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.8,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.95,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.8667,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.6833,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.95,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.945,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.7958,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.8917,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.6833,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.8571,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.8182,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.8734,
+     "n": 158
+    }
+   }
+  },
+  "siftlg_epi": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.5548,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.2361,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.8659,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.55,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.6167,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.6167,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.3667,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.6667,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.7706,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.445,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.6125,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.3667,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.8571,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.4628,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.6013,
+     "n": 158
+    }
+   }
+  },
+  "sp_lg": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.7671,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.3889,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 1.0,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.7333,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.8833,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.75,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.5,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.8333,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.844,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.6806,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.8,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.5,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.8095,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.6942,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.7658,
+     "n": 158
+    }
+   }
+  },
+  "sp_lg_epi": {
+   "baseline": {
+    "baseline10-20m": {
+     "fallback_rate": 0.4178,
+     "n": 146
+    },
+    "baseline<10m": {
+     "fallback_rate": 0.1389,
+     "n": 72
+    },
+    "baseline>=20m": {
+     "fallback_rate": 0.622,
+     "n": 82
+    }
+   },
+   "city": {
+    "bend": {
+     "fallback_rate": 0.5,
+     "n": 60
+    },
+    "gainesville": {
+     "fallback_rate": 0.4333,
+     "n": 60
+    },
+    "paterson": {
+     "fallback_rate": 0.4333,
+     "n": 60
+    },
+    "richmond": {
+     "fallback_rate": 0.2667,
+     "n": 60
+    },
+    "sao_paulo": {
+     "fallback_rate": 0.4,
+     "n": 60
+    }
+   },
+   "date": {
+    "different_month": {
+     "fallback_rate": 0.5688,
+     "n": 109
+    },
+    "same_month": {
+     "fallback_rate": 0.3141,
+     "n": 191
+    }
+   },
+   "imagery": {
+    "gsv": {
+     "fallback_rate": 0.4417,
+     "n": 240
+    },
+    "mapillary": {
+     "fallback_rate": 0.2667,
+     "n": 60
+    }
+   },
+   "range": {
+    "0-6m": {
+     "fallback_rate": 0.7143,
+     "n": 21
+    },
+    "12-18m": {
+     "fallback_rate": 0.3636,
+     "n": 121
+    },
+    "6-12m": {
+     "fallback_rate": 0.3987,
+     "n": 158
+    }
+   }
+  }
+ },
+ "lg_family_first_stage": {
+  "lg": {
+   "aligned": 90,
+   "ground_matches_but_no_plane (<15 inliers)": 77,
+   "matches_off_ground_only (<15 ground matches)": 122,
+   "plane_maps_point_off_view": 2,
+   "views_barely_match (<15 matches anywhere)": 9
+  },
+  "loftr": {
+   "aligned": 42,
+   "ground_matches_but_no_plane (<15 inliers)": 130,
+   "matches_off_ground_only (<15 ground matches)": 108,
+   "plane_maps_point_off_view": 4,
+   "views_barely_match (<15 matches anywhere)": 16
+  },
+  "roma": {
+   "aligned": 279,
+   "plane_maps_point_off_view": 21
+  },
+  "sp_lg": {
+   "aligned": 78,
+   "ground_matches_but_no_plane (<15 inliers)": 89,
+   "matches_off_ground_only (<15 ground matches)": 90,
+   "plane_maps_point_off_view": 3,
+   "views_barely_match (<15 matches anywhere)": 40
+  }
+ },
+ "reference": {
+  "all": {
+   "auto_median_deg": 4.0565,
+   "auto_within_2deg": 0.24,
+   "projection_median_deg": 5.6229,
+   "projection_within_2deg": 0.19
+  },
+  "gsv": {
+   "auto_median_deg": 3.9151,
+   "auto_within_2deg": 0.275,
+   "projection_median_deg": 6.0939,
+   "projection_within_2deg": 0.2125
+  },
+  "mapillary": {
+   "auto_median_deg": 4.5636,
+   "auto_within_2deg": 0.1,
+   "projection_median_deg": 4.5636,
+   "projection_within_2deg": 0.1
+  }
+ },
+ "why": {
+  "disk_lg": {
+   "aligned": 47,
+   "few_inliers": 176,
+   "mapped_outside_view": 4,
+   "no_ground_matches": 73
+  },
+  "disk_lg_epi": {
+   "aligned": 146,
+   "epi_few_inliers": 137,
+   "epi_few_matches": 17
+  },
+  "lg": {
+   "aligned": 89,
+   "none": 211
+  },
+  "lg_epi": {
+   "aligned": 195,
+   "epi_few_inliers": 103,
+   "epi_outside_view": 2
+  },
+  "lg_hyb": {
+   "aligned": 195,
+   "epi_few_inliers": 103,
+   "epi_outside_view": 2
+  },
+  "lg_magsac": {
+   "aligned": 86,
+   "few_inliers": 180,
+   "mapped_outside_view": 2,
+   "no_ground_matches": 32
+  },
+  "loftr": {
+   "aligned": 42,
+   "few_inliers": 243,
+   "mapped_outside_view": 4,
+   "no_ground_matches": 11
+  },
+  "loftr_epi": {
+   "aligned": 167,
+   "epi_few_inliers": 132,
+   "epi_few_matches": 1
+  },
+  "loftr_hyb": {
+   "aligned": 167,
+   "epi_few_inliers": 132,
+   "epi_few_matches": 1
+  },
+  "roma": {
+   "aligned": 279,
+   "mapped_outside_view": 21
+  },
+  "roma_epi": {
+   "aligned": 295,
+   "epi_outside_view": 5
+  },
+  "roma_hyb": {
+   "aligned": 298,
+   "epi_outside_view": 2
+  },
+  "roma_local": {
+   "aligned": 283,
+   "few_inliers": 2,
+   "mapped_outside_view": 15
+  },
+  "roma_magsac": {
+   "aligned": 283,
+   "mapped_outside_view": 17
+  },
+  "roma_warp": {
+   "aligned": 174,
+   "low_certainty": 126
+  },
+  "roma_warp_hyb": {
+   "aligned": 174,
+   "low_certainty": 126
+  },
+  "siftlg": {
+   "aligned": 45,
+   "few_inliers": 169,
+   "mapped_outside_view": 2,
+   "no_ground_matches": 84
+  },
+  "siftlg_epi": {
+   "aligned": 131,
+   "epi_few_inliers": 154,
+   "epi_few_matches": 13,
+   "epi_outside_view": 2
+  },
+  "sp_lg": {
+   "aligned": 78,
+   "few_inliers": 173,
+   "mapped_outside_view": 3,
+   "no_ground_matches": 46
+  },
+  "sp_lg_epi": {
+   "aligned": 178,
+   "epi_few_inliers": 107,
+   "epi_few_matches": 12,
+   "epi_outside_view": 3
+  },
+  "sp_lg_hyb": {
+   "aligned": 178,
+   "epi_few_inliers": 107,
+   "epi_few_matches": 12,
+   "epi_outside_view": 3
+  }
+ }
+}
