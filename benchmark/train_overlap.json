@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-26",
+  "checked_at": "2026-10-04",
   "dataset": "projectsidewalk/rampnet-dataset",
   "dataset_split_sizes": {
     "train": 150066,
@@ -12,6 +12,7 @@
   "method": "exact panorama-id membership; pano_id column of every parquet shard read over HTTP range",
   "overlap": {
     "annapolis": [],
+    "bayonne": [],
     "bend": [
       "6WC0hdAYRsSAcluKSs5iRg",
       "9kW9cxpuj7q8DMzf-ClrQQ",
@@ -30,6 +31,7 @@
   },
   "reviewed_counts": {
     "annapolis": 125,
+    "bayonne": 125,
     "bend": 110,
     "budapest_district5": 125,
     "clovis": 125,
