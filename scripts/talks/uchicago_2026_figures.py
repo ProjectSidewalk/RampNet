@@ -6,13 +6,16 @@ names its source. Output goes to ``docs/talks/uchicago_2026/``. Run from the rep
     python scripts/talks/uchicago_2026_figures.py            # all figures
     python scripts/talks/uchicago_2026_figures.py --only comparison
 
+``pipeline``, ``heatmap`` and ``measure`` read benchmark panoramas from
+``benchmark/{bend,paterson,richmond}/panos/`` (``--bench-root`` to point elsewhere); restore
+them with ``scripts/unpack_benchmark_panos.py``. Every other figure reads only committed files.
+
 Figures
 -------
 comparison_f1        pooled F1 over the eight US city splits, RampNet vs seven challengers
                      (``analysis_out/scoreboard.json``, the same rows as docs/model_scoreboard.md)
 transfer             RampNet F1 vs the best zero-shot model on every split, grouped by imagery
-                     source and labelled by country (``scoreboard.json`` plus the Bayonne rows
-                     from PR #239 until that PR merges, see BAYONNE)
+                     source and labelled by country (``analysis_out/scoreboard.json``)
 recall_by_distance   recall and precision by distance band on richmond + bend
                      (``docs/detection_recall_analysis.md`` §1-§2; see RECALL_BY_DISTANCE)
 deployment           human-validated precision of the AI's labels on three live Project
@@ -39,15 +42,6 @@ OUT_DIR = os.path.join(REPO, "docs", "talks", "uchicago_2026")
 # ---------------------------------------------------------------------------------------------
 # Constants that are NOT re-derived here. Each names where it was read from.
 # ---------------------------------------------------------------------------------------------
-
-# Bayonne (France, Panoramax) is scored on PR #239 (branch benchmark/bayonne-verdicts-159),
-# read from that branch's analysis_out/scoreboard.json on 2026-10-05. Once #239 merges,
-# scoreboard.json on main carries the split and this block is ignored (see transfer_rows).
-BAYONNE = {
-    "rampnet": {"precision": 0.831, "recall": 0.375, "f1": 0.517},
-    "best_zero_shot": {"display": "Gemini 3.1 Pro", "f1": 0.431},
-    "n_gt": 301,
-}
 
 # docs/detection_recall_analysis.md §1 (recall) and §2 (precision): richmond + bend, 637
 # reviewer-confirmed ramps, deployment detections at 0.55, flat-ground distance at an assumed
@@ -250,20 +244,16 @@ def transfer_rows(board):
     display = {m["model"]: m["display"] for m in board["models"]}
     rows = []
     for split, (group, place) in SPLIT_META.items():
-        if split in per["rampnet"]:
-            r = per["rampnet"][split]
-            best = max(((display[m], per[m][split]["f1"]) for m in per
-                        if classes.get(m) in ZERO_SHOT_CLASSES and split in per[m]
-                        and per[m][split].get("f1") is not None),
-                       key=lambda t: t[1], default=(None, None))
-            rows.append(dict(split=split, group=group, place=place, precision=r["precision"],
-                             recall=r["recall"], f1=r["f1"], n_gt=r["n_gt_recall"],
-                             best_display=best[0], best_f1=best[1], source="scoreboard.json"))
-        elif split == "bayonne":
-            b = BAYONNE
-            rows.append(dict(split=split, group=group, place=place, **b["rampnet"],
-                             n_gt=b["n_gt"], best_display=b["best_zero_shot"]["display"],
-                             best_f1=b["best_zero_shot"]["f1"], source="PR #239"))
+        if split not in per["rampnet"]:
+            continue
+        r = per["rampnet"][split]
+        best = max(((display[m], per[m][split]["f1"]) for m in per
+                    if classes.get(m) in ZERO_SHOT_CLASSES and split in per[m]
+                    and per[m][split].get("f1") is not None),
+                   key=lambda t: t[1], default=(None, None))
+        rows.append(dict(split=split, group=group, place=place, precision=r["precision"],
+                         recall=r["recall"], f1=r["f1"], n_gt=r["n_gt_recall"],
+                         best_display=best[0], best_f1=best[1]))
     return rows
 
 
@@ -304,9 +294,8 @@ def fig_transfer(board, plt, us_only=False):
                     color=INK, fontweight="bold")
             ax.text(r["best_f1"] - 0.018, y, f"{r['best_f1']:.2f}", va="center", ha="right",
                     fontsize=11.5, color=INK_SECONDARY)
-            label = r["place"] + ("  (pending PR #239)" if r["source"] != "scoreboard.json" else "")
             yticks.append(y)
-            ylabels.append(label)
+            ylabels.append(r["place"])
             y -= 1
         y -= 0.6
     for hy, g in header_y:
@@ -328,8 +317,8 @@ def fig_transfer(board, plt, us_only=False):
 
     if us_only:
         _titles(fig, "Trained on Google Street View, it transfers to other cameras",
-                f"{len(rows)} US splits, two imagery sources, five camera rigs. RampNet keeps the "
-                "top F1 on every split; what drops is recall, not precision.")
+                f"{len(rows)} US splits, five camera rigs. RampNet beats the "
+                "best zero-shot model on every split; what drops is recall, not precision.")
         bottom = _footnote(fig,
                            "Ground truth is one reviewer per split. Bend is a training city (4 of "
                            "its 110 benchmark panoramas are in the training set). Laurens is one "
@@ -338,13 +327,13 @@ def fig_transfer(board, plt, us_only=False):
         name = "transfer_imagery_us.png"
     else:
         _titles(fig, "Trained on US Google Street View, it transfers to other cameras and countries",
-                "RampNet keeps the top F1 on every split. What drops out of distribution is "
+                "RampNet beats the best zero-shot model on every split. What drops out of distribution is "
                 "recall, not precision.")
         bottom = _footnote(fig,
                            "Ground truth is one reviewer per split; budapest and bayonne at low / "
                            "medium reviewer confidence. Bend is a training city (4 of its 110 "
                            "benchmark panoramas are in the training set). Source: "
-                           "docs/model_scoreboard.md, docs/model_comparison.md, PR #239 for bayonne.")
+                           "docs/model_scoreboard.md, docs/model_comparison.md.")
         name = "transfer_imagery_country.png"
     fig.tight_layout(rect=(0, bottom, 1, 0.885))
     _save(fig, name)
@@ -445,9 +434,17 @@ def fig_deployment(plt):
 
 EXAMPLE_PANO = "DJ8Zp111zu6KnMZz-0PHgQ"
 EXAMPLE_ROW = os.path.join(OUT_DIR, f"stage1_example_{EXAMPLE_PANO}.json")
-# benchmark/*/panos/ is gitignored (the imagery is on the Hub; scripts/unpack_benchmark_panos.py
-# restores it, sha256-pinned by benchmark/bend/imagery_manifest.json). --pano-dir points at it.
-BEND_PANO_DIR = os.path.join(REPO, "benchmark", "bend", "panos")
+# benchmark/<split>/panos/ is gitignored (the imagery is on the Hub; scripts/unpack_benchmark_panos.py
+# restores it, sha256-pinned by benchmark/<split>/imagery_manifest.json). --bench-root points at
+# the directory holding the <split>/panos/ folders; each figure builds its own split's path.
+BENCH_ROOT = os.path.join(REPO, "benchmark")
+
+
+def _pano_path(bench_root, split, pano):
+    """``<bench_root>/<split>/panos/<pano>.jpg``, the layout unpack_benchmark_panos.py writes."""
+    return os.path.join(bench_root, split, "panos", f"{pano}.jpg")
+
+
 BEND_RECORDS = os.path.join(REPO, "benchmark", "bend", "records.jsonl")
 BEND_RAMPS = os.path.join(REPO, "stage_one", "dataset_generation", "location_data", "bend.geojson")
 BEND_STREETS = os.path.join(REPO, "stage_one", "dataset_generation", "street_data",
@@ -475,7 +472,7 @@ def _bearing_to_x(bearing_deg, heading_deg):
     return (((bearing_deg - heading_deg) % 360.0) / 360.0 + 0.5) % 1.0
 
 
-def fig_pipeline(plt, pano_dir=BEND_PANO_DIR):
+def fig_pipeline(plt, bench_root=BENCH_ROOT):
     import gzip
     import math
     import numpy as np
@@ -507,7 +504,7 @@ def fig_pipeline(plt, pano_dir=BEND_PANO_DIR):
     assert len(used) == len(row["curb_ramp_coords"]) == len(labels) == 4, (len(used), len(labels))
 
     Image.MAX_IMAGE_PIXELS = None
-    img = Image.open(os.path.join(pano_dir, f"{EXAMPLE_PANO}.jpg"))
+    img = Image.open(_pano_path(bench_root, "bend", EXAMPLE_PANO))
     img.draft("RGB", (4096, 2048))
     img = img.convert("RGB").resize((4096, 2048), Image.BILINEAR)
     W, H = img.size
@@ -647,7 +644,7 @@ def _heat_overlay(img_band, heat_band):
     return Image.fromarray((tint * (1 - alpha) + rgb * alpha).round().astype(np.uint8))
 
 
-def fig_heatmap(plt, pano_dir, split=HEATMAP_SPLIT, pano=HEATMAP_PANO):
+def fig_heatmap(plt, bench_root=BENCH_ROOT, split=HEATMAP_SPLIT, pano=HEATMAP_PANO):
     import numpy as np
     from PIL import Image
     from skimage.feature import peak_local_max
@@ -662,7 +659,7 @@ def fig_heatmap(plt, pano_dir, split=HEATMAP_SPLIT, pano=HEATMAP_PANO):
     missed = verdict.get("missed", [])
 
     Image.MAX_IMAGE_PIXELS = None
-    img = Image.open(os.path.join(pano_dir, f"{pano}.jpg"))
+    img = Image.open(_pano_path(bench_root, split, pano))
     img.draft("RGB", (4096, 2048))
     img = img.convert("RGB").resize((4096, 2048), Image.BILINEAR)
     b0, b1 = HEAT_BAND
@@ -955,7 +952,7 @@ def fig_comparison_city(board, plt, split="annapolis"):
 MEASURE_SPLIT, MEASURE_PANO, MEASURE_KEY = "richmond", "1335429861397399", "det:0"
 
 
-def fig_measure(plt, pano_dir, split=MEASURE_SPLIT, pano=MEASURE_PANO, key=MEASURE_KEY):
+def fig_measure(plt, bench_root=BENCH_ROOT, split=MEASURE_SPLIT, pano=MEASURE_PANO, key=MEASURE_KEY):
     """One ramp: the keypoint, the whole-apron extent box (benchmark/<split>/boxes.json), the
     metric range from calibrated Depth Anything 3 (analysis_out/da3_calibration_101), and the
     width that follows; slope is marked as the measurement that does not exist yet."""
@@ -982,7 +979,7 @@ def fig_measure(plt, pano_dir, split=MEASURE_SPLIT, pano=MEASURE_PANO, key=MEASU
             if key.startswith("det:") else None)
 
     Image.MAX_IMAGE_PIXELS = None
-    img = Image.open(os.path.join(pano_dir, f"{pano}.jpg"))
+    img = Image.open(_pano_path(bench_root, split, pano))
     img.draft("RGB", (4096, 2048))
     img = img.convert("RGB").resize((4096, 2048), Image.LANCZOS)
     W, H = img.size
@@ -1053,10 +1050,10 @@ def fig_measure(plt, pano_dir, split=MEASURE_SPLIT, pano=MEASURE_PANO, key=MEASU
 # ---------------------------------------------------------------------------------------------
 
 FIGURES = {
-    "pipeline": lambda board, plt, pano_dir: fig_pipeline(plt, pano_dir),
-    "heatmap": lambda board, plt, pano_dir: fig_heatmap(plt, pano_dir),
+    "pipeline": lambda board, plt, bench_root: fig_pipeline(plt, bench_root),
+    "heatmap": lambda board, plt, bench_root: fig_heatmap(plt, bench_root),
     "roadmap": lambda board, plt, _: fig_roadmap(plt),
-    "measure": lambda board, plt, pano_dir: fig_measure(plt, pano_dir),
+    "measure": lambda board, plt, bench_root: fig_measure(plt, bench_root),
     "comparison": lambda board, plt, _: fig_comparison(board, plt),
     "comparison_v2": lambda board, plt, _: fig_comparison(board, plt, v2=True),
     "comparison_pr": lambda board, plt, _: fig_comparison_pr(board, plt),
@@ -1073,8 +1070,10 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--only", choices=sorted(FIGURES), action="append",
                     help="render only these figures (repeatable)")
-    ap.add_argument("--pano-dir", default=BEND_PANO_DIR,
-                    help="directory holding the bend benchmark panoramas (for 'pipeline')")
+    ap.add_argument("--bench-root", default=BENCH_ROOT,
+                    help="directory holding benchmark/<split>/panos/ (needed by 'pipeline' "
+                         "[bend], 'heatmap' [paterson] and 'measure' [richmond]; the other "
+                         "figures read only committed files)")
     args = ap.parse_args(argv)
     import matplotlib
     matplotlib.use("Agg")
@@ -1082,7 +1081,7 @@ def main(argv=None):
     plt.rcParams["font.family"] = "DejaVu Sans"
     board = load_board()
     for name in (args.only or sorted(FIGURES)):
-        FIGURES[name](board, plt, args.pano_dir)
+        FIGURES[name](board, plt, args.bench_root)
 
 
 if __name__ == "__main__":

@@ -1,15 +1,21 @@
 # RampNet slides for the UChicago Distinguished Lecture (October 2026)
 
-**Status: draft outline and figures, 2026-10-05.** Six to seven slides on RampNet inside a talk on
-urban computing. Every number here is read from [`rampnet1_findings.md`](../../rampnet1_findings.md)
-or from the source named beside it; the figures regenerate with
+**Status: draft, 2026-10-11.** Slide outline, 13 slide figures, four system diagrams, a heatmap
+demo, a 32-panorama showcase video, two Street View time-lapses, and a record of a 3D fly-around
+attempt that is not talk-ready. Six to seven slides on RampNet inside a talk on urban computing.
+Every number here is read from [`rampnet1_findings.md`](../../rampnet1_findings.md) or from the
+source named beside it; the figures regenerate with
 
 ```
-python scripts/talks/uchicago_2026_figures.py --pano-dir benchmark/bend/panos
+python scripts/unpack_benchmark_panos.py --out . --cities bend,paterson,richmond
+python scripts/talks/uchicago_2026_figures.py
 ```
 
-(`--pano-dir` is only needed for the pipeline figure; the benchmark imagery is on the Hub and
-`scripts/unpack_benchmark_panos.py` restores it. The other four figures need nothing but the repo.)
+Three figures read benchmark panoramas, each from its own split: `pipeline` (bend), `heatmap`
+(paterson) and `measure` (richmond), under `benchmark/<split>/panos/` (`--bench-root` points
+elsewhere). The panoramas are gitignored; the first command restores them from the Hub,
+sha256-checked. The other ten figures read only committed files, so
+`--only <name>` for any of them needs nothing but the repo.
 
 Numbers not to put on a slide, because they were superseded: a 0.039 or 0.252 RampNet-vs-YOLO gap,
 "blind at the seam", "72% seam dropout", any Tillicum cost other than the ledgered one. The list is
@@ -58,7 +64,8 @@ band above and the heatmap below with a ring on every peak ≥ 0.55, captioned w
 and the reviewer's verdict. Selection is mechanical from the committed verdicts
 (`showcase/manifest.json`): per split, the two panoramas with the most confirmed ramps where every
 detection was confirmed and nothing was missed, plus one seeded-random other, plus four true
-negatives (no ramps, no detections). Eleven splits, three imagery sources, four countries. The
+negatives (no ramps, no detections). Ten splits (laurens_gsv contributes none), two imagery
+sources (GSV, Mapillary), three countries (US, Brazil, Hungary). The
 32 heatmaps are committed as 8-bit PNGs; frames and the mp4 are not (regenerate with
 `uchicago_2026_showcase.py render` then `video`, needs ffmpeg).
 
@@ -69,7 +76,7 @@ Three baselines, in increasing strength:
 | baseline | number | source |
 |---|---|---|
 | Prior curb-ramp detectors | Weld et al. 0.38 AP on our gold set vs RampNet 0.92; Tohme and Weld were at 26–34% precision | paper §2, `rampnet1_report.md` §3 |
-| Nine zero-shot models (Gemini 3.1 Pro, Claude Opus 5, Qwen3-VL, Molmo2, OWLv2, Grounding DINO, ...) | RampNet 0.792 pooled F1 over eight US cities vs 0.575 for the best; leads on all twelve bundles by 0.11–0.34 | `model_scoreboard.md`, findings §2 row 1 |
+| Nine zero-shot models (Gemini 3.1 Pro, Claude Opus 5, Qwen3-VL, Molmo2, OWLv2, Grounding DINO, ...) | RampNet 0.792 pooled F1 over eight US cities vs 0.575 for the best; leads on all thirteen bundles, by 0.09 (bayonne) to 0.34 (manual_gold, against Gemini 3.1 Pro; 0.38 against the best challenger re-derivable from `scoreboard.json`) | `model_scoreboard.md`, findings §2 row 1 |
 | A supervised YOLO trained on the same dataset | 0.599 at its default threshold; at matched operating points and across seeds the gap is 0.016 F1, 95% CI [0.008, 0.024] | `seed_variance_51_135.md`, findings §2 row 3 |
 
 The honest framing, which Jon chose: the dataset is the result; the keypoint formulation is a
@@ -88,24 +95,28 @@ manual_gold detections, so the pooled mean would not be over the same models.
 
 ## Slide 5. Trained on US Google Street View, it transfers to other cameras and countries
 
-- Twelve benchmark bundles, three imagery sources (GSV, Mapillary 360° on consumer and survey rigs,
-  Panoramax), four countries (US, Brazil, Hungary, France). RampNet keeps the top F1 on every split.
+- Thirteen benchmark bundles, three imagery sources (GSV, Mapillary 360° on consumer and survey
+  rigs, Panoramax), four countries (US, Brazil, Hungary, France). RampNet beats the best zero-shot
+  model on every split.
+- Speaker note, the exception that must not be hidden: on `laurens_mapillary` the supervised YOLO
+  baseline beats RampNet at the pre-registered conf 0.25, YOLO26 0.574 (and YOLO11l 0.563) against
+  RampNet 0.543 (`rampnet1_findings.md` §2 row 27). It is an operating-point result: RampNet's AP
+  there is still the highest. The ordering reverses on the GSV arm of the same town.
 - What drops out of distribution is recall, not precision: the generalization gap from the gold set
   to deployed cities is −0.12 for RampNet, −0.19 to −0.28 for the YOLO arms; zero-shot models sit on
   the diagonal (`figures/scoreboard_generalization.png` is slide-ready as is).
 - Same rural town, two cameras: GoPro Max 0.54, GSV 0.66. The rig matters more than the town.
 - Bayonne (France, Panoramax) is the newest and weakest: F1 0.52, recall 0.38, still the top F1 on
-  the split by 0.09. It is on [PR #239](https://github.com/ProjectSidewalk/RampNet/pull/239), not
-  yet on main, and its ground truth is single-rater at medium confidence.
+  the split by 0.09. Its ground truth is single-rater at medium confidence.
 
 Figure: `transfer_imagery_country.png` (RampNet vs the best zero-shot model per split, grouped by
-imagery source, labelled by country). Reads bayonne from a constant in the script until #239 merges.
+imagery source, labelled by country). Every row is read from `analysis_out/scoreboard.json`.
 
 ## Slide 6. Where recall goes
 
 - Recall is distance-limited; precision is not. Recall 0.84 within 8 m, 0.56 at 18–25 m, 0.18 past
-  25 m; precision 0.94–1.00 in every band. Culling far detections would lose 132 true ramps to
-  remove 4 false ones.
+  25 m; precision 0.94–1.00 in every band. Culling detections beyond 18 m would lose 132 true
+  ramps to remove 4 false ones.
 - The levers are the decoder and calibration, not vocabulary: of 427 misses, 29% were merged with a
   neighbour's peak, 39% fired below threshold, and only 8% of the silent remainder show no response.
   A bigger corpus of the same kind buys ~0.013 recall points.
@@ -161,7 +172,9 @@ Three more future-work figures, each from real data:
   (v2, 2026-10-05 evening) A dense pass: `uchicago_2026_dense_scene.py` runs MapAnything on six
   posed faces of every panorama of a corner on makelab2 (132 views, 21 s, 27M points) and
   writes point maps, a merged cloud and a COLMAP model (`flyaround/dense/<slug>/`, large files
-  gitignored, on makelab2 under `talk_dense/`). From that, two renderers:
+  gitignored, on makelab2 under `talk_dense/`). Its input is the posed scenes committed at
+  `analysis_out/crossview_align_48/scenes/{bend_7,richmond_99}/{cameras,points}.json`; pass that
+  folder as `--scenes` (the makelab2 launchers use a path on that box). From that, two renderers:
   `uchicago_2026_mesh.py` fuses the point maps into one TSDF surface (Open3D VoxelBlockGrid,
   5 cm; the legacy ScalableTSDFVolume and the Filament offscreen renderer are broken in the
   0.20 Windows wheel, pyrender draws it) and renders a shared camera path; `klone_splat_train.py`
@@ -192,12 +205,12 @@ Four SVGs (PowerPoint imports them as editable shapes) with PNG renders, from
 
 | file | slide | inputs |
 |---|---|---|
-| `pipeline_stage1.png` | 2 | `stage1_example_DJ8Zp111zu6KnMZz-0PHgQ.json`, `benchmark/bend/{records.jsonl,panos/}`, Bend inventory and streets geojson |
+| `pipeline_stage1.png` | 2 | `stage1_example_DJ8Zp111zu6KnMZz-0PHgQ.json`, `benchmark/bend/{records.jsonl,panos/}`, Bend inventory and streets geojson (`--only pipeline`) |
 | `comparison_f1.png` | 4 | `analysis_out/scoreboard.json` |
 | `comparison_f1_v2.png` | 4 | same chart with the N stated: cities, panoramas, ramps, challengers and providers (`--only comparison_v2`) |
-| `transfer_imagery_country.png` | 5 | `analysis_out/scoreboard.json`; bayonne from PR #239 (constant in the script) |
+| `transfer_imagery_country.png` | 5 | `analysis_out/scoreboard.json` |
 | `transfer_imagery_us.png` | 5 | same, US splits only, so it reads as camera transfer alone (`--only transfer_us`) |
-| `heatmap_demo_paterson.png` | 3 | `heatmap_paterson_*.npz` (from `uchicago_2026_heatmap.py`, GPU), `benchmark/paterson/{records.jsonl,verdicts.json,panos/}` |
+| `heatmap_demo_paterson.png` | 3 | `heatmap_paterson_*.npz` (from `uchicago_2026_heatmap.py`, GPU), `benchmark/paterson/{records.jsonl,verdicts.json,panos/}` (`--only heatmap`) |
 | `showcase/showcase.mp4` | 3 | `showcase/manifest.json`, `showcase/heat_*.png` (from `uchicago_2026_showcase.py infer`, GPU), benchmark panos; frames + mp4 regenerate with `render` and `video` |
 | `comparison_pr.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_pr`) |
 | `comparison_f1_with_gold.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_gold`) |
