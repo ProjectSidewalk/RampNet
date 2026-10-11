@@ -233,7 +233,7 @@ def cmd_render(args):
               "Each capture rotated so north is the centre column; detections are peaks ≥ 0.55 of "
               "the released model, no TTA. Manifest and heatmaps in docs/talks/uchicago_2026/timelapse/.",
               width=185)
-    _save(fig, os.path.join("timelapse", f"timelapse_{args.pano}.png"))
+    _save(fig, os.path.join("timelapse", f"timelapse_{args.pano}.jpg"))
     plt.close(fig)
 
 

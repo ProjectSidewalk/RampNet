@@ -40,7 +40,7 @@ audience has already seen one. Not built here.
 - Agreement with a 1,000-panorama human gold set: precision 0.915, recall 0.928 (the corrected
   figures; the paper said 0.940 / 0.925).
 
-Figure: `pipeline_stage1.png`. One real training panorama in Bend with four government points,
+Figure: `pipeline_stage1.jpg`. One real training panorama in Bend with four government points,
 their bearings, the crop windows and the labels Stage 1 produced. The reviewer later confirmed all
 four. Inputs: `stage1_example_DJ8Zp111zu6KnMZz-0PHgQ.json` (this panorama's row in the published
 dataset), `benchmark/bend/records.jsonl`, `stage_one/dataset_generation/location_data/bend.geojson`.
@@ -51,7 +51,7 @@ dataset), `benchmark/bend/records.jsonl`, `stage_one/dataset_generation/location
   detections.
 - Gold set, one-to-one matching: precision 0.949, recall 0.873, AP 0.92 (`README.md` erratum).
 
-Figure: `heatmap_demo_paterson.png`. One Paterson panorama (not in training), the street band
+Figure: `heatmap_demo_paterson.jpg`. One Paterson panorama (not in training), the street band
 of the input above and the model's heatmap below in the style of the 2023 talk slide; 9 confirmed
 ramps, 9 peaks at the deployed threshold. The heatmap is saved beside the figure
 (`heatmap_paterson_*.npz`, with checkpoint and run metadata) so the figure regenerates on CPU;
@@ -152,8 +152,8 @@ Figure: `rampnet2_roadmap.png`. Three rows (find, tag, rate) with where each sta
 
 Three more future-work figures, each from real data:
 
-- **A corner over time**, `timelapse/timelapse_E15SCY6RTiDuNUu_trZk4Q.png` (and a second corner,
-  `timelapse_0CvMs02xHlg3mCMHJdc6Xg.png`). The same Bend intersection in three Street View
+- **A corner over time**, `timelapse/timelapse_E15SCY6RTiDuNUu_trZk4Q.jpg` (and a second corner,
+  `timelapse_0CvMs02xHlg3mCMHJdc6Xg.jpg`). The same Bend intersection in three Street View
   captures with the model's heatmap on each, and the city's inventory install dates: one ramp
   through 2021, nine ramps built 2023-05 per the city, nine detected in 2024-08. Built by
   `uchicago_2026_timelapse.py` (`candidates` ranks every benchmark panorama whose GSV history
@@ -163,12 +163,14 @@ Three more future-work figures, each from real data:
   model sees the ramps the inventory dates to 2010-02 already present in 2008-10, so that
   InstallDate is a record date, not a construction date. That is the dating question
   [#238](https://github.com/ProjectSidewalk/RampNet/issues/238) is about.
-- **From a point to a measurement**, `measure_chain.png`. One Richmond ramp: the deployed
+- **From a point to a measurement**, `measure_chain.jpg`. One Richmond ramp: the deployed
   keypoint, the whole-apron extent box from the gold set, the range from calibrated Depth
   Anything 3, the width that follows (an illustration of the geometry, labelled as such), and
   slope as the measurement that does not exist yet.
 - **3D fly-around**, two generations, neither talk-ready. (v1) The 150k-point clouds from the
-  #48 viewer orbited with a numpy splatter, `flyaround_*.mp4`: Jon judged them unreadable.
+  #48 viewer orbited with a numpy splatter, `flyaround_*.mp4`: Jon judged them unreadable, and
+  the clouds (`flyaround/*.npz`, 2.5 MB) and the splatter script were dropped from the PR rather
+  than committed; the clouds regenerate from the #48 viewer.
   (v2, 2026-10-05 evening) A dense pass: `uchicago_2026_dense_scene.py` runs MapAnything on six
   posed faces of every panorama of a corner on makelab2 (132 views, 21 s, 27M points) and
   writes point maps, a merged cloud and a COLMAP model (`flyaround/dense/<slug>/`, large files
@@ -205,20 +207,19 @@ Four SVGs (PowerPoint imports them as editable shapes) with PNG renders, from
 
 | file | slide | inputs |
 |---|---|---|
-| `pipeline_stage1.png` | 2 | `stage1_example_DJ8Zp111zu6KnMZz-0PHgQ.json`, `benchmark/bend/{records.jsonl,panos/}`, Bend inventory and streets geojson (`--only pipeline`) |
+| `pipeline_stage1.jpg` | 2 | `stage1_example_DJ8Zp111zu6KnMZz-0PHgQ.json`, `benchmark/bend/{records.jsonl,panos/}`, Bend inventory and streets geojson (`--only pipeline`) |
 | `comparison_f1.png` | 4 | `analysis_out/scoreboard.json` |
 | `comparison_f1_v2.png` | 4 | same chart with the N stated: cities, panoramas, ramps, challengers and providers (`--only comparison_v2`) |
 | `transfer_imagery_country.png` | 5 | `analysis_out/scoreboard.json` |
 | `transfer_imagery_us.png` | 5 | same, US splits only, so it reads as camera transfer alone (`--only transfer_us`) |
-| `heatmap_demo_paterson.png` | 3 | `heatmap_paterson_*.npz` (from `uchicago_2026_heatmap.py`, GPU), `benchmark/paterson/{records.jsonl,verdicts.json,panos/}` (`--only heatmap`) |
+| `heatmap_demo_paterson.jpg` | 3 | `heatmap_paterson_*.npz` (from `uchicago_2026_heatmap.py`, GPU), `benchmark/paterson/{records.jsonl,verdicts.json,panos/}` (`--only heatmap`) |
 | `showcase/showcase.mp4` | 3 | `showcase/manifest.json`, `showcase/heat_*.png` (from `uchicago_2026_showcase.py infer`, GPU), benchmark panos; frames + mp4 regenerate with `render` and `video` |
 | `comparison_pr.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_pr`) |
 | `comparison_f1_with_gold.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_gold`) |
 | `comparison_f1_annapolis.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_annapolis`) |
 | `recall_by_distance.png` | 6 | `docs/detection_recall_analysis.md` §1–§2 (constants in the script) |
-| `timelapse/timelapse_*.png` | 8 | `timelapse/manifest_*.json`, `timelapse/heat_*.png` (GSV history via `uchicago_2026_timelapse.py fetch` + `infer`, GPU), Bend inventory |
-| `measure_chain.png` | 8 | `benchmark/richmond/{boxes.json,records.jsonl,panos/}`, `analysis_out/da3_calibration_101/rows_points.jsonl` (`--only measure`) |
-| `flyaround/flyaround_*.mp4` | 8 | `flyaround/*.npz` (MapAnything clouds from the #48 viewer); `uchicago_2026_flyaround.py render` + `video` |
+| `timelapse/timelapse_*.jpg` | 8 | `timelapse/manifest_*.json`, `timelapse/heat_*.png` (GSV history via `uchicago_2026_timelapse.py fetch` + `infer`, GPU), Bend inventory |
+| `measure_chain.jpg` | 8 | `benchmark/richmond/{boxes.json,records.jsonl,panos/}`, `analysis_out/da3_calibration_101/rows_points.jsonl` (`--only measure`) |
 | `rampnet2_roadmap.png` | 8 | `docs/rampnet2_plan.md` §1, §4 (constants in the script) |
 | `deployment_validation.png` | 7 | sidewalk-auto-labeler `docs/server-agree-check.md` at 66c76d6 (constants in the script) |
 

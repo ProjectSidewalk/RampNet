@@ -141,9 +141,13 @@ def _footnote(fig, text, width=175):
 
 
 def _save(fig, name):
+    """Write a figure under OUT_DIR. Charts are PNG; the photographic figures (panorama
+    crops with heatmap overlays) are JPEG at quality 90, which is 4-5x smaller at 2666x1500
+    with no visible difference on a slide. The extension in ``name`` picks the format."""
     os.makedirs(OUT_DIR, exist_ok=True)
     path = os.path.join(OUT_DIR, name)
-    fig.savefig(path, dpi=200, facecolor=fig.get_facecolor())
+    kw = {"pil_kwargs": {"quality": 90, "optimize": True}} if name.lower().endswith(".jpg") else {}
+    fig.savefig(path, dpi=200, facecolor=fig.get_facecolor(), **kw)
     print("wrote", os.path.relpath(path, REPO))
     return path
 
@@ -615,7 +619,7 @@ def fig_pipeline(plt, bench_root=BENCH_ROOT):
               "this panorama's row in the published dataset (stage1_example_*.json beside this "
               "figure). The reviewer later confirmed all four as real ramps "
               "(benchmark/bend/verdicts.json).", width=185)
-    _save(fig, "pipeline_stage1.png")
+    _save(fig, "pipeline_stage1.jpg")
     plt.close(fig)
 
 
@@ -716,7 +720,7 @@ def fig_heatmap(plt, bench_root=BENCH_ROOT, split=HEATMAP_SPLIT, pano=HEATMAP_PA
               f"on {meta['device']}. Ground truth: benchmark/{split}/verdicts.json. "
               "Heatmap saved beside this figure; regenerate with uchicago_2026_heatmap.py.",
               width=185)
-    _save(fig, f"heatmap_demo_{split}.png")
+    _save(fig, f"heatmap_demo_{split}.jpg")
     plt.close(fig)
 
 
@@ -1046,7 +1050,7 @@ def fig_measure(plt, bench_root=BENCH_ROOT, split=MEASURE_SPLIT, pano=MEASURE_PA
               "benchmark/richmond/boxes.json (rule v2: sloped apron + warning pad + flares). Range: "
               "analysis_out/da3_calibration_101/rows_points.jsonl, da3_range. Width is an "
               "illustration of the geometry, not a validated measurement.", width=185)
-    _save(fig, "measure_chain.png")
+    _save(fig, "measure_chain.jpg")
     plt.close(fig)
 
 
