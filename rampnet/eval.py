@@ -83,8 +83,8 @@ SCORER_SOURCES = ("geometry.py", "metrics.py", "detection_eval.py", "validation.
 #: thirteen bundles on the scoreboard (Bayonne joined on 2026-10-11, once #239 committed
 #: its verdicts). Restates ``scripts/analysis/low_floor_sweep.ALL_SPLITS`` (a package
 #: cannot import a script); ``tests/test_eval_protocol_150.py`` asserts the two agree.
-#: Bundles without verdicts (vancouver, not yet committed; the #48 neighbourhood
-#: bundles) are left out on purpose until their files settle.
+#: Bundles not yet committed (vancouver) or that borrow another split's verdicts (the
+#: #48 neighbourhood bundles) are left out on purpose until their files settle.
 PINNED_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
                  "gainesville", "laurens_mapillary", "laurens_gsv", "budapest_district5",
                  "sao_paulo", "bayonne", "manual_gold")
