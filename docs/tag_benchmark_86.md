@@ -511,6 +511,128 @@ hold on any clone):
 | `ep4_relaunch_minus_dead_run.json` | §5.3 relaunch minus first launch at epoch index 4 | re-derived by the tests (point estimates) |
 | `as_run/snap.sh`, `as_run/infer_snap.sh` | the helper scripts as they ran on makelab2 | provenance only |
 
+### 6.1 Trainer options (infrastructure for the PU plan; nothing here has run)
+
+`train` gained three options for the positive-unlabeled plan (PR #182, `docs/pu_training_86.md`
+§5.4 and §8 decision 9, which are PROPOSED, not decided). **No committed number changed**: no
+run in this document used them, and the default path (the commands above) trains exactly as
+before. `tests/test_tag_trainer_86.py` proves that on CPU with a tiny stand-in model:
+`test_factored_loop_is_the_old_loop` and
+`test_make_loss_is_none_for_plain_bce_and_that_path_is_the_old_loop` compare the refactored loop
+with a verbatim copy of the pre-change loop (same per-step losses, same weights), and
+`test_decode_crop_is_the_old_in_memory_decode` does the same for the crop decode. The default
+path writes no file it did not write before (no `checkpoint.pth`; asserted in
+`test_factored_loop_is_the_old_loop`). "The same" here means the same code path, not the same
+weights on a GPU: GPU runs were never bit-reproducible (§5.5; §5.3 measures the spread). The
+steps of `cmd_train` that need CUDA (moving the model to the GPU, `get_device_name`) are not
+under test; they were checked by reading, and the rest of `cmd_train` (flag checks, seeding order, fingerprint, `train_meta.json`)
+runs in the tests with only those calls stubbed.
+
+- **`prep` / `train --prep FILE.npy`.** `prep --labels … [--split-csv …] --images … --out
+  FILE.npy [--workers N]` decodes the split's training crops once (the same `Resize((256,256))`
+  and pad to 266 as the in-memory path, one shared function) into a uint8 N×3×266×266 `.npy`,
+  written row by row, with a sidecar `FILE.npy.meta.json` holding the row order (`label_uids`),
+  the sha256 of the labels and split files, the image dirs and the sha256 of the array's data
+  bytes. `train --prep` maps it read-only and reads each batch's rows only, in the same
+  `randperm` order; it refuses an array whose row order or labels sha256 is not this table's
+  (`--verify-prep` also re-hashes the array). Without `--prep`, `--images` decodes in memory as
+  before. A re-run of `prep` onto an existing `--out` deletes the old sidecar first, so a killed
+  re-run leaves no sidecar (and `train --prep` refuses) rather than an old sidecar beside a new
+  array.
+- **Flags that would be ignored are refused.** `--prep` with `--images`, `--verify-prep` without
+  `--prep`, `--prior` with `--loss bce`, and a non-default `--nnpu-beta`/`--nnpu-gamma` without
+  `--loss nnpu` each stop `train` with a message instead of being dropped silently.
+- **`train --resume`.** With `--resume`, `train` writes `<out-dir>/checkpoint.pth` after every
+  epoch (model, Adam state, the shuffle generator's state, torch RNG state, epoch, best accuracy,
+  loss and epoch, the log rows, a settings fingerprint), by temp file and rename, before the
+  epoch's line is printed. For the DINOv2-B recipe that is about three times the 347 MB model
+  (weights plus Adam's two moments, arithmetic) per out-dir. Without `--resume` nothing is written
+  beyond `best.pth`, `last.pth`, `train_log.csv` and `train_meta.json`, as before. `--resume`
+  continues from the checkpoint if present and starts fresh if not, so a requeued Slurm job can
+  always pass it (and must pass it on the first submission too, or there is nothing to resume
+  from). 1 epoch + resume + 1 epoch gives the same weights as 2 straight epochs, bit for bit on CPU
+  (`test_resume_gives_the_straight_run_bit_for_bit`). A resume is refused when:
+  - the settings fingerprint differs (`train_fingerprint`): row ids, the tag values (sha256 of the
+    float32 tag matrix), the `affirmed` column, the pixels (the `prep` array's sha256 as recorded
+    in its sidecar, re-measured only with `--verify-prep`; or the same hash of the in-memory
+    decode, so `--images` and `--prep` of the same bytes agree), the
+    `--backbone` file's sha256, the tagger sha, lr, batch, seed, `--loss`, β, γ, and the sha256 of
+    the mask CSV and prior JSON. `--epochs` is not in it, so a finished run can be extended;
+  - `--epochs` is smaller than the number of epochs the checkpoint has finished.
+
+  `best.pth` stays consistent with the checkpoint. Under `--resume` a new best is saved to
+  `best.pth.pending`, the checkpoint (which records `best_epoch`) is renamed into place, and only
+  then is `best.pth.pending` renamed onto `best.pth`. On resume a leftover `.pending` is deleted;
+  if `best.pth` does not hold the checkpoint's `best_epoch`, the only way that can happen is a kill
+  between the two renames, when the best epoch *is* the checkpoint's epoch, so `best.pth` is
+  re-saved from the checkpoint's weights. The repair keys on the checkpoint alone: whenever its
+  own epoch is its `best_epoch` and `best.pth` disagrees, `best.pth` is overwritten from it, a
+  `best.pth` copied in by hand included. A mismatch when the best epoch is an earlier one cannot
+  be repaired and is refused. `train_log.csv` is rewritten from the checkpoint's log rows.
+
+  Timing fields in `train_meta.json` after a resume: `prep_s`, `train_s` and `elapsed_s` cover
+  **this process only**. `epoch_s_sum_all_runs` is Σ `epoch_s` over every log row, from every
+  process that ran this out-dir; it excludes checkpoint writes and the epoch in flight when a job
+  was killed. `checkpoint_write_s` is this process's time writing checkpoints (it is inside its
+  `train_s`, so `train_s − checkpoint_write_s` is comparable with a run without `--resume`).
+  `timing_scope` repeats this in the file. These fields, `resumed_from_epoch`,
+  `best_pth_restored_from_epoch` and the `fingerprint` appear only when `--resume` was passed.
+- **`train --loss {bce,nnpu,soft}`, `--mask-csv`, `--prior`, `--nnpu-beta`, `--nnpu-gamma`.**
+  `bce` without a mask is the recipe's `nn.BCEWithLogitsLoss()` call, untouched. The mask CSV
+  has a `label_uid` column and one 0/1 column per masked tag, named as the tag (0 = that
+  (label, tag) cell contributes no loss in any mode; a tag without a column is unmasked; every
+  training label needs a row). An optional `affirmed` 0/1 column in the labels table marks rows
+  whose absences are affirmed (the HF rows); they stay ordinary BCE under `nnpu` and `soft`.
+  `--prior` is a JSON object `{tag: π_t}` covering every tag. `nnpu` is the non-negative PU
+  risk of Kiryo et al. (NeurIPS 2017), case-control form, logistic loss, π′ = max(π_t, o_t)
+  with o_t the tag's observed rate over the table's unmasked non-affirmed cells, global
+  normalisation per plan §3.1, and the paper's gradient-ascent step when the bracket falls
+  below −β (default β = 0, γ = 1); the log gains a per-tag `clamp:<tag>` column (fraction of
+  steps the correction fired). `soft` is BCE toward π_U = max(0, (π′ − o)/(1 − o)) on untagged
+  non-affirmed cells. Each is unit-tested against hand-computed values, including π′ = o
+  reducing `nnpu` to the masked BCE term for term. The plan (§5.4) names the prior flag
+  `--prior-csv`; it is `--prior`, a JSON object, here. The `affirmed` column must be 0/1 with no
+  blanks (a blank is refused), and it is in the one shared list of non-tag columns
+  (`NON_TAG_COLUMNS`), so `infer`, `score`, `test-only` and `context_fov_86.py` never read it as
+  a tag either.
+- **`best.pth` under `--loss nnpu|soft` or `--mask-csv` is a placeholder, not a selection.**
+  The recipe keeps `best.pth` by training exact-match accuracy, which counts masked cells and
+  treats unlabeled cells as negatives, so plan §5.3 calls it meaningless under a PU loss. It is
+  still written (the code path is the recipe's), `train` prints a note, and `train_meta.json`
+  carries `best_pth_rule` saying so. Score `last.pth`, or a checkpoint selected by the plan's
+  §5.3 held-out slice, instead. Selection on that slice (`--select-csv`, every 5 epochs) is not
+  built yet; this PR only makes the placeholder visible. The runbooks' `infer --checkpoint
+  best.pth` is right only for `--loss bce` without a mask.
+
+Example files. The mask CSV needs a row for **every** training label (about 300k rows for tier 2,
+even if only amsterdam is masked) and one 0/1 column per masked tag; a tag with no column is
+unmasked:
+
+```csv
+label_uid,points-into-traffic
+amsterdam:1021,0
+seattle:88412,1
+```
+
+The prior JSON has one key per tag, every tag, each in [0, 1]:
+
+```json
+{"missing-tactile-warning": 0.21, "narrow": 0.12, "points-into-traffic": 0.09, "steep": 0.03}
+```
+
+(shown for four tags, but a real file must list every tag in the table; the numbers are
+placeholders for the format, not estimates, and plan §3.2 says where the priors come from).
+A full requeue-safe PU run, after a `prep` of the arm's framing:
+
+```bash
+python scripts/analysis/tag_benchmark_86.py prep --labels "$L" --split-csv "$S" \
+    --images "$CROPS" --out "$WORK/train_fov25.npy" --workers 8
+python scripts/analysis/tag_benchmark_86.py train --tagger-repo "$TAGGER" \
+    --backbone "$WORK/dinov2_vitb14_reg4_pretrain.pth" --labels "$L" --split-csv "$S" \
+    --prep "$WORK/train_fov25.npy" --loss nnpu --prior "$WORK/prior.json" \
+    --mask-csv "$WORK/mask.csv" --epochs 30 --resume --out-dir "$WORK/train_nnpu"
+```
+
 ## 7. Cost
 
 makelab2 (1x A40), no Slurm, so every run is a `paid: false` row in

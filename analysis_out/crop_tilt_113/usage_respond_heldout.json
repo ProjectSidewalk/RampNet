@@ -1,0 +1,19 @@
+{
+ "checkpoint_sha256": {
+  "round1": "23e40b5926bf377d1b1065fe4adaca08e23284926fd8d751c685b64ac92509b7",
+  "round2": "d129c0c6beffbb565633042f41598e44874fd27012f1c98ea5eb326851a75239"
+ },
+ "device": "cuda",
+ "elapsed_s": 120.0,
+ "gpu_name": "NVIDIA A40",
+ "jpeg_shapes": {
+  "13312x6656": 82,
+  "16384x8192": 482,
+  "3328x1664": 1
+ },
+ "missing": [],
+ "panos": 565,
+ "render_and_forward_s": 88.3,
+ "sample": "analysis_out/crop_tilt_113/sample_heldout.csv",
+ "ts_end": "2026-10-06T06:08:01Z"
+}
