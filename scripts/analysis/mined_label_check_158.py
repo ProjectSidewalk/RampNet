@@ -307,12 +307,16 @@ def image_controls_html(uid, pass2=False):
     sliders = "".join(
         f'<label>{lab} <input type="range" data-img="{k}" min="{lo}" max="{hi}" value="{dflt}" '
         f'aria-label="{lab} for card {uid}"></label>' for k, lab, lo, hi, dflt in IMAGE_RANGES)
+    # Hoisted out of the f-string: a backslash inside a replacement field is a
+    # SyntaxError before Python 3.12.
+    lin = _fe_funcs("linear", 'slope="1" intercept="0"')
+    gam = _fe_funcs("gamma", 'amplitude="1" exponent="1" offset="0"')
     fdef = (f'<svg class="fdef" aria-hidden="true" focusable="false">'
             f'<filter id="f_{uid}" color-interpolation-filters="sRGB">'
             f'<feComponentTransfer in="SourceGraphic" result="lv">'
-            f'{_fe_funcs("linear", "slope=\"1\" intercept=\"0\"")}</feComponentTransfer>'
+            f'{lin}</feComponentTransfer>'
             f'<feComponentTransfer in="lv" result="gm">'
-            f'{_fe_funcs("gamma", "amplitude=\"1\" exponent=\"1\" offset=\"0\"")}'
+            f'{gam}'
             f'</feComponentTransfer>'
             f'<feGaussianBlur in="gm" stdDeviation="0" result="bl"/>'
             f'<feComposite in="gm" in2="bl" operator="arithmetic" k1="0" k2="1" k3="0" k4="0"/>'

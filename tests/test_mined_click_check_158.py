@@ -56,15 +56,15 @@ def test_yes_cards_are_the_combined_sample_yeses():
     assert plan["from"]["pass2_sha256"] == M.R.sha256_file(P2)
 
 
-def _ref_and_empty():
+def _ref_and_file():
     ref = C.committed_reference()
     d = json.load(open(C.verdicts_path("jonf"), encoding="utf-8"))
     return ref, d
 
 
-def test_committed_click_gallery_re_derives_and_the_empty_file_loads(tmp_path):
-    ref, d = _ref_and_empty()
-    assert d["n_answered"] == 0 and d["items"] == ref["items"]
+def test_committed_click_file_is_rated_and_loads():
+    ref, d = _ref_and_file()
+    assert d["items"] == ref["items"] and d["n_answered"] == len(ref["items"]) == 71
     assert C.load_verdicts(C.verdicts_path("jonf"), ref)["rater"] == "jonf"
 
 
@@ -75,7 +75,7 @@ def _write(tmp_path, d):
 
 
 def test_click_file_checks(tmp_path):
-    ref, d = _ref_and_empty()
+    ref, d = _ref_and_file()
     u = ref["items"][0]
     bad = copy.deepcopy(d)
     bad["verdicts"] = {u: {"status": "placed", "click": None}}
@@ -94,7 +94,7 @@ def test_click_file_checks(tmp_path):
 
 
 def test_score_offsets_and_precision_at_radius(tmp_path):
-    ref, d = _ref_and_empty()
+    ref, d = _ref_and_file()
     a, b, c = ref["items"][:3]
     ia = ref["items_by_uid"][a]
     fx, fy = _ring_frac(ia["x"], ia["y"])
