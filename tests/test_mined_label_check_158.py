@@ -139,6 +139,7 @@ def test_pass2_file_is_bound_to_pass1_and_combined_overrides_cant_tell(tmp_path)
     assert got["pooled"]["yes"] == 1 and got["pooled"]["no"] == 1 and got["pooled"]["cant_tell"] == 0
     assert got["pass2"]["resolved"] == {"yes": 1, "unanswered": 1}
     assert got["pass2"]["subset_precision"]["n_decided"] == 1
+    assert got["pass2"]["subset_precision"]["n_items"] == 1     # c2 is an instrument item
     assert got["instrument"]["decided"] == 0
     # binding: a different pass-1 file, a wrong subset, the same rater id, all refused
     p1.write_text(json.dumps({**d1, "n_answered": 3}), encoding="utf-8")
@@ -200,3 +201,51 @@ def test_ring_overlay_sits_where_the_baked_ring_was():
     fx, fy = M.R.ring_centre_frac(it["x"], it["y"])
     assert f'cx="{round(fx * 360, 2)}"' in svg and f'cy="{round(fy * 240, 2)}"' in svg
     assert 'r="14"' in svg and 'viewBox="0 0 360 240"' in svg
+
+
+# --------------------------------------------------------------------------- #
+# Pinned headline numbers (docs/mined_placement_158.md, Step 4), re-derived from the
+# committed rater files with the script's own functions. A pinning test, not a
+# check_all entry: the read is CPU-only over committed files and runs in under a second.
+# --------------------------------------------------------------------------- #
+P1 = os.path.join(M.OUT, "mined_label_check__jonf.json")
+P2 = os.path.join(M.OUT, "mined_label_check__jonf-p2.json")
+
+
+def _committed():
+    ref = M.committed_reference()
+    p1 = M.load_verdicts(P1, ref)
+    p2 = M.load_verdicts(P2, ref, pass1=(P1, p1))
+    return ref, p1, p2
+
+
+def _pin(row, yes, no, cant, p, lo, hi):
+    assert (row["yes"], row["no"], row["cant_tell"]) == (yes, no, cant)
+    assert row["n_decided"] == yes + no
+    assert [round(row["precision"], 3)] + [round(x, 3) for x in row["wilson_95"]] == [p, lo, hi]
+
+
+def test_pinned_pass1_and_combined_headline():
+    ref, p1, p2 = _committed()
+    r1 = M.rates(p1, ref)
+    _pin(r1["pooled"], 59, 11, 30, 0.843, 0.740, 0.910)
+    assert r1["pooled"]["rule"] == "build; the 95% CI spans visibility..build, not decisive"
+    assert (r1["instrument"]["decided"], r1["instrument"]["agree_with_earlier_verdicts"]) == (8, 7)
+    c = M.combined(p1, p2, ref)
+    _pin(c["pooled"], 71, 12, 17, 0.855, 0.764, 0.915)
+    assert c["pooled"]["rule"] == "build; the 95% CI spans visibility..build, not decisive"
+    _pin(c["by_band"]["0-8 m"], 12, 2, 4, 0.857, 0.601, 0.960)
+    _pin(c["by_band"]["8-12 m"], 29, 3, 5, 0.906, 0.758, 0.968)
+    _pin(c["by_band"]["12-15 m"], 30, 7, 8, 0.811, 0.658, 0.905)
+    assert (c["instrument"]["decided"], c["instrument"]["agree_with_earlier_verdicts"]) == (10, 9)
+    # the pass-2 subset, sample cards only (30 of the 32; 2 are instrument items)
+    _pin(c["pass2"]["subset_precision"], 12, 1, 17, 0.923, 0.667, 0.986)
+    assert c["pass2"]["subset_precision"]["n_items"] == 30
+
+
+def test_pinned_clipping_figure():
+    plan = json.load(open(M.ITEMS_PATH, encoding="utf-8"))
+    got = M.clipping(json.load(open(P1, encoding="utf-8")), plan)
+    wo = got["washed_out_notes"]
+    assert got["n_cant_tell"] == 32 and wo["n"] == 11 and wo["n_at_least_25pct"] == 8
+    assert [round(wo[k], 3) for k in ("min", "median", "max")] == [0.0, 0.360, 0.513]

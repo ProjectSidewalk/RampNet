@@ -31,6 +31,9 @@ per-rater verdict files against #158's rule.
     python scripts/analysis/mined_label_check_158.py rates \\
         analysis_out/mined_label_check_158/mined_label_check__jonf.json \\
         --pass2 analysis_out/mined_label_check_158/mined_label_check__jonf-p2.json
+    # 6. the washed-out clipping figure behind pass 2 (committed pass-1 crops only)
+    python scripts/analysis/mined_label_check_158.py clipping \\
+        analysis_out/mined_label_check_158/mined_label_check__jonf.json
 
 **The sample (fixed before crops).** Population: every emitted label whose target pano is
 not one of the 124 benchmark panos. 100 labels, allocated to the range bands 0-8 / 8-12 /
@@ -851,8 +854,69 @@ def combined(pass1, pass2, ref):
     out["pass2"] = {"rater": pass2["rater"], "n_items": len(pass2["items"]),
                     "manifest_digest": pass2["manifest_digest"],
                     "resolved": dict(resolved),
-                    "subset_precision": precision(pass2["verdicts"], pass2["items"])}
+                    # Sample cards only: the instrument items have known answers, so a
+                    # precision that mixed them in would not be a sample statistic.
+                    "subset_precision": precision(
+                        pass2["verdicts"],
+                        [u for u in pass2["items"] if not ref["cards"][u]["instrument"]])}
     return out
+
+
+# --------------------------------------------------------------------------- #
+# clipping (why pass 2 was rebuilt)
+# --------------------------------------------------------------------------- #
+#: A pixel is "clipped" when all three channels are at least this.
+CLIP_LEVEL = 245
+#: The ring `cut_one` draws on a 360 px crop has radius 14 px; the default area is the disc
+#: it encloses.
+RING_RADIUS_PX = 14
+WASHOUT_NOTE_RE = re.compile(r"washed\s*out", re.I)
+
+
+def clipping(pass1, plan, radius_px=RING_RADIUS_PX, level=CLIP_LEVEL, crops_dir=None):
+    """Per pass-1 'Can't tell' card: the share of pixels in a disc of `radius_px` around the
+    ring centre, on the committed ringed pass-1 target crop, that are >= `level` in all
+    three channels. The ring stroke is green (0, 255, 90), so it never counts as clipped.
+    The centre is the window centre horizontally and `cut_one`'s clamped window vertically
+    (exact up to `cut_one`'s integer rounding, under one crop pixel)."""
+    import numpy as np
+    from PIL import Image
+    crops_dir = crops_dir or os.path.join(GALLERY_DIR, "crops")
+    tgt = {it["ramp_uid"]: it for it in plan["items"] if it["role"] == "target"}
+    cards = {c["id"]: c for c in plan["cards"]}
+    rows = []
+    for uid in pass1["items"]:
+        v = pass1["verdicts"].get(uid) or {}
+        if v.get("answer") != "cant_tell":
+            continue
+        it = tgt[uid]
+        a = np.asarray(Image.open(os.path.join(crops_dir, f"{uid}__{it['pano_id']}.jpg"))
+                       .convert("RGB")).astype(int)
+        h, w, _ = a.shape
+        fv = mv.CROP_FOV_V
+        top = max(0.0, min(180.0 - fv, it["y"] * 180.0 - fv / 2))
+        tx, ty = w / 2.0, (it["y"] * 180.0 - top) / fv * h
+        yy, xx = np.mgrid[0:h, 0:w]
+        disc = (xx + 0.5 - tx) ** 2 + (yy + 0.5 - ty) ** 2 <= radius_px ** 2
+        clipped = ((a >= level).all(-1) & disc).sum()
+        rows.append({"id": uid, "instrument": cards[uid]["instrument"],
+                     "note_says_washed_out": bool(WASHOUT_NOTE_RE.search(v.get("note") or "")),
+                     "clipped_frac": float(clipped) / float(disc.sum())})
+    wo = sorted(r["clipped_frac"] for r in rows if r["note_says_washed_out"])
+    return {"radius_px": radius_px, "level": level, "n_cant_tell": len(rows),
+            "washed_out_notes": {"n": len(wo), "min": wo[0] if wo else None,
+                                 "max": wo[-1] if wo else None,
+                                 "median": (wo[(len(wo) - 1) // 2] + wo[len(wo) // 2]) / 2
+                                 if wo else None,
+                                 "n_at_least_25pct": sum(x >= 0.25 for x in wo)},
+            "cards": rows}
+
+
+def cmd_clipping(args):
+    ref = committed_reference()
+    d = load_verdicts(args.file, ref)
+    plan = json.load(open(ITEMS_PATH, encoding="utf-8"))
+    print(json.dumps(mv.rnd(clipping(d, plan, args.radius_px)), indent=1, sort_keys=True))
 
 
 def cmd_rates(args):
@@ -889,9 +953,14 @@ def main(argv=None):
     r.add_argument("files", nargs="+")
     r.add_argument("--pass2", default=None, metavar="VERDICTS",
                    help="a pass-2 file re-rating the first file's 'Can't tell' cards")
+    c = sub.add_parser("clipping", help="share of clipped pixels at the ring, per pass-1 "
+                                        "'Can't tell' card (the reason pass 2 was rebuilt)")
+    c.add_argument("file", help="the pass-1 verdict file")
+    c.add_argument("--radius-px", type=float, default=RING_RADIUS_PX,
+                   help="disc radius in 360 px crop pixels (default: the ring's own, 14)")
     args = ap.parse_args(argv)
     {"plan": cmd_plan, "plan-pass2": cmd_plan_pass2, "gallery": cmd_gallery,
-     "rates": cmd_rates}[args.cmd](args)
+     "rates": cmd_rates, "clipping": cmd_clipping}[args.cmd](args)
 
 
 if __name__ == "__main__":

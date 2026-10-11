@@ -116,3 +116,26 @@ def test_score_offsets_and_precision_at_radius(tmp_path):
     # Agreement with itself is exact.
     ag = C.agreement(d, d, ref)
     assert ag["both_placed"] == 2 and ag["between_raters"]["max_px"] == pytest.approx(0)
+
+
+def test_pinned_click_pass_headline():
+    """Pinned headline (docs/mined_placement_158.md, Click pass result), re-derived from the
+    committed click file with the script's own `score`. A pinning test, not a check_all
+    entry: CPU-only over committed files, well under a second."""
+    ref = C.committed_reference()
+    sc = C.score(C.load_verdicts(C.verdicts_path("jonf"), ref), ref, n_decided=83)
+    assert sc["status"] == {"placed": 71, "multi": 0, "cant_place": 0, "unanswered": 0}
+    pooled = sc["pooled"]
+    assert pooled["n"] == 71
+    assert pooled["within_eval_radius_22_5"]["count"] == 69
+    assert pooled["within_sigma_10"]["count"] == 54
+    assert [round(pooled[k], 1) for k in ("median_px", "p90_px", "max_px")] == [5.4, 12.5, 46.2]
+    ev, sg = sc["precision_at_eval_radius_22_5"], sc["precision_at_sigma_10"]
+    assert (ev["yes_within"], ev["n_decided"]) == (69, 83)
+    assert [round(ev["precision"], 3)] + [round(x, 3) for x in ev["wilson_95"]] == \
+        [0.831, 0.737, 0.897]
+    assert ev["rule"] == "build; the 95% CI spans visibility..build, not decisive"
+    assert (sg["yes_within"], sg["n_decided"]) == (54, 83)
+    assert [round(sg["precision"], 3)] + [round(x, 3) for x in sg["wilson_95"]] == \
+        [0.651, 0.543, 0.744]
+    assert sg["rule"] == "visibility"
