@@ -18,6 +18,9 @@ benchmark/*/panos/
 benchmark/*/gallery/
 benchmark/*/box_gallery/
 benchmark/*/heatmap_cache/
+# #111 Google depth archive (local, unpublished); the committed record is
+# benchmark/<split>/depth_manifest.json (docs/benchmark_depth_111.md).
+benchmark/*/depth/
 .env
 view_dump/
 .model_cache/
@@ -373,6 +376,10 @@ analysis_out/mined_placement_158/*
 analysis_out/mined_placement_158/predictions/*
 !analysis_out/mined_placement_158/predictions/*.jsonl
 !analysis_out/mined_placement_158/predictions/*.json
+# #158 step 4: the mined-label gallery's item file and per-rater verdict files.
+!analysis_out/mined_label_check_158/
+analysis_out/mined_label_check_158/*
+!analysis_out/mined_label_check_158/*.json
 
 # #221 sub-cell decode: per-peak coarse neighbourhoods + report (the coarse maps stay on makelab2)
 !analysis_out/subcell_decode_221/
@@ -460,3 +467,24 @@ analysis_out/aug_transfer_82/finetune/*
 analysis_out/bayonne_159/**/*.jpg
 analysis_out/bayonne_159/**/*.png
 analysis_out/bayonne_159/**/*.html
+
+# #221 crop-model decode: Hub downloads (checkpoints + crop JPEGs) stay local; the
+# per-crop coarse-map extracts and the results re-derived from them are committed, so
+# `crop_decode_221.py --check` runs on CPU from a clean clone.
+.hf_cache/
+!analysis_out/crop_decode_221/
+analysis_out/crop_decode_221/*
+!analysis_out/crop_decode_221/*.json
+!analysis_out/crop_decode_221/*.md
+
+# #150: rampnet.eval reproduction proof (scripts/analysis/eval_protocol_150.py).
+!analysis_out/eval_protocol_150/
+analysis_out/eval_protocol_150/*
+!analysis_out/eval_protocol_150/*.json
+
+# Crop-model tilt displacement (#113, docs/crop_tilt_113.md): the derived per-label table, the
+# empirical sample and response rows, and the summaries --check re-derives from them.
+!analysis_out/crop_tilt_113/
+analysis_out/crop_tilt_113/*
+!analysis_out/crop_tilt_113/*.csv
+!analysis_out/crop_tilt_113/*.json

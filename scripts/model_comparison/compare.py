@@ -159,171 +159,14 @@ class DetectionCache:
             json.dump({"points": [list(p) for p in points]}, f)
 
 
-#: A bundle that borrows its verdicts from another bundle instead of carrying a copy
-#: (#48). Its ``records.jsonl`` holds the judged panos of ``verdicts_from`` plus
-#: unjudged neighbours; only the judged ones are scored, and ``--detect-unjudged``
-#: runs the detector over the rest so their detections land in the cache.
-BUNDLE_SPEC = "bundle.json"
-
-
-def verdicts_from_spec(bundle_dir):
-    """The verdict panos a ``bundle.json`` bundle points at, read from that bundle.
-
-    Borrowing rather than copying keeps one verdicts.json per review, so the judged
-    panos cannot drift from the published split they came from."""
-    with open(os.path.join(bundle_dir, BUNDLE_SPEC), encoding="utf-8") as f:
-        spec = json.load(f)
-    src = spec.get("verdicts_from")
-    if not src:
-        raise SystemExit(f"{bundle_dir}/{BUNDLE_SPEC}: no 'verdicts_from'")
-    vpath = os.path.normpath(os.path.join(bundle_dir, src, "verdicts.json"))
-    if not os.path.exists(vpath):
-        raise SystemExit(f"{bundle_dir}/{BUNDLE_SPEC}: verdicts_from {src!r} has no "
-                         f"verdicts.json ({vpath})")
-    with open(vpath, encoding="utf-8") as f:
-        return json.load(f)["panos"]
-
-
-#: Any of these makes a bundle scoreable, so ``--unreviewed`` must refuse it.
-REVIEW_FILES = ("verdicts.json", BUNDLE_SPEC, "gt_source.json")
-
-
-def refuse_unreviewed_if_reviewed(bundle_dir):
-    """Exit if ``--unreviewed`` was given for a bundle that has ground truth of any kind:
-    a review (``verdicts.json``), borrowed verdicts (``bundle.json``) or independent
-    labels (``gt_source.json``, manual_gold). Decided from the files on disk, so an
-    empty or manual-GT review cannot slip through as "no verdicts" (PR #234, S2)."""
-    found = [n for n in REVIEW_FILES if os.path.exists(os.path.join(bundle_dir, n))]
-    if found:
-        raise SystemExit(f"{bundle_dir}: --unreviewed given, but the bundle has "
-                         f"{', '.join(found)}; drop the flag and score it.")
-
-
-def load_bundle(bundle_dir, unreviewed=False):
-    """Return (records_by_pid, verdicts_panos, panos_dir) for a benchmark bundle.
-
-    ``unreviewed=True`` accepts a bundle that has only ``records.jsonl`` and
-    ``panos/`` -- a city staged ahead of its ground-truth review (#159) -- and
-    returns ``{}`` for its verdicts, so every pano is detect-only. It is refused for
-    a bundle that already has a review, so the flag can never hide one.
-
-    ``verdicts_panos`` is None for a manual-GT bundle (``gt_source.json`` instead
-    of ``verdicts.json`` — see ``load_manual_ground_truths``); the city bundles
-    always carry a verdict review. A ``bundle.json`` bundle (#48) borrows the
-    verdicts of another bundle (``verdicts_from_spec``). A directory with none of
-    the three is rejected here so a mistyped path fails with one clear message
-    instead of a downstream KeyError.
-    """
-    records = {}
-    with open(os.path.join(bundle_dir, "records.jsonl"), encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                r = json.loads(line)
-                records[r["pano"]["panorama_id"]] = r
-    vpath = os.path.join(bundle_dir, "verdicts.json")
-    verdicts = None
-    if os.path.exists(vpath):
-        with open(vpath, encoding="utf-8") as f:
-            verdicts = json.load(f)["panos"]
-    elif os.path.exists(os.path.join(bundle_dir, BUNDLE_SPEC)):
-        verdicts = verdicts_from_spec(bundle_dir)
-    elif unreviewed and not os.path.exists(os.path.join(bundle_dir, "gt_source.json")):
-        return records, {}, os.path.join(bundle_dir, "panos")
-    elif not os.path.exists(os.path.join(bundle_dir, "gt_source.json")):
-        raise SystemExit(f"{bundle_dir}: neither verdicts.json, {BUNDLE_SPEC} nor "
-                         "gt_source.json — not a benchmark bundle")
-    return records, verdicts, os.path.join(bundle_dir, "panos")
-
-
-def ground_truths_from_verdicts(records, verdicts):
-    """{pid: GroundTruth} derived from a bundle's human review (the city path)."""
-    return {pid: build_ground_truth(records[pid]["detections"], entry["dets"],
-                                    entry["missed"], entry["no_missed"])
-            for pid, entry in verdicts.items()}
-
-
-def load_manual_ground_truths(bundle_dir):
-    """{pid: GroundTruth} for a manual-GT bundle (``benchmark/manual_gold``).
-
-    The bundle's ``gt_source.json`` points at a directory of YOLO-format label
-    files that were produced by independent manual labeling — no RampNet review
-    to derive from, hence no verdicts and no RampNet anchoring. Box centers
-    become GT points, there are no ignore points, and every pano is
-    recall-confirmed (see ``rampnet.detection_eval.yolo_ground_truth``).
-    """
-    with open(os.path.join(bundle_dir, "gt_source.json"), encoding="utf-8") as f:
-        src = json.load(f)
-    if src.get("format") != "yolo_points":
-        raise SystemExit(f"{bundle_dir}/gt_source.json: unsupported format "
-                         f"{src.get('format')!r} (expected 'yolo_points')")
-    labels_dir = os.path.normpath(os.path.join(bundle_dir, src["labels_dir"]))
-    gts = load_yolo_ground_truths(labels_dir)
-    if not gts:
-        raise SystemExit(f"{labels_dir}: no .txt label files found")
-    return gts
-
-
-def validate_bundle(records, verdicts):
-    """Fail fast on a structurally broken bundle, *before* any (paid) detector call.
-
-    ``score_model`` builds each pano's ground truth from ``records[pid]`` + the
-    verdict entry outside its per-pano failure guard (that guard is for transient
-    detect() errors, not data integrity). Without this pre-flight a reviewed pano
-    missing from records.jsonl, a missing verdict field, or detections/verdicts
-    that don't line up would surface as a raw KeyError/ValueError partway through a
-    long VLM run — after spend, and aborting models already scored. Catch it here
-    with a clear message instead. Raises SystemExit listing every offending pano.
-
-    (Legacy verdicts.json without ``no_missed`` are intentionally rejected here
-    rather than silently defaulted — the current/planned bundles are new-schema;
-    see docs/model_comparison.md.)"""
-    problems = []
-    for pid, entry in verdicts.items():
-        rec = records.get(pid)
-        if rec is None:
-            problems.append(f"{pid}: reviewed in verdicts.json but absent from records.jsonl")
-            continue
-        missing = [k for k in ("dets", "missed", "no_missed") if k not in entry]
-        if missing:
-            problems.append(f"{pid}: verdict entry missing field(s) {missing}")
-            continue
-        n_det, n_ver = len(rec.get("detections", [])), len(entry["dets"])
-        if n_det != n_ver:
-            problems.append(f"{pid}: {n_det} detections vs {n_ver} verdicts (misaligned)")
-    if problems:
-        _fail_validation(problems)
-
-
-def validate_manual_bundle(records, gts, need_detections=False):
-    """Pre-flight for a manual-GT bundle, mirroring ``validate_bundle``'s job.
-
-    The label files and ``records.jsonl`` are built by different tools
-    (``manual_labels/`` is hand-curated; records come from ``fetch_manual_gold`` +
-    ``export_gold_records``), so catch any drift between them before a paid
-    detector call. ``need_detections`` is set when the rampnet baseline was
-    requested: its detections live in the records, and a bundle whose exporter
-    hasn't run yet must say so instead of scoring RampNet as all-misses.
-    """
-    problems = []
-    for pid in gts:
-        rec = records.get(pid)
-        if rec is None:
-            problems.append(f"{pid}: labeled but absent from records.jsonl "
-                            "(re-run scripts/fetch_manual_gold.py)")
-        elif need_detections and "detections" not in rec:
-            problems.append(f"{pid}: no RampNet detections in records.jsonl "
-                            "(run scripts/export_gold_records.py first)")
-    for pid in records:
-        if pid not in gts:
-            problems.append(f"{pid}: in records.jsonl but has no label file")
-    if problems:
-        _fail_validation(problems)
-
-
-def _fail_validation(problems):
-    shown = "\n  ".join(problems[:10])
-    more = f"\n  ... and {len(problems) - 10} more" if len(problems) > 10 else ""
-    raise SystemExit(f"Bundle validation failed ({len(problems)} pano(s)):\n  {shown}{more}")
+# The bundle loaders live in rampnet.bundles (#150) so the package can score a
+# bundle without importing this harness. Re-exported here so `C.load_bundle` and every
+# existing caller keep working unchanged.
+from rampnet.bundles import (  # noqa: E402,F401
+    BUNDLE_SPEC, REVIEW_FILES, _fail_validation, ground_truths_from_verdicts, load_bundle,
+    load_manual_ground_truths, refuse_unreviewed_if_reviewed, validate_bundle,
+    validate_manual_bundle, verdicts_from_spec,
+)
 
 
 # scored: [(pred_points, GroundTruth)] for every pano that was successfully
@@ -639,55 +482,11 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
         tail = (f" (of which ${recovered:,.2f} recovered, not measured)"
                 if recovered else "")
         print(f"[{label}] ledger now: {rows:,} rows, ${usd:,.2f}, {hours:,.1f} h{tail}")
-def rescore(scored, radius_sq, min_confidence=0.0):
-    """Re-aggregate a finished run with predictions below ``min_confidence`` dropped.
-
-    Detections are cached with their scores, so every operating point of a
-    confidence-carrying detector is a free re-score — no second model run. A
-    prediction with no confidence (chat VLMs) is never dropped: there is nothing to
-    threshold on."""
-    return aggregate([
-        score_pano([p for p in preds
-                    if prediction_confidence(p) is None
-                    or prediction_confidence(p) >= min_confidence],
-                   gt, radius_sq=radius_sq)
-        for preds, gt in scored])
-
-
-def operating_report(report, scored, radius_sq, op_threshold):
-    """The table row for one model: P/R/F1/counts at the operating threshold, but
-    AP and the PR curve kept from the full-range ``report``. Those two are
-    integrals over the whole confidence range — rescore()'s filtered aggregate
-    would silently truncate them at the operating point, exactly the caveat the
-    manual_gold bundle's 0.05 export floor exists to avoid."""
-    if op_threshold <= 0:
-        return report
-    return rescore(scored, radius_sq, op_threshold)._replace(
-        ap=report.ap, pr_curve=report.pr_curve)
-
-
-def has_confidences(scored):
-    """True when every prediction in the run carries a score (so AP / a sweep mean
-    something). An empty run counts as no confidences."""
-    preds = [p for ps, _ in scored for p in ps]
-    return bool(preds) and all(prediction_confidence(p) is not None for p in preds)
-
-
-SWEEP_THRESHOLDS = (0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
-
-
-def sweep_rows(scored, radius_sq, thresholds=SWEEP_THRESHOLDS, floor=None):
-    """(threshold, ScoreReport) for each threshold that still keeps a prediction.
-
-    ``floor`` is the detector's cache floor (--score-threshold): the cache holds
-    no detections below it, so a sweep row under the floor would silently repeat
-    the floor row while reading as a real measurement. Those rows are dropped
-    (with the default floor, 0.05, nothing is — it equals the lowest threshold)."""
-    top = max((prediction_confidence(p) for ps, _ in scored for p in ps
-               if prediction_confidence(p) is not None),
-              default=0.0)
-    return [(t, rescore(scored, radius_sq, t)) for t in thresholds
-            if t <= top and (floor is None or t >= floor)]
+# rescore / operating_report / sweep_rows live in rampnet.eval (#150), the benchmark
+# scoring protocol as code. Re-exported so `C.rescore` etc. keep working unchanged.
+from rampnet.eval import (  # noqa: E402,F401
+    SWEEP_THRESHOLDS, has_confidences, operating_report, rescore, sweep_rows,
+)
 
 
 def _pct(x):

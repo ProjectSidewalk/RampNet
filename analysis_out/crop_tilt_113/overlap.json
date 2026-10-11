@@ -1,0 +1,118 @@
+{
+ "distinct_main_keypoints": 25906,
+ "labels_crowd_ok": {
+  "exact_main_keypoint_match": 7627,
+  "excess_over_null": 0.4194,
+  "expected_chance_matches": 819.2044,
+  "match_rate": 0.5258,
+  "matched_crop_split": {
+   "test": 1253,
+   "train": 5549,
+   "val": 1254
+  },
+  "n": 14505,
+  "null_rate_max": 0.1127,
+  "null_rate_mean": 0.1064,
+  "overlap_fraction_est": 0.4693
+ },
+ "labels_heldout_crowd_ok": {
+  "exact_main_keypoint_match": 387,
+  "excess_over_null": 0.0054,
+  "expected_chance_matches": 365.207,
+  "match_rate": 0.1078,
+  "matched_crop_split": {
+   "test": 64,
+   "train": 270,
+   "val": 68
+  },
+  "n": 3590,
+  "null_rate_max": 0.112,
+  "null_rate_mean": 0.1024,
+  "overlap_fraction_est": 0.0061
+ },
+ "note": "A label 'matches' when download_data.py's integer point for it equals the first keypoint of some round-1 crop (the crop's own label). The null shifts every point by 16 offsets of 11-29 render px and matches again: that is the chance rate of hitting some other crop's point. If a share f of labels truly have a round-1 crop, match = f + (1 - f) * null, so overlap_fraction_est = (match - null) / (1 - null) estimates f; expected_chance_matches is (1 - f) * null * n, the matched labels that are matches by chance. Sensitivity (a true round-1 label whose integer point differs, e.g. a label edited since 2025) is NOT measured, so the unmatched set can still contain round-1 labels.",
+ "round1_crops": 27704,
+ "round1_dataset": "projectsidewalk/rampnet-crop-model-dataset-round1@521f74ff752d57824400c8f7d5ca4717efa7bf16",
+ "sample": {
+  "exact_main_keypoint_match": 318,
+  "excess_over_null": 0.4265,
+  "expected_chance_matches": 32.5712,
+  "match_rate": 0.53,
+  "matched_crop_split": {
+   "test": 53,
+   "train": 233,
+   "val": 52
+  },
+  "n": 600,
+  "null_rate_max": 0.1433,
+  "null_rate_mean": 0.1035,
+  "overlap_fraction_est": 0.4757
+ },
+ "sample_by_stratum": {
+  "1to3": {
+   "exact_main_keypoint_match": 96,
+   "excess_over_null": 0.3787,
+   "expected_chance_matches": 11.7163,
+   "match_rate": 0.48,
+   "matched_crop_split": {
+    "test": 20,
+    "train": 66,
+    "val": 17
+   },
+   "n": 200,
+   "null_rate_max": 0.145,
+   "null_rate_mean": 0.1013,
+   "overlap_fraction_est": 0.4214
+  },
+  "ge3": {
+   "exact_main_keypoint_match": 108,
+   "excess_over_null": 0.445,
+   "expected_chance_matches": 9.6575,
+   "match_rate": 0.54,
+   "matched_crop_split": {
+    "test": 15,
+    "train": 80,
+    "val": 19
+   },
+   "n": 200,
+   "null_rate_max": 0.125,
+   "null_rate_mean": 0.095,
+   "overlap_fraction_est": 0.4917
+  },
+  "lt1": {
+   "exact_main_keypoint_match": 114,
+   "excess_over_null": 0.4556,
+   "expected_chance_matches": 11.1066,
+   "match_rate": 0.57,
+   "matched_crop_split": {
+    "test": 18,
+    "train": 87,
+    "val": 16
+   },
+   "n": 200,
+   "null_rate_max": 0.16,
+   "null_rate_mean": 0.1144,
+   "overlap_fraction_est": 0.5145
+  }
+ },
+ "sample_heldout": {
+  "exact_main_keypoint_match": 58,
+  "excess_over_null": 0.0075,
+  "expected_chance_matches": 53.3032,
+  "match_rate": 0.1027,
+  "matched_crop_split": {
+   "test": 7,
+   "train": 45,
+   "val": 9
+  },
+  "n": 565,
+  "null_rate_max": 0.1204,
+  "null_rate_mean": 0.0951,
+  "overlap_fraction_est": 0.0083
+ },
+ "sample_unmatched_as_secondary_keypoint": {
+  "hits": 1,
+  "n_unmatched": 282,
+  "null_hits_mean": 4.75
+ }
+}
