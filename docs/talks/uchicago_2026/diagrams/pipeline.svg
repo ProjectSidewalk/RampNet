@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52514e"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2a78d6"/></marker></defs>
+<rect width="1920" height="1080" fill="#fcfcfb"/>
+<text x="40" y="70" font-size="40" fill="#0b0b0b" font-weight="bold" text-anchor="start">RampNet: two stages, then deployment</text>
+<text x="40" y="108" font-size="22" fill="#52514e" font-weight="normal" text-anchor="start">Labels come from cities, not from annotators. One model reads the whole panorama. A labeler turns detections into a city inventory.</text>
+<rect x="40" y="150" width="580" height="760" rx="18" fill="#fcfcfb" stroke="#e1e0d9" stroke-width="1.5"/>
+<rect x="62" y="170" width="334" height="35" rx="17" fill="#2a78d6" stroke="none" stroke-width="1.5"/>
+<text x="75" y="192" font-size="19" fill="#fcfcfb" font-weight="bold" text-anchor="start">Stage 1  ·  make the dataset</text>
+<rect x="670" y="150" width="580" height="760" rx="18" fill="#fcfcfb" stroke="#e1e0d9" stroke-width="1.5"/>
+<rect x="692" y="170" width="356" height="35" rx="17" fill="#2a78d6" stroke="none" stroke-width="1.5"/>
+<text x="705" y="192" font-size="19" fill="#fcfcfb" font-weight="bold" text-anchor="start">Stage 2  ·  train the detector</text>
+<rect x="1300" y="150" width="580" height="760" rx="18" fill="#fcfcfb" stroke="#e1e0d9" stroke-width="1.5"/>
+<rect x="1322" y="170" width="323" height="35" rx="17" fill="#b8962e" stroke="none" stroke-width="1.5"/>
+<text x="1335" y="192" font-size="19" fill="#fcfcfb" font-weight="bold" text-anchor="start">Deployment  ·  label a city</text>
+<rect x="62" y="240" width="536" height="118" rx="14" fill="#fbf1cf" stroke="#e6d79a" stroke-width="1.5"/>
+<text x="84" y="282" font-size="26" fill="#0b0b0b" font-weight="bold" text-anchor="start">City curb-ramp inventories</text>
+<text x="84" y="321" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Open GIS points from NYC, Portland, Bend</text>
+<text x="84" y="347" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">276,071 records, with install dates</text>
+<line x1="330" y1="358" x2="330" y2="400" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="62" y="400" width="536" height="118" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="84" y="442" font-size="26" fill="#0b0b0b" font-weight="bold" text-anchor="start">Project to the panorama</text>
+<text x="84" y="481" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">GPS point + panorama pose → a bearing</text>
+<text x="84" y="507" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">GSV panoramas within 35 m of a point</text>
+<line x1="330" y1="518" x2="330" y2="560" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="62" y="560" width="536" height="118" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="84" y="602" font-size="26" fill="#0b0b0b" font-weight="bold" text-anchor="start">Refine with a crop model</text>
+<text x="84" y="641" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Small keypoint net on a ±15° strip,</text>
+<text x="84" y="667" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">trained on Project Sidewalk crops</text>
+<line x1="330" y1="678" x2="330" y2="720" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="62" y="720" width="536" height="118" rx="14" fill="#cde2fb" stroke="#9ec5f4" stroke-width="1.5"/>
+<text x="84" y="762" font-size="26" fill="#184f95" font-weight="bold" text-anchor="start">214,376 labelled panoramas</text>
+<text x="84" y="801" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">849,895 curb-ramp points, no human in the loop</text>
+<text x="84" y="827" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">P 0.92 / R 0.93 vs a 1,000-pano gold set</text>
+<rect x="692" y="240" width="536" height="118" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="714" y="282" font-size="26" fill="#0b0b0b" font-weight="bold" text-anchor="start">Input: the whole 360° panorama</text>
+<text x="714" y="321" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">2048 × 4096 equirectangular image</text>
+<text x="714" y="347" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Nothing is cropped or tiled</text>
+<line x1="960" y1="358" x2="960" y2="400" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="692" y="400" width="536" height="118" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="714" y="442" font-size="26" fill="#0b0b0b" font-weight="bold" text-anchor="start">ConvNeXt V2 backbone + heatmap head</text>
+<text x="714" y="481" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">One channel at 512 × 1024</text>
+<text x="714" y="507" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Gaussian targets, σ = 10 px; one epoch</text>
+<line x1="960" y1="518" x2="960" y2="560" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="692" y="560" width="536" height="118" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="714" y="602" font-size="26" fill="#0b0b0b" font-weight="bold" text-anchor="start">Peaks are detections</text>
+<text x="714" y="641" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Local maxima above a threshold</text>
+<text x="714" y="667" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Points, not boxes, with a confidence</text>
+<line x1="960" y1="678" x2="960" y2="720" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="692" y="720" width="536" height="118" rx="14" fill="#cde2fb" stroke="#9ec5f4" stroke-width="1.5"/>
+<text x="714" y="762" font-size="26" fill="#184f95" font-weight="bold" text-anchor="start">Released model</text>
+<text x="714" y="801" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">F1 0.91 in distribution; 0.79 pooled over</text>
+<text x="714" y="827" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">eight US cities, ahead of every zero-shot model</text>
+<rect x="1322" y="240" width="536" height="118" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="1344" y="282" font-size="26" fill="#0b0b0b" font-weight="bold" text-anchor="start">Any street imagery</text>
+<text x="1344" y="321" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Google Street View, Mapillary 360°, Panoramax</text>
+<text x="1344" y="347" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Enumerate a city polygon, thin to a grid</text>
+<line x1="1590" y1="358" x2="1590" y2="400" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="1322" y="400" width="536" height="118" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="1344" y="442" font-size="26" fill="#0b0b0b" font-weight="bold" text-anchor="start">Detect, then place in the world</text>
+<text x="1344" y="481" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">RampNet on every panorama</text>
+<text x="1344" y="507" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Bearing + range → a GPS point per detection</text>
+<line x1="1590" y1="518" x2="1590" y2="560" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="1322" y="560" width="536" height="118" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="1344" y="602" font-size="26" fill="#0b0b0b" font-weight="bold" text-anchor="start">Fuse views into sites</text>
+<text x="1344" y="641" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">One ramp is seen from several panoramas</text>
+<text x="1344" y="667" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Cluster within 7.5 m → one site per ramp</text>
+<line x1="1590" y1="678" x2="1590" y2="720" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="1322" y="720" width="536" height="118" rx="14" fill="#fbf1cf" stroke="#e6d79a" stroke-width="1.5"/>
+<text x="1344" y="762" font-size="26" fill="#7a6210" font-weight="bold" text-anchor="start">Project Sidewalk</text>
+<text x="1344" y="801" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Submitted as AI labels; volunteers validate</text>
+<text x="1344" y="827" font-size="19" fill="#52514e" font-weight="normal" text-anchor="start">Live in Vancouver, Richmond, Laurens</text>
+<line x1="610" y1="530" x2="680" y2="530" stroke="#2a78d6" stroke-width="4" marker-end="url(#arrow-blue)"/>
+<text x="645" y="510" font-size="18" fill="#2a78d6" font-weight="normal" text-anchor="middle">train</text>
+<line x1="1240" y1="530" x2="1310" y2="530" stroke="#2a78d6" stroke-width="4" marker-end="url(#arrow-blue)"/>
+<text x="1275" y="510" font-size="18" fill="#2a78d6" font-weight="normal" text-anchor="middle">run</text>
+<text x="40" y="1052" font-size="16" fill="#898781" font-weight="normal" text-anchor="start">Numbers: docs/rampnet1_findings.md (dataset, gold-set agreement, pooled F1); sidewalk-auto-labeler docs/server-agree-check.md (deployments).</text>
+</svg>

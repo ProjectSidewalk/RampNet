@@ -1,0 +1,53 @@
+{
+ "_provenance": {
+  "dataset": "projectsidewalk/rampnet-dataset",
+  "split": "train",
+  "shard": "data-00028-of-00128.parquet",
+  "fetched": "2026-10-05",
+  "method": "pano_id column of each train shard read over HTTP range, then the matching row group, image bytes dropped",
+  "note": "one of the four bend benchmark panoramas that are also in the Stage 1 training set (benchmark/train_overlap.json)"
+ },
+ "pano_id": "DJ8Zp111zu6KnMZz-0PHgQ",
+ "record_creation_time": 1749966283,
+ "curb_ramp_points_normalized": [
+  [
+   0.31201171875,
+   0.59423828125
+  ],
+  [
+   0.85888671875,
+   0.6171875
+  ],
+  [
+   0.921630859375,
+   0.63623046875
+  ],
+  [
+   0.252685546875,
+   0.61328125
+  ]
+ ],
+ "pano_coord": [
+  44.05308519643842,
+  -121.3442741144737
+ ],
+ "curb_ramp_coords": [
+  [
+   44.053043317,
+   -121.344307846
+  ],
+  [
+   44.053153165000026,
+   -121.34430804
+  ],
+  [
+   44.053027189000034,
+   -121.344289501
+  ],
+  [
+   44.05316729500004,
+   -121.34428692699998
+  ]
+ ],
+ "pano_azimuth": 61.655407
+}
