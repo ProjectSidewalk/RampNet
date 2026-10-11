@@ -76,6 +76,8 @@ Swapping only the matching rule on identical model outputs moves precision by �
 
 Full analysis — including the exact published code, executable traces, and visual examples of double-counted detections — is in [`docs/eval_protocol_verification.html`](docs/eval_protocol_verification.html) (open in a browser) and [issue #9](https://github.com/ProjectSidewalk/RampNet/issues/9). Corrected result curves and metrics are committed in [`stage_two/evaluation_results_new/`](stage_two/evaluation_results_new/); the as-published results remain unchanged in [`stage_two/evaluation_results/`](stage_two/evaluation_results/).
 
+**Scoring your own detections under this protocol.** `python -m rampnet.eval score --bundle benchmark/<split> --predictions <file>` scores a prediction file (the `benchmark/model_detections/` format) against a benchmark split with the same one-to-one matcher and recall gating behind every committed benchmark number, and `scripts/analysis/eval_protocol_150.py --check` re-derives every committed scoreboard and YOLO `benchmark_eval/` cell through it. The format, the rule, and which committed number comes from which scoring path are in [`docs/eval_protocol_150.md`](docs/eval_protocol_150.md) ([issue #150](https://github.com/ProjectSidewalk/RampNet/issues/150)).
+
 ## Dataset note: the 360° seam (August 2026)
 
 A panorama wraps: the left and right edges of an equirectangular image are the same place. Stage 1's label generator extracts curb ramp locations from a 4096×2048 equirectangular heatmap with `peak_local_max(min_distance=40)`, and that suppression does not carry across the wrap. A ramp sitting on the seam can therefore produce a peak on each edge and be labelled **twice**.
