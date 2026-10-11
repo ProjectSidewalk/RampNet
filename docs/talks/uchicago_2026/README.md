@@ -64,7 +64,7 @@ band above and the heatmap below with a ring on every peak ≥ 0.55, captioned w
 and the reviewer's verdict. Selection is mechanical from the committed verdicts
 (`showcase/manifest.json`): per split, the two panoramas with the most confirmed ramps where every
 detection was confirmed and nothing was missed, plus one seeded-random other, plus four true
-negatives (no ramps, no detections). Ten splits (laurens_gsv contributes none), two imagery
+negatives (no ramps, no detections). Ten of the 11 candidate splits (laurens_gsv contributes none; bayonne and manual_gold are not candidates), two imagery
 sources (GSV, Mapillary), three countries (US, Brazil, Hungary). The
 32 heatmaps are committed as 8-bit PNGs; frames and the mp4 are not (regenerate with
 `uchicago_2026_showcase.py render` then `video`, needs ffmpeg).
@@ -76,7 +76,7 @@ Three baselines, in increasing strength:
 | baseline | number | source |
 |---|---|---|
 | Prior curb-ramp detectors | Weld et al. 0.38 AP on our gold set vs RampNet 0.92; Tohme and Weld were at 26–34% precision | paper §2, `rampnet1_report.md` §3 |
-| Nine zero-shot models (Gemini 3.1 Pro, Claude Opus 5, Qwen3-VL, Molmo2, OWLv2, Grounding DINO, ...) | RampNet 0.792 pooled F1 over eight US cities vs 0.575 for the best; leads on all thirteen bundles, by 0.09 (bayonne) to 0.34 (manual_gold, against Gemini 3.1 Pro; 0.38 against the best challenger re-derivable from `scoreboard.json`) | `model_scoreboard.md`, findings §2 row 1 |
+| Nine zero-shot models (Gemini 3.1 Pro, Claude Opus 5, Qwen3-VL, Molmo2, OWLv2, Grounding DINO, ...) | RampNet 0.792 pooled F1 over eight US cities vs 0.575 for the best; leads on all thirteen bundles, by 0.09 (bayonne) to 0.34 (manual_gold, against Gemini 3.1 Pro; 0.38 against the best zero-shot model re-derivable from `scoreboard.json`, which is the gap the transfer figure shows on manual_gold; the lead over the best supervised YOLO arm there is only 0.058) | `model_scoreboard.md`, findings §2 row 1 |
 | A supervised YOLO trained on the same dataset | 0.599 at its default threshold; at matched operating points and across seeds the gap is 0.016 F1, 95% CI [0.008, 0.024] | `seed_variance_51_135.md`, findings §2 row 3 |
 
 The honest framing, which Jon chose: the dataset is the result; the keypoint formulation is a

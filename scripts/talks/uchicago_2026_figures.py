@@ -221,7 +221,8 @@ def fig_comparison(board, plt, v2=False):
     else:
         _titles(fig, "Purpose-trained beats zero-shot frontier models by a wide margin",
                 f"RampNet {ref:.2f} vs the best zero-shot model, {best_zs['display']}, "
-                f"{best_zs['f1']:.2f}. The lead holds on every one of twelve benchmark bundles.")
+                f"{best_zs['f1']:.2f}. The lead holds on every one of "
+                f"{len(board['per_split']['rampnet'])} benchmark bundles.")
         bottom = _footnote(fig,
                            "Operating points differ by class: RampNet 0.55, YOLO 0.25 (its default), "
                            "OWLv2 0.05 floor, chat VLMs emit no score. At matched operating points "
@@ -724,9 +725,11 @@ def fig_heatmap(plt, bench_root=BENCH_ROOT, split=HEATMAP_SPLIT, pano=HEATMAP_PA
 # ---------------------------------------------------------------------------------------------
 
 # Text from docs/rampnet2_plan.md §1 (goal table) and §4 (experiments), read 2026-10-05.
+# The bundle count is a literal (thirteen as of 2026-10-11, after #239 added Bayonne); check it
+# against len(scoreboard.json per_split.rampnet) before reuse.
 ROADMAP = [
     ("FIND", "Where is every curb ramp?",
-     "Gold-set F1 0.91; leads every zero-shot model on all twelve benchmark bundles; "
+     "Gold-set F1 0.91; leads every zero-shot model on all thirteen benchmark bundles; "
      "live in three Project Sidewalk cities.",
      "Consumer 360° rigs (Laurens recall 0.39 per view). Merging views of one ramp: "
      "of 74 ramps no fused site recovered, 63 fired in some view.",
