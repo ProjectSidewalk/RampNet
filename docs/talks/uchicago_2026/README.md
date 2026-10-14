@@ -130,7 +130,7 @@ including the Claude Fable 5 / 5.1, Opus 5 and Sonnet 5 legs).
 title: no title or footnote, each row "model  maker", bars coloured RampNet / frontier (Anthropic,
 Google) / open (AI2, Alibaba) / detectors and segmenters (grey). `_minimal_compact.png` keeps one
 row per model: Fable 5.1 over Fable 5, and the better effort of Opus 5 and Sonnet 5 (low, both),
-so 16 rows. `_minimal_blue.png` drops the grouping: every challenger one blue, RampNet a deeper blue, no legend. The three hues are the reference palette's first three slots, which pass
+so 16 rows. `_minimal_blue.png` drops the grouping: every challenger one blue, RampNet orange so it pops, no legend; `_minimal_blue_no_maker.png` also drops the company names, keeping only "trained on our data" on the YOLO rows. The three hues are the reference palette's first three slots, which pass
 `validate_palette.js --pairs all`; a fourth hue fails CVD separation against blue.
 
 Why `manual_gold` is not in the pooled bar: the scoreboard holds it out as the in-distribution
@@ -262,7 +262,7 @@ Four SVGs (PowerPoint imports them as editable shapes) with PNG renders, from
 | `comparison_pr.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_pr`) |
 | `comparison_f1_with_gold.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_gold`) |
 | `comparison_f1_annapolis.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_annapolis`) |
-| `comparison_f1_annapolis_minimal{,_blue,_compact}.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_annapolis_minimal`, `_blue`, `_compact`) |
+| `comparison_f1_annapolis_minimal{,_blue,_blue_no_maker,_compact}.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_annapolis_minimal`, `_blue`, `_blue_no_maker`, `_compact`) |
 | `recall_by_distance.png` | 6 | `docs/detection_recall_analysis.md` §1–§2 (constants in the script) |
 | `timelapse/timelapse_*.jpg` | 8 | `timelapse/manifest_*.json`, `timelapse/heat_*.png` (GSV history via `uchicago_2026_timelapse.py fetch` + `infer`, GPU), Bend inventory |
 | `measure_chain.jpg` | 8 | `benchmark/richmond/{boxes.json,records.jsonl,panos/}`, `analysis_out/da3_calibration_101/rows_points.jsonl` (`--only measure`) |

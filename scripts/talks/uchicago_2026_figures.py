@@ -988,11 +988,13 @@ MINIMAL_COMPACT_DROP = {"claude-fable-5-effort-low-anthropic", "claude-opus-5-ef
                         "claude-sonnet-5-effort-high"}
 
 
-def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False, mono=False):
+def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False, mono=False,
+                                no_maker=False):
     """fig_comparison_city with the words taken out: for a slide whose title says the rest.
 
-    ``mono``: every challenger bar one blue and RampNet a deeper blue, no legend; the maker
-    text carries the grouping on its own."""
+    ``mono``: every challenger bar one blue and RampNet orange, so it pops on a slide; no
+    legend, the maker text carries the grouping on its own. ``no_maker`` drops the company
+    names too, keeping only "trained on our data" (a fact about the model, not a company)."""
     from matplotlib.patches import Patch
 
     colour = {g: c for g, c, _ in MINIMAL_GROUPS}
@@ -1013,7 +1015,7 @@ def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False, mo
     fig.subplots_adjust(left=0.30, right=0.97, top=0.975, bottom=0.08)
     groups = [label(m)[2] for _, m in rows]
     if mono:
-        fills = [BLUE_DEEP if m == "rampnet" else BLUE for _, m in rows]
+        fills = [ORANGE if m == "rampnet" else BLUE for _, m in rows]
     else:
         fills = [colour[g] for g in groups]
     bars = ax.barh(range(n), [f for f, _ in rows], height=0.7, zorder=3,
@@ -1032,13 +1034,16 @@ def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False, mo
     inv = ax.transAxes.inverted()
     for i, (_, m) in enumerate(rows):
         name, maker, _ = label(m)
+        if no_maker and maker != "trained on our data":
+            maker = ""
         ref = m == "rampnet"
+        bare = ref or not maker            # no maker text: the name sits at the axis
         y = ax.transData.transform((0, i))[1]
         y_ax = inv.transform((0, y))[1]
-        t = ax.text(-0.015, y_ax, "" if ref else maker, transform=ax.transAxes, ha="right",
+        t = ax.text(-0.015, y_ax, "" if bare else maker, transform=ax.transAxes, ha="right",
                     va="center", fontsize=fs - 2, color=INK_MUTED)
-        x0 = inv.transform((t.get_window_extent(renderer).x0, 0))[0] if not ref else -0.015
-        ax.text(x0 - (0.012 if not ref else 0), y_ax, name, transform=ax.transAxes, ha="right",
+        x0 = inv.transform((t.get_window_extent(renderer).x0, 0))[0] if not bare else -0.015
+        ax.text(x0 - (0.012 if not bare else 0), y_ax, name, transform=ax.transAxes, ha="right",
                 va="center", fontsize=fs, color=INK, fontweight="bold" if ref else "normal")
     if not mono:
         # Stacked in the empty lower right (short bars there), on a surface-coloured box so the
@@ -1049,7 +1054,8 @@ def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False, mo
                         handlelength=1.2, handleheight=1.0, labelspacing=0.6,
                         borderaxespad=0.6, labelcolor=INK_SECONDARY)
         leg.set_zorder(5)
-    suffix = ("_compact" if compact else "") + ("_blue" if mono else "")
+    suffix = ("_compact" if compact else "") + ("_blue" if mono else "") + \
+        ("_no_maker" if no_maker else "")
     _save(fig, f"comparison_f1_{split}_minimal{suffix}.png")
     plt.close(fig)
 
@@ -1171,6 +1177,8 @@ FIGURES = {
     "comparison_annapolis_minimal": lambda board, plt, _: fig_comparison_city_minimal(board, plt),
     "comparison_annapolis_minimal_blue":
         lambda board, plt, _: fig_comparison_city_minimal(board, plt, mono=True),
+    "comparison_annapolis_minimal_blue_no_maker":
+        lambda board, plt, _: fig_comparison_city_minimal(board, plt, mono=True, no_maker=True),
     "comparison_annapolis_minimal_compact":
         lambda board, plt, _: fig_comparison_city_minimal(board, plt, compact=True),
     "transfer": lambda board, plt, _: fig_transfer(board, plt),
