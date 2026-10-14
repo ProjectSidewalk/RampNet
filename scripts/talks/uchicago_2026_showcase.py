@@ -416,9 +416,21 @@ def render_frame(it, pano_path, heat_path, index, total, locator=None, panels=No
     return draw_caption(frame, it, len(_peaks(heat_path)[1]), index, total, locator)
 
 
-def ordered(items, order):
-    """Manifest order, or grouped by city (CITY_ORDER) with true negatives last in each city."""
+def ordered(items, order, per_city=None):
+    """Manifest order, or grouped by city (CITY_ORDER) with true negatives last in each city.
+
+    ``per_city`` keeps at most that many panoramas per city: the ones with the most ramps, a
+    true negative only when the city has fewer positives than that (Laurens has one). The
+    survivors keep their full-cut order, so the abbreviated cut is a subsequence of the full one.
+    """
     idx = list(range(len(items)))
+    if per_city is not None:
+        keep = []
+        for split in dict.fromkeys(it["split"] for it in items):
+            mine = [i for i in idx if items[i]["split"] == split]
+            mine.sort(key=lambda i: (items[i]["kind"] == "true_negative", -items[i]["n_ramps"], i))
+            keep += mine[:per_city]
+        idx = sorted(keep)
     if order == "city":
         idx.sort(key=lambda i: (CITY_ORDER.index(items[i]["split"]),
                                 items[i]["kind"] == "true_negative", i))
@@ -434,7 +446,11 @@ def cmd_render(args):
     os.makedirs(frames_dir, exist_ok=True)
     items = manifest["items"]
     locator = LocatorMap() if args.map else None
-    for k, i in enumerate(ordered(items, args.order)):
+    for old in os.listdir(frames_dir):          # a shorter cut must not inherit stale frames
+        if old.startswith("frame_") and old.endswith(".png"):
+            os.remove(os.path.join(frames_dir, old))
+    order = ordered(items, args.order, args.per_city)
+    for k, i in enumerate(order):
         it = items[i]
         panels = None
         if args.panels_from:
@@ -444,15 +460,14 @@ def cmd_render(args):
                 sys.exit(f"{src.size} frame in --panels-from, expected {(FRAME_W, FRAME_H)}")
             panels = src.crop((0, 0, FRAME_W, 2 * PANEL_H))
         frame = render_frame(it, None if panels else _pano_path(args.pano_root, it),
-                             _heat_path(it), k, len(items), locator, panels)
+                             _heat_path(it), k, len(order), locator, panels)
         frame.save(os.path.join(frames_dir, f"frame_{k:03d}.png"))
         print("frame", k, it["split"], it["pano_id"], flush=True)
 
 
 def cmd_video(args):
-    with open(MANIFEST, encoding="utf-8") as f:
-        items = json.load(f)["items"]
     frames_dir = args.frames_dir
+    items = sorted(f for f in os.listdir(frames_dir) if f.startswith("frame_") and f.endswith(".png"))
     lst = os.path.join(frames_dir, "frames.txt")
     with open(lst, "w", newline="\n") as f:
         for i in range(len(items)):
@@ -486,6 +501,7 @@ def main(argv=None):
     p.add_argument("--frames-dir", default=FRAMES_DIR)
     p.add_argument("--order", choices=("manifest", "city"), default="manifest")
     p.add_argument("--map", action="store_true", help="locator map in the caption bar")
+    p.add_argument("--per-city", type=int, help="at most this many panoramas per city")
     p = sub.add_parser("video")
     p.add_argument("--seconds", type=float, default=2.5, help="seconds per panorama")
     p.add_argument("--frames-dir", default=FRAMES_DIR)

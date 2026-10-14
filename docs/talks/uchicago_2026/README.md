@@ -87,6 +87,10 @@ python scripts/talks/uchicago_2026_showcase.py video --frames-dir <out>/frames_b
     --out <out>/showcase_by_city_map.mp4                  # --seconds 1.25 for _2x
 ```
 
+`showcase_by_city_map_abbreviated.mp4` (20 frames, 50 s; `_2x` is 25 s) adds `--per-city 2`:
+each city keeps its two panoramas with the most ramps, so the only true negative left is Laurens's
+(it has one positive). It was rendered with `--panels-from <frames> --order city --map --per-city 2`.
+
 The captions now read **Clovis, NM**. Earlier renders said "Clovis, CA", which was wrong: the
 split's median panorama is at 34.42° N, 103.20° W, which is Clovis, New Mexico.
 
