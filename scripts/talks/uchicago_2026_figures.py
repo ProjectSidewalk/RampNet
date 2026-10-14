@@ -997,7 +997,14 @@ def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False, mo
     names too, keeping only "trained on our data" (a fact about the model, not a company)."""
     from matplotlib.patches import Patch
 
-    colour = {g: c for g, c, _ in MINIMAL_GROUPS}
+    groups_spec = MINIMAL_GROUPS
+    if no_maker and not mono:
+        # RampNet's colour is orange on the no-maker slides, so the frontier models take blue.
+        # Same three hues as MINIMAL_GROUPS (they pass --pairs all), roles swapped.
+        groups_spec = [("ours", ORANGE, "RampNet"), ("frontier", BLUE, "Frontier models"),
+                       ("open", AQUA, "Open models"), ("detector", MUTED_FILL,
+                                                      "Detectors & segmenters")]
+    colour = {g: c for g, c, _ in groups_spec}
     rows = sorted(((v[split]["f1"], m) for m, v in board["per_split"].items()
                    if split in v and not (compact and m in MINIMAL_COMPACT_DROP)),
                   key=lambda t: t[0])
@@ -1048,7 +1055,7 @@ def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False, mo
     if not mono:
         # Stacked in the empty lower right (short bars there), on a surface-coloured box so the
         # gridlines do not run through it.
-        handles = [Patch(facecolor=c, label=l) for g, c, l in MINIMAL_GROUPS]
+        handles = [Patch(facecolor=c, label=l) for g, c, l in groups_spec]
         leg = ax.legend(handles=handles, loc="lower right", ncol=1, fontsize=14,
                         frameon=True, facecolor=SURFACE, edgecolor=SURFACE, framealpha=1,
                         handlelength=1.2, handleheight=1.0, labelspacing=0.6,
@@ -1179,6 +1186,8 @@ FIGURES = {
         lambda board, plt, _: fig_comparison_city_minimal(board, plt, mono=True),
     "comparison_annapolis_minimal_blue_no_maker":
         lambda board, plt, _: fig_comparison_city_minimal(board, plt, mono=True, no_maker=True),
+    "comparison_annapolis_minimal_no_maker":
+        lambda board, plt, _: fig_comparison_city_minimal(board, plt, no_maker=True),
     "comparison_annapolis_minimal_compact":
         lambda board, plt, _: fig_comparison_city_minimal(board, plt, compact=True),
     "transfer": lambda board, plt, _: fig_transfer(board, plt),
