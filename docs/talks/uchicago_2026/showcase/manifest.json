@@ -240,6 +240,38 @@
   },
   {
    "split": "bayonne",
+   "pano_id": "ade1ccfb-e9bb-412c-a904-b71b1e5b6aee",
+   "n_ramps": 2,
+   "kind": "all_found",
+   "why": "2 ramps, every detection confirmed, nothing missed",
+   "appended": "2026-10-14"
+  },
+  {
+   "split": "bayonne",
+   "pano_id": "dca64d90-0ebb-41df-900d-f89c03bffbeb",
+   "n_ramps": 2,
+   "kind": "all_found",
+   "why": "2 ramps, every detection confirmed, nothing missed",
+   "appended": "2026-10-14"
+  },
+  {
+   "split": "bayonne",
+   "pano_id": "6d0d3dba-c9be-488f-a6e3-4d4cb2a8f909",
+   "n_ramps": 8,
+   "kind": "near_perfect",
+   "why": "8 ramps, every detection confirmed, 1 missed",
+   "appended": "2026-10-14"
+  },
+  {
+   "split": "bayonne",
+   "pano_id": "27bd61dd-3453-489c-b090-760ad040e390",
+   "n_ramps": 5,
+   "kind": "near_perfect",
+   "why": "5 ramps, every detection confirmed, 1 missed",
+   "appended": "2026-10-14"
+  },
+  {
+   "split": "bayonne",
    "pano_id": "db87e787-8e09-42c5-8235-3224072d13f7",
    "n_ramps": 0,
    "kind": "true_negative",
@@ -262,7 +294,7 @@
   {
    "split": "bayonne",
    "date": "2026-10-14",
-   "rule": "select --append bayonne: same per-split rule, RNG seeded '2026:bayonne'"
+   "rule": "select --append bayonne --n-pick 5: no wrong/unsure detection, >= 2 confirmed, fewest confident misses then most ramps; true negative RNG seeded '2026:bayonne'"
   }
  ]
 }

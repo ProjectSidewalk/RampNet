@@ -86,13 +86,16 @@ def load_records(split):
         return {json.loads(l)["pano"]["panorama_id"]: json.loads(l) for l in f}
 
 
-def cmd_select_append(split):
+def cmd_select_append(split, n_pick):
     """Add one split's picks to the existing manifest, leaving every existing item as it is.
 
-    Same per-split rule as ``select`` (up to two 'all_found' panoramas with the most ramps,
-    >= 3, plus one seeded-random other, then one seeded true negative), but with a per-split
-    RNG, so appending does not reshuffle the cities already chosen. Used for bayonne, whose
-    verdicts landed after the 2026-10-05 selection.
+    Used for bayonne, whose verdicts landed after the 2026-10-05 selection, and which has only
+    one panorama meeting ``select``'s rule (every detection confirmed, nothing missed, >= 3
+    ramps). So the rule here is wider, to give a choice of exemplars: the ``n_pick`` panoramas
+    with no wrong or unsure detection and >= 2 confirmed ramps, fewest confident misses first,
+    then most ramps. One with no misses is 'all_found'; one with a confident miss is
+    'near_perfect', and its caption says so ("8 curb ramps, 7 detected"). Plus one true
+    negative from a per-split RNG, so appending does not reshuffle the cities already chosen.
     """
     with open(MANIFEST, encoding="utf-8") as f:
         manifest = json.load(f)
@@ -100,15 +103,19 @@ def cmd_select_append(split):
         sys.exit(f"{split} is already in the manifest")
     rng = random.Random(f"{SEED}:{split}")
     v = load_verdicts(split)
-    perfect = sorted(((sum(1 for d in vv["dets"] if d is True), pid) for pid, vv in v.items()
-                      if vv["dets"] and all(d is True for d in vv["dets"])
-                      and not vv.get("missed")), reverse=True)
-    perfect = [(n, pid) for n, pid in perfect if n >= 3]
-    pick, rest = perfect[:2], perfect[2:]
-    if rest:
-        pick.append(rng.choice(rest))
-    added = [dict(split=split, pano_id=pid, n_ramps=n, kind="all_found",
-                  why=f"{n} ramps, every detection confirmed, nothing missed") for n, pid in pick]
+    cands = []
+    for pid, vv in v.items():
+        found = sum(1 for d in vv["dets"] if d is True)
+        missed = sum(1 for m in vv.get("missed", []) if not m.get("unsure"))
+        if found >= 2 and all(d is True for d in vv["dets"]):
+            cands.append((missed, -found, pid, found))
+    added = []
+    for missed, _, pid, found in sorted(cands)[:n_pick]:
+        n = found + missed
+        added.append(dict(split=split, pano_id=pid, n_ramps=n,
+                          kind="all_found" if missed == 0 else "near_perfect",
+                          why=(f"{n} ramps, every detection confirmed" +
+                               (", nothing missed" if missed == 0 else f", {missed} missed"))))
     tn = sorted(pid for pid, vv in v.items() if not vv["dets"] and not vv.get("missed"))
     if tn:
         added.append(dict(split=split, pano_id=rng.choice(tn), n_ramps=0, kind="true_negative",
@@ -118,7 +125,9 @@ def cmd_select_append(split):
     manifest["items"] += added
     manifest.setdefault("appended", []).append(dict(
         split=split, date=datetime.date.today().isoformat(),
-        rule=f"select --append {split}: same per-split rule, RNG seeded '{SEED}:{split}'"))
+        rule=(f"select --append {split} --n-pick {n_pick}: no wrong/unsure detection, >= 2 "
+              f"confirmed, fewest confident misses then most ramps; true negative RNG seeded "
+              f"'{SEED}:{split}'")))
     with open(MANIFEST, "w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, indent=1, ensure_ascii=False)
         f.write("\n")
@@ -128,7 +137,7 @@ def cmd_select_append(split):
 
 def cmd_select(args):
     if args.append:
-        return cmd_select_append(args.append)
+        return cmd_select_append(args.append, args.n_pick)
     rng = random.Random(SEED)
     items, negatives = [], []
     for split in SHOWCASE_SPLITS:
@@ -471,7 +480,8 @@ def ordered(items, order, per_city=None):
         keep = []
         for split in dict.fromkeys(it["split"] for it in items):
             mine = [i for i in idx if items[i]["split"] == split]
-            mine.sort(key=lambda i: (items[i]["kind"] == "true_negative", -items[i]["n_ramps"], i))
+            mine.sort(key=lambda i: (items[i]["kind"] == "true_negative",
+                                     items[i]["kind"] != "all_found", -items[i]["n_ramps"], i))
             keep += mine[:per_city]
         idx = sorted(keep)
     if order == "city":
@@ -535,6 +545,7 @@ def main(argv=None):
     p = sub.add_parser("select")
     p.add_argument("--append", metavar="SPLIT",
                    help="add this split's picks to the existing manifest instead of reselecting")
+    p.add_argument("--n-pick", type=int, default=5, help="with --append: exemplars to add")
     sub.add_parser("basemap", help="fetch and trim the Natural Earth outlines for --map")
     p = sub.add_parser("infer")
     p.add_argument("--pano-root", required=True, help="directory holding <split>/panos/")
