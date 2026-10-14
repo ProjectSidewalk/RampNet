@@ -86,7 +86,49 @@ def load_records(split):
         return {json.loads(l)["pano"]["panorama_id"]: json.loads(l) for l in f}
 
 
+def cmd_select_append(split):
+    """Add one split's picks to the existing manifest, leaving every existing item as it is.
+
+    Same per-split rule as ``select`` (up to two 'all_found' panoramas with the most ramps,
+    >= 3, plus one seeded-random other, then one seeded true negative), but with a per-split
+    RNG, so appending does not reshuffle the cities already chosen. Used for bayonne, whose
+    verdicts landed after the 2026-10-05 selection.
+    """
+    with open(MANIFEST, encoding="utf-8") as f:
+        manifest = json.load(f)
+    if any(it["split"] == split for it in manifest["items"]):
+        sys.exit(f"{split} is already in the manifest")
+    rng = random.Random(f"{SEED}:{split}")
+    v = load_verdicts(split)
+    perfect = sorted(((sum(1 for d in vv["dets"] if d is True), pid) for pid, vv in v.items()
+                      if vv["dets"] and all(d is True for d in vv["dets"])
+                      and not vv.get("missed")), reverse=True)
+    perfect = [(n, pid) for n, pid in perfect if n >= 3]
+    pick, rest = perfect[:2], perfect[2:]
+    if rest:
+        pick.append(rng.choice(rest))
+    added = [dict(split=split, pano_id=pid, n_ramps=n, kind="all_found",
+                  why=f"{n} ramps, every detection confirmed, nothing missed") for n, pid in pick]
+    tn = sorted(pid for pid, vv in v.items() if not vv["dets"] and not vv.get("missed"))
+    if tn:
+        added.append(dict(split=split, pano_id=rng.choice(tn), n_ramps=0, kind="true_negative",
+                          why="no curb ramps, and the model fired nowhere"))
+    for it in added:
+        it["appended"] = datetime.date.today().isoformat()
+    manifest["items"] += added
+    manifest.setdefault("appended", []).append(dict(
+        split=split, date=datetime.date.today().isoformat(),
+        rule=f"select --append {split}: same per-split rule, RNG seeded '{SEED}:{split}'"))
+    with open(MANIFEST, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(manifest, f, indent=1, ensure_ascii=False)
+        f.write("\n")
+    for it in added:
+        print("appended", it["split"], it["pano_id"], it["kind"], it["n_ramps"])
+
+
 def cmd_select(args):
+    if args.append:
+        return cmd_select_append(args.append)
     rng = random.Random(SEED)
     items, negatives = [], []
     for split in SHOWCASE_SPLITS:
@@ -147,10 +189,13 @@ def cmd_infer(args):
     with open(MANIFEST, encoding="utf-8") as f:
         manifest = json.load(f)
     Image.MAX_IMAGE_PIXELS = None
+    run = dict(checkpoint=ckpt, device=device.type, autocast_fp16=device.type == "cuda",
+               input_size=[2048, 4096], tta=False, run_date=datetime.date.today().isoformat())
     for it in manifest["items"]:
         out = _heat_path(it)
         if os.path.exists(out) and not args.force:
             continue
+        it["inference"] = run           # per item: a later append runs on a different day
         img = Image.open(_pano_path(args.pano_root, it))
         img.draft("RGB", (4096, 2048))
         img = img.convert("RGB").resize((4096, 2048), Image.LANCZOS)
@@ -165,9 +210,7 @@ def cmd_infer(args):
         Image.fromarray((heat * 255).round().astype(np.uint8)).save(out)
         it["max"] = round(float(heat.max()), 3)
         print(it["split"], it["pano_id"], "max", it["max"], flush=True)
-    manifest["inference"] = dict(checkpoint=ckpt, device=device.type, autocast_fp16=device.type == "cuda",
-                                 input_size=[2048, 4096], tta=False,
-                                 run_date=datetime.date.today().isoformat())
+    manifest.setdefault("inference", run)
     with open(MANIFEST, "w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, indent=1, ensure_ascii=False)
         f.write("\n")
@@ -442,6 +485,8 @@ def cmd_render(args):
 
     with open(MANIFEST, encoding="utf-8") as f:
         manifest = json.load(f)
+    if not (args.pano_root or args.panels_from):
+        sys.exit("render needs --pano-root, --panels-from, or both")
     frames_dir = args.frames_dir
     os.makedirs(frames_dir, exist_ok=True)
     items = manifest["items"]
@@ -453,9 +498,10 @@ def cmd_render(args):
     for k, i in enumerate(order):
         it = items[i]
         panels = None
-        if args.panels_from:
+        prev = os.path.join(args.panels_from, f"frame_{i:03d}.png") if args.panels_from else None
+        if prev and os.path.exists(prev) and "appended" not in it:
             # Frames from a default render are in manifest order: frame_<i> is items[i].
-            src = Image.open(os.path.join(args.panels_from, f"frame_{i:03d}.png")).convert("RGB")
+            src = Image.open(prev).convert("RGB")
             if src.size != (FRAME_W, FRAME_H):
                 sys.exit(f"{src.size} frame in --panels-from, expected {(FRAME_W, FRAME_H)}")
             panels = src.crop((0, 0, FRAME_W, 2 * PANEL_H))
@@ -486,7 +532,9 @@ def cmd_video(args):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("select")
+    p = sub.add_parser("select")
+    p.add_argument("--append", metavar="SPLIT",
+                   help="add this split's picks to the existing manifest instead of reselecting")
     sub.add_parser("basemap", help="fetch and trim the Natural Earth outlines for --map")
     p = sub.add_parser("infer")
     p.add_argument("--pano-root", required=True, help="directory holding <split>/panos/")
@@ -494,10 +542,10 @@ def main(argv=None):
     p.add_argument("--cpu", action="store_true")
     p.add_argument("--force", action="store_true")
     p = sub.add_parser("render")
-    src = p.add_mutually_exclusive_group(required=True)
-    src.add_argument("--pano-root", help="directory holding <split>/panos/")
-    src.add_argument("--panels-from", help="frames dir from a default (manifest-order) render; "
-                     "reuses its image panels, so no panoramas are needed")
+    p.add_argument("--pano-root", help="directory holding <split>/panos/")
+    p.add_argument("--panels-from", help="frames dir from a default (manifest-order) render; "
+                     "reuses its image panels, so no panoramas are needed; items it has no "
+                     "frame for (appended later) fall back to --pano-root")
     p.add_argument("--frames-dir", default=FRAMES_DIR)
     p.add_argument("--order", choices=("manifest", "city"), default="manifest")
     p.add_argument("--map", action="store_true", help="locator map in the caption bar")

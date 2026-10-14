@@ -229,6 +229,22 @@
    "kind": "true_negative",
    "why": "no curb ramps, and the model fired nowhere",
    "max": 0.02
+  },
+  {
+   "split": "bayonne",
+   "pano_id": "34f476a5-9364-4d22-87ea-d656133529b2",
+   "n_ramps": 7,
+   "kind": "all_found",
+   "why": "7 ramps, every detection confirmed, nothing missed",
+   "appended": "2026-10-14"
+  },
+  {
+   "split": "bayonne",
+   "pano_id": "db87e787-8e09-42c5-8235-3224072d13f7",
+   "n_ramps": 0,
+   "kind": "true_negative",
+   "why": "no curb ramps, and the model fired nowhere",
+   "appended": "2026-10-14"
   }
  ],
  "inference": {
@@ -241,5 +257,12 @@
   ],
   "tta": false,
   "run_date": "2026-10-05"
- }
+ },
+ "appended": [
+  {
+   "split": "bayonne",
+   "date": "2026-10-14",
+   "rule": "select --append bayonne: same per-split rule, RNG seeded '2026:bayonne'"
+  }
+ ]
 }
