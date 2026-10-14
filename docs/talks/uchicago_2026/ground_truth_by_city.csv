@@ -1,0 +1,19 @@
+set,split,city,imagery,panoramas,gt_curb_ramps,panoramas_no_ramps,true_positives,false_positives,false_negatives,precision,recall,f1,note
+benchmark,bend,"Bend, OR, US",Google Street View,110,327,14,248,12,79,0.954,0.758,0.845,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,clovis,"Clovis, NM, US",Mapillary 360 (GoPro Fusion),125,195,46,139,13,56,0.914,0.713,0.801,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,laurens_gsv,"Laurens, IA, US",Google Street View,86,220,30,111,9,109,0.925,0.505,0.653,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,laurens_mapillary,"Laurens, IA, US",Mapillary 360 (GoPro Max),94,249,35,97,11,152,0.898,0.390,0.543,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,gainesville,"Gainesville, FL, US",Google Street View,125,272,29,189,11,83,0.945,0.695,0.801,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,morgantown,"Morgantown, WV, US",Mapillary 360 (GoPro Max),125,267,30,195,5,72,0.975,0.730,0.835,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,richmond,"Richmond, VA, US",Mapillary 360 (iSTAR Pulsar + GoPro Max),124,310,32,237,10,73,0.960,0.765,0.851,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,annapolis,"Annapolis, MD, US",Mapillary 360 (Trimble MX7),125,294,24,214,8,80,0.964,0.728,0.829,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,paterson,"Paterson, NJ, US",Google Street View,125,395,27,270,7,125,0.975,0.684,0.804,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,sao_paulo,"São Paulo, Brazil",Google Street View,125,281,46,190,24,91,0.888,0.676,0.768,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,budapest_district5,"Budapest, Hungary",Mapillary 360 (GoPro Max),125,300,36,151,22,149,0.873,0.503,0.638,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,bayonne,"Bayonne, France",Panoramax (GoPro Max),125,301,38,112,24,189,0.824,0.372,0.513,reviewer-confirmed (RampNet-anchored) ground truth
+benchmark,juneau,"Juneau, AK, US",Mapillary 360,125,,,,,,,,,ground truth not reviewed yet
+benchmark,,Total (benchmark),,1414,3411,387,2153,156,1258,0.932,0.631,0.753,pooled over the rows above
+manual_gold,manual_gold,"New York, NY, US",Google Street View,571,2775,59,2430,134,345,0.948,0.876,0.910,independent manual labels; training city (in-distribution)
+manual_gold,manual_gold,"Portland, OR, US",Google Street View,348,1049,90,909,51,140,0.947,0.867,0.905,independent manual labels; training city (in-distribution)
+manual_gold,manual_gold,"Bend, OR, US",Google Street View,81,95,58,81,5,14,0.942,0.853,0.895,independent manual labels; training city (in-distribution)
+manual_gold,,Total (manual_gold),,1000,3919,207,3420,190,499,0.947,0.873,0.908,pooled over the rows above
