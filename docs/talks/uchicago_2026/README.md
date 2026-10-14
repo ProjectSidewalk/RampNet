@@ -69,6 +69,27 @@ sources (GSV, Mapillary), three countries (US, Brazil, Hungary). The
 32 heatmaps are committed as 8-bit PNGs; frames and the mp4 are not (regenerate with
 `uchicago_2026_showcase.py render` then `video`, needs ffmpeg).
 
+City-grouped cuts (2026-10-14): `showcase_by_city.mp4` and `showcase_by_city_map.mp4`, same 32
+frames grouped by city in a west-to-east sweep (Bend → Clovis → Laurens → Gainesville → Morgantown
+→ Richmond → Annapolis → Paterson → São Paulo → Budapest), each city's true negative last. The map
+cut adds a locator map to the caption bar: a lower-48 inset and a world inset, a grey dot for every
+benchmark place (bayonne included, though it has no showcase frames; Laurens is one dot for its
+two splits; juneau is not on it yet) and a cyan ring on the one on screen. Dots are the median
+panorama location from `benchmark/<split>/records.jsonl`; outlines are Natural Earth 1:110m,
+trimmed and committed as `showcase/basemap_ne110m.json` (`basemap` rewrites it). `_2x` variants
+are 1.25 s per frame. They were rendered with `--panels-from` the default frames, so no
+panoramas were needed:
+
+```bash
+python scripts/talks/uchicago_2026_showcase.py render --panels-from <frames> --order city \
+    --frames-dir <out>/frames_by_city_map --map          # drop --map for the plain cut
+python scripts/talks/uchicago_2026_showcase.py video --frames-dir <out>/frames_by_city_map \
+    --out <out>/showcase_by_city_map.mp4                  # --seconds 1.25 for _2x
+```
+
+The captions now read **Clovis, NM**. Earlier renders said "Clovis, CA", which was wrong: the
+split's median panorama is at 34.42° N, 103.20° W, which is Clovis, New Mexico.
+
 ## Slide 4. How it compares
 
 Three baselines, in increasing strength:
