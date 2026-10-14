@@ -91,6 +91,20 @@ python scripts/talks/uchicago_2026_showcase.py video --frames-dir <out>/frames_b
 each city keeps its two panoramas with the most ramps, so the only true negative left is Laurens's
 (it has one positive). It was rendered with `--panels-from <frames> --order city --map --per-city 2`.
 
+**Bayonne (appended 2026-10-14).** Bayonne's verdicts landed a day before the 2026-10-05
+selection and it was left out. It was appended without touching the other picks
+(`select --append bayonne`), under a wider rule because only one Bayonne panorama meets the
+strict one: five exemplars with no wrong or unsure detection and >= 2 confirmed ramps, fewest
+confident misses first (7/7, 2/2, 2/2, then 7 of 8 and 4 of 5, captioned as such), plus one
+seeded true negative. Heatmaps ran on makelab2's A40 with the same checkpoint commit as the
+other 32 (per-item `inference` in the manifest); the panoramas came from the makelab2 archive
+and match `benchmark/bayonne/imagery_manifest.json` by sha256. The other cities' frames reuse
+their earlier panels (`--panels-from`), with `--pano-root` supplying Bayonne's. `--per-city 2`
+prefers the perfect ones, so the abbreviated cut shows 7/7 and the first 2/2.
+
+`--caption top` moves the caption bar and map above the panels
+(`showcase_by_city_map_abbreviated_top*.mp4`).
+
 The captions now read **Clovis, NM**. Earlier renders said "Clovis, CA", which was wrong: the
 split's median panorama is at 34.42° N, 103.20° W, which is Clovis, New Mexico.
 

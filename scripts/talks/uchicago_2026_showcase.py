@@ -435,7 +435,7 @@ class LocatorMap:
             x += w + 24
 
 
-def draw_caption(frame, it, n_peaks, index, total, locator=None):
+def draw_caption(frame, it, n_peaks, index, total, locator=None, y_cap=2 * PANEL_H):
     from PIL import ImageDraw
 
     d = ImageDraw.Draw(frame)
@@ -444,7 +444,6 @@ def draw_caption(frame, it, n_peaks, index, total, locator=None):
         verdict = "no curb ramps, no detections"
     else:
         verdict = f"{it['n_ramps']} curb ramps, {n_peaks} detected"
-    y_cap = 2 * PANEL_H
     x_right = FRAME_W - 40
     if locator is not None:
         locator.draw(frame, x_right, y_cap + MAP_PAD, it["split"])
@@ -457,15 +456,20 @@ def draw_caption(frame, it, n_peaks, index, total, locator=None):
     return frame
 
 
-def render_frame(it, pano_path, heat_path, index, total, locator=None, panels=None):
-    """One 1920x1080 frame. ``panels`` (an already-rendered panel pair) skips the panorama."""
+def render_frame(it, pano_path, heat_path, index, total, locator=None, panels=None,
+                 caption="bottom"):
+    """One 1920x1080 frame. ``panels`` (an already-rendered panel pair) skips the panorama.
+
+    ``caption`` puts the caption bar (and map) below the two panels, or above them."""
     from PIL import Image
 
     if panels is None:
         panels = render_panels(pano_path, heat_path)
     frame = Image.new("RGB", (FRAME_W, FRAME_H), (12, 12, 14))
-    frame.paste(panels, (0, 0))
-    return draw_caption(frame, it, len(_peaks(heat_path)[1]), index, total, locator)
+    top = caption == "top"
+    frame.paste(panels, (0, CAPTION_H if top else 0))
+    return draw_caption(frame, it, len(_peaks(heat_path)[1]), index, total, locator,
+                        y_cap=0 if top else 2 * PANEL_H)
 
 
 def ordered(items, order, per_city=None):
@@ -516,7 +520,7 @@ def cmd_render(args):
                 sys.exit(f"{src.size} frame in --panels-from, expected {(FRAME_W, FRAME_H)}")
             panels = src.crop((0, 0, FRAME_W, 2 * PANEL_H))
         frame = render_frame(it, None if panels else _pano_path(args.pano_root, it),
-                             _heat_path(it), k, len(order), locator, panels)
+                             _heat_path(it), k, len(order), locator, panels, args.caption)
         frame.save(os.path.join(frames_dir, f"frame_{k:03d}.png"))
         print("frame", k, it["split"], it["pano_id"], flush=True)
 
@@ -561,6 +565,8 @@ def main(argv=None):
     p.add_argument("--order", choices=("manifest", "city"), default="manifest")
     p.add_argument("--map", action="store_true", help="locator map in the caption bar")
     p.add_argument("--per-city", type=int, help="at most this many panoramas per city")
+    p.add_argument("--caption", choices=("bottom", "top"), default="bottom",
+                   help="caption bar (and map) below or above the panels")
     p = sub.add_parser("video")
     p.add_argument("--seconds", type=float, default=2.5, help="seconds per panorama")
     p.add_argument("--frames-dir", default=FRAMES_DIR)

@@ -236,7 +236,19 @@
    "n_ramps": 7,
    "kind": "all_found",
    "why": "7 ramps, every detection confirmed, nothing missed",
-   "appended": "2026-10-14"
+   "appended": "2026-10-14",
+   "inference": {
+    "checkpoint": "projectsidewalk/rampnet-model @ 606a11956743f7eb328d9207769034752f6191f4",
+    "device": "cuda",
+    "autocast_fp16": true,
+    "input_size": [
+     2048,
+     4096
+    ],
+    "tta": false,
+    "run_date": "2026-10-14"
+   },
+   "max": 0.974
   },
   {
    "split": "bayonne",
@@ -244,7 +256,19 @@
    "n_ramps": 2,
    "kind": "all_found",
    "why": "2 ramps, every detection confirmed, nothing missed",
-   "appended": "2026-10-14"
+   "appended": "2026-10-14",
+   "inference": {
+    "checkpoint": "projectsidewalk/rampnet-model @ 606a11956743f7eb328d9207769034752f6191f4",
+    "device": "cuda",
+    "autocast_fp16": true,
+    "input_size": [
+     2048,
+     4096
+    ],
+    "tta": false,
+    "run_date": "2026-10-14"
+   },
+   "max": 0.863
   },
   {
    "split": "bayonne",
@@ -252,7 +276,19 @@
    "n_ramps": 2,
    "kind": "all_found",
    "why": "2 ramps, every detection confirmed, nothing missed",
-   "appended": "2026-10-14"
+   "appended": "2026-10-14",
+   "inference": {
+    "checkpoint": "projectsidewalk/rampnet-model @ 606a11956743f7eb328d9207769034752f6191f4",
+    "device": "cuda",
+    "autocast_fp16": true,
+    "input_size": [
+     2048,
+     4096
+    ],
+    "tta": false,
+    "run_date": "2026-10-14"
+   },
+   "max": 0.622
   },
   {
    "split": "bayonne",
@@ -260,7 +296,19 @@
    "n_ramps": 8,
    "kind": "near_perfect",
    "why": "8 ramps, every detection confirmed, 1 missed",
-   "appended": "2026-10-14"
+   "appended": "2026-10-14",
+   "inference": {
+    "checkpoint": "projectsidewalk/rampnet-model @ 606a11956743f7eb328d9207769034752f6191f4",
+    "device": "cuda",
+    "autocast_fp16": true,
+    "input_size": [
+     2048,
+     4096
+    ],
+    "tta": false,
+    "run_date": "2026-10-14"
+   },
+   "max": 0.931
   },
   {
    "split": "bayonne",
@@ -268,7 +316,19 @@
    "n_ramps": 5,
    "kind": "near_perfect",
    "why": "5 ramps, every detection confirmed, 1 missed",
-   "appended": "2026-10-14"
+   "appended": "2026-10-14",
+   "inference": {
+    "checkpoint": "projectsidewalk/rampnet-model @ 606a11956743f7eb328d9207769034752f6191f4",
+    "device": "cuda",
+    "autocast_fp16": true,
+    "input_size": [
+     2048,
+     4096
+    ],
+    "tta": false,
+    "run_date": "2026-10-14"
+   },
+   "max": 0.881
   },
   {
    "split": "bayonne",
@@ -276,7 +336,19 @@
    "n_ramps": 0,
    "kind": "true_negative",
    "why": "no curb ramps, and the model fired nowhere",
-   "appended": "2026-10-14"
+   "appended": "2026-10-14",
+   "inference": {
+    "checkpoint": "projectsidewalk/rampnet-model @ 606a11956743f7eb328d9207769034752f6191f4",
+    "device": "cuda",
+    "autocast_fp16": true,
+    "input_size": [
+     2048,
+     4096
+    ],
+    "tta": false,
+    "run_date": "2026-10-14"
+   },
+   "max": 0.206
   }
  ],
  "inference": {
