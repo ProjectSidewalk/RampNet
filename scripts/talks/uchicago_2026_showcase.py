@@ -49,7 +49,7 @@ DEPLOYED_T = 0.55
 
 # Imagery source and place per split, from benchmark/README.md.
 SPLITS = {
-    "bend":               ("Bend, OR, US",            "Google Street View (training city)"),
+    "bend":               ("Bend, OR, US",            "Google Street View"),
     "paterson":           ("Paterson, NJ, US",        "Google Street View"),
     "gainesville":        ("Gainesville, FL, US",     "Google Street View"),
     "sao_paulo":          ("São Paulo, Brazil",       "Google Street View"),
