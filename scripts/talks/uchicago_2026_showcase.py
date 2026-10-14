@@ -11,9 +11,10 @@ with no ramps and no detections (true negatives).
     python scripts/talks/uchicago_2026_showcase.py render --pano-root benchmark
     python scripts/talks/uchicago_2026_showcase.py video                              # ffmpeg
 
-Committed: the manifest (which panoramas, why) and one 8-bit heatmap PNG per panorama, so the
-frames and the mp4 regenerate on CPU without the checkpoint. Frames and the mp4 are not
-committed (``.gitignore`` in the showcase folder); ``video`` rebuilds them in a minute.
+Committed: the manifest (which panoramas, why), one 8-bit heatmap PNG per panorama, and the
+rendered 1920x1080 frames (so single frames can go straight onto slides). Frames and the mp4
+regenerate on CPU without the checkpoint; only the mp4 is not committed (``.gitignore`` in the
+showcase folder), and ``video`` rebuilds it in a minute.
 """
 import argparse
 import datetime
@@ -93,7 +94,7 @@ def cmd_select(args):
         json.dump(manifest, f, indent=1, ensure_ascii=False)
         f.write("\n")
     with open(os.path.join(SHOW_DIR, ".gitignore"), "w", newline="\n") as f:
-        f.write("frames/\n*.mp4\n")
+        f.write("*.mp4\n")
     print(f"{len(items)} panoramas -> {os.path.relpath(MANIFEST, REPO)}")
 
 

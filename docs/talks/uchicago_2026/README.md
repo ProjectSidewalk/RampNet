@@ -66,8 +66,10 @@ and the reviewer's verdict. Selection is mechanical from the committed verdicts
 detection was confirmed and nothing was missed, plus one seeded-random other, plus four true
 negatives (no ramps, no detections). Ten of the 11 candidate splits (laurens_gsv contributes none; bayonne and manual_gold are not candidates), two imagery
 sources (GSV, Mapillary), three countries (US, Brazil, Hungary). The
-32 heatmaps are committed as 8-bit PNGs; frames and the mp4 are not (regenerate with
-`uchicago_2026_showcase.py render` then `video`, needs ffmpeg).
+32 heatmaps are committed as 8-bit PNGs, and so are the 32 rendered frames
+(`showcase/frames/frame_000.png` … `frame_031.png`, 1920×1080, in manifest order) for dropping
+single frames onto slides. The mp4 is not committed (regenerate the frames with
+`uchicago_2026_showcase.py render`, then the mp4 with `video`, which needs ffmpeg).
 
 ## Slide 4. How it compares
 
@@ -213,7 +215,7 @@ Four SVGs (PowerPoint imports them as editable shapes) with PNG renders, from
 | `transfer_imagery_country.png` | 5 | `analysis_out/scoreboard.json` |
 | `transfer_imagery_us.png` | 5 | same, US splits only, so it reads as camera transfer alone (`--only transfer_us`) |
 | `heatmap_demo_paterson.jpg` | 3 | `heatmap_paterson_*.npz` (from `uchicago_2026_heatmap.py`, GPU), `benchmark/paterson/{records.jsonl,verdicts.json,panos/}` (`--only heatmap`) |
-| `showcase/showcase.mp4` | 3 | `showcase/manifest.json`, `showcase/heat_*.png` (from `uchicago_2026_showcase.py infer`, GPU), benchmark panos; frames + mp4 regenerate with `render` and `video` |
+| `showcase/showcase.mp4` | 3 | `showcase/manifest.json`, `showcase/heat_*.png` (from `uchicago_2026_showcase.py infer`, GPU), benchmark panos; frames (committed) regenerate with `render`, the mp4 with `video` |
 | `comparison_pr.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_pr`) |
 | `comparison_f1_with_gold.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_gold`) |
 | `comparison_f1_annapolis.png` | 4 | `analysis_out/scoreboard.json` (`--only comparison_annapolis`) |
