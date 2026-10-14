@@ -988,8 +988,11 @@ MINIMAL_COMPACT_DROP = {"claude-fable-5-effort-low-anthropic", "claude-opus-5-ef
                         "claude-sonnet-5-effort-high"}
 
 
-def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False):
-    """fig_comparison_city with the words taken out: for a slide whose title says the rest."""
+def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False, mono=False):
+    """fig_comparison_city with the words taken out: for a slide whose title says the rest.
+
+    ``mono``: every challenger bar one blue and RampNet a deeper blue, no legend; the maker
+    text carries the grouping on its own."""
     from matplotlib.patches import Patch
 
     colour = {g: c for g, c, _ in MINIMAL_GROUPS}
@@ -1007,10 +1010,14 @@ def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False):
 
     n = len(rows)
     fig, ax = _hbar_frame(plt, n)
-    fig.subplots_adjust(left=0.30, right=0.97, top=0.90 if n > 15 else 0.89, bottom=0.08)
+    fig.subplots_adjust(left=0.30, right=0.97, top=0.975, bottom=0.08)
     groups = [label(m)[2] for _, m in rows]
+    if mono:
+        fills = [BLUE_DEEP if m == "rampnet" else BLUE for _, m in rows]
+    else:
+        fills = [colour[g] for g in groups]
     bars = ax.barh(range(n), [f for f, _ in rows], height=0.7, zorder=3,
-                   color=[colour[g] for g in groups], edgecolor=SURFACE, linewidth=1)
+                   color=fills, edgecolor=SURFACE, linewidth=1)
     fs = 15 if n <= 16 else 13.5
     for i, (bar, (f, m)) in enumerate(zip(bars, rows)):
         ref = m == "rampnet"
@@ -1033,11 +1040,17 @@ def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False):
         x0 = inv.transform((t.get_window_extent(renderer).x0, 0))[0] if not ref else -0.015
         ax.text(x0 - (0.012 if not ref else 0), y_ax, name, transform=ax.transAxes, ha="right",
                 va="center", fontsize=fs, color=INK, fontweight="bold" if ref else "normal")
-    handles = [Patch(facecolor=c, label=l) for g, c, l in MINIMAL_GROUPS]
-    fig.legend(handles=handles, loc="upper center", ncol=4, frameon=False, fontsize=13,
-               bbox_to_anchor=(0.5, 0.985), handlelength=1.1, columnspacing=1.8,
-               labelcolor=INK_SECONDARY)
-    _save(fig, f"comparison_f1_{split}_minimal{'_compact' if compact else ''}.png")
+    if not mono:
+        # Stacked in the empty lower right (short bars there), on a surface-coloured box so the
+        # gridlines do not run through it.
+        handles = [Patch(facecolor=c, label=l) for g, c, l in MINIMAL_GROUPS]
+        leg = ax.legend(handles=handles, loc="lower right", ncol=1, fontsize=14,
+                        frameon=True, facecolor=SURFACE, edgecolor=SURFACE, framealpha=1,
+                        handlelength=1.2, handleheight=1.0, labelspacing=0.6,
+                        borderaxespad=0.6, labelcolor=INK_SECONDARY)
+        leg.set_zorder(5)
+    suffix = ("_compact" if compact else "") + ("_blue" if mono else "")
+    _save(fig, f"comparison_f1_{split}_minimal{suffix}.png")
     plt.close(fig)
 
 
@@ -1156,6 +1169,8 @@ FIGURES = {
     "comparison_gold": lambda board, plt, _: fig_comparison_gold(board, plt),
     "comparison_annapolis": lambda board, plt, _: fig_comparison_city(board, plt),
     "comparison_annapolis_minimal": lambda board, plt, _: fig_comparison_city_minimal(board, plt),
+    "comparison_annapolis_minimal_blue":
+        lambda board, plt, _: fig_comparison_city_minimal(board, plt, mono=True),
     "comparison_annapolis_minimal_compact":
         lambda board, plt, _: fig_comparison_city_minimal(board, plt, compact=True),
     "transfer": lambda board, plt, _: fig_transfer(board, plt),
