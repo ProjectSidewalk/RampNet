@@ -952,6 +952,95 @@ def fig_comparison_city(board, plt, split="annapolis"):
     plt.close(fig)
 
 
+# Minimal variant of fig_comparison_city for a slide that carries its own title: no title,
+# subtitle or footnote. Each row reads "model  maker" (maker muted), and bars are coloured by
+# who built the model. Three hues only: the reference palette's first three slots are the
+# ones that validate all-pairs, which interleaved bars need (validate_palette.js --pairs all).
+# The detectors and segmenter stay neutral; their label text separates them.
+ORANGE, AQUA = "#eb6834", "#1baf7a"
+MINIMAL_ROWS = {   # model id: (label, maker, group)
+    "rampnet": ("RampNet", "ours", "ours"),
+    "claude-fable-5-1-effort-low-anthropic": ("Claude Fable 5.1", "Anthropic", "frontier"),
+    "claude-fable-5-effort-low-anthropic": ("Claude Fable 5", "Anthropic", "frontier"),
+    "claude-opus-5-effort-low": ("Claude Opus 5 (low effort)", "Anthropic", "frontier"),
+    "claude-opus-5-effort-high": ("Claude Opus 5 (high effort)", "Anthropic", "frontier"),
+    "claude-sonnet-5-effort-low": ("Claude Sonnet 5 (low effort)", "Anthropic", "frontier"),
+    "claude-sonnet-5-effort-high": ("Claude Sonnet 5 (high effort)", "Anthropic", "frontier"),
+    "gemini-3.1-pro-preview": ("Gemini 3.1 Pro", "Google", "frontier"),
+    "gemini-3.7-flash": ("Gemini 3.7 Flash", "Google", "frontier"),
+    "gemini-3.6-flash": ("Gemini 3.6 Flash", "Google", "frontier"),
+    "allenai/Molmo2-8B": ("Molmo2-8B", "AI2", "open"),
+    "Qwen/Qwen3-VL-32B-Instruct": ("Qwen3-VL-32B", "Alibaba", "open"),
+    "Qwen/Qwen3-VL-8B-Instruct": ("Qwen3-VL-8B", "Alibaba", "open"),
+    "y11l_pano": ("YOLO11l", "trained on our data", "detector"),
+    "y26_pano": ("YOLO26", "trained on our data", "detector"),
+    "y11x_pano_h200": ("YOLO11x", "trained on our data", "detector"),
+    "mask2former-vistas-curb-cut-1024x1024": ("Mask2Former", "Mapillary Vistas", "detector"),
+    "google/owlv2-large-patch14-ensemble": ("OWLv2", "Google", "detector"),
+    "IDEA-Research/grounding-dino-base": ("Grounding DINO", "IDEA Research", "detector"),
+}
+MINIMAL_GROUPS = [("ours", BLUE, "RampNet"),
+                  ("frontier", ORANGE, "Frontier models"),
+                  ("open", AQUA, "Open models"),
+                  ("detector", MUTED_FILL, "Detectors & segmenters")]
+# compact: one row per model; the other effort / version legs scored within 0.01-0.07 below.
+MINIMAL_COMPACT_DROP = {"claude-fable-5-effort-low-anthropic", "claude-opus-5-effort-high",
+                        "claude-sonnet-5-effort-high"}
+
+
+def fig_comparison_city_minimal(board, plt, split="annapolis", compact=False):
+    """fig_comparison_city with the words taken out: for a slide whose title says the rest."""
+    from matplotlib.patches import Patch
+
+    colour = {g: c for g, c, _ in MINIMAL_GROUPS}
+    rows = sorted(((v[split]["f1"], m) for m, v in board["per_split"].items()
+                   if split in v and not (compact and m in MINIMAL_COMPACT_DROP)),
+                  key=lambda t: t[0])
+    missing = [m for _, m in rows if m not in MINIMAL_ROWS]
+    if missing:
+        sys.exit(f"no minimal label for {missing}; add it to MINIMAL_ROWS")
+    def label(m):
+        name, maker, group = MINIMAL_ROWS[m]
+        if compact:                # one row per model, so the effort suffix says nothing
+            name = name.split(" (")[0]
+        return name, maker, group
+
+    n = len(rows)
+    fig, ax = _hbar_frame(plt, n)
+    fig.subplots_adjust(left=0.30, right=0.97, top=0.90 if n > 15 else 0.89, bottom=0.08)
+    groups = [label(m)[2] for _, m in rows]
+    bars = ax.barh(range(n), [f for f, _ in rows], height=0.7, zorder=3,
+                   color=[colour[g] for g in groups], edgecolor=SURFACE, linewidth=1)
+    fs = 15 if n <= 16 else 13.5
+    for i, (bar, (f, m)) in enumerate(zip(bars, rows)):
+        ref = m == "rampnet"
+        ax.text(bar.get_width() + 0.012, i, f"{f:.2f}", va="center", fontsize=fs,
+                color=INK if ref else INK_SECONDARY, fontweight="bold" if ref else "normal")
+    ax.set_yticks([])
+    ax.set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    ax.set_xlabel(f"F1 on {split.title()}", fontsize=14, color=INK_SECONDARY)
+    # Two-tone row labels: maker (muted) right-aligned at the axis, model name (ink) to its left.
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    inv = ax.transAxes.inverted()
+    for i, (_, m) in enumerate(rows):
+        name, maker, _ = label(m)
+        ref = m == "rampnet"
+        y = ax.transData.transform((0, i))[1]
+        y_ax = inv.transform((0, y))[1]
+        t = ax.text(-0.015, y_ax, "" if ref else maker, transform=ax.transAxes, ha="right",
+                    va="center", fontsize=fs - 2, color=INK_MUTED)
+        x0 = inv.transform((t.get_window_extent(renderer).x0, 0))[0] if not ref else -0.015
+        ax.text(x0 - (0.012 if not ref else 0), y_ax, name, transform=ax.transAxes, ha="right",
+                va="center", fontsize=fs, color=INK, fontweight="bold" if ref else "normal")
+    handles = [Patch(facecolor=c, label=l) for g, c, l in MINIMAL_GROUPS]
+    fig.legend(handles=handles, loc="upper center", ncol=4, frameon=False, fontsize=13,
+               bbox_to_anchor=(0.5, 0.985), handlelength=1.1, columnspacing=1.8,
+               labelcolor=INK_SECONDARY)
+    _save(fig, f"comparison_f1_{split}_minimal{'_compact' if compact else ''}.png")
+    plt.close(fig)
+
+
 # ---------------------------------------------------------------------------------------------
 # 9. From a point to a measurement (RampNet 2.0 "rate")
 # ---------------------------------------------------------------------------------------------
@@ -1066,6 +1155,9 @@ FIGURES = {
     "comparison_pr": lambda board, plt, _: fig_comparison_pr(board, plt),
     "comparison_gold": lambda board, plt, _: fig_comparison_gold(board, plt),
     "comparison_annapolis": lambda board, plt, _: fig_comparison_city(board, plt),
+    "comparison_annapolis_minimal": lambda board, plt, _: fig_comparison_city_minimal(board, plt),
+    "comparison_annapolis_minimal_compact":
+        lambda board, plt, _: fig_comparison_city_minimal(board, plt, compact=True),
     "transfer": lambda board, plt, _: fig_transfer(board, plt),
     "transfer_us": lambda board, plt, _: fig_transfer(board, plt, us_only=True),
     "recall_by_distance": lambda board, plt, _: fig_recall_by_distance(plt),
