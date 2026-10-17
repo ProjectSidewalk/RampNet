@@ -1,0 +1,249 @@
+{
+ "cut": {
+  "order": "city",
+  "map": false,
+  "per_city": null,
+  "caption": "bottom"
+ },
+ "panels_from": false,
+ "manifest_sha256": "b88e8711144631695581477b01c7583d59598268083e6fb49c33af1aee68a50b",
+ "env": {
+  "python": "3.12.13",
+  "platform": "Linux-5.14.0-687.52.1.el9_8.x86_64-x86_64-with-glibc2.34",
+  "pillow": "12.3.0",
+  "numpy": "2.5.2",
+  "matplotlib": "3.11.1",
+  "scikit-image": "0.26.0"
+ },
+ "rendered": "2026-10-17",
+ "frames": [
+  {
+   "file": "frame_000.png",
+   "split": "bend",
+   "pano_id": "yJmMJeV6PD3UZlAmm4cmWg",
+   "pixels_sha256": "2ef7ed5bc395c3adfd196d92deac65c0d3279b435970ada3228adf020d6763b4"
+  },
+  {
+   "file": "frame_001.png",
+   "split": "bend",
+   "pano_id": "rxF0qBiSbOEnMR9wwxpjEw",
+   "pixels_sha256": "d31446e3d53c3e9bbbf77b986910fbfa1a6dcebe5444012db2b753f7bf64ec84"
+  },
+  {
+   "file": "frame_002.png",
+   "split": "bend",
+   "pano_id": "5NVgLhChZXnD_D-z3SLZyQ",
+   "pixels_sha256": "671cc10a1a2007cd0659d6b8bddadacaf617f08dace051e961b09ea3eb0e5b1f"
+  },
+  {
+   "file": "frame_003.png",
+   "split": "bend",
+   "pano_id": "9kW9cxpuj7q8DMzf-ClrQQ",
+   "pixels_sha256": "bcc1620335a8cb74763d8a4d4940f41524b24fbb91d72505aec03d1a6c2b1f64"
+  },
+  {
+   "file": "frame_004.png",
+   "split": "clovis",
+   "pano_id": "1115273772298326",
+   "pixels_sha256": "af974ba02059a01876012e245c9e9ecf9c24f725095c75099c5f341b0e5217f9"
+  },
+  {
+   "file": "frame_005.png",
+   "split": "clovis",
+   "pano_id": "373977847581697",
+   "pixels_sha256": "66b4b24eb430b9901c56e590c9a2db21b6aa4a7dd61e83e0325d98d03f19ee3b"
+  },
+  {
+   "file": "frame_006.png",
+   "split": "clovis",
+   "pano_id": "3939249736143912",
+   "pixels_sha256": "52a116241703db2a4687679d9bfeb26e42fc400e1a47bb4d6c239dd10ee58cf9"
+  },
+  {
+   "file": "frame_007.png",
+   "split": "clovis",
+   "pano_id": "142003227963196",
+   "pixels_sha256": "03a4197a68170957fb8ba7285dca22c66ab5a8f6c2286bfdd8339b0c89dfd412"
+  },
+  {
+   "file": "frame_008.png",
+   "split": "laurens_mapillary",
+   "pano_id": "25393196263651274",
+   "pixels_sha256": "c58e0613fbfdc667e69822ed44a23d1a38fb40320d97fee24924ef82162446ae"
+  },
+  {
+   "file": "frame_009.png",
+   "split": "laurens_mapillary",
+   "pano_id": "1535322434332846",
+   "pixels_sha256": "1c8bada2ab28538014bbab49067f436788dcac59c1d00338c338ae00c2e6fc3a"
+  },
+  {
+   "file": "frame_010.png",
+   "split": "gainesville",
+   "pano_id": "89lilp2BlhppxL-oQ0gLNg",
+   "pixels_sha256": "07f798775cd8b6ceb19b4ce4e3fa7071a7828383b007cd887e3819ce30a11a78"
+  },
+  {
+   "file": "frame_011.png",
+   "split": "gainesville",
+   "pano_id": "K732QTWoB9RZwrfSmw7RYA",
+   "pixels_sha256": "cfb0617fccdb0937fc864b9a0da63916d03836e293d51df1007df1c50c2131e4"
+  },
+  {
+   "file": "frame_012.png",
+   "split": "gainesville",
+   "pano_id": "9tS6faHm3jFdOth84XlbEQ",
+   "pixels_sha256": "b30a9bcb245ac93dba56c190b4c179e9aaaaa5b462333f18ef4be8f4d90593e6"
+  },
+  {
+   "file": "frame_013.png",
+   "split": "gainesville",
+   "pano_id": "jqZrc8lSwNpLZbLrixSduQ",
+   "pixels_sha256": "9831a5162b1aebcfc60a7eedc1b5995b4406a758cf193de4b5dfba7580a63941"
+  },
+  {
+   "file": "frame_014.png",
+   "split": "morgantown",
+   "pano_id": "701464722124781",
+   "pixels_sha256": "653ffe8afb7ba1902920cf4bc3e062468db576bc0113180268352aec73ac69c3"
+  },
+  {
+   "file": "frame_015.png",
+   "split": "morgantown",
+   "pano_id": "393398989743901",
+   "pixels_sha256": "6a8ed49d02cf3ee063aa1e36704a3f7c8fc1ace8be3e009fb56bab2798fad273"
+  },
+  {
+   "file": "frame_016.png",
+   "split": "morgantown",
+   "pano_id": "4607308572828610",
+   "pixels_sha256": "f34da225f1166000b7f86a32cf0cc861038e1ff395d90916833b0b184f6f21bd"
+  },
+  {
+   "file": "frame_017.png",
+   "split": "richmond",
+   "pano_id": "2263954690670646",
+   "pixels_sha256": "f41451446f41ba7b27b8b35a18492ec4c3e11f340e1430cd67f954400564f972"
+  },
+  {
+   "file": "frame_018.png",
+   "split": "richmond",
+   "pano_id": "1002881108606016",
+   "pixels_sha256": "b45ce798aedc43364078ecbb54698645745df7a923d5253d2eb40cd45ffd45b3"
+  },
+  {
+   "file": "frame_019.png",
+   "split": "richmond",
+   "pano_id": "1847752429062443",
+   "pixels_sha256": "d36b06a76c06d2837f67183af6ef9c97f4da888081171d92c639cd8f4b291c1f"
+  },
+  {
+   "file": "frame_020.png",
+   "split": "annapolis",
+   "pano_id": "4578453255540160",
+   "pixels_sha256": "0a5b3805c9718b8f84dbc0aa86f1136461c1e20738d24a3cd6141e2e9c74519e"
+  },
+  {
+   "file": "frame_021.png",
+   "split": "annapolis",
+   "pano_id": "299861069631715",
+   "pixels_sha256": "5ab00ebb11ac4d32fcf221df5166cf46e984cafaeb3c4161feb7eb30ba591b77"
+  },
+  {
+   "file": "frame_022.png",
+   "split": "annapolis",
+   "pano_id": "1005430537402761",
+   "pixels_sha256": "0398b53cf2f1e844079d35f8712f795676bad9254c5cfa16662c4c199a3c4ebd"
+  },
+  {
+   "file": "frame_023.png",
+   "split": "paterson",
+   "pano_id": "tekhQ4HQ9pcOqs_kGGpGaw",
+   "pixels_sha256": "b701bec692008dcb5ef6b3a1be888e6b452a53fbb5106c8bbe06dadb5644b511"
+  },
+  {
+   "file": "frame_024.png",
+   "split": "paterson",
+   "pano_id": "0Drku25sOlOlWGiVf7uetw",
+   "pixels_sha256": "f60eadd528057faa4cd58e9add1fcdfd6f3c31e13ca418fa544a92820917cb67"
+  },
+  {
+   "file": "frame_025.png",
+   "split": "paterson",
+   "pano_id": "kpvi-7jlODMmozIBUAUD_A",
+   "pixels_sha256": "e993b837f92825fcdbf8d0c22ffbc8b894fe57495053c44053571a3ad2adcb06"
+  },
+  {
+   "file": "frame_026.png",
+   "split": "sao_paulo",
+   "pano_id": "9ogLSXwqkmRsXUlTLya0uQ",
+   "pixels_sha256": "7c1abffc4ac1c37f320fb6ccb89bfe18875f15923eb83039647a1765c51503f6"
+  },
+  {
+   "file": "frame_027.png",
+   "split": "sao_paulo",
+   "pano_id": "LUW-LxIfrK_j7kCq16WoyQ",
+   "pixels_sha256": "d6191d4044c19543d8f10ab7e743e6aaa3dff674fac201f1e21cebf25c1f036a"
+  },
+  {
+   "file": "frame_028.png",
+   "split": "sao_paulo",
+   "pano_id": "4RXNxzYjFwN0EBvKh8aHSQ",
+   "pixels_sha256": "10698e7025039656771f1411cf34e3f8635b676886aab3ceca64d19e3cf0c19e"
+  },
+  {
+   "file": "frame_029.png",
+   "split": "budapest_district5",
+   "pano_id": "873103842125428",
+   "pixels_sha256": "8308d2a179b689aab01d99cbaaade4ac47c9ef56533d735b38352b9ec8b96c63"
+  },
+  {
+   "file": "frame_030.png",
+   "split": "budapest_district5",
+   "pano_id": "945894851803282",
+   "pixels_sha256": "e4777902caf37f5dd4c369d9406b5dbe146552e567bbb1970dbabb8a069bd733"
+  },
+  {
+   "file": "frame_031.png",
+   "split": "budapest_district5",
+   "pano_id": "2185625018892068",
+   "pixels_sha256": "608b0a4fe5b508acd0816246b2ec2209acde4620740c0cf4182fd1cb71b4421a"
+  },
+  {
+   "file": "frame_032.png",
+   "split": "bayonne",
+   "pano_id": "34f476a5-9364-4d22-87ea-d656133529b2",
+   "pixels_sha256": "9a2df70a3db45655fead5d5ed7b6e00274be6250d0c460504db3aa3b0c23ee21"
+  },
+  {
+   "file": "frame_033.png",
+   "split": "bayonne",
+   "pano_id": "ade1ccfb-e9bb-412c-a904-b71b1e5b6aee",
+   "pixels_sha256": "8258fbe8076a69ef1192c61e4c8e899f498b1dfd3293c3561988ac13a945039d"
+  },
+  {
+   "file": "frame_034.png",
+   "split": "bayonne",
+   "pano_id": "dca64d90-0ebb-41df-900d-f89c03bffbeb",
+   "pixels_sha256": "eeef736e295b706fe23eddaddb38e8368619fadd3df5d9454cb8d8a9cea3c464"
+  },
+  {
+   "file": "frame_035.png",
+   "split": "bayonne",
+   "pano_id": "6d0d3dba-c9be-488f-a6e3-4d4cb2a8f909",
+   "pixels_sha256": "f5b044e440d126374e946ab4e9b571ace7ad9921d6013984951007aa0174ddb2"
+  },
+  {
+   "file": "frame_036.png",
+   "split": "bayonne",
+   "pano_id": "27bd61dd-3453-489c-b090-760ad040e390",
+   "pixels_sha256": "98cb0a18121c3b97aa6a019345f404eee27b5afebc27c21f03c589485b917aa8"
+  },
+  {
+   "file": "frame_037.png",
+   "split": "bayonne",
+   "pano_id": "db87e787-8e09-42c5-8235-3224072d13f7",
+   "pixels_sha256": "f4cf942b50e8f3d1b1e6b59efc887172e395921307d6b15eac77b6c27c213fe4"
+  }
+ ]
+}
