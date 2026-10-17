@@ -29,11 +29,24 @@ detection count in the caption.
 Committed: the manifest (which panoramas, why), one 8-bit heatmap PNG per panorama and the
 basemap, so the frames and the mp4 regenerate on CPU without the checkpoint. Frames and the mp4
 are not committed (``.gitignore`` in the showcase folder); ``video`` rebuilds them in a minute.
+
+Every ``render`` also writes ``frames.json`` beside its frames: the cut's options, the library
+versions, and a sha256 of each frame's pixels. Copy it into ``frame_hashes/<cut>.json`` to commit
+it, and ``verify`` checks any frames dir against it:
+
+    python scripts/talks/uchicago_2026_showcase.py verify --frames-dir <out>/frames_by_city_map \
+        --against docs/talks/uchicago_2026/showcase/frame_hashes/by_city_map.json
+
+The caption font is pinned to matplotlib's DejaVu Sans so the hashes hold across OSes; a
+mismatch with the same panoramas usually means a different Pillow or matplotlib, which
+``verify`` names.
 """
 import argparse
 import datetime
+import hashlib
 import json
 import os
+import platform
 import random
 import subprocess
 import sys
@@ -234,13 +247,15 @@ CAPTION_H = FRAME_H - 2 * PANEL_H
 
 
 def _font(size):
+    """DejaVu Sans from matplotlib's own data dir, on every OS.
+
+    Pinned rather than looked up by name: the old lookup found Segoe UI on Windows and Arial on
+    macOS, so the same command drew different caption pixels per machine and no frame hash
+    could ever match across them (frames rendered before 2026-10-17 used one of those two)."""
+    import matplotlib
     from PIL import ImageFont
-    for name in ("segoeui.ttf", "arial.ttf", "DejaVuSans.ttf"):
-        try:
-            return ImageFont.truetype(name, size)
-        except OSError:
-            continue
-    return ImageFont.load_default()
+    return ImageFont.truetype(
+        os.path.join(matplotlib.get_data_path(), "fonts", "ttf", "DejaVuSans.ttf"), size)
 
 
 def _peaks(heat_path):
@@ -509,6 +524,7 @@ def cmd_render(args):
         if old.startswith("frame_") and old.endswith(".png"):
             os.remove(os.path.join(frames_dir, old))
     order = ordered(items, args.order, args.per_city)
+    hashes = []
     for k, i in enumerate(order):
         it = items[i]
         panels = None
@@ -522,7 +538,95 @@ def cmd_render(args):
         frame = render_frame(it, None if panels else _pano_path(args.pano_root, it),
                              _heat_path(it), k, len(order), locator, panels, args.caption)
         frame.save(os.path.join(frames_dir, f"frame_{k:03d}.png"))
+        hashes.append({"file": f"frame_{k:03d}.png", "split": it["split"],
+                       "pano_id": it["pano_id"], "pixels_sha256": pixels_sha256(frame)})
         print("frame", k, it["split"], it["pano_id"], flush=True)
+    record = frame_record(args, hashes)
+    with open(os.path.join(frames_dir, FRAMES_RECORD), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(record, f, indent=1)
+        f.write("\n")
+    print("wrote", os.path.join(frames_dir, FRAMES_RECORD))
+
+
+# ---- Frame hashes --------------------------------------------------------------------------
+# Every render writes FRAMES_RECORD beside its frames: the cut's options, the manifest it read,
+# the library versions, and one hash per frame. The hash is of the decoded RGB pixels, not the
+# PNG bytes, so it does not depend on the zlib build that wrote the file. Records for the cuts
+# on the slides are committed under FRAME_HASHES_DIR; `verify` checks any frames dir (a fresh
+# render, the Dropbox copy) against one of them.
+FRAMES_RECORD = "frames.json"
+FRAME_HASHES_DIR = os.path.join(SHOW_DIR, "frame_hashes")
+
+
+def pixels_sha256(img):
+    """sha256 of an image's RGB pixels, row-major, 8 bits per channel."""
+    return hashlib.sha256(img.convert("RGB").tobytes()).hexdigest()
+
+
+def frame_record(args, hashes):
+    import matplotlib
+    import numpy
+    import PIL
+    import skimage
+
+    with open(MANIFEST, "rb") as f:
+        manifest_sha = hashlib.sha256(f.read()).hexdigest()
+    return {
+        "cut": {"order": args.order, "map": args.map, "per_city": args.per_city,
+                "caption": args.caption},
+        # Panels lifted from older frames carry whatever font-free pixels those had; a record
+        # made that way is only as reproducible as the frames it read.
+        "panels_from": bool(args.panels_from),
+        "manifest_sha256": manifest_sha,
+        "env": {"python": platform.python_version(), "platform": platform.platform(),
+                "pillow": PIL.__version__, "numpy": numpy.__version__,
+                "matplotlib": matplotlib.__version__, "scikit-image": skimage.__version__},
+        "rendered": datetime.date.today().isoformat(),
+        "frames": hashes,
+    }
+
+
+def verify_frames(frames_dir, record):
+    """Mismatches between the frames in ``frames_dir`` and a record's hashes, as strings."""
+    from PIL import Image
+
+    problems = []
+    want = {fr["file"]: fr for fr in record["frames"]}
+    have = sorted(f for f in os.listdir(frames_dir) if f.startswith("frame_") and f.endswith(".png"))
+    for name in sorted(set(want) - set(have)):
+        problems.append(f"{name}: missing")
+    for name in sorted(set(have) - set(want)):
+        problems.append(f"{name}: not in the record")
+    for name in sorted(set(want) & set(have)):
+        with Image.open(os.path.join(frames_dir, name)) as img:
+            got = pixels_sha256(img)
+        if got != want[name]["pixels_sha256"]:
+            fr = want[name]
+            problems.append(f"{name} ({fr['split']} {fr['pano_id']}): pixels differ")
+    return problems
+
+
+def cmd_verify(args):
+    with open(args.against, encoding="utf-8") as f:
+        record = json.load(f)
+    problems = verify_frames(args.frames_dir, record)
+    with open(MANIFEST, "rb") as f:
+        if hashlib.sha256(f.read()).hexdigest() != record["manifest_sha256"]:
+            print("note: the manifest has changed since this record was made")
+    local = os.path.join(args.frames_dir, FRAMES_RECORD)
+    if problems and os.path.exists(local):
+        # The usual cause of a pixel mismatch is a different Pillow or matplotlib; say so.
+        with open(local, encoding="utf-8") as f:
+            env = json.load(f)["env"]
+        for k, v in record["env"].items():
+            if k != "platform" and env.get(k) != v:
+                print(f"note: {k} {env.get(k)} here, {v} in the record")
+    for p in problems:
+        print(p)
+    n = len(record["frames"])
+    if problems:
+        sys.exit(f"{len(problems)} problem(s) against {n} recorded frames")
+    print(f"all {n} frames match {os.path.relpath(args.against, REPO)}")
 
 
 def cmd_video(args):
@@ -571,9 +675,13 @@ def main(argv=None):
     p.add_argument("--seconds", type=float, default=2.5, help="seconds per panorama")
     p.add_argument("--frames-dir", default=FRAMES_DIR)
     p.add_argument("--out", default=os.path.join(SHOW_DIR, "showcase.mp4"))
+    p = sub.add_parser("verify", help="check a frames dir against a committed frame-hash record")
+    p.add_argument("--frames-dir", default=FRAMES_DIR)
+    p.add_argument("--against", required=True,
+                   help=f"a record, e.g. {os.path.relpath(FRAME_HASHES_DIR, REPO)}/by_city_map.json")
     args = ap.parse_args(argv)
     {"select": cmd_select, "basemap": cmd_basemap, "infer": cmd_infer, "render": cmd_render,
-     "video": cmd_video}[args.cmd](args)
+     "video": cmd_video, "verify": cmd_verify}[args.cmd](args)
 
 
 if __name__ == "__main__":

@@ -127,7 +127,21 @@ python $S render --pano-root benchmark --frames-dir $OUT/frames_by_city_map_abbr
     --order city --map --per-city 2                                                  # add --caption top for _top
 python $S video --frames-dir $OUT/frames_by_city_map --out $OUT/showcase_by_city_map.mp4
 # ...one `video` per frames dir; --seconds 1.25 for the _2x variants.
+
+# 3. Check a cut against its committed hashes.
+python $S verify --frames-dir $OUT/frames_by_city_map \
+    --against docs/talks/uchicago_2026/showcase/frame_hashes/by_city_map.json
 ```
+
+**Frame hashes.** Every `render` writes `frames.json` next to its frames, with the cut's options,
+the Pillow/numpy/matplotlib/scikit-image versions, and a sha256 of each frame's RGB pixels
+(pixels rather than PNG bytes, so the zlib build does not matter). The records for the cuts on
+the slides go in `showcase/frame_hashes/<cut>.json`, and `verify` checks a fresh render or the
+Dropbox copy against them. Since 2026-10-17 the caption font is pinned to the DejaVu Sans that
+ships with matplotlib. Before that, the script used Segoe UI on Windows and Arial on macOS, so
+**frames rendered before 2026-10-17, including the Dropbox copies, will not match** and need a
+re-render. **No records are committed yet:** they need a `--pano-root` render of the final cuts
+with all 38 panoramas, and only makelab2 has the 8 that are not on the Hub.
 
 Gap: 8 of the 38 panoramas are not on the Hub yet, so step 1 cannot fetch them and `render` stops
 at the first one. They are the six `bayonne` items (from the makelab2 archive, pinned by

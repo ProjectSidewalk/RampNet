@@ -62,3 +62,8 @@ scikit-learn
 # (rdflib, etils, absl-py, jsonpath-rw, pandas-stubs). Validation reads no data and makes no
 # network call.
 mlcroissant>=1.1,<1.2
+# tests/test_uchicago_showcase.py renders real showcase frames, which take their colormap and
+# their pinned caption font (DejaVu Sans, from matplotlib's data dir) from matplotlib. Declared
+# for the same reason as opencv-headless: the font pin is the thing that makes the committed
+# frame hashes match across OSes, and importorskip would leave it pinned only on dev machines.
+matplotlib
