@@ -108,6 +108,33 @@ prefers the perfect ones, so the abbreviated cut shows 7/7 and the first 2/2.
 The captions now read **Clovis, NM**. Earlier renders said "Clovis, CA", which was wrong: the
 split's median panorama is at 34.42° N, 103.20° W, which is Clovis, New Mexico.
 
+**Rebuilding every cut from a clean clone.** The commands above use `--panels-from`, which reads
+an earlier set of frames that is not committed (frames and mp4s are gitignored; the shared copies
+live in Jon's Dropbox). From a clean clone, render straight from the panoramas instead. Only the
+manifest, the heatmap PNGs and the basemap are needed from the repo, plus the panoramas:
+
+```bash
+# 1. Panoramas, sha256-checked against each split's committed imagery_manifest.json.
+python scripts/unpack_benchmark_panos.py --out . \
+    --cities annapolis,bend,budapest_district5,clovis,gainesville,morgantown,paterson,richmond,sao_paulo
+
+# 2. Frames and mp4 for each cut (OUT is any scratch directory).
+S=scripts/talks/uchicago_2026_showcase.py
+python $S render --pano-root benchmark --frames-dir $OUT/frames                      # manifest order
+python $S render --pano-root benchmark --frames-dir $OUT/frames_by_city --order city
+python $S render --pano-root benchmark --frames-dir $OUT/frames_by_city_map --order city --map
+python $S render --pano-root benchmark --frames-dir $OUT/frames_by_city_map_abbreviated \
+    --order city --map --per-city 2                                                  # add --caption top for _top
+python $S video --frames-dir $OUT/frames_by_city_map --out $OUT/showcase_by_city_map.mp4
+# ...one `video` per frames dir; --seconds 1.25 for the _2x variants.
+```
+
+Gap: 8 of the 38 panoramas are not on the Hub yet, so step 1 cannot fetch them and `render` stops
+at the first one. They are the six `bayonne` items (from the makelab2 archive, pinned by
+`benchmark/bayonne/imagery_manifest.json`; publishing is #159) and the two `laurens_mapillary`
+items (not uploaded; see `docs/replication.md`). Until they are published, a clean clone can
+rebuild the 30 frames from the nine published splits, but not all 38.
+
 ## Slide 4. How it compares
 
 Three baselines, in increasing strength:
