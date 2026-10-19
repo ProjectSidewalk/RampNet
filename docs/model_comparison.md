@@ -665,7 +665,8 @@ Also scored on this split, not in the standing table (see [`model_scoreboard.md`
 
 Paid legs: the three Gemini legs ran on 2026-10-19 ($5.60 estimated; rows in
 `analysis_out/usage_log.jsonl`, `vertex_usage.py --reconcile` ok). The free legs ran on klone
-(H200, `ckpt-g2`) after makelab2 wedged; the replication control reproduced
+(`ckpt-g2`, H200 and L40 nodes, 2.75 GPU-h) after makelab2 wedged; the replication control
+(on an H200) reproduced
 `laurens_mapillary`'s committed cache cell for cell and Juneau's parity is exact
 (`analysis_out/juneau_254/checks.json`). **Not run: claude-opus-5 (low)**, so it drops from the
 complete pooled rows to 8 of 9 cities until it runs.

@@ -96,8 +96,9 @@ all marked abandoned in their `note`. The killed OWLv2 leg has no end stamp and 
 Log: `analysis_out/juneau_254/logs/makelab2_abandoned_gpu_run.log`.
 
 **klone, the run of record.** Tree `fa8426d` (`git archive`), workdir
-`/gscratch/scrubbed/jfroehli/wt-juneau254`, partition `ckpt-g2` (free; the jobs landed on H200
-nodes) because `gpu-l40s-makelab` was at its `AssocGrpCpuLimit`. The scrubbed purge had deleted
+`/gscratch/scrubbed/jfroehli/wt-juneau254`, partition `ckpt-g2` (free) because
+`gpu-l40s-makelab` was at its `AssocGrpCpuLimit`. Jobs 42034543-545 landed on H200s; the
+Molmo and Qwen re-runs (42034817, 42035326-327) on L40s. The scrubbed purge had deleted
 the old conda envs' interpreters and every cached HF weight, so the envs were rebuilt with uv:
 
 | env | python | torch | transformers | used for |
@@ -119,10 +120,10 @@ failed attempts' ledger rows are kept: the GPU time was spent.
 | 42035326 | Qwen3-VL-8B | 125/125 |
 | 42035327 | Qwen3-VL-32B, 2 GPUs (`run_qwen.slurm`) | 125/125 |
 
-The H200 reproduced the A40/L40S-built cache exactly, so the hardware change moves nothing.
-GPU-hours: `slurm_usage.py --from-file` over the day's `sacct` dump
-(`analysis_out/juneau_254/sacct_klone_2026-10-19.txt`) into `analysis_out/compute_log.jsonl`;
-the Juneau jobs total 2.7 GPU-h at $0.00.
+The replication control ran on an H200 and reproduced the committed (A40/L40S-built) cache
+exactly, so the hardware change moves nothing. GPU-hours: `slurm_usage.py --from-file` over the
+eleven jobs' `sacct` dump (`docs/data/compute/sacct_klone_2026-10-19_juneau254.txt`) into
+`analysis_out/compute_log.jsonl`: 2.75 GPU-h at $0.00, per job in `docs/compute_cost.md`.
 
 **Paid legs, desktop.** Authorized by Jon (estimate ~$5.26 from Bayonne's measured rates):
 Gemini 3.6 Flash $1.92, Gemini 3.1 Pro $2.14, Gemini 3.7 Flash $1.54, **$5.60 total**
