@@ -3,6 +3,16 @@
   "run_name": "juneau",
   "source": "benchmark\\juneau\\records.jsonl",
   "exported_at": "2026-10-19T13:01:02.413Z",
+  "review_notes": {
+    "reviewer": "jonf",
+    "reviewed_at": "2026-10-19",
+    "confidence": "medium",
+    "summary": "Juneau, AK (125 panos, Mapillary; 120 from one contributor's Trimble MX7, the Annapolis rig, and 5 GoPro Max). Unbiased subset: precision 0.978 [0.944, 0.991], recall 0.664 [0.605, 0.719]; 50 missed-ramp marks and 6 detections were flagged unsure and abstain. Reviewer-rated confidence: MEDIUM, because many distant curb ramps were hard to see and had to be marked unsure.",
+    "caveats": [
+      "Distant ramps. Many far-field curb ramps were too small at model resolution to judge and were marked unsure (50 missed marks). They abstain, so recall is measured against the ramps the reviewer could confirm; it would move if they were resolved either way.",
+      "Diagonal corner ramps. Many Juneau corners carry diagonal ramps, some with oddly placed or oriented tactile indicators, and during the review it was unclear whether such a corner takes one label or two (pano note 3983518571869137). Ruled 2026-10-19, after the review: two labels only when the ramp is large enough to serve crossings in both orthogonal directions, otherwise one (benchmark/RUBRICS.md section 1, Class rulings). The verdicts were made before the ruling and were not re-checked against it."
+    ]
+  },
   "panos": {
     "452394240888222": {
       "group": "random",
