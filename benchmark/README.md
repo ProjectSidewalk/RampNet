@@ -353,6 +353,10 @@ Smaller notes:
 - **No training overlap:** 0 of 125 panos in `rampnet-dataset`'s train or validation split.
 - **Pooling it barely moves the pool.** The nine-city pooled F1 at 0.30 goes from 0.8260 to
   0.8264, because juneau sits almost exactly at the pooled mean.
+- **Challengers** (`docs/model_comparison.md`, juneau section): RampNet F1 0.803 at 0.55 against
+  Gemini 3.1 Pro 0.542, the best zero-shot model, a lead of 0.261. The standing roster ranks in
+  exactly the order it does on annapolis, the same rig. claude-opus-5 (low) has not run on
+  juneau yet, so it is partial on the pooled board until it does.
 
 ## Paterson — the second GSV city, and the split whose misses aren't under-confident
 
