@@ -5,7 +5,8 @@ RampNet's deployed operating point is peak extraction at `threshold_abs = 0.55`,
 the committed benchmark detections stop there, so every published precision/recall number
 describes one point on a curve nobody had drawn.
 
-This document draws it, on all nine benchmark splits, and recommends a number. It is
+This document draws it, on every benchmark split with a low-floor cache (thirteen as of
+2026-10-19), and recommends a number. It is
 issue [#54](https://github.com/ProjectSidewalk/RampNet/issues/54); the ground-truth
 correction it depends on is [#55](https://github.com/ProjectSidewalk/RampNet/issues/55);
 the deployment consumer is
@@ -15,14 +16,16 @@ and the multi-view consumer is
 
 **Headline:** lowering the threshold from 0.55 to **0.30** buys **+7.1 recall points** pooled
 (+4 to +11 per split) at a shallow GT-completeness-corrected precision cost, while detection
-density rises only from 1.86 to 2.23 per pano. Recall is RampNet's weak metric everywhere,
+density rises only from 1.85 to 2.21 per pano. Recall is RampNet's weak metric everywhere,
 and this is the cheapest lever that exists — one constant, no retraining. (These are the
-seven-US-split pooled numbers after gainesville joined the benchmark, 2026-07-30, with its
-#55 tags applied: +7.4 corrected recall for −4.5 corrected precision. The six-split analysis
-read +6.9 / −4.2, the original five-split one +7.7 / −4.8, and every iteration reached the
-same recommendation. paterson is the one split the lever barely helps; gainesville is its
-mirror — same deployed recall, but its misses fire sub-threshold, so 0.30 buys it +9.9
-points — see the per-split rows and the recall-ceiling section.)
+numbers pooled over the eight US splits that carry #55 tags — juneau joined them on
+2026-10-19 — with those tags applied: +7.4 corrected recall for −4.4 corrected precision.
+laurens_mapillary is in the raw pooled sweep but has no #55 tags, so it is not in this pool;
+it would gain +13.7 points on its own. The seven-split analysis (gainesville, 2026-07-30)
+read +7.4 / −4.5, the six-split one +6.9 / −4.2, the original five-split one +7.7 / −4.8,
+and every iteration reached the same recommendation. paterson is the one split the lever
+barely helps; gainesville is its mirror — same deployed recall, but its misses fire
+sub-threshold, so 0.30 buys it +9.9 points — see the per-split rows and the recall-ceiling section.)
 
 ## How the numbers were produced
 
@@ -60,6 +63,7 @@ could change a scoring outcome.
 | clovis | 164 | 164 | 100.0% | 100.0% | 0.000 R |
 | morgantown | 209 | 209 | 100.0% | 100.0% | 0.000 R |
 | annapolis | 227 | 227 | 100.0% | 100.0% | 0.000 R |
+| juneau | 217 | 217 | 100.0% | 100.0% | 0.000 R |
 | budapest_district5 | 189 | 189 | 100.0% | 100.0% | 0.000 R |
 | bend | 265 | 257 | 79.0% | 98.4% | 0.439 R |
 | paterson | 284 | 281 | 81.1% | 96.8% | 0.439 R |
@@ -130,7 +134,7 @@ verdict-based `score_validation.py` (P 0.824, R 0.372) differ for that reason.
 
 ## The central bias: sub-0.55 precision is a lower bound, and we can prove it
 
-The benchmark GT for the eight city splits was assembled during a review of RampNet's own
+The benchmark GT for the city splits was assembled during a review of RampNet's own
 detections *at or above 0.55*. So in exactly the band this sweep opens up, a prediction can
 only be credited as a true positive if a human independently flagged that ramp during the
 missed-ramp pass. **A real curb ramp nobody marked scores as a false positive.**
@@ -146,8 +150,8 @@ the origin of the GT point it matched (`low_floor_sweep.py gtbias`):
 
 Below the review floor, **every** true positive comes from a missed mark and none from a
 reviewed detection, on every Mapillary split. That is structural, and it has a visible
-fingerprint in the calibration curve: pooled P(real) jumps from 0.500 in the 0.45–0.50 bin to
-0.805 in 0.50–0.55 — a discontinuity at the review boundary that no property of the model
+fingerprint in the calibration curve: pooled P(real) jumps from 0.586 in the 0.45–0.50 bin to
+0.761 in 0.50–0.55 (nine US splits) — a discontinuity at the review boundary that no property of the model
 could produce. The GSV splits add one footnote without weakening the mechanism: 5 of
 paterson's 27 sub-0.5 TPs and 8 of gainesville's 52 trace to *reviewed* detections —
 production detections whose confidence dipped below 0.5 in the native-res re-extraction, the
@@ -165,39 +169,42 @@ What it does show — the discontinuity is specific to the anchored splits:
 
 | bin | city splits (anchored) | manual_gold (un-anchored) |
 |---|---|---|
-| 0.40–0.45 | 0.618 | 0.481 |
-| 0.45–0.50 | 0.500 | 0.544 |
-| **0.50–0.55** | **0.805** | **0.621** |
-| 0.55–0.60 | 0.815 | 0.637 |
+| 0.40–0.45 | 0.627 | 0.481 |
+| 0.45–0.50 | 0.586 | 0.544 |
+| **0.50–0.55** | **0.761** | **0.621** |
+| 0.55–0.60 | 0.824 | 0.637 |
 
-The anchored curve leaps at the review floor (+0.305 across it); the un-anchored one steps by
-+0.077 and keeps rising smoothly. That is the fingerprint the mechanism predicts. (The leap
-was +0.345 on the original five splits; paterson's and gainesville's resample jitter smears a
-few reviewed detections across the boundary, which softens the cliff without touching its
-cause.)
+City splits are the nine pooled US splits (`analysis_out/op/confidence_calibration.csv`,
+`POOLED`). The anchored curve leaps at the review floor (+0.175 across it); the un-anchored
+one steps by +0.077 and keeps rising smoothly. That is the fingerprint the mechanism
+predicts. (The leap was +0.345 on the original five splits and +0.305 on seven; paterson's
+and gainesville's resample jitter smears a few reviewed detections across the boundary, which
+softens the cliff without touching its cause, and the pool's 0.45–0.50 bin has risen as
+laurens_mapillary and juneau joined.)
 
 What it does **not** show is a large aggregate gap:
 
 | band | city splits (anchored) | manual_gold (un-anchored) |
 |---|---|---|
-| below 0.50 | 0.211 (n = 1295) | 0.208 (n = 1164) |
-| 0.50–0.55 | 0.805 (n = **41**) | 0.621 (n = 58) |
-| 0.55 and up | 0.964 (n = 1544) | 0.955 (n = 3487) |
+| below 0.50 | 0.242 (n = 1747) | 0.208 (n = 1164) |
+| 0.50–0.55 | 0.761 (n = **46**) | 0.621 (n = 58) |
+| 0.55 and up | 0.960 (n = 1863) | 0.955 (n = 3487) |
 
-Pooled precision below 0.50 is **essentially identical** on anchored and un-anchored GT
-(0.211 vs 0.208), and so is precision above 0.55. So although the *direction* of the bias is
-certain — an unreviewed real ramp can only be scored as a false positive — this control does
-**not** establish that it is large, and the cliff itself rests on only 41 detections in the
-0.50–0.55 bin.
+Pooled precision below 0.50 is **close** on anchored and un-anchored GT (0.242 vs 0.208 —
+if anything higher on the anchored splits), and precision above 0.55 is essentially identical.
+So although the *direction* of the bias is certain — an unreviewed real ramp can only be
+scored as a false positive — this control does **not** establish that it is large, and the
+cliff itself rests on only 46 detections in the 0.50–0.55 bin.
 
 Two readings are consistent with this and the control alone cannot separate them: the anchoring
 effect is genuinely small in aggregate, or it is real but offset by `manual_gold` being
 *in-distribution* GSV from the training cities (which should make RampNet look better there,
 pushing the un-anchored numbers up).
 
-**#55's A/B tagging settles it, and the effect is real.** All nine city splits have now been
+**#55's A/B tagging settles it, and the effect is real.** Ten city splits have now been
 spot-checked (jonf; six on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30,
-sao_paulo 2026-08-01): every unmatched prediction in the `[0.25, 0.55)` band was tagged
+sao_paulo 2026-08-01, juneau 2026-10-19; laurens_mapillary and bayonne have no tags yet):
+every unmatched prediction in the `[0.25, 0.55)` band was tagged
 **A** (a real ramp the GT missed), **B** (a genuine false positive) or **unsure**.
 
 | split | incremental FPs | A | B | unsure | A-rate |
@@ -209,6 +216,7 @@ sao_paulo 2026-08-01): every unmatched prediction in the `[0.25, 0.55)` band was
 | annapolis | 27 | 6 | 15 | 6 | 22.2% |
 | paterson | 10 | 2 | 5 | 3 | 20.0% |
 | gainesville | 34 | 12 | 21 | 1 | **35.3%** |
+| juneau | 21 | 4 | 15 | 2 | 19.0% |
 | budapest_district5 | 89 | 23 | 59 | 7 | 25.8% |
 | sao_paulo | 48 | 6 | 38 | 4 | **12.5% — lowest of any split** |
 | bayonne | 40 | — | — | — | **not tagged yet** |
@@ -216,17 +224,17 @@ sao_paulo 2026-08-01): every unmatched prediction in the `[0.25, 0.55)` band was
 bayonne's gallery (40 items, 9 pre-flagged as likely duplicates) was built on 2026-10-04 and
 is waiting for Jon's tags; no A-rate exists for it yet, and nothing below uses one.
 
-paterson produced by far the fewest incremental FPs (10, against 23–34 for the other US
-cities) — the same shallow threshold response its sweep row shows, measured a second way.
+paterson produced by far the fewest incremental FPs (10, against 21–34 for the other tagged
+US cities) — the same shallow threshold response its sweep row shows, measured a second way.
 gainesville is the opposite outlier twice over: **34 items, the largest US queue**, and the
 **highest A-rate of any split (35.3%)** — the same dense sub-floor band its 0.890 recall
 ceiling and floor-hugging deployed FPs show from other angles, and over a third of it is
 real ramps the GT missed.
 
-**Pooled over the seven US splits, 27.2% of the incremental false positives in `[0.30, 0.55)`
-were real curb ramps the ground truth had missed** (27.0% on the six splits before
-gainesville). So the raw curve's precision penalty for
-lowering the threshold is materially overstated — by roughly a quarter of the newly-added
+**Pooled over the eight tagged US splits, 27.0% of the incremental false positives in
+`[0.30, 0.55)` were real curb ramps the ground truth had missed** (38 of 141; 27.2% on the
+seven splits before juneau, 27.0% on the six before gainesville). So the raw curve's
+precision penalty for lowering the threshold is materially overstated — by roughly a quarter of the newly-added
 false positives — and the aggregate similarity to `manual_gold` above is better explained by
 that split's in-distribution advantage than by the bias being small.
 
@@ -252,7 +260,7 @@ It is stronger than that. If the GT is missing `K` real ramps (which #55 exists 
 completing it would add those ramps to the denominator *and* credit them to the low-threshold
 operating point that found them. Writing `a` for the extra TPs gained and `n` for the recall
 denominator, the corrected gain `(a+K)/(n+K)` exceeds the measured `a/n` whenever `n > a` —
-and here `n` ≈ 2,060 against `a` ≈ 146. **So the measured recall gain understates the true
+and here `n` = 2,606 against `a` = 201 (nine US splits pooled, 0.55 → 0.30). **So the measured recall gain understates the true
 one.**
 
 Both directions favour lowering the threshold. The measured trade is a worst case.
@@ -270,38 +278,44 @@ almost flat across the operating region, so recall is bought at a shallow precis
 the curve turns down hard somewhere past 0.85 recall.
 
 The right panel is the same sweep read as F1 against threshold, and it is there to make a
-negative point: **F1 barely discriminates**. The pooled curve varies by under 0.01 across
-0.25–0.55, so "F1-optimal" is not a sufficient reason to pick any particular number, and the
+negative point: **F1 barely discriminates**. The pooled curve varies by under 0.03 across
+0.25–0.55, and by under 0.01 across 0.25–0.40, so "F1-optimal" is not a sufficient reason to pick any particular number, and the
 recommendation below rests on the recall-first policy, the density budget and reversibility
 instead. Note also how the per-split optima (the dots) cluster in a narrow band while the
 *levels* differ a lot — that is the same pattern the per-tier table shows.
 
-### Pooled across the eight US city splits (n = 953 panos)
+### Pooled across the nine US city splits (n = 1078 panos)
 
 Wilson 95% intervals in brackets.
 
 | threshold | precision | recall | F1 | detections/pano |
 |---|---|---|---|---|
-| 0.25 | 0.876 [0.861, 0.890] | 0.780 [0.763, 0.797] | 0.825 | 2.28 |
-| 0.30 | 0.899 [0.885, 0.912] | 0.764 [0.746, 0.781] | 0.826 | 2.17 |
-| **0.32** | 0.907 [0.893, 0.919] | 0.760 [0.742, 0.777] | **0.827** | 2.14 |
-| 0.35 | 0.913 [0.900, 0.925] | 0.749 [0.731, 0.766] | 0.823 | 2.09 |
-| 0.40 | 0.930 [0.918, 0.941] | 0.735 [0.717, 0.753] | 0.821 | 2.01 |
-| 0.45 | 0.941 [0.929, 0.951] | 0.716 [0.697, 0.734] | 0.813 | 1.92 |
-| 0.50 | 0.955 [0.944, 0.964] | 0.701 [0.682, 0.719] | 0.809 | 1.85 |
-| **0.55** (deployed) | 0.959 [0.949, 0.968] | 0.686 [0.667, 0.705] | 0.800 | 1.80 |
+| 0.25 | 0.878 [0.864, 0.890] | 0.780 [0.763, 0.795] | 0.826 | 2.27 |
+| 0.30 | 0.900 [0.887, 0.912] | 0.764 [0.747, 0.780] | 0.826 | 2.16 |
+| **0.32** | 0.908 [0.895, 0.920] | 0.759 [0.742, 0.775] | **0.827** | 2.13 |
+| 0.35 | 0.915 [0.902, 0.926] | 0.748 [0.731, 0.764] | 0.823 | 2.08 |
+| 0.40 | 0.931 [0.919, 0.941] | 0.734 [0.716, 0.750] | 0.821 | 1.99 |
+| 0.45 | 0.942 [0.931, 0.952] | 0.716 [0.698, 0.733] | 0.814 | 1.91 |
+| 0.50 | 0.955 [0.945, 0.964] | 0.700 [0.682, 0.717] | 0.808 | 1.84 |
+| **0.55** (deployed) | 0.960 [0.950, 0.968] | 0.686 [0.668, 0.704] | 0.801 | 1.79 |
+
+Re-pooled 2026-10-19 over nine splits: `juneau` joined the pool. Its own curve sits close to
+the pooled one (0.55: P 0.967 / R 0.687; F1 optimum 0.26), so no precision, recall or F1
+point estimate moved by more than 0.002 (detections/pano by up to 0.02), and the threshold
+ordering, the F1-optimum (0.32) and the recommendation are
+unchanged.
 
 Re-pooled 2026-09-01 over eight splits: `laurens_mapillary` joined the pool and it is
 the split RampNet does worst on by a factor of two (recall 0.390), so every recall and
-F1 cell here is lower than the seven-split version this table replaces (0.55 was
-0.964 / 0.722 / 0.826). **Precision is essentially untouched** — 0.964 → 0.959 — which
+F1 cell was lower than the seven-split version (0.55 was
+0.964 / 0.722 / 0.826). **Precision was essentially untouched** — 0.964 → 0.959 — which
 is the point: Laurens costs recall, not precision. The threshold ordering, the
-F1-optimum and the recommendation are all unchanged.
+F1-optimum and the recommendation were all unchanged.
 
-**F1 is flat.** It varies by under 0.02 across 0.25–0.50 and drops furthest (to 0.800) at
+**F1 is flat.** It varies by under 0.02 across 0.25–0.50 and drops furthest (to 0.801) at
 the deployed 0.55 itself, so F1-optimality alone does not pick an operating point — a
 finding worth stating plainly, because "F1-optimal" is the obvious criterion and here it is
-nearly uninformative. What *does* move decisively is recall: 0.686 → 0.760 at 0.32, with
+nearly uninformative. What *does* move decisively is recall: 0.686 → 0.759 at 0.32, with
 **non-overlapping** confidence intervals. (Seven-split: 0.722 → 0.789, span under 0.01.
 Adding Laurens widened the F1 span because its own curve peaks far lower, at 0.15; it did
 not move the pooled optimum, which is still 0.32.)
@@ -318,6 +332,7 @@ not move the pooled optimum, which is still 0.32.)
 | paterson | 0.971 | 0.681 | 0.953 | 0.716 | +0.035 | −0.018 | 2.25 → 2.44 | 0.26 |
 | gainesville | 0.948 | 0.673 | 0.867 | 0.768 | +0.096 | −0.081 | 1.58 → 1.98 | 0.38 |
 | laurens_mapillary | 0.898 | 0.390 | 0.895 | 0.514 | +0.124 | −0.003 | 1.18 → 1.57 | 0.15 |
+| juneau | 0.967 | 0.687 | 0.918 | 0.751 | +0.064 | −0.049 | 1.74 → 2.02 | 0.26 |
 | budapest † | 0.874 | 0.510 | 0.718 | 0.637 | +0.127 | −0.156 | 1.51 → 2.27 | 0.37 |
 | sao_paulo § | 0.906 | 0.651 | 0.809 | 0.783 | **+0.132** | −0.097 | 1.82 → 2.50 | 0.31 |
 | bayonne ¶ | 0.820 | 0.379 | 0.755 | 0.482 | +0.103 | −0.065 | 1.20 → 1.64 | 0.20 |
@@ -346,7 +361,8 @@ recall points for −6.0 precision**, the best ratio of any US split.
 points at 0.32 — half of any other US split — at the smallest precision cost (−1.8). Its
 misses are not under-confident detections waiting below the threshold; most produce no
 candidate at any confidence (recall ceiling 0.757 at the 0.05 extraction floor, against
-0.87–0.94 for the other US splits — see the storage-floor section). The reviewer's notes name
+0.87–0.94 for the other US splits except laurens_mapillary, 0.783 — see the storage-floor
+section). The reviewer's notes name
 the likely populations: paired tactile indicators on one corner and far-field ramps
 (`benchmark/paterson/verdicts.json`). Threshold tuning cannot reach either.
 
@@ -369,9 +385,9 @@ alone mixes iSTAR Pulsar and GoPro Max, so split-level grouping would smear the 
 
 | tier | n | F1-opt | ΔR at 0.32 | ΔP at 0.32 |
 |---|---|---|---|---|
-| action cam, modern (GoPro Max) | 158 | 0.32 | +0.073 | −0.068 |
+| action cam, modern (GoPro Max) | 257 | 0.26 | +0.094 | −0.049 |
 | action cam, legacy (GoPro Fusion 2018) | 125 | 0.35 | +0.103 | −0.060 |
-| survey-grade (Trimble MX7) | 125 | 0.32 | +0.068 | −0.062 |
+| survey-grade (Trimble MX7; annapolis + juneau) | 245 | 0.26 | +0.067 | −0.055 |
 | pro 360 (iSTAR Pulsar) | 77 | 0.34 | +0.063 | −0.051 |
 | Google Street View (bend + paterson + gainesville) | 360 | 0.26 | +0.059 | −0.049 |
 
@@ -401,23 +417,24 @@ bound.
 multi-view fusion (labeler#27). If lowering the threshold only recovered near ramps, the two
 levers would overlap. It does not:
 
-| band | mean ΔR across the 7 US splits | ramps gained |
+| band | mean ΔR across the 9 US splits | ramps gained |
 |---|---|---|
-| near (<12.5 m) | +0.062 | 55 |
-| mid (12.5–25 m) | +0.082 | 63 |
-| far (>25 m) | +0.085 | 27 |
+| near (<12.5 m) | +0.069 | 85 |
+| mid (12.5–25 m) | +0.091 | 83 |
+| far (>25 m) | +0.077 | 32 |
 
 **The gain is essentially uniform across distance**, so the threshold lever and the
 multi-view lever are largely independent and **stack**. (paterson tilts the far band up
 slightly — its largest per-band gain is far, +0.091; gainesville gains +0.122 mid and
-+0.120 far. Held-out sao_paulo is the extreme case: +0.101 near / +0.194 mid / +0.217 far,
++0.120 far; juneau +0.047 near / +0.084 mid / +0.098 far. Held-out sao_paulo is the extreme case: +0.101 near / +0.194 mid / +0.217 far,
 0.55 → 0.30 — its reviewer-documented mid-block sampling geometry puts 47% of its GT beyond
 12.5 m, and that is exactly where its outsized threshold response lands. Held-out bayonne
 is the opposite shape: +0.114 near / +0.150 mid / +0.075 far, and its recall at 0.55 is
 low in every band, near included: 0.450 / 0.320 / 0.302.) Far-field recall
 stays poor even after the drop (bend 0.214, clovis 0.389,
-annapolis 0.490 at 0.32; paterson 0.523 and gainesville 0.420 at 0.30 — gainesville's
-far band is the worst in the benchmark at the deployed threshold, 0.300), so multi-view
+annapolis 0.490 at 0.32; paterson 0.523, gainesville 0.420 and juneau 0.412 at 0.30 —
+gainesville's far band is 0.300 at the deployed threshold, and laurens_mapillary finds none
+of its 9 far ramps at either threshold), so multi-view
 remains necessary — lowering the threshold does not substitute for it.
 
 Distances are the flat-ground estimate (camera height 2.5 m assumed), monotonic in `y`, so the
@@ -427,9 +444,10 @@ band ordering is a rank statement; only the metre labels depend on the assumptio
 
 `docs/model_comparison.md` establishes that an open detector's apparent recall is largely
 density — OWLv2 reaches its recall at **55–88 boxes/pano**. The obvious objection to lowering
-RampNet's threshold is that it buys recall the same cheap way. It does not: pooled density goes
-**1.86 → 2.23 detections/pano** at the recommended 0.30 (2.20 at 0.32, 2.15 at 0.35). That is a
-20% increase in review burden for a 10% relative increase in recall, and it leaves RampNet
+RampNet's threshold is that it buys recall the same cheap way. It does not: pooled density over
+the nine US splits goes **1.79 → 2.16 detections/pano** at the recommended 0.30 (2.13 at 0.32,
+2.08 at 0.35). That is a 21% increase in review burden for an 11% relative increase in recall,
+and it leaves RampNet
 roughly **25–40× sparser** than the open detectors at their operating points.
 
 ### Corrected results (#55 applied)
@@ -439,17 +457,19 @@ precision and recall denominators — correcting precision alone would report a 
 against an uncorrected R. `band hi` additionally credits the `unsure` items, so it is the
 honest upper end rather than a formality.
 
-Pooled over the seven US splits (gainesville's tags applied 2026-07-30):
+Pooled over the eight US splits that carry #55 tags (juneau's applied 2026-10-19).
+laurens_mapillary is in the raw nine-split pool above but has no tags, so it is not in this
+one; that is why the raw columns here differ from the nine-split table.
 
 | operating point | raw P | **corrected P** | band hi | raw R | corrected R | corrected F1 |
 |---|---|---|---|---|---|---|
-| 0.25 | 0.877 | 0.900 | 0.910 | 0.805 | 0.809 | 0.852 |
-| **0.30** | 0.900 | **0.919** | 0.928 | 0.793 | 0.796 | **0.853** |
-| 0.35 | 0.915 | 0.930 | 0.936 | 0.780 | 0.782 | 0.850 |
-| 0.55 (deployed) | 0.964 | — † | — | 0.722 | — | 0.826 |
+| 0.25 | 0.879 | 0.900 | 0.910 | 0.801 | 0.805 | 0.850 |
+| **0.30** | 0.902 | **0.920** | 0.929 | 0.789 | 0.792 | **0.851** |
+| 0.35 | 0.917 | 0.931 | 0.937 | 0.774 | 0.777 | 0.847 |
+| 0.55 (deployed) | 0.964 | — † | — | 0.718 | — | 0.823 |
 
 † No correction applies at 0.55: the incremental band is empty by construction. Its precision
-is not immune to GT incompleteness, but with only 46 pooled false positives there the effect is
+is not immune to GT incompleteness, but with only 63 pooled false positives there the effect is
 small.
 
 Per split at 0.30:
@@ -463,6 +483,7 @@ Per split at 0.30:
 | annapolis | 0.902 | 0.920 | 0.939 | 0.813 | 0.863 |
 | paterson | 0.950 | 0.957 | 0.963 | 0.720 | 0.822 |
 | gainesville | 0.857 | 0.886 | 0.890 | 0.778 | 0.828 |
+| juneau | 0.911 | 0.927 | 0.931 | 0.764 | 0.838 |
 | budapest ‡ | 0.707 | 0.762 | 0.777 | 0.660 | 0.707 |
 | sao_paulo ‡ | 0.803 | 0.821 | 0.828 | 0.801 | 0.811 |
 | bayonne ‡ | 0.754 | — | — | — | — |
@@ -473,16 +494,17 @@ precision only, because its #55 tags do not exist yet).
 
 **The correction changed the answer.** On raw numbers the F1 optimum sat at 0.32 and the
 conservative choice was 0.35; with the GT completeness correction applied, corrected F1 peaks
-at **0.30** and corrected precision there is **0.919** pooled — higher than the *raw* precision
+at **0.30** and corrected precision there is **0.920** pooled — higher than the *raw* precision
 at 0.35. That is precisely what #55 existed to determine, and it moved the recommendation down.
-(This has now held twice as the pool grew: corrected F1 0.857 at 0.30 on the six splits with
-paterson, and 0.853 at 0.30 against 0.852 at 0.25 and 0.850 at 0.35 on the seven with
-gainesville.)
+(This has now held three times as the pool grew: corrected F1 0.857 at 0.30 on the six splits
+with paterson; 0.853 at 0.30 against 0.852 at 0.25 and 0.850 at 0.35 on the seven with
+gainesville; and 0.851 at 0.30 against 0.850 at 0.25 and 0.847 at 0.35 on the eight with
+juneau. The curve is flat, and 0.30 is its top by 0.001.)
 
-**Caveat on 4 of the A tags** (1 each in clovis, morgantown, budapest, gainesville, at the
-0.30 band): they sit within 2 match radii of an already-detected ramp, so they are more likely
-a second hit on one ramp than a ramp the GT missed. The tooling flags these rather than hiding
-them; removing all four from the US pool changes pooled corrected precision by under 0.003.
+**Caveat on 5 of the A tags** (1 each in clovis, morgantown, budapest, gainesville, juneau, at
+the 0.30 band): they sit within 2 match radii of an already-detected ramp, so they are more
+likely a second hit on one ramp than a ramp the GT missed. The tooling flags these rather than
+hiding them; removing the four in the US pool changes pooled corrected precision by under 0.003.
 (At the wider 0.25 band gainesville carries 3 such A tags of its 12 — its paired diagonal-ramp
 corners put more A candidates in the ambiguous 2–3 R zone than any prior US split.)
 
@@ -510,7 +532,9 @@ Reproduce with `python scripts/analysis/low_floor_sweep.py floor` and
 | annapolis | 294 | 9 | 3.06% |
 | paterson | 395 | 1 | 0.25% |
 | gainesville | 272 | 6 | 2.21% |
-| **POOLED (7 US)** | **2060** | **45** | **2.18%** |
+| laurens_mapillary | 249 | 22 | 8.84% |
+| juneau | 297 | 8 | 2.69% |
+| **POOLED (9 US)** | **2606** | **75** | **2.88%** |
 | budapest | 300 | 7 | 2.33% |
 | sao_paulo | 281 | 2 | 0.71% |
 | bayonne | 301 | 14 | 4.65% |
@@ -518,8 +542,8 @@ Reproduce with `python scripts/analysis/low_floor_sweep.py floor` and
 
 paterson is the outlier at 0.25%, and not in a comforting way: its missed ramps are not
 sitting just under the floor waiting to be stored — they produce no candidate at any
-confidence. Its ceiling at the 0.05 extraction floor is **0.757**, against 0.88–0.94 for
-every other US split, so for paterson the storage-floor question is nearly moot and the
+confidence. Its ceiling at the 0.05 extraction floor is **0.757**, against 0.87–0.94 for
+every other US split except laurens_mapillary (0.783), so for paterson the storage-floor question is nearly moot and the
 recall problem lives in detection itself (see its per-split note above).
 
 sao_paulo sits at the gainesville end of that axis, more sharply: only 2 ramps (0.71%) are
@@ -529,24 +553,24 @@ low-confidence GT). Its out-of-domain misses overwhelmingly *fire* — under-con
 silent — which is what its record threshold response (+14.6 R at 0.30) exploits.
 
 bayonne (held out, 2026-10-04) is the other way round: 14 of its 301 ramps (4.65%) have their
-best candidate in `[0.05, 0.10)`, twice the US rate, and its ceiling is low at every floor
+best candidate in `[0.05, 0.10)`, against 2.88% pooled US, and its ceiling is low at every floor
 (0.721 at 0.05, 0.674 at 0.10, against 0.375 deployed). A 0.1 storage floor would cost it more
-than any US split, and even the 0.05 extraction floor leaves 28% of its ramps with no candidate
+than any US split except laurens_mapillary (8.84%), and even the 0.05 extraction floor leaves 28% of its ramps with no candidate
 at all.
 
 **The recall ceiling.** The share of GT ramps with *any* candidate at or above a floor —
 the hard upper bound on what multi-view consensus can ever recover:
 
-| | pooled (7 US) |
+| | pooled (9 US) |
 |---|---|
-| recall at the deployed 0.55 | 0.722 |
-| recall at the recommended 0.30 | 0.793 |
-| **ceiling at the 0.10 storage floor** | **0.849** |
-| ceiling at the 0.05 extraction floor | 0.871 |
+| recall at the deployed 0.55 | 0.686 |
+| recall at the recommended 0.30 | 0.764 |
+| **ceiling at the 0.10 storage floor** | **0.833** |
+| ceiling at the 0.05 extraction floor | 0.862 |
 
-So labeler#27 stage 4 has **+12.7 recall points** of headroom above the deployed threshold to
-work with, and **+5.6 points** above the operating point recommended here — but it is capped
-at 0.849 by the storage floor, not by the 0.871 the model actually produces.
+So labeler#27 stage 4 has **+14.7 recall points** of headroom above the deployed threshold to
+work with, and **+6.9 points** above the operating point recommended here — but it is capped
+at 0.833 by the storage floor, not by the 0.862 the model actually produces.
 
 **The verdict: lower the storage floor from 0.10 to 0.05.** The floor's own stated
 justification (labeler#28) is that storing too little is irreversible while storing too much
@@ -554,11 +578,13 @@ only costs disk, bounded by the top-K cap. That argument survives contact with t
 the data says 0.1 is not where the bound should sit:
 
 - **The cap never binds.** At the 0.1 floor the busiest pano in the entire benchmark holds
-  **14** candidates against a cap of 50; medians are 2–5. At a 0.05 floor the maximum is still
-  **14** (re-verified with paterson and gainesville included). The top-50 cap is not the
+  **14** candidates against a cap of 50; medians are 2–5. At a 0.05 floor the maximum is
+  **16**, a juneau pano (it was 14 before juneau; re-read from the committed
+  `analysis_out/op_cache/*.json` on 2026-10-19). The top-50 cap is not the
   volume bound — the floor is, and it is doing work nobody asked it to do.
-- **The cost is ~2.2% of findable ramps** (2.2–3.1% on every US split except paterson),
-  permanently, for a volume saving of roughly one extra candidate per pano.
+- **The cost is ~2.9% of findable ramps pooled** (2.2–3.1% on every US split except paterson,
+  0.25%, and laurens_mapillary, 8.84%), permanently, for a volume saving of roughly one extra
+  candidate per pano.
 - **The recovered ramps are exactly the population multi-view fusion is for.** They are
   ramps too faint to clear any single-view threshold, which is the case stage 4 exists to
   handle.
@@ -591,31 +617,32 @@ Two consequences:
 
 | | at 0.55 (deployed) | at 0.30 |
 |---|---|---|
-| pooled precision | 0.964 | **0.919** corrected (0.900 raw, 0.928 band high) |
-| pooled recall | 0.722 | **0.796** corrected (0.793 raw) |
-| pooled F1 | 0.826 | **0.853** corrected |
-| detections/pano | 1.86 | 2.23 |
+| pooled precision | 0.964 | **0.920** corrected (0.902 raw, 0.929 band high) |
+| pooled recall | 0.718 | **0.792** corrected (0.789 raw) |
+| pooled F1 | 0.823 | **0.851** corrected |
+| detections/pano | 1.85 | 2.21 |
 
-**+7.4 recall points for −4.5 precision points, at 0.37 more detections per pano.** (Seven
-US splits pooled, gainesville's #55 tags applied 2026-07-30; the re-check the split forced
-came out where every previous one did — corrected F1 still peaks at 0.30.)
+**+7.4 recall points for −4.4 precision points, at 0.36 more detections per pano.** (The eight
+US splits with #55 tags pooled, juneau's applied 2026-10-19; laurens_mapillary has no tags and
+is not in this pool. The re-check juneau forced came out where every previous one did —
+corrected F1 still peaks at 0.30.)
 
 Why 0.30:
 
 - It is the **corrected** F1 optimum, computed after applying #55's per-split A/B tagging
   rather than from the raw curve that the anchoring bias distorts.
-- Corrected precision stays **≥0.88 on every US split** and 0.919 pooled — above the 0.92 bar
-  the project uses elsewhere for AI assertions once the `band high` (0.928) is taken into
-  account, and comfortably clear of anything that reads as a quality regression.
+- Corrected precision stays **≥0.88 on every tagged US split** and 0.920 pooled (0.91998, a hair
+  under the 0.92 bar the project uses elsewhere for AI assertions), above that bar once the `band high` (0.929) is
+  taken into account, and comfortably clear of anything that reads as a quality regression.
 - Recall is RampNet's weak metric on **every** split, precision is not. Under the recall-first
   policy — a false negative is a permanent hole in the inventory, a false positive is a cheap
   human review — this is the right side of a flat trade.
-- Density stays sparse (2.23/pano), so the recall is not bought by carpeting the image.
+- Density stays sparse (2.21/pano), so the recall is not bought by carpeting the image.
 - The change is **reversible**: per-label confidence is stored server-side, so anything
   submitted at 0.30 can be filtered later.
 
-**If a more conservative first move is wanted, 0.35** gives corrected P 0.930 / R 0.782 and
-gives up 1.4 recall points. Both are inside the flat region; 0.30 is the recall-first choice
+**If a more conservative first move is wanted, 0.35** gives corrected P 0.931 / R 0.777 and
+gives up 1.5 recall points. Both are inside the flat region; 0.30 is the recall-first choice
 and 0.35 the precision-first one. I recommend 0.30.
 
 **Clovis still holds the lowest corrected precision**: 0.883 at 0.30 (band high 0.899)
@@ -661,7 +688,7 @@ without a rubric written for it.
 - **The correction rests on one rater**, the same person who produced the GT. A second rater on
   the A/B tags would tighten it, and is the same ask already outstanding for budapest.
 - **`unsure` items are not credited** in the corrected column, only in `band high`. Pooled that
-  is 17 items — the gap between 0.919 and 0.928.
+  is 18 items — the gap between 0.920 and 0.929.
 
 ### What would change this
 
@@ -801,8 +828,9 @@ on multi-view consensus, taken from GT-true vs GT-false histograms. Those are in
 `analysis_out/op/confidence_calibration.{json,csv}` per split and pooled, with Wilson intervals.
 
 **The measured single-view crossover is ≈0.40–0.45, on both anchored and un-anchored GT.** On
-the seven US city splits pooled, P(real) first exceeds 0.5 in the 0.40–0.45 bin (0.618) and
-sits exactly at it in 0.45–0.50 (0.500) — it is noisy at these bin sizes. On `manual_gold`,
+the nine US city splits pooled, P(real) first exceeds 0.5 in the 0.40–0.45 bin (0.627) and
+stays above it from there (0.586 in 0.45–0.50); just below, it sits at or under 0.5 (0.500 in
+0.30–0.35, 0.487 in 0.35–0.40) — it is noisy at these bin sizes. On `manual_gold`,
 whose GT carries no anchoring, the curve is smooth and crosses cleanly in the 0.45–0.50 bin
 (0.544, against 0.481 just below).
 
