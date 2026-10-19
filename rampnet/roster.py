@@ -229,6 +229,26 @@ ROSTER = (
              "at 0.05, roughly double the YOLO11 arms -- which is why it leads only "
              "on budapest, where firing at all is the binding constraint."),
 
+    # The perspective-tiles YOLO arms (#51 geometry read, #135 seed variance),
+    # published 2026-10-19 (#258) from the makelab2 .model_cache that scored them --
+    # until then they lived only there. Run with --tiling perspective --yolo-imgsz
+    # 1024, the exporter's defaults. Same SCORED_SPECS exclusion as the pano trio.
+    Challenger(
+        spec="yolo:yolo_ckpts/y11x_tiles.pt", label="y11x_tiles", provider="yolo",
+        density="sparse", standing=False, added="2026-10-19",
+        note="YOLO11-X, perspective tiles, best.pt at ep44 (sha256 63bbe5d6...). The "
+             "strongest YOLO arm: docs/yolo_geometry_51.md. Ten splits, scored "
+             "2026-08-30 on makelab2 (ultralytics 8.4.120, A40)."),
+    *[Challenger(
+        spec=f"yolo:seedvar_ckpts/y11x_tiles_{leg}.pt", label=f"y11x_tiles_{leg}",
+        provider="yolo", density="sparse", standing=False, added="2026-10-19",
+        note="Seed-variance replicate of y11x_tiles (Campaign A, Tillicum; "
+             "docs/seed_variance_51_135.md). Nine splits, no budapest_district5. "
+             "The _ep legs are the epoch pick_epoch chose (Ultralytics' 0-based "
+             "epochN.pt is results.csv row N+1); checkpoint sha256s are in "
+             "docs/data/seed_variance_51_135/env.txt.")
+      for leg in ("s1_ep44", "s2_ep44", "s3_ep42", "s1_best", "s2_best", "s3_best")],
+
     # The Claude legs (#122). Two model ids x two efforts, all four on annapolis.
     # The opus/low leg now covers eleven splits -- the nine of #139 plus both
     # Laurens arms (#151, 2026-09-04) -- so it is a complete leg on the scoreboard;

@@ -13,6 +13,41 @@
  },
  "gaps": [
   {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
    "challenger": "gemini-3.6-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "bayonne"
@@ -58,8 +93,293 @@
    "split": "bayonne"
   },
   {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
    "reason": "no analysis_out/op_cache/<split>.json",
    "split": "laurens_gsv"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
   }
  ],
  "rows": [

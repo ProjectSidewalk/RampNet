@@ -639,6 +639,15 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         # grow past 1/8 later; until they do, partial coverage means excluded.
         "claude-fable-5-1-effort-low-anthropic": "1/8",
         "claude-fable-5-effort-low-anthropic": "1/8",
+        # #258: the YOLO tiles arms, published from the cache that scored them under
+        # #51/#135. Never run on laurens_mapillary.
+        "y11x_tiles": "7/8",
+        "y11x_tiles_s1_ep44": "7/8",
+        "y11x_tiles_s2_ep44": "7/8",
+        "y11x_tiles_s3_ep42": "7/8",
+        "y11x_tiles_s1_best": "7/8",
+        "y11x_tiles_s2_best": "7/8",
+        "y11x_tiles_s3_best": "7/8",
     }
     single = [m for m in board["models"] if not m["complete"]]
     assert {m["model"] for m in single} == set(want_coverage)
@@ -669,7 +678,8 @@ def test_partial_table_names_the_split_every_number_came_from(board):
 
 
 _WORDS = {2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight",
-          9: "Nine", 10: "Ten", 11: "Eleven", 12: "Twelve"}
+          9: "Nine", 10: "Ten", 11: "Eleven", 12: "Twelve", 13: "Thirteen",
+          14: "Fourteen", 15: "Fifteen", 16: "Sixteen"}
 
 
 def test_the_prose_beside_the_partial_table_agrees_with_it(board):
@@ -1003,7 +1013,7 @@ def test_check_fails_on_stale_prose(tmp_path):
     """The tables can be current while a sentence beside them is not (#171)."""
     with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
         doc = fh.read()
-    doc = doc.replace("Twenty-one model legs", "Eighteen model legs", 1)
+    doc = doc.replace("Twenty-eight model legs", "Eighteen model legs", 1)
     stale = tmp_path / "model_scoreboard.md"
     stale.write_text(doc, encoding="utf-8", newline="")
     done = _run_scoreboard("--check", "--doc", str(stale))

@@ -9958,6 +9958,3910 @@
    "ap_source": "bundle",
    "fields": {
     "ap": {
+     "committed": 0.779175,
+     "equal": true,
+     "rederived": 0.779175
+    },
+    "ap_bundle": {
+     "committed": 0.779175,
+     "equal": true,
+     "rederived": 0.779175
+    },
+    "f1": {
+     "committed": 0.65567,
+     "equal": true,
+     "rederived": 0.65567
+    },
+    "fn": {
+     "committed": 151,
+     "equal": true,
+     "rederived": 151
+    },
+    "fp": {
+     "committed": 16,
+     "equal": true,
+     "rederived": 16
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.908571,
+     "equal": true,
+     "rederived": 0.908571
+    },
+    "recall": {
+     "committed": 0.512903,
+     "equal": true,
+     "rederived": 0.512903
+    },
+    "tp": {
+     "committed": 159,
+     "equal": true,
+     "rederived": 159
+    }
+   },
+   "model": "y11x_tiles_s2_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_best__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.844329,
+     "equal": true,
+     "rederived": 0.844329
+    },
+    "ap_bundle": {
+     "committed": 0.844329,
+     "equal": true,
+     "rederived": 0.844329
+    },
+    "f1": {
+     "committed": 0.746717,
+     "equal": true,
+     "rederived": 0.746717
+    },
+    "fn": {
+     "committed": 128,
+     "equal": true,
+     "rederived": 128
+    },
+    "fp": {
+     "committed": 7,
+     "equal": true,
+     "rederived": 7
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.966019,
+     "equal": true,
+     "rederived": 0.966019
+    },
+    "recall": {
+     "committed": 0.608563,
+     "equal": true,
+     "rederived": 0.608563
+    },
+    "tp": {
+     "committed": 199,
+     "equal": true,
+     "rederived": 199
+    }
+   },
+   "model": "y11x_tiles_s2_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_best__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.814673,
+     "equal": true,
+     "rederived": 0.814673
+    },
+    "ap_bundle": {
+     "committed": 0.814673,
+     "equal": true,
+     "rederived": 0.814673
+    },
+    "f1": {
+     "committed": 0.733138,
+     "equal": true,
+     "rederived": 0.733138
+    },
+    "fn": {
+     "committed": 70,
+     "equal": true,
+     "rederived": 70
+    },
+    "fp": {
+     "committed": 21,
+     "equal": true,
+     "rederived": 21
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.856164,
+     "equal": true,
+     "rederived": 0.856164
+    },
+    "recall": {
+     "committed": 0.641026,
+     "equal": true,
+     "rederived": 0.641026
+    },
+    "tp": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    }
+   },
+   "model": "y11x_tiles_s2_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_best__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.839223,
+     "equal": true,
+     "rederived": 0.839223
+    },
+    "ap_bundle": {
+     "committed": 0.839223,
+     "equal": true,
+     "rederived": 0.839223
+    },
+    "f1": {
+     "committed": 0.744186,
+     "equal": true,
+     "rederived": 0.744186
+    },
+    "fn": {
+     "committed": 107,
+     "equal": true,
+     "rederived": 107
+    },
+    "fp": {
+     "committed": 3,
+     "equal": true,
+     "rederived": 3
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.981595,
+     "equal": true,
+     "rederived": 0.981595
+    },
+    "recall": {
+     "committed": 0.599251,
+     "equal": true,
+     "rederived": 0.599251
+    },
+    "tp": {
+     "committed": 160,
+     "equal": true,
+     "rederived": 160
+    }
+   },
+   "model": "y11x_tiles_s2_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_best__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.758537,
+     "equal": true,
+     "rederived": 0.758537
+    },
+    "ap_bundle": {
+     "committed": 0.758537,
+     "equal": true,
+     "rederived": 0.758537
+    },
+    "f1": {
+     "committed": 0.644444,
+     "equal": true,
+     "rederived": 0.644444
+    },
+    "fn": {
+     "committed": 149,
+     "equal": true,
+     "rederived": 149
+    },
+    "fp": {
+     "committed": 11,
+     "equal": true,
+     "rederived": 11
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.929487,
+     "equal": true,
+     "rederived": 0.929487
+    },
+    "recall": {
+     "committed": 0.493197,
+     "equal": true,
+     "rederived": 0.493197
+    },
+    "tp": {
+     "committed": 145,
+     "equal": true,
+     "rederived": 145
+    }
+   },
+   "model": "y11x_tiles_s2_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_best__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.71754,
+     "equal": true,
+     "rederived": 0.71754
+    },
+    "ap_bundle": {
+     "committed": 0.71754,
+     "equal": true,
+     "rederived": 0.71754
+    },
+    "f1": {
+     "committed": 0.644068,
+     "equal": true,
+     "rederived": 0.644068
+    },
+    "fn": {
+     "committed": 205,
+     "equal": true,
+     "rederived": 205
+    },
+    "fp": {
+     "committed": 5,
+     "equal": true,
+     "rederived": 5
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.974359,
+     "equal": true,
+     "rederived": 0.974359
+    },
+    "recall": {
+     "committed": 0.481013,
+     "equal": true,
+     "rederived": 0.481013
+    },
+    "tp": {
+     "committed": 190,
+     "equal": true,
+     "rederived": 190
+    }
+   },
+   "model": "y11x_tiles_s2_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_best__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.770923,
+     "equal": true,
+     "rederived": 0.770923
+    },
+    "ap_bundle": {
+     "committed": 0.770923,
+     "equal": true,
+     "rederived": 0.770923
+    },
+    "f1": {
+     "committed": 0.574307,
+     "equal": true,
+     "rederived": 0.574307
+    },
+    "fn": {
+     "committed": 158,
+     "equal": true,
+     "rederived": 158
+    },
+    "fp": {
+     "committed": 11,
+     "equal": true,
+     "rederived": 11
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.912,
+     "equal": true,
+     "rederived": 0.912
+    },
+    "recall": {
+     "committed": 0.419118,
+     "equal": true,
+     "rederived": 0.419118
+    },
+    "tp": {
+     "committed": 114,
+     "equal": true,
+     "rederived": 114
+    }
+   },
+   "model": "y11x_tiles_s2_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_best__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.759905,
+     "equal": true,
+     "rederived": 0.759905
+    },
+    "ap_bundle": {
+     "committed": 0.759905,
+     "equal": true,
+     "rederived": 0.759905
+    },
+    "f1": {
+     "committed": 0.632558,
+     "equal": true,
+     "rederived": 0.632558
+    },
+    "fn": {
+     "committed": 145,
+     "equal": true,
+     "rederived": 145
+    },
+    "fp": {
+     "committed": 13,
+     "equal": true,
+     "rederived": 13
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.912752,
+     "equal": true,
+     "rederived": 0.912752
+    },
+    "recall": {
+     "committed": 0.483986,
+     "equal": true,
+     "rederived": 0.483986
+    },
+    "tp": {
+     "committed": 136,
+     "equal": true,
+     "rederived": 136
+    }
+   },
+   "model": "y11x_tiles_s2_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_best__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.908877,
+     "equal": true,
+     "rederived": 0.908877
+    },
+    "ap_bundle": {
+     "committed": 0.908877,
+     "equal": true,
+     "rederived": 0.908877
+    },
+    "f1": {
+     "committed": 0.833987,
+     "equal": true,
+     "rederived": 0.833987
+    },
+    "fn": {
+     "committed": 1048,
+     "equal": true,
+     "rederived": 1048
+    },
+    "fp": {
+     "committed": 95,
+     "equal": true,
+     "rederived": 95
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.96797,
+     "equal": true,
+     "rederived": 0.96797
+    },
+    "recall": {
+     "committed": 0.732585,
+     "equal": true,
+     "rederived": 0.732585
+    },
+    "tp": {
+     "committed": 2871,
+     "equal": true,
+     "rederived": 2871
+    }
+   },
+   "model": "y11x_tiles_s2_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_best__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.794778,
+     "equal": true,
+     "rederived": 0.794778
+    },
+    "ap_bundle": {
+     "committed": 0.794778,
+     "equal": true,
+     "rederived": 0.794778
+    },
+    "f1": {
+     "committed": 0.669405,
+     "equal": true,
+     "rederived": 0.669405
+    },
+    "fn": {
+     "committed": 147,
+     "equal": true,
+     "rederived": 147
+    },
+    "fp": {
+     "committed": 14,
+     "equal": true,
+     "rederived": 14
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.920904,
+     "equal": true,
+     "rederived": 0.920904
+    },
+    "recall": {
+     "committed": 0.525806,
+     "equal": true,
+     "rederived": 0.525806
+    },
+    "tp": {
+     "committed": 163,
+     "equal": true,
+     "rederived": 163
+    }
+   },
+   "model": "y11x_tiles_s1_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_best__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.840213,
+     "equal": true,
+     "rederived": 0.840213
+    },
+    "ap_bundle": {
+     "committed": 0.840213,
+     "equal": true,
+     "rederived": 0.840213
+    },
+    "f1": {
+     "committed": 0.741996,
+     "equal": true,
+     "rederived": 0.741996
+    },
+    "fn": {
+     "committed": 130,
+     "equal": true,
+     "rederived": 130
+    },
+    "fp": {
+     "committed": 7,
+     "equal": true,
+     "rederived": 7
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.965686,
+     "equal": true,
+     "rederived": 0.965686
+    },
+    "recall": {
+     "committed": 0.602446,
+     "equal": true,
+     "rederived": 0.602446
+    },
+    "tp": {
+     "committed": 197,
+     "equal": true,
+     "rederived": 197
+    }
+   },
+   "model": "y11x_tiles_s1_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_best__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.798393,
+     "equal": true,
+     "rederived": 0.798393
+    },
+    "ap_bundle": {
+     "committed": 0.798393,
+     "equal": true,
+     "rederived": 0.798393
+    },
+    "f1": {
+     "committed": 0.712991,
+     "equal": true,
+     "rederived": 0.712991
+    },
+    "fn": {
+     "committed": 77,
+     "equal": true,
+     "rederived": 77
+    },
+    "fp": {
+     "committed": 18,
+     "equal": true,
+     "rederived": 18
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.867647,
+     "equal": true,
+     "rederived": 0.867647
+    },
+    "recall": {
+     "committed": 0.605128,
+     "equal": true,
+     "rederived": 0.605128
+    },
+    "tp": {
+     "committed": 118,
+     "equal": true,
+     "rederived": 118
+    }
+   },
+   "model": "y11x_tiles_s1_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_best__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.840495,
+     "equal": true,
+     "rederived": 0.840495
+    },
+    "ap_bundle": {
+     "committed": 0.840495,
+     "equal": true,
+     "rederived": 0.840495
+    },
+    "f1": {
+     "committed": 0.737089,
+     "equal": true,
+     "rederived": 0.737089
+    },
+    "fn": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "fp": {
+     "committed": 2,
+     "equal": true,
+     "rederived": 2
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.987421,
+     "equal": true,
+     "rederived": 0.987421
+    },
+    "recall": {
+     "committed": 0.588015,
+     "equal": true,
+     "rederived": 0.588015
+    },
+    "tp": {
+     "committed": 157,
+     "equal": true,
+     "rederived": 157
+    }
+   },
+   "model": "y11x_tiles_s1_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_best__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.775613,
+     "equal": true,
+     "rederived": 0.775613
+    },
+    "ap_bundle": {
+     "committed": 0.775613,
+     "equal": true,
+     "rederived": 0.775613
+    },
+    "f1": {
+     "committed": 0.654788,
+     "equal": true,
+     "rederived": 0.654788
+    },
+    "fn": {
+     "committed": 147,
+     "equal": true,
+     "rederived": 147
+    },
+    "fp": {
+     "committed": 8,
+     "equal": true,
+     "rederived": 8
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.948387,
+     "equal": true,
+     "rederived": 0.948387
+    },
+    "recall": {
+     "committed": 0.5,
+     "equal": true,
+     "rederived": 0.5
+    },
+    "tp": {
+     "committed": 147,
+     "equal": true,
+     "rederived": 147
+    }
+   },
+   "model": "y11x_tiles_s1_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_best__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.726964,
+     "equal": true,
+     "rederived": 0.726964
+    },
+    "ap_bundle": {
+     "committed": 0.726964,
+     "equal": true,
+     "rederived": 0.726964
+    },
+    "f1": {
+     "committed": 0.620926,
+     "equal": true,
+     "rederived": 0.620926
+    },
+    "fn": {
+     "committed": 214,
+     "equal": true,
+     "rederived": 214
+    },
+    "fp": {
+     "committed": 7,
+     "equal": true,
+     "rederived": 7
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.962766,
+     "equal": true,
+     "rederived": 0.962766
+    },
+    "recall": {
+     "committed": 0.458228,
+     "equal": true,
+     "rederived": 0.458228
+    },
+    "tp": {
+     "committed": 181,
+     "equal": true,
+     "rederived": 181
+    }
+   },
+   "model": "y11x_tiles_s1_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_best__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.750729,
+     "equal": true,
+     "rederived": 0.750729
+    },
+    "ap_bundle": {
+     "committed": 0.750729,
+     "equal": true,
+     "rederived": 0.750729
+    },
+    "f1": {
+     "committed": 0.595,
+     "equal": true,
+     "rederived": 0.595
+    },
+    "fn": {
+     "committed": 153,
+     "equal": true,
+     "rederived": 153
+    },
+    "fp": {
+     "committed": 9,
+     "equal": true,
+     "rederived": 9
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.929688,
+     "equal": true,
+     "rederived": 0.929688
+    },
+    "recall": {
+     "committed": 0.4375,
+     "equal": true,
+     "rederived": 0.4375
+    },
+    "tp": {
+     "committed": 119,
+     "equal": true,
+     "rederived": 119
+    }
+   },
+   "model": "y11x_tiles_s1_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_best__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.754715,
+     "equal": true,
+     "rederived": 0.754715
+    },
+    "ap_bundle": {
+     "committed": 0.754715,
+     "equal": true,
+     "rederived": 0.754715
+    },
+    "f1": {
+     "committed": 0.636156,
+     "equal": true,
+     "rederived": 0.636156
+    },
+    "fn": {
+     "committed": 142,
+     "equal": true,
+     "rederived": 142
+    },
+    "fp": {
+     "committed": 17,
+     "equal": true,
+     "rederived": 17
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.891026,
+     "equal": true,
+     "rederived": 0.891026
+    },
+    "recall": {
+     "committed": 0.494662,
+     "equal": true,
+     "rederived": 0.494662
+    },
+    "tp": {
+     "committed": 139,
+     "equal": true,
+     "rederived": 139
+    }
+   },
+   "model": "y11x_tiles_s1_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_best__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.909472,
+     "equal": true,
+     "rederived": 0.909472
+    },
+    "ap_bundle": {
+     "committed": 0.909472,
+     "equal": true,
+     "rederived": 0.909472
+    },
+    "f1": {
+     "committed": 0.830702,
+     "equal": true,
+     "rederived": 0.830702
+    },
+    "fn": {
+     "committed": 1078,
+     "equal": true,
+     "rederived": 1078
+    },
+    "fp": {
+     "committed": 80,
+     "equal": true,
+     "rederived": 80
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.972612,
+     "equal": true,
+     "rederived": 0.972612
+    },
+    "recall": {
+     "committed": 0.72493,
+     "equal": true,
+     "rederived": 0.72493
+    },
+    "tp": {
+     "committed": 2841,
+     "equal": true,
+     "rederived": 2841
+    }
+   },
+   "model": "y11x_tiles_s1_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_best__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.78108,
+     "equal": true,
+     "rederived": 0.78108
+    },
+    "ap_bundle": {
+     "committed": 0.78108,
+     "equal": true,
+     "rederived": 0.78108
+    },
+    "f1": {
+     "committed": 0.680162,
+     "equal": true,
+     "rederived": 0.680162
+    },
+    "fn": {
+     "committed": 142,
+     "equal": true,
+     "rederived": 142
+    },
+    "fp": {
+     "committed": 16,
+     "equal": true,
+     "rederived": 16
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.913043,
+     "equal": true,
+     "rederived": 0.913043
+    },
+    "recall": {
+     "committed": 0.541935,
+     "equal": true,
+     "rederived": 0.541935
+    },
+    "tp": {
+     "committed": 168,
+     "equal": true,
+     "rederived": 168
+    }
+   },
+   "model": "y11x_tiles_s3_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_best__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.83926,
+     "equal": true,
+     "rederived": 0.83926
+    },
+    "ap_bundle": {
+     "committed": 0.83926,
+     "equal": true,
+     "rederived": 0.83926
+    },
+    "f1": {
+     "committed": 0.715667,
+     "equal": true,
+     "rederived": 0.715667
+    },
+    "fn": {
+     "committed": 142,
+     "equal": true,
+     "rederived": 142
+    },
+    "fp": {
+     "committed": 5,
+     "equal": true,
+     "rederived": 5
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.973684,
+     "equal": true,
+     "rederived": 0.973684
+    },
+    "recall": {
+     "committed": 0.565749,
+     "equal": true,
+     "rederived": 0.565749
+    },
+    "tp": {
+     "committed": 185,
+     "equal": true,
+     "rederived": 185
+    }
+   },
+   "model": "y11x_tiles_s3_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_best__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.792899,
+     "equal": true,
+     "rederived": 0.792899
+    },
+    "ap_bundle": {
+     "committed": 0.792899,
+     "equal": true,
+     "rederived": 0.792899
+    },
+    "f1": {
+     "committed": 0.719033,
+     "equal": true,
+     "rederived": 0.719033
+    },
+    "fn": {
+     "committed": 76,
+     "equal": true,
+     "rederived": 76
+    },
+    "fp": {
+     "committed": 17,
+     "equal": true,
+     "rederived": 17
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.875,
+     "equal": true,
+     "rederived": 0.875
+    },
+    "recall": {
+     "committed": 0.610256,
+     "equal": true,
+     "rederived": 0.610256
+    },
+    "tp": {
+     "committed": 119,
+     "equal": true,
+     "rederived": 119
+    }
+   },
+   "model": "y11x_tiles_s3_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_best__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.843582,
+     "equal": true,
+     "rederived": 0.843582
+    },
+    "ap_bundle": {
+     "committed": 0.843582,
+     "equal": true,
+     "rederived": 0.843582
+    },
+    "f1": {
+     "committed": 0.756381,
+     "equal": true,
+     "rederived": 0.756381
+    },
+    "fn": {
+     "committed": 104,
+     "equal": true,
+     "rederived": 104
+    },
+    "fp": {
+     "committed": 1,
+     "equal": true,
+     "rederived": 1
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.993902,
+     "equal": true,
+     "rederived": 0.993902
+    },
+    "recall": {
+     "committed": 0.610487,
+     "equal": true,
+     "rederived": 0.610487
+    },
+    "tp": {
+     "committed": 163,
+     "equal": true,
+     "rederived": 163
+    }
+   },
+   "model": "y11x_tiles_s3_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_best__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.76107,
+     "equal": true,
+     "rederived": 0.76107
+    },
+    "ap_bundle": {
+     "committed": 0.76107,
+     "equal": true,
+     "rederived": 0.76107
+    },
+    "f1": {
+     "committed": 0.636364,
+     "equal": true,
+     "rederived": 0.636364
+    },
+    "fn": {
+     "committed": 154,
+     "equal": true,
+     "rederived": 154
+    },
+    "fp": {
+     "committed": 6,
+     "equal": true,
+     "rederived": 6
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.958904,
+     "equal": true,
+     "rederived": 0.958904
+    },
+    "recall": {
+     "committed": 0.47619,
+     "equal": true,
+     "rederived": 0.47619
+    },
+    "tp": {
+     "committed": 140,
+     "equal": true,
+     "rederived": 140
+    }
+   },
+   "model": "y11x_tiles_s3_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_best__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.730732,
+     "equal": true,
+     "rederived": 0.730732
+    },
+    "ap_bundle": {
+     "committed": 0.730732,
+     "equal": true,
+     "rederived": 0.730732
+    },
+    "f1": {
+     "committed": 0.621762,
+     "equal": true,
+     "rederived": 0.621762
+    },
+    "fn": {
+     "committed": 215,
+     "equal": true,
+     "rederived": 215
+    },
+    "fp": {
+     "committed": 4,
+     "equal": true,
+     "rederived": 4
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.978261,
+     "equal": true,
+     "rederived": 0.978261
+    },
+    "recall": {
+     "committed": 0.455696,
+     "equal": true,
+     "rederived": 0.455696
+    },
+    "tp": {
+     "committed": 180,
+     "equal": true,
+     "rederived": 180
+    }
+   },
+   "model": "y11x_tiles_s3_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_best__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.764071,
+     "equal": true,
+     "rederived": 0.764071
+    },
+    "ap_bundle": {
+     "committed": 0.764071,
+     "equal": true,
+     "rederived": 0.764071
+    },
+    "f1": {
+     "committed": 0.584383,
+     "equal": true,
+     "rederived": 0.584383
+    },
+    "fn": {
+     "committed": 156,
+     "equal": true,
+     "rederived": 156
+    },
+    "fp": {
+     "committed": 9,
+     "equal": true,
+     "rederived": 9
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.928,
+     "equal": true,
+     "rederived": 0.928
+    },
+    "recall": {
+     "committed": 0.426471,
+     "equal": true,
+     "rederived": 0.426471
+    },
+    "tp": {
+     "committed": 116,
+     "equal": true,
+     "rederived": 116
+    }
+   },
+   "model": "y11x_tiles_s3_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_best__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.765797,
+     "equal": true,
+     "rederived": 0.765797
+    },
+    "ap_bundle": {
+     "committed": 0.765797,
+     "equal": true,
+     "rederived": 0.765797
+    },
+    "f1": {
+     "committed": 0.624709,
+     "equal": true,
+     "rederived": 0.624709
+    },
+    "fn": {
+     "committed": 147,
+     "equal": true,
+     "rederived": 147
+    },
+    "fp": {
+     "committed": 14,
+     "equal": true,
+     "rederived": 14
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.905405,
+     "equal": true,
+     "rederived": 0.905405
+    },
+    "recall": {
+     "committed": 0.476868,
+     "equal": true,
+     "rederived": 0.476868
+    },
+    "tp": {
+     "committed": 134,
+     "equal": true,
+     "rederived": 134
+    }
+   },
+   "model": "y11x_tiles_s3_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_best__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.913644,
+     "equal": true,
+     "rederived": 0.913644
+    },
+    "ap_bundle": {
+     "committed": 0.913644,
+     "equal": true,
+     "rederived": 0.913644
+    },
+    "f1": {
+     "committed": 0.830387,
+     "equal": true,
+     "rederived": 0.830387
+    },
+    "fn": {
+     "committed": 1077,
+     "equal": true,
+     "rederived": 1077
+    },
+    "fp": {
+     "committed": 84,
+     "equal": true,
+     "rederived": 84
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.971292,
+     "equal": true,
+     "rederived": 0.971292
+    },
+    "recall": {
+     "committed": 0.725185,
+     "equal": true,
+     "rederived": 0.725185
+    },
+    "tp": {
+     "committed": 2842,
+     "equal": true,
+     "rederived": 2842
+    }
+   },
+   "model": "y11x_tiles_s3_best",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_best__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.783727,
+     "equal": true,
+     "rederived": 0.783727
+    },
+    "ap_bundle": {
+     "committed": 0.783727,
+     "equal": true,
+     "rederived": 0.783727
+    },
+    "f1": {
+     "committed": 0.681633,
+     "equal": true,
+     "rederived": 0.681633
+    },
+    "fn": {
+     "committed": 143,
+     "equal": true,
+     "rederived": 143
+    },
+    "fp": {
+     "committed": 13,
+     "equal": true,
+     "rederived": 13
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.927778,
+     "equal": true,
+     "rederived": 0.927778
+    },
+    "recall": {
+     "committed": 0.53871,
+     "equal": true,
+     "rederived": 0.53871
+    },
+    "tp": {
+     "committed": 167,
+     "equal": true,
+     "rederived": 167
+    }
+   },
+   "model": "y11x_tiles_s1_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_ep44__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.85365,
+     "equal": true,
+     "rederived": 0.85365
+    },
+    "ap_bundle": {
+     "committed": 0.85365,
+     "equal": true,
+     "rederived": 0.85365
+    },
+    "f1": {
+     "committed": 0.757974,
+     "equal": true,
+     "rederived": 0.757974
+    },
+    "fn": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "fp": {
+     "committed": 4,
+     "equal": true,
+     "rederived": 4
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.980583,
+     "equal": true,
+     "rederived": 0.980583
+    },
+    "recall": {
+     "committed": 0.617737,
+     "equal": true,
+     "rederived": 0.617737
+    },
+    "tp": {
+     "committed": 202,
+     "equal": true,
+     "rederived": 202
+    }
+   },
+   "model": "y11x_tiles_s1_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_ep44__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.7834,
+     "equal": true,
+     "rederived": 0.7834
+    },
+    "ap_bundle": {
+     "committed": 0.7834,
+     "equal": true,
+     "rederived": 0.7834
+    },
+    "f1": {
+     "committed": 0.700297,
+     "equal": true,
+     "rederived": 0.700297
+    },
+    "fn": {
+     "committed": 77,
+     "equal": true,
+     "rederived": 77
+    },
+    "fp": {
+     "committed": 24,
+     "equal": true,
+     "rederived": 24
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.830986,
+     "equal": true,
+     "rederived": 0.830986
+    },
+    "recall": {
+     "committed": 0.605128,
+     "equal": true,
+     "rederived": 0.605128
+    },
+    "tp": {
+     "committed": 118,
+     "equal": true,
+     "rederived": 118
+    }
+   },
+   "model": "y11x_tiles_s1_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_ep44__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.837724,
+     "equal": true,
+     "rederived": 0.837724
+    },
+    "ap_bundle": {
+     "committed": 0.837724,
+     "equal": true,
+     "rederived": 0.837724
+    },
+    "f1": {
+     "committed": 0.740047,
+     "equal": true,
+     "rederived": 0.740047
+    },
+    "fn": {
+     "committed": 109,
+     "equal": true,
+     "rederived": 109
+    },
+    "fp": {
+     "committed": 2,
+     "equal": true,
+     "rederived": 2
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.9875,
+     "equal": true,
+     "rederived": 0.9875
+    },
+    "recall": {
+     "committed": 0.59176,
+     "equal": true,
+     "rederived": 0.59176
+    },
+    "tp": {
+     "committed": 158,
+     "equal": true,
+     "rederived": 158
+    }
+   },
+   "model": "y11x_tiles_s1_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_ep44__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.738336,
+     "equal": true,
+     "rederived": 0.738336
+    },
+    "ap_bundle": {
+     "committed": 0.738336,
+     "equal": true,
+     "rederived": 0.738336
+    },
+    "f1": {
+     "committed": 0.63964,
+     "equal": true,
+     "rederived": 0.63964
+    },
+    "fn": {
+     "committed": 152,
+     "equal": true,
+     "rederived": 152
+    },
+    "fp": {
+     "committed": 8,
+     "equal": true,
+     "rederived": 8
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.946667,
+     "equal": true,
+     "rederived": 0.946667
+    },
+    "recall": {
+     "committed": 0.482993,
+     "equal": true,
+     "rederived": 0.482993
+    },
+    "tp": {
+     "committed": 142,
+     "equal": true,
+     "rederived": 142
+    }
+   },
+   "model": "y11x_tiles_s1_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_ep44__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.72231,
+     "equal": true,
+     "rederived": 0.72231
+    },
+    "ap_bundle": {
+     "committed": 0.72231,
+     "equal": true,
+     "rederived": 0.72231
+    },
+    "f1": {
+     "committed": 0.614583,
+     "equal": true,
+     "rederived": 0.614583
+    },
+    "fn": {
+     "committed": 218,
+     "equal": true,
+     "rederived": 218
+    },
+    "fp": {
+     "committed": 4,
+     "equal": true,
+     "rederived": 4
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.977901,
+     "equal": true,
+     "rederived": 0.977901
+    },
+    "recall": {
+     "committed": 0.448101,
+     "equal": true,
+     "rederived": 0.448101
+    },
+    "tp": {
+     "committed": 177,
+     "equal": true,
+     "rederived": 177
+    }
+   },
+   "model": "y11x_tiles_s1_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_ep44__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.768218,
+     "equal": true,
+     "rederived": 0.768218
+    },
+    "ap_bundle": {
+     "committed": 0.768218,
+     "equal": true,
+     "rederived": 0.768218
+    },
+    "f1": {
+     "committed": 0.569231,
+     "equal": true,
+     "rederived": 0.569231
+    },
+    "fn": {
+     "committed": 161,
+     "equal": true,
+     "rederived": 161
+    },
+    "fp": {
+     "committed": 7,
+     "equal": true,
+     "rederived": 7
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.940678,
+     "equal": true,
+     "rederived": 0.940678
+    },
+    "recall": {
+     "committed": 0.408088,
+     "equal": true,
+     "rederived": 0.408088
+    },
+    "tp": {
+     "committed": 111,
+     "equal": true,
+     "rederived": 111
+    }
+   },
+   "model": "y11x_tiles_s1_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_ep44__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.764862,
+     "equal": true,
+     "rederived": 0.764862
+    },
+    "ap_bundle": {
+     "committed": 0.764862,
+     "equal": true,
+     "rederived": 0.764862
+    },
+    "f1": {
+     "committed": 0.646789,
+     "equal": true,
+     "rederived": 0.646789
+    },
+    "fn": {
+     "committed": 140,
+     "equal": true,
+     "rederived": 140
+    },
+    "fp": {
+     "committed": 14,
+     "equal": true,
+     "rederived": 14
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.909677,
+     "equal": true,
+     "rederived": 0.909677
+    },
+    "recall": {
+     "committed": 0.501779,
+     "equal": true,
+     "rederived": 0.501779
+    },
+    "tp": {
+     "committed": 141,
+     "equal": true,
+     "rederived": 141
+    }
+   },
+   "model": "y11x_tiles_s1_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_ep44__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.90954,
+     "equal": true,
+     "rederived": 0.90954
+    },
+    "ap_bundle": {
+     "committed": 0.90954,
+     "equal": true,
+     "rederived": 0.90954
+    },
+    "f1": {
+     "committed": 0.828496,
+     "equal": true,
+     "rederived": 0.828496
+    },
+    "fn": {
+     "committed": 1093,
+     "equal": true,
+     "rederived": 1093
+    },
+    "fp": {
+     "committed": 77,
+     "equal": true,
+     "rederived": 77
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.973476,
+     "equal": true,
+     "rederived": 0.973476
+    },
+    "recall": {
+     "committed": 0.721102,
+     "equal": true,
+     "rederived": 0.721102
+    },
+    "tp": {
+     "committed": 2826,
+     "equal": true,
+     "rederived": 2826
+    }
+   },
+   "model": "y11x_tiles_s1_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s1_ep44__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.769575,
+     "equal": true,
+     "rederived": 0.769575
+    },
+    "ap_bundle": {
+     "committed": 0.769575,
+     "equal": true,
+     "rederived": 0.769575
+    },
+    "f1": {
+     "committed": 0.669388,
+     "equal": true,
+     "rederived": 0.669388
+    },
+    "fn": {
+     "committed": 146,
+     "equal": true,
+     "rederived": 146
+    },
+    "fp": {
+     "committed": 16,
+     "equal": true,
+     "rederived": 16
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.911111,
+     "equal": true,
+     "rederived": 0.911111
+    },
+    "recall": {
+     "committed": 0.529032,
+     "equal": true,
+     "rederived": 0.529032
+    },
+    "tp": {
+     "committed": 164,
+     "equal": true,
+     "rederived": 164
+    }
+   },
+   "model": "y11x_tiles_s2_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_ep44__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.846607,
+     "equal": true,
+     "rederived": 0.846607
+    },
+    "ap_bundle": {
+     "committed": 0.846607,
+     "equal": true,
+     "rederived": 0.846607
+    },
+    "f1": {
+     "committed": 0.726577,
+     "equal": true,
+     "rederived": 0.726577
+    },
+    "fn": {
+     "committed": 137,
+     "equal": true,
+     "rederived": 137
+    },
+    "fp": {
+     "committed": 6,
+     "equal": true,
+     "rederived": 6
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.969388,
+     "equal": true,
+     "rederived": 0.969388
+    },
+    "recall": {
+     "committed": 0.58104,
+     "equal": true,
+     "rederived": 0.58104
+    },
+    "tp": {
+     "committed": 190,
+     "equal": true,
+     "rederived": 190
+    }
+   },
+   "model": "y11x_tiles_s2_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_ep44__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.787143,
+     "equal": true,
+     "rederived": 0.787143
+    },
+    "ap_bundle": {
+     "committed": 0.787143,
+     "equal": true,
+     "rederived": 0.787143
+    },
+    "f1": {
+     "committed": 0.72997,
+     "equal": true,
+     "rederived": 0.72997
+    },
+    "fn": {
+     "committed": 72,
+     "equal": true,
+     "rederived": 72
+    },
+    "fp": {
+     "committed": 19,
+     "equal": true,
+     "rederived": 19
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.866197,
+     "equal": true,
+     "rederived": 0.866197
+    },
+    "recall": {
+     "committed": 0.630769,
+     "equal": true,
+     "rederived": 0.630769
+    },
+    "tp": {
+     "committed": 123,
+     "equal": true,
+     "rederived": 123
+    }
+   },
+   "model": "y11x_tiles_s2_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_ep44__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.820637,
+     "equal": true,
+     "rederived": 0.820637
+    },
+    "ap_bundle": {
+     "committed": 0.820637,
+     "equal": true,
+     "rederived": 0.820637
+    },
+    "f1": {
+     "committed": 0.733645,
+     "equal": true,
+     "rederived": 0.733645
+    },
+    "fn": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "fp": {
+     "committed": 4,
+     "equal": true,
+     "rederived": 4
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.975155,
+     "equal": true,
+     "rederived": 0.975155
+    },
+    "recall": {
+     "committed": 0.588015,
+     "equal": true,
+     "rederived": 0.588015
+    },
+    "tp": {
+     "committed": 157,
+     "equal": true,
+     "rederived": 157
+    }
+   },
+   "model": "y11x_tiles_s2_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_ep44__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.747111,
+     "equal": true,
+     "rederived": 0.747111
+    },
+    "ap_bundle": {
+     "committed": 0.747111,
+     "equal": true,
+     "rederived": 0.747111
+    },
+    "f1": {
+     "committed": 0.636569,
+     "equal": true,
+     "rederived": 0.636569
+    },
+    "fn": {
+     "committed": 153,
+     "equal": true,
+     "rederived": 153
+    },
+    "fp": {
+     "committed": 8,
+     "equal": true,
+     "rederived": 8
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.946309,
+     "equal": true,
+     "rederived": 0.946309
+    },
+    "recall": {
+     "committed": 0.479592,
+     "equal": true,
+     "rederived": 0.479592
+    },
+    "tp": {
+     "committed": 141,
+     "equal": true,
+     "rederived": 141
+    }
+   },
+   "model": "y11x_tiles_s2_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_ep44__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.720532,
+     "equal": true,
+     "rederived": 0.720532
+    },
+    "ap_bundle": {
+     "committed": 0.720532,
+     "equal": true,
+     "rederived": 0.720532
+    },
+    "f1": {
+     "committed": 0.6,
+     "equal": true,
+     "rederived": 0.6
+    },
+    "fn": {
+     "committed": 224,
+     "equal": true,
+     "rederived": 224
+    },
+    "fp": {
+     "committed": 4,
+     "equal": true,
+     "rederived": 4
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.977143,
+     "equal": true,
+     "rederived": 0.977143
+    },
+    "recall": {
+     "committed": 0.432911,
+     "equal": true,
+     "rederived": 0.432911
+    },
+    "tp": {
+     "committed": 171,
+     "equal": true,
+     "rederived": 171
+    }
+   },
+   "model": "y11x_tiles_s2_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_ep44__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.769507,
+     "equal": true,
+     "rederived": 0.769507
+    },
+    "ap_bundle": {
+     "committed": 0.769507,
+     "equal": true,
+     "rederived": 0.769507
+    },
+    "f1": {
+     "committed": 0.582278,
+     "equal": true,
+     "rederived": 0.582278
+    },
+    "fn": {
+     "committed": 157,
+     "equal": true,
+     "rederived": 157
+    },
+    "fp": {
+     "committed": 8,
+     "equal": true,
+     "rederived": 8
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.934959,
+     "equal": true,
+     "rederived": 0.934959
+    },
+    "recall": {
+     "committed": 0.422794,
+     "equal": true,
+     "rederived": 0.422794
+    },
+    "tp": {
+     "committed": 115,
+     "equal": true,
+     "rederived": 115
+    }
+   },
+   "model": "y11x_tiles_s2_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_ep44__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.756672,
+     "equal": true,
+     "rederived": 0.756672
+    },
+    "ap_bundle": {
+     "committed": 0.756672,
+     "equal": true,
+     "rederived": 0.756672
+    },
+    "f1": {
+     "committed": 0.634483,
+     "equal": true,
+     "rederived": 0.634483
+    },
+    "fn": {
+     "committed": 143,
+     "equal": true,
+     "rederived": 143
+    },
+    "fp": {
+     "committed": 16,
+     "equal": true,
+     "rederived": 16
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.896104,
+     "equal": true,
+     "rederived": 0.896104
+    },
+    "recall": {
+     "committed": 0.491103,
+     "equal": true,
+     "rederived": 0.491103
+    },
+    "tp": {
+     "committed": 138,
+     "equal": true,
+     "rederived": 138
+    }
+   },
+   "model": "y11x_tiles_s2_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_ep44__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.908876,
+     "equal": true,
+     "rederived": 0.908876
+    },
+    "ap_bundle": {
+     "committed": 0.908876,
+     "equal": true,
+     "rederived": 0.908876
+    },
+    "f1": {
+     "committed": 0.824996,
+     "equal": true,
+     "rederived": 0.824996
+    },
+    "fn": {
+     "committed": 1107,
+     "equal": true,
+     "rederived": 1107
+    },
+    "fp": {
+     "committed": 86,
+     "equal": true,
+     "rederived": 86
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.970324,
+     "equal": true,
+     "rederived": 0.970324
+    },
+    "recall": {
+     "committed": 0.71753,
+     "equal": true,
+     "rederived": 0.71753
+    },
+    "tp": {
+     "committed": 2812,
+     "equal": true,
+     "rederived": 2812
+    }
+   },
+   "model": "y11x_tiles_s2_ep44",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s2_ep44__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.772688,
+     "equal": true,
+     "rederived": 0.772688
+    },
+    "ap_bundle": {
+     "committed": 0.772688,
+     "equal": true,
+     "rederived": 0.772688
+    },
+    "f1": {
+     "committed": 0.666667,
+     "equal": true,
+     "rederived": 0.666667
+    },
+    "fn": {
+     "committed": 148,
+     "equal": true,
+     "rederived": 148
+    },
+    "fp": {
+     "committed": 14,
+     "equal": true,
+     "rederived": 14
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.920455,
+     "equal": true,
+     "rederived": 0.920455
+    },
+    "recall": {
+     "committed": 0.522581,
+     "equal": true,
+     "rederived": 0.522581
+    },
+    "tp": {
+     "committed": 162,
+     "equal": true,
+     "rederived": 162
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.844334,
+     "equal": true,
+     "rederived": 0.844334
+    },
+    "ap_bundle": {
+     "committed": 0.844334,
+     "equal": true,
+     "rederived": 0.844334
+    },
+    "f1": {
+     "committed": 0.749529,
+     "equal": true,
+     "rederived": 0.749529
+    },
+    "fn": {
+     "committed": 128,
+     "equal": true,
+     "rederived": 128
+    },
+    "fp": {
+     "committed": 5,
+     "equal": true,
+     "rederived": 5
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.97549,
+     "equal": true,
+     "rederived": 0.97549
+    },
+    "recall": {
+     "committed": 0.608563,
+     "equal": true,
+     "rederived": 0.608563
+    },
+    "tp": {
+     "committed": 199,
+     "equal": true,
+     "rederived": 199
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.768547,
+     "equal": true,
+     "rederived": 0.768547
+    },
+    "ap_bundle": {
+     "committed": 0.768547,
+     "equal": true,
+     "rederived": 0.768547
+    },
+    "f1": {
+     "committed": 0.711656,
+     "equal": true,
+     "rederived": 0.711656
+    },
+    "fn": {
+     "committed": 79,
+     "equal": true,
+     "rederived": 79
+    },
+    "fp": {
+     "committed": 15,
+     "equal": true,
+     "rederived": 15
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.885496,
+     "equal": true,
+     "rederived": 0.885496
+    },
+    "recall": {
+     "committed": 0.594872,
+     "equal": true,
+     "rederived": 0.594872
+    },
+    "tp": {
+     "committed": 116,
+     "equal": true,
+     "rederived": 116
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.824203,
+     "equal": true,
+     "rederived": 0.824203
+    },
+    "ap_bundle": {
+     "committed": 0.824203,
+     "equal": true,
+     "rederived": 0.824203
+    },
+    "f1": {
+     "committed": 0.7277,
+     "equal": true,
+     "rederived": 0.7277
+    },
+    "fn": {
+     "committed": 112,
+     "equal": true,
+     "rederived": 112
+    },
+    "fp": {
+     "committed": 4,
+     "equal": true,
+     "rederived": 4
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.974843,
+     "equal": true,
+     "rederived": 0.974843
+    },
+    "recall": {
+     "committed": 0.580524,
+     "equal": true,
+     "rederived": 0.580524
+    },
+    "tp": {
+     "committed": 155,
+     "equal": true,
+     "rederived": 155
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.738101,
+     "equal": true,
+     "rederived": 0.738101
+    },
+    "ap_bundle": {
+     "committed": 0.738101,
+     "equal": true,
+     "rederived": 0.738101
+    },
+    "f1": {
+     "committed": 0.64,
+     "equal": true,
+     "rederived": 0.64
+    },
+    "fn": {
+     "committed": 150,
+     "equal": true,
+     "rederived": 150
+    },
+    "fp": {
+     "committed": 12,
+     "equal": true,
+     "rederived": 12
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.923077,
+     "equal": true,
+     "rederived": 0.923077
+    },
+    "recall": {
+     "committed": 0.489796,
+     "equal": true,
+     "rederived": 0.489796
+    },
+    "tp": {
+     "committed": 144,
+     "equal": true,
+     "rederived": 144
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.714834,
+     "equal": true,
+     "rederived": 0.714834
+    },
+    "ap_bundle": {
+     "committed": 0.714834,
+     "equal": true,
+     "rederived": 0.714834
+    },
+    "f1": {
+     "committed": 0.59507,
+     "equal": true,
+     "rederived": 0.59507
+    },
+    "fn": {
+     "committed": 226,
+     "equal": true,
+     "rederived": 226
+    },
+    "fp": {
+     "committed": 4,
+     "equal": true,
+     "rederived": 4
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.976879,
+     "equal": true,
+     "rederived": 0.976879
+    },
+    "recall": {
+     "committed": 0.427848,
+     "equal": true,
+     "rederived": 0.427848
+    },
+    "tp": {
+     "committed": 169,
+     "equal": true,
+     "rederived": 169
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.750687,
+     "equal": true,
+     "rederived": 0.750687
+    },
+    "ap_bundle": {
+     "committed": 0.750687,
+     "equal": true,
+     "rederived": 0.750687
+    },
+    "f1": {
+     "committed": 0.575835,
+     "equal": true,
+     "rederived": 0.575835
+    },
+    "fn": {
+     "committed": 160,
+     "equal": true,
+     "rederived": 160
+    },
+    "fp": {
+     "committed": 5,
+     "equal": true,
+     "rederived": 5
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.957265,
+     "equal": true,
+     "rederived": 0.957265
+    },
+    "recall": {
+     "committed": 0.411765,
+     "equal": true,
+     "rederived": 0.411765
+    },
+    "tp": {
+     "committed": 112,
+     "equal": true,
+     "rederived": 112
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.457706,
+     "equal": true,
+     "rederived": 0.457706
+    },
+    "ap_bundle": {
+     "committed": 0.457706,
+     "equal": true,
+     "rederived": 0.457706
+    },
+    "f1": {
+     "committed": 0.318919,
+     "equal": true,
+     "rederived": 0.318919
+    },
+    "fn": {
+     "committed": 241,
+     "equal": true,
+     "rederived": 241
+    },
+    "fp": {
+     "committed": 11,
+     "equal": true,
+     "rederived": 11
+    },
+    "n_gt_recall": {
+     "committed": 300,
+     "equal": true,
+     "rederived": 300
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.842857,
+     "equal": true,
+     "rederived": 0.842857
+    },
+    "recall": {
+     "committed": 0.196667,
+     "equal": true,
+     "rederived": 0.196667
+    },
+    "tp": {
+     "committed": 59,
+     "equal": true,
+     "rederived": 59
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__budapest_district5.json",
+   "source": "scoreboard",
+   "split": "budapest_district5",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.750636,
+     "equal": true,
+     "rederived": 0.750636
+    },
+    "ap_bundle": {
+     "committed": 0.750636,
+     "equal": true,
+     "rederived": 0.750636
+    },
+    "f1": {
+     "committed": 0.625,
+     "equal": true,
+     "rederived": 0.625
+    },
+    "fn": {
+     "committed": 146,
+     "equal": true,
+     "rederived": 146
+    },
+    "fp": {
+     "committed": 16,
+     "equal": true,
+     "rederived": 16
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.89404,
+     "equal": true,
+     "rederived": 0.89404
+    },
+    "recall": {
+     "committed": 0.480427,
+     "equal": true,
+     "rederived": 0.480427
+    },
+    "tp": {
+     "committed": 135,
+     "equal": true,
+     "rederived": 135
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.90884,
+     "equal": true,
+     "rederived": 0.90884
+    },
+    "ap_bundle": {
+     "committed": 0.90884,
+     "equal": true,
+     "rederived": 0.90884
+    },
+    "f1": {
+     "committed": 0.820498,
+     "equal": true,
+     "rederived": 0.820498
+    },
+    "fn": {
+     "committed": 1133,
+     "equal": true,
+     "rederived": 1133
+    },
+    "fp": {
+     "committed": 86,
+     "equal": true,
+     "rederived": 86
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.970056,
+     "equal": true,
+     "rederived": 0.970056
+    },
+    "recall": {
+     "committed": 0.710896,
+     "equal": true,
+     "rederived": 0.710896
+    },
+    "tp": {
+     "committed": 2786,
+     "equal": true,
+     "rederived": 2786
+    }
+   },
+   "model": "y11x_tiles",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.789389,
+     "equal": true,
+     "rederived": 0.789389
+    },
+    "ap_bundle": {
+     "committed": 0.789389,
+     "equal": true,
+     "rederived": 0.789389
+    },
+    "f1": {
+     "committed": 0.665289,
+     "equal": true,
+     "rederived": 0.665289
+    },
+    "fn": {
+     "committed": 149,
+     "equal": true,
+     "rederived": 149
+    },
+    "fp": {
+     "committed": 13,
+     "equal": true,
+     "rederived": 13
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.925287,
+     "equal": true,
+     "rederived": 0.925287
+    },
+    "recall": {
+     "committed": 0.519355,
+     "equal": true,
+     "rederived": 0.519355
+    },
+    "tp": {
+     "committed": 161,
+     "equal": true,
+     "rederived": 161
+    }
+   },
+   "model": "y11x_tiles_s3_ep42",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_ep42__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.861044,
+     "equal": true,
+     "rederived": 0.861044
+    },
+    "ap_bundle": {
+     "committed": 0.861044,
+     "equal": true,
+     "rederived": 0.861044
+    },
+    "f1": {
+     "committed": 0.734615,
+     "equal": true,
+     "rederived": 0.734615
+    },
+    "fn": {
+     "committed": 136,
+     "equal": true,
+     "rederived": 136
+    },
+    "fp": {
+     "committed": 2,
+     "equal": true,
+     "rederived": 2
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.989637,
+     "equal": true,
+     "rederived": 0.989637
+    },
+    "recall": {
+     "committed": 0.584098,
+     "equal": true,
+     "rederived": 0.584098
+    },
+    "tp": {
+     "committed": 191,
+     "equal": true,
+     "rederived": 191
+    }
+   },
+   "model": "y11x_tiles_s3_ep42",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_ep42__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.796173,
+     "equal": true,
+     "rederived": 0.796173
+    },
+    "ap_bundle": {
+     "committed": 0.796173,
+     "equal": true,
+     "rederived": 0.796173
+    },
+    "f1": {
+     "committed": 0.712991,
+     "equal": true,
+     "rederived": 0.712991
+    },
+    "fn": {
+     "committed": 77,
+     "equal": true,
+     "rederived": 77
+    },
+    "fp": {
+     "committed": 18,
+     "equal": true,
+     "rederived": 18
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.867647,
+     "equal": true,
+     "rederived": 0.867647
+    },
+    "recall": {
+     "committed": 0.605128,
+     "equal": true,
+     "rederived": 0.605128
+    },
+    "tp": {
+     "committed": 118,
+     "equal": true,
+     "rederived": 118
+    }
+   },
+   "model": "y11x_tiles_s3_ep42",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_ep42__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.824937,
+     "equal": true,
+     "rederived": 0.824937
+    },
+    "ap_bundle": {
+     "committed": 0.824937,
+     "equal": true,
+     "rederived": 0.824937
+    },
+    "f1": {
+     "committed": 0.742459,
+     "equal": true,
+     "rederived": 0.742459
+    },
+    "fn": {
+     "committed": 107,
+     "equal": true,
+     "rederived": 107
+    },
+    "fp": {
+     "committed": 4,
+     "equal": true,
+     "rederived": 4
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.97561,
+     "equal": true,
+     "rederived": 0.97561
+    },
+    "recall": {
+     "committed": 0.599251,
+     "equal": true,
+     "rederived": 0.599251
+    },
+    "tp": {
+     "committed": 160,
+     "equal": true,
+     "rederived": 160
+    }
+   },
+   "model": "y11x_tiles_s3_ep42",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_ep42__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.740313,
+     "equal": true,
+     "rederived": 0.740313
+    },
+    "ap_bundle": {
+     "committed": 0.740313,
+     "equal": true,
+     "rederived": 0.740313
+    },
+    "f1": {
+     "committed": 0.636569,
+     "equal": true,
+     "rederived": 0.636569
+    },
+    "fn": {
+     "committed": 153,
+     "equal": true,
+     "rederived": 153
+    },
+    "fp": {
+     "committed": 8,
+     "equal": true,
+     "rederived": 8
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.946309,
+     "equal": true,
+     "rederived": 0.946309
+    },
+    "recall": {
+     "committed": 0.479592,
+     "equal": true,
+     "rederived": 0.479592
+    },
+    "tp": {
+     "committed": 141,
+     "equal": true,
+     "rederived": 141
+    }
+   },
+   "model": "y11x_tiles_s3_ep42",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_ep42__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.710843,
+     "equal": true,
+     "rederived": 0.710843
+    },
+    "ap_bundle": {
+     "committed": 0.710843,
+     "equal": true,
+     "rederived": 0.710843
+    },
+    "f1": {
+     "committed": 0.59754,
+     "equal": true,
+     "rederived": 0.59754
+    },
+    "fn": {
+     "committed": 225,
+     "equal": true,
+     "rederived": 225
+    },
+    "fp": {
+     "committed": 4,
+     "equal": true,
+     "rederived": 4
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.977011,
+     "equal": true,
+     "rederived": 0.977011
+    },
+    "recall": {
+     "committed": 0.43038,
+     "equal": true,
+     "rederived": 0.43038
+    },
+    "tp": {
+     "committed": 170,
+     "equal": true,
+     "rederived": 170
+    }
+   },
+   "model": "y11x_tiles_s3_ep42",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_ep42__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.767951,
+     "equal": true,
+     "rederived": 0.767951
+    },
+    "ap_bundle": {
+     "committed": 0.767951,
+     "equal": true,
+     "rederived": 0.767951
+    },
+    "f1": {
+     "committed": 0.569231,
+     "equal": true,
+     "rederived": 0.569231
+    },
+    "fn": {
+     "committed": 161,
+     "equal": true,
+     "rederived": 161
+    },
+    "fp": {
+     "committed": 7,
+     "equal": true,
+     "rederived": 7
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.940678,
+     "equal": true,
+     "rederived": 0.940678
+    },
+    "recall": {
+     "committed": 0.408088,
+     "equal": true,
+     "rederived": 0.408088
+    },
+    "tp": {
+     "committed": 111,
+     "equal": true,
+     "rederived": 111
+    }
+   },
+   "model": "y11x_tiles_s3_ep42",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_ep42__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.755082,
+     "equal": true,
+     "rederived": 0.755082
+    },
+    "ap_bundle": {
+     "committed": 0.755082,
+     "equal": true,
+     "rederived": 0.755082
+    },
+    "f1": {
+     "committed": 0.630841,
+     "equal": true,
+     "rederived": 0.630841
+    },
+    "fn": {
+     "committed": 146,
+     "equal": true,
+     "rederived": 146
+    },
+    "fp": {
+     "committed": 12,
+     "equal": true,
+     "rederived": 12
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.918367,
+     "equal": true,
+     "rederived": 0.918367
+    },
+    "recall": {
+     "committed": 0.480427,
+     "equal": true,
+     "rederived": 0.480427
+    },
+    "tp": {
+     "committed": 135,
+     "equal": true,
+     "rederived": 135
+    }
+   },
+   "model": "y11x_tiles_s3_ep42",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_ep42__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.91011,
+     "equal": true,
+     "rederived": 0.91011
+    },
+    "ap_bundle": {
+     "committed": 0.91011,
+     "equal": true,
+     "rederived": 0.91011
+    },
+    "f1": {
+     "committed": 0.821329,
+     "equal": true,
+     "rederived": 0.821329
+    },
+    "fn": {
+     "committed": 1131,
+     "equal": true,
+     "rederived": 1131
+    },
+    "fp": {
+     "committed": 82,
+     "equal": true,
+     "rederived": 82
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.971429,
+     "equal": true,
+     "rederived": 0.971429
+    },
+    "recall": {
+     "committed": 0.711406,
+     "equal": true,
+     "rederived": 0.711406
+    },
+    "tp": {
+     "committed": 2788,
+     "equal": true,
+     "rederived": 2788
+    }
+   },
+   "model": "y11x_tiles_s3_ep42",
+   "op_threshold": 0.25,
+   "predictions": "benchmark/model_detections/y11x_tiles_s3_ep42__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
      "committed": 0.648753,
      "equal": true,
      "rederived": 0.648753
@@ -13536,10 +17440,10 @@
    "unchecked": 0
   },
   "scoreboard": {
-   "cells": 175,
+   "cells": 239,
    "differs": 0,
-   "equal": 175,
-   "fields_compared": 1750,
+   "equal": 239,
+   "fields_compared": 2390,
    "unchecked": 0
   }
  },
