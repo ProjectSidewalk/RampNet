@@ -58,6 +58,6 @@ Everything Bayonne did before and after its review (`docs/bayonne_split_159.md` 
 is still to do here: the GT review itself (`scripts/gt_gallery.py`), the `--unreviewed` low-floor
 op_cache and the GT-free reads, challenger detections, a `juneau_254.py` with `verify`, a
 `tests/test_juneau_254.py`, scoring, and registration in `PINNED_SPLITS` and
-`low_floor_sweep.ALL_SPLITS`. The run archive is not yet in a durable store (see `run.archive`
-in the provenance). The labeler PR 164 is unmerged, so `c30fbff` is reachable only from its
+`low_floor_sweep.ALL_SPLITS`. The run archive (results.jsonl and the 125 sampled panos) is on
+makelab2; `run.archive` in the provenance has the path. The labeler PR 164 is unmerged, so `c30fbff` is reachable only from its
 branch until it merges.
