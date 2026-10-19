@@ -352,13 +352,15 @@ understate the production run.
 ‡ `manual_gold` is likewise held out: in-distribution GSV from the training cities with
 independently-labelled GT. It is the control, not a deployment city.
 
-**Clovis is the cheapest place to lower the threshold, not the most expensive.** This
+**Clovis is among the cheapest places to lower the threshold, not the most expensive.** This
 reverses the expectation going in — clovis has the softest imagery (2018 GoPro Fusion) and
 the lowest deployed precision, so it looked like the binding constraint. It gains **+10.3
-recall points for −6.0 precision**, the best ratio of any US split.
+recall points for −6.0 precision**, a better ratio than every US split except paterson
+(+3.5 for −1.8) and laurens_mapillary, where it is nearly free (+12.4 for −0.3).
 
 **paterson is the other end of the same axis: the split the lever barely helps.** +3.5 recall
-points at 0.32 — the smallest gain of any US split (bend is next at +5.8) — at the smallest precision cost (−1.8). Its
+points at 0.32 — the smallest gain of any US split (bend is next at +5.8) — at the second-smallest precision
+cost (−1.8; laurens_mapillary's is −0.3). Its
 misses are not under-confident detections waiting below the threshold; most produce no
 candidate at any confidence (recall ceiling 0.757 at the 0.05 extraction floor, against
 0.87–0.94 for the other US splits except juneau, 0.865, and laurens_mapillary, 0.783 — see the storage-floor
@@ -505,8 +507,9 @@ juneau. The curve is flat, and 0.30 is its top by 0.001.)
 the 0.30 band): they sit within 2 match radii of an already-detected ramp, so they may be a
 second hit on one ramp rather than a ramp the GT missed. Juneau's one is not: its reviewer was
 shown it as a likely duplicate and judged it a separate ramp (`docs/juneau_split_254.md` §7);
-the other four were not adjudicated that way. The tooling flags these rather than
-hiding them; removing the four in the US pool changes pooled corrected precision by under 0.003.
+the other four (clovis, morgantown, budapest, gainesville) were not adjudicated that way. The
+tooling flags these rather than hiding them; removing the four that are in the US pool (clovis,
+morgantown, gainesville, juneau) changes pooled corrected precision by under 0.003.
 (At the wider 0.25 band gainesville carries 3 such A tags of its 12 — its paired diagonal-ramp
 corners put more A candidates in the ambiguous 2–3 R zone than any prior US split.)
 

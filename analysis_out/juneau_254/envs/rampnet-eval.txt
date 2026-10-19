@@ -1,6 +1,5 @@
-# uv pip freeze, 2026-10-19, klone. Identical package set in both envs:
-#   rampnet-eval  (klone system python 3.12.15: extract, YOLO, OWLv2, Grounding DINO)
-#   rampnet-eval2 (uv-managed CPython 3.12.13, has Python.h: Qwen3-VL-8B, Qwen3-VL-32B)
+# uv pip freeze, 2026-10-19, klone. rampnet-eval: klone system python 3.12.15 (extract, parity,
+# YOLO, OWLv2, Grounding DINO; also PY for the Molmo re-run). Same package set as rampnet-eval2.txt.
 accelerate==1.15.0
 annotated-doc==0.0.5
 anyio==4.15.1
