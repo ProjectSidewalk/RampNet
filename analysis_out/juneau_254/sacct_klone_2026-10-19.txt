@@ -1,0 +1,17 @@
+42010017|sva-full-stage-Obstacle|klone|ckpt-all|ckpt|COMPLETED|2026-10-18T19:10:57|2026-10-19T01:29:20|2026-10-19T01:47:36|1096|billing=2,cpu=2,mem=4G,node=1|1|0:0
+42010018|sva-full-gen-Obstacle|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-18T19:10:57|2026-10-19T01:48:13|2026-10-19T05:37:09|13736|billing=8,cpu=8,gres/gpu:a100=1,gres/gpu=1,mem=64G,node=1|1|0:0
+42010019|sva-full-stage-SurfaceProblem|klone|ckpt-all|ckpt|COMPLETED|2026-10-18T19:10:57|2026-10-19T05:37:45|2026-10-19T06:03:09|1524|billing=2,cpu=2,mem=4G,node=1|1|0:0
+42010024|sva-full-gen-NoCurbRamp|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-18T23:19:15|2026-10-18T23:21:57|2026-10-19T01:28:32|7595|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+42029555|sva-full-gen-SurfaceProblem|klone|ckpt-all|ckpt-gpu|RUNNING|2026-10-19T04:52:43|2026-10-19T06:03:41|Unknown|11687|billing=8,cpu=8,gres/gpu:a40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+42031893|sva-full-pull|klone|ckpt-all|ckpt|COMPLETED|2026-10-19T06:23:53|2026-10-19T06:24:26|2026-10-19T06:50:23|1557|billing=2,cpu=2,mem=32G,node=1|1|0:0
+42033697|juneau_254|klone|gpu-l40s|normal|CANCELLED by 197096|2026-10-19T07:16:45|None|2026-10-19T07:47:59|0||1|0:0
+42033698|juneau_254|klone|gpu-l40s|normal|CANCELLED by 197096|2026-10-19T07:16:45|None|2026-10-19T07:47:59|0||1|0:0
+42033699|juneau_254|klone|gpu-l40s|normal|CANCELLED by 197096|2026-10-19T07:16:45|None|2026-10-19T07:47:59|0||1|0:0
+42033700|qwen_curb_ramp_compare|klone|gpu-l40s|normal|CANCELLED by 197096|2026-10-19T07:16:45|None|2026-10-19T07:47:59|0||1|0:0
+42034543|juneau_254|klone|ckpt-g2|ckpt-gpu|COMPLETED|2026-10-19T07:49:16|2026-10-19T07:49:37|2026-10-19T08:11:09|1292|billing=8,cpu=8,gres/gpu:h200=1,gres/gpu=1,mem=64G,node=1|1|0:0
+42034544|juneau_254|klone|ckpt-g2|ckpt-gpu|COMPLETED|2026-10-19T07:49:16|2026-10-19T07:51:42|2026-10-19T07:55:57|255|billing=8,cpu=8,gres/gpu:h200=1,gres/gpu=1,mem=64G,node=1|1|0:0
+42034545|juneau_254|klone|ckpt-g2|ckpt-gpu|COMPLETED|2026-10-19T07:49:16|2026-10-19T07:52:28|2026-10-19T08:02:22|594|billing=8,cpu=8,gres/gpu:h200=1,gres/gpu=1,mem=64G,node=1|1|0:0
+42034546|qwen_curb_ramp_compare|klone|ckpt-g2|ckpt-gpu|CANCELLED by 197096|2026-10-19T07:49:16|None|2026-10-19T08:13:07|0||1|0:0
+42034817|juneau_254|klone|ckpt-g2|ckpt-gpu|COMPLETED|2026-10-19T08:08:23|2026-10-19T08:12:58|2026-10-19T08:44:24|1886|billing=8,cpu=8,gres/gpu:l40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+42035326|juneau_254|klone|ckpt-g2|ckpt-gpu|COMPLETED|2026-10-19T08:17:09|2026-10-19T08:22:48|2026-10-19T08:39:50|1022|billing=8,cpu=8,gres/gpu:l40=1,gres/gpu=1,mem=64G,node=1|1|0:0
+42035327|qwen_curb_ramp_compare|klone|ckpt-g2|ckpt-gpu|COMPLETED|2026-10-19T08:17:09|2026-10-19T08:35:48|2026-10-19T09:16:16|2428|billing=8,cpu=8,gres/gpu:l40=2,gres/gpu=2,mem=64G,node=1|1|0:0
