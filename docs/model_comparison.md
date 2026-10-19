@@ -273,8 +273,10 @@ the training record's
 [caveat section](../scripts/model_comparison/yolo_baseline/README.md#the-caveat-that-travels-with-every-number-above-the-warmup-lr-collapse-72).
 
 The tiles arms — the resolution-controlled half of the ablation, and the geometry the VLM
-rows are scored with — are **absent from every table above because their detections are not
-published**, not because they are unmeasured. `y11x_tiles` (ep44) was scored on all ten
+rows are scored with — are **absent from every table above because they are not standing
+legs**, not because they are unmeasured. Their detections have been published since
+2026-10-19 ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258)), and every tiles
+leg is listed in the per-split "Also scored" lines below. `y11x_tiles` (ep44) was scored on all ten
 splits on 2026-08-30: the equirect handicap is real and worth about **0.044 F1**, and the
 tiles arm is the best YOLO cell in the grid
 ([`yolo_geometry_51.md`](yolo_geometry_51.md)). Two further caveats belong with the YOLO

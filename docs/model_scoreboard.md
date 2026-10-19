@@ -538,13 +538,14 @@ Omissions are content, so they are named rather than left as blanks:
   Including them here is deliberate: this page's job is to show everything that has been
   measured, and `standing` governs which roster tables a leg appears in, not whether its
   numbers are real.
-- **The YOLO tiles arms are absent from this board**, but they are no longer unmeasured:
-  `y11x_tiles` (ep44) was scored on 2026-08-30 on the ten splits registered then (every
-  split here except the two Laurens arms; two reports per split in
-  `docs/data/yolo_geometry_51/`, `<split>_pano.txt` and `<split>_tiles.txt`), and it is the
-  best YOLO cell in that grid. See [`yolo_geometry_51.md`](yolo_geometry_51.md). It is
-  absent here because its detections are not published and it is not in
-  `rampnet/roster.py`, not because it is untested.
+- **The YOLO tiles arms are in the partial table, not the headline.** `y11x_tiles` (ep44)
+  was scored on 2026-08-30 on the ten splits registered then (every split here except the
+  two Laurens arms; two reports per split in `docs/data/yolo_geometry_51/`,
+  `<split>_pano.txt` and `<split>_tiles.txt`), and it is the best YOLO cell in that grid.
+  See [`yolo_geometry_51.md`](yolo_geometry_51.md). Its detections and those of the six
+  #135 seed legs were published and registered in `rampnet/roster.py` on 2026-10-19
+  ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258)). None of the seven ran
+  `laurens_mapillary`, so none has a pooled mean.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
 - **Fifteen legs have not run every pooled split — seven of them only one**, so they are in the partial table rather than the
