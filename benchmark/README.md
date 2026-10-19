@@ -296,6 +296,64 @@ Smaller notes:
   here, but the reviewer's own confidence rating is not on the record — worth adding on a
   re-review.
 
+## Juneau — the Annapolis rig on new streets, and a Project Sidewalk deployment city
+
+Juneau, AK (125 panos, P 0.967 / R 0.687; unbiased **0.978 / 0.664**, reviewer-rated confidence
+**MEDIUM**) was added 2026-10-19 (#254) for two reasons. Project Sidewalk is launching in Juneau on
+Mapillary imagery, so this split measures the detector on the imagery that deployment uses. And
+120 of its 125 panos come from contributor `rking`'s **Trimble MX7**, the same contributor and rig
+as all of annapolis, so it is a replication of annapolis's far-field finding on new streets and a
+new season rather than a new provider. It is **pooled**: a US deployment city with verdict-grade GT.
+
+Imagery: 120 Trimble MX7 panos at 8000×4000, all captured 2024-05; 5 GoPro Max panos from two
+other contributors (4 at 4096×2048, 1 at 5760×2880), captured 2025-08/09. Median Mapillary quality
+0.89. Downtown only, minus Douglas Island (~4.8 km²); `bundle_provenance.json` has the run, the
+export, and a re-sample made before the review to fix a spacing-index bug.
+
+**Precision is near the top of the city splits:** on the unbiased subset 0.978 is second only to
+paterson's 0.987, and on all panos 0.967 is third, behind morgantown and paterson at 0.975. 204
+of 211 judged detections were correct: 5 false positives and 2 duplicates. All five false positives score between 0.62 and 0.76, so the
+errors live just above the deployed threshold. The reviewer abstained on 2.8% of detections.
+
+**Recall is middling, and the misses are far away, as on annapolis.** Recall at 0.55 by
+flat-ground distance band (`analysis_out/op/recall_by_distance.csv`):
+
+| band | juneau n | juneau recall | annapolis n | annapolis recall |
+|---|---|---|---|---|
+| near (< 12.5 m) | 127 | 0.835 | 131 | 0.870 |
+| mid (12.5–25 m) | 119 | 0.689 | 110 | 0.745 |
+| far (> 25 m) | 51 | 0.314 | 51 | 0.412 |
+
+Same rig, same steep fall-off with distance, a few points lower in every band. **Caveat on the
+metres:** downtown Juneau is built on steep hillsides, which is the case the annapolis section
+warns against for this flat-ground model. The band *ordering* is a rank statement and survives
+any monotonic distance model; the metre boundaries are softer here than on annapolis's flat coast.
+
+**What fought the rubric** (`review_notes`):
+
+- **Distant ramps.** Many far-field ramps were too small at model resolution to judge, so 50 of
+  the 143 missed marks (35%) are `unsure` and abstain. That is the third-highest missed-mark
+  abstention in the benchmark, after richmond (52%) and bend (48%). Recall would move if they
+  were resolved either way, and this is why the reviewer rated confidence medium.
+- **Diagonal corner ramps**, some with oddly placed or oriented tactile indicators. Whether a
+  corner takes one label or two was ruled *after* the review (`RUBRICS.md` §1, Class rulings):
+  two labels only when the ramp is large enough to serve both crossing directions. The verdicts
+  were not re-checked against the ruling.
+
+Smaller notes:
+
+- **Negative check: 22 of 25 `empty`-group panos were clean.** The other 3 held 3 missed marks
+  (2 confident, 1 unsure).
+- **#55 incremental-FP tags: A-rate 4 of 21** (19%) in [0.25, 0.55), inside the range the other
+  US cities span. At the recommended 0.30, precision 0.911 corrects to **0.927** (upper band
+  0.931) and F1 0.829 to 0.838. The gallery has no duplicate key; of its five "dup?" items the
+  reviewer judged one a separate ramp (A) and four second hits (B), so two exported tags were
+  changed to B. The as-exported file is kept in
+  `analysis_out/juneau_254/incremental_fp_tags_as_exported.json`.
+- **No training overlap:** 0 of 125 panos in `rampnet-dataset`'s train or validation split.
+- **Pooling it barely moves the pool.** The nine-city pooled F1 at 0.30 goes from 0.8260 to
+  0.8264, because juneau sits almost exactly at the pooled mean.
+
 ## Paterson — the second GSV city, and the split whose misses aren't under-confident
 
 Paterson, NJ (125 panos, P 0.975 / R 0.684; unbiased **0.987 / 0.650**, reviewer-rated
