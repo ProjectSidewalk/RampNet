@@ -1189,6 +1189,19 @@ def test_usage_record_carries_the_serving_path(tmp_path):
     rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
     assert rec["serving_path"] == "anthropic"
     assert "serving_path" not in (rec["signature"] or {})
+    assert rec["api_account"] is None
+
+
+def test_usage_record_carries_the_api_account(tmp_path):
+    """Three first-party orgs share serving_path='anthropic'; only this label says
+    which one's monthly credits paid, so a per-org bill can be reconciled."""
+    det = ClaudeDetector(model_id="claude-opus-5-5", serving_path="anthropic")
+    det.accumulate_usage(10, 5, 0)
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(det, "claude-opus-5-5", "annapolis", 5, str(log), api_account="claude20")
+    rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+    assert rec["api_account"] == "claude20"
+    assert rec["est_cost_usd"] is not None
 
 
 def test_the_regional_pricing_warning_is_vertex_only():

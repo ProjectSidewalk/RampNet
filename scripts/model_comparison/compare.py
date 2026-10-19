@@ -323,7 +323,8 @@ def hardware_note():
     return note
 
 
-def report_usage(detector, label, city, panos_scored, usage_log_path, timing=None):
+def report_usage(detector, label, city, panos_scored, usage_log_path, timing=None,
+                 api_account=None):
     """Print and (append-)log what one leg cost: time always, tokens and dollars
     when the provider bills for them.
 
@@ -440,6 +441,12 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
         # server-side spend for `vertex` and has no equivalent for `anthropic`.
         # None for providers that have no such notion.
         "serving_path": getattr(detector, "serving_path", None),
+        # WHICH first-party org paid, as a label (`--api-account`, e.g. claude5),
+        # never the key. Three subscription orgs each get their own monthly API
+        # credits, and `serving_path` alone cannot tell them apart, so without
+        # this a per-org Console bill cannot be reconciled against the ledger.
+        # None when not given, and on every row written before it existed.
+        "api_account": api_account,
         # How each call terminated. Empty for providers that report nothing.
         "stop_reasons": stop_reasons or None,
         **usage,
@@ -618,6 +625,11 @@ def build_parser():
                          "bills for it -- but it IS recorded in --usage-log, and "
                          "a number produced on one path carries that as a caveat "
                          "when compared with numbers from the other.")
+    ap.add_argument("--api-account", default=None,
+                    help="A label for the account that pays, e.g. claude5 / claude20 / "
+                         "claude-team, recorded as `api_account` in --usage-log. The "
+                         "label only -- never the key. Lets each first-party org's "
+                         "Console bill be reconciled against the ledger.")
     ap.add_argument("--claude-max-tokens", type=int, default=_D["claude_max_tokens"],
                     help="Ceiling on one call's answer. Thinking bills against it, so "
                          "a call that thinks too long is CUT OFF mid-thought and the "
@@ -868,7 +880,7 @@ def main():
             timing["elapsed_s"] = round(perf_counter() - t_leg, 3)
             report_usage(detector, label, city,
                          len(run.scored) if run is not None else None, usage_log,
-                         timing=timing)
+                         timing=timing, api_account=args.api_account)
         if run is None:
             continue
         report = operating_report(run.report, run.scored, radius_sq, args.op_threshold)
