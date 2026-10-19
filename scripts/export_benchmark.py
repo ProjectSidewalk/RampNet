@@ -95,7 +95,7 @@ TRAIN_OVERLAP_NAME = "train_overlap.json"
 # tests/test_export_benchmark.py::test_split_allowlist_matches_the_analysis_registry keeps it in
 # step with scripts/analysis/miss_decomposition.py.
 BENCHMARK_SPLITS = ("annapolis", "bayonne", "bend", "budapest_district5", "clovis", "gainesville",
-                    "laurens_gsv", "laurens_mapillary", "morgantown", "paterson",
+                    "juneau", "laurens_gsv", "laurens_mapillary", "morgantown", "paterson",
                     "richmond", "sao_paulo")
 EXCLUDED_SPLITS = {"manual_gold": "the paper's gold set -- published in rampnet-dataset already"}
 

@@ -26,6 +26,7 @@ SPLIT_HEADER = {
     "paterson": "pater",
     "gainesville": "gaines",
     "laurens_mapillary": "laur_mly",
+    "juneau": "juneau",
     "laurens_gsv": "laur_gsv †",
     "budapest_district5": "budapest †",
     "sao_paulo": "sao_paulo †",

@@ -54,18 +54,18 @@ CACHE_DIR = os.path.join(OUT, "op_cache")
 # imagery_manifest, miss_taxonomy, fp_taxonomy, the galleries), which looks exactly
 # like a result nobody ran. test_registries_agree_with_low_floor_sweep enforces it.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
-             "gainesville", "laurens_mapillary")
+             "gainesville", "laurens_mapillary", "juneau")
 
 # Imagery tier per split (benchmark/README.md). Reported separately because the
 # distance estimate is NOT equally trustworthy across them: flat-ground geometry
 # agrees with DA3 depth at Spearman 0.95 on GSV and 0.81 on Mapillary, since
-# consumer rigs are not level and the terrain is not flat. Four of the seven
+# consumer rigs are not level and the terrain is not flat. Six of the nine
 # pooled splits are Mapillary, so the pooled far-field share carries that bias.
 # Held-out splits are deliberately absent and print "-": tiers exist to group the
 # POOLED rows, and a split that never pools has no business appearing in one.
 TIER = {"bend": "gsv", "paterson": "gsv", "gainesville": "gsv",
         "richmond": "mapillary", "clovis": "mapillary", "morgantown": "mapillary",
-        "annapolis": "mapillary", "laurens_mapillary": "mapillary"}
+        "annapolis": "mapillary", "laurens_mapillary": "mapillary", "juneau": "mapillary"}
 HELD_OUT = {"laurens_gsv": "second imagery arm of laurens, already pooled through "
                            "laurens_mapillary -- same town, largely the same "
                            "physical ramps, so pooling both double-counts",
