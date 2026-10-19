@@ -468,6 +468,14 @@ analysis_out/bayonne_159/**/*.jpg
 analysis_out/bayonne_159/**/*.png
 analysis_out/bayonne_159/**/*.html
 
+# Juneau (#254): the GPU run's replication-control cache, checks, the challenger
+# detections and the run logs are small and re-derivable only with a GPU, so they are
+# committed. Rendered crops stay out, as for bayonne.
+!analysis_out/juneau_254/
+analysis_out/juneau_254/**/*.jpg
+analysis_out/juneau_254/**/*.png
+analysis_out/juneau_254/**/*.html
+
 # #221 crop-model decode: Hub downloads (checkpoints + crop JPEGs) stay local; the
 # per-crop coarse-map extracts and the results re-derived from them are committed, so
 # `crop_decode_221.py --check` runs on CPU from a clean clone.

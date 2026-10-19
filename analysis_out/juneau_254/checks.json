@@ -1,0 +1,20 @@
+{
+ "juneau_parity": {
+  "cache": 217,
+  "panos_differing": [],
+  "reading": "identical: every record reproduced, no extra cache peak",
+  "records": 217,
+  "what": "Juneau cache peaks >= 0.55 against the 217 committed records.jsonl detections (low_floor_sweep.py parity reads the same)"
+ },
+ "replication_control": {
+  "max_score_diff_same_cell": 7e-05,
+  "panos": 94,
+  "peaks_only_committed": 0,
+  "peaks_only_committed_in_border_ring": 0,
+  "peaks_only_new": 0,
+  "peaks_only_new_in_border_ring": 0,
+  "peaks_same_cell": 374,
+  "re_extracted_on": "cuda",
+  "what": "laurens_mapillary re-extracted on klone with this branch's code (scripts/analysis/juneau_254_gpu.sh, step repro) against its committed analysis_out/op_cache/laurens_mapillary.json"
+ }
+}

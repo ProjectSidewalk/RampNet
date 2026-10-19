@@ -1,0 +1,103 @@
+HOST: g3129  job 42034545  STEPS: molmo
+python 3.12.15 torch 2.14.1+cu126 cuda True
+NVIDIA H200, 0 MiB, 143771 MiB
+=== molmo 2026-10-19T07:53:17-07:00
+Bundle: benchmark/juneau  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/.model_cache
+
+A new version of the following files was downloaded from https://huggingface.co/allenai/Molmo2-8B:
+- video_processing_molmo2.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+A new version of the following files was downloaded from https://huggingface.co/allenai/Molmo2-8B:
+- image_processing_molmo2.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+A new version of the following files was downloaded from https://huggingface.co/allenai/Molmo2-8B:
+- processing_molmo2.py
+- video_processing_molmo2.py
+- image_processing_molmo2.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+A new version of the following files was downloaded from https://huggingface.co/allenai/Molmo2-8B:
+- configuration_molmo2.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+A new version of the following files was downloaded from https://huggingface.co/allenai/Molmo2-8B:
+- modeling_molmo2.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+
+
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+[allenai/Molmo2-8B] time this run: 535.1s wall  (515.2s model load, 19.9s inference over 10 pano(s), 1.99 s/pano)
+[allenai/Molmo2-8B] usage logged to /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/analysis_out/usage_log.jsonl
+[allenai/Molmo2-8B] ledger now: 231 rows, $137.25, 195.7 h (of which $70.09 recovered, not measured)
+[allenai/Molmo2-8B] 11 pano failure(s) isolated (excluded from the score):
+    452394240888222: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nv
+    417191077956040: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nv
+    1601217790448020: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nv
+    1158199608755189: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nv
+    3227193274078752: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/molmo2/lib/python3.12/site-packages/triton/backends/nv
+    ... and 6 more
+
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+allenai/Molmo2-8B                     0.000   (0.000-1.000)  0.000   (0.000-1.000)  0.000    -              0/0/0/0
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    211  (correct 204, incorrect 7)
+Detections duplicate: 2  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    6  (abstained — not in precision or recall)
+Missed ramps marked:  93  (+50 unsure, abstained)
+Precision: 0.967  (95% CI 0.933-0.984)
+Recall:    0.687  (95% CI 0.632-0.737)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    211      0.967    0.687
+     0.60    196      0.969    0.640
+     0.65    175      0.971    0.572
+     0.70    158      0.975    0.519
+     0.75    143      0.979    0.471
+     0.80    126      0.992    0.421
+     0.85     95      0.989    0.316
+     0.90     52      1.000    0.175
+     0.95     15      1.000    0.051
+=== molmo done 2026-10-19T08:02:22-07:00
+ALL_STEPS_DONE
