@@ -106,8 +106,10 @@ reason to be discounted:
   the no-TTA deployment path, and at 0.55 the two differ by 0.009 F1 — the same size as
   the 0.009 margin. With TTA at 0.30 RampNet would plausibly be level.
 - **A paired test would settle it and needs no GPU** — both models' per-pano detections
-  exist. It cannot be run from a clean clone, because the tiles arm's detections are not
-  published (see *Gaps*).
+  exist. It has not been run. Since 2026-10-19 its inputs are all committed: RampNet's
+  `analysis_out/op_cache/<split>.json` and the tiles arm's
+  `benchmark/model_detections/y11x_tiles__<split>.json`, both floored at 0.05
+  ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258); see *Gaps*).
 
 So the defensible claim is the weaker one: at a defensible operating point the supervised
 baseline is **no longer distinguishable from RampNet** on three of ten splits, including
@@ -151,13 +153,16 @@ are much closer than published.
 - **`y11x_tiles` is at ep44 of a 60-epoch schedule**, and the pano lineage suggests more
   epochs would *hurt* it out of distribution ([`yolo_geometry_51.md`](yolo_geometry_51.md)),
   so this is not simply "the undertrained arm".
-- **The tiles arm's detections are not published**, so the paired test that would settle
-  the three near-tied splits in §2 cannot be run from a clean clone. `y11x_tiles` and
-  `y11x_pano` are not in `rampnet/roster.py` and have no files under
-  `benchmark/model_detections/`; their checkpoints live only on cluster storage
+- **The paired test on the three near-tied splits in §2 has not been run.** When this
+  document was written the tiles arm's detections were unpublished, which blocked it.
+  Since 2026-10-19 `y11x_tiles` is registered in `rampnet/roster.py` and its per-pano
+  detections are committed under `benchmark/model_detections/y11x_tiles__<split>.json`
+  (ten splits, conf floor 0.05;
+  [#258](https://github.com/ProjectSidewalk/RampNet/issues/258)), so the test can now be run
+  from a clean clone. `y11x_pano` is still neither registered nor published. Both arms'
+  checkpoints live only on cluster storage
   (`/gscratch/makelab/jonf/rampnet_yolo_baseline_51/<arm>/weights/best.pt`, sha256s in
-  [`env.txt`](data/yolo_geometry_51/env.txt)). Registering them as roster legs and
-  exporting their detections is what unblocks it.
+  [`env.txt`](data/yolo_geometry_51/env.txt)).
 - **Only the `x` architecture.** `y11l_*` and `y26_*` legs are not swept here; their
   committed reports do not carry a sweep.
 - **The VLM and pointing challengers cannot be included at all** — they emit no calibrated

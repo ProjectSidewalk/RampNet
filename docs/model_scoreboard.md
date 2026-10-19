@@ -73,7 +73,9 @@ model, and the reasons are in "How to read this" below.
 
 **RampNet leads the best challenger with full pooled coverage (YOLO11l) by 0.193 F1** at the
 operating points in the table. (Claude Fable 5 at low effort scores 0.611, but on one split
-only; see the partial table below.) RampNet also leads in F1 on ground truth that never saw a
+only, and the seven YOLO11x tiles legs reach 0.666–0.678 macro F1, but over seven of the eight
+pooled splits, without `laurens_mapillary`; neither is comparable to a full-coverage mean. See
+the partial table below.) RampNet also leads in F1 on ground truth that never saw a
 RampNet review (`manual_gold`, 0.908 against YOLO11x's 0.851), but only in F1 and only at
 these operating points: YOLO11x has the higher `manual_gold` AP (see "In-distribution vs
 deployed" below), and at matched operating points `y11x_tiles` leads RampNet there
@@ -325,7 +327,7 @@ Three things this matrix settles that no single-number ranking can:
   (Molmo2-8B). "Difficulty" here is not a property of the imagery alone — it is an
   interaction between imagery and model.
 - **budapest separates the US-trained models from the zero-shot ones, in the wrong direction.**
-  The three YOLO arms fall to 0.221–0.277, *below all three Gemini legs* (0.336–0.381). A
+  The four YOLO arms that ran it fall to 0.221–0.319, *below all three Gemini legs* (0.336–0.381). A
   detector trained on US curb-ramp data loses to an off-the-shelf chat model the moment the
   design vocabulary changes. RampNet drops too (0.792 pooled → 0.644) but keeps the lead.
   Read this split with `benchmark/README.md`'s budapest caveat in hand — its GT is
