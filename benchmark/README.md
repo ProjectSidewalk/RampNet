@@ -113,6 +113,7 @@ marked for deletion; run the RampNet versions, not those.
 | annapolis | Mapillary 360 (Trimble MX7) | 125 | 0.964 | 0.728 |
 | paterson | GSV (Google Street View) | 125 | 0.975 | 0.684 |
 | gainesville | GSV (Google Street View) | 125 | 0.945 | 0.695 |
+| juneau | Mapillary 360 (Trimble MX7 + GoPro Max) | 125 | 0.967 | 0.687 |
 | budapest_district5 † | Mapillary 360 (GoPro Max) | 125 | 0.873 | 0.503 |
 | sao_paulo ‡ | GSV (Google Street View) | 125 | 0.888 | 0.676 |
 | laurens_mapillary § | Mapillary 360 (GoPro Max) | 94 | 0.898 | 0.390 |
@@ -140,7 +141,7 @@ confidence by a single rater, who found French crossing design hard to judge aga
 written around US corners. Held out of the pooled recommendation for geography; read its section
 below before quoting it.
 
-All twelve city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+All thirteen city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
@@ -162,6 +163,7 @@ hand-picked high-density panos — is the honest between-city comparison, and
 | annapolis | 120 | 0.961 | 0.692 |
 | paterson | 120 | 0.987 | 0.650 |
 | gainesville | 120 | 0.943 | 0.647 |
+| juneau | 120 | 0.978 | 0.664 |
 | budapest_district5 † | 120 | 0.885 | 0.459 |
 | sao_paulo ‡ | 120 | 0.869 | 0.626 |
 | laurens_mapillary § | 89 | 0.863 | 0.325 |
