@@ -42,7 +42,9 @@ mk() {  # name, python, extra pip specs
   fi
   "$d/bin/python" -c "import sys,torch,transformers;print('$d', sys.version.split()[0], 'torch', torch.__version__, 'transformers', transformers.__version__)"
 }
-mk rampnet-eval 3.12 "transformers==5.15.*" "ultralytics==8.4.*"
+# rampnet-eval was built on the system python; resolve it explicitly, or uv would prefer the
+# managed CPython installed above.
+mk rampnet-eval "$($UV python find --no-managed-python 3.12)" "transformers==5.15.*" "ultralytics==8.4.*"
 mk rampnet-eval2 "$MANAGED" "transformers==5.15.*" "ultralytics==8.4.*"
 mk molmo3 "$MANAGED" "transformers==4.57.1"
 for e in rampnet-eval2 molmo3; do
