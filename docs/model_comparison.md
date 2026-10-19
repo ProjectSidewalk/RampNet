@@ -675,11 +675,13 @@ What juneau adds:
 
 1. **The same rig gives the same ranking.** On the standing roster juneau orders every model
    exactly as annapolis does (RampNet, Gemini 3.1 Pro, Gemini 3.6 Flash, Molmo2-8B, Qwen3-VL-32B,
-   Qwen3-VL-8B, OWLv2, Grounding DINO), with most models a few points lower here; Molmo2-8B is
-   the exception (0.448 against 0.424). One split cannot say whether that is the rig, the
+   Qwen3-VL-8B, OWLv2, Grounding DINO), with most models a few points lower here; Molmo2-8B
+   (0.448 against 0.424) and OWLv2 (0.066 against 0.063) are higher, as are two of the
+   supervised YOLO arms off the roster (y26_pano 0.496 against 0.450, y11x_pano_h200 0.410
+   against 0.397). One split cannot say whether that is the rig, the
    contributor or the rubric, since juneau shares all three with annapolis.
 2. **RampNet's lead over the best standing-roster challenger is 0.261 F1** (Gemini 3.1 Pro
-   0.542), inside the prior 0.19–0.34 range; bayonne's 0.086 remains the narrowest.
+   0.542), against 0.273 over the same challenger on annapolis.
 
 **laurens_gsv** (86 reviewed panos, 220 GT ramps) — the **second imagery arm** of Laurens
 (2026-08-31), reviewer confidence HIGH; Google Street View zoom-5 over the same 1.91 km²

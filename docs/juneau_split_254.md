@@ -137,7 +137,9 @@ Gemini 3.6 Flash $1.92, Gemini 3.1 Pro $2.14, Gemini 3.7 Flash $1.54, **$5.60 to
 python scripts/analysis/imagery_manifest.py --verify --cities juneau --panos-root <checkout>
 python scripts/analysis/juneau_254.py verify
 
-# GPU (klone; one submission per env, see the header of the .slurm file)
+# GPU (klone): build the envs on a login node, then one submission per env
+# (exact commands, env per step and the YOLO_DIR links: the header of the .slurm file)
+bash scripts/analysis/juneau_254_klone_env.sh          # versions: analysis_out/juneau_254/envs/
 sbatch -A ckpt-makelab -p ckpt-g2 scripts/analysis/juneau_254_klone.slurm   # STEPS / PY / MOLMO_PY / YOLO_DIR
 BUNDLE=benchmark/juneau QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct \
     sbatch -A ckpt-makelab -p ckpt-g2 --gpus-per-node=2 scripts/model_comparison/run_qwen.slurm
@@ -185,9 +187,12 @@ within 2 R of a detected ramp refers to `2549721381871423`, the one Jon judged s
   cannot obtain from the repo; they are in the makelab2 archive and pinned by
   `imagery_manifest.json`.
 - **A second rater**: none. The review is single-rater at medium confidence.
-- **`docs/figures/operating_point_pr.png`**: not regenerated, as for Bayonne (`laurens_gsv` has
-  no op_cache, so the default split list exits on it), and juneau would be a ninth pooled series
-  past the palette's eight categorical slots, which needs a design decision first.
+- **`docs/figures/operating_point_pr.png` and `docs/figures/storage_floor_ceiling.png`**: not
+  regenerated. Both plotters read every split in `ALL_SPLITS` and take no split list, and
+  `laurens_gsv` has no op_cache, so they exit on it (the same blocker Bayonne hit; the
+  storage-floor figure was last regenerated at sao_paulo). For `operating_point_pr.png`, juneau
+  would also be a ninth pooled series past the palette's eight categorical slots, which needs a
+  design decision first. The CSVs behind both are current.
 - **The `dup?` tags of other splits**: `corrected` flags one A tag within 2 R of a detected ramp
   on each of clovis, morgantown, gainesville and budapest. If those raters also had no duplicate
   key, some may be duplicates scored A. Not re-checked here.

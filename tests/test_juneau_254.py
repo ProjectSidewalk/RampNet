@@ -26,6 +26,18 @@ def test_the_bundle_verifies():
                      "detections_055": 217}
 
 
+def test_the_gpu_checks_rederive_from_committed_caches():
+    """checks.json is the replication control + parity record of the klone run; it must stay
+    what the committed op_caches say (CPU only: both caches are committed)."""
+    import argparse
+    assert J.cmd_checks(argparse.Namespace(write=False, print=False)) == 0
+    res = J.build_checks()
+    rc, par = res["replication_control"], res["juneau_parity"]
+    assert rc["peaks_only_new"] == rc["peaks_only_committed"] == 0
+    assert rc["peaks_same_cell"] == 374
+    assert par["records"] == par["cache"] == 217 and par["panos_differing"] == []
+
+
 def test_the_review_says_who_made_it_and_how_sure_they_were():
     with open(os.path.join(BUNDLE, "verdicts.json"), encoding="utf-8") as f:
         v = json.load(f)

@@ -112,6 +112,7 @@ def build_checks():
     peaks, _ = load_peaks(JUNEAU_CACHE)
     recs = load_records(SPLIT)
     extras = parity_extras(peaks, recs)
+    n_rec = sum(1 for r in recs for d in r["detections"] if d["confidence"] >= DEPLOYED)
     n_cache = sum(1 for p in peaks.values() for q in p if q[2] >= DEPLOYED)
     seam_only = (bool(extras) and all(e["in_border_ring"] for x in extras for e in x["extra"])
                  and not any(x["missing_from_cache"] for x in extras))
@@ -123,10 +124,10 @@ def build_checks():
             "re_extracted_on": meta_new.get("device"),
             **repro_check(new, old)},
         "juneau_parity": {
-            "what": f"Juneau cache peaks >= {DEPLOYED} against the {EXPECTED_DETECTIONS} "
+            "what": f"Juneau cache peaks >= {DEPLOYED} against the {n_rec} "
                     "committed records.jsonl detections (low_floor_sweep.py parity reads "
                     "the same)",
-            "records": EXPECTED_DETECTIONS, "cache": n_cache,
+            "records": n_rec, "cache": n_cache,
             "panos_differing": extras,
             "reading": ("identical: every record reproduced, no extra cache peak" if not extras
                         else "every extra cache peak sits in the 10-cell border ring at the "

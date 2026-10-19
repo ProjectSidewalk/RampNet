@@ -358,10 +358,10 @@ the lowest deployed precision, so it looked like the binding constraint. It gain
 recall points for −6.0 precision**, the best ratio of any US split.
 
 **paterson is the other end of the same axis: the split the lever barely helps.** +3.5 recall
-points at 0.32 — half of any other US split — at the smallest precision cost (−1.8). Its
+points at 0.32 — the smallest gain of any US split (bend is next at +5.8) — at the smallest precision cost (−1.8). Its
 misses are not under-confident detections waiting below the threshold; most produce no
 candidate at any confidence (recall ceiling 0.757 at the 0.05 extraction floor, against
-0.87–0.94 for the other US splits except laurens_mapillary, 0.783 — see the storage-floor
+0.87–0.94 for the other US splits except juneau, 0.865, and laurens_mapillary, 0.783 — see the storage-floor
 section). The reviewer's notes name
 the likely populations: paired tactile indicators on one corner and far-field ramps
 (`benchmark/paterson/verdicts.json`). Threshold tuning cannot reach either.
@@ -502,8 +502,10 @@ gainesville; and 0.851 at 0.30 against 0.850 at 0.25 and 0.847 at 0.35 on the ei
 juneau. The curve is flat, and 0.30 is its top by 0.001.)
 
 **Caveat on 5 of the A tags** (1 each in clovis, morgantown, budapest, gainesville, juneau, at
-the 0.30 band): they sit within 2 match radii of an already-detected ramp, so they are more
-likely a second hit on one ramp than a ramp the GT missed. The tooling flags these rather than
+the 0.30 band): they sit within 2 match radii of an already-detected ramp, so they may be a
+second hit on one ramp rather than a ramp the GT missed. Juneau's one is not: its reviewer was
+shown it as a likely duplicate and judged it a separate ramp (`docs/juneau_split_254.md` §7);
+the other four were not adjudicated that way. The tooling flags these rather than
 hiding them; removing the four in the US pool changes pooled corrected precision by under 0.003.
 (At the wider 0.25 band gainesville carries 3 such A tags of its 12 — its paired diagonal-ramp
 corners put more A candidates in the ambiguous 2–3 R zone than any prior US split.)
@@ -543,7 +545,7 @@ Reproduce with `python scripts/analysis/low_floor_sweep.py floor` and
 paterson is the outlier at 0.25%, and not in a comforting way: its missed ramps are not
 sitting just under the floor waiting to be stored — they produce no candidate at any
 confidence. Its ceiling at the 0.05 extraction floor is **0.757**, against 0.87–0.94 for
-every other US split except laurens_mapillary (0.783), so for paterson the storage-floor question is nearly moot and the
+every other US split except juneau (0.865) and laurens_mapillary (0.783), so for paterson the storage-floor question is nearly moot and the
 recall problem lives in detection itself (see its per-split note above).
 
 sao_paulo sits at the gainesville end of that axis, more sharply: only 2 ramps (0.71%) are
