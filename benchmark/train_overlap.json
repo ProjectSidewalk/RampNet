@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-04",
+  "checked_at": "2026-10-19",
   "dataset": "projectsidewalk/rampnet-dataset",
   "dataset_split_sizes": {
     "train": 150066,
@@ -22,6 +22,7 @@
     "budapest_district5": [],
     "clovis": [],
     "gainesville": [],
+    "juneau": [],
     "laurens_gsv": [],
     "laurens_mapillary": [],
     "morgantown": [],
@@ -36,6 +37,7 @@
     "budapest_district5": 125,
     "clovis": 125,
     "gainesville": 125,
+    "juneau": 125,
     "laurens_gsv": 86,
     "laurens_mapillary": 94,
     "morgantown": 125,

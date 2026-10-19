@@ -120,6 +120,7 @@ def test_per_pano_notes_travel_only_where_they_were_written(built):
                   for city, t in tables.items())
     assert counts.pop("laurens_mapillary") == 3
     assert counts.pop("bayonne") == 1             # b517b388, the bike-lane cut (#159)
+    assert counts.pop("juneau") == 1              # 3983518571869137, diagonal ramps (#254)
     assert set(counts.values()) == {0}
 
 
