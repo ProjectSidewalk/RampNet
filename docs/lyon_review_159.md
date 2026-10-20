@@ -5,8 +5,10 @@ the pass bar are written down (`benchmark/lyon/audit_plan.json`), the never-trai
 committed, and the known-artifact counts are in. The panos are not local yet, so the overlay
 measurement, the imagery pin and the gallery check are still to do (section 7). Nobody has
 judged a detection. The plan, the pass bar and the group list are a **working draft**; Jon can
-amend them until the review opens. `bundle_provenance.json` → `posted` pins the version posted on
-#159, and `score` refuses any other. Lyon is not approved for training and nothing about it is
+amend them until the review opens. They were posted on #159 on 2026-10-20
+([comment](https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301107391), with the
+sha256 of `audit_plan.json` and `records.jsonl`); `bundle_provenance.json` → `posted` pins that
+version, and `score` refuses any other. Lyon is not approved for training and nothing about it is
 frozen.
 
 Issue [#159](https://github.com/ProjectSidewalk/RampNet/issues/159) (decision of
@@ -107,7 +109,7 @@ tail as a whole", not for any one camera in it.
 `stage` masks email-shaped tokens in every file it writes (#149); this draw contains none, so the
 committed `records.jsonl` is byte-identical to the exporter's.
 
-## 3. The pass bar (draft, posted on #159 before the review)
+## 3. The pass bar (draft, posted on #159 on 2026-10-20, before the review)
 
 - **Metric:** precision of the detections at confidence ≥ 0.55, the shipped threshold, the
   detections the reviewer judges.

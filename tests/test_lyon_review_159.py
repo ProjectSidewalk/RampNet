@@ -79,6 +79,15 @@ def test_the_plan_reproduces_byte_for_byte_and_carries_the_bar():
     assert plan["sampler_floors"] == {"group_min": 30, "empty_group_min": 3}
 
 
+def test_the_posted_pin_matches_the_committed_plan_and_records():
+    # Review of #264, finding 3: the plan in force when the review opens is the posted one.
+    with open(os.path.join(BUNDLE, "bundle_provenance.json"), encoding="utf-8") as f:
+        posted = json.load(f)["posted"]
+    assert posted["audit_plan_sha256"] == L._sha256(PLAN)
+    assert posted["records_jsonl_sha256"] == L._sha256(os.path.join(BUNDLE, "records.jsonl"))
+    assert "issuecomment" in posted["comment"]
+
+
 def test_check_compares_bytes_so_crlf_drift_fails(tmp_path):
     # Review of #264, finding 7.
     path = tmp_path / "x.json"

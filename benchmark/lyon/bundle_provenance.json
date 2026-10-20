@@ -48,5 +48,12 @@
     "changes": "records.jsonl is byte-identical to the exporter's (no email-shaped token in this draw)",
     "files": ["records.jsonl", "sample.json", "group_map.json", "ids.txt", "exclude_ids.txt", "run_peaks.json", "audit_plan.json", "bundle_provenance.json", "nadir_band.json and imagery_manifest.json (once the panos are local)", "index.csv and panos/ (git-ignored, travel with the imagery)"]
   },
-  "posted": null
+  "posted": {
+    "comment": "https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301107391",
+    "date": "2026-10-20",
+    "commit": "208c662",
+    "audit_plan_sha256": "a2e05f6ca92e02ac6f0689902ac819e565fa9e3b06d1e07cff1bcddacbcd688a",
+    "records_jsonl_sha256": "aa64a1e7874bf8775fd6689d48599799640e2767df45bfc1f6423d5f8bed1fc5",
+    "note": "the version of the plan and sample in force when the review opens; score refuses an audit_plan.json with any other sha256. Amending the plan before the review means a new post and a new pin here."
+  }
 }
