@@ -14,6 +14,7 @@ cluster, hours later, from an empty log -- so it is worth the two seconds `bash 
 costs. CPU-only, no network, no cluster.
 """
 
+import hashlib
 import re
 import shlex
 import shutil
@@ -162,3 +163,93 @@ def test_the_commit_line_survives_a_checkout_that_is_not_a_repo():
     )
     assert proc.returncode == 0, proc.stderr
     assert proc.stdout.strip() == "Repo commit: unknown   dirty files: unknown"
+
+
+# ------------------------------------------------ #263 control arm (run_finetune_control)
+
+CONTROL = REPO / "stage_two" / "run_finetune_control.slurm"
+AUG82 = REPO / "stage_two" / "run_finetune_aug82.slurm"
+
+
+def _block(path, start, end):
+    src = path.read_text()
+    i = src.index(start)
+    return src[i:src.index(end, i)]
+
+
+def test_control_keeps_every_aug82_preflight_verbatim():
+    """The env-tar unpack, the sha-checked conversion of the released weights, the
+    world-size check and the shared-library warm-up are copied, not rewritten: each one is
+    a fix for a klone failure (see the aug82 header). Only the per-campaign paths differ."""
+    renames = (("aug82env_", "ctrl263env_"),
+               ("$USER/aug82/released_rampnet_state_dict.pth",
+                "$USER/control263/released_rampnet_state_dict.pth"),
+               ("eight jobs starting together", "three seeds starting together"))
+    for start, end in (("# Run the env from node-local NVMe", 'if commit=$(git -C "$REPO"'),
+                       ("# Read the env's big shared libraries once", 'cd "$RUNDIR"')):
+        want = _block(AUG82, start, end)
+        for old, new in renames:
+            want = want.replace(old, new)
+        assert _block(CONTROL, start, end) == want, start
+    src = CONTROL.read_text()
+    assert "HF_SHA256=f2119e3becb0b551fa1470f7b7ba85b82122a3f73a6ed2a85609dd57617866b5" in src
+    assert 'sha256sum -c --quiet' in src
+
+
+def test_control_is_the_recipe_with_a_step_budget_and_nothing_else():
+    src = CONTROL.read_text()
+    call = src[src.index('             "$REPO/stage_two/train.py"'):
+               src.index('echo "--- Slurm job finished')]
+    args = shlex.split(call.replace("\\n", " "))
+    assert "--aug" not in args and "--loss-mask" not in args and "--lr-schedule" not in args
+    for flag, value in (("--seed", "$SEED"), ("--init-weights", "$INIT"),
+                        ("--max-steps", "$STEPS"), ("--grad-accum", "$ACCUM"),
+                        ("--lr", "$LR"), ("--data-root", "$DATA_ROOT")):
+        assert args[args.index(flag) + 1] == value, flag
+    for line in ('STEPS="${STEPS:-2000}"', 'GLOBAL_BATCH="${GLOBAL_BATCH:-16}"',
+                 'LR="${LR:-1e-5}"',
+                 'RUNDIR="${RUNDIR:-/gscratch/scrubbed/$USER/control263/s${SEED}}"',
+                 'COPY_DEST="${COPY_DEST:-/gscratch/makelab/jonf/control263/s${SEED}}"'):
+        assert any(ln.split('  #')[0].rstrip() == line for ln in src.splitlines()), line
+
+
+@requires_bash
+def test_control_seed_guard_rejects_an_unset_seed():
+    line = next(ln for ln in CONTROL.read_text().splitlines() if ln.startswith("SEED="))
+    proc = subprocess.run([BASH, "-c", line], capture_output=True, text=True,
+                          env={"PATH": "/usr/bin:/bin"})
+    assert proc.returncode != 0 and "SEED" in proc.stderr
+
+
+@requires_bash
+@pytest.mark.parametrize("finished", [True, False], ids=["finished", "unfinished"])
+def test_control_copy_step(tmp_path, finished):
+    """The copy step is the one new piece of shell here: it must copy the final weights
+    with a sha256 beside them, and fail the job when the final weights do not exist."""
+    m = re.search(r"^# --- copy step.*?^# --- end copy step ---$", CONTROL.read_text(),
+                  re.S | re.M)
+    assert m, "no copy-step block"
+    run, dest, repo = tmp_path / "run", tmp_path / "dest" / "s1", tmp_path / "repo"
+    (run / "checkpoints").mkdir(parents=True)
+    (run / "runs" / "experiment_1").mkdir(parents=True)
+    (run / "runs" / "experiment_1" / "events.out").write_text("ev")
+    (repo / "logs").mkdir(parents=True)
+    (repo / "logs" / "control263_77.out").write_text("log")
+    if finished:
+        (run / "checkpoints" / "final_step_5.pth").write_bytes(b"weights")
+    script = "\n".join(["set -euo pipefail", f"RUNDIR={run.as_posix()}",
+                        f"COPY_DEST={dest.as_posix()}", f"REPO={repo.as_posix()}",
+                        "STEPS=5", "SLURM_JOB_ID=77", m.group(0)])
+    proc = subprocess.run([BASH, "-c", script], capture_output=True, text=True)
+    if not finished:
+        assert proc.returncode == 1 and "final_step_5.pth" in proc.stderr
+        assert not dest.exists()
+        return
+    assert proc.returncode == 0, proc.stderr
+    assert (dest / "final_step_5.pth").read_bytes() == b"weights"
+    sha = (dest / "final_step_5.pth.sha256").read_text().split()
+    # Git Bash on Windows marks binary mode with a leading "*"; coreutils on Linux does not
+    assert [sha[0], sha[1].lstrip("*")] == [hashlib.sha256(b"weights").hexdigest(),
+                                            "final_step_5.pth"]
+    assert (dest / "runs" / "experiment_1" / "events.out").read_text() == "ev"
+    assert (dest / "control263_77.out").read_text() == "log"
