@@ -1259,9 +1259,11 @@ def test_by_split_heatmap_rows_sort_by_pooled_mean_in_two_groups():
     # The aggregate IS the headline number, and each group is sorted by it.
     for m, mean_f1, _ in full + partial:
         assert mean_f1 == m["f1"]
-    for group in (full, partial):
-        means = [v for _, v, _ in group if v is not None]
-        assert means == sorted(means, reverse=True)
+    means = [v for _, v, _ in full]
+    assert means == sorted(means, reverse=True)
+    # The partial group sorts by coverage first, then by its mean within a coverage level.
+    keys = [(n, v) for _, v, n in partial if v is not None]
+    assert keys == sorted(keys, key=lambda k: (-k[0], -k[1]))
 
     # RampNet leads by sorting, not by being pinned there.
     assert full[0][0]["model"] == "rampnet"

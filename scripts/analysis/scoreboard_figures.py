@@ -298,9 +298,10 @@ def by_split_rows(result):
     cells, so the aggregate column can never disagree with the cells printed beside it.
 
     * ``full``: legs that ran every pooled city, sorted by pooled mean, descending.
-    * ``partial``: every other leg, in its own group, sorted by the mean over the pooled
-      cities it did run (a leg with none sorts last). Kept apart so a one-city leg is never
-      ranked against a nine-city mean.
+    * ``partial``: every other leg, in its own group, sorted by how many pooled cities it
+      ran (most first), then by the mean over those cities (a leg with none sorts last).
+      Kept apart so a one-city leg is never ranked against a nine-city mean, and ordered by
+      coverage first so a one-city mean never sits above an eight-city one either.
 
     Works on the in-memory board and on ``analysis_out/scoreboard.json`` alike. Ties keep
     the board's order (complete, then class, then F1), because ``sort`` is stable.
@@ -327,7 +328,7 @@ def by_split_rows(result):
             assert m["f1"] is None, m["model"]
         (full if m["complete"] else partial).append((m, m["f1"], n_run))
     full.sort(key=lambda r: -r[1])
-    partial.sort(key=lambda r: (r[1] is None, -(r[1] or 0.0)))
+    partial.sort(key=lambda r: (r[1] is None, -r[2], -(r[1] or 0.0)))
     return full, partial
 
 
@@ -468,8 +469,8 @@ def fig_by_split(result, path, plt):
     line = 11.0 / (fig_h * 72.0)
     fig.text(0.008, 0.008 + line,
              f"Pooled mean: macro-mean F1 over the {_n_pooled(result)} pooled US cities, the "
-             "headline number (docs/model_scoreboard.md); rows are sorted by it, within each "
-             "group.",
+             "headline number (docs/model_scoreboard.md); full-coverage rows are sorted by it, "
+             "partial rows by coverage, then by it.",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     fig.text(0.008, 0.008,
              "† held out of the pooled headline: laurens_gsv (second imagery arm of pooled "
