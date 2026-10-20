@@ -19,6 +19,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -182,8 +183,7 @@ def test_control_keeps_every_aug82_preflight_verbatim():
     world-size check and the shared-library warm-up are copied, not rewritten: each one is
     a fix for a klone failure (see the aug82 header). Only the per-campaign paths differ."""
     renames = (("aug82env_", "ctrl263env_"),
-               ("$USER/aug82/released_rampnet_state_dict.pth",
-                "$USER/control263/released_rampnet_state_dict.pth"),
+               ("$USER/aug82/sidewalkcv2_env.tar", "$USER/control263/sidewalkcv2_env.tar"),
                ("eight jobs starting together", "three seeds starting together"))
     for start, end in (("# Run the env from node-local NVMe", 'if commit=$(git -C "$REPO"'),
                        ("# Read the env's big shared libraries once", 'cd "$RUNDIR"')):
@@ -209,6 +209,8 @@ def test_control_is_the_recipe_with_a_step_budget_and_nothing_else():
     for line in ('STEPS="${STEPS:-2000}"', 'GLOBAL_BATCH="${GLOBAL_BATCH:-16}"',
                  'LR="${LR:-1e-5}"',
                  'RUNDIR="${RUNDIR:-/gscratch/scrubbed/$USER/control263/s${SEED}}"',
+                 'DATA_ROOT="${DATA_ROOT:-/gscratch/scrubbed/$USER/rampnet_dataset_v2}"',
+                 'INIT="${INIT:-/gscratch/scrubbed/$USER/aug82/released_rampnet_state_dict.pth}"',
                  'COPY_DEST="${COPY_DEST:-/gscratch/makelab/jonf/control263/s${SEED}}"'):
         assert any(ln.split('  #')[0].rstrip() == line for ln in src.splitlines()), line
 
@@ -253,3 +255,112 @@ def test_control_copy_step(tmp_path, finished):
                                             "final_step_5.pth"]
     assert (dest / "runs" / "experiment_1" / "events.out").read_text() == "ev"
     assert (dest / "control263_77.out").read_text() == "log"
+
+
+def _run_block(script_path, start, end, prelude, **kw):
+    m = re.search(rf"^{re.escape(start)}.*?^{re.escape(end)}.*?$", script_path.read_text(),
+                  re.S | re.M)
+    assert m, (start, end)
+    return subprocess.run([BASH, "-c", "set -euo pipefail\n" + prelude + "\n" + m.group(0)],
+                          capture_output=True, text=True, **kw)
+
+
+@requires_bash
+@pytest.mark.parametrize("case", ["missing", "present", "other_name"])
+def test_control_rebuilds_a_missing_env_tarball(tmp_path, case):
+    """The #82 tarball was purged; the control rebuilds it once (atomically) rather than
+    running four ranks off the GPFS env, and leaves an existing tar or an env it cannot
+    unpack by name alone."""
+    if case == "missing" and sys.platform == "win32":
+        pytest.skip("GNU tar reads C:/... as host:file; klone paths have no colon")
+    name = "sidewalkcv2" if case != "other_name" else "otherenv"
+    env = tmp_path / "envs" / name
+    (env / "bin").mkdir(parents=True)
+    (env / "bin" / "python").write_text("py")
+    tar = tmp_path / "cache" / "sidewalkcv2_env.tar"
+    if case == "present":
+        tar.parent.mkdir()
+        tar.write_text("existing")
+    proc = _run_block(CONTROL, "# --- env tarball rebuild", "# --- end env tarball rebuild",
+                      f"RAMPNET_ENV={env.as_posix()}\nENV_TAR={tar.as_posix()}\n"
+                      "SLURM_JOB_ID=9")
+    assert proc.returncode == 0, proc.stderr
+    if case == "present":
+        assert tar.read_text() == "existing"
+    elif case == "other_name":
+        assert not tar.exists()
+    else:
+        import tarfile
+        with tarfile.open(tar) as tf:
+            assert "sidewalkcv2/bin/python" in tf.getnames()
+        assert not list(tar.parent.glob("*.tmp.*"))
+
+
+@requires_bash
+@pytest.mark.parametrize("n_train, ok", [(3, True), (2, False)])
+def test_control_refuses_a_thinned_dataset(tmp_path, n_train, ok):
+    """The last staged copy lost most of train/ and all of val/ to the scrubbed purge
+    without anything failing. The preflight compares file counts before any GPU time."""
+    for split, n in (("train", n_train), ("val", 1)):
+        (tmp_path / split).mkdir()
+        for i in range(n):
+            (tmp_path / split / f"p{i}.jpg").write_text("x")
+            (tmp_path / split / f"p{i}.json").write_text("{}")
+    line = next(ln for ln in CONTROL.read_text().splitlines() if ln.startswith("DATA_ROOT="))
+    proc = _run_block(CONTROL, "EXPECT_TRAIN=", "done",
+                      f"DATA_ROOT={tmp_path.as_posix()}\nEXPECT_TRAIN=3\nEXPECT_VAL=1\n"
+                      + line)
+    assert (proc.returncode == 0) == ok, proc.stderr
+    if not ok:
+        assert "has 2 panos, expected 3" in proc.stderr
+
+
+# --------------------------------------------- #263 dataset re-stage (run_restage_263)
+
+RESTAGE = REPO / "stage_two" / "run_restage_263.slurm"
+
+
+def _assignment(path, var):
+    line = next(ln for ln in path.read_text().splitlines() if ln.startswith(var + "="))
+    return line.split("=", 1)[1].split("  #")[0].strip()
+
+
+def test_restage_writes_where_the_control_reads():
+    """The re-stage target, the control arm's default DATA_ROOT and the counts the control
+    checks must agree, or the control refuses a correct dataset (or reads a stale one)."""
+    out = _assignment(RESTAGE, "OUT")
+    assert out == "/gscratch/scrubbed/jfroehli/rampnet_dataset_v2"
+    data_root = _assignment(CONTROL, "DATA_ROOT")
+    assert data_root == '"${DATA_ROOT:-/gscratch/scrubbed/$USER/rampnet_dataset_v2}"'
+    src = RESTAGE.read_text()
+    train = _assignment(CONTROL, "EXPECT_TRAIN").strip('"').split("-")[1].rstrip("}")
+    val = _assignment(CONTROL, "EXPECT_VAL").strip('"').split("-")[1].rstrip("}")
+    assert f"{int(train):,} / {int(val):,}" in src
+
+
+def test_restage_runs_download_dataset_the_way_it_writes():
+    """download_dataset.py takes no arguments and writes ./dataset relative to its cwd, so
+    the job must cd into a dir whose `dataset` is the target. Its scratch must not be /tmp
+    (node-local on klone) or $HOME (a 10 GB quota)."""
+    dl = (REPO / "download_dataset.py").read_text()
+    assert 'OUTPUT_DIR = "./dataset"' in dl
+    src = RESTAGE.read_text()
+    assert 'ln -sfn "$OUT" "$STAGE/dataset"' in src and 'cd "$STAGE"' in src
+    assert src.index('cd "$STAGE"') < src.index('"$PY" "$REPO/download_dataset.py"')
+    assert "set -euo pipefail" in src
+    hf_home = _assignment(RESTAGE, "export HF_HOME")
+    assert hf_home.startswith("/gscratch/") and "/tmp" not in src
+
+
+@requires_bash
+@pytest.mark.skipif(sys.platform == "win32", reason="Git Bash ln -s copies instead of linking")
+def test_restage_symlink_lands_the_files_in_out(tmp_path):
+    src = RESTAGE.read_text()
+    body = src[src.index('mkdir -p "$OUT" "$STAGE"'):src.index('echo "host')]
+    out, stage = tmp_path / "v2", tmp_path / "stage"
+    script = "\n".join(["set -euo pipefail", f"OUT={out.as_posix()}",
+                        f"STAGE={stage.as_posix()}", body,
+                        "mkdir -p dataset/train && touch dataset/train/a.jpg"])
+    proc = subprocess.run([BASH, "-c", script], capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    assert (out / "train" / "a.jpg").exists()

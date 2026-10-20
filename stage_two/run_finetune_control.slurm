@@ -9,8 +9,26 @@
 # preflight there is kept verbatim (node-local env tar, sha-checked released weights,
 # shared-library warm-up, world-size/batch check); read that header and
 # run_train_seed.slurm's before changing anything here. Differences: no ARM, no --aug, its
-# own RUNDIR and INIT under /gscratch/scrubbed/$USER/control263, a check that the dataset
-# is staged, and a COPY STEP at the end. ENV_TAR still defaults to the #82 tarball path.
+# own RUNDIR under /gscratch/scrubbed/$USER/control263, the re-staged dataset with a
+# file-count check, an env tarball it REBUILDS when missing, and a COPY STEP at the end.
+# INIT stays the #82 screen's converted released weights, so this arm starts from the same
+# file the #82 control did (and the sha-checked conversion re-creates it if purged).
+#
+# THE ENV TARBALL IS REBUILT WHEN MISSING. The #82 tar was purged from scrubbed by
+# 2026-10-20. The aug82 header's GPFS note is why this rebuilds it rather than running
+# from the GPFS env: four ranks importing torch from /gscratch/makelab sat 25-30 min in
+# uninterruptible I/O, while one sequential `tar cf` read of the same env (job 41123104)
+# did not stall. So a job that finds no tar makes one -- into a job-unique temp file, then
+# `mv -n`, so seeds starting together each build their own and the first to finish wins
+# (a few minutes of duplicated reading, once) -- and every later start and requeue unpacks
+# it to node-local disk. If the env is not named sidewalkcv2 (the unpack step expects that
+# name) or the tar fails, the job falls back to the GPFS env plus the library warm-up.
+#
+# THE DATASET is /gscratch/scrubbed/$USER/rampnet_dataset_v2, written by
+# run_restage_263.slurm (the older rampnet_dataset copy was partly purged: 114,667 of
+# ~300,126 train files, val empty). The job refuses to start unless train/ and val/ hold
+# the full 150,063 and 42,875 panos, because a purge that thins the data silently is
+# exactly what happened to the last copy. EXPECT_TRAIN= EXPECT_VAL= (empty) skip the check.
 #
 # WHY A COPY STEP. /gscratch/scrubbed is purged (the Stage 2 dataset copy there was partly
 # gone by 2026-10, #263), and this arm's weights are the baseline every later arm is scored
@@ -69,11 +87,21 @@ if ! grep -q -- "--max-steps" "$REPO/stage_two/train.py" 2>/dev/null \
     echo "FATAL: $REPO/stage_two/train.py has no --max-steps / --grad-accum (stale checkout?)" >&2
     exit 1
 fi
-DATA_ROOT="${DATA_ROOT:-/gscratch/scrubbed/$USER/rampnet_dataset}"
+DATA_ROOT="${DATA_ROOT:-/gscratch/scrubbed/$USER/rampnet_dataset_v2}"
+EXPECT_TRAIN="${EXPECT_TRAIN-150063}"  # panos (jpg) per split from run_restage_263.slurm;
+EXPECT_VAL="${EXPECT_VAL-42875}"       # set either to empty to skip its check
 for split in train val; do
     if [ ! -d "$DATA_ROOT/$split" ]; then
-        echo "FATAL: no $DATA_ROOT/$split -- re-stage the Stage 2 dataset first (#263)" >&2
+        echo "FATAL: no $DATA_ROOT/$split -- run stage_two/run_restage_263.slurm first (#263)" >&2
         exit 1
+    fi
+    if [ "$split" = train ]; then want="$EXPECT_TRAIN"; else want="$EXPECT_VAL"; fi
+    if [ -n "$want" ]; then
+        have=$(find "$DATA_ROOT/$split" -maxdepth 1 -name "*.jpg" | wc -l)
+        if [ "$have" -ne "$want" ]; then
+            echo "FATAL: $DATA_ROOT/$split has $have panos, expected $want (purged or partial?)" >&2
+            exit 1
+        fi
     fi
 done
 RUNDIR="${RUNDIR:-/gscratch/scrubbed/$USER/control263/s${SEED}}"
@@ -83,6 +111,22 @@ TORCHRUN="$RAMPNET_ENV/bin/torchrun"
 PY="$RAMPNET_ENV/bin/python"
 [ -x "$TORCHRUN" ] || { echo "FATAL: RAMPNET_ENV=$RAMPNET_ENV has no bin/torchrun" >&2; exit 1; }
 
+# --- env tarball rebuild (see header) ---
+ENV_TAR="${ENV_TAR:-/gscratch/scrubbed/$USER/control263/sidewalkcv2_env.tar}"
+if [ ! -f "$ENV_TAR" ] && [ "$(basename "$RAMPNET_ENV")" = sidewalkcv2 ]; then
+    mkdir -p "$(dirname "$ENV_TAR")"
+    tmp_tar="$ENV_TAR.tmp.${SLURM_JOB_ID:-$$}"
+    t_tar=$(date +%s)
+    if tar cf "$tmp_tar" -C "$(dirname "$RAMPNET_ENV")" sidewalkcv2; then
+        mv -n "$tmp_tar" "$ENV_TAR" || true
+        echo "Built env tarball $ENV_TAR from $RAMPNET_ENV in $(( $(date +%s) - t_tar )) s"
+    else
+        echo "WARNING: could not tar $RAMPNET_ENV; running from the GPFS env" >&2
+    fi
+    rm -f "$tmp_tar"
+fi
+# --- end env tarball rebuild ---
+
 # Run the env from node-local NVMe when a tarball of it exists. On 2026-10-02, ranks reading
 # the env from /gscratch/makelab sat 25-30 min in uninterruptible GPFS I/O inside
 # `import torch` before train.py's first line, on four different nodes (41106892/93/94/95/
@@ -90,7 +134,7 @@ PY="$RAMPNET_ENV/bin/python"
 # hit the per-file stall. The tar is made once by `tar cf $ENV_TAR -C
 # /gscratch/makelab/jonf/envs sidewalkcv2` (job 41123104); without it the job falls back to
 # the GPFS env.
-ENV_TAR="${ENV_TAR:-/gscratch/scrubbed/$USER/aug82/sidewalkcv2_env.tar}"
+ENV_TAR="${ENV_TAR:-/gscratch/scrubbed/$USER/control263/sidewalkcv2_env.tar}"
 if [ -f "$ENV_TAR" ]; then
     LOCAL_ENV_DIR="/scr/$USER/ctrl263env_${SLURM_JOB_ID}_${SLURM_RESTART_COUNT:-0}"
     mkdir -p "$LOCAL_ENV_DIR"
@@ -111,7 +155,7 @@ PY="$RAMPNET_ENV/bin/python"
 # (read only -- nothing is written to home). The sha is checked before conversion.
 HF_SAFETENSORS="${HF_SAFETENSORS:-$HOME/.cache/huggingface/hub/models--projectsidewalk--rampnet-model/snapshots/606a11956743f7eb328d9207769034752f6191f4/model.safetensors}"
 HF_SHA256=f2119e3becb0b551fa1470f7b7ba85b82122a3f73a6ed2a85609dd57617866b5
-INIT="${INIT:-/gscratch/scrubbed/$USER/control263/released_rampnet_state_dict.pth}"
+INIT="${INIT:-/gscratch/scrubbed/$USER/aug82/released_rampnet_state_dict.pth}"
 mkdir -p "$(dirname "$INIT")" "$RUNDIR/checkpoints" "$REPO/logs"
 if [ ! -f "$INIT" ]; then
     echo "$HF_SHA256  $HF_SAFETENSORS" | sha256sum -c --quiet         || { echo "FATAL: $HF_SAFETENSORS is not the released blob $HF_SHA256" >&2; exit 1; }
