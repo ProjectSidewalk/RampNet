@@ -175,7 +175,11 @@ reproduces the 2026-09-03 table to ±0.001: that table took differences of round
 *The last two rows were added on 2026-10-19, when the newest-ids campaign
 ([`claude_newest_ids.md`](claude_newest_ids.md)) ran both legs on both arms; no other row
 changed. `claude-opus-5-5`, the strongest zero-shot leg on both arms, is flat across the rigs
-on the paired corners (−0.013 [−0.079, +0.054]) where RampNet gains +0.112.*
+on the paired corners (−0.013 [−0.079, +0.054]) where RampNet gains +0.112. Against RampNet on
+the whole arms, Opus 5.5's higher F1 is established on `laurens_mapillary` (RampNet minus Opus
+5.5 −0.136, 95% CI [−0.216, −0.053]) but not on `laurens_gsv` (−0.042 [−0.101, +0.020], which
+includes zero); pano bootstrap, `scripts/analysis/claude_newest_ids_261.py`. Both legs are single runs, no seed
+variance, effort low only, first-party serving path.*
 
 - **`rampnet@0.30` has no GSV side.** `laurens_gsv` has no `op_cache`: its bundle stops at the
   deployed 0.55, and producing the low-floor cache needs GPU inference, which this CPU-only
@@ -222,9 +226,12 @@ significant.
 
 ### 3.1 What the zero-shot rows show, and what they do not
 
-No zero-shot leg gains F1 on the GSV arm of the same corners (largest +0.009). Three lose with an
-interval that excludes zero: `gemini-3.1-pro-preview` −0.106, `owlv2` −0.011, and `Qwen3-VL-32B`
-−0.085, but the last is a near-silent leg (above). Because both arms are the same town, these rows
+No zero-shot leg gains F1 on the GSV arm of the same corners (largest +0.009). Four lose with an
+interval that excludes zero: `claude-fable-5-1` −0.135 [−0.225, −0.043], the largest loss,
+`gemini-3.1-pro-preview` −0.106, `Qwen3-VL-32B` −0.085 and `owlv2` −0.011, but `Qwen3-VL-32B` is
+a near-silent leg (above). (Until 2026-10-20 this paragraph said three; the Fable 5.1 row was
+added on 2026-10-19 and the count was not updated. `claude-fable-5-1` is a single run, no seed
+variance, effort low only, first-party serving path.) Because both arms are the same town, these rows
 compare rigs, and they cannot test whether the town is hard. Three numbers point to a deficit that
 does not depend on the rig:
 

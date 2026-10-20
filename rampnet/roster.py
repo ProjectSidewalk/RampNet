@@ -296,8 +296,11 @@ ROSTER = (
              "cleared the 0.567 gate, tied with claude-fable-5 (0.611) at a more "
              "precise operating point. Run on the other 12 splits on 2026-10-19/20: "
              "pooled F1 0.598, manual_gold 0.638, behind claude-opus-5-5 on all 13 "
-             "splits. Beats RampNet on bayonne only (0.540 vs 0.517). Single runs, "
-             "effort low only, first-party API. See docs/claude_newest_ids.md."),
+             "splits. Scores above RampNet on bayonne only (0.540 vs 0.517), and the "
+             "paired interval includes zero (RampNet minus it -0.023 [-0.096, +0.050], "
+             "scripts/analysis/claude_newest_ids_261.py), so that is a point estimate, "
+             "not an established win. Single runs, no seed variance, effort low only, "
+             "first-party API. See docs/claude_newest_ids.md."),
     Challenger(
         spec="claude:claude-fable-5", label="claude-fable-5", provider="claude",
         density="sparse", standing=False, added="2026-09-05",
@@ -318,8 +321,12 @@ ROSTER = (
         note="All 13 splits, manual_gold and bayonne included (2026-10-19/20). "
              "Pooled F1 0.710 (P 0.691 / R 0.737), the best challenger with full "
              "pooled coverage, 0.082 behind RampNet; manual_gold 0.722. Beats RampNet "
-             "on both Laurens arms (0.679, 0.701) and bayonne (0.619), so RampNet tops "
-             "10 of 13. Ahead of claude-fable-5-1 on all 13 splits at the same input "
+             "on laurens_mapillary (0.679; RampNet minus it -0.136 [-0.216, -0.053]) "
+             "and bayonne (0.619; -0.102 [-0.165, -0.040]); also above it on "
+             "laurens_gsv (0.701) but that interval includes zero (-0.042 [-0.101, "
+             "+0.020]). Paired pano bootstrap, scripts/analysis/claude_newest_ids_261.py. "
+             "RampNet tops 10 of 13. Not run on juneau (PR #260 makes it a ninth pooled "
+             "split). Ahead of claude-fable-5-1 on all 13 splits at the same input "
              "and similar output per call (~18 thinking tokens/call against ~3) and "
              "~2.5x lower cost per pano. Single runs, no seed variance, effort low "
              "only, first-party API. See docs/claude_newest_ids.md."),

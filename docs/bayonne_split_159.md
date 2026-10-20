@@ -502,8 +502,12 @@ F1 difference.
 1. *Superseded 2026-10-20: RampNet no longer has the top F1 here. Off-roster
    `claude-opus-5-5` (0.619) and `claude-fable-5-1` (0.540) at effort low both score above
    RampNet's 0.517, each a single run, no seed variance, effort low only, first-party serving path
-   ([`claude_newest_ids.md`](claude_newest_ids.md)). The finding below is as written, against
-   the legs run on 2026-10-04.*
+   ([`claude_newest_ids.md`](claude_newest_ids.md)). With the same pano-level paired bootstrap
+   (10,000 draws, seed 0; `scripts/analysis/claude_newest_ids_261.py`), RampNet minus Opus 5.5 is −0.102,
+   95% CI [−0.165, −0.040], so Opus 5.5 beats RampNet here. RampNet minus Fable 5.1 is −0.023
+   [−0.096, +0.050]; that interval includes zero, so Fable 5.1's higher F1 is a point estimate,
+   not an established win. The finding below is as written, against the legs run on
+   2026-10-04.*
    **RampNet has the top F1, by the narrowest lead over a zero-shot challenger on any split:
    0.086** over gemini-3.1-pro-preview, bootstrap 95% CI [0.005, 0.168] (RampNet ahead in 98.2%
    of draws). The previous zero-shot low was laurens_mapillary's 0.114 over claude-opus-5 at

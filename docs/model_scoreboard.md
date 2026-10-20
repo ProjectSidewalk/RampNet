@@ -77,7 +77,12 @@ model, and the reasons are in "How to read this" below.
 operating points in the table. Claude Opus 5.5 at low effort is a zero-shot chat model; it
 joined the board on 2026-10-19 ([`claude_newest_ids.md`](claude_newest_ids.md)). Its numbers
 are a single run, no seed variance, effort low only, first-party serving path, so the 0.082
-carries no seed interval. Before it,
+carries no seed interval. **It depends on the pool staying at eight splits:** Opus 5.5 and
+Fable 5.1 were not run on `juneau`, which open PR #260 adds as a ninth pooled US split. When
+#260 merges the pool has nine cities and both legs have run eight of them, so 0.710, 0.598 and the 0.082 lead need
+either juneau legs (estimated $28.91–29.79 for both, at the campaign's measured per-pano cost;
+not run) or a regeneration, which moves both legs to the partial-coverage table
+([`claude_newest_ids.md`](claude_newest_ids.md), "Not done yet"). Before it,
 the best challenger with full pooled coverage was YOLO11l, 0.193 behind RampNet. RampNet also leads in F1 on ground truth that never saw a
 RampNet review (`manual_gold`, 0.908 against YOLO11x's 0.851), but only in F1 and only at
 these operating points: YOLO11x has the higher `manual_gold` AP (see "In-distribution vs
@@ -256,12 +261,17 @@ shown because omitting them would be worse, not because they belong in the headl
 Three things this matrix settles that no single-number ranking can:
 
 - **RampNet has the top score in ten of the thirteen splits.** The exceptions are the two
-  Laurens arms and `bayonne`. On `laurens_gsv` Claude Opus 5.5 at low effort scores 0.701
-  against RampNet's 0.659. On `laurens_mapillary` Claude Opus 5.5 scores 0.679, and two YOLO
-  pano arms at conf 0.25 also beat RampNet: YOLO26 0.574 and YOLO11l 0.563, against RampNet's
-  0.543. On `bayonne` Claude Opus 5.5 scores 0.619 and Claude Fable 5.1 0.540, against
-  RampNet's 0.517; bayonne's GT is single-rater at medium confidence and is held out of the
-  pool. The Claude wins are from 2026-10-19/20 ([`claude_newest_ids.md`](claude_newest_ids.md)),
+  Laurens arms and `bayonne`. Claude Opus 5.5 at low effort beats RampNet on
+  `laurens_mapillary` (0.679 against 0.543; RampNet minus Opus 5.5 −0.136, paired 95% CI
+  [−0.216, −0.053]) and on `bayonne` (0.619 against 0.517; −0.102 [−0.165, −0.040]). On
+  `laurens_gsv` it scores 0.701 against RampNet's 0.659, and on `bayonne` Claude Fable 5.1
+  scores 0.540 against 0.517, but both intervals include zero (−0.042 [−0.101, +0.020] and
+  −0.023 [−0.096, +0.050]), so those two are point estimates, not established wins. The
+  intervals are a pano-level paired bootstrap, 10,000 draws
+  (`scripts/analysis/claude_newest_ids_261.py`). On `laurens_mapillary` two YOLO
+  pano arms at conf 0.25 also score above RampNet: YOLO26 0.574 and YOLO11l 0.563, against
+  RampNet's 0.543. Bayonne's GT is single-rater at medium confidence and is held out of the
+  pool. The Claude results are from 2026-10-19/20 ([`claude_newest_ids.md`](claude_newest_ids.md)),
   each a single run, no seed variance, effort low only, first-party serving path. The YOLO
   result is an operating-point result: read full-range,
   RampNet's AP there is still the highest of the four, but only just: 0.691 against YOLO11l's

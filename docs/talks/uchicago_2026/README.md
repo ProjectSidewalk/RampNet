@@ -1,6 +1,8 @@
 # RampNet slides for the UChicago Distinguished Lecture (October 2026)
 
-**Status: draft, 2026-10-11.** Slide outline, 13 slide figures, four system diagrams, a heatmap
+**Status: delivered Friday 2026-10-16.** The outline and figures below are kept as given
+(drafted 2026-10-11); later results are added as dated notes, not by changing the slides. Slide
+outline, 13 slide figures, four system diagrams, a heatmap
 demo, a 32-panorama showcase video, two Street View time-lapses, and a record of a 3D fly-around
 attempt that is not talk-ready. Six to seven slides on RampNet inside a talk on urban computing.
 Every number here is read from [`rampnet1_findings.md`](../../rampnet1_findings.md) or from the
@@ -76,7 +78,7 @@ Three baselines, in increasing strength:
 | baseline | number | source |
 |---|---|---|
 | Prior curb-ramp detectors | Weld et al. 0.38 AP on our gold set vs RampNet 0.92; Tohme and Weld were at 26–34% precision | paper §2, `rampnet1_report.md` §3 |
-| Nine zero-shot models (Gemini 3.1 Pro, Claude Opus 5, Qwen3-VL, Molmo2, OWLv2, Grounding DINO, ...) | RampNet 0.792 pooled F1 over eight US cities vs 0.575 for the best; *superseded 2026-10-19/20: Claude Opus 5.5 at effort low pools 0.710 (lead 0.082) and beats RampNet on both Laurens arms and bayonne, see the note under Slide 5*; leads on all thirteen bundles, by 0.09 (bayonne) to 0.34 (manual_gold, against Gemini 3.1 Pro; 0.38 against the best zero-shot model re-derivable from `scoreboard.json`, which is the gap the transfer figure shows on manual_gold; the lead over the best supervised YOLO arm there is only 0.058) | `model_scoreboard.md`, findings §2 row 1 |
+| Nine zero-shot models (Gemini 3.1 Pro, Claude Opus 5, Qwen3-VL, Molmo2, OWLv2, Grounding DINO, ...) | RampNet 0.792 pooled F1 over eight US cities vs 0.575 for the best; *superseded 2026-10-19/20, after the talk: Claude Opus 5.5 at effort low pools 0.710 (lead 0.082), beats RampNet on laurens_mapillary and bayonne, and scores above it on laurens_gsv with a paired interval that includes zero; single run, no seed variance, effort low only; see the note under Slide 5*; leads on all thirteen bundles, by 0.09 (bayonne) to 0.34 (manual_gold, against Gemini 3.1 Pro; 0.38 against the best zero-shot model re-derivable from `scoreboard.json`, which is the gap the transfer figure shows on manual_gold; the lead over the best supervised YOLO arm there is only 0.058) | `model_scoreboard.md`, findings §2 row 1 |
 | A supervised YOLO trained on the same dataset | 0.599 at its default threshold; at matched operating points and across seeds the gap is 0.016 F1, 95% CI [0.008, 0.024] | `seed_variance_51_135.md`, findings §2 row 3 |
 
 The honest framing, which Jon chose: the dataset is the result; the keypoint formulation is a
@@ -98,11 +100,13 @@ manual_gold detections, so the pooled mean would not be over the same models.
 - Thirteen benchmark bundles, three imagery sources (GSV, Mapillary 360° on consumer and survey
   rigs, Panoramax), four countries (US, Brazil, Hungary, France). RampNet beats the best zero-shot
   model on every split.
-- **Superseded 2026-10-19/20, after this outline was drafted; the slide figures were not
-  regenerated.** Off-roster `claude-opus-5-5` at effort low (2026-10-19/20) beats RampNet on both Laurens arms (0.679 vs 0.543, 0.701 vs 0.659) and on `bayonne` (0.619 vs 0.517), and `claude-fable-5-1` beats it on `bayonne` (0.540); RampNet tops 10 of 13 splits and leads Opus 5.5 by 0.082 pooled. Each Claude number is a single run, no seed variance, effort low only, first-party serving path ([`claude_newest_ids.md`](../../claude_newest_ids.md)).
-  The "every split" claims on this slide and slide 4, and the captions of
-  `transfer_imagery_*.png` and `comparison_f1.png`, and the slide 8 figure `rampnet2_roadmap.png`
-  ("leads every zero-shot model on all thirteen benchmark bundles"), need Jon's decision before the talk.
+- **Superseded 2026-10-19/20, after the talk; the slide figures were not regenerated.**
+  Off-roster `claude-opus-5-5` at effort low (2026-10-19/20) beats RampNet on `laurens_mapillary` (0.679 vs 0.543; RampNet minus Opus 5.5 −0.136, paired 95% CI [−0.216, −0.053]) and on `bayonne` (0.619 vs 0.517; −0.102 [−0.165, −0.040]). It also scores above RampNet on `laurens_gsv` (0.701 vs 0.659), and `claude-fable-5-1` scores above it on `bayonne` (0.540), but both intervals include zero (−0.042 [−0.101, +0.020] and −0.023 [−0.096, +0.050]), so those two are point estimates, not established wins (pano bootstrap, 10,000 draws, `scripts/analysis/claude_newest_ids_261.py`). RampNet tops 10 of 13 splits and leads Opus 5.5 by 0.082 pooled. Each Claude number is a single run, no seed variance, effort low only, first-party serving path ([`claude_newest_ids.md`](../../claude_newest_ids.md)).
+  The "every split" claims on this slide and slide 4, the captions of `transfer_imagery_*.png`
+  and `comparison_f1.png`, and the slide 8 figure `rampnet2_roadmap.png` ("leads every zero-shot
+  model on all thirteen benchmark bundles") were true for the roster run when the talk was
+  given on 2026-10-16. They were superseded by the runs of 2026-10-19/20 and are kept here as
+  given.
 - Speaker note, the exception that must not be hidden: on `laurens_mapillary` the supervised YOLO
   baseline beats RampNet at the pre-registered conf 0.25, YOLO26 0.574 (and YOLO11l 0.563) against
   RampNet 0.543 (`rampnet1_findings.md` §2 row 27). It is an operating-point result: RampNet's AP

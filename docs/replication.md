@@ -72,7 +72,7 @@ them belongs to a registered leg:
 | the other three Vertex Claude legs, annapolis only (#122) | 3 | [`claude_legs_122.md`](claude_legs_122.md) |
 | `claude-fable-5` at `low` effort, annapolis only, served on Anthropic's first-party API (#156) | 1 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
 | `claude-fable-5-1` at `low` effort, first-party API, all thirteen splits: annapolis (#156) and the other twelve (2026-10-19/20) | 13 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md), [`claude_newest_ids.md`](claude_newest_ids.md) |
-| `claude-opus-5-5` at `low` effort, first-party API, all thirteen splits (2026-10-19/20) | 13 | [`claude_newest_ids.md`](claude_newest_ids.md) |
+| `claude-opus-5-5` at `low` effort, first-party API, all thirteen splits (2026-10-19/20) | 13 | [`claude_newest_ids.md`](claude_newest_ids.md); its paired intervals and radius check re-derive from these files with `scripts/analysis/claude_newest_ids_261.py --check`. Re-running the paid legs on `laurens_gsv`, `laurens_mapillary` or `bayonne` needs panoramas that are not on HF yet (the benchmark panos row above) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`vistas_transfer_126.md`](vistas_transfer_126.md) |
 | the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg: richmond (#126, #137; re-run and published under #163), and bend, paterson, gainesville, annapolis for the #35 cascade transfer read (klone job 40774146, 2026-09-27) | 5 | [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md); the four transfer splits in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md) |
 

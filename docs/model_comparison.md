@@ -122,7 +122,9 @@ are the "Claude on Vertex" section and the "Claude Fable on annapolis" section o
 [`claude_legs_122.md`](claude_legs_122.md), and
 [`claude_newest_ids.md`](claude_newest_ids.md) for Opus 5.5 and Fable 5.1 on every split.
 Every result table in them is re-derived from those files by
-`tests/test_claude_published_legs.py`.
+`tests/test_claude_published_legs.py`; the newest-ids page's paired-interval and radius tables
+by `tests/test_claude_newest_ids_261.py` (from `scripts/analysis/claude_newest_ids_261.py`'s
+committed output).
 
 Coverage is not uniform across the seven, so it is stated per leg:
 
@@ -239,7 +241,15 @@ on manual_gold, far above every zero-shot model), but out-of-domain it degrades 
 than RampNet does** — the architecture's measured contribution is generalization, not
 in-domain fit. Against the zero-shot field it splits 5–5 at the headline threshold (bold =
 above the best challenger), with budapest the honest worst case: the US-trained detector
-nearly stops firing on non-US design vocabulary and lands below gemini-pro. The sweeps show
+nearly stops firing on non-US design vocabulary and lands below gemini-pro. *Superseded
+2026-10-19/20: the "best zero-shot" column and the 5–5 count are the standing roster's. With
+off-roster `claude-opus-5-5` at effort low included, it is the best zero-shot model on all ten
+of these splits, and the best YOLO pano arm is above it on two (`manual_gold` 0.851 vs 0.722,
+`sao_paulo` 0.662 vs 0.646) and below it on eight, so the split is 2–8 (it is also below Opus
+5.5 on the three splits not in this table: both Laurens arms and bayonne). That matches
+finding 1 of [`model_scoreboard.md`](model_scoreboard.md): the best zero-shot VLM now beats the
+supervised baseline pooled. Opus 5.5 is a single run, no seed variance, effort low only,
+first-party serving path ([`claude_newest_ids.md`](claude_newest_ids.md)).* The sweeps show
 much of the missing recall sits *below* conf 0.25 (per-split best-F1 lives at 0.10–0.15 —
 tuned-on-test, reported under that flag only), the same under-firing-at-the-library-default
 pattern as RampNet's own #54/#55 threshold correction. Full tables, calibration analysis,
@@ -637,7 +647,7 @@ Best sweep F1: OWLv2 **0.099** (thr 0.15), Grounding DINO **0.060** (thr 0.15).
 
 Three things laurens adds:
 
-1. **RampNet's worst split still leads the best zero-shot challenger — by 0.113.** Its
+1. **RampNet's worst split still leads the best zero-shot challenger — by 0.114.** Its
    recall halves against every other US split (0.390 against clovis's next-worst 0.650), but
    the challengers fall further: `claude-opus-5` at effort low, added 2026-09-04 and the
    strongest zero-shot model in the benchmark (qualified 2026-09-26: strongest on this split,
@@ -645,14 +655,17 @@ Three things laurens adds:
    on annapolis both Fable legs do, 0.611 and 0.610 vs 0.588; see `model_scoreboard.md`),
    lands at 0.430; gemini-pro at 0.343, its
    second-lowest US F1. **That lead was published as 0.200 against gemini-pro before the
-   Claude leg existed — quote 0.113, not the earlier figure.** So the
+   Claude leg existed — quote 0.114, not the earlier figure.** (0.1139 unrounded; this
+   paragraph printed 0.113 until 2026-10-20, the difference of the two rounded F1s.) So the
    rural deficit is not RampNet-specific in the zero-shot field — whatever makes this town
    hard makes it hard for everything that has never seen a curb ramp label. What it is *not*
    is a ramp-poor or weak sample: laurens is ramp-**rich** (2.65 ramps/pano, third of ten).
    *Superseded 2026-10-19: RampNet no longer leads the zero-shot field here.
    `claude-opus-5-5` at effort low scores 0.679 on this arm, 0.136 above RampNet's 0.543 (the
-   footnote under the table above; [`claude_newest_ids.md`](claude_newest_ids.md)). That is a
-   single run, no seed variance, effort low only, first-party serving path. The 0.113 above is the lead over `claude-opus-5`, and stays correct as
+   footnote under the table above; [`claude_newest_ids.md`](claude_newest_ids.md)). The paired
+   interval excludes zero: RampNet minus Opus 5.5 is −0.136, 95% CI [−0.216, −0.053]
+   (pano bootstrap, 10,000 draws, `scripts/analysis/claude_newest_ids_261.py`). That is a
+   single run, no seed variance, effort low only, first-party serving path. The 0.114 above is the lead over `claude-opus-5`, and stays correct as
    that.*
 2. **The supervised YOLO baseline beats RampNet here — the first split where that happens at
    the pre-registered operating point.** Under the #71 protocol (conf 0.25) `y26_pano` reads
@@ -746,7 +759,10 @@ Three readings, in decreasing order of how well the data supports them:
    *Superseded 2026-10-19 as "the strongest zero-shot model": `claude-opus-5-5`, run on
    both arms since, scores 0.679 and 0.701 and moves **+0.022**, still far below RampNet's
    +0.115; `claude-fable-5-1` moves −0.078 (0.493 → 0.415). The reading above holds for
-   Opus 5.5, but it beats RampNet on both arms (single run, no seed variance, effort low only, first-party serving path;
+   Opus 5.5. It scores above RampNet on both arms, but only the `laurens_mapillary` margin is
+   established: RampNet minus Opus 5.5 is −0.136 [−0.216, −0.053] there and −0.042
+   [−0.101, +0.020] on `laurens_gsv`, where the interval includes zero (pano bootstrap,
+   `scripts/analysis/claude_newest_ids_261.py`; single run, no seed variance, effort low only, first-party serving path;
    [`claude_newest_ids.md`](claude_newest_ids.md)).*
 2. **The RampNet–YOLO ordering flips between the arms.** On Mapillary the supervised baseline
    wins (`y26_pano` 0.574, `y11l_pano` 0.563, against 0.543); on GSV RampNet leads by 0.072
@@ -912,8 +928,9 @@ establish is any between-challenger ordering, and its numbers must not be pooled
 splits or averaged into a headline. *Superseded 2026-10-19: 0.263 is the margin over the
 standing roster. Off-roster `claude-opus-5-5` at effort low scores 0.451 here, so RampNet's
 margin over the whole zero-shot field is 0.193 (the footnote under the table above), and the
-band no longer holds on every other split: Opus 5.5 beats RampNet on both Laurens arms and on
-bayonne.*
+band no longer holds on every other split: Opus 5.5 beats RampNet on `laurens_mapillary` and
+`bayonne`, and scores above it on `laurens_gsv` with a paired interval that includes zero
+([`claude_newest_ids.md`](claude_newest_ids.md)).*
 
 **bayonne** (125 reviewed panos, 301 GT ramps) — the third non-US split and the first from
 Panoramax (2026-10-04), consumer GoPro Max imagery from the municipal producer; single rater,
@@ -959,7 +976,11 @@ What bayonne adds:
    budapest; its morgantown 0.643 is higher). RampNet keeps the precision lead (0.831 against
    0.469). *Superseded 2026-10-20: 0.086 is the lead over the standing roster, and RampNet no
    longer has the top F1 here. Off-roster, `claude-opus-5-5` at effort low scores 0.619 and
-   `claude-fable-5-1` 0.540, both above RampNet's 0.517 (single run, no seed variance, effort low only, first-party serving path; the footnote above).*
+   `claude-fable-5-1` 0.540, both above RampNet's 0.517 (single run, no seed variance, effort low only, first-party serving path; the footnote above).
+   Paired, RampNet minus Opus 5.5 is −0.102 [−0.165, −0.040], a win for Opus 5.5; RampNet
+   minus Fable 5.1 is −0.023 [−0.096, +0.050], which includes zero, so Fable 5.1's higher F1
+   is a point estimate, not an established win (`scripts/analysis/claude_newest_ids_261.py`). The footnote's
+   "beats RampNet's 0.517 here" compares point estimates only.*
 2. **gemini-3.6-flash's recall point estimate is above RampNet's at the deployed threshold**
    (126 vs 113 of 301 ramps, R 0.419 vs 0.375), the only split where a chat VLM's is. The
    paired difference is **not significant**: 61 ramps found only by Flash, 48 only by RampNet,
@@ -1005,9 +1026,14 @@ gap. That is a wide claim, and the qualifiers above are what keep it honest.
 
 **Superseded on the two Laurens arms (2026-10-19) and on bayonne (2026-10-20).** The paragraph
 above counts the standing roster. `claude-opus-5-5` at effort low, zero-shot and off-roster,
-beats RampNet on `laurens_mapillary` (0.679 vs 0.543), `laurens_gsv` (0.701 vs 0.659) and
-`bayonne` (0.619 vs 0.517), and `claude-fable-5-1` beats it on `bayonne` too (0.540). RampNet
-keeps the top F1 on the other ten splits, `manual_gold` included (0.908 vs 0.722). Pooled over
+beats RampNet on `laurens_mapillary` (0.679 vs 0.543; RampNet minus Opus 5.5 −0.136, paired
+95% CI [−0.216, −0.053]) and `bayonne` (0.619 vs 0.517; −0.102 [−0.165, −0.040]). It also
+scores above RampNet on `laurens_gsv` (0.701 vs 0.659), and `claude-fable-5-1` scores above it
+on `bayonne` (0.540), but both intervals include zero (−0.042 [−0.101, +0.020] and −0.023
+[−0.096, +0.050]): point estimates, not established wins (pano bootstrap, 10,000 draws,
+`scripts/analysis/claude_newest_ids_261.py`). The generated footnotes' "beats RampNet's ... here" compare point
+estimates only. RampNet keeps the top F1 on the other ten splits, `manual_gold` included
+(0.908 vs 0.722), with a paired interval above zero against Opus 5.5 on all ten. Pooled over
 the eight US city splits RampNet leads Opus 5.5 by 0.082. Each Claude number is a single run, no seed variance, effort low only, first-party serving path
 ([`model_scoreboard.md`](model_scoreboard.md), [`claude_newest_ids.md`](claude_newest_ids.md)).
 
@@ -2002,7 +2028,14 @@ What this split adds to the story:
 1. **The ranking is identical to all three deployment cities, on ground truth that never
    saw a RampNet review** — and RampNet's lead is the widest measured anywhere: **0.34 F1**
    over the best challenger (vs ~0.19 on richmond, ~0.30 on clovis), at CIs roughly 4×
-   tighter than any city split (3,919 GT points vs 195–327).
+   tighter than any city split (3,919 GT points vs 195–327). *Superseded 2026-10-19: 0.34 is
+   the lead over `gemini-3.1-pro-preview`, the best row of the standing roster. Off-roster
+   `claude-opus-5-5` at effort low scores 0.722 here, so RampNet's lead over the whole
+   zero-shot field is **0.187** (0.908 − 0.722, 0.1868 unrounded; paired pano bootstrap 95% CI
+   [+0.174, +0.200], `scripts/analysis/claude_newest_ids_261.py`). That is no longer the widest lead: against the
+   whole zero-shot field budapest (0.193) and clovis (0.191) are wider
+   (`analysis_out/scoreboard.json`). Opus 5.5 is a single run, no seed variance, effort low
+   only, first-party serving path.*
 2. **The anchoring-bias caveat can now be retired with evidence.** If the city GT had been
    tilted toward what RampNet finds, challengers would gain here — real-but-unlabeled ramps
    that scored as challenger FPs in the cities would become TPs. Neither signature appears:
