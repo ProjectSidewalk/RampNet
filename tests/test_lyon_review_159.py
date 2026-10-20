@@ -1,5 +1,5 @@
-"""The Lyon label audit bundle (#159, #263): staging, the plan, the artifact reads, the
-overlay measurement, the per-group scorer and the gallery's overlay labels.
+"""The Lyon label audit bundle (#159, #263): staging, the never-train lists, the plan, the
+artifact reads, the overlay measurement, the per-group scorer and the gallery options.
 
 CPU only, committed inputs only. Lyon is not a benchmark split and has no verdicts yet;
 the scorer is exercised on synthetic verdicts. The byte check against the panos runs only
@@ -20,53 +20,129 @@ sys.path.insert(0, os.path.join(REPO, "scripts", "analysis"))
 import lyon_review_159 as L  # noqa: E402
 
 BUNDLE = os.path.join(REPO, "benchmark", "lyon")
+PLAN = os.path.join(BUNDLE, L.PLAN_NAME)
 
 
 # --------------------------------------------------------------------------- #
-# the staged bundle and the plan
+# the staged bundle, the never-train lists and the plan
 # --------------------------------------------------------------------------- #
-def test_the_staged_bundle_verifies():
-    problems, notes, facts = L.verify_bundle(BUNDLE)
+def test_the_staged_records_verify():
+    problems, notes, facts = L.verify_bundle(BUNDLE, require_imagery=False)
     assert problems == [], problems
-    assert facts["panos"] == 175
-    assert facts["strata"] == {"empty": 25, "random": 140, "top": 10}
-    assert facts["detections_055"] == 330 and facts["detections_030"] == 524
+    assert facts["panos"] == 200
+    assert facts["strata"] == {"empty": 25, "random": 170, "top": 5}
+    assert facts["detections_055"] == 338 and facts["run_peaks_030"] == 555
 
 
-def test_every_record_is_in_one_of_the_four_audit_groups():
+def test_verify_fails_until_the_imagery_is_staged():
+    # Review of #264, finding 8: "verify: OK" must mean the imagery is pinned.
+    if os.path.isdir(os.path.join(BUNDLE, "panos")):
+        pytest.skip("imagery staged in this checkout")
+    problems, _, _ = L.verify_bundle(BUNDLE)
+    assert any("imagery not staged" in p for p in problems)
+
+
+def test_the_records_show_only_the_055_tier():
+    with open(os.path.join(BUNDLE, "sample.json"), encoding="utf-8") as f:
+        sample = json.load(f)
+    assert "record_confidence" not in sample          # the default, 0.55
+    assert all(d["confidence"] >= 0.55 for r in L.load_records(BUNDLE) for d in r["detections"])
+
+
+def test_every_record_is_in_one_of_the_four_audit_groups_with_its_floor():
     recs = L.load_records(BUNDLE)
     assert {r["benchmark_stratum"] for r in recs} == set(L.GROUPS)
     by = collections.Counter((r["benchmark_stratum"], r["benchmark_group"]) for r in recs)
-    for g in L.GROUPS:                       # the floor of 20 random panos per group
-        assert by[(g, "random")] >= 20 and by[(g, "empty")] >= 3
+    for g in L.GROUPS:
+        assert by[(g, "random")] >= 30 and by[(g, "empty")] >= 3
 
 
-def test_the_plan_reproduces_and_carries_the_bar():
-    with open(L.PLAN, encoding="utf-8") as f:
-        assert f.read() == L._dumps(L.build_plan(BUNDLE))
+def test_ids_txt_is_the_sorted_record_ids_and_the_buffer_contains_them():
+    ids = [r["pano"]["panorama_id"] for r in L.load_records(BUNDLE)]
+    with open(os.path.join(BUNDLE, "ids.txt"), "rb") as f:
+        raw = f.read()
+    assert b"\r" not in raw and raw.decode("utf-8").splitlines() == sorted(ids)
+    excl = L._read_lines(os.path.join(BUNDLE, "exclude_ids.txt"))
+    assert excl == sorted(excl) and set(ids) <= set(excl) and len(excl) > len(ids)
+
+
+def test_the_plan_reproduces_byte_for_byte_and_carries_the_bar():
+    with open(PLAN, "rb") as f:
+        assert f.read() == L._dumps(L.build_plan(BUNDLE)).encode("utf-8")
     plan = L.build_plan(BUNDLE)
-    assert plan["pass_bar"]["threshold"] == 0.80
+    bar = plan["pass_bar"]
+    assert bar["threshold"] == 0.80 and "bootstrap" in bar["interval"]
+    assert len(bar["outcomes"]) == 3 and "no verdict" in bar["all_row"]
+    assert "lower-confidence" in bar["duplicates"]
     assert "held out of every training pool" in plan["never_train"]
-    assert plan["sampler"]["seed"] == 159 and plan["sampler"]["record_confidence"] == 0.3
+    assert plan["sampler"]["seed"] == 159 and plan["sampler"]["groups"]["top"] == 5
+    assert plan["sampler_floors"] == {"group_min": 30, "empty_group_min": 3}
 
 
-def test_no_email_reaches_the_committed_records():
-    with open(os.path.join(BUNDLE, "records.jsonl"), encoding="utf-8") as f:
-        assert not L.EMAIL_RE.search(f.read())
+def test_check_compares_bytes_so_crlf_drift_fails(tmp_path):
+    # Review of #264, finding 7.
+    path = tmp_path / "x.json"
+    obj = {"a": 1}
+    assert L._check_or_write(obj, str(path), True) == 0
+    assert L._check_or_write(obj, str(path), False) == 0
+    path.write_bytes(path.read_bytes().replace(b"\n", b"\r\n"))
+    assert L._check_or_write(obj, str(path), False) == 1
 
 
-def test_stage_masks_emails_and_copies_the_sampler_files(tmp_path):
+def test_no_email_reaches_any_committed_bundle_file():
+    for name in L.TEXT_FILES:
+        path = os.path.join(BUNDLE, name)
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                assert not L.EMAIL_RE.search(f.read()), name
+
+
+def test_mask_email_handles_non_ascii_and_spares_the_model_id():
+    assert L.mask_email('"producer": "josé.n@ign.fr"') == '"producer": "j***@***"'
+    assert L.mask_email("rampnet-model@606a11956743") == "rampnet-model@606a11956743"
+
+
+def test_stage_masks_every_file_and_writes_the_never_train_lists(tmp_path):
     src, dst = tmp_path / "src", tmp_path / "dst"
     src.mkdir()
-    (src / "records.jsonl").write_text(
-        json.dumps({"pano": {"copyright": "a.b@example.org"}}) + "\n"
-        + json.dumps({"pano": {"copyright": "grand lyon"}}) + "\n", encoding="utf-8")
-    (src / "sample.json").write_text("{}", encoding="utf-8")
+    rec = lambda pid, prod, lat: {"pano": {"panorama_id": pid, "copyright": prod,
+                                           "lat": lat, "lng": 4.8},
+                                  "detections": [], "benchmark_group": "empty",
+                                  "benchmark_stratum": "other_cameras"}
+    (src / "records.jsonl").write_text(json.dumps(rec("A", "a.b@example.org", 45.0)) + "\n"
+                                       + json.dumps(rec("B", "grand lyon", 45.1)) + "\n",
+                                       encoding="utf-8")
+    (src / "sample.json").write_text('{"strata": {"Max|a.b@example.org": 1}}',
+                                     encoding="utf-8")
     (src / "group_map.json").write_text("[]", encoding="utf-8")
-    assert L.stage(str(src), str(dst)) == 1
-    text = (dst / "records.jsonl").read_text(encoding="utf-8")
-    assert "a***@***" in text and "example.org" not in text and "grand lyon" in text
-    assert (dst / "sample.json").exists() and (dst / "group_map.json").exists()
+    run = [rec("A", "x", 45.0), rec("B", "x", 45.1),
+           rec("near", "x", 45.0 + 20 / 111320), rec("far", "x", 45.0 + 60 / 111320)]
+    run[0]["detections"] = [{"x_normalized": 0.5, "y_normalized": 0.6, "confidence": 0.2}]
+    results = tmp_path / "results.jsonl"
+    results.write_text("".join(json.dumps(r) + "\n" for r in run), encoding="utf-8")
+    out = L.stage(str(src), str(results), str(dst))
+    assert out["ids"] == 2 and out["exclude_ids"] == 3
+    for name in ("records.jsonl", "sample.json"):
+        text = (dst / name).read_text(encoding="utf-8")
+        assert "example.org" not in text and "a***@***" in text
+    assert (dst / "ids.txt").read_text(encoding="utf-8") == "A\nB\n"
+    assert (dst / "exclude_ids.txt").read_text(encoding="utf-8") == "A\nB\nnear\n"
+    peaks = json.loads((dst / "run_peaks.json").read_text(encoding="utf-8"))["panos"]
+    assert peaks["A"][0]["confidence"] == 0.2 and peaks["B"] == []
+
+
+def test_exclusion_matches_brute_force_haversine():
+    import random
+    rng = random.Random(4)
+    audited = {f"a{i}": (45.75 + rng.uniform(0, 0.01), 4.84 + rng.uniform(0, 0.01))
+               for i in range(20)}
+    run = [(f"r{i}", 45.75 + rng.uniform(0, 0.01), 4.84 + rng.uniform(0, 0.01))
+           for i in range(3000)]
+    got = L.exclusion_ids(run, audited, 30)
+    want = set(audited) | {pid for pid, lat, lng in run
+                           if any(L.haversine_m(lat, lng, a, b) <= 30
+                                  for a, b in audited.values())}
+    assert got == want and len(want) > len(audited)
 
 
 def test_the_group_map_names_the_four_groups_of_the_decision():
@@ -93,22 +169,22 @@ def test_fixed_cells_count_panos_per_sequence_not_peaks():
     art = L.build_artifacts([run[0], run[-1]], cells, "sha")
     row = art["per_group"]["grand_lyon_ladybug"]
     assert row["fixed_cell_030"] == 2 and row["fixed_cell_055"] == 0   # 'q' is alone in T
-    assert row["det030"] == 3 and row["det055"] == 1
+    assert row["peaks030"] == 3 and row["peaks055"] == 1
 
 
 def test_above_horizon_is_y_below_half():
     art = L.build_artifacts([_rec("a", "S", [(0.2, 0.48, 0.6), (0.2, 0.6, 0.6)],
                                   group="ecartip_gopro_max")], {}, "sha")
     row = art["per_group"]["ecartip_gopro_max"]
-    assert row["above_horizon_055"] == 1 and row["det055"] == 2
+    assert row["above_horizon_055"] == 1 and row["peaks055"] == 2
     assert art["items"][0]["above_horizon"] is True
 
 
-def test_committed_artifacts_cover_the_bundle():
+def test_committed_artifacts_cover_the_bundle_peaks():
     with open(L.ARTIFACTS, encoding="utf-8") as f:
         art = json.load(f)
     assert art["results_jsonl_sha256"].startswith("60e688b2")
-    assert sum(r["det030"] for r in art["per_group"].values()) == 524
+    assert sum(r["peaks030"] for r in art["per_group"].values()) == 555
     assert "DO NOT open" in art["what"]
 
 
@@ -141,42 +217,85 @@ def test_measure_band_none_on_plain_imagery(tmp_path):
 # --------------------------------------------------------------------------- #
 # the scorer (synthetic verdicts; Lyon has none)
 # --------------------------------------------------------------------------- #
-def test_score_refuses_without_verdicts(tmp_path, capsys):
-    class A:
-        bundle = BUNDLE
-        write = False
-        lenient_duplicates = False
+class _Args:
+    bundle = BUNDLE
+    write = False
+    lenient_duplicates = False
+    partial = False
+    allow_unposted_plan = False
+
+
+def test_score_refuses_without_verdicts(capsys):
     if os.path.exists(os.path.join(BUNDLE, "verdicts.json")):
         pytest.skip("the review has happened")
-    assert L.cmd_score(A) == 1
+    assert L.cmd_score(_Args) == 1
     assert "nothing to score" in capsys.readouterr().out
 
 
-def test_score_groups_reads_the_bar_per_group_at_055_and_030():
-    recs = [_rec(f"g{i}", "S", [(0.1, 0.6, 0.9), (0.3, 0.6, 0.4)]) for i in range(10)]
+def _toy():
+    recs = [_rec(f"g{i}", "S", [(0.1, 0.6, 0.9)]) for i in range(10)]
     recs += [_rec(f"e{i}", "T", [(0.1, 0.6, 0.9)], group="ecartip_gopro_max")
              for i in range(10)]
     recs += [_rec("top", "S", [(0.1, 0.6, 0.9)], stratum="top")]
-    v = {f"g{i}": {"dets": [True, i < 5], "missed": [], "no_missed": True}
+    peaks = {r["pano"]["panorama_id"]: list(r["detections"]) for r in recs}
+    # a 0.40 peak on each Ladybug pano, where the reviewer marks a missed ramp on half
+    for i in range(10):
+        peaks[f"g{i}"].append({"x_normalized": 0.3, "y_normalized": 0.6, "confidence": 0.4})
+    v = {f"g{i}": {"dets": [True],
+                   "missed": [{"x": 0.3, "y": 0.6}] if i < 5 else [], "no_missed": i >= 5}
          for i in range(10)}
     v.update({f"e{i}": {"dets": [i < 7], "missed": [{"x": 0.5, "y": 0.6}] if i == 0 else [],
                         "no_missed": i != 0} for i in range(10)})
     v["top"] = {"dets": [False], "missed": [], "no_missed": True}     # excluded
-    out = L.score_groups(recs, v)
+    return recs, v, peaks
+
+
+def test_score_groups_reads_055_from_verdicts_and_030_from_the_run_peaks():
+    recs, v, peaks = _toy()
+    out, warnings = L.score_groups(recs, v, peaks)
+    assert warnings == []
     gl = out["grand_lyon_ladybug"]
     assert gl["precision_055"]["p"] == 1.0 and gl["precision_055"]["n"] == 10
-    assert gl["precision_030"]["tp"] == 15 and gl["precision_030"]["n"] == 20
-    # A true 0.40 detection is a ramp the model missed at 0.55.
     assert gl["recall_055"]["tp"] == 10 and gl["recall_055"]["n"] == 15
-    assert gl["bar"].startswith("PASS")
+    # 0.30: the 0.40 peak on a marked missed ramp is a TP, elsewhere an FP.
+    assert gl["precision_030"]["tp"] == 15 and gl["precision_030"]["n"] == 20
+    assert gl["recall_030"]["tp"] == 15 and gl["recall_030"]["n"] == 15
+    assert gl["bar"].startswith("decisive pass")
     ec = out["ecartip_gopro_max"]
-    assert ec["precision_055"]["p"] == 0.7 and ec["bar"].startswith("FAIL")
-    assert ec["recall_055"]["n"] == 8          # 7 true + 1 missed mark
-    assert out["all"]["precision_055"]["n"] == 20   # top excluded
+    assert ec["precision_055"]["p"] == 0.7 and ec["recall_055"]["n"] == 8
+    assert out["all"]["precision_055"]["n"] == 20                       # top excluded
+    assert "no verdict" in out["all"]["bar"]
+
+
+def test_bar_reading_has_three_outcomes_and_sizes_a_top_up():
+    assert L.bar_reading(0.9, 0.82, 0.96, 50)[0].startswith("decisive pass")
+    assert L.bar_reading(0.6, 0.5, 0.75, 50)[0].startswith("decisive fail")
+    verdict, extra = L.bar_reading(0.85, 0.75, 0.93, 50)
+    assert verdict.startswith("not decisive") and extra == 50 * 4 - 50
+    assert L.bar_reading(None, None, None, 0)[0] == "no detections judged"
+
+
+def test_bootstrap_is_wider_than_wilson_when_detections_cluster():
+    units = [(5, 5)] * 8 + [(0, 5)] * 2          # 40 / 50 = 0.8, all on 10 panos
+    lo, hi = L.bootstrap_ci(units)
+    wlo, whi = L.wilson(40, 50)
+    assert lo < wlo and hi > whi
+    assert L.bootstrap_ci(units) == (lo, hi)     # seeded
+
+
+def test_score_refuses_misaligned_or_partly_judged_panos():
+    # Review of #264, finding 6: collect() used to skip these silently.
+    recs, v, _ = _toy()
+    v["g0"] = {"dets": [True, False], "missed": [], "no_missed": True}
+    v["g1"] = {"dets": [None], "missed": [], "no_missed": True}
+    del v["g2"]
+    problems = L._scan_entries(recs, v)
+    assert len(problems) == 3
+    assert L._scan_entries(recs, _toy()[1]) == []
 
 
 # --------------------------------------------------------------------------- #
-# the gallery names the overlay
+# the gallery names the overlay and can hide the producer
 # --------------------------------------------------------------------------- #
 def test_gallery_labels_a_black_nadir(tmp_path):
     import gt_gallery as G
@@ -191,3 +310,15 @@ def test_gallery_labels_a_black_nadir(tmp_path):
     assert e["band"] == 0.81 and e["band_label"] == "black nadir (no camera)"
     html = G.build_html([e], {}, "k", "n", "src")
     assert "e.band_label" in html and "inside the nadir logo band" in html
+
+
+def test_gallery_hide_credit_drops_the_producer_and_the_link():
+    import gt_gallery as G
+    rec = {"pano": {"panorama_id": "A", "source": "panoramax", "copyright": "ecartip",
+                    "license": "etalab-2.0", "panoramax_instance": "panoramax.ign.fr"},
+           "detections": [], "benchmark_stratum": "ecartip_gopro_max"}
+    shown = G.entry_meta(rec, "random")
+    hidden = G.entry_meta(rec, "random", hide_credit=True)
+    assert shown["credit"] == "ecartip / etalab-2.0" and shown["url"]
+    assert "credit" not in hidden and hidden["url"] == ""
+    assert "ecartip" not in json.dumps(hidden)

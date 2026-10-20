@@ -122,3 +122,8 @@ benchmark/*/depth_labeler_compare.json text eol=lf
 
 # The #113 crop-tilt outputs are byte-compared by scripts/analysis/crop_tilt_113.py --check.
 analysis_out/crop_tilt_113/** text eol=lf
+
+# The Lyon label audit (#159, #263): the sha256 of audit_plan.json and records.jsonl is posted
+# on #159 and `lyon_review_159.py score` refuses a plan whose bytes differ, and the never-train
+# lists are read as LF. Keep git from rewriting their line endings on any checkout.
+benchmark/lyon/*  -text

@@ -298,19 +298,21 @@ def _crop_boxes(record):
     return out
 
 
-def entry_meta(record, group, band_y=None, band_label=None):
+def entry_meta(record, group, band_y=None, band_label=None, hide_credit=False):
     """The viewer entry (pano metadata + crop geometry) for one record, without any I/O.
 
     ``band_y`` is the top of a burned-in nadir overlay (see :func:`load_nadir_band`),
     or None; ``band_label`` names it when it is not a logo band
-    (see :func:`load_nadir_band_labels`). ``credit`` names the imagery producer and licence where the record
+    (see :func:`load_nadir_band_labels`). ``hide_credit`` blinds the reviewer to the
+    producer: no credit line and no link to the pano's page (which names it). For an
+    audit whose verdict is read per producer (Lyon, #159); off by default. ``credit`` names the imagery producer and licence where the record
     carries them, so a reviewer sees whose pixels they are judging.
     """
     pano = record['pano']
     entry = {
         'pid': pano['panorama_id'],
         'source': pano.get('source', ''),
-        'url': viewer_url(pano),
+        'url': '' if hide_credit else viewer_url(pano),
         'date': str(pano.get('capture_date', '')),
         'group': group,
         'full': f"{pano['panorama_id']}_full.jpg",
@@ -321,12 +323,13 @@ def entry_meta(record, group, band_y=None, band_label=None):
         if band_label:
             entry['band_label'] = str(band_label)
     credit = ' / '.join(str(pano[k]) for k in ('copyright', 'license') if pano.get(k))
-    if credit:
+    if credit and not hide_credit:
         entry['credit'] = credit
     return entry
 
 
-def render_pano(record, group, images_dir, panos_dir, band_y=None, band_label=None):
+def render_pano(record, group, images_dir, panos_dir, band_y=None, band_label=None,
+                hide_credit=False):
     """Downscale one native pano to model resolution, save the clean full image and
     per-detection crops, and return the viewer entry (see :func:`entry_meta`).
 
@@ -347,7 +350,7 @@ def render_pano(record, group, images_dir, panos_dir, band_y=None, band_label=No
     for box, geom in _crop_boxes(record):
         img.crop(box).save(images_dir / geom['img'], quality=85)
     img.save(images_dir / f"{pid}_full.jpg", quality=82)
-    return entry_meta(record, group, band_y, band_label)
+    return entry_meta(record, group, band_y, band_label, hide_credit)
 
 
 def initial_verdicts(verdicts_panos):
@@ -1111,6 +1114,10 @@ def main():
     parser.add_argument("--html-only", action="store_true",
                         help="Rebuild index.html from existing images (skip re-rendering "
                              "panos). For iterating on the viewer.")
+    parser.add_argument("--hide-credit", action="store_true",
+                        help="Blind the reviewer to the imagery producer: no credit line "
+                             "and no link to the pano's page. For audits read per producer "
+                             "(benchmark/lyon, #159); the credit stays in records.jsonl.")
     parser.add_argument("--sample", type=int, default=100,
                         help="With --resample: detection panos to include (default: %(default)s).")
     parser.add_argument("--empty-sample", type=int, default=10,
@@ -1153,7 +1160,8 @@ def main():
         # Geometry is independent of the pixels, so entries rebuild without any I/O;
         # only panos whose full image is already on disk are included.
         entries = [entry_meta(r, g, bands.get(r['pano']['panorama_id']),
-                              band_labels.get(r['pano']['panorama_id'])) for r, g in chosen
+                              band_labels.get(r['pano']['panorama_id']), args.hide_credit)
+                   for r, g in chosen
                    if (images_dir / f"{r['pano']['panorama_id']}_full.jpg").exists()]
         print(f"  --html-only: {len(entries)} panos with existing images.")
     else:
@@ -1161,7 +1169,8 @@ def main():
         with ThreadPoolExecutor(max_workers=RENDER_WORKERS) as pool:
             futures = {pool.submit(render_pano, r, g, images_dir, panos_dir,
                                    bands.get(r['pano']['panorama_id']),
-                                   band_labels.get(r['pano']['panorama_id'])): r
+                                   band_labels.get(r['pano']['panorama_id']),
+                                   args.hide_credit): r
                        for r, g in chosen}
             for future in as_completed(futures):
                 pid = futures[future]['pano']['panorama_id']
@@ -1187,6 +1196,8 @@ def main():
                            review_notes))
 
     print(f"Gallery: {index_path}")
+    if args.hide_credit:
+        print("  --hide-credit: producer credit and pano links are not shown.")
     if verdicts_panos:
         print(f"Prefilled {len(verdicts_panos)} panos from {bundle / 'verdicts.json'} for revision.")
     if review_notes:

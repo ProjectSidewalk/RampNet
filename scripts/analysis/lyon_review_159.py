@@ -4,44 +4,49 @@ Lyon is a **training-only** candidate city, never a benchmark split. On 2026-10-
 decided that its self-labels train only after a quality audit: about 150-200 panos
 from the 5 m run of record, stratified by rig x producer, judged the same way as a
 benchmark session, with the pass bar posted on #159 before anyone reviews. The audited
-panos are held out of every training pool. ``docs/lyon_review_159.md`` is the write-up.
+panos, and every run pano within 30 m of one, are held out of every training pool.
+``docs/lyon_review_159.md`` is the write-up.
 
 **Nothing here produces a verdict.** The review is Jon's. ``plan`` pins the design and
-the pass bar before the review; ``score`` refuses to run until ``verdicts.json`` exists.
+the pass bar before the review; ``score`` refuses to run until ``verdicts.json`` exists,
+and refuses a plan that changed after it was posted.
 
 Subcommands, in the order the doc runs them:
 
-    # copy the exporter's bundle in, masking email-shaped producer names (#149)
-    python scripts/analysis/lyon_review_159.py stage --from D:/Git/labeler-wt/lyon-bundle
+    # copy the exporter's bundle in (masking email-shaped tokens, #149), and write
+    # ids.txt, exclude_ids.txt (the 30 m buffer) and run_peaks.json from the run
+    python scripts/analysis/lyon_review_159.py stage --from D:/Git/labeler-wt/lyon-bundle \\
+        --results <runs/lyon/results.jsonl>
 
     # the audit plan: strata, group table and pass bar -> benchmark/lyon/audit_plan.json
     python scripts/analysis/lyon_review_159.py plan --write
 
-    # the known-artifact reads from #159 on the bundle's detections (needs the run's
-    # results.jsonl, which is not in this repo) -> analysis_out/lyon_review_159/artifacts.json
+    # the known-artifact reads from #159 on the bundle's stored peaks
+    # -> analysis_out/lyon_review_159/artifacts.json
     python scripts/analysis/lyon_review_159.py artifacts --results <runs/lyon/results.jsonl> --write
 
     # bottom-of-frame overlays measured per pano (needs panos/) -> benchmark/lyon/nadir_band.json
     python scripts/analysis/lyon_review_159.py band --write
 
-    # bundle integrity (needs panos/ for the byte check)
+    # bundle integrity; exits non-zero until the imagery is staged and pinned
     python scripts/analysis/lyon_review_159.py verify
 
     # after the review only: per-group precision / recall at 0.55 and 0.30 against the bar
     python scripts/analysis/lyon_review_159.py score --write
 
 Every ``--write`` output is LF, sorted, with floats rounded, so a re-run on any OS is
-byte-identical; without ``--write`` the command recomputes and compares against the
-committed file. ``tests/test_lyon_review_159.py`` covers the CPU logic.
+byte-identical; without ``--write`` the command recomputes and compares the committed
+file's **bytes**. ``tests/test_lyon_review_159.py`` covers the CPU logic.
 """
 import argparse
 import collections
 import csv
 import hashlib
 import json
+import math
 import os
+import random
 import re
-import shutil
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -49,8 +54,8 @@ sys.path.insert(0, REPO)
 
 BUNDLE = os.path.join(REPO, "benchmark", "lyon")
 OUT_DIR = os.path.join(REPO, "analysis_out", "lyon_review_159")
-PLAN = os.path.join(BUNDLE, "audit_plan.json")
-NADIR_BAND = os.path.join(BUNDLE, "nadir_band.json")
+PLAN_NAME = "audit_plan.json"
+NADIR_BAND_NAME = "nadir_band.json"
 ARTIFACTS = os.path.join(OUT_DIR, "artifacts.json")
 SCORE = os.path.join(OUT_DIR, "score.json")
 
@@ -68,11 +73,19 @@ DEPLOYED = 0.55          # the shipped threshold; the pass bar is read here
 LOW_TIER = 0.30          # the recommended operating point; reported alongside
 PASS_PRECISION = 0.80    # the #158 build line
 HEAT_W, HEAT_H = 1024, 512
+EXCLUDE_BUFFER_M = 30    # no training pano within this distance of an audited one
+BOOT_REPS = 10000
+BOOT_SEED = 159
 
 # --------------------------------------------------------------------------- #
 # helpers
 # --------------------------------------------------------------------------- #
-EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+#: An email-shaped token inside JSON or plain text: no whitespace, quote, bracket or
+#: separator on either side of the @, and a dot in the domain. Non-ASCII local parts are
+#: covered (sidewalk-auto-labeler PR 150's census regex is the looser
+#: ``[^@\\s]+@[^@\\s]+\\.[^@\\s]+``, which would swallow the JSON quotes around a value).
+_TOK = r"""[^\s@"'<>,;:()\[\]{}|]"""
+EMAIL_RE = re.compile(_TOK + r"+@" + _TOK + r"+\." + _TOK + r"+")
 
 
 def mask_email(text):
@@ -84,8 +97,8 @@ def mask_email(text):
     Example:
         >>> mask_email('{"copyright": "jane.doe@example.org"}')
         '{"copyright": "j***@***"}'
-        >>> mask_email('grand lyon')
-        'grand lyon'
+        >>> mask_email('grand lyon, rampnet-model@606a11956743')
+        'grand lyon, rampnet-model@606a11956743'
     """
     return EMAIL_RE.sub(lambda m: m.group(0)[0] + "***@***", text)
 
@@ -99,26 +112,46 @@ def _dumps(obj):
 
 
 def _check_or_write(obj, path, write):
-    text = _dumps(obj)
-    rel = os.path.relpath(path, REPO)
+    """Write ``obj`` (LF, sorted) or compare the committed file's bytes to it."""
+    data = _dumps(obj).encode("utf-8")
+    try:
+        rel = os.path.relpath(path, REPO)
+    except ValueError:          # another drive (a test's tmp dir on Windows)
+        rel = path
     if write:
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8", newline="") as f:
-            f.write(text)
+        with open(path, "wb") as f:
+            f.write(data)
         print(f"wrote {rel}")
         return 0
     if not os.path.exists(path):
         print(f"MISSING {rel} (run with --write)")
         return 1
-    with open(path, encoding="utf-8") as f:
-        same = f.read() == text
+    with open(path, "rb") as f:
+        same = f.read() == data
     print(f"{'OK' if same else 'DIFFERS'}: {rel}")
     return 0 if same else 1
+
+
+def _write_lines(path, lines):
+    with open(path, "wb") as f:
+        f.write("".join(line + "\n" for line in lines).encode("utf-8"))
+
+
+def _read_lines(path):
+    with open(path, encoding="utf-8") as f:
+        return [line.strip() for line in f if line.strip()]
 
 
 def load_records(bundle=BUNDLE):
     with open(os.path.join(bundle, "records.jsonl"), encoding="utf-8") as f:
         return [json.loads(line) for line in f if line.strip()]
+
+
+def load_run_peaks(bundle=BUNDLE):
+    """``{pano_id: [peak, ...]}``: every peak the run stored (>= 0.10) for the bundle."""
+    with open(os.path.join(bundle, "run_peaks.json"), encoding="utf-8") as f:
+        return json.load(f)["panos"]
 
 
 def wilson(k, n, z=1.96):
@@ -133,56 +166,139 @@ def rig_of(pano):
     return f"{mm or '(no make/model)'} {pano.get('width')}x{pano.get('height')}"
 
 
+def _sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _iter_results(path):
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                yield json.loads(line)
+
+
+def _order(g):
+    return (GROUPS + (g,)).index(g)
+
+
 # --------------------------------------------------------------------------- #
 # stage
 # --------------------------------------------------------------------------- #
 STAGED_FILES = ("records.jsonl", "sample.json", "group_map.json")
+#: Every committed text file of the bundle that ``verify`` scans for email-shaped tokens.
+TEXT_FILES = STAGED_FILES + ("ids.txt", "exclude_ids.txt", "run_peaks.json", PLAN_NAME,
+                             "bundle_provenance.json", NADIR_BAND_NAME)
 
 
-def stage(src, dst=BUNDLE):
-    """Copy the exporter's bundle files into ``dst``, masking emails in records.jsonl.
+def haversine_m(lat1, lng1, lat2, lng2):
+    r = 6371000.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp, dl = math.radians(lat2 - lat1), math.radians(lng2 - lng1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
 
-    Returns the number of records whose text changed. ``panos/`` and ``index.csv`` are
-    not copied here: they are git-ignored and travel with the imagery."""
-    os.makedirs(dst, exist_ok=True)
-    masked = 0
-    with open(os.path.join(src, "records.jsonl"), encoding="utf-8", newline="") as f:
-        lines = f.read().splitlines()
-    out = []
-    for line in lines:
-        if not line.strip():
+
+def exclusion_ids(run_points, audited, buffer_m=EXCLUDE_BUFFER_M):
+    """Ids of every run pano within ``buffer_m`` of an audited pano (the audited included).
+
+    ``run_points``: iterable of (pano_id, lat, lng); ``audited``: {pano_id: (lat, lng)}.
+    A grid of ``buffer_m`` cells keeps it to a handful of distance checks per pano. A run
+    pano without a position is excluded only if it is itself audited. Pure."""
+    cell = buffer_m / 111320.0
+    grid = collections.defaultdict(list)
+    for lat, lng in audited.values():
+        grid[(math.floor(lat / cell), math.floor(lng / cell))].append((lat, lng))
+    out = set(audited)
+    for pid, lat, lng in run_points:
+        if lat is None or lng is None:
             continue
-        new = mask_email(line)
-        masked += new != line
-        out.append(new)
-    with open(os.path.join(dst, "records.jsonl"), "w", encoding="utf-8", newline="") as f:
-        f.write("".join(line + "\n" for line in out))
-    for name in STAGED_FILES[1:]:
-        shutil.copyfile(os.path.join(src, name), os.path.join(dst, name))
-    return masked
+        # lng cells are narrower in metres than lat cells, so look two lng cells out.
+        ky, kx = math.floor(lat / cell), math.floor(lng / cell)
+        span = max(1, math.ceil(1 / max(0.05, math.cos(math.radians(lat)))))
+        for dy in (-1, 0, 1):
+            for dx in range(-span, span + 1):
+                if any(haversine_m(lat, lng, a, b) <= buffer_m
+                       for a, b in grid.get((ky + dy, kx + dx), ())):
+                    out.add(pid)
+                    break
+            else:
+                continue
+            break
+    return out
+
+
+def stage(src, results, dst=BUNDLE, buffer_m=EXCLUDE_BUFFER_M):
+    """Copy the exporter's bundle files into ``dst``, masking email-shaped tokens in every
+    file written, and derive the never-train lists and the run's stored peaks.
+
+    Writes ``records.jsonl``, ``sample.json``, ``group_map.json`` (masked copies),
+    ``ids.txt`` (the audited ids, sorted), ``exclude_ids.txt`` (every run pano within
+    ``buffer_m`` of an audited one, sorted) and ``run_peaks.json`` (each audited pano's
+    stored peaks, >= 0.10, for the 0.30-tier read). Returns a summary dict. ``panos/``
+    and ``index.csv`` are not copied: they are git-ignored and travel with the imagery."""
+    os.makedirs(dst, exist_ok=True)
+    masked = {}
+    for name in STAGED_FILES:
+        with open(os.path.join(src, name), encoding="utf-8", newline="") as f:
+            text = f.read()
+        new = mask_email(text)
+        masked[name] = sum(a != b for a, b in zip(text.splitlines(), new.splitlines()))
+        with open(os.path.join(dst, name), "wb") as f:
+            f.write(new.encode("utf-8"))
+    recs = load_records(dst)
+    audited = {r["pano"]["panorama_id"]: (r["pano"]["lat"], r["pano"]["lng"]) for r in recs}
+    ids = sorted(audited)
+    _write_lines(os.path.join(dst, "ids.txt"), ids)
+    points, peaks = [], {}
+    for rec in _iter_results(results):
+        p = rec["pano"]
+        points.append((p["panorama_id"], p.get("lat"), p.get("lng")))
+        if p["panorama_id"] in audited:
+            peaks[p["panorama_id"]] = [
+                {"x_normalized": d["x_normalized"], "y_normalized": d["y_normalized"],
+                 "confidence": round(d["confidence"], 6)} for d in rec.get("detections") or []]
+    missing = set(ids) - set(peaks)
+    if missing:
+        raise ValueError(f"{len(missing)} audited panos are not in {results}")
+    excl = sorted(exclusion_ids(points, audited, buffer_m))
+    _write_lines(os.path.join(dst, "exclude_ids.txt"), excl)
+    run_sha = _sha256(results)
+    with open(os.path.join(dst, "run_peaks.json"), "wb") as f:
+        f.write(_dumps({"what": "every peak the run stored (>= 0.10; seam ring dropped by "
+                                "production) for each audited pano, for the 0.30-tier read. "
+                                "Do not open before verdicts.json is exported.",
+                        "results_jsonl_sha256": run_sha,
+                        "panos": {pid: peaks[pid] for pid in ids}}).encode("utf-8"))
+    return {"masked_lines": masked, "ids": len(ids), "exclude_ids": len(excl),
+            "buffer_m": buffer_m, "run_panos": len(points), "results_jsonl_sha256": run_sha}
 
 
 def cmd_stage(args):
-    n = stage(args.src, args.bundle)
-    print(f"staged {', '.join(STAGED_FILES)} into {os.path.relpath(args.bundle, REPO)}; "
-          f"{n} record(s) had an email-shaped token masked")
+    out = stage(args.src, args.results, args.bundle, args.buffer)
+    print(json.dumps(out, sort_keys=True))
     return 0
 
 
 # --------------------------------------------------------------------------- #
 # plan
 # --------------------------------------------------------------------------- #
-def group_table(recs):
-    """Per audit group and stratum: panos and detections at 0.55 and 0.30. Pure."""
+def group_table(recs, run_peaks):
+    """Per audit group and stratum: panos, record detections (>= 0.55) and the run's
+    stored peaks >= 0.30. Pure."""
     rows = {}
     for r in recs:
         g, s = r["benchmark_stratum"], r["benchmark_group"]
         row = rows.setdefault(g, {f"{k}_{s2}": 0 for s2 in STRATA
-                                  for k in ("panos", "det055", "det030")})
+                                  for k in ("panos", "det055", "peaks030")})
         row[f"panos_{s}"] += 1
         row[f"det055_{s}"] += sum(d["confidence"] >= DEPLOYED for d in r["detections"])
-        row[f"det030_{s}"] += sum(d["confidence"] >= LOW_TIER for d in r["detections"])
-    return {g: rows[g] for g in sorted(rows, key=lambda g: (GROUPS + (g,)).index(g))}
+        row[f"peaks030_{s}"] += sum(d["confidence"] >= LOW_TIER
+                                    for d in run_peaks[r["pano"]["panorama_id"]])
+    return {g: rows[g] for g in sorted(rows, key=_order)}
 
 
 def rig_breakdown(recs):
@@ -194,15 +310,49 @@ def rig_breakdown(recs):
            (p.get("capture_date") or "")[:4])] += 1
     return [{"group": g, "rig": rig, "producer": prod, "year": y, "panos": n}
             for (g, rig, prod, y), n in sorted(c.items(), key=lambda kv: (
-                (GROUPS + (kv[0][0],)).index(kv[0][0]), -kv[1], kv[0]))]
+                _order(kv[0][0]), -kv[1], kv[0]))]
+
+
+PASS_BAR = {
+    "metric": "precision of the detections at confidence >= 0.55 (the records the "
+              "reviewer judges)",
+    "threshold": PASS_PRECISION,
+    "read_on": "each audit group's unbiased subset: the random and empty strata, the top "
+               "stratum excluded as for every split",
+    "interval": f"95% percentile interval of a pano bootstrap ({BOOT_REPS} resamples of the "
+                f"group's unbiased panos with replacement, seed {BOOT_SEED}); detections on "
+                "one pano are not independent, so panos are the resampled unit",
+    "outcomes": {
+        "decisive pass (bootstrap lower bound >= 0.80)": "the group is eligible for a Lyon "
+                                                         "training pool",
+        "decisive fail (bootstrap upper bound < 0.80)": "the group is excluded from any Lyon "
+                                                        "training pool",
+        "not decisive (the interval contains 0.80)": "the group is excluded from the first "
+                                                     "retrain; score prints the extra "
+                                                     "random panos a top-up draw would need "
+                                                     "to be decisive at the same point "
+                                                     "estimate",
+    },
+    "all_row": "reported, no verdict: the floors over-sample the small groups, so the pool "
+               "is not a city rate",
+    "source": "the #158 build line (>= 0.80 build, 0.50-0.80 visibility, < 0.50 drop)",
+    "reported_alongside": ["recall at 0.55", "precision and recall at 0.30, read the "
+                           "standard way (the run's stored peaks matched to the GT, so a "
+                           "sub-threshold peak on a ramp the reviewer marked missed is a TP)",
+                           "the Wilson interval over detections", "unsure and duplicate "
+                           "counts", "per-rig rows inside each group (descriptive, no bar)"],
+    "duplicates": "of two detections on one ramp, the lower-confidence one is the duplicate; "
+                  "scored as a false positive (rampnet.validation default)",
+}
 
 
 def build_plan(bundle=BUNDLE):
     recs = load_records(bundle)
+    peaks = load_run_peaks(bundle)
     with open(os.path.join(bundle, "sample.json"), encoding="utf-8") as f:
         sample = json.load(f)
     strata = sample["stratified"]["strata"]
-    table = group_table(recs)
+    table = group_table(recs, peaks)
     for g, row in table.items():
         # The run's own panos per group: with >= 1 detection at 0.55 (the sampler's pool
         # plus the top panos it drew first) and without.
@@ -210,25 +360,12 @@ def build_plan(bundle=BUNDLE):
         row["run_panos_empty"] = strata[g]["pool_empty"]
     return {
         "what": "Lyon label audit (#159 decision of 2026-10-06, #263 track 2). A working "
-                "draft posted before the review; Jon may amend it before the review opens. "
+                "draft, posted on #159 before the review; Jon may amend it before the review "
+                "opens, and score refuses a plan whose hash differs from the posted one. "
                 "Lyon is not a benchmark split, and these panos never train.",
         "question": "Are the RampNet self-labels on each Lyon rig x producer group good "
                     "enough to train on?",
-        "pass_bar": {
-            "metric": "precision of the detections at confidence >= 0.55",
-            "threshold": PASS_PRECISION,
-            "read_on": "each audit group's unbiased subset (random + empty strata; the "
-                       "top stratum is excluded, as for every split)",
-            "rule": "a group passes if its point estimate is >= 0.80. The 95% Wilson "
-                    "interval is reported beside it; an interval that straddles 0.80 is "
-                    "reported as not decisive. A group that fails is excluded from any "
-                    "Lyon training pool.",
-            "source": "the #158 build line (>= 0.80 build, 0.50-0.80 visibility, < 0.50 drop)",
-            "reported_alongside": ["recall at 0.55", "precision and recall at 0.30",
-                                   "unsure and duplicate counts", "per-rig breakdown "
-                                   "inside each group (descriptive, no bar)"],
-            "duplicates": "scored as false positives (rampnet.validation default)",
-        },
+        "pass_bar": PASS_BAR,
         "groups": {g: GROUP_TITLES.get(g, g) for g in table},
         "group_table": table,
         "rig_breakdown": rig_breakdown(recs),
@@ -236,28 +373,31 @@ def build_plan(bundle=BUNDLE):
                                            "min_confidence", "record_confidence", "top_n",
                                            "selected", "groups", "source_record_count")
                     if k in sample},
+        "sampler_floors": {k: sample["stratified"][k] for k in ("group_min", "empty_group_min")},
         "records_show_detections_down_to": sample.get("record_confidence", DEPLOYED),
-        "never_train": "Every panorama_id in benchmark/lyon/records.jsonl is held out of "
-                       "every training pool, whatever the audit reads.",
+        "never_train": f"Every id in ids.txt is held out of every training pool, and so is "
+                       f"every run pano within {EXCLUDE_BUFFER_M} m of one (exclude_ids.txt), "
+                       f"whatever the audit reads.",
     }
 
 
 def cmd_plan(args):
-    return _check_or_write(build_plan(args.bundle), PLAN, args.write)
+    return _check_or_write(build_plan(args.bundle), os.path.join(args.bundle, PLAN_NAME),
+                           args.write)
 
 
 def print_table(plan):
     """The group table as markdown (what the doc and the #159 comment quote)."""
     head = ("| group | run panos with a 0.55 detection / without | top | random | empty "
-            "| detections ≥ 0.55 (random) | detections ≥ 0.30 (random + empty) |")
+            "| detections ≥ 0.55 (random) | stored peaks ≥ 0.30 (random + empty) |")
     lines = [head, "|---|---:|---:|---:|---:|---:|---:|"]
     tot = collections.Counter()
     table = plan["group_table"]
-    for g in sorted(table, key=lambda g: (GROUPS + (g,)).index(g)):
+    for g in sorted(table, key=_order):
         row = table[g]
         cells = [row["run_panos_with_det055"], row["run_panos_empty"], row["panos_top"],
                  row["panos_random"], row["panos_empty"], row["det055_random"],
-                 row["det030_random"] + row["det030_empty"]]
+                 row["peaks030_random"] + row["peaks030_empty"]]
         tot.update(dict(enumerate(cells)))
         lines.append(f"| {g} | {cells[0]:,} / {cells[1]:,} | " +
                      " | ".join(str(c) for c in cells[2:]) + " |")
@@ -267,13 +407,13 @@ def print_table(plan):
 
 
 def cmd_table(args):
-    with open(PLAN, encoding="utf-8") as f:
+    with open(os.path.join(args.bundle, PLAN_NAME), encoding="utf-8") as f:
         print(print_table(json.load(f)))
     return 0
 
 
 # --------------------------------------------------------------------------- #
-# artifacts (#159's known artifacts, read on the bundle's own detections)
+# artifacts (#159's known artifacts, read on the bundle's stored peaks)
 # --------------------------------------------------------------------------- #
 FIXED_CELL_MIN_PANOS = 5     # a 1024x512 cell repeating in >= 5 panos of one sequence
 
@@ -297,73 +437,59 @@ def sequence_cells(results_lines, sequences, tier=LOW_TIER):
     return out
 
 
-def build_artifacts(recs, seq_cells, run_sha):
+def build_artifacts(recs, seq_cells, run_sha, peaks_by_pid=None):
     """Counts per audit group of the two artifacts #159 named. Pure.
 
-    * fixed-pixel cells: detections >= 0.30 in a cell that repeats in >= 5 panos of the
-      pano's own sequence (the Grand Lyon cluster: x 0.503, y 0.756, just above the
-      black nadir, at the 0.30 tier only);
-    * above the horizon: detections with y < 0.5 (ecartip: 10.3% at 0.55 in the first
-      slice, with pose reported as exactly 0/0, so possibly unlevelled panos).
+    Read on each pano's stored peaks (``peaks_by_pid``; default the record detections):
+    * fixed-pixel cells: peaks >= 0.30 in a cell that repeats in >= 5 panos of the pano's
+      own sequence (the Grand Lyon cluster: x 0.503, y 0.756, just above the black nadir);
+    * above the horizon: peaks with y < 0.5 (ecartip: 10.3% at 0.55 in the first slice,
+      with pose reported as exactly 0/0, so possibly unlevelled panos).
     """
-    per = {}
-    items = []
+    per, items = {}, []
     for r in recs:
         g, pid = r["benchmark_stratum"], r["pano"]["panorama_id"]
+        dets = peaks_by_pid[pid] if peaks_by_pid is not None else r["detections"]
         cnt = seq_cells.get(r["pano"].get("sequence_id"), collections.Counter())
-        row = per.setdefault(g, {"det030": 0, "det055": 0, "fixed_cell_030": 0,
+        row = per.setdefault(g, {"peaks030": 0, "peaks055": 0, "fixed_cell_030": 0,
                                  "fixed_cell_055": 0, "above_horizon_030": 0,
                                  "above_horizon_055": 0})
-        for i, d in enumerate(r["detections"]):
+        for i, d in enumerate(dets):
             if d["confidence"] < LOW_TIER:
                 continue
             hi = d["confidence"] >= DEPLOYED
             fixed = cnt[cell_of(d)] >= FIXED_CELL_MIN_PANOS
             above = d["y_normalized"] < 0.5
-            row["det030"] += 1
-            row["det055"] += hi
+            row["peaks030"] += 1
+            row["peaks055"] += hi
             row["fixed_cell_030"] += fixed
             row["fixed_cell_055"] += fixed and hi
             row["above_horizon_030"] += above
             row["above_horizon_055"] += above and hi
             if fixed or above:
-                items.append({"pano": pid, "det": i, "group": g,
+                items.append({"pano": pid, "peak": i, "group": g,
                               "confidence": _r(d["confidence"]), "x": _r(d["x_normalized"]),
                               "y": _r(d["y_normalized"]), "fixed_cell": fixed,
                               "above_horizon": above,
                               "cell_panos_in_sequence": cnt[cell_of(d)]})
-    return {"what": "GT-free counts of the #159 known artifacts on the bundle's detections. "
+    return {"what": "GT-free counts of the #159 known artifacts on the bundle's stored peaks. "
                     "DO NOT open `items` before verdicts.json is exported: it names "
-                    "detections you are about to judge.",
-            "definitions": {"fixed_cell": f"detection in a {HEAT_W}x{HEAT_H} cell that holds "
+                    "places you are about to judge.",
+            "definitions": {"fixed_cell": f"peak in a {HEAT_W}x{HEAT_H} cell that holds "
                                           f"a >= {LOW_TIER} peak in >= {FIXED_CELL_MIN_PANOS} "
                                           f"panos of its own sequence (the pano included)",
                             "above_horizon": "y_normalized < 0.5"},
             "results_jsonl_sha256": run_sha,
-            "per_group": {g: per[g] for g in sorted(per, key=lambda g: (GROUPS + (g,)).index(g))},
-            "items": sorted(items, key=lambda it: (it["pano"], it["det"]))}
-
-
-def _iter_results(path):
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                yield json.loads(line)
-
-
-def _sha256(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
+            "per_group": {g: per[g] for g in sorted(per, key=_order)},
+            "items": sorted(items, key=lambda it: (it["pano"], it["peak"]))}
 
 
 def cmd_artifacts(args):
     recs = load_records(args.bundle)
     seqs = {r["pano"].get("sequence_id") for r in recs}
     cells = sequence_cells(_iter_results(args.results), seqs)
-    return _check_or_write(build_artifacts(recs, cells, _sha256(args.results)),
+    return _check_or_write(build_artifacts(recs, cells, _sha256(args.results),
+                                           load_run_peaks(args.bundle)),
                            ARTIFACTS, args.write)
 
 
@@ -456,14 +582,19 @@ def build_band(bundle=BUNDLE):
 
 
 def cmd_band(args):
-    return _check_or_write(build_band(args.bundle), NADIR_BAND, args.write)
+    return _check_or_write(build_band(args.bundle),
+                           os.path.join(args.bundle, NADIR_BAND_NAME), args.write)
 
 
 # --------------------------------------------------------------------------- #
 # verify
 # --------------------------------------------------------------------------- #
-def verify_bundle(bundle=BUNDLE):
-    """(problems, notes, facts) for the staged bundle; empty problems = OK."""
+def verify_bundle(bundle=BUNDLE, require_imagery=True):
+    """(problems, notes, facts) for the staged bundle; empty problems = OK.
+
+    With ``require_imagery`` (the default, the pre-review gate) a missing
+    ``imagery_manifest.json``, ``nadir_band.json`` or ``panos/`` is a problem, so
+    "verify: OK" means the imagery is staged and byte-checked."""
     problems, notes = [], []
     recs = load_records(bundle)
     ids = [r["pano"]["panorama_id"] for r in recs]
@@ -484,10 +615,29 @@ def verify_bundle(bundle=BUNDLE):
             problems.append(f"{r['pano']['panorama_id']}: detection below the record tier")
         if "benchmark_stratum" not in r:
             problems.append(f"{r['pano']['panorama_id']}: no benchmark_stratum")
-    with open(os.path.join(bundle, "records.jsonl"), encoding="utf-8") as f:
-        if EMAIL_RE.search(f.read()):
-            problems.append("records.jsonl carries an email-shaped token (stage masks them)")
+    # never-train lists
+    if _read_lines(os.path.join(bundle, "ids.txt")) != sorted(ids):
+        problems.append("ids.txt is not the sorted record ids")
+    excl = set(_read_lines(os.path.join(bundle, "exclude_ids.txt")))
+    if not set(ids) <= excl:
+        problems.append("exclude_ids.txt does not contain every audited id")
+    peaks = load_run_peaks(bundle)
+    if set(peaks) != set(ids):
+        problems.append("run_peaks.json and records.jsonl list different panos")
+    for r in recs:      # the records are the run's >= 0.55 peaks, in order
+        hi = [d for d in peaks.get(r["pano"]["panorama_id"], []) if d["confidence"] >= DEPLOYED]
+        if [(d["x_normalized"], d["y_normalized"]) for d in hi] != \
+                [(d["x_normalized"], d["y_normalized"]) for d in r["detections"]]:
+            problems.append(f"{r['pano']['panorama_id']}: records and run_peaks disagree at 0.55")
+    for name in TEXT_FILES:
+        path = os.path.join(bundle, name)
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                if EMAIL_RE.search(f.read()):
+                    problems.append(f"{name} carries an email-shaped token")
+    # imagery
     man_path = os.path.join(bundle, "imagery_manifest.json")
+    panos_dir = os.path.join(bundle, "panos")
     manifest = None
     if os.path.exists(man_path):
         with open(man_path, encoding="utf-8") as f:
@@ -495,7 +645,11 @@ def verify_bundle(bundle=BUNDLE):
         if set(manifest) != set(ids):
             problems.append("records.jsonl and imagery_manifest.json list different panos")
     else:
-        notes.append("imagery_manifest.json absent: imagery not pinned yet")
+        (problems if require_imagery else notes).append(
+            "imagery not staged: imagery_manifest.json absent")
+    if not os.path.exists(os.path.join(bundle, NADIR_BAND_NAME)):
+        (problems if require_imagery else notes).append(
+            f"imagery not staged: {NADIR_BAND_NAME} absent")
     index_path = os.path.join(bundle, "index.csv")
     if os.path.exists(index_path) and manifest is not None:
         with open(index_path, encoding="utf-8", newline="") as f:
@@ -507,8 +661,8 @@ def verify_bundle(bundle=BUNDLE):
         else:
             notes.append(f"index.csv agrees with imagery_manifest.json ({len(index)} panos)")
     else:
-        notes.append("index.csv or manifest absent: exporter cross-check skipped")
-    panos_dir = os.path.join(bundle, "panos")
+        (problems if require_imagery else notes).append(
+            "imagery not staged: index.csv or manifest absent, exporter cross-check skipped")
     if manifest is not None and os.path.isdir(panos_dir):
         checked = 0
         for pid, row in sorted(manifest.items()):
@@ -521,17 +675,19 @@ def verify_bundle(bundle=BUNDLE):
             checked += 1
         notes.append(f"{checked} panos byte-checked against imagery_manifest.json")
     else:
-        notes.append("panos/ or manifest absent: byte check skipped")
+        (problems if require_imagery else notes).append(
+            "imagery not staged: panos/ or manifest absent, byte check skipped")
     facts = {"panos": len(recs), "strata": dict(sorted(strata.items())),
              "detections_055": sum(d["confidence"] >= DEPLOYED for r in recs
                                    for d in r["detections"]),
-             "detections_030": sum(d["confidence"] >= LOW_TIER for r in recs
-                                   for d in r["detections"])}
+             "run_peaks_030": sum(d["confidence"] >= LOW_TIER for v in peaks.values()
+                                  for d in v),
+             "exclude_ids": len(excl)}
     return problems, notes, facts
 
 
 def cmd_verify(args):
-    problems, notes, facts = verify_bundle(args.bundle)
+    problems, notes, facts = verify_bundle(args.bundle, not args.records_only)
     print(json.dumps(facts, sort_keys=True))
     for n in notes:
         print("  " + n)
@@ -544,43 +700,149 @@ def cmd_verify(args):
 # --------------------------------------------------------------------------- #
 # score (after the review only)
 # --------------------------------------------------------------------------- #
-def score_groups(recs, verdict_panos, lenient_duplicates=False):
-    """Per audit group (+ ``all``), unbiased subset: precision / recall at 0.55 and 0.30
-    and the pass-bar reading. Pure: ``verdict_panos`` is verdicts.json's ``panos``."""
-    from rampnet.validation import _precision_at, _recall_tp_at, collect, total_ramps
+def bootstrap_ci(units, reps=BOOT_REPS, seed=BOOT_SEED):
+    """95% percentile interval of sum(k)/sum(n) over pano units resampled with replacement.
+
+    ``units`` is a list of (k, n) per pano (panos with n = 0 still count as draws). Pure
+    and deterministic for a seed. Returns (lo, hi), or (None, None) without any n."""
+    if not units or not sum(n for _, n in units):
+        return None, None
+    rng = random.Random(seed)
+    m = len(units)
+    vals = []
+    for _ in range(reps):
+        k = n = 0
+        for _ in range(m):
+            a, b = units[rng.randrange(m)]
+            k += a
+            n += b
+        if n:
+            vals.append(k / n)
+    vals.sort()
+    return vals[int(0.025 * (len(vals) - 1))], vals[int(0.975 * (len(vals) - 1))]
+
+
+def bar_reading(p, lo, hi, n_panos, bar=PASS_PRECISION):
+    """(verdict, extra_panos) for a point estimate and its bootstrap interval. Pure.
+
+    Decisive pass: lo >= bar. Decisive fail: hi < bar. Otherwise not decisive, and
+    ``extra_panos`` is how many more panos would shrink the interval's half-width on the
+    bar's side to |p - bar| at the same p (half-width ~ 1/sqrt(n)); None when p == bar."""
+    if p is None:
+        return "no detections judged", None
+    if lo >= bar:
+        return "decisive pass: eligible for a training pool", 0
+    if hi < bar:
+        return "decisive fail: excluded from any training pool", 0
+    gap = abs(p - bar)
+    if gap == 0:
+        return "not decisive: excluded from the first retrain (p is exactly the bar)", None
+    half = (p - lo) if p >= bar else (hi - p)
+    need = math.ceil(round(n_panos * (half / gap) ** 2, 6))
+    return "not decisive: excluded from the first retrain", max(0, need - n_panos)
+
+
+def _scan_entries(recs, verdict_panos):
+    """(problems, warnings) for verdict entries against the records: every non-top record
+    must have a fully judged entry whose length matches its detections."""
+    problems = []
+    for r in recs:
+        if r["benchmark_group"] == "top":
+            continue
+        pid = r["pano"]["panorama_id"]
+        e = verdict_panos.get(pid)
+        if e is None:
+            problems.append(f"{pid}: no verdict entry")
+        elif len(e.get("dets", [])) != len(r["detections"]):
+            problems.append(f"{pid}: {len(e.get('dets', []))} verdicts for "
+                            f"{len(r['detections'])} detections")
+        elif any(d is None for d in e["dets"]):
+            problems.append(f"{pid}: partly judged")
+    return problems
+
+
+def score_groups(recs, verdict_panos, run_peaks, lenient_duplicates=False):
+    """Per audit group (+ ``all``), unbiased subset: precision / recall at 0.55 (from the
+    verdicts, rampnet.validation) and at 0.30 (the run's stored peaks matched to the GT,
+    rampnet.detection_eval), with pano-bootstrap and Wilson intervals and the bar reading.
+    Pure: ``verdict_panos`` is verdicts.json's ``panos``."""
+    from rampnet.detection_eval import build_ground_truth, score_pano
+    from rampnet.validation import collect, total_ramps
     confs = {r["pano"]["panorama_id"]: [d["confidence"] for d in r["detections"]]
              for r in recs}
     stratum = {r["pano"]["panorama_id"]: r["benchmark_stratum"] for r in recs}
     group_of = {r["pano"]["panorama_id"]: r["benchmark_group"] for r in recs}
-    out = {}
-    for g in [g for g in GROUPS if g in set(stratum.values())] + ["all"]:
-        panos = {pid: {**v, "group": group_of.get(pid, v.get("group"))}
-                 for pid, v in verdict_panos.items()
-                 if pid in confs and (g == "all" or stratum[pid] == g)}
+    rec_of = {r["pano"]["panorama_id"]: r for r in recs}
+    out, warnings = {}, []
+    present = [g for g in GROUPS if g in set(stratum.values())]
+    for g in present + ["all"]:
+        pids = sorted(pid for pid in verdict_panos
+                      if pid in confs and group_of[pid] != "top"
+                      and (g == "all" or stratum[pid] == g))
+        panos = {pid: {**verdict_panos[pid], "group": group_of[pid]} for pid in pids}
         pools = collect(panos, confs, exclude_top=True, lenient_duplicates=lenient_duplicates)
+        warnings += [f"{g}: {w}" for w in pools.warnings]
+        row = {"panos_reviewed": pools.n_judged,
+               "recall_pool_panos": pools.n_judged - pools.n_unconfirmed,
+               "unsure_detections": pools.n_unsure, "duplicate_detections": pools.n_duplicate,
+               "missed_marks": pools.missed_total, "missed_unsure": pools.missed_unsure}
+        # 0.55: per-pano (tp, n) units from the verdicts, the same folding as collect()
+        units55, rec_units55 = [], []
+        for pid in pids:
+            e = panos[pid]
+            if any(d is None for d in e["dets"]) or len(e["dets"]) != len(confs[pid]):
+                continue
+            ok = []
+            for d in e["dets"]:
+                if d == "unsure" or (d == "duplicate" and lenient_duplicates):
+                    continue
+                ok.append(d is True)
+            units55.append((sum(ok), len(ok)))
+            fn_ok = (e["no_missed"] or e["missed"]) if "no_missed" in e else True
+            if fn_ok:
+                miss = sum(1 for m in e["missed"] if not m.get("unsure"))
+                rec_units55.append((sum(ok), sum(ok) + miss))
+        tp55, n55 = sum(k for k, _ in units55), sum(n for _, n in units55)
         denom = total_ramps(pools)
-        row = {"panos_reviewed": pools.n_judged, "recall_pool_panos":
-               pools.n_judged - pools.n_unconfirmed, "unsure_detections": pools.n_unsure,
-               "duplicate_detections": pools.n_duplicate, "missed_marks": pools.missed_total,
-               "missed_unsure": pools.missed_unsure, "ramps": denom}
-        for t, tag in ((DEPLOYED, "055"), (LOW_TIER, "030")):
-            tp, kept = _precision_at(pools.judged, t)
-            lo, hi = wilson(tp, kept)
-            rtp = _recall_tp_at(pools.recall_judged, t)
-            rlo, rhi = wilson(rtp, denom)
-            row[f"precision_{tag}"] = {"tp": tp, "n": kept, "p": _r(tp / kept) if kept else None,
-                                       "ci95": [_r(lo), _r(hi)]}
-            row[f"recall_{tag}"] = {"tp": rtp, "n": denom, "r": _r(rtp / denom) if denom else None,
-                                    "ci95": [_r(rlo), _r(rhi)]}
-        p = row["precision_055"]
-        if p["p"] is None:
-            row["bar"] = "no detections judged"
+        rtp55 = sum(k for k, _ in rec_units55)
+        assert rtp55 == denom - pools.missed_total, "recall pool disagrees with collect()"
+        # 0.30: the run's stored peaks against the GT built from the verdicts
+        units30, rec_units30 = [], []
+        for pid in pids:
+            e = panos[pid]
+            if any(d is None for d in e["dets"]) or len(e["dets"]) != len(confs[pid]):
+                continue
+            gt = build_ground_truth(rec_of[pid]["detections"], e["dets"], e["missed"],
+                                    e.get("no_missed", True))
+            preds = [d for d in run_peaks[pid] if d["confidence"] >= LOW_TIER]
+            s = score_pano(preds, gt)
+            units30.append((s.tp, s.tp + s.fp))
+            if s.fn_confirmed:
+                rec_units30.append((s.tp, s.n_gt))
+        for tag, units, runits in (("055", units55, rec_units55), ("030", units30, rec_units30)):
+            tp, n = sum(k for k, _ in units), sum(b for _, b in units)
+            rtp, rn = sum(k for k, _ in runits), sum(b for _, b in runits)
+            blo, bhi = bootstrap_ci(units)
+            wlo, whi = wilson(tp, n)
+            rlo, rhi = bootstrap_ci(runits)
+            row[f"precision_{tag}"] = {"tp": tp, "n": n, "p": _r(tp / n) if n else None,
+                                       "bootstrap95": [_r(blo), _r(bhi)],
+                                       "wilson95": [_r(wlo), _r(whi)]}
+            row[f"recall_{tag}"] = {"tp": rtp, "n": rn, "r": _r(rtp / rn) if rn else None,
+                                    "bootstrap95": [_r(rlo), _r(rhi)]}
+        assert (tp55, n55) == (row["precision_055"]["tp"], row["precision_055"]["n"])
+        if g == "all":
+            row["bar"] = "reported, no verdict (the groups are not sampled in proportion)"
         else:
-            row["bar"] = "PASS" if p["p"] >= PASS_PRECISION else "FAIL"
-            if p["ci95"][0] < PASS_PRECISION <= p["ci95"][1]:
-                row["bar"] += " (not decisive: the interval straddles 0.80)"
+            p = row["precision_055"]
+            verdict, extra = bar_reading(p["p"], *(p["bootstrap95"]), len(units55))
+            row["bar"] = verdict
+            if extra:
+                rate = n55 / len(units55) if units55 else 0
+                row["top_up"] = {"extra_random_panos": extra,
+                                 "extra_detections_at_current_rate": round(extra * rate)}
         out[g] = row
-    return out
+    return out, warnings
 
 
 def cmd_score(args):
@@ -589,18 +851,38 @@ def cmd_score(args):
         print(f"no {os.path.relpath(vpath, REPO)}: the review has not happened, "
               f"nothing to score")
         return 1
+    plan_sha = _sha256(os.path.join(args.bundle, PLAN_NAME))
+    with open(os.path.join(args.bundle, "bundle_provenance.json"), encoding="utf-8") as f:
+        posted = (json.load(f).get("posted") or {}).get("audit_plan_sha256")
+    if posted != plan_sha and not args.allow_unposted_plan:
+        print(f"audit_plan.json hashes to {plan_sha[:12]}, but the plan posted on #159 is "
+              f"{(posted or 'none')[:12]}: refusing to score against a plan that changed "
+              f"(--allow-unposted-plan overrides, and is recorded)")
+        return 1
     with open(vpath, encoding="utf-8") as f:
         verdicts = json.load(f)
-    res = {"pass_bar": f"precision at {DEPLOYED} >= {PASS_PRECISION} per group, "
-                       f"unbiased subset (random + empty)",
-           "review_notes": verdicts.get("review_notes") or {},
-           "groups": score_groups(load_records(args.bundle), verdicts.get("panos", {}),
-                                  args.lenient_duplicates)}
-    for g, row in res["groups"].items():
-        p, r3 = row["precision_055"], row["precision_030"]
-        print(f"{g:>20}  P@0.55 {p['p']} ({p['tp']}/{p['n']}, CI {p['ci95']})  "
-              f"P@0.30 {r3['p']} ({r3['tp']}/{r3['n']})  R@0.55 {row['recall_055']['r']}  "
-              f"R@0.30 {row['recall_030']['r']}  -> {row['bar']}")
+    recs = load_records(args.bundle)
+    problems = _scan_entries(recs, verdicts.get("panos", {}))
+    for p in problems:
+        print("  PROBLEM: " + p)
+    if problems and not args.partial:
+        print(f"{len(problems)} non-top panos are missing, misaligned or partly judged: "
+              f"refusing to score (--partial scores the rest, and is recorded)")
+        return 1
+    groups, warnings = score_groups(recs, verdicts.get("panos", {}),
+                                    load_run_peaks(args.bundle), args.lenient_duplicates)
+    for w in warnings:
+        print("  WARNING: " + w)
+    res = {"pass_bar": PASS_BAR, "audit_plan_sha256": plan_sha,
+           "plan_posted": posted == plan_sha, "partial": bool(problems),
+           "unscored_panos": problems, "lenient_duplicates": args.lenient_duplicates,
+           "review_notes": verdicts.get("review_notes") or {}, "groups": groups}
+    for g, row in groups.items():
+        p, p3 = row["precision_055"], row["precision_030"]
+        print(f"{g:>20}  P@0.55 {p['p']} ({p['tp']}/{p['n']}, boot {p['bootstrap95']})  "
+              f"P@0.30 {p3['p']} ({p3['tp']}/{p3['n']})  R@0.55 {row['recall_055']['r']}  "
+              f"R@0.30 {row['recall_030']['r']}  -> {row['bar']}"
+              + (f"; top-up {row['top_up']}" if row.get("top_up") else ""))
     return _check_or_write(res, SCORE, args.write)
 
 
@@ -611,6 +893,10 @@ def main(argv=None):
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("stage")
     s.add_argument("--from", dest="src", required=True, help="the exporter's bundle dir")
+    s.add_argument("--results", required=True, help="the run's results.jsonl")
+    s.add_argument("--buffer", type=float, default=EXCLUDE_BUFFER_M,
+                   help="never-train radius around each audited pano, metres "
+                        "(default: %(default)s)")
     s.set_defaults(fn=cmd_stage)
     for name, fn in (("plan", cmd_plan), ("band", cmd_band)):
         s = sub.add_parser(name)
@@ -623,10 +909,16 @@ def main(argv=None):
     s.add_argument("--write", action="store_true")
     s.set_defaults(fn=cmd_artifacts)
     s = sub.add_parser("verify")
+    s.add_argument("--records-only", action="store_true",
+                   help="check the committed files only; imagery absence is a note")
     s.set_defaults(fn=cmd_verify)
     s = sub.add_parser("score")
     s.add_argument("--write", action="store_true")
     s.add_argument("--lenient-duplicates", action="store_true")
+    s.add_argument("--partial", action="store_true",
+                   help="score despite missing / misaligned / partly judged panos")
+    s.add_argument("--allow-unposted-plan", action="store_true",
+                   help="score although audit_plan.json differs from the posted plan")
     s.set_defaults(fn=cmd_score)
     args = ap.parse_args(argv)
     return args.fn(args)
