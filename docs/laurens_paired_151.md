@@ -169,6 +169,13 @@ reproduces the 2026-09-03 table to ±0.001: that table took differences of round
 | y11x_pano_h200 | 0.25 | 81 / 84 | 0.988 / 0.437 / 0.606 | 0.952 / 0.414 / 0.578 | +0.035 [-0.021, +0.102] | +0.023 [-0.075, +0.124] | **+0.028** [-0.066, +0.130] | +0.039 |
 | y26_pano | 0.25 | 113 / 126 | 0.779 / 0.481 / 0.595 | 0.778 / 0.508 / 0.614 | +0.001 [-0.094, +0.100] | -0.027 [-0.131, +0.084] | **-0.020** [-0.102, +0.067] | -0.036 |
 | claude-opus-5-effort-low | no score | 141 / 144 | 0.511 / 0.388 / 0.441 | 0.569 / 0.425 / 0.487 | -0.059 [-0.172, +0.061] | -0.037 [-0.121, +0.050] | **-0.046** [-0.134, +0.046] | +0.008 |
+| claude-fable-5-1-effort-low-anthropic | no score | 102 / 123 | 0.586 / 0.317 / 0.411 | 0.705 / 0.446 / 0.546 | -0.119 [-0.228, -0.010] | -0.129 [-0.218, -0.038] | **-0.135** [-0.225, -0.043] | -0.078 |
+| claude-opus-5-5-effort-low-anthropic | no score | 162 / 169 | 0.781 / 0.683 / 0.729 | 0.798 / 0.694 / 0.742 | -0.016 [-0.104, +0.068] | -0.011 [-0.104, +0.078] | **-0.013** [-0.079, +0.054] | +0.022 |
+
+*The last two rows were added on 2026-10-19, when the newest-ids campaign
+([`claude_newest_ids.md`](claude_newest_ids.md)) ran both legs on both arms; no other row
+changed. `claude-opus-5-5`, the strongest zero-shot leg on both arms, is flat across the rigs
+on the paired corners (−0.013 [−0.079, +0.054]) where RampNet gains +0.112.*
 
 - **`rampnet@0.30` has no GSV side.** `laurens_gsv` has no `op_cache`: its bundle stops at the
   deployed 0.55, and producing the low-floor cache needs GPU inference, which this CPU-only
