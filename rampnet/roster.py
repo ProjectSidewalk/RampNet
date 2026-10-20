@@ -290,11 +290,11 @@ ROSTER = (
         density="sparse", standing=False, added="2026-09-05",
         pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
         published_as="claude-fable-5-1-effort-low-anthropic",
-        note="F1 0.610 on annapolis (P 0.637 / R 0.585), 2.28 boxes/pano. Clears "
-             "the 0.567 gate and displaces claude-opus-5 effort-low (0.588) -- the "
-             "first general-purpose model to do so on this split. Tied with "
-             "claude-fable-5 (0.611) at a MORE PRECISE operating point, which is "
-             "the whole difference between them."),
+        note="F1 0.610 on annapolis (P 0.637 / R 0.585), 2.28 boxes/pano (#156): "
+             "cleared the 0.567 gate, tied with claude-fable-5 (0.611) at a more "
+             "precise operating point. Run on the other 11 splits on 2026-10-19: "
+             "pooled F1 0.598, manual_gold 0.638, behind claude-opus-5-5 on all 12 "
+             "splits. See docs/claude_newest_ids.md."),
     Challenger(
         spec="claude:claude-fable-5", label="claude-fable-5", provider="claude",
         density="sparse", standing=False, added="2026-09-05",
@@ -312,9 +312,11 @@ ROSTER = (
         density="sparse", standing=False, added="2026-10-19",
         pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
         published_as="claude-opus-5-5-effort-low-anthropic",
-        note="F1 0.720 on annapolis (P 0.694 / R 0.748) -- ahead of claude-fable-5-1 "
-             "(0.610) on every split run so far, at the same tokens per call and "
-             "~2.5x lower cost. Campaign in progress; see docs/claude_newest_ids.md."),
+        note="All 12 splits, manual_gold included (2026-10-19). Pooled F1 0.710 "
+             "(P 0.691 / R 0.737), the best challenger with full pooled coverage; "
+             "manual_gold 0.722. Ahead of claude-fable-5-1 on all 12 splits at the "
+             "same tokens per call and ~2.5x lower cost per pano. See "
+             "docs/claude_newest_ids.md."),
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
