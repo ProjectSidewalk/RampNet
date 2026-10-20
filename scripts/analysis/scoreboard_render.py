@@ -788,7 +788,11 @@ def log_split_footnote(result, split):
                      f"split: {top['display']} is {num(f1[top['model']] - rampnet_f1)} F1 "
                      "ahead of it")
             if table_best > rampnet_f1:
-                text += (f", and the table's best row, {log_label(best_row)}, is "
+                # Display name, like every other model this footnote names -- not the
+                # table's LOG_LABEL id, which mixed two naming schemes in one sentence.
+                best_display = next(m["display"] for m in result["models"]
+                                    if m["model"] == best_row)
+                text += (f", and the table's best row, {best_display}, is "
                          f"{num(table_best - rampnet_f1)} ahead of it too.")
             else:
                 text += (", where RampNet leads the table's best row by "

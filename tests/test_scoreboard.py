@@ -465,8 +465,10 @@ def test_footnote_never_prints_a_negative_lead_over_the_table():
     line = _closing_line(text)
     assert line == (
         "Against the whole zero-shot field RampNet does not lead on this split: Leg X is "
-        "0.100 F1 ahead of it, and the table's best row, gemini-3.1-pro-preview, is 0.050 "
+        "0.100 F1 ahead of it, and the table's best row, Gemini 3.1 Pro, is 0.050 "
         "ahead of it too.")
+    # One naming scheme per sentence: display names, as for "Leg X".
+    assert "gemini-3.1-pro-preview" not in line
     assert "-0." not in text
 
 

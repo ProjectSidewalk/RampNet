@@ -1232,6 +1232,19 @@ def test_both_fable_ids_are_priced_from_the_first_party_card(model_id):
     assert price_for("claude-fable-5-1")["cache_read_per_m"] == 0.25
 
 
+def test_opus_5_5_is_priced_from_the_first_party_card():
+    """The newest-ids campaign (#261) was paid and capped off this row, so a drifted
+    rate would mis-cost every claude-opus-5-5 ledger row. Same trap as Fable 5.1: cache
+    reads are $0.20/MTok, 0.05x input, not the usual 0.1x ($0.40)."""
+    from pricing import price_for
+    p = price_for("claude-opus-5-5")
+    assert (p["input_per_m"], p["output_per_m"]) == (4.00, 20.00)
+    assert p["cache_read_per_m"] == 0.20
+    assert p["cache_write_per_m"] == 5.00
+    assert p["as_of"] == "2026-10-19"
+    assert "first-party" in p["note"]
+
+
 def test_claude_tool_choice_is_in_the_cache_key():
     auto = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="auto")
     forced = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="forced")
@@ -1519,6 +1532,132 @@ def test_the_refusal_is_not_swallowed_as_an_unrunnable_model(monkeypatch, capsys
     with pytest.raises(compare.UnrecordedSpend):
         compare.main()
     assert "not runnable" not in capsys.readouterr().out
+
+
+# --- exit status: a launcher looping over splits must be able to stop (#261) ---
+
+class _FailsOnceDetector:
+    """One transient failure on the first pano, then answers: an isolated fault."""
+    name = "fails-once"
+
+    def __init__(self):
+        self.calls = 0
+
+    def prepare(self):
+        pass
+
+    def signature(self):
+        return None
+
+    def detect(self, sample):
+        self.calls += 1
+        if self.calls == 1:
+            raise RuntimeError("simulated 529")
+        return [(0.5, 0.25, None)]
+
+
+def _run_main_with(monkeypatch, tmp_path, detector, extra=()):
+    """main() over the committed richmond bundle with ``detector`` as the one leg,
+    every report_usage call spied on and still written to a tmp ledger."""
+    monkeypatch.setattr(compare, "build_detector",
+                        lambda provider, model_id, records, args: ("leg", detector))
+    calls = []
+    real = compare.report_usage
+
+    def _spy(*a, **kw):
+        calls.append(a)
+        return real(*a, **kw)
+    monkeypatch.setattr(compare, "report_usage", _spy)
+    log = tmp_path / "usage_log.jsonl"
+    monkeypatch.setattr(sys, "argv", ["compare.py",
+                                      os.path.join(REPO_ROOT, "benchmark", "richmond"),
+                                      "--models", "rampnet", "--no-cache",
+                                      "--usage-log", str(log), *extra])
+    return compare.main(), calls, log
+
+
+def test_a_leg_that_is_not_runnable_exits_incomplete(monkeypatch, tmp_path, capsys):
+    """The launcher's STOP contract read the exit status, and a not-runnable leg used
+    to exit 0 -- so a split whose leg could not even start never stopped the loop.
+    The usage hook still runs (a leg that spent nothing writes no row by design)."""
+    code, calls, _ = _run_main_with(monkeypatch, tmp_path, _UnloadableDetector())
+    assert code == compare.EXIT_INCOMPLETE
+    assert len(calls) == 1
+    out = capsys.readouterr().out
+    assert "not runnable" in out and "INCOMPLETE" in out
+
+
+def test_a_leg_that_aborts_exits_incomplete_and_still_logs(monkeypatch, tmp_path, capsys):
+    """Ten failures in a row (an outage, or org credits running out) abort the leg.
+    That used to exit 0 too, so every remaining split aborted in turn. The calls it
+    made were attempts that may have billed, so the ledger row must exist before the
+    non-zero exit."""
+    code, calls, log = _run_main_with(monkeypatch, tmp_path, _AlwaysFailsDetector())
+    assert code == compare.EXIT_INCOMPLETE
+    assert len(calls) == 1
+    rows = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
+    assert len(rows) == 1 and rows[0]["panos_called"] == 10
+    assert "consecutive failures" in capsys.readouterr().out
+
+
+def test_isolated_pano_failures_alone_exit_zero(monkeypatch, tmp_path, capsys):
+    """Deliberately still 0: the leg ran to its end, printed the failure, and a re-run
+    fills it from the cache. Stopping a whole multi-split run on one 529 would leave
+    every later split unrun for a fault the next call does not have."""
+    code, calls, log = _run_main_with(monkeypatch, tmp_path, _FailsOnceDetector())
+    assert code == 0
+    assert len(calls) == 1 and log.exists()
+    out = capsys.readouterr().out
+    assert "1 pano failure(s) isolated" in out and "INCOMPLETE" not in out
+
+
+def test_an_unreviewed_bundle_carries_the_same_exit_status(monkeypatch, tmp_path):
+    """The --unreviewed path returns early (nothing to score); it must not return
+    past the status the scored path would have reported."""
+    unreviewed = tmp_path / "bundle"
+    unreviewed.mkdir()
+    shutil.copy(os.path.join(REPO_ROOT, "benchmark", "richmond", "records.jsonl"),
+                unreviewed / "records.jsonl")
+    class _CachedButFailing(_AlwaysFailsDetector):
+        def signature(self):            # detect-only panos need a cache to fill
+            return {"provider": "always-fails"}
+
+    monkeypatch.setattr(compare, "build_detector",
+                        lambda provider, model_id, records, args: ("leg", _CachedButFailing()))
+    monkeypatch.setattr(sys, "argv", ["compare.py", str(unreviewed), "--unreviewed",
+                                      "--models", "rampnet", "--no-cache",
+                                      "--usage-log", str(tmp_path / "log.jsonl")])
+    assert compare.main() == compare.EXIT_INCOMPLETE
+
+
+def test_api_account_is_a_closed_set():
+    """A typo used to open a new ledger bucket silently, which no cap reads."""
+    parser = compare.build_parser()
+    base = [os.path.join(REPO_ROOT, "benchmark", "richmond")]
+    for account in compare.API_ACCOUNTS:
+        assert parser.parse_args(base + ["--api-account", account]).api_account == account
+    with pytest.raises(SystemExit):
+        parser.parse_args(base + ["--api-account", "claude50"])
+
+
+def test_every_api_account_in_the_ledger_is_still_accepted():
+    """choices= must not orphan a label the committed ledger already carries."""
+    seen = {r.get("api_account") for r in ledger.read_rows(
+        os.path.join(REPO_ROOT, "analysis_out", "usage_log.jsonl"))} - {None}
+    assert seen and seen <= set(compare.API_ACCOUNTS)
+
+
+def test_the_launcher_validates_the_same_accounts():
+    """run_claude_legs_by_account.ps1 checks -Account with its own ValidateSet; if the
+    two lists drift, the launcher accepts a name compare.py then refuses."""
+    import re
+    path = os.path.join(REPO_ROOT, "scripts", "model_comparison",
+                        "run_claude_legs_by_account.ps1")
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    m = re.search(r"ValidateSet\(([^)]*)\)\]\[string\]\$Account", text)
+    assert m, "the -Account ValidateSet moved; update this test"
+    assert tuple(re.findall(r"'([^']+)'", m.group(1))) == compare.API_ACCOUNTS
 
 
 def test_the_paid_provider_list_covers_every_priced_model():
