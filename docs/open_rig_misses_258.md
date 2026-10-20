@@ -2,242 +2,417 @@
 
 Issue: [#263](https://github.com/ProjectSidewalk/RampNet/issues/263) (Track 1), background in
 [#258](https://github.com/ProjectSidewalk/RampNet/issues/258) and
-[#46](https://github.com/ProjectSidewalk/RampNet/issues/46). Run 2026-10-20. CPU only, no paid
-model, no GPU (the one GPU step, laurens_gsv, was not run; see [Gaps](#gaps)).
+[#46](https://github.com/ProjectSidewalk/RampNet/issues/46). Run 2026-10-20, revised the same day
+after review. CPU only, no paid model, no GPU. The one GPU step, laurens_gsv, was not run (see
+[Gaps](#gaps)).
 
 RampNet loses about a third of its recall on the open rigs Project Sidewalk deployments are
 moving to (#151, #159). This doc asks what kind of miss that is, using the #46 miss taxonomy
 (`scripts/analysis/miss_taxonomy.py`) on the open-imagery splits.
 
-## The reading rule (fixed in #263 before any number was looked at)
+## The buckets
 
-Each missed ramp goes into one of four buckets, from the committed 0.05-floor peak caches:
+Each missed ramp goes into one of four buckets, from the committed 0.05-floor peak caches. R is
+the match radius.
 
-- **merged**: a peak above threshold sat inside the match radius, but a neighbouring ramp
-  claimed it. One peak for two ramps.
-- **sub_threshold**: a peak sat inside the radius, scoring between 0.05 and the threshold. The
-  model found the ramp and was not confident enough.
-- **localization**: no peak in the radius, but an unclaimed one within twice the radius.
-- **silent**: nothing at all, even at the 0.05 floor.
+- **merged**: a peak at or above threshold sat inside R, but a neighbouring ramp claimed it. One
+  peak for two ramps.
+- **sub_threshold**: a peak sat inside R, scoring between 0.05 and the threshold. The model found
+  the ramp and was not confident enough.
+- **localization**: no peak inside R, and the nearest at-or-above-threshold peak between R and 2R
+  is unclaimed.
+- **silent**: everything else. That means no floor peak inside R, and no unclaimed
+  at-or-above-threshold peak within 2R. It does **not** mean the model gave nothing: a silent
+  ramp can still have a sub-threshold peak between R and 2R, or a neighbour's peak there.
 
-The rule: **if silent dominates, the gap is labels** (the model does not respond, so it has to be
-taught). **If sub_threshold dominates, the gap is calibration**, and the cheap verifier rungs in
-#258 come before any retrain.
+Because "silent" is looser than it sounds, this doc adds a stricter count beside it.
+**strict silent** means no floor peak at all (score 0.05 or more) within 2R. It is a subset of
+silent, computed in `open_rig_misses_258.py`; `classify_miss` is unchanged.
 
-"Dominates" is made concrete here as: the pano-bootstrap 95% interval of (sub_threshold share
-minus silent share) excludes zero. Otherwise neither leads. The bootstrap resamples panos within
-each split, because misses cluster by pano (a merged pair is two misses on one pano), so it is
-wider than the Wilson interval, which treats misses as independent. Both are reported.
+## The reading rule, and when its test was chosen
+
+#263 fixed the rule before this work started: **if silent dominates, the gap is labels** (the
+model does not respond, so it has to be taught). **If sub_threshold dominates, the gap is
+calibration**, and the cheap verifier rungs in #258 come before any retrain.
+
+#263 did not say what "dominates" means. This PR makes it concrete: the pano-bootstrap 95%
+interval of (sub_threshold share minus silent share) excludes zero, otherwise neither leads. The
+bootstrap resamples panos within each split, because misses cluster by pano (a merged pair is two
+misses on one pano), so it is wider than the Wilson interval, which treats misses as independent.
+Both are reported.
+
+When that test was chosen: I chose it while writing `open_rig_misses_258.py`. By then I had
+already seen the per-split 0.30 bucket shares for these four splits, because the default
+`miss_taxonomy.py` run (used to check that `--cities` left the default output unchanged) prints
+every split. I had not seen any interval, any pooled open-rig number or any recall-point
+decomposition. A plurality reading of "dominates" would give the same answer on the primary pool
+at 0.30 (52.6% against 38.5%).
+
+## What each reading uses
+
+- The **headline** reads the GoPro Max pool at 0.30 on all panos: bucket shares for the rule,
+  recall points for the size of each lever.
+- `benchmark/README.md` names the **unbiased subset** (random and empty strata, dropping the 5
+  hand-picked high-density panos per split) as the honest between-city comparison. Every
+  between-city table below is therefore repeated on the unbiased subset. No reading changes
+  between the two.
+- **budapest_district5 is never pooled.** It is GoPro Max, but `miss_decomposition.HELD_OUT`
+  holds it out for single-rater GT at low reviewer confidence, so it gets its own row. An
+  earlier draft of this doc pooled it with the other two GoPro Max splits, and the pool then
+  read "neither leads". That is why it is held out here, and why that reading is withdrawn.
 
 ## Result
 
-At the 0.30 operating point (#79), **neither bucket dominates on the open rigs taken together**.
-On the three GoPro Max splits pooled, sub_threshold is 46.9% of misses and silent is 40.1%, and
-the difference is −2 to +16 points. Split by split, only laurens_mapillary passes the rule
-(calibration). Bayonne is a tie, budapest leans silent and juneau leans sub_threshold, and none
-of those three is separated.
+At the 0.30 operating point (#79), **sub_threshold leads on the GoPro Max pool** (laurens_mapillary
+and bayonne). It is 52.6% of misses against 38.5% silent, and the bootstrap difference is +2.1
+to +25.2 points. The unbiased subset gives +1.9 to +25.4.
 
-Counted in recall points, the gap is about half calibration and half silence. GoPro Max is 0.236
-recall points behind the #46 reference pool at 0.30. Sub_threshold misses account for +0.128 of
-that and silent misses for +0.116. Merged misses go the other way (−0.026).
+Split by split, only laurens_mapillary passes the rule on its own (calibration). Bayonne is close
+(47.4% against 46.1%) and underpowered. Budapest (held out) leans silent and juneau leans
+sub_threshold, and neither of those is separated.
 
-At the 0.55 deployed threshold sub_threshold leads almost everywhere. That is mostly the 0.30 to
-0.55 band that #79 already proposes to give up, so it is not new information.
+**In recall points, the two levers are both large, and this data cannot say which is larger.**
+The GoPro Max pool is 0.284 recall points behind the #46 reference at 0.30 (bootstrap 0.229 to
+0.333):
 
-The same camera does fine inside the reference pool. Morgantown is GoPro Max (95 of 95 scored
-panos) and reaches recall 0.805 at 0.30, with silent misses costing 0.075 recall points against
-the reference's 0.062. So the silent excess is not the camera model. It is concentrated in
-bayonne (+0.171), budapest (+0.095) and laurens_mapillary (+0.074).
+- Sub-threshold misses cost +0.178 more than on the reference.
+- Silent misses cost +0.127 more.
+- The difference between those two excesses is +0.051, with an interval of −0.008 to +0.109.
+  On the unbiased subset it is +0.051 (−0.016 to +0.114).
 
-So #263's decision point does not get a single answer from this. The two levers are about the
-same size on GoPro Max: cheap rescoring of sub-threshold peaks can reach at most the
-sub_threshold excess, and labels or data are the only thing that reaches the silent excess.
-Which to do first is Jon's call.
+**What rescoring could reach at most.** A verifier that rescores RampNet's own sub-threshold
+peaks can recover at most all of them. On the GoPro Max pool that is 0.258 recall points at 0.30,
+of which 0.178 is the excess over the reference (the reference has its own 0.081).
 
-### Bucket shares at 0.30 (Wilson 95% in brackets)
+**What labels might reach.** The strict silent misses have no peak of any kind within 2R. They
+cost 0.126 recall points on the GoPro Max pool against 0.026 on the reference, an excess of
++0.100 (0.069 to 0.131). That is the population with the best claim to being a label or data
+problem, and it is still an upper bound on single-rater GT (see Caveats).
 
-| population | panos | GT | misses | recall | merged | sub_threshold | localization | silent | sub − silent, boot 95% (pts) | reading |
-|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|
-| `laurens_mapillary` | 59 | 249 | 118 | 0.526 | 12 · 10.2% [6–17] | 70 · 59.3% [50–68] | 2 · 1.7% [0–6] | 34 · 28.8% [21–38] | +14 to +48 | sub_threshold leads: calibration |
-| `bayonne` | 87 | 301 | 152 | 0.495 | 3 · 2.0% [1–6] | 72 · 47.4% [40–55] | 7 · 4.6% [2–9] | 70 · 46.1% [38–54] | −14 to +16 | neither leads |
-| `budapest_district5` | 89 | 300 | 107 | 0.643 | 14 · 13.1% [8–21] | 35 · 32.7% [25–42] | 11 · 10.3% [6–17] | 47 · 43.9% [35–53] | −29 to +6 | neither leads |
-| `juneau` | 94 | 297 | 72 | 0.758 | 10 · 13.9% [8–24] | 36 · 50.0% [39–61] | 2 · 2.8% [1–10] | 24 · 33.3% [24–45] | −4 to +37 | neither leads |
-| GoPro Max pooled (laurens_mapillary, bayonne, budapest) | 235 | 850 | 377 | 0.556 | 29 · 7.7% [5–11] | 177 · 46.9% [42–52] | 20 · 5.3% [3–8] | 151 · 40.1% [35–45] | −2 to +16 | neither leads |
-| `morgantown` (GoPro Max, in the reference) | 95 | 267 | 52 | 0.805 | 9 · 17.3% [9–30] | 22 · 42.3% [30–56] | 1 · 1.9% [0–10] | 20 · 38.5% [26–52] | −16 to +26 | neither leads |
-| **#46 reference, 7 US splits** | 657 | 2060 | 427 | 0.793 | 124 · 29.0% [25–34] | 166 · 38.9% [34–44] | 9 · 2.1% [1–4] | 128 · 30.0% [26–34] | +0.5 to +17 | sub_threshold leads: calibration |
-| `laurens_gsv` | — | — | — | — | not run: no op_cache ([Gaps](#gaps)) | | | | | |
+**Merged is not part of the open-rig story.** Against the full reference, merged misses look
+like they go the other way (−0.033). That is Paterson: it holds 80 of the reference's 124 merged
+misses. Against the reference without Paterson, the GoPro Max merged excess is +0.001.
 
-The reference row is the #46 table (29.0 / 38.9 / 2.1 / 30.0), reproduced exactly by
-`miss_taxonomy.py --cities` with the seven original US splits (pinned in
-`tests/test_open_rig_misses_258.py`). It is often called the GSV pool, but it is not: three of
-the seven are GSV (bend, paterson, gainesville) and four are Mapillary (richmond, clovis,
-morgantown, annapolis). Paterson alone contributes 80 of its 124 merged misses.
+At the 0.55 deployed threshold, sub_threshold leads on every population except budapest. Here
+the excess difference separates: +0.096 (+0.028 to +0.166) on the GoPro Max pool. Most of that is
+the 0.30 to 0.55 band that #79 already proposes to give up, so it adds little.
 
-"panos" counts panos with at least one GT ramp, the population the taxonomy scores
-(laurens_mapillary has 94 panos, 59 with a ramp).
+So #263's decision point gets a lean, not a verdict. On shares, calibration leads on the GoPro
+Max pool. In recall points both levers are large: about 0.18 excess for sub_threshold and 0.13
+for silent, 0.10 of it strictly silent. The interval does not separate them. Which to do first
+is Jon's call.
 
-### Recall points per bucket at 0.30, and the excess over the reference
+### Bucket shares at 0.30, all panos (Wilson 95% in brackets)
 
-| population | merged | sub_threshold | localization | silent | recall gap to reference |
-|---|--:|--:|--:|--:|--:|
-| `laurens_mapillary` | 0.048 (−0.012) | 0.281 (+0.201) | 0.008 (+0.004) | 0.137 (+0.074) | +0.267 |
-| `bayonne` | 0.010 (−0.050) | 0.239 (+0.159) | 0.023 (+0.019) | 0.233 (+0.171) | +0.298 |
-| `budapest_district5` | 0.047 (−0.013) | 0.117 (+0.036) | 0.037 (+0.032) | 0.157 (+0.095) | +0.149 |
-| `juneau` | 0.034 (−0.026) | 0.121 (+0.041) | 0.007 (+0.002) | 0.081 (+0.019) | +0.035 |
-| GoPro Max pooled | 0.034 (−0.026) | 0.208 (+0.128) | 0.024 (+0.019) | 0.178 (+0.116) | +0.236 |
-| `morgantown` | 0.034 (−0.026) | 0.082 (+0.002) | 0.004 (−0.001) | 0.075 (+0.013) | −0.013 |
-| #46 reference | 0.060 | 0.081 | 0.004 | 0.062 | — |
+<!-- BEGIN GENERATED: shares-0.30-all -->
+| population | panos | GT | misses | recall | merged | sub_threshold | localization | silent | of which strict | sub − silent, boot 95% (pts) | reading |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|
+| `laurens_mapillary` | 59 | 249 | 118 | 0.526 | 12 · 10.2% [6–17] | 70 · 59.3% [50–68] | 2 · 1.7% [0–6] | 34 · 28.8% [21–38] | 23 · 19.5% [13–28] | +12.6 to +48.0 | sub_threshold leads: calibration |
+| `bayonne` | 87 | 301 | 152 | 0.495 | 3 · 2.0% [1–6] | 72 · 47.4% [40–55] | 7 · 4.6% [2–9] | 70 · 46.1% [38–54] | 46 · 30.3% [24–38] | -13.6 to +14.9 | neither leads |
+| `budapest_district5` (held out, not pooled) | 89 | 300 | 107 | 0.643 | 14 · 13.1% [8–21] | 35 · 32.7% [25–42] | 11 · 10.3% [6–17] | 47 · 43.9% [35–53] | 25 · 23.4% [16–32] | -28.2 to +5.8 | neither leads |
+| `juneau` | 94 | 297 | 72 | 0.758 | 10 · 13.9% [8–24] | 36 · 50.0% [39–61] | 2 · 2.8% [1–10] | 24 · 33.3% [24–45] | 12 · 16.7% [10–27] | -4.2 to +35.6 | neither leads |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 146 | 550 | 270 | 0.509 | 15 · 5.6% [3–9] | 142 · 52.6% [47–58] | 9 · 3.3% [2–6] | 104 · 38.5% [33–44] | 69 · 25.6% [21–31] | +2.1 to +25.2 | sub_threshold leads: calibration |
+| `morgantown` (GoPro Max, in the reference) | 95 | 267 | 52 | 0.805 | 9 · 17.3% [9–30] | 22 · 42.3% [30–56] | 1 · 1.9% [0–10] | 20 · 38.5% [26–52] | 13 · 25.0% [15–38] | -17.6 to +26.5 | neither leads |
+| #46 reference without paterson (6 splits) | 559 | 1665 | 316 | 0.810 | 44 · 13.9% [11–18] | 150 · 47.5% [42–53] | 8 · 2.5% [1–5] | 114 · 36.1% [31–42] | 50 · 15.8% [12–20] | +0.9 to +21.6 | sub_threshold leads: calibration |
+| **#46 reference** (7 US splits) | 657 | 2060 | 427 | 0.793 | 124 · 29.0% [25–34] | 166 · 38.9% [34–44] | 9 · 2.1% [1–4] | 128 · 30.0% [26–34] | 53 · 12.4% [10–16] | +0.9 to +17.4 | sub_threshold leads: calibration |
+| `laurens_gsv` | — | — | — | — | not run: no op_cache (see Gaps) | | | | | | |
+<!-- END GENERATED: shares-0.30-all -->
 
-Shares hide that a split can have the same mix as the reference and three times the misses. This
-table is the one to read for "how much recall could each lever buy".
+The reference row is the #46 table (29.0 / 38.9 / 2.1 / 30.0). `miss_taxonomy.py --cities`
+reproduces it exactly from the seven original US splits, and `tests/test_open_rig_misses_258.py`
+pins that.
 
-### Near field and far field at 0.30 (18 m boundary, flat-ground distance)
+It is often called the GSV pool, but it is not one. Three of the seven are GSV (bend, paterson,
+gainesville) and four are Mapillary (richmond, clovis, morgantown, annapolis). "panos" counts
+panos with at least one GT ramp, the population the taxonomy scores; laurens_mapillary has 94
+panos, 59 of them with a ramp.
 
-| population | near GT | near misses | near recall | near merged / sub / loc / silent | far GT | far misses | far recall | far merged / sub / loc / silent |
+### Recall points per bucket at 0.30, all panos, with the excess over the #46 reference
+
+Each cell is the bucket's recall points, then the excess over the reference with its pano-bootstrap
+95% interval in points.
+
+<!-- BEGIN GENERATED: excess-0.30-all -->
+| population | merged | sub_threshold | localization | silent | strict silent | recall gap | sub excess − silent excess |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| `laurens_mapillary` | 0.048 (-0.012; -4.4 to +2.5) | 0.281 (+0.201; +13.7 to +26.0) | 0.008 (+0.004; -0.5 to +1.7) | 0.137 (+0.074; +2.8 to +12.1) | 0.092 (+0.067; +2.8 to +10.5) | +0.267 (+19.5 to +33.4) | +0.126 (+3.8 to +21.4) |
+| `bayonne` | 0.010 (-0.050; -6.6 to -3.4) | 0.239 (+0.159; +10.4 to +21.3) | 0.023 (+0.019; +0.2 to +4.0) | 0.233 (+0.171; +11.9 to +22.5) | 0.153 (+0.127; +8.1 to +17.6) | +0.298 (+22.4 to +36.5) | -0.012 (-9.2 to +6.2) |
+| `budapest_district5` (held out, not pooled) | 0.047 (-0.013; -4.4 to +2.1) | 0.117 (+0.036; -0.5 to +7.8) | 0.037 (+0.032; +0.9 to +6.0) | 0.157 (+0.095; +4.8 to +14.4) | 0.083 (+0.058; +1.9 to +10.2) | +0.149 (+7.8 to +21.6) | -0.059 (-12.3 to +0.4) |
+| `juneau` | 0.034 (-0.026; -4.9 to -0.3) | 0.121 (+0.041; -0.5 to +8.3) | 0.007 (+0.002; -0.6 to +1.3) | 0.081 (+0.019; -1.6 to +5.7) | 0.040 (+0.015; -1.0 to +4.4) | +0.035 (-2.9 to +9.9) | +0.022 (-3.1 to +7.0) |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.027 (-0.033; -5.2 to -1.2) | 0.258 (+0.178; +13.6 to +22.0) | 0.016 (+0.012; +0.2 to +2.5) | 0.189 (+0.127; +9.0 to +16.5) | 0.126 (+0.100; +6.9 to +13.1) | +0.284 (+22.9 to +33.3) | +0.051 (-0.8 to +10.9) |
+| `morgantown` (GoPro Max, in the reference) | 0.034 (-0.026; -5.0 to +0.0) | 0.082 (+0.002; -3.0 to +3.8) | 0.004 (-0.001; -0.7 to +0.8) | 0.075 (+0.013; -2.1 to +4.8) | 0.049 (+0.023; -0.2 to +5.0) | -0.013 (-7.0 to +4.6) | -0.011 (-5.4 to +3.4) |
+| #46 reference without paterson (6 splits) | 0.026 | 0.090 | 0.005 | 0.069 | 0.030 | — | — |
+| **#46 reference** (7 US splits) | 0.060 | 0.081 | 0.004 | 0.062 | 0.026 | — | — |
+<!-- END GENERATED: excess-0.30-all -->
+
+The same, against the reference without Paterson (the merged column is the one that moves):
+
+<!-- BEGIN GENERATED: excess-0.30-all-no-paterson -->
+| population | merged | sub_threshold | localization | silent | strict silent | recall gap | sub excess − silent excess |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| `laurens_mapillary` | 0.048 (+0.022; -0.8 to +5.7) | 0.281 (+0.191; +12.9 to +25.0) | 0.008 (+0.003; -0.6 to +1.6) | 0.137 (+0.068; +2.2 to +11.5) | 0.092 (+0.062; +2.4 to +10.1) | +0.284 (+21.2 to +35.1) | +0.123 (+3.8 to +20.8) |
+| `bayonne` | 0.010 (-0.016; -2.9 to -0.2) | 0.239 (+0.149; +9.2 to +20.4) | 0.023 (+0.018; +0.2 to +3.8) | 0.233 (+0.164; +11.1 to +21.9) | 0.153 (+0.123; +7.6 to +17.2) | +0.315 (+23.3 to +38.9) | -0.015 (-9.5 to +6.3) |
+| `budapest_district5` (held out, not pooled) | 0.047 (+0.020; -0.9 to +5.3) | 0.117 (+0.027; -1.7 to +7.1) | 0.037 (+0.032; +0.9 to +5.8) | 0.157 (+0.088; +4.1 to +13.7) | 0.083 (+0.053; +1.6 to +9.7) | +0.167 (+9.4 to +23.6) | -0.062 (-13.0 to +0.7) |
+| `juneau` | 0.034 (+0.007; -1.3 to +3.1) | 0.121 (+0.031; -1.3 to +7.6) | 0.007 (+0.002; -0.6 to +1.3) | 0.081 (+0.012; -2.3 to +5.1) | 0.040 (+0.010; -1.4 to +4.0) | +0.053 (-1.6 to +11.7) | +0.019 (-3.3 to +6.8) |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.027 (+0.001; -1.6 to +2.0) | 0.258 (+0.168; +12.7 to +20.9) | 0.016 (+0.012; +0.1 to +2.4) | 0.189 (+0.121; +8.2 to +15.7) | 0.126 (+0.096; +6.5 to +12.8) | +0.301 (+24.6 to +35.5) | +0.048 (-0.9 to +10.4) |
+| `morgantown` (GoPro Max, in the reference) | 0.034 (+0.007; -1.4 to +3.4) | 0.082 (-0.008; -4.3 to +2.7) | 0.004 (-0.001; -0.8 to +0.8) | 0.075 (+0.006; -2.6 to +4.1) | 0.049 (+0.019; -0.7 to +4.5) | +0.005 (-5.4 to +6.2) | -0.014 (-6.1 to +2.9) |
+| #46 reference without paterson (6 splits) | 0.026 | 0.090 | 0.005 | 0.069 | 0.030 | — | — |
+| **#46 reference** (7 US splits) | 0.060 | 0.081 | 0.004 | 0.062 | 0.026 | — | — |
+<!-- END GENERATED: excess-0.30-all-no-paterson -->
+
+### The unbiased subset at 0.30 (the between-city comparison)
+
+<!-- BEGIN GENERATED: shares-0.30-unbiased -->
+| population | panos | GT | misses | recall | merged | sub_threshold | localization | silent | of which strict | sub − silent, boot 95% (pts) | reading |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|
+| `laurens_mapillary` | 54 | 212 | 110 | 0.481 | 12 · 10.9% [6–18] | 65 · 59.1% [50–68] | 2 · 1.8% [0–6] | 31 · 28.2% [21–37] | 20 · 18.2% [12–26] | +12.6 to +49.5 | sub_threshold leads: calibration |
+| `bayonne` | 82 | 261 | 144 | 0.448 | 2 · 1.4% [0–5] | 68 · 47.2% [39–55] | 6 · 4.2% [2–9] | 68 · 47.2% [39–55] | 45 · 31.2% [24–39] | -14.8 to +14.7 | neither leads |
+| `budapest_district5` (held out, not pooled) | 84 | 268 | 104 | 0.612 | 14 · 13.5% [8–21] | 33 · 31.7% [24–41] | 11 · 10.6% [6–18] | 46 · 44.2% [35–54] | 24 · 23.1% [16–32] | -30.3 to +4.8 | neither leads |
+| `juneau` | 89 | 262 | 67 | 0.744 | 8 · 11.9% [6–22] | 33 · 49.2% [38–61] | 2 · 3.0% [1–10] | 24 · 35.8% [25–48] | 12 · 17.9% [11–29] | -7.6 to +33.3 | neither leads |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 136 | 473 | 254 | 0.463 | 14 · 5.5% [3–9] | 133 · 52.4% [46–58] | 8 · 3.1% [2–6] | 99 · 39.0% [33–45] | 65 · 25.6% [21–31] | +1.9 to +25.4 | sub_threshold leads: calibration |
+| `morgantown` (GoPro Max, in the reference) | 90 | 225 | 51 | 0.773 | 9 · 17.6% [10–30] | 21 · 41.2% [29–55] | 1 · 2.0% [0–10] | 20 · 39.2% [27–53] | 13 · 25.5% [16–39] | -18.2 to +23.5 | neither leads |
+| #46 reference without paterson (6 splits) | 529 | 1414 | 306 | 0.784 | 40 · 13.1% [10–17] | 146 · 47.7% [42–53] | 8 · 2.6% [1–5] | 112 · 36.6% [31–42] | 50 · 16.3% [13–21] | +0.0 to +22.0 | neither leads |
+| **#46 reference** (7 US splits) | 622 | 1768 | 415 | 0.765 | 119 · 28.7% [25–33] | 162 · 39.0% [34–44] | 9 · 2.2% [1–4] | 125 · 30.1% [26–35] | 53 · 12.8% [10–16] | +0.7 to +17.3 | sub_threshold leads: calibration |
+| `laurens_gsv` | — | — | — | — | not run: no op_cache (see Gaps) | | | | | | |
+<!-- END GENERATED: shares-0.30-unbiased -->
+
+<!-- BEGIN GENERATED: excess-0.30-unbiased -->
+| population | merged | sub_threshold | localization | silent | strict silent | recall gap | sub excess − silent excess |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| `laurens_mapillary` | 0.057 (-0.011; -4.8 to +3.2) | 0.307 (+0.215; +14.3 to +27.9) | 0.009 (+0.004; -0.7 to +1.9) | 0.146 (+0.075; +2.2 to +13.1) | 0.094 (+0.064; +2.3 to +11.1) | +0.284 (+21.7 to +34.8) | +0.140 (+3.3 to +23.3) |
+| `bayonne` | 0.008 (-0.060; -7.7 to -4.2) | 0.261 (+0.169; +11.4 to +22.3) | 0.023 (+0.018; +0.0 to +4.2) | 0.261 (+0.190; +13.5 to +24.0) | 0.172 (+0.142; +9.4 to +19.1) | +0.317 (+24.9 to +38.1) | -0.021 (-10.4 to +6.1) |
+| `budapest_district5` (held out, not pooled) | 0.052 (-0.015; -5.1 to +2.0) | 0.123 (+0.032; -1.2 to +7.9) | 0.041 (+0.036; +1.0 to +6.7) | 0.172 (+0.101; +5.1 to +15.5) | 0.090 (+0.060; +1.8 to +10.7) | +0.153 (+8.1 to +22.3) | -0.069 (-14.0 to +0.2) |
+| `juneau` | 0.030 (-0.037; -6.0 to -1.3) | 0.126 (+0.034; -1.3 to +8.2) | 0.008 (+0.003; -0.6 to +1.5) | 0.092 (+0.021; -1.9 to +6.2) | 0.046 (+0.016; -1.2 to +4.9) | +0.021 (-4.9 to +9.0) | +0.013 (-4.2 to +6.8) |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.030 (-0.038; -6.0 to -1.4) | 0.281 (+0.190; +14.8 to +23.3) | 0.017 (+0.012; -0.1 to +2.6) | 0.209 (+0.139; +9.9 to +17.9) | 0.137 (+0.107; +7.4 to +14.2) | +0.302 (+25.3 to +35.5) | +0.051 (-1.6 to +11.4) |
+| `morgantown` (GoPro Max, in the reference) | 0.040 (-0.027; -5.6 to +0.4) | 0.093 (+0.002; -3.6 to +4.2) | 0.004 (-0.001; -0.8 to +1.0) | 0.089 (+0.018; -1.9 to +5.7) | 0.058 (+0.028; -0.0 to +5.8) | -0.008 (-6.5 to +5.2) | -0.017 (-6.7 to +3.7) |
+| #46 reference without paterson (6 splits) | 0.028 | 0.103 | 0.006 | 0.079 | 0.035 | — | — |
+| **#46 reference** (7 US splits) | 0.067 | 0.092 | 0.005 | 0.071 | 0.030 | — | — |
+<!-- END GENERATED: excess-0.30-unbiased -->
+
+On the unbiased subset, the reference's own "calibration" verdict is marginal: the lower bound is
++0.7 points on the full reference, and the reference without Paterson reads "neither leads". It
+is marginal on all panos too (+0.9).
+
+### Near field and far field at 0.30, all panos (18 m boundary, flat-ground distance)
+
+Strict silent counts are in parentheses.
+
+<!-- BEGIN GENERATED: nearfar-0.30-all -->
+| population | near GT | near misses | near recall | near merged / sub / loc / silent (strict) | far GT | far misses | far recall | far merged / sub / loc / silent (strict) |
 |---|--:|--:|--:|---|--:|--:|--:|---|
-| `laurens_mapillary` | 216 | 98 | 0.546 | 7 / 61 / 2 / 28 | 33 | 20 | 0.394 | 5 / 9 / 0 / 6 |
-| `bayonne` | 191 | 93 | 0.513 | 0 / 44 / 6 / 43 | 110 | 59 | 0.464 | 3 / 28 / 1 / 27 |
-| `budapest_district5` | 201 | 67 | 0.667 | 6 / 19 / 9 / 33 | 99 | 40 | 0.596 | 8 / 16 / 2 / 14 |
-| `juneau` | 190 | 27 | 0.858 | 0 / 17 / 2 / 8 | 107 | 45 | 0.579 | 10 / 19 / 0 / 16 |
-| GoPro Max pooled | 608 | 258 | 0.576 | 13 / 124 / 17 / 104 | 242 | 119 | 0.508 | 16 / 53 / 3 / 47 |
-| #46 reference | 1360 | 180 | 0.868 | 48 / 84 / 3 / 45 | 700 | 247 | 0.647 | 76 / 82 / 6 / 83 |
+| `laurens_mapillary` | 216 | 98 | 0.546 | 7 / 61 / 2 / 28 (21) | 33 | 20 | 0.394 | 5 / 9 / 0 / 6 (2) |
+| `bayonne` | 191 | 93 | 0.513 | 0 / 44 / 6 / 43 (30) | 110 | 59 | 0.464 | 3 / 28 / 1 / 27 (16) |
+| `budapest_district5` (held out, not pooled) | 201 | 67 | 0.667 | 6 / 19 / 9 / 33 (19) | 99 | 40 | 0.596 | 8 / 16 / 2 / 14 (6) |
+| `juneau` | 190 | 27 | 0.858 | 0 / 17 / 2 / 8 (6) | 107 | 45 | 0.579 | 10 / 19 / 0 / 16 (6) |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 407 | 191 | 0.531 | 7 / 105 / 8 / 71 (51) | 143 | 79 | 0.448 | 8 / 37 / 1 / 33 (18) |
+| `morgantown` (GoPro Max, in the reference) | 216 | 37 | 0.829 | 5 / 17 / 1 / 14 (8) | 51 | 15 | 0.706 | 4 / 5 / 0 / 6 (5) |
+| #46 reference without paterson (6 splits) | 1134 | 133 | 0.883 | 13 / 79 / 3 / 38 (15) | 531 | 183 | 0.655 | 31 / 71 / 5 / 76 (35) |
+| **#46 reference** (7 US splits) | 1360 | 180 | 0.868 | 48 / 84 / 3 / 45 (16) | 700 | 247 | 0.647 | 76 / 82 / 6 / 83 (37) |
+<!-- END GENERATED: nearfar-0.30-all -->
 
-The open-rig deficit is a near-field deficit. On the reference, most misses are far (247 of
-427). On GoPro Max, 258 of 377 are near, where the model has the pixels. Near-field silent misses
-are 104 of 608 near ramps on GoPro Max (17%) against 45 of 1,360 on the reference (3.3%). Those
-104 are the population that labels could plausibly reach. Juneau, the Trimble MX7 city, looks
-like its sibling annapolis: near recall 0.858 and most misses far (45 of 72).
+**Read the distances as approximate, on both sides.** The boundary uses the flat-ground estimate
+with a 2.5 m camera height (`stage1_label_recall.geom`). Real rigs sit lower on *both* sides of
+the comparison: GoPro Max at about 1.8 to 2.1 m, and in the reference paterson and gainesville's
+GSV at about 1.8 m, clovis at 2.02 m and annapolis at 2.12 m (`docs/da3_calibration_101.md`). So
+true distances are shorter than estimated everywhere. The bias does not establish a direction
+for the near/far contrast between the open rigs and the reference.
 
-### Merged pairs, how far below threshold the sub-threshold peaks sit, and the null (0.30)
+The open-rig deficit is mostly a near-field deficit. On the reference, most misses are far (247
+of 427). On the GoPro Max pool, 191 of 270 are near, where the model has the pixels.
 
+- Strict silent near-field misses are 51 of 407 near ramps on the GoPro Max pool (12.5%), against
+  16 of 1,360 on the reference (1.2%). These are ramps the model shows no peak for within 2R.
+- The looser silent count is 71 of 407 against 45 of 1,360.
+
+Either is an upper bound on what labels could reach, because the GT is one rater's. Juneau, the
+Trimble MX7 city, looks like its sibling annapolis: near recall 0.858, and most misses far (45 of
+72).
+
+### Merged pairs, how far below threshold the sub-threshold peaks sit, and the null (0.30, all panos)
+
+<!-- BEGIN GENERATED: detail-0.30-all -->
 | population | merged pairs | Chebyshev median px | > min_distance 10 | Euclid ≤ 2σ | < 8 px | sub-threshold peak median [q25, q75] | share ≥ 0.15 | null rate sub / merged |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|
 | `laurens_mapillary` | 12 | 12.2 | 10 | 10 | 1 | 0.143 [0.087, 0.206] | 49% | 8.3% / 7.1% |
 | `bayonne` | 3 | 13.7 | 2 | 3 | 1 | 0.186 [0.107, 0.253] | 54% | 12.2% / 12.8% |
-| `budapest_district5` | 14 | 13.1 | 10 | 13 | 2 | 0.159 [0.118, 0.206] | 60% | 9.7% / 10.1% |
+| `budapest_district5` (held out, not pooled) | 14 | 13.1 | 10 | 13 | 2 | 0.159 [0.118, 0.206] | 60% | 9.7% / 10.1% |
 | `juneau` | 10 | 15.0 | 8 | 8 | 0 | 0.180 [0.120, 0.239] | 58% | 10.1% / 11.7% |
-| GoPro Max pooled | 29 | 12.4 | 22 | 26 | 4 | 0.157 [0.099, 0.219] | 53% | 10.2% / 9.2% |
-| #46 reference | 124 | 11.4 | 78 | 108 | 24 | 0.157 [0.094, 0.228] | 53% | 7.6% / 10.1% |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 15 | 12.2 | 12 | 13 | 2 | 0.156 [0.097, 0.227] | 51% | 10.3% / 8.2% |
+| `morgantown` (GoPro Max, in the reference) | 9 | 10.3 | 5 | 8 | 2 | 0.124 [0.091, 0.163] | 36% | 6.7% / 7.8% |
+| #46 reference without paterson (6 splits) | 44 | 15.8 | 35 | 32 | 4 | 0.153 [0.091, 0.228] | 52% | 7.8% / 9.8% |
+| **#46 reference** (7 US splits) | 124 | 11.4 | 78 | 108 | 24 | 0.157 [0.094, 0.228] | 53% | 7.6% / 10.1% |
+<!-- END GENERATED: detail-0.30-all -->
 
-- **Merged is small on every open split** (2 to 14% of misses), and the pairs that do merge
-  look like the reference's: most are farther apart than the extractor's `min_distance` (22 of
-  29), so the heatmap had one mode. Nothing here argues for the sigma or head work (#221).
-- **The sub-threshold peaks sit exactly as far below threshold as the reference's**: median
-  0.157 on both, 53% at or above 0.15 on both. It is the same calibration problem as on the
-  reference, with more of it. A verifier tuned on the reference band would see the same score
-  range here.
-- **The null** is the chance a peak lands in the radius by accident, with the ramp's elevation
-  held and its azimuth randomized. It is 8 to 12% for sub_threshold on the open splits (7.6% on
-  the reference). Bayonne's is the highest, so up to about one in eight of its sub-threshold
-  misses could be a peak that happened to be nearby.
+- **Merged is small on every open split** (2 to 14% of misses). The pairs that do merge look like
+  the reference's: most are farther apart than the extractor's `min_distance`, so the heatmap had
+  one mode. Nothing here argues for the sigma or head work (#221).
+- **The sub-threshold peaks sit as far below threshold as the reference's.** The median is 0.156
+  on the GoPro Max pool against 0.157 on the reference, with about half at or above 0.15 on both.
+  A verifier tuned on the reference band would see the same score range here.
+- **The null** is the chance a peak lands inside R by accident, with the ramp's elevation held and
+  its azimuth randomized. For sub_threshold it is 8 to 12% on the open splits and 7.6% on the
+  reference. Bayonne's is the highest, so up to about one in eight of its sub-threshold misses
+  could be a peak that happened to be nearby.
 
 ### At 0.55 (the published operating point)
 
-| population | GT | misses | recall | merged | sub_threshold | localization | silent | sub − silent, boot 95% (pts) | reading | recall gap to reference (sub / silent excess) |
-|---|--:|--:|--:|--:|--:|--:|--:|--:|---|--:|
-| `laurens_mapillary` | 249 | 152 | 0.390 | 9 · 5.9% [3–11] | 107 · 70.4% [63–77] | 0 · 0.0% [0–2] | 36 · 23.7% [18–31] | +33 to +60 | sub_threshold leads: calibration | +0.333 (+0.272 / +0.080) |
-| `bayonne` | 301 | 188 | 0.375 | 3 · 1.6% [1–5] | 108 · 57.5% [50–64] | 2 · 1.1% [0–4] | 75 · 39.9% [33–47] | +3 to +32 | sub_threshold leads: calibration | +0.347 (+0.201 / +0.184) |
-| `budapest_district5` | 300 | 147 | 0.510 | 8 · 5.4% [3–10] | 81 · 55.1% [47–63] | 2 · 1.4% [0–5] | 56 · 38.1% [31–46] | −1 to +34 | neither leads | +0.212 (+0.112 / +0.122) |
-| `juneau` | 297 | 93 | 0.687 | 9 · 9.7% [5–17] | 58 · 62.4% [52–72] | 0 · 0.0% [0–4] | 26 · 28.0% [20–38] | +17 to +52 | sub_threshold leads: calibration | +0.035 (+0.037 / +0.022) |
-| GoPro Max pooled | 850 | 487 | 0.427 | 20 · 4.1% [3–6] | 296 · 60.8% [56–65] | 4 · 0.8% [0–2] | 167 · 34.3% [30–39] | +18 to +35 | sub_threshold leads: calibration | +0.295 (+0.190 / +0.132) |
-| #46 reference | 2060 | 572 | 0.722 | 110 · 19.2% [16–23] | 325 · 56.8% [53–61] | 3 · 0.5% [0–2] | 134 · 23.4% [20–27] | +26 to +40 | sub_threshold leads: calibration | — |
+<!-- BEGIN GENERATED: shares-0.55-all -->
+| population | panos | GT | misses | recall | merged | sub_threshold | localization | silent | of which strict | sub − silent, boot 95% (pts) | reading |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|
+| `laurens_mapillary` | 59 | 249 | 152 | 0.390 | 9 · 5.9% [3–11] | 107 · 70.4% [63–77] | 0 · 0.0% [0–2] | 36 · 23.7% [18–31] | 23 · 15.1% [10–22] | +32.5 to +60.5 | sub_threshold leads: calibration |
+| `bayonne` | 87 | 301 | 188 | 0.375 | 3 · 1.6% [1–5] | 108 · 57.5% [50–64] | 2 · 1.1% [0–4] | 75 · 39.9% [33–47] | 46 · 24.5% [19–31] | +3.4 to +30.6 | sub_threshold leads: calibration |
+| `budapest_district5` (held out, not pooled) | 89 | 300 | 147 | 0.510 | 8 · 5.4% [3–10] | 81 · 55.1% [47–63] | 2 · 1.4% [0–5] | 56 · 38.1% [31–46] | 25 · 17.0% [12–24] | -1.4 to +33.8 | neither leads |
+| `juneau` | 94 | 297 | 93 | 0.687 | 9 · 9.7% [5–17] | 58 · 62.4% [52–72] | 0 · 0.0% [0–4] | 26 · 28.0% [20–38] | 12 · 12.9% [8–21] | +16.7 to +51.5 | sub_threshold leads: calibration |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 146 | 550 | 340 | 0.382 | 12 · 3.5% [2–6] | 215 · 63.2% [58–68] | 2 · 0.6% [0–2] | 111 · 32.6% [28–38] | 69 · 20.3% [16–25] | +20.3 to +40.8 | sub_threshold leads: calibration |
+| `morgantown` (GoPro Max, in the reference) | 95 | 267 | 72 | 0.730 | 8 · 11.1% [6–20] | 43 · 59.7% [48–70] | 0 · 0.0% [0–5] | 21 · 29.2% [20–41] | 13 · 18.1% [11–28] | +11.9 to +50.8 | sub_threshold leads: calibration |
+| #46 reference without paterson (6 splits) | 559 | 1665 | 446 | 0.732 | 34 · 7.6% [6–10] | 290 · 65.0% [60–69] | 2 · 0.4% [0–2] | 120 · 26.9% [23–31] | 50 · 11.2% [9–14] | +29.3 to +46.7 | sub_threshold leads: calibration |
+| **#46 reference** (7 US splits) | 657 | 2060 | 572 | 0.722 | 110 · 19.2% [16–23] | 325 · 56.8% [53–61] | 3 · 0.5% [0–2] | 134 · 23.4% [20–27] | 53 · 9.3% [7–12] | +26.0 to +40.9 | sub_threshold leads: calibration |
+| `laurens_gsv` | — | — | — | — | not run: no op_cache (see Gaps) | | | | | | |
+<!-- END GENERATED: shares-0.55-all -->
+
+<!-- BEGIN GENERATED: excess-0.55-all -->
+| population | merged | sub_threshold | localization | silent | strict silent | recall gap | sub excess − silent excess |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| `laurens_mapillary` | 0.036 (-0.017; -4.4 to +1.4) | 0.430 (+0.272; +19.1 to +34.7) | 0.000 (-0.002; -0.3 to +0.0) | 0.145 (+0.080; +3.3 to +12.4) | 0.092 (+0.067; +2.8 to +10.5) | +0.333 (+25.2 to +40.5) | +0.192 (+9.0 to +29.4) |
+| `bayonne` | 0.010 (-0.043; -5.8 to -2.8) | 0.359 (+0.201; +13.9 to +25.8) | 0.007 (+0.005; -0.3 to +2.0) | 0.249 (+0.184; +13.4 to +23.9) | 0.153 (+0.127; +8.1 to +17.6) | +0.347 (+27.7 to +41.4) | +0.017 (-7.8 to +10.4) |
+| `budapest_district5` (held out, not pooled) | 0.027 (-0.027; -4.7 to -0.4) | 0.270 (+0.112; +4.7 to +17.5) | 0.007 (+0.005; -0.2 to +1.6) | 0.187 (+0.122; +6.7 to +17.4) | 0.083 (+0.058; +1.9 to +10.2) | +0.212 (+12.9 to +28.6) | -0.009 (-10.1 to +7.8) |
+| `juneau` | 0.030 (-0.023; -4.5 to -0.0) | 0.195 (+0.037; -1.2 to +9.0) | 0.000 (-0.002; -0.3 to +0.0) | 0.087 (+0.022; -1.2 to +6.1) | 0.040 (+0.015; -1.0 to +4.4) | +0.035 (-3.4 to +10.4) | +0.015 (-4.5 to +7.5) |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.022 (-0.032; -4.8 to -1.4) | 0.391 (+0.233; +18.6 to +28.4) | 0.004 (+0.002; -0.3 to +1.1) | 0.202 (+0.137; +10.0 to +17.3) | 0.126 (+0.100; +6.9 to +13.1) | +0.341 (+28.7 to +39.0) | +0.096 (+2.8 to +16.6) |
+| `morgantown` (GoPro Max, in the reference) | 0.030 (-0.023; -4.6 to +0.2) | 0.161 (+0.003; -4.3 to +5.3) | 0.000 (-0.002; -0.3 to +0.0) | 0.079 (+0.014; -2.0 to +4.8) | 0.049 (+0.023; -0.2 to +5.0) | -0.008 (-7.3 to +5.6) | -0.011 (-6.4 to +4.8) |
+| #46 reference without paterson (6 splits) | 0.020 | 0.174 | 0.001 | 0.072 | 0.030 | — | — |
+| **#46 reference** (7 US splits) | 0.053 | 0.158 | 0.002 | 0.065 | 0.026 | — | — |
+<!-- END GENERATED: excess-0.55-all -->
+
+Unbiased subset at 0.55:
+
+<!-- BEGIN GENERATED: shares-0.55-unbiased -->
+| population | panos | GT | misses | recall | merged | sub_threshold | localization | silent | of which strict | sub − silent, boot 95% (pts) | reading |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|
+| `laurens_mapillary` | 54 | 212 | 143 | 0.326 | 9 · 6.3% [3–12] | 101 · 70.6% [63–77] | 0 · 0.0% [0–3] | 33 · 23.1% [17–31] | 20 · 14.0% [9–21] | +32.3 to +62.2 | sub_threshold leads: calibration |
+| `bayonne` | 82 | 261 | 176 | 0.326 | 2 · 1.1% [0–4] | 100 · 56.8% [49–64] | 2 · 1.1% [0–4] | 72 · 40.9% [34–48] | 45 · 25.6% [20–32] | +1.6 to +30.4 | sub_threshold leads: calibration |
+| `budapest_district5` (held out, not pooled) | 84 | 268 | 143 | 0.466 | 8 · 5.6% [3–11] | 78 · 54.5% [46–62] | 2 · 1.4% [0–5] | 55 · 38.5% [31–47] | 24 · 16.8% [12–24] | -2.9 to +32.6 | neither leads |
+| `juneau` | 89 | 262 | 88 | 0.664 | 7 · 8.0% [4–16] | 55 · 62.5% [52–72] | 0 · 0.0% [0–4] | 26 · 29.5% [21–40] | 12 · 13.6% [8–22] | +15.2 to +51.4 | sub_threshold leads: calibration |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 136 | 473 | 319 | 0.326 | 11 · 3.5% [2–6] | 201 · 63.0% [58–68] | 2 · 0.6% [0–2] | 105 · 32.9% [28–38] | 65 · 20.4% [16–25] | +20.1 to +40.3 | sub_threshold leads: calibration |
+| `morgantown` (GoPro Max, in the reference) | 90 | 225 | 71 | 0.684 | 8 · 11.3% [6–21] | 42 · 59.2% [48–70] | 0 · 0.0% [0–5] | 21 · 29.6% [20–41] | 13 · 18.3% [11–29] | +11.5 to +49.3 | sub_threshold leads: calibration |
+| #46 reference without paterson (6 splits) | 529 | 1414 | 433 | 0.694 | 31 · 7.2% [5–10] | 282 · 65.1% [61–69] | 2 · 0.5% [0–2] | 118 · 27.3% [23–32] | 50 · 11.6% [9–15] | +28.3 to +46.7 | sub_threshold leads: calibration |
+| **#46 reference** (7 US splits) | 622 | 1768 | 557 | 0.685 | 106 · 19.0% [16–22] | 317 · 56.9% [53–61] | 3 · 0.5% [0–2] | 131 · 23.5% [20–27] | 53 · 9.5% [7–12] | +26.0 to +40.5 | sub_threshold leads: calibration |
+| `laurens_gsv` | — | — | — | — | not run: no op_cache (see Gaps) | | | | | | |
+<!-- END GENERATED: shares-0.55-unbiased -->
 
 Raising the threshold to 0.55 moves misses into sub_threshold and leaves silent nearly where it
-was (151 to 167 on GoPro Max), so at 0.55 the rule reads "calibration" almost everywhere. The
-silent excess in recall points barely moves (+0.116 to +0.132). The 0.30 table is the one that
-separates the two levers. Recall at 0.55 matches the scoreboard to within a point (laurens 0.390,
-juneau 0.687; budapest 0.510 here vs 0.503 and bayonne 0.375 vs 0.372, because the taxonomy
-scores only panos whose missed-ramp check was confirmed and that carry at least one GT ramp).
+was (104 to 111 on the GoPro Max pool). So at 0.55 the rule reads "calibration" almost
+everywhere, and the 0.30 tables are the ones that separate the two levers.
+
+**These recall figures match the scoreboard.** On all four open splits, the taxonomy's hits at
+0.55 equal `analysis_out/scoreboard.json`'s RampNet tp exactly (laurens_mapillary 97, bayonne 113,
+budapest 153, juneau 204).
+
+`benchmark/README.md` prints budapest 0.503 and bayonne 0.372 instead of 0.510 and 0.375. That
+table comes from `score_validation.py`, which counts the detections a reviewer judged correct.
+Matching peaks to GT points also credits a peak the reviewer judged wrong or unsure when it lands
+within R of a confident missed mark. There is one such detection on bayonne (judged false) and
+two on budapest (judged unsure), which are exactly the 1 and 2 ramps of difference.
 
 ## Per rig
 
 - **GoPro Max on Mapillary, Laurens (laurens_mapillary).** Calibration. 59% of misses peak below
-  0.30, and the shortfall against the reference is mostly sub_threshold (+0.201 of +0.267
-  recall points). The model finds these ramps and scores them low. This fits #151, where the
-  rig effect survived pairing on corners both rigs saw (ΔF1 +0.112), and #82's frozen-model
-  probe, where pushing GSV panos toward the measured GoPro pixel statistics on all axes at once
-  cost 0.209 recall at 0.30 (`all@gopro`, `docs/aug_transfer_82.md`).
-- **GoPro Max on Panoramax, Bayonne (bayonne).** A tie. Sub-threshold and silent are 47% and
-  46% of misses and cost about the same recall (+0.159 and +0.171). Half of what Bayonne misses,
-  the model never responds to. Bayonne's GT is single-rater at medium confidence (bollards,
-  raised crossings and roundabouts fought the rubric), so part of that silent bucket may be
-  marks a second rater would not make.
-- **GoPro Max on Mapillary, Budapest (budapest_district5).** Leans silent (44% vs 33%, not
-  separated) and has the highest localization share on the board (10%). Budapest's GT is
-  single-rater at low confidence, and the rubric does not transfer cleanly, so this is the split
-  to trust least. The brief for this work called Budapest a consumer 360 rig distinct from the
-  GoPro Max splits; `records.jsonl` says it is GoPro Max (89 of 89 scored panos).
+  0.30, and most of the shortfall against the reference is sub_threshold (+0.201 of +0.267 recall
+  points). The model finds these ramps and scores them low. This fits two earlier results:
+  - #151, where the rig effect survived pairing on corners both rigs saw (ΔF1 +0.112);
+  - #82's frozen-model probe, where pushing GSV panos toward the measured GoPro pixel statistics
+    on all axes at once cost 0.209 recall at 0.30 (`all@gopro`, `docs/aug_transfer_82.md`).
+- **GoPro Max on Panoramax, Bayonne (bayonne).** Close and underpowered. Sub-threshold and silent
+  are 47% and 46% of misses and cost about the same recall (+0.159 and +0.171). 46 of its 70
+  silent misses are strict.
+  - Bayonne's GT is single-rater at medium confidence (bollards, raised crossings and roundabouts
+    fought the rubric), so part of that silent bucket may be marks a second rater would not make.
+- **GoPro Max on Mapillary, Budapest (budapest_district5, held out).** Leans silent (44% against
+  33%, not separated) and has the highest localization share on the board (10%). Budapest's GT is
+  single-rater at low confidence and the rubric does not transfer cleanly, so this is the split to
+  trust least, and it is not pooled.
 - **Trimble MX7 on Mapillary, Juneau (juneau).** Close to the reference: 0.035 recall points
-  behind, misses mostly far field. Juneau is not part of the open-rig deficit. Its sibling,
-  annapolis (same rig, same contributor), is in the reference pool.
-- **GSV in the same town (laurens_gsv).** Not run. This is the cleanest control (same town,
-  largely the same ramps, the rig as the only change) and it needs one GPU extract. See
-  [Gaps](#gaps).
-- **GoPro Max inside the reference (morgantown).** At reference level (recall 0.805, silent
-  excess +0.013). Whatever makes laurens, bayonne and budapest hard, the camera model alone
-  is not it.
+  behind (−0.029 to +0.099), with most misses far field. Its sibling annapolis (same rig, same
+  contributor) is in the reference pool.
+- **GSV in the same town (laurens_gsv).** Not run. It is the cleanest control (same town, largely
+  the same ramps, rig the only change) and it needs one GPU extract. See [Gaps](#gaps).
+- **GoPro Max inside the reference (morgantown).** At reference level: recall 0.805, gap −0.013
+  (−0.070 to +0.046). That suggests the camera model alone does not explain the open-rig
+  deficit. It is one split with 52 misses, though, and it differs from bayonne in country and in
+  how well the rubric fit, so it is not a controlled comparison. Richmond also has 18 GoPro Max
+  panos beside its 64 iSTAR Pulsar.
 
 ## Caveats
 
 - **GT is anchored to RampNet.** On every split here, GT is the reviewed RampNet detections
-  exported at a 0.55 floor plus the ramps the reviewer marked as missed. So every miss at 0.55
-  is a ramp the reviewer added, and a peak between 0.30 and 0.55 counts as a hit only where the
-  reviewer added a mark there. A ramp that both RampNet and the reviewer missed is in no bucket.
+  exported at a 0.55 floor plus the ramps the reviewer marked as missed.
+  - So every miss at 0.55 is a ramp the reviewer added.
+  - A peak between 0.30 and 0.55 counts as a hit only where the reviewer added a mark there.
+  - A ramp that both RampNet and the reviewer missed is in no bucket.
+
   The bucket mix describes the misses a reviewer noticed.
 - **Single rater on every open split** (jonf). Bayonne and juneau are rated medium confidence and
-  budapest low. Laurens's confidence rating is not on the record. No second rater has repeated
-  any of them, so a reviewer who marks more distant or more ambiguous ramps moves misses into
-  silent.
-- **n is small per split.** 72 to 152 misses at 0.30, so a share carries a Wilson interval of
-  about ±8 to ±11 points and a wider pano-bootstrap interval. The per-split readings that say
-  "neither leads" are mostly underpowered, not ties.
-- **"silent" is an upper bound on "the model saw nothing."** On the #46 splits,
+  budapest low; laurens's confidence is unrecorded. No second rater has repeated any of them, and
+  a reviewer who marks more distant or more ambiguous ramps moves misses into silent.
+- **n is small per split.** There are 72 to 152 misses at 0.30, so a share carries a Wilson
+  interval of about ±8 to ±11 points and a wider pano-bootstrap interval. The per-split "neither
+  leads" readings are underpowered, not ties.
+- **Even strict silent is not proof that the model saw nothing.** On the #46 splits,
   `silent_activation.py` found only 8% of silent misses had a flat heatmap. The rest were the
-  tail of an adjacent mode (62%) or a faint response on site (30%)
-  (`docs/rampnet1_findings.md`). That breakdown
-  needs the raw heatmaps (GPU) and has not been run on the open splits. Until it is, the silent
-  excess is not proof of a label gap.
-- **The distance is approximate.** The near/far split uses the flat-ground estimate with a
-  2.5 m camera height (`stage1_label_recall.geom`). GoPro Max rigs sit at about 1.8 to 2.1 m
-  (`docs/da3_calibration_101.md`), so true distances on these splits are 15 to 27% shorter than
-  estimated, and some "far" ramps are near. Flat-ground geometry also agrees with depth less
-  well on Mapillary (Spearman 0.81) than on GSV (0.95). The near-field counts above are, if
-  anything, low.
-- **The reference pool is mixed-rig**, not GSV (see under the first table).
+  tail of an adjacent mode (62%) or a faint response on site (30%) (`docs/rampnet1_findings.md`).
+  That breakdown needs the raw heatmaps (GPU) and has not been run on the open splits.
+- **Seams are not handled the same way across the populations.**
+  - The taxonomy matches without x-wrapping, whereas `score_pano` has wrapped since #140. With
+    wrapping, 1 bayonne and 1 juneau miss at 0.30 would be hits.
+  - The extractor treats the seam differently too. The seven reference caches and budapest's
+    predate the `f4c71c8` border fix and carry no floor peaks within 10 columns of the seam,
+    against 4 / 39 / 13 on laurens_mapillary / bayonne / juneau.
+  - Only 5 reference GT ramps sit in that strip, all missed (richmond 1 silent, bend 1 silent,
+    paterson 1 silent and 2 merged).
+  - Bound: about 0.002 recall points on either side. No reading changes.
+- **The reference caches are not all at parity with the scoreboard.** On bend, paterson and
+  gainesville, the cache's hits at 0.55 fall 2, 2 and 7 short of the records-based scoreboard tp.
+  That is the GSV-path drift that `low_floor_sweep.py parity` tolerates. The open splits match
+  exactly.
 
 ## Gaps
 
-- **laurens_gsv is not bucketed.** It has no op_cache. Producing one is a GPU extract of 86
-  panos with the repo's own extractor: `scripts/analysis/open_rig_misses_258_gpu.sh` (committed
-  on this branch) re-extracts laurens_mapillary into a scratch cache as a repro check, then
-  writes `analysis_out/op_cache/laurens_gsv.json`. A first attempt on makelab2 on 2026-10-20 was
-  launched but not confirmed: the call that launched it timed out on the client side, and by
-  the standing rule there were no retries and no further contact with the host. Whether the
-  cache was written there is unknown. To fill it:
+- **laurens_gsv is not bucketed.** It has no op_cache. Filling it needs a GPU extract of 86 panos
+  with the repo's own extractor, scripted in `scripts/analysis/open_rig_misses_258_gpu.sh`. The
+  script's header lists each step and its gate.
+  - A first launch on makelab2 on 2026-10-20 was never confirmed. The launching call timed out
+    client-side, and by the standing rule nobody contacted the host again, so nothing from it is
+    committed.
+  - The panos are not on Hugging Face yet. The copies of record are in makelab2's
+    `~/RampNet/benchmark/{laurens_gsv,laurens_mapillary}/panos/`, and their bytes are pinned by
+    each split's committed `imagery_manifest.json`.
 
   ```bash
-  # on a GPU host with benchmark/laurens_gsv/panos and benchmark/laurens_mapillary/panos
-  bash scripts/analysis/open_rig_misses_258_gpu.sh 2>&1 | tee open_rig_258_gpu.log
-  # verify: tp/fp/fn at 0.55 must equal the scoreboard's laurens_gsv RampNet cell
-  #         (P 0.925 / R 0.505, benchmark/README.md)
-  # then commit analysis_out/op_cache/laurens_gsv.json, record the paid:false usage row,
-  # and re-run (laurens_gsv then appears in the JSON instead of under "gaps"):
+  # on a GPU host, after placing benchmark/laurens_gsv/panos and benchmark/laurens_mapillary/panos
+  LEDGER=<main checkout>/analysis_out/usage_log.jsonl \
+    bash scripts/analysis/open_rig_misses_258_gpu.sh 2>&1 | tee open_rig_258_gpu.log
+  # steps: manifest verify -> laurens_mapillary repro (exit 1 unless identical)
+  #   -> extract laurens_gsv -> low_floor_sweep.py parity -> tp/fp/fn at 0.55 against
+  #   analysis_out/scoreboard.json (exit 1 on any difference, which must then be explained)
+  #   -> one paid:false usage row appended to $LEDGER via rampnet.ledger.append_rows
+  # then commit analysis_out/op_cache/laurens_gsv.json, copy the usage row into the
+  # branch's ledger by its ts, and re-run:
   python scripts/analysis/open_rig_misses_258.py
   ```
 
-  Adding the cache also changes `miss_taxonomy.py`'s default output (laurens_gsv stops
-  printing "no cache") and the scoreboard's AP-provenance row for laurens_gsv, so those
-  committed outputs need regenerating in the same change.
-- **The silent activation breakdown** (see Caveats) on the open splits, also GPU.
+  Adding the cache also changes `miss_taxonomy.py`'s default output (laurens_gsv stops printing
+  "no cache") and the scoreboard's AP-provenance row for laurens_gsv. Those committed outputs
+  need regenerating in the same change.
+- **The silent-activation breakdown** on the open splits (see Caveats), also GPU.
 - **No second rater** on any open split.
 
 ## Reproduce
 
-From a clean clone, CPU only (about 10 seconds):
+From a clean clone, CPU only (about 30 seconds):
 
 ```bash
 pip install -e .
-# The machine-readable table (analysis_out/open_rig_misses_258.json), and its check:
+# The machine-readable table (analysis_out/open_rig_misses_258.json) and every generated
+# table in this doc, then the check that both re-derive byte for byte:
 python scripts/analysis/open_rig_misses_258.py
 python scripts/analysis/open_rig_misses_258.py --check
 # The taxonomy itself on the open splits, at either threshold:
@@ -247,15 +422,22 @@ python scripts/analysis/miss_taxonomy.py --cities laurens_mapillary,bayonne,buda
 python scripts/analysis/miss_taxonomy.py --cities richmond,bend,clovis,morgantown,annapolis,paterson,gainesville
 ```
 
-Inputs, all committed: `analysis_out/op_cache/<split>.json` (0.05-floor peaks from the
-published `projectsidewalk/rampnet-model`, with verdict-derived GT) and
-`benchmark/<split>/records.jsonl` (camera models). The bootstrap uses 2,000 replicates with seed
-20261020; the null uses 200 trials per miss, seeded per split.
+Inputs, all committed:
 
-What `miss_taxonomy.py --cities` changes: it restricts the run to the named splits and pools the
-named ones that are in `US_SPLITS`. With no flag the output is byte-identical to before. Its
-title still says "seven US splits" although laurens_mapillary and juneau have since joined
-`US_SPLITS` (the default pool is nine splits, 2,606 GT). That stale label is kept so the default
-output does not move; `--cities` runs print the real count.
+- `analysis_out/op_cache/<split>.json`: 0.05-floor peaks from the published
+  `projectsidewalk/rampnet-model`, with verdict-derived GT.
+- `benchmark/<split>/verdicts.json`: the `top` stratum for the unbiased subset.
+- `benchmark/<split>/records.jsonl`: camera models.
 
-Cost: no GPU and no paid model were used for any number in this doc, so there is no usage row.
+The bootstraps use 2,000 replicates with seed 20261020, and the null uses 200 trials per miss,
+seeded per split. Every table between `BEGIN GENERATED` and `END GENERATED` markers is written by
+the script from the JSON, and `--check` fails if one has been edited by hand.
+
+**What `miss_taxonomy.py --cities` changes.** It restricts the run to the named splits and pools
+the named ones that are in `US_SPLITS`. With no flag the output is byte-identical to before.
+That includes the title "seven US splits", which is stale: laurens_mapillary and juneau have since
+joined `US_SPLITS`, so the default pool is nine splits and 2,606 GT. The label is kept so the
+default output does not move. `--cities` runs print the real count.
+
+**Cost.** No GPU and no paid model were used for any number in this doc, so there is no usage
+row.

@@ -111,18 +111,53 @@ def test_reading_rule():
     assert orm.reading((None, None)) == "no misses"
 
 
-def _row(hit, bucket=None, pano="p"):
-    return {"hit": hit, "bucket": bucket, "pano": pano}
+def _row(hit, bucket=None, pano="p", strict=False):
+    return {"hit": hit, "bucket": bucket, "pano": pano, "strict_silent": strict}
+
+
+def test_pano_vector_counts_buckets_and_strict():
+    v = orm.pano_vector([_row(True), _row(False, "silent", strict=True),
+                         _row(False, "silent"), _row(False, "sub_threshold")])
+    assert v == (4, 0, 1, 0, 2, 1)
 
 
 def test_bootstrap_is_deterministic_and_brackets_a_pure_population():
-    units = {"a": [[_row(False, "silent", "p1")], [_row(False, "silent", "p2")],
-                   [_row(True, None, "p3")]]}
+    units = {"a": [orm.pano_vector([_row(False, "silent", "p1", True)]),
+                   orm.pano_vector([_row(False, "silent", "p2")]),
+                   orm.pano_vector([_row(True, None, "p3")])]}
     b1 = orm.bootstrap(units, reps=200)
     b2 = orm.bootstrap(units, reps=200)
     assert b1 == b2
     assert b1["silent"] == (1.0, 1.0)
     assert b1["sub_minus_silent"] == (-1.0, -1.0)
+    assert b1["strict_silent"][0] <= b1["strict_silent"][1] <= 1.0
+
+
+def test_excess_bootstrap_of_identical_populations_brackets_zero():
+    units = {"a": [orm.pano_vector([_row(False, "silent", "p1")]),
+                   orm.pano_vector([_row(True, None, "p2"), _row(False, "sub_threshold")])]}
+    e = orm.bootstrap_excess(units, units, reps=300)
+    for k in ("silent", "sub_threshold", "total", "sub_minus_silent_excess"):
+        lo, hi = e[k]
+        assert lo <= 0 <= hi, k
+
+
+def test_budapest_is_never_pooled():
+    # HELD_OUT for low-confidence single-rater GT (miss_decomposition); review of #265.
+    import miss_decomposition as md
+    assert "budapest_district5" in md.HELD_OUT
+    for members in orm.GROUPS.values():
+        assert "budapest_district5" not in members
+
+
+def test_fill_doc_replaces_blocks_and_rejects_unknown_or_missing():
+    text = "a\n<!-- BEGIN GENERATED: t1 -->\nold\n<!-- END GENERATED: t1 -->\nb\n"
+    assert orm.fill_doc(text, {"t1": "new"}) == (
+        "a\n<!-- BEGIN GENERATED: t1 -->\nnew\n<!-- END GENERATED: t1 -->\nb\n")
+    with pytest.raises(SystemExit):
+        orm.fill_doc(text, {"t1": "new", "t2": "x"})
+    with pytest.raises(SystemExit):
+        orm.fill_doc(text, {})
 
 
 def test_separation_stats_without_merged_misses():
@@ -143,10 +178,21 @@ def test_committed_report_rederives_byte_for_byte():
 def test_committed_report_reference_row_is_the_46_pool():
     with open(orm.DEFAULT_JSON, encoding="utf-8") as f:
         d = json.load(f)
-    ref = d["by_threshold"]["0.30"]["groups"]["reference_7"]
+    ref = d["by_subset"]["all"]["0.30"]["groups"]["reference_7"]
     assert {b: ref["buckets"][b]["n"] for b in mt.BUCKETS} == {
         "merged": 124, "sub_threshold": 166, "localization": 9, "silent": 128}
     # Every open split is either reported or listed as a gap, never dropped.
-    for th in d["by_threshold"].values():
-        for city in d["open_splits"]:
-            assert (city in th["splits"]) != (city in d["gaps"]), city
+    for sub in d["by_subset"].values():
+        for th in sub.values():
+            for city in d["open_splits"]:
+                assert (city in th["splits"]) != (city in d["gaps"]), city
+    # Strict silent is a subset of silent everywhere.
+    for sub in d["by_subset"].values():
+        for th in sub.values():
+            for s in list(th["splits"].values()) + list(th["groups"].values()):
+                assert s["buckets"]["strict_silent"]["n"] <= s["buckets"]["silent"]["n"]
+
+
+def test_parse_cities_rejects_an_empty_list():
+    with pytest.raises(SystemExit):
+        mt.parse_cities([""])

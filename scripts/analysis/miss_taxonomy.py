@@ -336,6 +336,8 @@ def parse_cities(values):
     looks exactly like a split with no misses.
     """
     names = [n for v in values for n in v.split(",") if n]
+    if not names:
+        raise SystemExit("--cities: no split named")
     unknown = sorted(set(names) - set(ALL_SPLITS))
     if unknown:
         raise SystemExit(f"--cities: unknown split(s) {unknown}; "
@@ -365,6 +367,7 @@ def main(argv=None):
           " ".join(f"{b:>13}" for b in BUCKETS))
 
     pooled, match_check = [], {"greedy_only": 0, "optimal_only": 0}
+    pooled_cities = []
     per_city = {}
     for city in cities:
         loaded = load_rows(city, args.threshold, args.cache, rng, args.trials,
@@ -381,6 +384,7 @@ def main(argv=None):
               + mark)
         if city in US_SPLITS:
             pooled.extend(rows)
+            pooled_cities.append(city)
             for k in match_check:
                 match_check[k] += mc[k]
     for city, why in HELD_OUT.items():
@@ -398,7 +402,7 @@ def main(argv=None):
                 "null_trials": args.trials, "null_seed": NULL_SEED,
                 "cities": list(cities), "per_city": per_city, "pooled": None})
         return 0
-    n_pool = sum(1 for c in cities if c in US_SPLITS)
+    n_pool = len(pooled_cities)     # splits actually loaded, not names given
     title = ("POOLED, seven US splits" if args.cities is None
              else f"POOLED, {n_pool} US split{'' if n_pool == 1 else 's'}")
     overall = print_buckets(title, pooled)
