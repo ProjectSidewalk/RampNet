@@ -405,7 +405,9 @@ NEWEST_DOC = os.path.join(REPO, "docs", "claude_newest_ids.md")
 
 def test_the_newest_ids_results_table_is_what_the_detections_say():
     """Every P / R / F1 in docs/claude_newest_ids.md's results table is one of the
-    pinned rows above, and its gap column is their difference."""
+    pinned rows above, and its gap column is the difference of the UNROUNDED F1s, rounded
+    once. (Until review of PR #261 the column was allowed to be the difference of the
+    rounded F1s, which put five cells 0.001 off.)"""
     import re
     with open(NEWEST_DOC, encoding="utf-8") as fh:
         doc = fh.read()
@@ -419,7 +421,10 @@ def test_the_newest_ids_results_table_is_what_the_detections_say():
         got = [float(v) for v in vals]
         assert got[:3] == pytest.approx(opus, abs=0.0005), split
         assert got[3:6] == pytest.approx(fable, abs=0.0005), split
-        assert got[6] == pytest.approx(opus[2] - fable[2], abs=0.0015), split
+        gts = _ground_truths(split)
+        exact = (_score("claude-opus-5-5", "low", "anthropic", split, gts)[7]
+                 - _score("claude-fable-5-1", "low", "anthropic", split, gts)[7])
+        assert vals[6] == f"{exact:.3f}", (split, vals[6], exact)
 
 
 def test_the_newest_ids_cost_figures_are_what_the_ledger_says():

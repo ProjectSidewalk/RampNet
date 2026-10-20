@@ -495,3 +495,7 @@ analysis_out/crop_tilt_113/*
 analysis_out/pu_training_86/*
 !analysis_out/pu_training_86/*.json
 !analysis_out/pu_training_86/*.csv
+
+# PR #261: paired intervals and the radius check for the newest-ids Claude legs, re-derived
+# from committed detections by scripts/analysis/claude_newest_ids_261.py --check.
+!analysis_out/claude_newest_ids_261/
