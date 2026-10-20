@@ -42,7 +42,8 @@ What we know now that we did not know at publication:
 - **RampNet beats every off-the-shelf model we tried, on every split.** Against nine zero-shot
   models (chat VLMs, a pointing model and two open-vocabulary detectors) across twelve benchmark
   bundles in three countries and four camera rigs, RampNet leads the best of them by 0.11 to
-  0.34 F1, and by 0.22 F1 pooled over the eight US city splits.
+  0.34 F1, and by 0.22 F1 pooled over the eight US city splits. *Superseded 2026-10-19/20, after
+  this report: off-roster `claude-opus-5-5` at effort low (2026-10-19/20) beats RampNet on both Laurens arms (0.679 vs 0.543, 0.701 vs 0.659) and on `bayonne` (0.619 vs 0.517), and `claude-fable-5-1` beats it on `bayonne` (0.540); RampNet tops 10 of 13 splits and leads Opus 5.5 by 0.082 pooled. Each Claude number is a single run, no seed variance, effort low only, first-party serving path ([`claude_newest_ids.md`](claude_newest_ids.md)).*
 - **RampNet beats a supervised YOLO trained on the same data by much less than we first said.**
   The first comparison read 0.252 F1. At matched operating points it is 0.039, and with three
   YOLO seeds against nine RampNet seeds the replicated gap is 0.016 F1, 95% CI [0.008, 0.024].
@@ -276,7 +277,8 @@ Pooled over the eight US city splits (`model_scoreboard.md`, "The board"):
 | Grounding DINO (0.05 floor) | open-vocab detector | 0.028 | 0.848 | 0.053 |
 
 RampNet leads the best zero-shot model on every one of the twelve bundles, from 0.114 on
-`laurens_mapillary` to 0.340 on `manual_gold`. That top figure is against
+`laurens_mapillary` to 0.340 on `manual_gold` (as of this report; *superseded 2026-10-19/20, see
+the note in the summary above*). That top figure is against
 `gemini-3.1-pro-preview`, the one cell in the comparison not re-derivable from a clean clone;
 against the best challenger that is, the `manual_gold` lead is 0.381. The lead holds on ground truth that never saw a
 RampNet review (`manual_gold`), on non-US imagery (`sao_paulo`, `budapest_district5`), and on

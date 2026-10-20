@@ -225,8 +225,8 @@ def fig_comparison(board, plt, v2=False):
     else:
         _titles(fig, "Purpose-trained beats zero-shot frontier models by a wide margin",
                 f"RampNet {ref:.2f} vs the best zero-shot model, {best_zs['display']}, "
-                f"{best_zs['f1']:.2f}. The lead holds on every one of "
-                f"{len(board['per_split']['rampnet'])} benchmark bundles.")
+                f"{best_zs['f1']:.2f}. RampNet beats the best zero-shot model "
+                f"{lead_claim(transfer_rows(board))}.")
         bottom = _footnote(fig,
                            "Operating points differ by class: RampNet 0.55, YOLO 0.25 (its default), "
                            "OWLv2 0.05 floor, chat VLMs emit no score. At matched operating points "
@@ -260,6 +260,20 @@ def transfer_rows(board):
                          recall=r["recall"], f1=r["f1"], n_gt=r["n_gt_recall"],
                          best_display=best[0], best_f1=best[1]))
     return rows
+
+
+def lead_claim(rows):
+    """The "RampNet beats the best zero-shot model on ..." clause, read off ``rows``.
+
+    It was a literal ("on every split") until 2026-10-19/20, when claude-opus-5-5 beat
+    RampNet on both Laurens arms and bayonne, so a regeneration would have printed a
+    false caption. Example: ``"on 10 of 13 splits (not laurens_gsv, laurens_mapillary,
+    bayonne)"``.
+    """
+    lost = [r["split"] for r in rows if r["best_f1"] is not None and r["best_f1"] > r["f1"]]
+    if not lost:
+        return "on every split"
+    return f"on {len(rows) - len(lost)} of {len(rows)} splits (not {', '.join(lost)})"
 
 
 def fig_transfer(board, plt, us_only=False):
@@ -323,7 +337,8 @@ def fig_transfer(board, plt, us_only=False):
     if us_only:
         _titles(fig, "Trained on Google Street View, it transfers to other cameras",
                 f"{len(rows)} US splits, five camera rigs. RampNet beats the "
-                "best zero-shot model on every split; what drops is recall, not precision.")
+                f"best zero-shot model {lead_claim(rows)}; what drops is recall, not "
+                "precision.")
         bottom = _footnote(fig,
                            "Ground truth is one reviewer per split. Bend is a training city (4 of "
                            "its 110 benchmark panoramas are in the training set). Laurens is one "
@@ -332,8 +347,8 @@ def fig_transfer(board, plt, us_only=False):
         name = "transfer_imagery_us.png"
     else:
         _titles(fig, "Trained on US Google Street View, it transfers to other cameras and countries",
-                "RampNet beats the best zero-shot model on every split. What drops out of distribution is "
-                "recall, not precision.")
+                f"RampNet beats the best zero-shot model {lead_claim(rows)}. What drops out of "
+                "distribution is recall, not precision.")
         bottom = _footnote(fig,
                            "Ground truth is one reviewer per split; budapest and bayonne at low / "
                            "medium reviewer confidence. Bend is a training city (4 of its 110 "
@@ -731,6 +746,9 @@ def fig_heatmap(plt, bench_root=BENCH_ROOT, split=HEATMAP_SPLIT, pano=HEATMAP_PA
 # Text from docs/rampnet2_plan.md §1 (goal table) and §4 (experiments), read 2026-10-05.
 # The bundle count is a literal (thirteen as of 2026-10-11, after #239 added Bayonne); check it
 # against len(scoreboard.json per_split.rampnet) before reuse.
+# TODO(Jon): "leads every zero-shot model on all thirteen benchmark bundles" is false since
+# 2026-10-19/20 (claude-opus-5-5 beats RampNet on both Laurens arms and bayonne; see
+# docs/claude_newest_ids.md). Left as the talk's text until Jon decides how the slide says it.
 ROADMAP = [
     ("FIND", "Where is every curb ramp?",
      "Gold-set F1 0.91; leads every zero-shot model on all thirteen benchmark bundles; "

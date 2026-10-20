@@ -76,7 +76,7 @@ Three baselines, in increasing strength:
 | baseline | number | source |
 |---|---|---|
 | Prior curb-ramp detectors | Weld et al. 0.38 AP on our gold set vs RampNet 0.92; Tohme and Weld were at 26–34% precision | paper §2, `rampnet1_report.md` §3 |
-| Nine zero-shot models (Gemini 3.1 Pro, Claude Opus 5, Qwen3-VL, Molmo2, OWLv2, Grounding DINO, ...) | RampNet 0.792 pooled F1 over eight US cities vs 0.575 for the best; leads on all thirteen bundles, by 0.09 (bayonne) to 0.34 (manual_gold, against Gemini 3.1 Pro; 0.38 against the best zero-shot model re-derivable from `scoreboard.json`, which is the gap the transfer figure shows on manual_gold; the lead over the best supervised YOLO arm there is only 0.058) | `model_scoreboard.md`, findings §2 row 1 |
+| Nine zero-shot models (Gemini 3.1 Pro, Claude Opus 5, Qwen3-VL, Molmo2, OWLv2, Grounding DINO, ...) | RampNet 0.792 pooled F1 over eight US cities vs 0.575 for the best; *superseded 2026-10-19/20: Claude Opus 5.5 at effort low pools 0.710 (lead 0.082) and beats RampNet on both Laurens arms and bayonne, see the note under Slide 5*; leads on all thirteen bundles, by 0.09 (bayonne) to 0.34 (manual_gold, against Gemini 3.1 Pro; 0.38 against the best zero-shot model re-derivable from `scoreboard.json`, which is the gap the transfer figure shows on manual_gold; the lead over the best supervised YOLO arm there is only 0.058) | `model_scoreboard.md`, findings §2 row 1 |
 | A supervised YOLO trained on the same dataset | 0.599 at its default threshold; at matched operating points and across seeds the gap is 0.016 F1, 95% CI [0.008, 0.024] | `seed_variance_51_135.md`, findings §2 row 3 |
 
 The honest framing, which Jon chose: the dataset is the result; the keypoint formulation is a
@@ -98,6 +98,10 @@ manual_gold detections, so the pooled mean would not be over the same models.
 - Thirteen benchmark bundles, three imagery sources (GSV, Mapillary 360° on consumer and survey
   rigs, Panoramax), four countries (US, Brazil, Hungary, France). RampNet beats the best zero-shot
   model on every split.
+- **Superseded 2026-10-19/20, after this outline was drafted; the slide figures were not
+  regenerated.** Off-roster `claude-opus-5-5` at effort low (2026-10-19/20) beats RampNet on both Laurens arms (0.679 vs 0.543, 0.701 vs 0.659) and on `bayonne` (0.619 vs 0.517), and `claude-fable-5-1` beats it on `bayonne` (0.540); RampNet tops 10 of 13 splits and leads Opus 5.5 by 0.082 pooled. Each Claude number is a single run, no seed variance, effort low only, first-party serving path ([`claude_newest_ids.md`](../../claude_newest_ids.md)).
+  The "every split" claims on this slide and slide 4, and the captions of
+  `transfer_imagery_*.png` and `comparison_f1.png`, need Jon's decision before the talk.
 - Speaker note, the exception that must not be hidden: on `laurens_mapillary` the supervised YOLO
   baseline beats RampNet at the pre-registered conf 0.25, YOLO26 0.574 (and YOLO11l 0.563) against
   RampNet 0.543 (`rampnet1_findings.md` §2 row 27). It is an operating-point result: RampNet's AP
@@ -107,7 +111,8 @@ manual_gold detections, so the pooled mean would not be over the same models.
   the diagonal (`figures/scoreboard_generalization.png` is slide-ready as is).
 - Same rural town, two cameras: GoPro Max 0.54, GSV 0.66. The rig matters more than the town.
 - Bayonne (France, Panoramax) is the newest and weakest: F1 0.52, recall 0.38, still the top F1 on
-  the split by 0.09. Its ground truth is single-rater at medium confidence.
+  the split by 0.09 (over the standing roster; superseded 2026-10-20, see above: Claude Opus 5.5
+  scores 0.62 and Fable 5.1 0.54 there). Its ground truth is single-rater at medium confidence.
 
 Figure: `transfer_imagery_country.png` (RampNet vs the best zero-shot model per split, grouped by
 imagery source, labelled by country). Every row is read from `analysis_out/scoreboard.json`.
