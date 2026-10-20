@@ -726,8 +726,8 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
 
 
 def test_the_newest_ids_legs_are_pooled(board):
-    """claude-opus-5-5 and claude-fable-5-1 at effort low ran every split on 2026-10-19,
-    manual_gold included (docs/claude_newest_ids.md), so both are complete legs.
+    """claude-opus-5-5 and claude-fable-5-1 at effort low ran every split on 2026-10-19/20,
+    manual_gold and bayonne included (docs/claude_newest_ids.md), so both are complete legs.
 
     Pinned by value, like #139's result above, because a regeneration moves the doc and
     the JSON together: this is the assertion that has to be edited deliberately. Opus 5.5
@@ -737,12 +737,16 @@ def test_the_newest_ids_legs_are_pooled(board):
     fable = _summary(board, "claude-fable-5-1-effort-low-anthropic")
     for leg in (opus, fable):
         assert leg["coverage"] == "8/8" and leg["complete"] is True
-        assert leg["n_splits_run"] == 12      # 8 pooled + laurens_gsv, budapest, sao_paulo, manual_gold
+        # 8 pooled + laurens_gsv, budapest, sao_paulo, bayonne, manual_gold
+        assert leg["n_splits_run"] == 13
     assert opus["f1"] == pytest.approx(0.710, abs=0.0006)
     assert opus["recall"] == pytest.approx(0.737, abs=0.0006)
     assert opus["manual_gold_f1"] == pytest.approx(0.722, abs=0.0006)
     assert fable["f1"] == pytest.approx(0.598, abs=0.0006)
     assert fable["manual_gold_f1"] == pytest.approx(0.638, abs=0.0006)
+    # bayonne (2026-10-20) is held out of the pool, so it moves none of the numbers above.
+    assert opus["bayonne_f1"] == pytest.approx(0.619, abs=0.0006)
+    assert fable["bayonne_f1"] == pytest.approx(0.540, abs=0.0006)
 
     challengers = [m for m in board["models"] if m["complete"] and m["model"] != "rampnet"]
     assert max(challengers, key=lambda m: m["f1"])["model"] == opus["model"]
@@ -753,6 +757,17 @@ def test_the_newest_ids_legs_are_pooled(board):
     above = {m["model"] for m in challengers
              if m["recall"] > rampnet["recall"] and m["class"] != "open-vocab"}
     assert above == {opus["model"]}
+    # The splits where any leg beats RampNet: the two Laurens arms and bayonne, which is
+    # what "top score in ten of the thirteen splits" in model_scoreboard.md rests on.
+    per = board["per_split"]
+    beaten = {s for s in board["all_splits"]
+              if any(cells[s]["f1"] > per["rampnet"][s]["f1"]
+                     for k, cells in per.items() if k != "rampnet" and s in cells)}
+    assert beaten == {"laurens_gsv", "laurens_mapillary", "bayonne"}
+    bayonne_winners = {k for k, cells in per.items()
+                       if "bayonne" in cells
+                       and cells["bayonne"]["f1"] > per["rampnet"]["bayonne"]["f1"]}
+    assert bayonne_winners == {opus["model"], fable["model"]}
     # Opus 5.5 beats claude-fable-5-1 on every split both ran.
     for s in board["per_split"][opus["model"]]:
         assert _cell(board, opus["model"], s)["f1"] > _cell(board, fable["model"], s)["f1"], s
@@ -889,6 +904,8 @@ def test_the_prose_counts_match_the_board(board):
     "The pool is seven cities, not all twelve splits.",
     "The three held-out splits carry their documented reasons.",
     "RampNet has the top score in eleven of the ten splits.",
+    # true until the Claude bayonne legs of 2026-10-20
+    "RampNet has the top score in eleven of the thirteen splits.",
     "RampNet has the top score in twelve of the twelve splits.",
     "RampNet is the top score in all ten splits, including the two it is weakest on.",
     "the worst pooled city for 7 of the 12 models with full pooled coverage",

@@ -924,7 +924,9 @@ cues, speed bumps vs raised crossings, roundabouts; see `benchmark/README.md`)
 | owlv2-large-patch14-ensemble | 0.034 | **0.950** | 0.065 | 0.092 | 286/8229/15 |
 | grounding-dino-base | 0.025 | 0.824 | 0.048 | 0.025 | 248/9872/53 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.351. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11x (pano) F1 0.296, YOLO26 (pano) F1 0.261, YOLO11l (pano) F1 0.249.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.619 (**beats RampNet's 0.517 here**), Claude Fable 5.1 (low, anthropic) F1 0.540 (**beats RampNet's 0.517 here**), Gemini 3.7 Flash F1 0.351. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11x (pano) F1 0.296, YOLO26 (pano) F1 0.261, YOLO11l (pano) F1 0.249.
+
+Against the whole zero-shot field RampNet does not lead on this split: Claude Opus 5.5 (low, anthropic) is 0.102 F1 ahead of it, where RampNet leads the table's best row by 0.086.
 
 <!-- END GENERATED: results:bayonne -->
 
