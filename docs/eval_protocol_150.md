@@ -134,6 +134,11 @@ unchecked. Beyond Juneau's 12 (Revision, below), the 27 new cells are the `claud
 `claude-fable-5-1` legs of [`claude_newest_ids.md`](claude_newest_ids.md), juneau included. The
 table above is the 2026-10-05/11 run.*
 
+*Updated again 2026-10-20: **223** scoreboard cells (2,230 field comparisons), still 0 differing
+and 0 unchecked. The 9 new cells are the Vistas parity arm on the nine splits it had not run
+([`vistas_transfer_126.md`](vistas_transfer_126.md) § "All fourteen splits"). The leg count is
+unchanged at 22.*
+
 What is compared, and how:
 
 - **Scoreboard cells.** For every (model, split) cell in `per_split`: precision, recall,
