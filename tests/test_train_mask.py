@@ -47,7 +47,8 @@ RADIUS = 30                              # ceil(3 * sigma), sigma 10
 def _lift():
     return load_from_train_py(
         "EquiHeatmapDataset", "generate_heatmap_from_points", "generate_weight_from_points",
-        "supervision_mode", "masked_mse", "SUPERVISION_MODES",
+        "supervision_mode", "masked_mse", "SUPERVISION_MODES", "MASK_NORMS", "_point_list",
+        "_nearest_dist_sq", "mask_checkpoint_fields", "check_resume_objective",
         os=os, json=json, math=math, np=np, torch=torch, Image=Image, F=F,
         random=random, rank=0, A=A, Dataset=torch.utils.data.Dataset)
 
@@ -210,6 +211,14 @@ def test_unknown_and_inconsistent_modes_are_errors(tmp_path):
         mod.supervision_mode({"supervision": {}}, [])
     with pytest.raises(ValueError, match="verified_empty"):
         mod.supervision_mode({"supervision": {"mode": "verified_empty"}}, [(0.1, 0.2)])
+    with pytest.raises(ValueError, match="verified_empty"):
+        mod.supervision_mode({"supervision": {"mode": "verified_empty",
+                                              "ignore_points": [[0.1, 0.2]]}}, [])
+    with pytest.raises(ValueError, match="no positives"):          # review L4
+        mod.supervision_mode({"supervision": {"mode": "sparse"}}, [])
+    with pytest.raises(ValueError, match="ignore_points"):
+        mod.supervision_mode({"supervision": {"mode": "sparse", "ignore_points": [0.1]}},
+                             [(0.5, 0.5)])
     assert mod.SUPERVISION_MODES == ("sparse", "verified_empty")
     bad = _sparse([[0.5, 0.5]])
     bad["supervision"]["mode"] = "Sparse"
@@ -237,42 +246,161 @@ def test_dummy_samples_carry_a_zero_weight(tmp_path):
 
 # ------------------------------------------------------------------------ the loss
 
-def test_masked_loss_with_all_ones_is_mse():
+@pytest.mark.parametrize("norm", ["pixels", "weight"])
+def test_masked_loss_with_all_ones_is_mse(norm):
     mod = _lift()
     g = torch.Generator().manual_seed(0)
     out = torch.rand(2, 1, 64, 128, generator=g).half()       # autocast emits fp16
     tgt = torch.rand(2, 1, 64, 128, generator=g)
-    got = mod.masked_mse(out, tgt, torch.ones_like(tgt))
+    got = mod.masked_mse(out, tgt, torch.ones_like(tgt), norm)
     want = torch.nn.MSELoss()(out.float(), tgt)
     assert got.dtype == torch.float32
     assert torch.allclose(got, want, rtol=1e-6, atol=0)
 
 
-def test_masked_loss_ignores_masked_pixels():
+@pytest.mark.parametrize("norm", ["pixels", "weight"])
+def test_masked_loss_ignores_masked_pixels(norm):
     mod = _lift()
     g = torch.Generator().manual_seed(1)
     tgt = torch.rand(1, 1, 64, 128, generator=g)
     w = torch.zeros_like(tgt)
     w[..., 10:30, 40:90] = 1
     out = torch.rand(1, 1, 64, 128, generator=g, requires_grad=True)
-    loss = mod.masked_mse(out, tgt, w)
-    inside = ((out - tgt) ** 2)[..., 10:30, 40:90].mean()
-    assert torch.allclose(loss, inside, rtol=1e-6)
+    loss = mod.masked_mse(out, tgt, w, norm)
+    inside = ((out - tgt) ** 2)[..., 10:30, 40:90]
+    want = inside.mean() if norm == "weight" else inside.sum() / tgt.numel()
+    assert torch.allclose(loss, want, rtol=1e-6)
     loss.backward()
     assert out.grad[w == 0].abs().max() == 0 and out.grad[w == 1].abs().max() > 0
     # garbage where w == 0 changes nothing
     out2 = out.detach().clone()
     out2[w == 0] = 1e6
-    assert torch.equal(mod.masked_mse(out2, tgt, w), loss.detach())
+    assert torch.equal(mod.masked_mse(out2, tgt, w, norm), loss.detach())
 
 
-def test_fully_masked_batch_is_zero_not_nan():
+@pytest.mark.parametrize("norm", ["pixels", "weight"])
+def test_fully_masked_batch_is_zero_not_nan(norm):
     mod = _lift()
     out = torch.rand(1, 1, 8, 16, requires_grad=True)
-    loss = mod.masked_mse(out, torch.rand(1, 1, 8, 16), torch.zeros(1, 1, 8, 16))
+    loss = mod.masked_mse(out, torch.rand(1, 1, 8, 16), torch.zeros(1, 1, 8, 16), norm)
     assert loss.item() == 0
     loss.backward()
     assert out.grad.abs().max() == 0
+
+
+def test_unknown_norm_is_an_error():
+    mod = _lift()
+    with pytest.raises(ValueError, match="mask norm"):
+        mod.masked_mse(torch.zeros(1), torch.zeros(1), torch.ones(1), "mean")
+
+
+def test_the_two_norms_on_a_silent_miss():
+    """The #266 review table: a silent miss (output 0) on one ramp. 'pixels' gives a
+    sparse positive the dense pano's gradient; 'weight' multiplies it by N / sum(w)."""
+    mod = _lift()
+    pts = [(0.3, 0.6)]
+    tgt = mod.generate_heatmap_from_points(pts).unsqueeze(0)
+    w = mod.generate_weight_from_points(pts).unsqueeze(0)
+    grads = {}
+    for name in ("dense", "pixels", "weight"):
+        out = torch.zeros_like(tgt, requires_grad=True)
+        loss = (torch.nn.MSELoss()(out, tgt) if name == "dense"
+                else mod.masked_mse(out, tgt, w, name))
+        loss.backward()
+        grads[name] = out.grad.abs().sum().item()
+    assert grads["pixels"] / grads["dense"] == pytest.approx(0.99, abs=0.01)
+    assert grads["weight"] / grads["pixels"] == pytest.approx(SHAPE[0] * SHAPE[1] / 2821)
+    assert int(w.sum()) == 2821
+
+
+# --------------------------------------------------------------- ignore points (M4)
+
+def test_no_ignore_points_is_the_union_of_discs():
+    mod = _lift()
+    pts = [(0.25, 0.5), (0.27, 0.52)]
+    a = mod.generate_weight_from_points(pts, heatmap_shape=SHAPE)
+    b = mod.generate_weight_from_points(pts, heatmap_shape=SHAPE, ignore_points=[])
+    want = np.maximum(_disc(256, 256), _disc(276, 266))
+    assert torch.equal(a, b) and np.array_equal(a.numpy()[0], want)
+
+
+def test_ignore_point_carves_its_side_of_a_positive_disc():
+    """Positive at cx=256, an unverified peak 20 px right at cx=276: the pixels nearer the
+    peak lose their weight, the positive keeps its own half (and ties), and nothing outside
+    the positive's disc gains weight."""
+    mod = _lift()
+    w = mod.generate_weight_from_points([(0.25, 0.5)], heatmap_shape=SHAPE,
+                                        ignore_points=[(276 / 1024, 0.5)]).numpy()[0]
+    pos = _disc(256, 256).astype(bool)
+    yy, xx = np.mgrid[0:SHAPE[0], 0:SHAPE[1]]
+    d_pos = (xx - 256) ** 2 + (yy - 256) ** 2
+    d_ign = (xx - 276) ** 2 + (yy - 256) ** 2
+    want = pos & ~((d_ign <= RADIUS ** 2) & (d_ign < d_pos))
+    assert np.array_equal(w, want.astype(np.float32))
+    assert w[256, 256] == 1 and w[256, 266] == 1        # the centre, and the tie column
+    assert w[256, 267] == 0 and w[256, 280] == 0
+    assert w.sum() < pos.sum() and (w <= pos).all()
+
+
+def test_ignore_point_on_top_of_a_positive_or_far_away_changes_nothing():
+    mod = _lift()
+    a = mod.generate_weight_from_points([(0.25, 0.5)], heatmap_shape=SHAPE)
+    b = mod.generate_weight_from_points([(0.25, 0.5)], heatmap_shape=SHAPE,
+                                        ignore_points=[(0.25, 0.5), (0.8, 0.2)])
+    assert torch.equal(a, b)                             # ties go to the positive; far is moot
+
+
+def test_ignore_points_flip_with_the_positives(tmp_path):
+    mod = _lift()
+    rec = _sparse([[0.2, 0.4]])
+    rec["supervision"]["ignore_points"] = [[220 / 1024, 0.4]]
+    ds = _dataset(mod, _one_pano(str(tmp_path), rec), shape=SHAPE,
+                  apply_horizontal_flip=True, loss_mask=True)
+    random.seed(0)
+    seen = set()
+    for _ in range(12):
+        _, hm, w = ds[0]
+        hm, w = hm.numpy()[0], w.numpy()[0]
+        cx = int(np.unravel_index(hm.argmax(), hm.shape)[1])
+        seen.add(cx)
+        ign = 220 if cx == 205 else 804                  # 1024 - 220, mirrored with the positive
+        want = mod.generate_weight_from_points(
+            [(cx / 1024, 0.4)], heatmap_shape=SHAPE,
+            ignore_points=[(ign / 1024, 0.4)]).numpy()[0]
+        assert np.array_equal(w, want)
+        assert w[205, ign] == 0 and w[205, cx] == 1
+    assert seen == {205, 819}
+
+
+# ------------------------------------------------------------ resume and the flags
+
+def test_checkpoint_records_the_objective_only_with_the_mask_on():
+    mod = _lift()
+    assert mod.mask_checkpoint_fields(False, None) == {}
+    assert mod.mask_checkpoint_fields(True, "pixels") == {"loss_mask": True,
+                                                          "mask_norm": "pixels"}
+    mod.check_resume_objective({}, False, None)                       # published ckpt
+    mod.check_resume_objective({"loss_mask": True, "mask_norm": "weight"}, True, "weight")
+    for ckpt, on, norm in (({}, True, "pixels"),
+                           ({"loss_mask": True, "mask_norm": "pixels"}, False, None),
+                           ({"loss_mask": True, "mask_norm": "pixels"}, True, "weight")):
+        with pytest.raises(SystemExit, match="loss_mask"):
+            mod.check_resume_objective(ckpt, on, norm)
+
+
+def test_every_checkpoint_write_carries_the_objective():
+    src = open(TRAIN_PY, encoding="utf-8").read()
+    assert src.count("torch.save({") == src.count("torch.save({**MASK_STATE,") == 4
+    assert "check_resume_objective(checkpoint, args.loss_mask, args.mask_norm" in src
+
+
+def test_val_mean_skips_samples_with_nothing_to_learn():
+    """Review L2: under the mask, an unreadable sample has weight 0 and loss 0, and must not
+    drag the logged val loss down by counting toward the mean."""
+    src = open(TRAIN_PY, encoding="utf-8").read()
+    assert "n_val = int((w_val.flatten(1).sum(1) > 0).sum().item())" in src
+    assert "num_val_samples += n_val" in src
+    assert "num_val_samples += images_val.size(0)" in src            # the off path
 
 
 # ------------------------------------------------- the training loop, read as source
@@ -319,10 +447,19 @@ def test_flag_defaults_off_and_both_datasets_follow_it():
     try:
         sys.argv = ["train.py"]
         assert mod.parse_args().loss_mask is False
+        assert mod.parse_args().mask_norm is None
         sys.argv = ["train.py", "--loss-mask"]
-        assert mod.parse_args().loss_mask is True
+        a = mod.parse_args()
+        assert a.loss_mask is True and a.mask_norm == "pixels"
+        sys.argv = ["train.py", "--loss-mask", "--mask-norm", "weight"]
+        assert mod.parse_args().mask_norm == "weight"
+        for bad in (["--mask-norm", "pixels"], ["--loss-mask", "--mask-norm", "mean"]):
+            sys.argv = ["train.py"] + bad
+            with pytest.raises(SystemExit):
+                mod.parse_args()
     finally:
         sys.argv = argv
+    assert tuple(_lift().MASK_NORMS) == ("pixels", "weight")       # parse_args spells it out
     for name in ("train_dataset", "val_dataset"):
         call = next(n.value for n in _tree().body if isinstance(n, ast.Assign)
                     and any(getattr(t, "id", None) == name for t in n.targets))
