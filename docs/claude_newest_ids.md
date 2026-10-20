@@ -1,10 +1,10 @@
 # Newest Claude ids on every split: Opus 5.5 and Fable 5.1 (2026-10-19)
 
-**Status: IN PROGRESS.** This is a checkpoint, committed while the runs were still going so the
-partial results don't live only on one disk. Every number below is from a split that finished;
-splits still running are marked as such. The published detections for every finished split are in
-`benchmark/model_detections/` and were verified identical to the cache that produced them
-(`export_model_cache.py --verify`, 24 of 24 pairs).
+**Status: done.** All 24 legs (2 models x 12 splits) finished on 2026-10-19/20 UTC. The
+published detections are in `benchmark/model_detections/` and were verified identical to the
+cache that produced them (`export_model_cache.py --verify`, 24 of 24 pairs). Every P / R / F1
+and every cost total below is re-derived from those files and from
+`analysis_out/usage_log.jsonl` by `tests/test_claude_published_legs.py`.
 
 ## What and why
 
@@ -32,7 +32,7 @@ what the run cost, the same as always.
 | `claude5` | $100, 2026-10-23 | Opus 5.5, 11 city splits | 11 of 11 | $86.82 (incl. $0.33 calibration) |
 | `claude-team` | $500, 2026-10-27 | Fable 5.1, 10 city splits | 10 of 10 | $193.85 |
 | `claude-team` | (same) | Fable 5.1, `manual_gold` | done (1,000 panos, 5.0 h) | $167.92 |
-| `claude-team` | (same) | Opus 5.5, `manual_gold` | done (moved here from claude20: Team's credit expires first) | $67.99 |
+| `claude-team` | (same) | Opus 5.5, `manual_gold` | done (moved here from claude20: Team's credit expires first) | $67.98 |
 | `claude20` | $200, 2026-11-18 | unused so far | — | — |
 
 The Team org also holds $63.93 of purchased credit, which is spent after the promotional $500. To
@@ -41,7 +41,7 @@ stay inside the free allocation, its streams run under a $440 ledger cap.
 **Per pano:** Opus 5.5 **$0.0665–0.068**, Fable 5.1 **$0.166–0.168**. The 5-pano Opus 5.5
 calibration ($0.0665/pano) predicted the full annapolis leg ($0.0676/pano) to within 2%.
 
-## Results so far (F1 at the standard radius 0.022, effort low)
+## Results (F1 at the standard radius 0.022, effort low)
 
 | Split | Opus 5.5 P / R / **F1** | Fable 5.1 P / R / **F1** | Gap |
 |---|---|---|---|
@@ -134,9 +134,25 @@ python scripts/analysis/export_model_cache.py ... --verify
 These ran via a scratch copy of `run_claude_legs_by_account.ps1` that hardcoded the main checkout
 path. The committed version takes `-DataRoot` instead and is otherwise the same logic.
 
+## What it changes on the scoreboard
+
+Both legs have full pooled coverage, so `scripts/analysis/scoreboard.py` puts them in the
+pooled tables of [`model_scoreboard.md`](model_scoreboard.md). Both stay `standing=False` in
+`rampnet/roster.py`, so the standing roster tables in `model_comparison.md` do not change;
+each generated city table's footnote lists them.
+
+- **Claude Opus 5.5 is the best challenger with full pooled coverage**: pooled F1 0.710
+  (P 0.691 / R 0.737) over the eight US city splits. RampNet's lead over it is 0.082 F1;
+  before it, the best such challenger was YOLO11l, 0.193 behind RampNet.
+- **It beats RampNet on both Laurens arms**: 0.679 against 0.543 on `laurens_mapillary` and
+  0.701 against 0.659 on `laurens_gsv`. RampNet keeps the top F1 on every other split Opus 5.5
+  ran, `manual_gold` included (0.908 against 0.722).
+- **Its pooled recall, 0.737, is above RampNet's 0.686**, the only model with full pooled
+  coverage for which that is true apart from the two open-vocabulary detectors at their 0.05
+  floor. Its precision is 0.691 against RampNet's 0.951.
+- **Fable 5.1 pools at 0.598**, level with YOLO11l (0.599): the unrounded gap is 0.0002.
+
 ## Not done yet
 
-- Scoreboard regeneration, coverage text in `docs/model_comparison.md`, and the tests that pin
-  coverage (`tests/test_scoreboard.py`, `tests/test_claude_published_legs.py`). These wait for the
-  full set.
 - Seed variance: neither model has been run twice on any split.
+- `claude-fable-5` was not part of this campaign, so it is still annapolis-only.
