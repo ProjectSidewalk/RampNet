@@ -544,8 +544,9 @@ def test_the_annapolis_displacement_does_not_survive_pooling(board):
     assert opus["recall"] == pytest.approx(0.586, abs=0.0006)
     assert gem["f1"] == pytest.approx(0.575, abs=0.0006)
 
-    # The ranking claim itself, not just the two numbers behind it: Gemini still tops the
-    # table, and by less than the 0.01 the doc calls a tie.
+    # The ranking claim itself, not just the two numbers behind it: of the two, Gemini is
+    # ahead, and by less than the 0.01 the doc calls a tie. (Neither tops the table any
+    # more: claude-opus-5-5 does, see test_the_newest_ids_legs_are_pooled.)
     assert opus["f1"] < gem["f1"], "gemini-3.1-pro is no longer the best challenger"
     assert abs(opus["f1"] - gem["f1"]) < 0.01
     assert _cell(board, "claude-opus-5-effort-low", "annapolis")["f1"] > \
@@ -588,11 +589,16 @@ def test_the_annapolis_displacement_does_not_survive_pooling(board):
     assert "the largest gap on the board)" not in prose
     assert "smaller in magnitude than six of the other seven" in prose
 
-    # Opus is the highest-recall chat VLM that has run the full pool -- the axis
-    # operating_point.md says to optimize, and the reason the near-tie is not a wash.
+    # Opus had the highest recall of any chat VLM that had run the full pool -- the axis
+    # operating_point.md says to optimize, and the reason the near-tie is not a wash --
+    # until claude-opus-5-5 ran the pool on 2026-10-19. It is still above every Gemini leg
+    # and above claude-fable-5-1, so it ranks second, and the doc must say who is first.
     pooled_vlms = [m for m in board["models"]
                    if m["class"] == "chat-vlm" and m["complete"]]
-    assert max(pooled_vlms, key=lambda m: m["recall"])["model"] == "claude-opus-5-effort-low"
+    by_recall = sorted(pooled_vlms, key=lambda m: -m["recall"])
+    assert [m["model"] for m in by_recall[:2]] == [
+        "claude-opus-5-5-effort-low-anthropic", "claude-opus-5-effort-low"]
+    assert "until Claude Opus 5.5 at low effort ran the pool" in prose
 
 
 def test_partial_coverage_is_reported_not_averaged_away(board):
@@ -635,9 +641,9 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         "claude-opus-5-effort-high": "1/8",
         "claude-sonnet-5-effort-low": "1/8",
         "claude-sonnet-5-effort-high": "1/8",
-        # #156, annapolis only. Both clear the expansion gate, so these may well
-        # grow past 1/8 later; until they do, partial coverage means excluded.
-        "claude-fable-5-1-effort-low-anthropic": "1/8",
+        # #156, annapolis only. claude-fable-5-1 left this set on 2026-10-19, when the
+        # newest-ids campaign ran it on every split (docs/claude_newest_ids.md);
+        # claude-fable-5 was not part of that campaign.
         "claude-fable-5-effort-low-anthropic": "1/8",
     }
     single = [m for m in board["models"] if not m["complete"]]
@@ -657,6 +663,39 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         cells = [c.strip() for c in row.split("|")]
         pooled = cells[2 + len(lfs.US_SPLITS)]
         assert pooled == "–", f"{m['display']} pooled cell is {pooled!r}, expected a dash"
+
+
+def test_the_newest_ids_legs_are_pooled(board):
+    """claude-opus-5-5 and claude-fable-5-1 at effort low ran every split on 2026-10-19,
+    manual_gold included (docs/claude_newest_ids.md), so both are complete legs.
+
+    Pinned by value, like #139's result above, because a regeneration moves the doc and
+    the JSON together: this is the assertion that has to be edited deliberately. Opus 5.5
+    is the best challenger with full pooled coverage, and the headline lead is over it.
+    """
+    opus = _summary(board, "claude-opus-5-5-effort-low-anthropic")
+    fable = _summary(board, "claude-fable-5-1-effort-low-anthropic")
+    for leg in (opus, fable):
+        assert leg["coverage"] == "8/8" and leg["complete"] is True
+        assert leg["n_splits_run"] == 12      # 8 pooled + laurens_gsv, budapest, sao_paulo, manual_gold
+    assert opus["f1"] == pytest.approx(0.710, abs=0.0006)
+    assert opus["recall"] == pytest.approx(0.737, abs=0.0006)
+    assert opus["manual_gold_f1"] == pytest.approx(0.722, abs=0.0006)
+    assert fable["f1"] == pytest.approx(0.598, abs=0.0006)
+    assert fable["manual_gold_f1"] == pytest.approx(0.638, abs=0.0006)
+
+    challengers = [m for m in board["models"] if m["complete"] and m["model"] != "rampnet"]
+    assert max(challengers, key=lambda m: m["f1"])["model"] == opus["model"]
+    rampnet = _summary(board, "rampnet")
+    assert rampnet["f1"] - opus["f1"] == pytest.approx(0.082, abs=0.0006)
+    # The one model with full pooled coverage, other than the open-vocabulary detectors at
+    # their 0.05 floor, whose pooled recall is above RampNet's.
+    above = {m["model"] for m in challengers
+             if m["recall"] > rampnet["recall"] and m["class"] != "open-vocab"}
+    assert above == {opus["model"]}
+    # Opus 5.5 beats claude-fable-5-1 on every split both ran.
+    for s in board["per_split"][opus["model"]]:
+        assert _cell(board, opus["model"], s)["f1"] > _cell(board, fable["model"], s)["f1"], s
 
 
 def test_partial_table_names_the_split_every_number_came_from(board):
@@ -821,14 +860,14 @@ def test_the_prose_guard_catches_each_171_sentence(board, stale):
     ("scored on 2026-08-30 on the ten splits registered then",
      "scored on 2026-08-30 on the eleven splits registered then"),
     # values, not counts
-    ("(YOLO11l) by 0.193 F1", "(YOLO11l) by 0.219 F1"),
-    ("(YOLO11l) by 0.193 F1", "(Gemini 3.1 Pro) by 0.193 F1"),
+    ("(Claude Opus 5.5) by 0.082 F1", "(Claude Opus 5.5) by 0.193 F1"),
+    ("(Claude Opus 5.5) by 0.082 F1", "(YOLO11l) by 0.082 F1"),
     ("0.543–0.855, a range of 0.311", "0.543–0.855, a range of 0.053"),
-    ("0.182 (Molmo2-8B)", "0.148 (Molmo2-8B)"),
+    ("0.173 (Claude Fable 5.1)", "0.182 (Claude Fable 5.1)"),
     ("Most of its range (0.258 of 0.311)", "The whole of its range (0.311)"),
     ("Most of its range (0.258 of 0.311)", "Most of its range (0.311 of 0.311)"),
     ("0.801–0.855, a range of 0.053", "0.80–0.85, a range of 0.053"),
-    ("0.148 (Qwen-8B) to 0.313 (YOLO11x)", "0.148 (Qwen-8B) to 0.384 (YOLO11x)"),
+    ("0.114 (Claude Fable 5.1) to 0.313 (YOLO11x)", "0.114 (Claude Fable 5.1) to 0.384 (YOLO11x)"),
     ("flatter (0.028, 0.039)", "flatter (0.028, 0.030)"),
     ("macro-to-macro the gap is 0.106", "macro-to-macro the gap is 0.119"),
     ("micro-to-micro 0.102", "micro-to-micro 0.110"),
@@ -1003,7 +1042,8 @@ def test_check_fails_on_stale_prose(tmp_path):
     """The tables can be current while a sentence beside them is not (#171)."""
     with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
         doc = fh.read()
-    doc = doc.replace("Twenty-one model legs", "Eighteen model legs", 1)
+    assert doc.count("Twenty-two model legs") == 1, "the mutation target is gone"
+    doc = doc.replace("Twenty-two model legs", "Eighteen model legs", 1)
     stale = tmp_path / "model_scoreboard.md"
     stale.write_text(doc, encoding="utf-8", newline="")
     done = _run_scoreboard("--check", "--doc", str(stale))
