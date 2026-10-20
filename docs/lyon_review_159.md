@@ -8,7 +8,7 @@ judged a detection. The plan, the pass bar and the group list are a **working dr
 amend them until the review opens. They were first posted on #159 on 2026-10-20
 ([comment](https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301107391)), and the
 bar was simplified the same day after a re-review of PR 264 (section 3; the
-[follow-up](POSTED_FOLLOWUP) carries the new sha256 of `audit_plan.json`; `records.jsonl` is
+[follow-up](https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301627994) carries the new sha256 of `audit_plan.json`; `records.jsonl` is
 unchanged). `bundle_provenance.json` → `posted` pins that version. `score` refuses any other plan or
 sample, and refuses when the current code no longer rebuilds the committed plan. Lyon is not approved for training and nothing about it is
 frozen.
