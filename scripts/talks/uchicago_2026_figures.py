@@ -10,6 +10,9 @@ names its source. Output goes to ``docs/talks/uchicago_2026/``. Run from the rep
 ``benchmark/{bend,paterson,richmond}/panos/`` (``--bench-root`` to point elsewhere); restore
 them with ``scripts/unpack_benchmark_panos.py``. Every other figure reads only committed files.
 
+The PNGs committed under ``docs/talks/uchicago_2026/`` are the figures as delivered on
+2026-10-16; a regeneration reads the current scoreboard, so it will not reproduce them.
+
 Figures
 -------
 comparison_f1        pooled F1 over the eight US city splits, RampNet vs seven challengers
@@ -91,7 +94,11 @@ GROUP_LABEL = {
 }
 ZERO_SHOT_CLASSES = {"chat-vlm", "pointing", "open-vocab"}
 
-# The seven challengers for the comparison slide: best of each family, by pooled F1.
+# The seven challengers on the comparison slides as delivered on 2026-10-16: the best of each
+# family by pooled F1 AS OF THAT DATE. No longer true for Claude -- claude-opus-5-5 (2026-10-19)
+# outranks claude-opus-5 -- and deliberately left alone so the list matches the delivered
+# slides. The captions below name what the chart actually shows and flag any unshown leg that
+# beats it (comparison_caption_facts), so a regeneration does not claim "best of each family".
 COMPARISON_MODELS = [
     "rampnet",
     "y11l_pano",
@@ -163,6 +170,37 @@ PROVIDER_NAME = {
 }
 
 
+def comparison_caption_facts(board, shown=COMPARISON_MODELS):
+    """``(best_zs, unshown)`` for the comparison captions, read off the models ``shown``.
+
+    ``best_zs`` is the best zero-shot model AMONG THE BARS. It used to be the best complete
+    zero-shot model on the whole board, which named claude-opus-5-5 (0.71) on a chart whose
+    Claude bar is claude-opus-5 (0.57) once the 2026-10-19 legs landed. ``unshown`` lists the
+    complete models that are not bars but beat every bar from their own provider, best first
+    -- the legs that make "best of each family shown" false. Empty on the board as of the
+    talk, so a regeneration from that board prints the delivered captions unchanged.
+    """
+    shown_rows = [m for m in board["models"] if m["model"] in shown]
+    best_zs = max((m for m in shown_rows if m["class"] in ZERO_SHOT_CLASSES),
+                  key=lambda m: m["f1"])
+    best_by_provider = {}
+    for m in shown_rows:
+        best_by_provider[m["provider"]] = max(best_by_provider.get(m["provider"], 0.0), m["f1"])
+    unshown = sorted((m for m in board["models"]
+                      if m["complete"] and m["model"] not in shown
+                      and m["provider"] in best_by_provider
+                      and m["f1"] > best_by_provider[m["provider"]]),
+                     key=lambda m: -m["f1"])
+    return best_zs, unshown
+
+
+def _unshown_note(unshown):
+    """``" Not shown: Claude Opus 5.5 (low, anthropic) 0.71, ..."`` or ``""``."""
+    if not unshown:
+        return ""
+    return " Not shown: " + ", ".join(f"{m['display']} {m['f1']:.2f}" for m in unshown) + "."
+
+
 def fig_comparison(board, plt, v2=False):
     """``v2`` keeps the chart and states the N: cities, panoramas, ramps, models, providers."""
     by_id = {m["model"]: m for m in board["models"]}
@@ -196,8 +234,7 @@ def fig_comparison(board, plt, v2=False):
                   color=INK_SECONDARY)
 
     ref = by_id["rampnet"]["f1"]
-    best_zs = max((m for m in board["models"] if m["complete"] and m["class"] in ZERO_SHOT_CLASSES),
-                  key=lambda m: m["f1"])
+    best_zs, unshown = comparison_caption_facts(board)
     pooled = board["pooled_splits"]
     n_panos = sum(board["splits"][s]["n_panos"] for s in pooled)
     n_gt = sum(board["splits"][s]["n_gt"] for s in pooled)
@@ -210,7 +247,8 @@ def fig_comparison(board, plt, v2=False):
         _titles(fig, "Purpose-trained beats zero-shot frontier models by a wide margin",
                 f"N = {len(pooled)} US cities, {n_panos:,} panoramas, {n_gt:,} reviewer-confirmed "
                 f"ramps. {len(complete) - 1} challengers from {len(providers) - 1} providers "
-                f"tested; best of each family shown.")
+                f"tested; {'a selection' if unshown else 'best of each family'} shown."
+                + _unshown_note(unshown))
         bottom = _footnote(fig,
                            "Cities (one reviewer each, ~125 panoramas per city): "
                            + ", ".join(pooled) + ". Models: "
@@ -224,9 +262,9 @@ def fig_comparison(board, plt, v2=False):
         name = "comparison_f1_v2.png"
     else:
         _titles(fig, "Purpose-trained beats zero-shot frontier models by a wide margin",
-                f"RampNet {ref:.2f} vs the best zero-shot model, {best_zs['display']}, "
-                f"{best_zs['f1']:.2f}. The lead holds on every one of "
-                f"{len(board['per_split']['rampnet'])} benchmark bundles.")
+                f"RampNet {ref:.2f} vs the best zero-shot model{' shown' if unshown else ''}, "
+                f"{best_zs['display']}, {best_zs['f1']:.2f}. RampNet beats the best zero-shot "
+                f"model {lead_claim(transfer_rows(board))}." + _unshown_note(unshown))
         bottom = _footnote(fig,
                            "Operating points differ by class: RampNet 0.55, YOLO 0.25 (its default), "
                            "OWLv2 0.05 floor, chat VLMs emit no score. At matched operating points "
@@ -260,6 +298,20 @@ def transfer_rows(board):
                          recall=r["recall"], f1=r["f1"], n_gt=r["n_gt_recall"],
                          best_display=best[0], best_f1=best[1]))
     return rows
+
+
+def lead_claim(rows):
+    """The "RampNet beats the best zero-shot model on ..." clause, read off ``rows``.
+
+    It was a literal ("on every split") until 2026-10-19/20, when claude-opus-5-5 beat
+    RampNet on both Laurens arms and bayonne, so a regeneration would have printed a
+    false caption. Example: ``"on 10 of 13 splits (not laurens_gsv, laurens_mapillary,
+    bayonne)"``.
+    """
+    lost = [r["split"] for r in rows if r["best_f1"] is not None and r["best_f1"] > r["f1"]]
+    if not lost:
+        return "on every split"
+    return f"on {len(rows) - len(lost)} of {len(rows)} splits (not {', '.join(lost)})"
 
 
 def fig_transfer(board, plt, us_only=False):
@@ -323,7 +375,8 @@ def fig_transfer(board, plt, us_only=False):
     if us_only:
         _titles(fig, "Trained on Google Street View, it transfers to other cameras",
                 f"{len(rows)} US splits, five camera rigs. RampNet beats the "
-                "best zero-shot model on every split; what drops is recall, not precision.")
+                f"best zero-shot model {lead_claim(rows)}; what drops is recall, not "
+                "precision.")
         bottom = _footnote(fig,
                            "Ground truth is one reviewer per split. Bend is a training city (4 of "
                            "its 110 benchmark panoramas are in the training set). Laurens is one "
@@ -332,8 +385,8 @@ def fig_transfer(board, plt, us_only=False):
         name = "transfer_imagery_us.png"
     else:
         _titles(fig, "Trained on US Google Street View, it transfers to other cameras and countries",
-                "RampNet beats the best zero-shot model on every split. What drops out of distribution is "
-                "recall, not precision.")
+                f"RampNet beats the best zero-shot model {lead_claim(rows)}. What drops out of "
+                "distribution is recall, not precision.")
         bottom = _footnote(fig,
                            "Ground truth is one reviewer per split; budapest and bayonne at low / "
                            "medium reviewer confidence. Bend is a training city (4 of its 110 "
@@ -731,6 +784,10 @@ def fig_heatmap(plt, bench_root=BENCH_ROOT, split=HEATMAP_SPLIT, pano=HEATMAP_PA
 # Text from docs/rampnet2_plan.md §1 (goal table) and §4 (experiments), read 2026-10-05.
 # The bundle count is a literal (thirteen as of 2026-10-11, after #239 added Bayonne); check it
 # against len(scoreboard.json per_split.rampnet) before reuse.
+# TODO(Jon): "leads every zero-shot model on all thirteen benchmark bundles" is false since
+# 2026-10-19/20 (claude-opus-5-5 beats RampNet on laurens_mapillary and bayonne with paired CIs
+# that exclude zero; laurens_gsv is a point estimate; see docs/claude_newest_ids.md). Left as
+# the text of the talk as delivered on 2026-10-16.
 ROADMAP = [
     ("FIND", "Where is every curb ramp?",
      "Gold-set F1 0.91; leads every zero-shot model on all thirteen benchmark bundles; "

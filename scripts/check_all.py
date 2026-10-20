@@ -171,6 +171,11 @@ REGISTRY: list = [
             "benchmark/laurens_mapillary/verdicts.json",
             "analysis_out/input_res_sweep_25/cache/r2048/", "analysis_out/op_cache/",
             "benchmark/model_detections/", "analysis_out/recall_by_depth_112.json")),
+    E("claude_newest_ids_261", (AN + "claude_newest_ids_261.py", "--check"),
+      "newest-ids Claude legs: paired F1 intervals vs RampNet and the radius check re-derive "
+      "from committed detections (PR #261)",
+      pins=("analysis_out/claude_newest_ids_261/results.json", "analysis_out/scoreboard.json",
+            "benchmark/model_detections/", "manual_labels/") + GT),
     E("benchmark_depth_111", (AN + "harvest_depth_111.py", "--check"),
       "benchmark depth manifests are self-consistent and match the records; with the local "
       "archive present every saved entry is re-decoded and compared field by field (#111)",

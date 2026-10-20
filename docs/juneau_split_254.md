@@ -180,7 +180,11 @@ within 2 R of a detected ramp refers to `2549721381871423`, the one Jon judged s
 
 - **claude-opus-5 (low)**: not run. Jon is having the plan API-credits route set up separately
   (`serving_path` is not in the Claude cache key, so a first-party run is the same leg). Until it
-  runs, that leg covers 8 of 9 pooled cities and drops out of the complete pooled rows.
+  runs, that leg covers 8 of 9 pooled cities and drops out of the complete pooled rows. The two
+  newest Claude ids did run here, off-roster, on 2026-10-20 (PR #261, `claude20` org):
+  `claude-opus-5-5` F1 0.727 ($8.40) and `claude-fable-5-1` 0.673 ($20.66) at effort low, both
+  below RampNet's 0.803 with paired intervals that exclude zero
+  ([`claude_newest_ids.md`](claude_newest_ids.md)).
 - **Null-recall** (`scripts/analysis/null_recall.py`) and the **#35 cascade read**: not run,
   as for Bayonne; out of scope for this pass.
 - **HF publish of the panos**: Jon's call. Until then the 125 panos are an input another person

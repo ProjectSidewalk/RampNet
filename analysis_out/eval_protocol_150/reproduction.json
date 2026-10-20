@@ -3442,6 +3442,1714 @@
      "rederived": null
     },
     "f1": {
+     "committed": 0.737589,
+     "equal": true,
+     "rederived": 0.737589
+    },
+    "fn": {
+     "committed": 50,
+     "equal": true,
+     "rederived": 50
+    },
+    "fp": {
+     "committed": 135,
+     "equal": true,
+     "rederived": 135
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.658228,
+     "equal": true,
+     "rederived": 0.658228
+    },
+    "recall": {
+     "committed": 0.83871,
+     "equal": true,
+     "rederived": 0.83871
+    },
+    "tp": {
+     "committed": 260,
+     "equal": true,
+     "rederived": 260
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.720238,
+     "equal": true,
+     "rederived": 0.720238
+    },
+    "fn": {
+     "committed": 85,
+     "equal": true,
+     "rederived": 85
+    },
+    "fp": {
+     "committed": 103,
+     "equal": true,
+     "rederived": 103
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.701449,
+     "equal": true,
+     "rederived": 0.701449
+    },
+    "recall": {
+     "committed": 0.740061,
+     "equal": true,
+     "rederived": 0.740061
+    },
+    "tp": {
+     "committed": 242,
+     "equal": true,
+     "rederived": 242
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.610329,
+     "equal": true,
+     "rederived": 0.610329
+    },
+    "fn": {
+     "committed": 65,
+     "equal": true,
+     "rederived": 65
+    },
+    "fp": {
+     "committed": 101,
+     "equal": true,
+     "rederived": 101
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.562771,
+     "equal": true,
+     "rederived": 0.562771
+    },
+    "recall": {
+     "committed": 0.666667,
+     "equal": true,
+     "rederived": 0.666667
+    },
+    "tp": {
+     "committed": 130,
+     "equal": true,
+     "rederived": 130
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.78481,
+     "equal": true,
+     "rederived": 0.78481
+    },
+    "fn": {
+     "committed": 50,
+     "equal": true,
+     "rederived": 50
+    },
+    "fp": {
+     "committed": 69,
+     "equal": true,
+     "rederived": 69
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.758741,
+     "equal": true,
+     "rederived": 0.758741
+    },
+    "recall": {
+     "committed": 0.812734,
+     "equal": true,
+     "rederived": 0.812734
+    },
+    "tp": {
+     "committed": 217,
+     "equal": true,
+     "rederived": 217
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.720131,
+     "equal": true,
+     "rederived": 0.720131
+    },
+    "fn": {
+     "committed": 74,
+     "equal": true,
+     "rederived": 74
+    },
+    "fp": {
+     "committed": 97,
+     "equal": true,
+     "rederived": 97
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.694006,
+     "equal": true,
+     "rederived": 0.694006
+    },
+    "recall": {
+     "committed": 0.748299,
+     "equal": true,
+     "rederived": 0.748299
+    },
+    "tp": {
+     "committed": 220,
+     "equal": true,
+     "rederived": 220
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.74198,
+     "equal": true,
+     "rederived": 0.74198
+    },
+    "fn": {
+     "committed": 129,
+     "equal": true,
+     "rederived": 129
+    },
+    "fp": {
+     "committed": 56,
+     "equal": true,
+     "rederived": 56
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.826087,
+     "equal": true,
+     "rederived": 0.826087
+    },
+    "recall": {
+     "committed": 0.673418,
+     "equal": true,
+     "rederived": 0.673418
+    },
+    "tp": {
+     "committed": 266,
+     "equal": true,
+     "rederived": 266
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.684298,
+     "equal": true,
+     "rederived": 0.684298
+    },
+    "fn": {
+     "committed": 65,
+     "equal": true,
+     "rederived": 65
+    },
+    "fp": {
+     "committed": 126,
+     "equal": true,
+     "rederived": 126
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.621622,
+     "equal": true,
+     "rederived": 0.621622
+    },
+    "recall": {
+     "committed": 0.761029,
+     "equal": true,
+     "rederived": 0.761029
+    },
+    "tp": {
+     "committed": 207,
+     "equal": true,
+     "rederived": 207
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.679167,
+     "equal": true,
+     "rederived": 0.679167
+    },
+    "fn": {
+     "committed": 86,
+     "equal": true,
+     "rederived": 86
+    },
+    "fp": {
+     "committed": 68,
+     "equal": true,
+     "rederived": 68
+    },
+    "n_gt_recall": {
+     "committed": 249,
+     "equal": true,
+     "rederived": 249
+    },
+    "n_panos": {
+     "committed": 94,
+     "equal": true,
+     "rederived": 94
+    },
+    "precision": {
+     "committed": 0.705628,
+     "equal": true,
+     "rederived": 0.705628
+    },
+    "recall": {
+     "committed": 0.654618,
+     "equal": true,
+     "rederived": 0.654618
+    },
+    "tp": {
+     "committed": 163,
+     "equal": true,
+     "rederived": 163
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__laurens_mapillary.json",
+   "source": "scoreboard",
+   "split": "laurens_mapillary",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.726655,
+     "equal": true,
+     "rederived": 0.726655
+    },
+    "fn": {
+     "committed": 83,
+     "equal": true,
+     "rederived": 83
+    },
+    "fp": {
+     "committed": 78,
+     "equal": true,
+     "rederived": 78
+    },
+    "n_gt_recall": {
+     "committed": 297,
+     "equal": true,
+     "rederived": 297
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.732877,
+     "equal": true,
+     "rederived": 0.732877
+    },
+    "recall": {
+     "committed": 0.720539,
+     "equal": true,
+     "rederived": 0.720539
+    },
+    "tp": {
+     "committed": 214,
+     "equal": true,
+     "rederived": 214
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__juneau.json",
+   "source": "scoreboard",
+   "split": "juneau",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.701176,
+     "equal": true,
+     "rederived": 0.701176
+    },
+    "fn": {
+     "committed": 71,
+     "equal": true,
+     "rederived": 71
+    },
+    "fp": {
+     "committed": 56,
+     "equal": true,
+     "rederived": 56
+    },
+    "n_gt_recall": {
+     "committed": 220,
+     "equal": true,
+     "rederived": 220
+    },
+    "n_panos": {
+     "committed": 86,
+     "equal": true,
+     "rederived": 86
+    },
+    "precision": {
+     "committed": 0.726829,
+     "equal": true,
+     "rederived": 0.726829
+    },
+    "recall": {
+     "committed": 0.677273,
+     "equal": true,
+     "rederived": 0.677273
+    },
+    "tp": {
+     "committed": 149,
+     "equal": true,
+     "rederived": 149
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__laurens_gsv.json",
+   "source": "scoreboard",
+   "split": "laurens_gsv",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.451128,
+     "equal": true,
+     "rederived": 0.451128
+    },
+    "fn": {
+     "committed": 180,
+     "equal": true,
+     "rederived": 180
+    },
+    "fp": {
+     "committed": 112,
+     "equal": true,
+     "rederived": 112
+    },
+    "n_gt_recall": {
+     "committed": 300,
+     "equal": true,
+     "rederived": 300
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.517241,
+     "equal": true,
+     "rederived": 0.517241
+    },
+    "recall": {
+     "committed": 0.4,
+     "equal": true,
+     "rederived": 0.4
+    },
+    "tp": {
+     "committed": 120,
+     "equal": true,
+     "rederived": 120
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__budapest_district5.json",
+   "source": "scoreboard",
+   "split": "budapest_district5",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.645985,
+     "equal": true,
+     "rederived": 0.645985
+    },
+    "fn": {
+     "committed": 104,
+     "equal": true,
+     "rederived": 104
+    },
+    "fp": {
+     "committed": 90,
+     "equal": true,
+     "rederived": 90
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.662921,
+     "equal": true,
+     "rederived": 0.662921
+    },
+    "recall": {
+     "committed": 0.629893,
+     "equal": true,
+     "rederived": 0.629893
+    },
+    "tp": {
+     "committed": 177,
+     "equal": true,
+     "rederived": 177
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.618968,
+     "equal": true,
+     "rederived": 0.618968
+    },
+    "fn": {
+     "committed": 115,
+     "equal": true,
+     "rederived": 115
+    },
+    "fp": {
+     "committed": 114,
+     "equal": true,
+     "rederived": 114
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.62,
+     "equal": true,
+     "rederived": 0.62
+    },
+    "recall": {
+     "committed": 0.61794,
+     "equal": true,
+     "rederived": 0.61794
+    },
+    "tp": {
+     "committed": 186,
+     "equal": true,
+     "rederived": 186
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.721728,
+     "equal": true,
+     "rederived": 0.721728
+    },
+    "fn": {
+     "committed": 1079,
+     "equal": true,
+     "rederived": 1079
+    },
+    "fp": {
+     "committed": 1111,
+     "equal": true,
+     "rederived": 1111
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.718805,
+     "equal": true,
+     "rederived": 0.718805
+    },
+    "recall": {
+     "committed": 0.724675,
+     "equal": true,
+     "rederived": 0.724675
+    },
+    "tp": {
+     "committed": 2840,
+     "equal": true,
+     "rederived": 2840
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.627907,
+     "equal": true,
+     "rederived": 0.627907
+    },
+    "fn": {
+     "committed": 94,
+     "equal": true,
+     "rederived": 94
+    },
+    "fp": {
+     "committed": 162,
+     "equal": true,
+     "rederived": 162
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.571429,
+     "equal": true,
+     "rederived": 0.571429
+    },
+    "recall": {
+     "committed": 0.696774,
+     "equal": true,
+     "rederived": 0.696774
+    },
+    "tp": {
+     "committed": 216,
+     "equal": true,
+     "rederived": 216
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.625592,
+     "equal": true,
+     "rederived": 0.625592
+    },
+    "fn": {
+     "committed": 129,
+     "equal": true,
+     "rederived": 129
+    },
+    "fp": {
+     "committed": 108,
+     "equal": true,
+     "rederived": 108
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.647059,
+     "equal": true,
+     "rederived": 0.647059
+    },
+    "recall": {
+     "committed": 0.605505,
+     "equal": true,
+     "rederived": 0.605505
+    },
+    "tp": {
+     "committed": 198,
+     "equal": true,
+     "rederived": 198
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.551913,
+     "equal": true,
+     "rederived": 0.551913
+    },
+    "fn": {
+     "committed": 94,
+     "equal": true,
+     "rederived": 94
+    },
+    "fp": {
+     "committed": 70,
+     "equal": true,
+     "rederived": 70
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.590643,
+     "equal": true,
+     "rederived": 0.590643
+    },
+    "recall": {
+     "committed": 0.517949,
+     "equal": true,
+     "rederived": 0.517949
+    },
+    "tp": {
+     "committed": 101,
+     "equal": true,
+     "rederived": 101
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.661323,
+     "equal": true,
+     "rederived": 0.661323
+    },
+    "fn": {
+     "committed": 102,
+     "equal": true,
+     "rederived": 102
+    },
+    "fp": {
+     "committed": 67,
+     "equal": true,
+     "rederived": 67
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.711207,
+     "equal": true,
+     "rederived": 0.711207
+    },
+    "recall": {
+     "committed": 0.617978,
+     "equal": true,
+     "rederived": 0.617978
+    },
+    "tp": {
+     "committed": 165,
+     "equal": true,
+     "rederived": 165
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.609929,
+     "equal": true,
+     "rederived": 0.609929
+    },
+    "fn": {
+     "committed": 122,
+     "equal": true,
+     "rederived": 122
+    },
+    "fp": {
+     "committed": 98,
+     "equal": true,
+     "rederived": 98
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.637037,
+     "equal": true,
+     "rederived": 0.637037
+    },
+    "recall": {
+     "committed": 0.585034,
+     "equal": true,
+     "rederived": 0.585034
+    },
+    "tp": {
+     "committed": 172,
+     "equal": true,
+     "rederived": 172
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.665706,
+     "equal": true,
+     "rederived": 0.665706
+    },
+    "fn": {
+     "committed": 164,
+     "equal": true,
+     "rederived": 164
+    },
+    "fp": {
+     "committed": 68,
+     "equal": true,
+     "rederived": 68
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.772575,
+     "equal": true,
+     "rederived": 0.772575
+    },
+    "recall": {
+     "committed": 0.58481,
+     "equal": true,
+     "rederived": 0.58481
+    },
+    "tp": {
+     "committed": 231,
+     "equal": true,
+     "rederived": 231
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.552677,
+     "equal": true,
+     "rederived": 0.552677
+    },
+    "fn": {
+     "committed": 112,
+     "equal": true,
+     "rederived": 112
+    },
+    "fp": {
+     "committed": 147,
+     "equal": true,
+     "rederived": 147
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.521173,
+     "equal": true,
+     "rederived": 0.521173
+    },
+    "recall": {
+     "committed": 0.588235,
+     "equal": true,
+     "rederived": 0.588235
+    },
+    "tp": {
+     "committed": 160,
+     "equal": true,
+     "rederived": 160
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.492611,
+     "equal": true,
+     "rederived": 0.492611
+    },
+    "fn": {
+     "committed": 149,
+     "equal": true,
+     "rederived": 149
+    },
+    "fp": {
+     "committed": 57,
+     "equal": true,
+     "rederived": 57
+    },
+    "n_gt_recall": {
+     "committed": 249,
+     "equal": true,
+     "rederived": 249
+    },
+    "n_panos": {
+     "committed": 94,
+     "equal": true,
+     "rederived": 94
+    },
+    "precision": {
+     "committed": 0.636943,
+     "equal": true,
+     "rederived": 0.636943
+    },
+    "recall": {
+     "committed": 0.401606,
+     "equal": true,
+     "rederived": 0.401606
+    },
+    "tp": {
+     "committed": 100,
+     "equal": true,
+     "rederived": 100
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__laurens_mapillary.json",
+   "source": "scoreboard",
+   "split": "laurens_mapillary",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.672598,
+     "equal": true,
+     "rederived": 0.672598
+    },
+    "fn": {
+     "committed": 108,
+     "equal": true,
+     "rederived": 108
+    },
+    "fp": {
+     "committed": 76,
+     "equal": true,
+     "rederived": 76
+    },
+    "n_gt_recall": {
+     "committed": 297,
+     "equal": true,
+     "rederived": 297
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.713208,
+     "equal": true,
+     "rederived": 0.713208
+    },
+    "recall": {
+     "committed": 0.636364,
+     "equal": true,
+     "rederived": 0.636364
+    },
+    "tp": {
+     "committed": 189,
+     "equal": true,
+     "rederived": 189
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__juneau.json",
+   "source": "scoreboard",
+   "split": "juneau",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.414986,
+     "equal": true,
+     "rederived": 0.414986
+    },
+    "fn": {
+     "committed": 148,
+     "equal": true,
+     "rederived": 148
+    },
+    "fp": {
+     "committed": 55,
+     "equal": true,
+     "rederived": 55
+    },
+    "n_gt_recall": {
+     "committed": 220,
+     "equal": true,
+     "rederived": 220
+    },
+    "n_panos": {
+     "committed": 86,
+     "equal": true,
+     "rederived": 86
+    },
+    "precision": {
+     "committed": 0.566929,
+     "equal": true,
+     "rederived": 0.566929
+    },
+    "recall": {
+     "committed": 0.327273,
+     "equal": true,
+     "rederived": 0.327273
+    },
+    "tp": {
+     "committed": 72,
+     "equal": true,
+     "rederived": 72
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__laurens_gsv.json",
+   "source": "scoreboard",
+   "split": "laurens_gsv",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.392523,
+     "equal": true,
+     "rederived": 0.392523
+    },
+    "fn": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "fp": {
+     "committed": 130,
+     "equal": true,
+     "rederived": 130
+    },
+    "n_gt_recall": {
+     "committed": 300,
+     "equal": true,
+     "rederived": 300
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.446809,
+     "equal": true,
+     "rederived": 0.446809
+    },
+    "recall": {
+     "committed": 0.35,
+     "equal": true,
+     "rederived": 0.35
+    },
+    "tp": {
+     "committed": 105,
+     "equal": true,
+     "rederived": 105
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__budapest_district5.json",
+   "source": "scoreboard",
+   "split": "budapest_district5",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.502582,
+     "equal": true,
+     "rederived": 0.502582
+    },
+    "fn": {
+     "committed": 135,
+     "equal": true,
+     "rederived": 135
+    },
+    "fp": {
+     "committed": 154,
+     "equal": true,
+     "rederived": 154
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.486667,
+     "equal": true,
+     "rederived": 0.486667
+    },
+    "recall": {
+     "committed": 0.519573,
+     "equal": true,
+     "rederived": 0.519573
+    },
+    "tp": {
+     "committed": 146,
+     "equal": true,
+     "rederived": 146
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.539898,
+     "equal": true,
+     "rederived": 0.539898
+    },
+    "fn": {
+     "committed": 142,
+     "equal": true,
+     "rederived": 142
+    },
+    "fp": {
+     "committed": 129,
+     "equal": true,
+     "rederived": 129
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.552083,
+     "equal": true,
+     "rederived": 0.552083
+    },
+    "recall": {
+     "committed": 0.528239,
+     "equal": true,
+     "rederived": 0.528239
+    },
+    "tp": {
+     "committed": 159,
+     "equal": true,
+     "rederived": 159
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.637905,
+     "equal": true,
+     "rederived": 0.637905
+    },
+    "fn": {
+     "committed": 1568,
+     "equal": true,
+     "rederived": 1568
+    },
+    "fp": {
+     "committed": 1101,
+     "equal": true,
+     "rederived": 1101
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.681054,
+     "equal": true,
+     "rederived": 0.681054
+    },
+    "recall": {
+     "committed": 0.599898,
+     "equal": true,
+     "rederived": 0.599898
+    },
+    "tp": {
+     "committed": 2351,
+     "equal": true,
+     "rederived": 2351
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
      "committed": 0.666667,
      "equal": true,
      "rederived": 0.666667
@@ -10518,67 +12226,6 @@
      "rederived": null
     },
     "f1": {
-     "committed": 0.609929,
-     "equal": true,
-     "rederived": 0.609929
-    },
-    "fn": {
-     "committed": 122,
-     "equal": true,
-     "rederived": 122
-    },
-    "fp": {
-     "committed": 98,
-     "equal": true,
-     "rederived": 98
-    },
-    "n_gt_recall": {
-     "committed": 294,
-     "equal": true,
-     "rederived": 294
-    },
-    "n_panos": {
-     "committed": 125,
-     "equal": true,
-     "rederived": 125
-    },
-    "precision": {
-     "committed": 0.637037,
-     "equal": true,
-     "rederived": 0.637037
-    },
-    "recall": {
-     "committed": 0.585034,
-     "equal": true,
-     "rederived": 0.585034
-    },
-    "tp": {
-     "committed": 172,
-     "equal": true,
-     "rederived": 172
-    }
-   },
-   "model": "claude-fable-5-1-effort-low-anthropic",
-   "op_threshold": 0.0,
-   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__annapolis.json",
-   "source": "scoreboard",
-   "split": "annapolis",
-   "status": "equal"
-  },
-  {
-   "ap_source": "bundle",
-   "fields": {
-    "ap": {
-     "committed": null,
-     "equal": true,
-     "rederived": null
-    },
-    "ap_bundle": {
-     "committed": null,
-     "equal": true,
-     "rederived": null
-    },
-    "f1": {
      "committed": 0.600823,
      "equal": true,
      "rederived": 0.600823
@@ -14277,10 +15924,10 @@
    "unchecked": 0
   },
   "scoreboard": {
-   "cells": 187,
+   "cells": 214,
    "differs": 0,
-   "equal": 187,
-   "fields_compared": 1870,
+   "equal": 214,
+   "fields_compared": 2140,
    "unchecked": 0
   }
  },
