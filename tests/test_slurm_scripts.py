@@ -254,7 +254,9 @@ def test_control_copy_step(tmp_path, finished):
     assert [sha[0], sha[1].lstrip("*")] == [hashlib.sha256(b"weights").hexdigest(),
                                             "final_step_5.pth"]
     assert (dest / "runs" / "experiment_1" / "events.out").read_text() == "ev"
-    assert (dest / "control263_77.out").read_text() == "log"
+    # review L7: the job log stays in logs/ on lab storage; nothing else is copied
+    assert sorted(x.name for x in dest.iterdir()) == ["final_step_5.pth",
+                                                      "final_step_5.pth.sha256", "runs"]
 
 
 def _run_block(script_path, start, end, prelude, **kw):
@@ -294,25 +296,83 @@ def test_control_rebuilds_a_missing_env_tarball(tmp_path, case):
         with tarfile.open(tar) as tf:
             assert "sidewalkcv2/bin/python" in tf.getnames()
         assert not list(tar.parent.glob("*.tmp.*"))
+        assert "Built env tarball" in proc.stdout
+
+
+def _fake_tar(tmp_path, body):
+    """A `tar` first on PATH: `tar cf <out> ...` runs ``body`` with $out set."""
+    bin_dir = tmp_path / "fakebin"
+    bin_dir.mkdir()
+    script = bin_dir / "tar"
+    script.write_text("#!/bin/bash\nout=\"$2\"\n" + body + "\n", newline="\n")
+    script.chmod(0o755)
+    return bin_dir
+
+
+def _path_entry(path):
+    """A directory as a PATH entry: Git Bash on Windows splits PATH on ':', so C:/x is
+    written /c/x there."""
+    posix = path.as_posix()
+    if sys.platform == "win32" and len(posix) > 1 and posix[1] == ":":
+        posix = "/" + posix[0].lower() + posix[2:]
+    return posix
+
+
+def _tar_block(tmp_path, fake_body):
+    env = tmp_path / "envs" / "sidewalkcv2"
+    env.mkdir(parents=True)
+    tar = tmp_path / "cache" / "sidewalkcv2_env.tar"
+    bin_dir = _fake_tar(tmp_path, fake_body.replace("@TAR@", tar.as_posix()))
+    proc = _run_block(CONTROL, "# --- env tarball rebuild", "# --- end env tarball rebuild",
+                      f"export PATH={_path_entry(bin_dir)}:$PATH\n"
+                      f"RAMPNET_ENV={env.as_posix()}\nENV_TAR={tar.as_posix()}\n"
+                      "SLURM_JOB_ID=9")
+    return proc, tar
 
 
 @requires_bash
-@pytest.mark.parametrize("n_train, ok", [(3, True), (2, False)])
-def test_control_refuses_a_thinned_dataset(tmp_path, n_train, ok):
+def test_control_tar_rebuild_that_loses_the_race_says_so(tmp_path):
+    """Review L6: when another job's tar lands first, `mv -n` keeps it, this job's temp
+    file is removed, and the log does not claim this job built anything."""
+    proc, tar = _tar_block(tmp_path, 'echo mine > "$out"; echo theirs > "@TAR@"')
+    assert proc.returncode == 0, proc.stderr
+    assert tar.read_text().strip() == "theirs"
+    assert "finished first by another job" in proc.stdout
+    assert "Built env tarball" not in proc.stdout
+    assert not list(tar.parent.glob("*.tmp.*"))
+
+
+@requires_bash
+def test_control_tar_rebuild_cleans_up_when_preempted(tmp_path):
+    """Review L6: a SIGTERM during `tar cf` (a ckpt-all preemption) must not leave the
+    multi-GB partial file behind."""
+    proc, tar = _tar_block(tmp_path, 'echo partial > "$out"; kill -TERM $PPID; sleep 1')
+    assert proc.returncode == 143, (proc.returncode, proc.stderr)
+    assert not tar.exists()
+    assert not list(tar.parent.glob("*.tmp.*"))
+
+
+@requires_bash
+@pytest.mark.parametrize("n_train, lone_jpg, ok", [(3, False, True), (2, False, False),
+                                                    (2, True, False)])
+def test_control_refuses_a_thinned_dataset(tmp_path, n_train, lone_jpg, ok):
     """The last staged copy lost most of train/ and all of val/ to the scrubbed purge
-    without anything failing. The preflight compares file counts before any GPU time."""
+    without anything failing. The preflight counts jpg+json PAIRS before any GPU time: a
+    jpg without its json (review L1) is not a pano train.py will read."""
     for split, n in (("train", n_train), ("val", 1)):
         (tmp_path / split).mkdir()
         for i in range(n):
             (tmp_path / split / f"p{i}.jpg").write_text("x")
             (tmp_path / split / f"p{i}.json").write_text("{}")
+    if lone_jpg:
+        (tmp_path / "train" / "lone.jpg").write_text("x")
     line = next(ln for ln in CONTROL.read_text().splitlines() if ln.startswith("DATA_ROOT="))
     proc = _run_block(CONTROL, "EXPECT_TRAIN=", "done",
                       f"DATA_ROOT={tmp_path.as_posix()}\nEXPECT_TRAIN=3\nEXPECT_VAL=1\n"
                       + line)
     assert (proc.returncode == 0) == ok, proc.stderr
     if not ok:
-        assert "has 2 panos, expected 3" in proc.stderr
+        assert "has 2 jpg+json pairs, expected 3" in proc.stderr
 
 
 # --------------------------------------------- #263 dataset re-stage (run_restage_263)

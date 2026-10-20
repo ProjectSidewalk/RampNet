@@ -22,19 +22,24 @@
 # `mv -n`, so seeds starting together each build their own and the first to finish wins
 # (a few minutes of duplicated reading, once) -- and every later start and requeue unpacks
 # it to node-local disk. If the env is not named sidewalkcv2 (the unpack step expects that
-# name) or the tar fails, the job falls back to the GPFS env plus the library warm-up.
+# name) or the tar fails, the job falls back to the GPFS env plus the library warm-up. A job
+# preempted mid-tar removes its partial temp file on the way out. The tar is a snapshot:
+# AFTER CHANGING THE CONDA ENV, DELETE $ENV_TAR, or jobs keep unpacking the old one.
 #
 # THE DATASET is /gscratch/scrubbed/$USER/rampnet_dataset_v2, written by
 # run_restage_263.slurm (the older rampnet_dataset copy was partly purged: 114,667 of
 # ~300,126 train files, val empty). The job refuses to start unless train/ and val/ hold
-# the full 150,063 and 42,875 panos, because a purge that thins the data silently is
-# exactly what happened to the last copy. EXPECT_TRAIN= EXPECT_VAL= (empty) skip the check.
+# the full 150,063 and 42,875 jpg+json PAIRS, because a purge that thins the data silently
+# is exactly what happened to the last copy, and download_dataset.py writes each JSON before
+# its JPEG and logs-and-continues on a failed pano, so a jpg count alone can pass a short
+# split. EXPECT_TRAIN= EXPECT_VAL= (empty) skip the check.
 #
 # WHY A COPY STEP. /gscratch/scrubbed is purged (the Stage 2 dataset copy there was partly
 # gone by 2026-10, #263), and this arm's weights are the baseline every later arm is scored
-# against. So the job copies the final weights, a sha256 of them, the TensorBoard events
-# and the job's own log to /gscratch/makelab/jonf/control263/s<SEED> (literal `jonf`: on
-# klone $USER is `jfroehli`, and /gscratch/makelab holds both). Only a handful of files:
+# against. So the job copies the final weights, a sha256 of them and the TensorBoard
+# events to /gscratch/makelab/jonf/control263/s<SEED> (literal `jonf`: on klone $USER is
+# `jfroehli`, and /gscratch/makelab holds both). The job log is not copied: logs/ is in the
+# submit checkout, which already lives on lab storage. Only a handful of files:
 # /gscratch/makelab sits near its file-count cap. The resume file (latest_checkpoint.pth,
 # ~1 GB with optimizer state) is NOT copied.
 #
@@ -88,7 +93,7 @@ if ! grep -q -- "--max-steps" "$REPO/stage_two/train.py" 2>/dev/null \
     exit 1
 fi
 DATA_ROOT="${DATA_ROOT:-/gscratch/scrubbed/$USER/rampnet_dataset_v2}"
-EXPECT_TRAIN="${EXPECT_TRAIN-150063}"  # panos (jpg) per split from run_restage_263.slurm;
+EXPECT_TRAIN="${EXPECT_TRAIN-150063}"  # jpg+json pairs per split (run_restage_263.slurm);
 EXPECT_VAL="${EXPECT_VAL-42875}"       # set either to empty to skip its check
 for split in train val; do
     if [ ! -d "$DATA_ROOT/$split" ]; then
@@ -97,9 +102,13 @@ for split in train val; do
     fi
     if [ "$split" = train ]; then want="$EXPECT_TRAIN"; else want="$EXPECT_VAL"; fi
     if [ -n "$want" ]; then
-        have=$(find "$DATA_ROOT/$split" -maxdepth 1 -name "*.jpg" | wc -l)
+        # pairs: stems that have BOTH a .jpg and a .json (train.py skips a lone jpg)
+        have=$(comm -12 \
+            <(find "$DATA_ROOT/$split" -maxdepth 1 -name "*.jpg" -printf "%f\n" | sed "s/[.]jpg$//" | sort) \
+            <(find "$DATA_ROOT/$split" -maxdepth 1 -name "*.json" -printf "%f\n" | sed "s/[.]json$//" | sort) \
+            | wc -l)
         if [ "$have" -ne "$want" ]; then
-            echo "FATAL: $DATA_ROOT/$split has $have panos, expected $want (purged or partial?)" >&2
+            echo "FATAL: $DATA_ROOT/$split has $have jpg+json pairs, expected $want (purged or partial?)" >&2
             exit 1
         fi
     fi
@@ -116,14 +125,22 @@ ENV_TAR="${ENV_TAR:-/gscratch/scrubbed/$USER/control263/sidewalkcv2_env.tar}"
 if [ ! -f "$ENV_TAR" ] && [ "$(basename "$RAMPNET_ENV")" = sidewalkcv2 ]; then
     mkdir -p "$(dirname "$ENV_TAR")"
     tmp_tar="$ENV_TAR.tmp.${SLURM_JOB_ID:-$$}"
+    # a preemption mid-tar must not leave a multi-GB partial file behind
+    trap 'rm -f "$tmp_tar"' EXIT
+    trap 'exit 143' TERM INT
     t_tar=$(date +%s)
     if tar cf "$tmp_tar" -C "$(dirname "$RAMPNET_ENV")" sidewalkcv2; then
         mv -n "$tmp_tar" "$ENV_TAR" || true
-        echo "Built env tarball $ENV_TAR from $RAMPNET_ENV in $(( $(date +%s) - t_tar )) s"
+        if [ -e "$tmp_tar" ]; then
+            echo "Env tarball $ENV_TAR was finished first by another job; using that one"
+        else
+            echo "Built env tarball $ENV_TAR from $RAMPNET_ENV in $(( $(date +%s) - t_tar )) s"
+        fi
     else
         echo "WARNING: could not tar $RAMPNET_ENV; running from the GPFS env" >&2
     fi
     rm -f "$tmp_tar"
+    trap - EXIT TERM INT
 fi
 # --- end env tarball rebuild ---
 
@@ -256,8 +273,5 @@ cp -p "$FINAL" "$COPY_DEST/"
 if [ -d "$RUNDIR/runs" ]; then
     cp -rp "$RUNDIR/runs" "$COPY_DEST/"
 fi
-for f in "$REPO/logs/control263_${SLURM_JOB_ID}.out" "$REPO/logs/control263_${SLURM_JOB_ID}.err"; do
-    if [ -f "$f" ]; then cp -p "$f" "$COPY_DEST/"; fi
-done
 echo "Copied to $COPY_DEST: $(cat "$COPY_DEST/final_step_${STEPS}.pth.sha256")"
 # --- end copy step ---
