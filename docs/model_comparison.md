@@ -43,7 +43,7 @@ a run that hasn't happened, not a result being withheld.
 | richmond | ✅ | ✅ full roster | ✅ | ✅ 17% (5/29) | OOD deployment, Mapillary 360 |
 | bend | ✅ | ✅ full roster | ✅ | ✅ 29% (7/24) | in-domain GSV reference |
 | clovis | ✅ | ✅ full roster | ✅ | ✅ 30% (7/23) | hardest split — 2018 GoPro Fusion |
-| annapolis | ✅ | ✅ full roster | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with all seven Claude legs** (#122, #156, `docs/claude_newest_ids.md`; `claude-opus-5` low has run all eleven city splits, `claude-opus-5-5` and `claude-fable-5-1` low all thirteen splits) |
+| annapolis | ✅ | ✅ full roster | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with all seven Claude legs** (#122, #156, `docs/claude_newest_ids.md`; `claude-opus-5` low has run eleven of the twelve city splits (not `bayonne`), `claude-opus-5-5` and `claude-fable-5-1` low all thirteen splits) |
 | morgantown | ✅ | ✅ full roster | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
 | paterson | ✅ | ✅ full roster | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead over the standing roster on a high-confidence split (0.12; bayonne's 0.086 is narrower, on medium-confidence GT); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ full roster | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
@@ -138,7 +138,7 @@ Coverage is not uniform across the seven, so it is stated per leg:
   compare against. On 2026-10-19 Jon decided to run the newest ids there anyway, because he
   wants the coverage regardless of that peer. The run cost $167.92 for Fable 5.1 and $67.98
   for Opus 5.5 (`analysis_out/usage_log.jsonl`); #156's estimate for Fable 5.1 was ~$165.
-- **`claude-opus-5` at `low` has run eleven splits** — everything but `manual_gold`: the
+- **`claude-opus-5` at `low` has run eleven splits** — everything but `bayonne` and `manual_gold`: the
   nine of #139 plus both Laurens arms (#151). Its `manual_gold` absence is still the #144
   decision; the 2026-10-19 reversal covered only the two newest ids.
 - **The other four legs have run annapolis only.** A gap in coverage, not a withheld
@@ -334,7 +334,7 @@ These tables are now checked against the scorer on every CI run
 (`tests/test_scoreboard.py::test_every_number_matches_model_comparison`), so a code change
 that moves a published number here fails the build instead of going unnoticed.
 
-The eleven city tables below are generated blocks, written by `scripts/analysis/scoreboard.py`
+The twelve city tables below are generated blocks, written by `scripts/analysis/scoreboard.py`
 and checked by its `--check` (#145); each carries the standing roster the log has always
 printed, and its footnote names every other leg scored on that split. `manual_gold`'s table
 is hand-maintained, because two of its rows have no published detections to score.

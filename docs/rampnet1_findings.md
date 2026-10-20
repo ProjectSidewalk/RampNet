@@ -57,7 +57,7 @@ These appear in older documents, issue threads and PR bodies. Do not quote them.
 | epoch 7's **+0.0042** on the cosine rung | not the pre-registered comparison | the primary is epoch 8, +0.0030, a tie |
 | Run A's plateau is epochs **2–8** ("steps up once, then flat") | corrected 2026-08-18 | 2–6; 7–8 decline measurably under the paired instrument |
 | "AP 0.513 is the best non-RampNet AP" (Vistas at 384) | false | YOLO pano arms 0.748 and 0.724 beat it; at parity Vistas is 0.649 |
-| RampNet leads gemini-pro on laurens_mapillary by **0.200** | superseded | 0.113 against the Claude leg |
+| RampNet leads gemini-pro on laurens_mapillary by **0.200** | superseded | 0.113 against the Claude leg (`claude-opus-5`); superseded 2026-10-19 by `claude-opus-5-5`, which beats RampNet on this split (0.679 vs 0.543) |
 | "near, well-resolved ramps are being missed" on Laurens | withdrawn 2026-09-03 | arm-specific; the GSV arm shows the normal far-field direction |
 | the sourcing prize is **0.087** recall points | superseded | ~0.013, bracket 0.009–0.022 |
 | Seattle has an **87% systematic shift** | withdrawn | no shift; genuinely imprecise at ~1.75 m |

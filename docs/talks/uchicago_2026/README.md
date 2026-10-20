@@ -101,7 +101,8 @@ manual_gold detections, so the pooled mean would not be over the same models.
 - **Superseded 2026-10-19/20, after this outline was drafted; the slide figures were not
   regenerated.** Off-roster `claude-opus-5-5` at effort low (2026-10-19/20) beats RampNet on both Laurens arms (0.679 vs 0.543, 0.701 vs 0.659) and on `bayonne` (0.619 vs 0.517), and `claude-fable-5-1` beats it on `bayonne` (0.540); RampNet tops 10 of 13 splits and leads Opus 5.5 by 0.082 pooled. Each Claude number is a single run, no seed variance, effort low only, first-party serving path ([`claude_newest_ids.md`](../../claude_newest_ids.md)).
   The "every split" claims on this slide and slide 4, and the captions of
-  `transfer_imagery_*.png` and `comparison_f1.png`, need Jon's decision before the talk.
+  `transfer_imagery_*.png` and `comparison_f1.png`, and the slide 8 figure `rampnet2_roadmap.png`
+  ("leads every zero-shot model on all thirteen benchmark bundles"), need Jon's decision before the talk.
 - Speaker note, the exception that must not be hidden: on `laurens_mapillary` the supervised YOLO
   baseline beats RampNet at the pre-registered conf 0.25, YOLO26 0.574 (and YOLO11l 0.563) against
   RampNet 0.543 (`rampnet1_findings.md` §2 row 27). It is an operating-point result: RampNet's AP

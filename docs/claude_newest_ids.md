@@ -1,4 +1,4 @@
-# Newest Claude ids on every split: Opus 5.5 and Fable 5.1 (2026-10-19)
+# Newest Claude ids on every split: Opus 5.5 and Fable 5.1 (2026-10-19/20)
 
 **Status: done.** Both models have run all 13 splits: 26 legs (2 models x 13 splits). This
 campaign ran 25 of them; their ledger rows are stamped 2026-10-19 20:13 to 2026-10-20 08:16 UTC.
@@ -51,7 +51,7 @@ stay inside the free allocation, its runner streams ran under a $440 ledger cap,
 at $429.75. The bayonne leg came after them as a direct `compare.py` call, outside the runner, so
 no cap applied to it; it took the org to $450.99, still inside the $500.
 
-**Per pano:** Opus 5.5 **$0.0665–0.068**. Fable 5.1 **$0.165–0.168** on its first 11 legs of this
+**Per pano:** Opus 5.5 **$0.0665–0.0684**. Fable 5.1 **$0.165–0.168** on its first 11 legs of this
 campaign, and **$0.170** on bayonne. The 5-pano Opus 5.5 calibration ($0.0665/pano) predicted the
 full annapolis leg ($0.0676/pano) to within 2%.
 
