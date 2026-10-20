@@ -503,3 +503,6 @@ analysis_out/crop_tilt_113/*
 analysis_out/pu_training_86/*
 !analysis_out/pu_training_86/*.json
 !analysis_out/pu_training_86/*.csv
+# #263 Track 1: the open-rig miss buckets, re-derived byte for byte by
+# scripts/analysis/open_rig_misses_258.py --check.
+!analysis_out/open_rig_misses_258.json

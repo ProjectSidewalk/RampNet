@@ -1,0 +1,1952 @@
+{
+ "issue": "#263 Track 1 / #258",
+ "script": "scripts/analysis/open_rig_misses_258.py",
+ "thresholds": [
+  0.3,
+  0.55
+ ],
+ "boundary_m": 18.0,
+ "null_trials": 200,
+ "boot_reps": 2000,
+ "boot_seed": 20261020,
+ "reading_rule": "silent leads -> labels; sub_threshold leads -> calibration (cheap #258 rungs first); leads = pano-bootstrap 95% CI of (sub_threshold share - silent share) excludes 0",
+ "open_splits": [
+  "laurens_mapillary",
+  "bayonne",
+  "budapest_district5",
+  "juneau",
+  "laurens_gsv"
+ ],
+ "reference_splits": [
+  "richmond",
+  "bend",
+  "clovis",
+  "morgantown",
+  "annapolis",
+  "paterson",
+  "gainesville"
+ ],
+ "groups": {
+  "gopro_max": [
+   "laurens_mapillary",
+   "bayonne",
+   "budapest_district5"
+  ],
+  "morgantown_gopro_max": [
+   "morgantown"
+  ],
+  "reference_7": [
+   "richmond",
+   "bend",
+   "clovis",
+   "morgantown",
+   "annapolis",
+   "paterson",
+   "gainesville"
+  ]
+ },
+ "camera_models": {
+  "laurens_mapillary": {
+   "mapillary:GoPro Max": 59
+  },
+  "bayonne": {
+   "panoramax:Max": 87
+  },
+  "budapest_district5": {
+   "mapillary:GoPro Max": 89
+  },
+  "juneau": {
+   "mapillary:GoPro Max": 2,
+   "mapillary:Trimble mx7": 92
+  },
+  "richmond": {
+   "mapillary:GoPro Max": 18,
+   "mapillary:iSTAR Pulsar": 64,
+   "mapillary:none": 10
+  },
+  "bend": {
+   "launch:none": 96
+  },
+  "clovis": {
+   "mapillary:Fusion": 32,
+   "mapillary:GoPro Fusion FS1.04.01.80.00": 47
+  },
+  "morgantown": {
+   "mapillary:GoPro Max": 95
+  },
+  "annapolis": {
+   "mapillary:Trimble MX7": 36,
+   "mapillary:Trimble mx7": 65
+  },
+  "paterson": {
+   "launch:none": 98
+  },
+  "gainesville": {
+   "launch:none": 96
+  }
+ },
+ "gaps": {
+  "laurens_gsv": {
+   "reason": "no op_cache at analysis_out/op_cache/laurens_gsv.json",
+   "fill": "bash scripts/analysis/open_rig_misses_258_gpu.sh  # GPU, ~86 panos; writes analysis_out/op_cache/laurens_gsv.json"
+  }
+ },
+ "by_threshold": {
+  "0.30": {
+   "splits": {
+    "laurens_mapillary": {
+     "n_panos": 59,
+     "n_gt": 249,
+     "n_hit": 131,
+     "n_miss": 118,
+     "recall": 0.5261,
+     "buckets": {
+      "merged": {
+       "n": 12,
+       "share": 0.1017,
+       "wilson95": [
+        0.0591,
+        0.1694
+       ],
+       "boot95": [
+        0.04,
+        0.1709
+       ],
+       "recall_pts": 0.0482,
+       "null_rate": 0.0708
+      },
+      "sub_threshold": {
+       "n": 70,
+       "share": 0.5932,
+       "wilson95": [
+        0.503,
+        0.6776
+       ],
+       "boot95": [
+        0.4957,
+        0.6917
+       ],
+       "recall_pts": 0.2811,
+       "null_rate": 0.083
+      },
+      "localization": {
+       "n": 2,
+       "share": 0.0169,
+       "wilson95": [
+        0.0047,
+        0.0597
+       ],
+       "boot95": [
+        0.0,
+        0.0424
+       ],
+       "recall_pts": 0.008,
+       "null_rate": 0.01
+      },
+      "silent": {
+       "n": 34,
+       "share": 0.2881,
+       "wilson95": [
+        0.2141,
+        0.3755
+       ],
+       "boot95": [
+        0.2047,
+        0.3737
+       ],
+       "recall_pts": 0.1365,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      0.1351,
+      0.48
+     ],
+     "reading": "sub_threshold leads: calibration",
+     "field": {
+      "near": {
+       "n_gt": 216,
+       "n_miss": 98,
+       "recall": 0.5463,
+       "counts": {
+        "merged": 7,
+        "sub_threshold": 61,
+        "localization": 2,
+        "silent": 28
+       },
+       "shares": {
+        "merged": 0.0714,
+        "sub_threshold": 0.6224,
+        "localization": 0.0204,
+        "silent": 0.2857
+       }
+      },
+      "far": {
+       "n_gt": 33,
+       "n_miss": 20,
+       "recall": 0.3939,
+       "counts": {
+        "merged": 5,
+        "sub_threshold": 9,
+        "localization": 0,
+        "silent": 6
+       },
+       "shares": {
+        "merged": 0.25,
+        "sub_threshold": 0.45,
+        "localization": 0.0,
+        "silent": 0.3
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 12,
+      "chebyshev_median": 12.2319,
+      "euclidean_median": 14.5888,
+      "above_min_distance": 10,
+      "within_2sigma": 10,
+      "below_8px": 1
+     },
+     "sub_threshold_peak": {
+      "n": 70,
+      "median": 0.1433,
+      "q25": 0.0868,
+      "q75": 0.206,
+      "share_at_or_above_0_15": 0.4857
+     },
+     "matcher_check": {
+      "greedy_only": 0,
+      "optimal_only": 0
+     },
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.012,
+      "sub_threshold": 0.2005,
+      "localization": 0.0036,
+      "silent": 0.0744,
+      "total": 0.2666
+     }
+    },
+    "bayonne": {
+     "n_panos": 87,
+     "n_gt": 301,
+     "n_hit": 149,
+     "n_miss": 152,
+     "recall": 0.495,
+     "buckets": {
+      "merged": {
+       "n": 3,
+       "share": 0.0197,
+       "wilson95": [
+        0.0067,
+        0.0564
+       ],
+       "boot95": [
+        0.0,
+        0.047
+       ],
+       "recall_pts": 0.01,
+       "null_rate": 0.1283
+      },
+      "sub_threshold": {
+       "n": 72,
+       "share": 0.4737,
+       "wilson95": [
+        0.3959,
+        0.5527
+       ],
+       "boot95": [
+        0.3934,
+        0.5528
+       ],
+       "recall_pts": 0.2392,
+       "null_rate": 0.1225
+      },
+      "localization": {
+       "n": 7,
+       "share": 0.0461,
+       "wilson95": [
+        0.0225,
+        0.092
+       ],
+       "boot95": [
+        0.0133,
+        0.087
+       ],
+       "recall_pts": 0.0233,
+       "null_rate": 0.0464
+      },
+      "silent": {
+       "n": 70,
+       "share": 0.4605,
+       "wilson95": [
+        0.3832,
+        0.5398
+       ],
+       "boot95": [
+        0.381,
+        0.5396
+       ],
+       "recall_pts": 0.2326,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      -0.14,
+      0.1644
+     ],
+     "reading": "neither leads",
+     "field": {
+      "near": {
+       "n_gt": 191,
+       "n_miss": 93,
+       "recall": 0.5131,
+       "counts": {
+        "merged": 0,
+        "sub_threshold": 44,
+        "localization": 6,
+        "silent": 43
+       },
+       "shares": {
+        "merged": 0.0,
+        "sub_threshold": 0.4731,
+        "localization": 0.0645,
+        "silent": 0.4624
+       }
+      },
+      "far": {
+       "n_gt": 110,
+       "n_miss": 59,
+       "recall": 0.4636,
+       "counts": {
+        "merged": 3,
+        "sub_threshold": 28,
+        "localization": 1,
+        "silent": 27
+       },
+       "shares": {
+        "merged": 0.0508,
+        "sub_threshold": 0.4746,
+        "localization": 0.0169,
+        "silent": 0.4576
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 3,
+      "chebyshev_median": 13.6653,
+      "euclidean_median": 13.6668,
+      "above_min_distance": 2,
+      "within_2sigma": 3,
+      "below_8px": 1
+     },
+     "sub_threshold_peak": {
+      "n": 72,
+      "median": 0.1862,
+      "q25": 0.1068,
+      "q75": 0.2532,
+      "share_at_or_above_0_15": 0.5417
+     },
+     "matcher_check": {
+      "greedy_only": 0,
+      "optimal_only": 0
+     },
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0502,
+      "sub_threshold": 0.1586,
+      "localization": 0.0189,
+      "silent": 0.1705,
+      "total": 0.2977
+     }
+    },
+    "budapest_district5": {
+     "n_panos": 89,
+     "n_gt": 300,
+     "n_hit": 193,
+     "n_miss": 107,
+     "recall": 0.6433,
+     "buckets": {
+      "merged": {
+       "n": 14,
+       "share": 0.1308,
+       "wilson95": [
+        0.0796,
+        0.2077
+       ],
+       "boot95": [
+        0.0571,
+        0.2235
+       ],
+       "recall_pts": 0.0467,
+       "null_rate": 0.1014
+      },
+      "sub_threshold": {
+       "n": 35,
+       "share": 0.3271,
+       "wilson95": [
+        0.2455,
+        0.4206
+       ],
+       "boot95": [
+        0.2308,
+        0.4231
+       ],
+       "recall_pts": 0.1167,
+       "null_rate": 0.0973
+      },
+      "localization": {
+       "n": 11,
+       "share": 0.1028,
+       "wilson95": [
+        0.0584,
+        0.1748
+       ],
+       "boot95": [
+        0.037,
+        0.1789
+       ],
+       "recall_pts": 0.0367,
+       "null_rate": 0.0405
+      },
+      "silent": {
+       "n": 47,
+       "share": 0.4393,
+       "wilson95": [
+        0.3489,
+        0.5338
+       ],
+       "boot95": [
+        0.3396,
+        0.5403
+       ],
+       "recall_pts": 0.1567,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      -0.2936,
+      0.0581
+     ],
+     "reading": "neither leads",
+     "field": {
+      "near": {
+       "n_gt": 201,
+       "n_miss": 67,
+       "recall": 0.6667,
+       "counts": {
+        "merged": 6,
+        "sub_threshold": 19,
+        "localization": 9,
+        "silent": 33
+       },
+       "shares": {
+        "merged": 0.0896,
+        "sub_threshold": 0.2836,
+        "localization": 0.1343,
+        "silent": 0.4925
+       }
+      },
+      "far": {
+       "n_gt": 99,
+       "n_miss": 40,
+       "recall": 0.596,
+       "counts": {
+        "merged": 8,
+        "sub_threshold": 16,
+        "localization": 2,
+        "silent": 14
+       },
+       "shares": {
+        "merged": 0.2,
+        "sub_threshold": 0.4,
+        "localization": 0.05,
+        "silent": 0.35
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 14,
+      "chebyshev_median": 13.1084,
+      "euclidean_median": 13.948,
+      "above_min_distance": 10,
+      "within_2sigma": 13,
+      "below_8px": 2
+     },
+     "sub_threshold_peak": {
+      "n": 35,
+      "median": 0.1591,
+      "q25": 0.1184,
+      "q75": 0.206,
+      "share_at_or_above_0_15": 0.6
+     },
+     "matcher_check": {
+      "greedy_only": 2,
+      "optimal_only": 2
+     },
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0135,
+      "sub_threshold": 0.0361,
+      "localization": 0.0323,
+      "silent": 0.0946,
+      "total": 0.1494
+     }
+    },
+    "juneau": {
+     "n_panos": 94,
+     "n_gt": 297,
+     "n_hit": 225,
+     "n_miss": 72,
+     "recall": 0.7576,
+     "buckets": {
+      "merged": {
+       "n": 10,
+       "share": 0.1389,
+       "wilson95": [
+        0.0772,
+        0.2371
+       ],
+       "boot95": [
+        0.06,
+        0.2333
+       ],
+       "recall_pts": 0.0337,
+       "null_rate": 0.1165
+      },
+      "sub_threshold": {
+       "n": 36,
+       "share": 0.5,
+       "wilson95": [
+        0.3875,
+        0.6125
+       ],
+       "boot95": [
+        0.377,
+        0.6119
+       ],
+       "recall_pts": 0.1212,
+       "null_rate": 0.1007
+      },
+      "localization": {
+       "n": 2,
+       "share": 0.0278,
+       "wilson95": [
+        0.0077,
+        0.0957
+       ],
+       "boot95": [
+        0.0,
+        0.0704
+       ],
+       "recall_pts": 0.0067,
+       "null_rate": 0.0375
+      },
+      "silent": {
+       "n": 24,
+       "share": 0.3333,
+       "wilson95": [
+        0.2353,
+        0.4482
+       ],
+       "boot95": [
+        0.2245,
+        0.4487
+       ],
+       "recall_pts": 0.0808,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      -0.0411,
+      0.3662
+     ],
+     "reading": "neither leads",
+     "field": {
+      "near": {
+       "n_gt": 190,
+       "n_miss": 27,
+       "recall": 0.8579,
+       "counts": {
+        "merged": 0,
+        "sub_threshold": 17,
+        "localization": 2,
+        "silent": 8
+       },
+       "shares": {
+        "merged": 0.0,
+        "sub_threshold": 0.6296,
+        "localization": 0.0741,
+        "silent": 0.2963
+       }
+      },
+      "far": {
+       "n_gt": 107,
+       "n_miss": 45,
+       "recall": 0.5794,
+       "counts": {
+        "merged": 10,
+        "sub_threshold": 19,
+        "localization": 0,
+        "silent": 16
+       },
+       "shares": {
+        "merged": 0.2222,
+        "sub_threshold": 0.4222,
+        "localization": 0.0,
+        "silent": 0.3556
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 10,
+      "chebyshev_median": 15.017,
+      "euclidean_median": 18.6596,
+      "above_min_distance": 8,
+      "within_2sigma": 8,
+      "below_8px": 0
+     },
+     "sub_threshold_peak": {
+      "n": 36,
+      "median": 0.1798,
+      "q25": 0.1199,
+      "q75": 0.2394,
+      "share_at_or_above_0_15": 0.5833
+     },
+     "matcher_check": {
+      "greedy_only": 1,
+      "optimal_only": 1
+     },
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0265,
+      "sub_threshold": 0.0406,
+      "localization": 0.0023,
+      "silent": 0.0187,
+      "total": 0.0351
+     }
+    }
+   },
+   "groups": {
+    "gopro_max": {
+     "n_panos": 235,
+     "n_gt": 850,
+     "n_hit": 473,
+     "n_miss": 377,
+     "recall": 0.5565,
+     "buckets": {
+      "merged": {
+       "n": 29,
+       "share": 0.0769,
+       "wilson95": [
+        0.0541,
+        0.1083
+       ],
+       "boot95": [
+        0.0451,
+        0.1105
+       ],
+       "recall_pts": 0.0341,
+       "null_rate": 0.0916
+      },
+      "sub_threshold": {
+       "n": 177,
+       "share": 0.4695,
+       "wilson95": [
+        0.4197,
+        0.5199
+       ],
+       "boot95": [
+        0.4186,
+        0.5213
+       ],
+       "recall_pts": 0.2082,
+       "null_rate": 0.1019
+      },
+      "localization": {
+       "n": 20,
+       "share": 0.0531,
+       "wilson95": [
+        0.0346,
+        0.0805
+       ],
+       "boot95": [
+        0.0282,
+        0.0803
+       ],
+       "recall_pts": 0.0235,
+       "null_rate": 0.0395
+      },
+      "silent": {
+       "n": 151,
+       "share": 0.4005,
+       "wilson95": [
+        0.3523,
+        0.4508
+       ],
+       "boot95": [
+        0.3528,
+        0.4468
+       ],
+       "recall_pts": 0.1776,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      -0.0213,
+      0.1609
+     ],
+     "reading": "neither leads",
+     "field": {
+      "near": {
+       "n_gt": 608,
+       "n_miss": 258,
+       "recall": 0.5757,
+       "counts": {
+        "merged": 13,
+        "sub_threshold": 124,
+        "localization": 17,
+        "silent": 104
+       },
+       "shares": {
+        "merged": 0.0504,
+        "sub_threshold": 0.4806,
+        "localization": 0.0659,
+        "silent": 0.4031
+       }
+      },
+      "far": {
+       "n_gt": 242,
+       "n_miss": 119,
+       "recall": 0.5083,
+       "counts": {
+        "merged": 16,
+        "sub_threshold": 53,
+        "localization": 3,
+        "silent": 47
+       },
+       "shares": {
+        "merged": 0.1345,
+        "sub_threshold": 0.4454,
+        "localization": 0.0252,
+        "silent": 0.395
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 29,
+      "chebyshev_median": 12.4318,
+      "euclidean_median": 13.6668,
+      "above_min_distance": 22,
+      "within_2sigma": 26,
+      "below_8px": 4
+     },
+     "sub_threshold_peak": {
+      "n": 177,
+      "median": 0.157,
+      "q25": 0.0992,
+      "q75": 0.2187,
+      "share_at_or_above_0_15": 0.5311
+     },
+     "members": [
+      "laurens_mapillary",
+      "bayonne",
+      "budapest_district5"
+     ],
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0261,
+      "sub_threshold": 0.1276,
+      "localization": 0.0191,
+      "silent": 0.1155,
+      "total": 0.2362
+     }
+    },
+    "morgantown_gopro_max": {
+     "n_panos": 95,
+     "n_gt": 267,
+     "n_hit": 215,
+     "n_miss": 52,
+     "recall": 0.8052,
+     "buckets": {
+      "merged": {
+       "n": 9,
+       "share": 0.1731,
+       "wilson95": [
+        0.0938,
+        0.2973
+       ],
+       "boot95": [
+        0.075,
+        0.2885
+       ],
+       "recall_pts": 0.0337,
+       "null_rate": 0.0778
+      },
+      "sub_threshold": {
+       "n": 22,
+       "share": 0.4231,
+       "wilson95": [
+        0.2987,
+        0.5581
+       ],
+       "boot95": [
+        0.3111,
+        0.551
+       ],
+       "recall_pts": 0.0824,
+       "null_rate": 0.0673
+      },
+      "localization": {
+       "n": 1,
+       "share": 0.0192,
+       "wilson95": [
+        0.0034,
+        0.1012
+       ],
+       "boot95": [
+        0.0,
+        0.0652
+       ],
+       "recall_pts": 0.0037,
+       "null_rate": 0.075
+      },
+      "silent": {
+       "n": 20,
+       "share": 0.3846,
+       "wilson95": [
+        0.2647,
+        0.5204
+       ],
+       "boot95": [
+        0.2609,
+        0.5
+       ],
+       "recall_pts": 0.0749,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      -0.1633,
+      0.2632
+     ],
+     "reading": "neither leads",
+     "field": {
+      "near": {
+       "n_gt": 216,
+       "n_miss": 37,
+       "recall": 0.8287,
+       "counts": {
+        "merged": 5,
+        "sub_threshold": 17,
+        "localization": 1,
+        "silent": 14
+       },
+       "shares": {
+        "merged": 0.1351,
+        "sub_threshold": 0.4595,
+        "localization": 0.027,
+        "silent": 0.3784
+       }
+      },
+      "far": {
+       "n_gt": 51,
+       "n_miss": 15,
+       "recall": 0.7059,
+       "counts": {
+        "merged": 4,
+        "sub_threshold": 5,
+        "localization": 0,
+        "silent": 6
+       },
+       "shares": {
+        "merged": 0.2667,
+        "sub_threshold": 0.3333,
+        "localization": 0.0,
+        "silent": 0.4
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 9,
+      "chebyshev_median": 10.2693,
+      "euclidean_median": 12.5302,
+      "above_min_distance": 5,
+      "within_2sigma": 8,
+      "below_8px": 2
+     },
+     "sub_threshold_peak": {
+      "n": 22,
+      "median": 0.1236,
+      "q25": 0.0911,
+      "q75": 0.1632,
+      "share_at_or_above_0_15": 0.3636
+     },
+     "members": [
+      "morgantown"
+     ],
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0265,
+      "sub_threshold": 0.0018,
+      "localization": -0.0007,
+      "silent": 0.0128,
+      "total": -0.0125
+     }
+    },
+    "reference_7": {
+     "n_panos": 657,
+     "n_gt": 2060,
+     "n_hit": 1633,
+     "n_miss": 427,
+     "recall": 0.7927,
+     "buckets": {
+      "merged": {
+       "n": 124,
+       "share": 0.2904,
+       "wilson95": [
+        0.2494,
+        0.3352
+       ],
+       "boot95": [
+        0.242,
+        0.3389
+       ],
+       "recall_pts": 0.0602,
+       "null_rate": 0.1013
+      },
+      "sub_threshold": {
+       "n": 166,
+       "share": 0.3888,
+       "wilson95": [
+        0.3437,
+        0.4358
+       ],
+       "boot95": [
+        0.3366,
+        0.4394
+       ],
+       "recall_pts": 0.0806,
+       "null_rate": 0.0764
+      },
+      "localization": {
+       "n": 9,
+       "share": 0.0211,
+       "wilson95": [
+        0.0111,
+        0.0396
+       ],
+       "boot95": [
+        0.0082,
+        0.0358
+       ],
+       "recall_pts": 0.0044,
+       "null_rate": 0.0183
+      },
+      "silent": {
+       "n": 128,
+       "share": 0.2998,
+       "wilson95": [
+        0.2583,
+        0.3449
+       ],
+       "boot95": [
+        0.2557,
+        0.3453
+       ],
+       "recall_pts": 0.0621,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      0.0049,
+      0.1671
+     ],
+     "reading": "sub_threshold leads: calibration",
+     "field": {
+      "near": {
+       "n_gt": 1360,
+       "n_miss": 180,
+       "recall": 0.8676,
+       "counts": {
+        "merged": 48,
+        "sub_threshold": 84,
+        "localization": 3,
+        "silent": 45
+       },
+       "shares": {
+        "merged": 0.2667,
+        "sub_threshold": 0.4667,
+        "localization": 0.0167,
+        "silent": 0.25
+       }
+      },
+      "far": {
+       "n_gt": 700,
+       "n_miss": 247,
+       "recall": 0.6471,
+       "counts": {
+        "merged": 76,
+        "sub_threshold": 82,
+        "localization": 6,
+        "silent": 83
+       },
+       "shares": {
+        "merged": 0.3077,
+        "sub_threshold": 0.332,
+        "localization": 0.0243,
+        "silent": 0.336
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 124,
+      "chebyshev_median": 11.4452,
+      "euclidean_median": 12.1898,
+      "above_min_distance": 78,
+      "within_2sigma": 108,
+      "below_8px": 24
+     },
+     "sub_threshold_peak": {
+      "n": 166,
+      "median": 0.1569,
+      "q25": 0.0936,
+      "q75": 0.2281,
+      "share_at_or_above_0_15": 0.5301
+     },
+     "members": [
+      "richmond",
+      "bend",
+      "clovis",
+      "morgantown",
+      "annapolis",
+      "paterson",
+      "gainesville"
+     ]
+    }
+   }
+  },
+  "0.55": {
+   "splits": {
+    "laurens_mapillary": {
+     "n_panos": 59,
+     "n_gt": 249,
+     "n_hit": 97,
+     "n_miss": 152,
+     "recall": 0.3896,
+     "buckets": {
+      "merged": {
+       "n": 9,
+       "share": 0.0592,
+       "wilson95": [
+        0.0315,
+        0.1087
+       ],
+       "boot95": [
+        0.0229,
+        0.1007
+       ],
+       "recall_pts": 0.0361,
+       "null_rate": 0.0417
+      },
+      "sub_threshold": {
+       "n": 107,
+       "share": 0.7039,
+       "wilson95": [
+        0.6271,
+        0.7708
+       ],
+       "boot95": [
+        0.6299,
+        0.7784
+       ],
+       "recall_pts": 0.4297,
+       "null_rate": 0.1073
+      },
+      "localization": {
+       "n": 0,
+       "share": 0.0,
+       "wilson95": [
+        0.0,
+        0.0247
+       ],
+       "boot95": [
+        0.0,
+        0.0
+       ],
+       "recall_pts": 0.0,
+       "null_rate": null
+      },
+      "silent": {
+       "n": 36,
+       "share": 0.2368,
+       "wilson95": [
+        0.1763,
+        0.3104
+       ],
+       "boot95": [
+        0.1711,
+        0.3026
+       ],
+       "recall_pts": 0.1446,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      0.3296,
+      0.6048
+     ],
+     "reading": "sub_threshold leads: calibration",
+     "field": {
+      "near": {
+       "n_gt": 216,
+       "n_miss": 126,
+       "recall": 0.4167,
+       "counts": {
+        "merged": 5,
+        "sub_threshold": 91,
+        "localization": 0,
+        "silent": 30
+       },
+       "shares": {
+        "merged": 0.0397,
+        "sub_threshold": 0.7222,
+        "localization": 0.0,
+        "silent": 0.2381
+       }
+      },
+      "far": {
+       "n_gt": 33,
+       "n_miss": 26,
+       "recall": 0.2121,
+       "counts": {
+        "merged": 4,
+        "sub_threshold": 16,
+        "localization": 0,
+        "silent": 6
+       },
+       "shares": {
+        "merged": 0.1538,
+        "sub_threshold": 0.6154,
+        "localization": 0.0,
+        "silent": 0.2308
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 9,
+      "chebyshev_median": 12.0761,
+      "euclidean_median": 12.9,
+      "above_min_distance": 7,
+      "within_2sigma": 8,
+      "below_8px": 1
+     },
+     "sub_threshold_peak": {
+      "n": 107,
+      "median": 0.2117,
+      "q25": 0.1181,
+      "q75": 0.36,
+      "share_at_or_above_0_15": 0.6636
+     },
+     "matcher_check": {
+      "greedy_only": 0,
+      "optimal_only": 0
+     },
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0173,
+      "sub_threshold": 0.2719,
+      "localization": -0.0015,
+      "silent": 0.0796,
+      "total": 0.3327
+     }
+    },
+    "bayonne": {
+     "n_panos": 87,
+     "n_gt": 301,
+     "n_hit": 113,
+     "n_miss": 188,
+     "recall": 0.3754,
+     "buckets": {
+      "merged": {
+       "n": 3,
+       "share": 0.016,
+       "wilson95": [
+        0.0054,
+        0.0459
+       ],
+       "boot95": [
+        0.0,
+        0.0366
+       ],
+       "recall_pts": 0.01,
+       "null_rate": 0.1083
+      },
+      "sub_threshold": {
+       "n": 108,
+       "share": 0.5745,
+       "wilson95": [
+        0.503,
+        0.643
+       ],
+       "boot95": [
+        0.5028,
+        0.6477
+       ],
+       "recall_pts": 0.3588,
+       "null_rate": 0.1347
+      },
+      "localization": {
+       "n": 2,
+       "share": 0.0106,
+       "wilson95": [
+        0.0029,
+        0.038
+       ],
+       "boot95": [
+        0.0,
+        0.0337
+       ],
+       "recall_pts": 0.0066,
+       "null_rate": 0.055
+      },
+      "silent": {
+       "n": 75,
+       "share": 0.3989,
+       "wilson95": [
+        0.3316,
+        0.4703
+       ],
+       "boot95": [
+        0.3276,
+        0.4691
+       ],
+       "recall_pts": 0.2492,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      0.0339,
+      0.3209
+     ],
+     "reading": "sub_threshold leads: calibration",
+     "field": {
+      "near": {
+       "n_gt": 191,
+       "n_miss": 113,
+       "recall": 0.4084,
+       "counts": {
+        "merged": 0,
+        "sub_threshold": 64,
+        "localization": 1,
+        "silent": 48
+       },
+       "shares": {
+        "merged": 0.0,
+        "sub_threshold": 0.5664,
+        "localization": 0.0088,
+        "silent": 0.4248
+       }
+      },
+      "far": {
+       "n_gt": 110,
+       "n_miss": 75,
+       "recall": 0.3182,
+       "counts": {
+        "merged": 3,
+        "sub_threshold": 44,
+        "localization": 1,
+        "silent": 27
+       },
+       "shares": {
+        "merged": 0.04,
+        "sub_threshold": 0.5867,
+        "localization": 0.0133,
+        "silent": 0.36
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 3,
+      "chebyshev_median": 13.6653,
+      "euclidean_median": 13.6668,
+      "above_min_distance": 2,
+      "within_2sigma": 2,
+      "below_8px": 1
+     },
+     "sub_threshold_peak": {
+      "n": 108,
+      "median": 0.2531,
+      "q25": 0.1335,
+      "q75": 0.3696,
+      "share_at_or_above_0_15": 0.6944
+     },
+     "matcher_check": {
+      "greedy_only": 0,
+      "optimal_only": 0
+     },
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0434,
+      "sub_threshold": 0.201,
+      "localization": 0.0051,
+      "silent": 0.1842,
+      "total": 0.3469
+     }
+    },
+    "budapest_district5": {
+     "n_panos": 89,
+     "n_gt": 300,
+     "n_hit": 153,
+     "n_miss": 147,
+     "recall": 0.51,
+     "buckets": {
+      "merged": {
+       "n": 8,
+       "share": 0.0544,
+       "wilson95": [
+        0.0278,
+        0.1037
+       ],
+       "boot95": [
+        0.02,
+        0.1014
+       ],
+       "recall_pts": 0.0267,
+       "null_rate": 0.0712
+      },
+      "sub_threshold": {
+       "n": 81,
+       "share": 0.551,
+       "wilson95": [
+        0.4703,
+        0.6291
+       ],
+       "boot95": [
+        0.4564,
+        0.637
+       ],
+       "recall_pts": 0.27,
+       "null_rate": 0.1147
+      },
+      "localization": {
+       "n": 2,
+       "share": 0.0136,
+       "wilson95": [
+        0.0037,
+        0.0482
+       ],
+       "boot95": [
+        0.0,
+        0.0351
+       ],
+       "recall_pts": 0.0067,
+       "null_rate": 0.0325
+      },
+      "silent": {
+       "n": 56,
+       "share": 0.381,
+       "wilson95": [
+        0.3064,
+        0.4615
+       ],
+       "boot95": [
+        0.2914,
+        0.4759
+       ],
+       "recall_pts": 0.1867,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      -0.0122,
+      0.3407
+     ],
+     "reading": "neither leads",
+     "field": {
+      "near": {
+       "n_gt": 201,
+       "n_miss": 94,
+       "recall": 0.5323,
+       "counts": {
+        "merged": 3,
+        "sub_threshold": 49,
+        "localization": 1,
+        "silent": 41
+       },
+       "shares": {
+        "merged": 0.0319,
+        "sub_threshold": 0.5213,
+        "localization": 0.0106,
+        "silent": 0.4362
+       }
+      },
+      "far": {
+       "n_gt": 99,
+       "n_miss": 53,
+       "recall": 0.4646,
+       "counts": {
+        "merged": 5,
+        "sub_threshold": 32,
+        "localization": 1,
+        "silent": 15
+       },
+       "shares": {
+        "merged": 0.0943,
+        "sub_threshold": 0.6038,
+        "localization": 0.0189,
+        "silent": 0.283
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 8,
+      "chebyshev_median": 11.344,
+      "euclidean_median": 13.2831,
+      "above_min_distance": 5,
+      "within_2sigma": 8,
+      "below_8px": 2
+     },
+     "sub_threshold_peak": {
+      "n": 81,
+      "median": 0.3319,
+      "q25": 0.1742,
+      "q75": 0.4355,
+      "share_at_or_above_0_15": 0.8272
+     },
+     "matcher_check": {
+      "greedy_only": 0,
+      "optimal_only": 0
+     },
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0267,
+      "sub_threshold": 0.1122,
+      "localization": 0.0052,
+      "silent": 0.1217,
+      "total": 0.2123
+     }
+    },
+    "juneau": {
+     "n_panos": 94,
+     "n_gt": 297,
+     "n_hit": 204,
+     "n_miss": 93,
+     "recall": 0.6869,
+     "buckets": {
+      "merged": {
+       "n": 9,
+       "share": 0.0968,
+       "wilson95": [
+        0.0518,
+        0.1738
+       ],
+       "boot95": [
+        0.04,
+        0.1682
+       ],
+       "recall_pts": 0.0303,
+       "null_rate": 0.0972
+      },
+      "sub_threshold": {
+       "n": 58,
+       "share": 0.6237,
+       "wilson95": [
+        0.5221,
+        0.7154
+       ],
+       "boot95": [
+        0.5263,
+        0.7176
+       ],
+       "recall_pts": 0.1953,
+       "null_rate": 0.098
+      },
+      "localization": {
+       "n": 0,
+       "share": 0.0,
+       "wilson95": [
+        0.0,
+        0.0397
+       ],
+       "boot95": [
+        0.0,
+        0.0
+       ],
+       "recall_pts": 0.0,
+       "null_rate": null
+      },
+      "silent": {
+       "n": 26,
+       "share": 0.2796,
+       "wilson95": [
+        0.1985,
+        0.3781
+       ],
+       "boot95": [
+        0.1892,
+        0.3714
+       ],
+       "recall_pts": 0.0875,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      0.1687,
+      0.5204
+     ],
+     "reading": "sub_threshold leads: calibration",
+     "field": {
+      "near": {
+       "n_gt": 190,
+       "n_miss": 37,
+       "recall": 0.8053,
+       "counts": {
+        "merged": 0,
+        "sub_threshold": 27,
+        "localization": 0,
+        "silent": 10
+       },
+       "shares": {
+        "merged": 0.0,
+        "sub_threshold": 0.7297,
+        "localization": 0.0,
+        "silent": 0.2703
+       }
+      },
+      "far": {
+       "n_gt": 107,
+       "n_miss": 56,
+       "recall": 0.4766,
+       "counts": {
+        "merged": 9,
+        "sub_threshold": 31,
+        "localization": 0,
+        "silent": 16
+       },
+       "shares": {
+        "merged": 0.1607,
+        "sub_threshold": 0.5536,
+        "localization": 0.0,
+        "silent": 0.2857
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 9,
+      "chebyshev_median": 13.5073,
+      "euclidean_median": 16.8599,
+      "above_min_distance": 7,
+      "within_2sigma": 8,
+      "below_8px": 0
+     },
+     "sub_threshold_peak": {
+      "n": 58,
+      "median": 0.2463,
+      "q25": 0.1445,
+      "q75": 0.3799,
+      "share_at_or_above_0_15": 0.7414
+     },
+     "matcher_check": {
+      "greedy_only": 0,
+      "optimal_only": 0
+     },
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0231,
+      "sub_threshold": 0.0375,
+      "localization": -0.0015,
+      "silent": 0.0225,
+      "total": 0.0354
+     }
+    }
+   },
+   "groups": {
+    "gopro_max": {
+     "n_panos": 235,
+     "n_gt": 850,
+     "n_hit": 363,
+     "n_miss": 487,
+     "recall": 0.4271,
+     "buckets": {
+      "merged": {
+       "n": 20,
+       "share": 0.0411,
+       "wilson95": [
+        0.0267,
+        0.0626
+       ],
+       "boot95": [
+        0.0225,
+        0.0615
+       ],
+       "recall_pts": 0.0235,
+       "null_rate": 0.0635
+      },
+      "sub_threshold": {
+       "n": 296,
+       "share": 0.6078,
+       "wilson95": [
+        0.5638,
+        0.6502
+       ],
+       "boot95": [
+        0.5644,
+        0.6516
+       ],
+       "recall_pts": 0.3482,
+       "null_rate": 0.1193
+      },
+      "localization": {
+       "n": 4,
+       "share": 0.0082,
+       "wilson95": [
+        0.0032,
+        0.0209
+       ],
+       "boot95": [
+        0.0,
+        0.0197
+       ],
+       "recall_pts": 0.0047,
+       "null_rate": 0.0437
+      },
+      "silent": {
+       "n": 167,
+       "share": 0.3429,
+       "wilson95": [
+        0.3021,
+        0.3862
+       ],
+       "boot95": [
+        0.3015,
+        0.3862
+       ],
+       "recall_pts": 0.1965,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      0.1797,
+      0.3473
+     ],
+     "reading": "sub_threshold leads: calibration",
+     "field": {
+      "near": {
+       "n_gt": 608,
+       "n_miss": 333,
+       "recall": 0.4523,
+       "counts": {
+        "merged": 8,
+        "sub_threshold": 204,
+        "localization": 2,
+        "silent": 119
+       },
+       "shares": {
+        "merged": 0.024,
+        "sub_threshold": 0.6126,
+        "localization": 0.006,
+        "silent": 0.3574
+       }
+      },
+      "far": {
+       "n_gt": 242,
+       "n_miss": 154,
+       "recall": 0.3636,
+       "counts": {
+        "merged": 12,
+        "sub_threshold": 92,
+        "localization": 2,
+        "silent": 48
+       },
+       "shares": {
+        "merged": 0.0779,
+        "sub_threshold": 0.5974,
+        "localization": 0.013,
+        "silent": 0.3117
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 20,
+      "chebyshev_median": 12.0761,
+      "euclidean_median": 13.2831,
+      "above_min_distance": 14,
+      "within_2sigma": 18,
+      "below_8px": 4
+     },
+     "sub_threshold_peak": {
+      "n": 296,
+      "median": 0.2581,
+      "q25": 0.1391,
+      "q75": 0.3915,
+      "share_at_or_above_0_15": 0.7196
+     },
+     "members": [
+      "laurens_mapillary",
+      "bayonne",
+      "budapest_district5"
+     ],
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0299,
+      "sub_threshold": 0.1904,
+      "localization": 0.0032,
+      "silent": 0.1315,
+      "total": 0.2952
+     }
+    },
+    "morgantown_gopro_max": {
+     "n_panos": 95,
+     "n_gt": 267,
+     "n_hit": 195,
+     "n_miss": 72,
+     "recall": 0.7303,
+     "buckets": {
+      "merged": {
+       "n": 8,
+       "share": 0.1111,
+       "wilson95": [
+        0.0574,
+        0.2042
+       ],
+       "boot95": [
+        0.04,
+        0.197
+       ],
+       "recall_pts": 0.03,
+       "null_rate": 0.0706
+      },
+      "sub_threshold": {
+       "n": 43,
+       "share": 0.5972,
+       "wilson95": [
+        0.4818,
+        0.7028
+       ],
+       "boot95": [
+        0.4937,
+        0.7143
+       ],
+       "recall_pts": 0.161,
+       "null_rate": 0.0857
+      },
+      "localization": {
+       "n": 0,
+       "share": 0.0,
+       "wilson95": [
+        0.0,
+        0.0507
+       ],
+       "boot95": [
+        0.0,
+        0.0
+       ],
+       "recall_pts": 0.0,
+       "null_rate": null
+      },
+      "silent": {
+       "n": 21,
+       "share": 0.2917,
+       "wilson95": [
+        0.1994,
+        0.4051
+       ],
+       "boot95": [
+        0.1887,
+        0.3816
+       ],
+       "recall_pts": 0.0787,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      0.1268,
+      0.5156
+     ],
+     "reading": "sub_threshold leads: calibration",
+     "field": {
+      "near": {
+       "n_gt": 216,
+       "n_miss": 54,
+       "recall": 0.75,
+       "counts": {
+        "merged": 5,
+        "sub_threshold": 34,
+        "localization": 0,
+        "silent": 15
+       },
+       "shares": {
+        "merged": 0.0926,
+        "sub_threshold": 0.6296,
+        "localization": 0.0,
+        "silent": 0.2778
+       }
+      },
+      "far": {
+       "n_gt": 51,
+       "n_miss": 18,
+       "recall": 0.6471,
+       "counts": {
+        "merged": 3,
+        "sub_threshold": 9,
+        "localization": 0,
+        "silent": 6
+       },
+       "shares": {
+        "merged": 0.1667,
+        "sub_threshold": 0.5,
+        "localization": 0.0,
+        "silent": 0.3333
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 8,
+      "chebyshev_median": 10.2693,
+      "euclidean_median": 12.5302,
+      "above_min_distance": 4,
+      "within_2sigma": 7,
+      "below_8px": 2
+     },
+     "sub_threshold_peak": {
+      "n": 43,
+      "median": 0.2481,
+      "q25": 0.123,
+      "q75": 0.4114,
+      "share_at_or_above_0_15": 0.6744
+     },
+     "members": [
+      "morgantown"
+     ],
+     "excess_recall_pts_vs_reference": {
+      "merged": -0.0234,
+      "sub_threshold": 0.0032,
+      "localization": -0.0015,
+      "silent": 0.0137,
+      "total": -0.008
+     }
+    },
+    "reference_7": {
+     "n_panos": 657,
+     "n_gt": 2060,
+     "n_hit": 1488,
+     "n_miss": 572,
+     "recall": 0.7223,
+     "buckets": {
+      "merged": {
+       "n": 110,
+       "share": 0.1923,
+       "wilson95": [
+        0.1621,
+        0.2266
+       ],
+       "boot95": [
+        0.1534,
+        0.2298
+       ],
+       "recall_pts": 0.0534,
+       "null_rate": 0.0915
+      },
+      "sub_threshold": {
+       "n": 325,
+       "share": 0.5682,
+       "wilson95": [
+        0.5273,
+        0.6082
+       ],
+       "boot95": [
+        0.5223,
+        0.6149
+       ],
+       "recall_pts": 0.1578,
+       "null_rate": 0.0932
+      },
+      "localization": {
+       "n": 3,
+       "share": 0.0052,
+       "wilson95": [
+        0.0018,
+        0.0153
+       ],
+       "boot95": [
+        0.0,
+        0.012
+       ],
+       "recall_pts": 0.0015,
+       "null_rate": 0.01
+      },
+      "silent": {
+       "n": 134,
+       "share": 0.2343,
+       "wilson95": [
+        0.2014,
+        0.2707
+       ],
+       "boot95": [
+        0.2,
+        0.2707
+       ],
+       "recall_pts": 0.065,
+       "null_rate": null
+      }
+     },
+     "sub_minus_silent_boot95": [
+      0.2587,
+      0.4046
+     ],
+     "reading": "sub_threshold leads: calibration",
+     "field": {
+      "near": {
+       "n_gt": 1360,
+       "n_miss": 269,
+       "recall": 0.8022,
+       "counts": {
+        "merged": 44,
+        "sub_threshold": 177,
+        "localization": 1,
+        "silent": 47
+       },
+       "shares": {
+        "merged": 0.1636,
+        "sub_threshold": 0.658,
+        "localization": 0.0037,
+        "silent": 0.1747
+       }
+      },
+      "far": {
+       "n_gt": 700,
+       "n_miss": 303,
+       "recall": 0.5671,
+       "counts": {
+        "merged": 66,
+        "sub_threshold": 148,
+        "localization": 2,
+        "silent": 87
+       },
+       "shares": {
+        "merged": 0.2178,
+        "sub_threshold": 0.4884,
+        "localization": 0.0066,
+        "silent": 0.2871
+       }
+      }
+     },
+     "merged_separation_px": {
+      "n": 110,
+      "chebyshev_median": 10.9044,
+      "euclidean_median": 11.8989,
+      "above_min_distance": 66,
+      "within_2sigma": 97,
+      "below_8px": 23
+     },
+     "sub_threshold_peak": {
+      "n": 325,
+      "median": 0.2943,
+      "q25": 0.1541,
+      "q75": 0.4334,
+      "share_at_or_above_0_15": 0.76
+     },
+     "members": [
+      "richmond",
+      "bend",
+      "clovis",
+      "morgantown",
+      "annapolis",
+      "paterson",
+      "gainesville"
+     ]
+    }
+   }
+  }
+ }
+}

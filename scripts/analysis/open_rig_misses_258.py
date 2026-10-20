@@ -66,6 +66,9 @@ REFERENCE_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis",
 # output's camera_models field). juneau is 120 Trimble MX7 + 5 GoPro Max panos.
 GROUPS = {
     "gopro_max": ("laurens_mapillary", "bayonne", "budapest_district5"),
+    # The same camera model inside the reference pool (95 of 95 scored panos GoPro
+    # Max). If the open-rig deficit were the camera, it would show here too.
+    "morgantown_gopro_max": ("morgantown",),
     "reference_7": REFERENCE_SPLITS,
 }
 
