@@ -1,0 +1,12 @@
+               split  panos             digest  status
+              clovis    125   e218ae3a9afc9ae0  OK
+          morgantown    125   6550b61787e6f8e6  OK
+   laurens_mapillary     94   7485886ea08f671b  OK
+              juneau    125   f37ab52d9d1165cf  OK
+         laurens_gsv     86   2f079d63d4af4063  OK
+  budapest_district5    125   b4aae79a4edbdd46  OK
+           sao_paulo    125   650bd9ba2498b156  OK
+             bayonne    125   eb844c2e67625ea0  OK
+         manual_gold   1000   91550b3040b95a95  OK
+
+Every reviewed panorama matches the bytes recorded at review time.
