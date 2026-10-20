@@ -768,7 +768,14 @@ def log_split_footnote(result, split):
     if rampnet_f1 is not None and zero_shot and in_table:
         top = zero_shot[0]
         table_best = max(per[n][split]["f1"] for n in in_table)
-        if f1[top["model"]] > table_best:
+        if f1[top["model"]] > rampnet_f1:
+            # A negative "lead" reads as a typo, so a zero-shot leg that beats RampNet
+            # is stated as that (first seen on the Laurens arms, claude-opus-5-5).
+            text += ("\n\nAgainst the whole zero-shot field RampNet does not lead on this "
+                     f"split: {top['display']} is {num(f1[top['model']] - rampnet_f1)} F1 "
+                     f"ahead of it, where RampNet leads the table's best row by "
+                     f"{num(rampnet_f1 - table_best)}.")
+        elif f1[top["model"]] > table_best:
             text += ("\n\nAgainst the whole zero-shot field RampNet's lead on this split is "
                      f"{num(rampnet_f1 - f1[top['model']])} F1 (over {top['display']}), "
                      f"not the {num(rampnet_f1 - table_best)} over the table's best row.")
