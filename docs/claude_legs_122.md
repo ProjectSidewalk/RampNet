@@ -49,7 +49,9 @@ tokens to lose 0.068 F1.
 
 **`claude-opus-5` at `low` was the strongest general model measured on annapolis**, at
 0.588 — the first to displace `gemini-3.1-pro-preview` (0.567) from that slot — **until the
-two Fable legs (0.611 and 0.610, next section) displaced it in turn.** Against
+two Fable legs (0.611 and 0.610, next section) displaced it in turn**, and
+`claude-opus-5-5` (0.720, 2026-10-19, [`claude_newest_ids.md`](claude_newest_ids.md))
+displaced those. Against
 `claude-sonnet-5` at the same effort it gains **+0.224 recall at essentially unchanged
 precision** (0.589 → 0.572), which is a capability difference rather than a threshold
 shift. RampNet leads it by **0.251** (0.839 vs 0.588).
@@ -71,6 +73,14 @@ shift. RampNet leads it by **0.251** (0.839 vs 0.588).
 > left as written because the annapolis numbers in it are still correct and are what the rest
 > of this section analyses. (On the seven-split board this note was first written against,
 > the same detections pooled to 0.588 against 0.608, 3 wins of 7; the eighth split moved it.)
+>
+> *Superseded 2026-10-19: "`gemini-3.1-pro` still tops the table" and "the highest recall of
+> any chat VLM with full pooled coverage" were true of the board before the newest-ids legs.
+> `claude-opus-5-5` at effort low now tops the zero-shot rows, pooled F1 0.712 at recall
+> 0.735 over the nine US cities (juneau included, 2026-10-20), and `claude-fable-5-1` (0.607)
+> also pools above `gemini-3.1-pro`. The comparison
+> between `claude-opus-5` and `gemini-3.1-pro` above is unchanged. Both newer legs are single
+> runs at effort low on the first-party API ([`claude_newest_ids.md`](claude_newest_ids.md)).*
 
 **Correction, 2026-08-18 — the sonnet/low row originally used a different denominator.**
 As first published it read 0.587 / 0.372 / 0.456 on `108/76/182`, which is **290** GT
@@ -89,7 +99,9 @@ Four caveats that travel with these numbers:
   (0.656 vs RampNet's 0.738)** — closer to RampNet than any general model has come here,
   and worth remembering given this project's recall-first framing, where a false negative
   is a permanent loss and a false positive is cheap. F1 ranks it below `low`; a
-  recall-weighted objective would not.
+  recall-weighted objective would not. *Superseded 2026-10-19: `claude-opus-5-5` at effort
+  low has recall 0.748 on annapolis, above both this leg and RampNet's 0.738
+  ([`claude_newest_ids.md`](claude_newest_ids.md)).*
 - The prompt is **fixed and Gemini-derived**. Claude is documented to underperform on
   prompts carried over from another model, so these numbers bound Claude-on-our-prompt,
   not Claude. Holding it fixed is the right call for comparability; a prompt-variant run
@@ -174,12 +186,18 @@ Opus-low's ~0.7 — always-on thinking is *adaptive*, and on a localization task
 effort it costs essentially nothing. A 5-pano calibration predicted the full-leg cost to
 within 1.5% on both ids.
 
-**These legs are `standing=False` and cover annapolis only (1 of 8 pooled splits).** Both
+**These legs are `standing=False` and cover annapolis only (1 of 8 pooled splits)** (true as
+of #156; see the note at the end of this paragraph). Both
 clear the pre-registered 0.567 gate for expanding to the full split set, so that expansion
 is now a live decision rather than a hypothetical — `manual_gold` is 1,000 panos × 6
 views = 6,000 calls, so at the measured full-leg rates ($0.0257/call for `claude-fable-5`,
 $0.0276/call for `claude-fable-5-1`) it is **~$154 and ~$165 per id** for that split alone.
 It has **not** been taken, and no other split has been run.
+
+*Superseded 2026-10-19 for `claude-fable-5-1`: it has since run the other thirteen splits,
+`manual_gold` included ($167.92 for that split, against the ~$165 above), alongside
+`claude-opus-5-5` (`bayonne` and `juneau` on 2026-10-20, after the rest). `claude-fable-5` was not part of that run. See
+[`claude_newest_ids.md`](claude_newest_ids.md).*
 
 **Reproducing them** (the detections are committed; nothing below needs an API key):
 

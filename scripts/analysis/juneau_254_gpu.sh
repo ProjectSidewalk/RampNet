@@ -13,7 +13,7 @@
 # control). PY / MOLMO_PY / YOLO_DIR default to makelab2's paths; on klone pass the envs
 # from scripts/analysis/juneau_254_klone_env.sh (see the .slurm header). Steps are
 # independent and a failed step does not stop the rest (no `set -e`), so read the log:
-# a leg that fails every pano still exits 0.
+# compare.py exits 3 when a leg is not runnable or aborts after consecutive failures.
 #
 # Unlike bayonne's, this runs AFTER the review: verdicts.json is committed, so the
 # extraction writes the reviewed cache straight to analysis_out/op_cache/juneau.json

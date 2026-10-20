@@ -273,17 +273,19 @@ ROSTER = (
         published_as="claude-opus-5-effort-low",
         note="Eleven splits: nine in #139, both Laurens arms in #151. Pooled F1 0.568 "
              "over the eight city splits, within 0.01 of gemini-3.1-pro's 0.575 -- its "
-             "+0.021 annapolis lead, the only time anything displaced the top "
-             "challenger, did not survive pooling, but neither did a deficit: the two "
+             "+0.021 annapolis lead, then the only time anything had displaced the "
+             "top challenger, did not survive pooling, but neither did a deficit: the two "
              "split 4 wins each on the pooled eight (Opus 6 of 11 overall), and the "
              "pooled per-split gaps range from -0.069 (gainesville) to +0.086 "
              "(laurens_mapillary; the held-out laurens_gsv is wider, +0.158), so the "
-             "annapolis lead was split noise, not a difference. Highest recall of any "
-             "fully-pooled chat VLM "
-             "(0.586), trading -0.077 precision for +0.052 recall. Best zero-shot model "
-             "on BOTH Laurens arms (0.430 mapillary, 0.437 gsv) and flat across them "
-             "(+0.007) where RampNet gains +0.115, which is what makes #151's "
-             "rig-not-town reading sharp. 2.54 boxes/pano over eleven splits (2.56 on "
+             "annapolis lead was split noise, not a difference. Pooled recall 0.586, "
+             "trading -0.077 precision for +0.052 recall against gemini-3.1-pro; the "
+             "highest of any fully-pooled chat VLM until claude-opus-5-5 (0.737, "
+             "superseded 2026-10-19). Best zero-shot model on both Laurens arms "
+             "(0.430 mapillary, 0.437 gsv) when #151 ran, until claude-opus-5-5 "
+             "(0.679, 0.701; superseded 2026-10-19), and flat across them (+0.007) "
+             "where RampNet gains +0.115, which is what makes #151's rig-not-town "
+             "reading sharp. 2.54 boxes/pano over eleven splits (2.56 on "
              "annapolis alone). No manual_gold row, deliberately: #144. Effort low is "
              "the provider default, so this is what a bare `claude:claude-opus-5` "
              "reproduces."),
@@ -319,11 +321,15 @@ ROSTER = (
         density="sparse", standing=False, added="2026-09-05",
         pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
         published_as="claude-fable-5-1-effort-low-anthropic",
-        note="F1 0.610 on annapolis (P 0.637 / R 0.585), 2.28 boxes/pano. Clears "
-             "the 0.567 gate and displaces claude-opus-5 effort-low (0.588) -- the "
-             "first general-purpose model to do so on this split. Tied with "
-             "claude-fable-5 (0.611) at a MORE PRECISE operating point, which is "
-             "the whole difference between them."),
+        note="F1 0.610 on annapolis (P 0.637 / R 0.585), 2.28 boxes/pano (#156): "
+             "cleared the 0.567 gate, tied with claude-fable-5 (0.611) at a more "
+             "precise operating point. Run on the other 13 splits on 2026-10-19/20, "
+             "juneau included: pooled F1 0.607 over the nine US cities, manual_gold "
+             "0.638, behind claude-opus-5-5 on all 14 splits. Scores above RampNet on bayonne only (0.540 vs 0.517), and the "
+             "paired interval includes zero (RampNet minus it -0.023 [-0.096, +0.050], "
+             "scripts/analysis/claude_newest_ids_261.py), so that is a point estimate, "
+             "not an established win. Single runs, no seed variance, effort low only, "
+             "first-party API. See docs/claude_newest_ids.md."),
     Challenger(
         spec="claude:claude-fable-5", label="claude-fable-5", provider="claude",
         density="sparse", standing=False, added="2026-09-05",
@@ -334,6 +340,26 @@ ROSTER = (
              "precision for 0.061 recall: within this family the model version is "
              "an operating-point dial, the same shape as effort in #123. Also "
              "spends ~33 thinking tokens/call against 5.1's ~0.35, for no F1."),
+    # The newest-ids campaign (2026-10-19/20): Opus 5.5 and Fable 5.1 on all 14 splits,
+    # paid from the three subscriptions' monthly API credits, first-party only.
+    Challenger(
+        spec="claude:claude-opus-5-5", label="claude-opus-5-5", provider="claude",
+        density="sparse", standing=False, added="2026-10-19",
+        pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
+        published_as="claude-opus-5-5-effort-low-anthropic",
+        note="All 14 splits, manual_gold, bayonne and juneau included "
+             "(2026-10-19/20). Pooled F1 0.712 over the nine US cities (P 0.696 / "
+             "R 0.735), the best challenger with full pooled coverage, 0.081 behind "
+             "RampNet; manual_gold 0.722; juneau 0.727 (RampNet 0.803, RampNet minus "
+             "it +0.076 [+0.028, +0.126]). Beats RampNet "
+             "on laurens_mapillary (0.679; RampNet minus it -0.136 [-0.216, -0.053]) "
+             "and bayonne (0.619; -0.102 [-0.165, -0.040]); also above it on "
+             "laurens_gsv (0.701) but that interval includes zero (-0.042 [-0.101, "
+             "+0.020]). Paired pano bootstrap, scripts/analysis/claude_newest_ids_261.py. "
+             "RampNet tops 11 of 14. Ahead of claude-fable-5-1 on all 14 splits at the same input "
+             "and similar output per call (~18 thinking tokens/call against ~3) and "
+             "~2.5x lower cost per pano. Single runs, no seed variance, effort low "
+             "only, first-party API. See docs/claude_newest_ids.md."),
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot

@@ -428,6 +428,68 @@ def test_log_footnote_keeps_supervised_legs_out_of_the_zero_shot_list(board):
             assert flagged == (f1 > rampnet), (split, m["model"])
 
 
+def _footnote_board(rampnet, table_row, extra):
+    """A two-row table on ``bend`` plus one off-table zero-shot leg, for the footnote's
+    closing line. Synthetic on purpose: the branches below have to be exercised whether or
+    not the committed board happens to reach them today."""
+    def cell(f1):
+        return {"bend": {"f1": f1}}
+    return {
+        "per_split": {"rampnet": cell(rampnet), "gemini-3.1-pro-preview": cell(table_row),
+                      "x-leg": cell(extra)},
+        "models": [
+            {"model": "rampnet", "display": "RampNet", "class": "supervised-rampnet"},
+            {"model": "gemini-3.1-pro-preview", "display": "Gemini 3.1 Pro",
+             "class": "chat-vlm"},
+            {"model": "x-leg", "display": "Leg X", "class": "chat-vlm"},
+        ],
+    }
+
+
+def _closing_line(text):
+    parts = text.split("\n\n")
+    return parts[1] if len(parts) > 1 else None
+
+
+def test_footnote_names_a_zero_shot_leg_that_beats_rampnet():
+    """The branch first reached by claude-opus-5-5 on the Laurens arms and bayonne: the
+    off-table leg beats RampNet, and RampNet still leads the table's own best row."""
+    text = sr.log_split_footnote(_footnote_board(0.500, 0.400, 0.600), "bend")
+    assert "Leg X F1 0.600 (**beats RampNet's 0.500 here**)" in text
+    assert _closing_line(text) == (
+        "Against the whole zero-shot field RampNet does not lead on this split: Leg X is "
+        "0.100 F1 ahead of it, where RampNet leads the table's best row by 0.100.")
+
+
+def test_footnote_never_prints_a_negative_lead_over_the_table():
+    """When a standing-table row beats RampNet too, the line says so instead of printing
+    "RampNet leads the table's best row by -0.050"."""
+    text = sr.log_split_footnote(_footnote_board(0.500, 0.550, 0.600), "bend")
+    line = _closing_line(text)
+    assert line == (
+        "Against the whole zero-shot field RampNet does not lead on this split: Leg X is "
+        "0.100 F1 ahead of it, and the table's best row, Gemini 3.1 Pro, is 0.050 "
+        "ahead of it too.")
+    # One naming scheme per sentence: display names, as for "Leg X".
+    assert "gemini-3.1-pro-preview" not in line
+    assert "-0." not in text
+
+
+@pytest.mark.parametrize("table_row, extra", [
+    (0.550, 0.450),   # a table row beats RampNet, the off-table leg does not
+    (0.400, 0.450),   # the off-table leg beats the table's best row but not RampNet
+])
+def test_footnote_closing_line_has_no_negative_number(table_row, extra):
+    text = sr.log_split_footnote(_footnote_board(0.500, table_row, extra), "bend")
+    assert not re.search(r"-\d", text), text
+    if extra > table_row:
+        assert _closing_line(text) == (
+            "Against the whole zero-shot field RampNet's lead on this split is 0.050 F1 "
+            "(over Leg X), not the 0.100 over the table's best row.")
+    else:
+        assert _closing_line(text) is None
+
+
 def test_only_rampnets_ap_is_allowed_to_differ_from_the_log(board):
     """Scope the exception: every other model's AP must be the bundle AP unchanged.
 
@@ -610,13 +672,16 @@ def test_the_annapolis_displacement_does_not_survive_pooling(board):
     # ...and the doc says out loud that juneau is not in the comparison, and why.
     assert "eight cities both legs have run, with juneau left out of both sides" in prose
 
-    # Opus is the highest-recall chat VLM over the shared eight -- the axis
-    # operating_point.md says to optimize, and the reason the near-tie is not a wash.
-    # Every other chat VLM is complete, so each has all eight cells.
+    # Opus was the highest-recall chat VLM over the shared eight -- the axis
+    # operating_point.md says to optimize, and the reason the near-tie is not a wash --
+    # until claude-opus-5-5 ran them on 2026-10-19. It is still above every Gemini leg and
+    # above claude-fable-5-1, so it ranks second, and the doc must say who is first.
     vlms = [m["model"] for m in board["models"] if m["class"] == "chat-vlm"
             and all(s in per[m["model"]] for s in shared)]
     assert gem_key in vlms and opus_key in vlms
-    assert max(vlms, key=lambda k: mean(k, "recall")) == opus_key
+    by_recall = sorted(vlms, key=lambda k: -mean(k, "recall"))
+    assert by_recall[:2] == ["claude-opus-5-5-effort-low-anthropic", opus_key]
+    assert "until Claude Opus 5.5 at low effort ran the same eight" in prose
 
 
 def test_partial_coverage_is_reported_not_averaged_away(board):
@@ -671,9 +736,9 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         "claude-opus-5-effort-high": "1/9",
         "claude-sonnet-5-effort-low": "1/9",
         "claude-sonnet-5-effort-high": "1/9",
-        # #156, annapolis only. Both clear the expansion gate, so these may well
-        # grow past 1/9 later; until they do, partial coverage means excluded.
-        "claude-fable-5-1-effort-low-anthropic": "1/9",
+        # #156, annapolis only. claude-fable-5-1 left this set on 2026-10-19/20, when the
+        # newest-ids campaign ran it on every split, juneau included
+        # (docs/claude_newest_ids.md); claude-fable-5 was not part of that campaign.
         "claude-fable-5-effort-low-anthropic": "1/9",
         # every pooled city but juneau (added 2026-10-19, not yet run for this leg)
         "claude-opus-5-effort-low": "8/9",
@@ -698,6 +763,73 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         cells = [c.strip() for c in row.split("|")]
         pooled = cells[2 + len(lfs.US_SPLITS)]
         assert pooled == "–", f"{m['display']} pooled cell is {pooled!r}, expected a dash"
+
+
+def test_the_newest_ids_legs_are_pooled(board):
+    """claude-opus-5-5 and claude-fable-5-1 at effort low ran every split on 2026-10-19/20,
+    manual_gold, bayonne and juneau included (docs/claude_newest_ids.md), so both are
+    complete legs on the nine-city pool. juneau joined the pool on 2026-10-19 (#260) and was
+    the last split they ran; between those two events both were 8/9 and partial.
+
+    Pinned by value, like #139's result above, because a regeneration moves the doc and
+    the JSON together: this is the assertion that has to be edited deliberately. Opus 5.5
+    is the best challenger with full pooled coverage, and the headline lead is over it.
+    """
+    opus = _summary(board, "claude-opus-5-5-effort-low-anthropic")
+    fable = _summary(board, "claude-fable-5-1-effort-low-anthropic")
+    n = len(lfs.US_SPLITS)
+    for leg in (opus, fable):
+        assert leg["coverage"] == f"{n}/{n}" and leg["complete"] is True
+        # 9 pooled + laurens_gsv, budapest, sao_paulo, bayonne, manual_gold
+        assert leg["n_splits_run"] == 14
+        assert leg["display"] in sr.headline_table(board)
+    assert opus["f1"] == pytest.approx(0.712, abs=0.0006)
+    assert opus["precision"] == pytest.approx(0.696, abs=0.0006)
+    assert opus["recall"] == pytest.approx(0.735, abs=0.0006)
+    assert opus["manual_gold_f1"] == pytest.approx(0.722, abs=0.0006)
+    assert fable["f1"] == pytest.approx(0.607, abs=0.0006)
+    assert fable["manual_gold_f1"] == pytest.approx(0.638, abs=0.0006)
+    # bayonne (2026-10-20) is held out of the pool, so it moves none of the numbers above.
+    assert opus["bayonne_f1"] == pytest.approx(0.619, abs=0.0006)
+    assert fable["bayonne_f1"] == pytest.approx(0.540, abs=0.0006)
+    # juneau is pooled, and RampNet tops it.
+    assert _cell(board, opus["model"], "juneau")["f1"] == pytest.approx(0.727, abs=0.0006)
+    assert _cell(board, fable["model"], "juneau")["f1"] == pytest.approx(0.673, abs=0.0006)
+
+    challengers = [m for m in board["models"] if m["complete"] and m["model"] != "rampnet"]
+    assert max(challengers, key=lambda m: m["f1"])["model"] == opus["model"]
+    rampnet = _summary(board, "rampnet")
+    assert rampnet["f1"] - opus["f1"] == pytest.approx(0.081, abs=0.0006)
+    # The one model with full pooled coverage, other than the open-vocabulary detectors at
+    # their 0.05 floor, whose pooled recall is above RampNet's.
+    above = {m["model"] for m in challengers
+             if m["recall"] > rampnet["recall"] and m["class"] != "open-vocab"}
+    assert above == {opus["model"]}
+    # Finding 4's test, met: Opus 5.5 leads gemini-3.1-pro on every pooled city.
+    gem = {s: _cell(board, opus["model"], s)["f1"] - _cell(board, "gemini-3.1-pro-preview", s)["f1"]
+           for s in board["pooled_splits"]}
+    assert min(gem.values()) > 0
+    lo, hi = min(gem, key=gem.get), max(gem, key=gem.get)
+    with open(sb.DEFAULT_DOC, encoding="utf-8") as f:
+        prose = re.sub(r"\s+", " ", f.read())
+    assert (f"ahead on all nine by {gem[lo]:.3f} ({lo}) to {gem[hi]:.3f} ({hi})") in prose
+    # Fable 5.1 pools above every YOLO arm and every Gemini leg.
+    assert fable["f1"] > max(m["f1"] for m in challengers
+                             if m["model"] not in (opus["model"], fable["model"]))
+    # The splits where any leg beats RampNet: the two Laurens arms and bayonne, which is
+    # what "top score in eleven of the fourteen splits" in model_scoreboard.md rests on.
+    per = board["per_split"]
+    beaten = {s for s in board["all_splits"]
+              if any(cells[s]["f1"] > per["rampnet"][s]["f1"]
+                     for k, cells in per.items() if k != "rampnet" and s in cells)}
+    assert beaten == {"laurens_gsv", "laurens_mapillary", "bayonne"}
+    bayonne_winners = {k for k, cells in per.items()
+                       if "bayonne" in cells
+                       and cells["bayonne"]["f1"] > per["rampnet"]["bayonne"]["f1"]}
+    assert bayonne_winners == {opus["model"], fable["model"]}
+    # Opus 5.5 beats claude-fable-5-1 on every split both ran.
+    for s in board["per_split"][opus["model"]]:
+        assert _cell(board, opus["model"], s)["f1"] > _cell(board, fable["model"], s)["f1"], s
 
 
 def test_partial_table_names_the_split_every_number_came_from(board):
@@ -835,6 +967,8 @@ def test_the_prose_counts_match_the_board(board):
     "The pool is seven cities, not all twelve splits.",
     "The three held-out splits carry their documented reasons.",
     "RampNet has the top score in eleven of the ten splits.",
+    # true until the Claude bayonne legs of 2026-10-20
+    "RampNet has the top score in eleven of the thirteen splits.",
     "RampNet has the top score in twelve of the twelve splits.",
     "RampNet is the top score in all ten splits, including the two it is weakest on.",
     "the worst pooled city for 7 of the 13 models with full pooled coverage",
@@ -866,14 +1000,14 @@ def test_the_prose_guard_catches_each_171_sentence(board, stale):
     ("scored on 2026-08-30 on the ten splits registered then",
      "scored on 2026-08-30 on the eleven splits registered then"),
     # values, not counts
-    ("(YOLO11l) by 0.209 F1", "(YOLO11l) by 0.219 F1"),
-    ("(YOLO11l) by 0.209 F1", "(Gemini 3.1 Pro) by 0.209 F1"),
+    ("(Claude Opus 5.5) by 0.081 F1", "(Claude Opus 5.5) by 0.082 F1"),
+    ("(Claude Opus 5.5) by 0.081 F1", "(YOLO11l) by 0.081 F1"),
     ("0.543–0.855, a range of 0.311", "0.543–0.855, a range of 0.053"),
-    ("0.182 (Molmo2-8B)", "0.148 (Molmo2-8B)"),
+    ("0.174 (Claude Opus 5.5)", "0.182 (Claude Opus 5.5)"),
     ("Most of its range (0.258 of 0.311)", "The whole of its range (0.311)"),
     ("Most of its range (0.258 of 0.311)", "Most of its range (0.311 of 0.311)"),
     ("0.801–0.855, a range of 0.053", "0.80–0.85, a range of 0.053"),
-    ("0.154 (Qwen-8B) to 0.313 (YOLO11x)", "0.154 (Qwen-8B) to 0.384 (YOLO11x)"),
+    ("0.121 (Claude Fable 5.1) to 0.313 (YOLO11x)", "0.121 (Claude Fable 5.1) to 0.384 (YOLO11x)"),
     ("flatter (0.028, 0.039)", "flatter (0.028, 0.030)"),
     ("macro-to-macro the gap is 0.122", "macro-to-macro the gap is 0.119"),
     ("micro-to-micro 0.119", "micro-to-micro 0.110"),
@@ -1048,7 +1182,8 @@ def test_check_fails_on_stale_prose(tmp_path):
     """The tables can be current while a sentence beside them is not (#171)."""
     with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
         doc = fh.read()
-    doc = doc.replace("Twenty-two model legs", "Eighteen model legs", 1)
+    assert doc.count("Twenty-three model legs") == 1, "the mutation target is gone"
+    doc = doc.replace("Twenty-three model legs", "Eighteen model legs", 1)
     stale = tmp_path / "model_scoreboard.md"
     stale.write_text(doc, encoding="utf-8", newline="")
     done = _run_scoreboard("--check", "--doc", str(stale))

@@ -6,9 +6,9 @@ arm's cells added 2026-10-19 (see [Revision](#revision)).
 
 **Result.** `rampnet/eval.py` scores a prediction file against a committed benchmark bundle
 through the same functions every committed benchmark number came from, and
-`scripts/analysis/eval_protocol_150.py --check` proves it: all **197** cells of
-`analysis_out/scoreboard.json` (22 model legs, 14 splits) and all **30** (arm, split) cells of
-`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,970 and 480
+`scripts/analysis/eval_protocol_150.py --check` proves it: all **187** cells of
+`analysis_out/scoreboard.json` (21 model legs, 14 splits) and all **30** (arm, split) cells of
+`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,870 and 480
 field comparisons respectively, with **0** differing and **0** unchecked. The split files are
 pinned by content hash in `benchmark/split_pins.json`. No number changed, and the four
 fingerprinted scorer files are byte-identical to `main` (fingerprint `f4aef67aba03`).
@@ -125,8 +125,15 @@ script prints it), so editing the packaging layer alone does not make the proof 
 
 | source | cells | equal | differs | unchecked | fields compared |
 |---|--:|--:|--:|--:|--:|
-| `analysis_out/scoreboard.json` | 197 | 197 | 0 | 0 | 1,970 |
+| `analysis_out/scoreboard.json` | 175 | 175 | 0 | 0 | 1,750 |
 | `benchmark_eval/` | 30 | 30 | 0 | 0 | 480 |
+
+*Updated 2026-10-20: the board has grown since, so the committed proof now covers **224**
+scoreboard cells (23 model legs, 14 splits; 2,240 field comparisons), still 0 differing and 0
+unchecked. Beyond Juneau's 12 (Revision, below), 27 new cells are the `claude-opus-5-5` and
+`claude-fable-5-1` legs of [`claude_newest_ids.md`](claude_newest_ids.md), juneau included,
+and 10 are `y11x_tiles` (#258, Revision below). The
+table above is the 2026-10-05/11 run.*
 
 What is compared, and how:
 
@@ -270,7 +277,8 @@ splits, and the six seed-variance legs on nine, without `budapest_district5`) an
 them in `rampnet/roster.py`. Only `y11x_tiles` is on the scoreboard; the six seed legs are
 kept off it (`seed_of` in the roster; reasons in `model_scoreboard.md`), so they are not
 cells here either. The scoreboard gained 10 cells. The reproduction proof was
-regenerated after Juneau merged: **197** scoreboard cells (was 187; the 10 new ones are all
-`y11x_tiles`, which has no Juneau detections; 1,970 field comparisons, 22 model legs) and the
+regenerated after Juneau and the newest Claude legs merged: **224** scoreboard cells (was 214;
+the 10 new ones are all `y11x_tiles`, which has no Juneau detections; 2,240 field comparisons,
+23 model legs) and the
 same **30** YOLO `benchmark_eval/` cells all re-derive equal, 0 differing, 0 unchecked. The
 RampNet op_cache cells are unchanged (12), the split pins are byte-unchanged, and the scorer fingerprint is still `f4aef67aba03`.

@@ -21,14 +21,14 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 29.8 MB (237 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 30.6 MB (264 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
 | Stage 1 manifests (`all_locations.csv`, `dataset.jsonl`, `finaldataset.jsonl`, `negativepanos*.jsonl`) | 152 MB | HF [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | ✅ |
 | **Crop-model checkpoints** (rounds 1 + 2) | 720.7 MB | HF [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | ✅ |
 | Round-1 crop training set (Project Sidewalk crops) | 13.4 GB | [`rampnet-crop-model-dataset-round1`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round1) | ✅ published 2026-08-05 (§4) |
-| **`benchmark/*/panos/` (benchmark panoramas)** | 11.41 GB | HF [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | ⚠️ nine splits published (dataset commit `63d5ffd0`); **`laurens_gsv`, `laurens_mapillary` and `bayonne` are not uploaded yet** (`scripts/unpack_benchmark_panos.py`; bayonne is Jon's call, #159). Each of the three pins its bytes in `imagery_manifest.json`; bayonne's panos are public on Panoramax and in the makelab2 archive (`benchmark/README.md`, Bayonne section) |
+| **`benchmark/*/panos/` (benchmark panoramas)** | 11.41 GB | HF [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | ⚠️ nine splits published (dataset commit `63d5ffd0`); **`laurens_gsv`, `laurens_mapillary`, `bayonne` and `juneau` are not uploaded yet** (`scripts/unpack_benchmark_panos.py`; bayonne is Jon's call, #159, and so is juneau, #254, `juneau_split_254.md` §8). Each of the four pins its bytes in `imagery_manifest.json`; bayonne's panos are public on Panoramax and in the makelab2 archive (`benchmark/README.md`, Bayonne section), and juneau's are in the makelab2 archive |
 | GSV depth payloads for the 485 benchmark panos of bend / paterson / gainesville / sao_paulo (#112), plus the 86 benchmark panos of laurens_gsv (#151, held out; index sha256 `3e11306de0882173c3c723a62a496df17dc4e298d531a48f8c23539b7a738a2d`; that pin is the index as harvested on 2026-09-27, and the local mirror's `index.csv` was rewritten later that day by a labeler re-harvest that adds two stand-in columns, so it now hashes to `74e56eb5…`; all 86 payload files still match their per-file sha256, and whether makelab2's copy still carries the pinned index has not been checked) | ~2.5 MB (gzipped) for the four #112 splits; 252,757 bytes (gzipped) for laurens_gsv's 86, measured on the local mirror on 2026-09-28 | labeler archive `makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/<city>/depth/` + local mirror; per-file sha256 in `analysis_out/recall_by_depth_112.json` (laurens_gsv's under `tables["held_out"]` and `panos`) | ⚠️ unpublished (Google-derived; publication pending Jon's decision). This covers laurens_gsv's 86 payloads too. Every table in `detection_recall_analysis.md` §0 re-derives from the committed per-point rows without them. Re-deriving the rows, or re-running the image↔payload alignment check (`scripts/analysis/depth_image_alignment_112.py` → `analysis_out/depth_image_alignment_112.json`, and `--splits laurens_gsv` → `analysis_out/depth_image_alignment_151_laurens_gsv.json`, which also need the benchmark panos), needs the payloads |
 | GSV depth payloads archived by #111: manual_gold (649 served of 1,000), plus RampNet's own re-fetch of bend (110) and laurens_gsv (86), fetched 2026-10-06 | 4.7 MB (gzipped; 3.80 MB manual_gold) | local only, `benchmark/<split>/depth/` (git-ignored, desktop); per-pano sha256 of the payload in the committed `benchmark/<split>/depth_manifest.json` (digests `db827337fd09a5b2`, `e16aa8f10098df3b`, `09263279acf11f31`) | ⚠️ unpublished (publication is Jon's call). `harvest_depth_111.py --check` verifies the manifests without the payloads. `harvest` rebuilds the archive while Google serves it, but Google revises payloads (106 of bend's 110 changed between 2026-08-05 and 2026-10-06), so a rebuild is not byte-identical; see [`benchmark_depth_111.md`](benchmark_depth_111.md) |
 | makelab2 pano store (`/projects/makeabilitylab/sidewalk_panos/Panoramas`, the Project Sidewalk scraper's equirect archive; input to the crop cutter, #86 item 2b) | not measured; 55 city directories | makelab2 only, **unpublished** | ❌ the crops and the HF-similarity numbers in [`crop_cutter.md`](crop_cutter.md) cannot be re-cut outside the lab; the geometry tests, the coverage input/result and every crop's sha256 are committed (see below) |
@@ -60,7 +60,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-10-20 (juneau, #254; the tiles arms, #258) that is **237 files, 29.8 MB**, and every one of
+signature recorded inside. As of 2026-10-20 (with the tiles arms, #258) that is **264 files, 30.6 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -71,7 +71,9 @@ them belongs to a registered leg:
 | the supervised YOLO perspective-tiles arms (#51, #135; published under #258 on 2026-10-19): `y11x_tiles` on ten splits, and the six seed-variance legs `y11x_tiles_s1_ep44`, `y11x_tiles_s2_ep44`, `y11x_tiles_s3_ep42`, `y11x_tiles_s1_best`, `y11x_tiles_s2_best`, `y11x_tiles_s3_best` on nine (no `budapest_district5`) | 64 | [`yolo_geometry_51.md`](yolo_geometry_51.md), [`seed_variance_51_135.md`](seed_variance_51_135.md); export commands §below |
 | `claude-opus-5` at `low` effort, eleven splits (#122; the pool by #139, both Laurens arms by #151) | 11 | [`claude_legs_122.md`](claude_legs_122.md) |
 | the other three Vertex Claude legs, annapolis only (#122) | 3 | [`claude_legs_122.md`](claude_legs_122.md) |
-| the two Fable legs, annapolis only, served on Anthropic's first-party API (#156) | 2 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
+| `claude-fable-5` at `low` effort, annapolis only, served on Anthropic's first-party API (#156) | 1 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
+| `claude-fable-5-1` at `low` effort, first-party API, all fourteen splits: annapolis (#156) and the other thirteen (2026-10-19/20) | 14 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md), [`claude_newest_ids.md`](claude_newest_ids.md) |
+| `claude-opus-5-5` at `low` effort, first-party API, all fourteen splits (2026-10-19/20) | 14 | [`claude_newest_ids.md`](claude_newest_ids.md); its paired intervals and radius check re-derive from these files with `scripts/analysis/claude_newest_ids_261.py --check`. Re-running the paid legs on `laurens_gsv`, `laurens_mapillary`, `bayonne` or `juneau` needs panoramas that are not on HF yet (the benchmark panos row above) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`vistas_transfer_126.md`](vistas_transfer_126.md) |
 | the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg: richmond (#126, #137; re-run and published under #163), and bend, paterson, gainesville, annapolis for the #35 cascade transfer read (klone job 40774146, 2026-09-27) | 5 | [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md); the four transfer splits in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md) |
 
@@ -148,7 +150,7 @@ test rather than a promise.
 
 #### The gemini-3.7-flash leg is published but off the default roster
 
-`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all twelve splits**, including
+`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all fourteen splits** (bayonne since 2026-10-04, #159; juneau since 2026-10-19, #254), including
 `manual_gold` (1,000 panoramas, 0 uncached — that leg finished 2026-08-15 08:04 UTC, after the
 first nine were exported). It is currently the only Gemini with a `manual_gold` file: the other
 two are absent for a different reason, their `manual_gold` detections not being in the cache

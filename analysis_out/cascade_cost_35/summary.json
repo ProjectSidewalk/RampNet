@@ -48,6 +48,11 @@
    "split": "annapolis"
   },
   {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
    "challenger": "gemini-3.6-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "bayonne"
@@ -93,6 +98,16 @@
    "split": "bayonne"
   },
   {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "bend"
@@ -128,7 +143,27 @@
    "split": "bend"
   },
   {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
    "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "budapest_district5"
   },
@@ -168,6 +203,16 @@
    "split": "clovis"
   },
   {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "gainesville"
@@ -199,6 +244,16 @@
   },
   {
    "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "gainesville"
   },
@@ -258,10 +313,30 @@
    "split": "juneau"
   },
   {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
    "reason": "no analysis_out/op_cache/<split>.json",
    "split": "laurens_gsv"
   },
   {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "manual_gold"
@@ -297,6 +372,16 @@
    "split": "manual_gold"
   },
   {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "morgantown"
@@ -332,6 +417,16 @@
    "split": "morgantown"
   },
   {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "paterson"
@@ -367,6 +462,16 @@
    "split": "paterson"
   },
   {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "richmond"
@@ -402,6 +507,16 @@
    "split": "richmond"
   },
   {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "sao_paulo"
@@ -433,6 +548,16 @@
   },
   {
    "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "sao_paulo"
   }

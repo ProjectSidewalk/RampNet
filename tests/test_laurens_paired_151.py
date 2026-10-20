@@ -107,7 +107,9 @@ def test_committed_artifact_is_lf_rounded_and_hashed(committed):
         raw = fh.read()
     assert b"\r" not in raw and raw.endswith(b"}\n")
     assert lp.rows_sha256(committed) == committed["rows_sha256"]
-    assert committed["rows_sha256"] == "034e84cd18277d6099a44d2639b29dacb165a1f68cb10b1e9913d48393739fed"
+    # Moved from 034e84cd... on 2026-10-19, when the newest-ids campaign added the
+    # claude-opus-5-5 and claude-fable-5-1 legs to both arms; no earlier row changed.
+    assert committed["rows_sha256"] == "89e7ead4da8e9f8a0fd46fad04eee28b1d02684ec333cc483cc0982307bcdc5c"
     for row in committed["gt"]:
         for key, v in row.items():
             if isinstance(v, float) and key not in ("x", "y"):
