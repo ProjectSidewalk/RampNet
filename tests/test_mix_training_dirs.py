@@ -39,9 +39,10 @@ def inputs(tmp_path):
         d.mkdir(parents=True)
     for pid in ("S1", "S2", "S3"):
         _pano(sparse, pid, sup=True)
+    blobs = {pid: (sparse / f"{pid}.json").read_bytes() for pid in ("S1", "S2", "S3")}
     (sparse / "labels_manifest.json").write_text(json.dumps(
-        {"pano_ids": ["S1", "S2", "S3"], "labels_sha256": "ab" * 32, "city": "lyon"}),
-        encoding="utf-8")
+        {"pano_ids": ["S1", "S2", "S3"], "labels_sha256": mix.labels_sha256(blobs),
+         "city": "lyon"}), encoding="utf-8")
     for i in range(10):
         _pano(gsv / "train", f"G{i}")
     (gsv / "train" / "lonely.jpg").write_bytes(b"x")              # no json: not a candidate
@@ -102,3 +103,13 @@ def test_refusals(inputs, tmp_path):
     (sparse / "S3.jpg").unlink()
     with pytest.raises(SystemExit, match="no jpg"):
         mix.main(_argv(inputs, tmp_path / "m4", "--ratio", "1"))
+
+
+def test_a_sparse_set_that_drifted_from_its_manifest_is_refused(inputs, tmp_path):
+    """Re-review: the mix verifies the sparse set's labels_sha256, not just records it."""
+    sparse, _ = inputs
+    (sparse / "S2.json").write_text(json.dumps({"supervision": {"mode": "sparse"},
+                                                "curb_ramp_points_normalized": [[0.1, 0.5]]}),
+                                    encoding="utf-8")
+    with pytest.raises(SystemExit, match="labels_sha256"):
+        mix.main(_argv(inputs, tmp_path / "mix", "--ratio", "1"))

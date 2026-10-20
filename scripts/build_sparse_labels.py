@@ -69,7 +69,6 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from rampnet.gsv import heading_to_azimuth  # noqa: E402
 
 #: A strong site has qualifying members on at least this many panos (the miners' rule, #158).
 MIN_OP_PANOS = 3
@@ -171,6 +170,21 @@ def load_sites_meta(meta_path, member_min_conf):
                          f"threshold {member_min_conf}; sites would be missing members the "
                          f"recount needs")
     return params
+
+
+def benchmark_bundles_for(city):
+    """Benchmark bundle directories that may hold this run's panos: the same slug ignoring
+    case, or one slug a prefix of the other at a ``_`` boundary (``laurens`` and
+    ``laurens_mapillary`` match each other; ``lyon`` and ``lyonnais`` do not)."""
+    if not BENCHMARK_ROOT.is_dir():
+        return []
+    c = city.lower()
+    out = []
+    for d in sorted(BENCHMARK_ROOT.iterdir()):
+        n = d.name.lower()
+        if d.is_dir() and (n == c or n.startswith(c + "_") or c.startswith(n + "_")):
+            out.append(d.name)
+    return out
 
 
 def load_ids(path):
@@ -375,6 +389,9 @@ def r6(v):
 
 
 def build_record(pano, mode, pts, ignore, run_sha, city, native_sha):
+    # imported here so that importing this module (mix_training_dirs.py does, for
+    # labels_sha256) needs only the standard library; rampnet.gsv pulls in numpy and PIL
+    from rampnet.gsv import heading_to_azimuth
     heading = pano["camera_heading"]
     return {
         "pano_id": pano["pano_id"],
@@ -418,9 +435,14 @@ def plan(args):
     {pid: (path, index sha)}, manifest dict). Deterministic in the inputs and --seed."""
     if not CITY_RE.match(args.city):
         raise SystemExit(f"--city {args.city!r}: lowercase slug [a-z0-9_] expected")
-    if args.benchmark_ids is None and (BENCHMARK_ROOT / args.city).is_dir():
-        raise SystemExit(f"{BENCHMARK_ROOT / args.city} exists, so --benchmark-ids is "
-                         f"required: its panos must never train")
+    if args.benchmark_ids is None:
+        bundles = benchmark_bundles_for(args.city)
+        if bundles:
+            raise SystemExit(f"benchmark bundle(s) {', '.join(bundles)} under "
+                             f"{BENCHMARK_ROOT} match --city {args.city}, so --benchmark-ids "
+                             f"is required: their panos must never train"
+                             + (" (several match: pass the ids of every one that shares "
+                                "this run's imagery)" if len(bundles) > 1 else ""))
     manifest_path = args.manifest or str(Path(args.results).with_name("manifest.json"))
     floor = load_run_floor(manifest_path)
     meta_path = args.sites_meta or str(Path(args.sites).with_name(
@@ -510,24 +532,62 @@ def write_bytes(path, data):
     os.replace(tmp, path)
 
 
+def refuse_out_inside_inputs(out, panos_arg):
+    """Refuse an --out that is, or sits inside, the native pano directory (or the directory
+    of an index.csv). Writing there overwrites native panos with 4096x2048 re-encodes, and a
+    prune would delete the rest (#266 re-review R1: 20 of 24 natives deleted, 4 overwritten)."""
+    src = Path(panos_arg).resolve()
+    src_dir = src.parent if src.suffix.lower() == ".csv" else src
+    o = Path(out).resolve()
+    if o == src_dir or src_dir in o.parents:
+        raise SystemExit(f"--out {out} is, or is inside, the native pano directory {src_dir}; "
+                         f"write the training panos somewhere else")
+
+
+def _has_supervision(path):
+    return path.is_file() and b'"supervision"' in path.read_bytes()
+
+
 def prune_plan(out, records):
-    """Files in ``out`` that are not part of this build. Refuses (SystemExit) when ``out``
-    holds anything a prune must not delete: a dense pano JSON, or a file that is not a
-    pano's jpg/json, a leftover .tmp, or the manifest (review M3)."""
+    """Files in ``out`` that are not part of this build and that this tool demonstrably
+    wrote. A pano id is this tool's when the previous labels_manifest.json lists it, or when
+    its .json carries a ``supervision`` block. Anything else -- a dense pano JSON, a lone
+    .jpg (a native pano, say), a foreign file or directory -- stops the prune before a single
+    file is deleted (review M3, re-review R1)."""
     keep = {MANIFEST} | {f"{pid}.{ext}" for pid in records for ext in ("jpg", "json")}
+    prev = set()
+    mpath = out / MANIFEST
+    if mpath.is_file():
+        try:
+            prev = set(json.loads(mpath.read_text(encoding="utf-8")).get("pano_ids") or [])
+        except (ValueError, AttributeError):
+            raise SystemExit(f"{mpath} is not a labels manifest; refusing to prune {out}")
+
+    def ours(pid):
+        return pid in prev or pid in records or _has_supervision(out / f"{pid}.json")
+
     doomed = []
     for p in sorted(out.iterdir()):
         if p.name in keep:
             continue
-        if p.is_dir() or p.suffix not in (".jpg", ".json", ".tmp"):
+        name = p.name
+        if not p.is_dir() and name.endswith((".jpg.tmp", ".json.tmp")):
+            pid = name.rsplit(".", 2)[0]
+        elif not p.is_dir() and p.suffix in (".jpg", ".json"):
+            pid = p.stem
+        else:
             raise SystemExit(f"{p} is not a file this tool writes; refusing to prune {out}")
-        if p.suffix == ".json" and b'"supervision"' not in p.read_bytes():
+        if p.suffix == ".json" and not _has_supervision(p):
             raise SystemExit(f"{p} is a dense pano JSON; refusing to prune {out}")
+        if not ours(pid):
+            raise SystemExit(f"{p} has no sparse-label JSON beside it and is not in the "
+                             f"previous {MANIFEST}; refusing to prune {out}")
         doomed.append(p)
     return doomed
 
 
 def build(args):
+    refuse_out_inside_inputs(args.out, args.panos)
     records, images, manifest = plan(args)
     out = Path(args.out)
     if out.exists() and any(out.iterdir()):

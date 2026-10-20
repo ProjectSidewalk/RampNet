@@ -314,6 +314,31 @@ def test_benchmark_ids_are_required_when_the_city_has_a_bundle(run, tmp_path, mo
     assert bsl.main(argv) == 0                          # no bundle for the city: optional
 
 
+@pytest.mark.parametrize("city, dirs, want", [
+    ("lyon", ["Lyon"], ["Lyon"]),                                    # case
+    ("laurens", ["laurens_mapillary", "laurens_gsv"], ["laurens_gsv", "laurens_mapillary"]),
+    ("laurens_mapillary", ["laurens"], ["laurens"]),                 # either way round
+    ("lyon", ["lyonnais", "bayonne"], []),                           # not at a _ boundary
+])
+def test_benchmark_bundle_matching(tmp_path, monkeypatch, city, dirs, want):
+    for d in dirs:
+        (tmp_path / d).mkdir()
+    monkeypatch.setattr(bsl, "BENCHMARK_ROOT", tmp_path)
+    assert bsl.benchmark_bundles_for(city) == want
+
+
+def test_ambiguous_bundles_name_every_candidate(run, tmp_path, monkeypatch):
+    root = tmp_path / "benchmark"
+    for d in ("lyon_ladybug", "lyon_gopro"):
+        (root / d).mkdir(parents=True)
+    monkeypatch.setattr(bsl, "BENCHMARK_ROOT", root)
+    argv = _argv(run, tmp_path / "out")
+    i = argv.index("--benchmark-ids")
+    del argv[i:i + 2]
+    with pytest.raises(SystemExit, match="lyon_gopro, lyon_ladybug.*several match"):
+        bsl.main(argv)
+
+
 def test_benchmark_and_buffer_drop_whole_sites(run, tmp_path):
     out = tmp_path / "out"
     bsl.main(_argv(run, out))
@@ -464,6 +489,7 @@ def test_a_non_empty_out_needs_prune_and_prune_removes_stale_panos(run, tmp_path
 
 @pytest.mark.parametrize("intruder, content", [
     ("G1.json", json.dumps({"curb_ramp_points_normalized": []})),     # a dense pano
+    ("G2.jpg", "native pano bytes"),                                  # a lone jpg (R1)
     ("notes.txt", "x")])
 def test_prune_refuses_what_it_did_not_write(run, tmp_path, intruder, content):
     out = tmp_path / "out"
@@ -471,7 +497,35 @@ def test_prune_refuses_what_it_did_not_write(run, tmp_path, intruder, content):
     (out / intruder).write_text(content, encoding="utf-8")
     with pytest.raises(SystemExit, match="refusing to prune"):
         bsl.main(_argv(run, out, "--prune"))
-    assert (out / intruder).exists()
+    assert (out / intruder).read_text(encoding="utf-8") == content
+
+
+def test_prune_takes_a_lone_jpg_the_previous_manifest_listed(run, tmp_path):
+    """A build killed between a pano's image and its JSON leaves a lone jpg that IS ours:
+    the previous manifest lists it, so the prune may remove it."""
+    out = tmp_path / "out"
+    bsl.main(_argv(run, out, "--limit", "2", "--seed", "0"))
+    gone = _manifest(out)["pano_ids"][0]
+    (out / f"{gone}.json").unlink()
+    bsl.main(_argv(run, out, "--limit", "2", "--seed", "3", "--prune"))
+    assert sorted(p.stem for p in out.glob("*.jpg")) == _manifest(out)["pano_ids"]
+
+
+@pytest.mark.parametrize("where", ["panos", "panos/sub", "index_dir"])
+def test_out_inside_the_native_panos_is_refused(run, tmp_path, where):
+    """Re-review R1: --out pointed at the --panos directory overwrote 4 native panos and a
+    prune deleted the other 20. Refused before anything is written, with or without --prune."""
+    before = {p.name: p.read_bytes() for p in (run / "panos").iterdir()}
+    argv = _argv(run, run / "panos" / "sub" if where == "panos/sub" else run / "panos",
+                 "--prune")
+    if where == "index_dir":
+        idx = run / "index.csv"
+        idx.write_text("panorama_id,filename,bytes,sha256\n", encoding="utf-8")
+        argv[argv.index("--panos") + 1] = str(idx)
+        argv[argv.index("--out") + 1] = str(run)
+    with pytest.raises(SystemExit, match="native pano directory"):
+        bsl.main(argv)
+    assert {p.name: p.read_bytes() for p in (run / "panos").iterdir()} == before
 
 
 def test_limit_is_a_seeded_subset(run, tmp_path):

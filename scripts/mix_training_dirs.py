@@ -34,6 +34,9 @@ import random
 import sys
 from pathlib import Path
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from build_sparse_labels import labels_sha256  # noqa: E402  (one definition of the hash)
+
 MANIFEST = "mix_manifest.json"
 SPARSE_MANIFEST = "labels_manifest.json"
 
@@ -64,6 +67,10 @@ def plan(args):
     if missing:
         raise SystemExit(f"{len(missing)} panos in {smpath} have no jpg+json, e.g. "
                          f"{missing[:3]}; run its --check")
+    blobs = {pid: (sparse / f"{pid}.json").read_bytes() for pid in sparse_ids}
+    if labels_sha256(blobs) != sm.get("labels_sha256"):
+        raise SystemExit(f"the sparse JSONs in {sparse} do not hash to the labels_sha256 in "
+                         f"{smpath}; run build_sparse_labels.py --check before mixing")
     candidates = pairs(gsv_train)
     clash = sorted(set(candidates) & set(sparse_ids))
     if clash:

@@ -186,7 +186,7 @@ Inputs:
 | `--sites-meta` | `<sites stem>_meta.json` (default: beside `--sites`). Its `params` are recorded in the manifest as `fuse_params`. The build is refused when `params.min_confidence` is above the member threshold, because the recount would then be missing members. | labeler `scripts/fuse_sites.py` |
 | `--mined` | `labels.jsonl`: `pano_id, site_id, status, emit, x, y, peak_conf, band, benchmark_pano` | labeler `scripts/mine_city.py` (sidewalk-auto-labeler PR #114, not merged as of 2026-10-20) |
 | `--panos` | a directory of native `<id>.jpg`, or a labeler archive `index.csv` (`panorama_id, filename, bytes, sha256`, with the files in `panos/` beside it). The index's sha256 is checked when each image is read. | labeler `scripts/export_benchmark.py` |
-| `--benchmark-ids` | pano ids never to emit, one per line. **Required whenever `benchmark/<city>/` exists in this repo** (#266 review M2). | the benchmark bundle |
+| `--benchmark-ids` | pano ids never to emit, one per line. **Required whenever a bundle under `benchmark/` matches the city** (#266 review M2): the same slug ignoring case, or one slug a prefix of the other at a `_` boundary, so `laurens` and `laurens_mapillary` match each other but `lyon` and `lyonnais` do not. When several bundles match, the error names them all. | the benchmark bundle |
 | `--exclude-ids` | more pano ids never to emit: the spatial buffer around the benchmark, e.g. the 30 m `benchmark/lyon/exclude_ids.txt` that #264 will write | the bundle's build |
 
 Rules, in order:
@@ -236,8 +236,14 @@ Rules, in order:
 - A **non-empty `--out` is refused unless `--prune` is passed** (#266 review M3). With
   `--prune`, files the new build does not list are deleted, and panos whose JSON is already
   byte-identical are kept, which is how a build resumes.
-- `--prune` refuses outright if `--out` holds a dense pano JSON, or any file this tool does
-  not write. So it can never empty a GSV split.
+- `--prune` deletes a pano's files only when that pano is demonstrably this tool's: its
+  `.json` carries a `supervision` block, or the previous `labels_manifest.json` lists it. It
+  refuses outright, before deleting anything, if `--out` holds a dense pano JSON, a `.jpg`
+  with neither (a native pano, say), or any other file or directory.
+- A build is refused, with or without `--prune`, when `--out` is or sits inside the native
+  pano directory (or the directory of an `index.csv`). The first `--prune` deleted any
+  `.jpg`, and pointed at the `--panos` directory it removed 20 of 24 native panos and
+  overwrote the other 4 (#266 re-review R1).
 
 `labels_manifest.json` records:
 - the inputs (name and sha256), the parameters and the fuse parameters;
@@ -263,8 +269,9 @@ arm needs a training directory holding exactly that mix (#266 review L8).
 - a seeded uniform sample of round(`--ratio` x n_sparse) GSV training panos;
 - `val` linked to the GSV val directory unchanged, so every arm validates on the same panos.
 
-`mix_manifest.json` records the sparse set's `labels_sha256`, the ratio, the seed, the chosen
-GSV ids and `train_sha256` over the sorted (id, source) list. `--check` re-derives the
+The mixer re-hashes the sparse JSONs and refuses a set that no longer matches its own
+`labels_sha256`. `mix_manifest.json` records that hash, the ratio, the seed, the chosen GSV
+ids and `train_sha256` over the sorted (id, source) list. `--check` re-derives the
 selection and compares it with the manifest and the links. A pano id present in both sets is
 an error. Train on the result with `--data-root <out> --loss-mask`.
 
