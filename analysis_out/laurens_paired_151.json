@@ -18997,6 +18997,10 @@
   "benchmark/model_detections/Qwen__Qwen3-VL-8B-Instruct__laurens_mapillary.json": "ef5a68d1ff74e2c9b1d32419f9f13ff969043df2d6081e5d50581e3c8d451012",
   "benchmark/model_detections/allenai__Molmo2-8B__laurens_gsv.json": "d347100f8e028a1b7af893e959ddba5dfe148cfbe0a9337a19878569eb6d588d",
   "benchmark/model_detections/allenai__Molmo2-8B__laurens_mapillary.json": "af7cd701d967391c93d795d71d2dc8c4f42bf76341da2435b6791968be0f5176",
+  "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__laurens_gsv.json": "59e25b8edc956900dcb03436a9da1c7c623740988927de61390f7184c6d96455",
+  "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__laurens_mapillary.json": "4d8b2e08ac454133e0c42028d607deb1f633a23791e4aafc4f146d1a95e8e0e8",
+  "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__laurens_gsv.json": "cdb07eb8915f16393cef4bc9812709481231b485778e92fde18b87e4c6e41b88",
+  "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__laurens_mapillary.json": "33dda9213c6b5cdb27f1fbfc1d85919fa9861e1713c2393f38253248666f7546",
   "benchmark/model_detections/claude-opus-5-effort-low__laurens_gsv.json": "843f978236ec9a6417057d07612dce5e7dd51b9d10b15882d4774ad5356c9441",
   "benchmark/model_detections/claude-opus-5-effort-low__laurens_mapillary.json": "998c90d36113a2102b26966b78247336f7ae10d19bf072cedb44140893bf1bd8",
   "benchmark/model_detections/gemini-3.1-pro-preview__laurens_gsv.json": "7246cef84a061fdf236e9d8027ee6fa5caf44a97f479a2dc80b52a0c2d30c1ff",
@@ -19171,6 +19175,26 @@
    ],
    "kind": "challenger",
    "leg": "claude-opus-5-effort-low",
+   "note": "chat-vlm",
+   "op": 0.0
+  },
+  {
+   "arms": [
+    "laurens_gsv",
+    "laurens_mapillary"
+   ],
+   "kind": "challenger",
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "note": "chat-vlm",
+   "op": 0.0
+  },
+  {
+   "arms": [
+    "laurens_gsv",
+    "laurens_mapillary"
+   ],
+   "kind": "challenger",
+   "leg": "claude-opus-5-5-effort-low-anthropic",
    "note": "chat-vlm",
    "op": 0.0
   }
@@ -21578,7 +21602,7 @@
    "pano": "878422481186005"
   }
  ],
- "rows_sha256": "034e84cd18277d6099a44d2639b29dacb165a1f68cb10b1e9913d48393739fed",
+ "rows_sha256": "89e7ead4da8e9f8a0fd46fad04eee28b1d02684ec333cc483cc0982307bcdc5c",
  "scores": [
   {
    "arm": "laurens_gsv",
@@ -49519,6 +49543,3606 @@
    "n_gt": 2,
    "pano": "878422481186005",
    "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "-nKKFLcbBJunz1c0k-dcwA",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "-xvaVVVYRrX9tJ7F4xmglw",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "00BmOW4iHTFxvI5XfBcC8g",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "0ZUGJVgVEQcal9rp6tuILA",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "0aJ6gTTgGTrq3ORn85Gueg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "1ddckYctU5efwmgcRDeOow",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "2DgIGgbqWibc4Si2q2CmgA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "30tu6IuvGh6j6yKmLZ7FWA",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "4BD_5WsW8MjfnW5qxPaYTA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "5EdZyvIq_V6bdMHOTwfBmQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "69jOJB63EbGXVVwrHnUe3w",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "6da4K2LOvrLsfzbculFDYQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "73fwF5nRd5j_CV_SQpNmSg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "7r2Hde9zH3nBfvkjnWcZdg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "8443XDacZtg2sgPBwc-SGQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "9NX2mj0Nebz084y2w2uUUw",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "Axq3f5dmUG9sQROnLkSDZg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "B873bjWpRU13ZCxW57vclw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "BEJgWZ_lnkE-AkmCf_-X3Q",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "Bo5u190VcbziFzbtA-bNPg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "BwgdEZkEeKBjWK6wCvSrig",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "CNVIBE0O3dOVII6pGE09hA",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "DF9ixKP2tm4khjtLaCqzHw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "DQ2f5e65-5Qyw3kKHlxrjQ",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 1,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "Dyd9_aQq4CXH3Xx4bUXnKw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "E1YDDf-OkexbMKiQn5EbWA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "Ey45xetNUCN50MOs0OeK7w",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "F8BPY-xDwhtNn3qspjJWOg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "FBfajT8d5KGIH-wFZbFo5A",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "HjunNOomi_LiV3XNpWcRnQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "IBzUt8AnDBXGZP_c7WG-Ww",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "JkYOUcfW1E7l2ullLN0goQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "LahnAroE2htQ05mvHxCG7Q",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "PUwNAzIwS36Z2VcTKpfD2Q",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "PjFuZNRep-2Ghg1_h1srQA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "QO0YPoaDaFR0mTSPvjY7Fg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "RaT7Kn6OGjd-WNdcPpDtXQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "S1ta5kerzQzmKWX515dzhA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "SUKBhb5Vmirqu6Eqqeq3kw",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "TGGu790PRA_vnWKbMua4xA",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "TpkzsYHSwqFTcTRu-0SQXA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "UPR2eQlhrzE1aM_8hOwc4g",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "UZjj8E936Cwt9_f1dLk-sQ",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "VGvqfTvUQIM5Undt64OUbQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "VX0SpilreMwMccro80FXjw",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "Va8JxzC6g_PUq0JJwLXquw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "ViUMEouT9brZcocJpsUtTg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "Vz7sxDyXWyQjGiFmOmtAig",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 1,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "WKiz5Ayq0D8NedJYhiiVpg",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "YA_gLWICL0gDrbt7PqjdSw",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "YLoNifp1Phdr7qNSw4ot4Q",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 1,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "_VioSATkV4dYpf6LvO_Ndg",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "akUmUYY4VI2Ajb3h7v0Isw",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "b7kce14W7jzVSqjph91pEA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "cDJFInew4Mu4lmN-bz-S6A",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "cRD9Q8gFmUDyvEJYKLqoVA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "czBujtbRrXziLIwB-aGMDg",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "dgY5yPhXrraJTOyEkI3D8A",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "doDCBc-DONESkwyHaqpe7Q",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "ezCtglSP04WYl3LpuMETYQ",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "h2gIEKnlz4lNilNhfSaiyw",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "iBkiPJAK4cDIHPGbIBWeDA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "jLy4SjtOqNvNez_FeAg9iA",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "jdzXkVbC4k482TQEQZawCw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "kKMlIaCxXKpif7XOnYZ9xA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "kvBgE2J8ziZpoha86NLNXw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "lmLYnY_FdALjkue3d8edBw",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "nQ_TyC5-J5tl_tYGwrGjsA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "nncdPyMZ1h5k4hVhaWrUqw",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "oh3ORmiFMjUhY2STEODl-w",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "r0bl2uHg1hZqvEK3BunVrA",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "rKV90LD5xl1KJPz5YHg6dQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "roPUIwkaNxOkx8lNJMQq_w",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "t5ry2slJoiaJF0nfdAxZvw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "tV06TATF02ZOBxH4DwrpuA",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "tV0Iu0HmOXUPn3Wi48tp-w",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "u34stlN-ZLDAtDgD757Dlw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "umSbKrZ0vrBXwE9e8LUbHA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "vZp24wo0d2Jx8xmd_UQWCg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "w-P5zRfo5XBde3Bmm7islg",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "w3v5AGjUexRjElQ9O52YDg",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "wMzNmCtIH72_1QhsgNOyCA",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "xZv0gpOmxxUhE89aiSxATQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "y7Prdk3EypHTeMT5OxJBIg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "yJzcu-ezIsqBSNbVzLa6dQ",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "yaIpTibwLE7PK-NVxC_83g",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1048171837395171",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "1062534315912016",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1125260286068930",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1161087199423825",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1162408982536257",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1164655035789654",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1171431381605089",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 1,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1175095874018468",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "1185713806822866",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "1222425273270976",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1222452929941555",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1229954708959465",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "1314759497005685",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1321899553020334",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1329951288332749",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1337172621216224",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1338686754110443",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "1340281237294438",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1349225106930359",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1350224506043655",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1361524698783040",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "1369230248127514",
+   "tp": 7
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1378210510313997",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1423893009354395",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1458258615264761",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "1461635258234682",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1465448277852019",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "1483447699626154",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1496361174779028",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1512787529928130",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "1517299816228613",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1518788286020997",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1527469165128331",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1535322434332846",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1539829630297717",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1540396413968916",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "1545329793166565",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1550352169435830",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1557040268526874",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1568453127905099",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1586076936136628",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1659902464987018",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1735749390429351",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1824905744811261",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1894850657819898",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1895225997772744",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "1900603890488727",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1912241163063647",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "1973123443230745",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1990333295097902",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "2102336717175440",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "2142725129867751",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "2217407802101293",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "2252974625208346",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "2260879557743097",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "2281219182305735",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "2290960884662730",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "25146842334955788",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "25190811433886585",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "25277922765160642",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "25393196263651274",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "26137311355859436",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "2941904002667822",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "3148199545362586",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "4175533842712518",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "4216189052043049",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "4245707092355026",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "4276172862704339",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "4302617043349421",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "688881197614168",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "689227697592619",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "696471096852347",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "704289842736043",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "710168705006001",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "715913028227262",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "720192293894630",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "727636259805704",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "763361353420163",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "810133888556410",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "813171344835409",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "813562584985239",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "818762744118973",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "822346197177828",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "826717166785763",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "834383442517949",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "845899741254441",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "853035244088834",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "853971067099545",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "854464513592097",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "855822370146789",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "856462003604341",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 1,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "858125493614092",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "863563026117853",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-fable-5-1-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "878422481186005",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "-nKKFLcbBJunz1c0k-dcwA",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "-xvaVVVYRrX9tJ7F4xmglw",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "00BmOW4iHTFxvI5XfBcC8g",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "0ZUGJVgVEQcal9rp6tuILA",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "0aJ6gTTgGTrq3ORn85Gueg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "1ddckYctU5efwmgcRDeOow",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "2DgIGgbqWibc4Si2q2CmgA",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "30tu6IuvGh6j6yKmLZ7FWA",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "4BD_5WsW8MjfnW5qxPaYTA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "5EdZyvIq_V6bdMHOTwfBmQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "69jOJB63EbGXVVwrHnUe3w",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "6da4K2LOvrLsfzbculFDYQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "73fwF5nRd5j_CV_SQpNmSg",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "7r2Hde9zH3nBfvkjnWcZdg",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "8443XDacZtg2sgPBwc-SGQ",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "9NX2mj0Nebz084y2w2uUUw",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "Axq3f5dmUG9sQROnLkSDZg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "B873bjWpRU13ZCxW57vclw",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "BEJgWZ_lnkE-AkmCf_-X3Q",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "Bo5u190VcbziFzbtA-bNPg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "BwgdEZkEeKBjWK6wCvSrig",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "CNVIBE0O3dOVII6pGE09hA",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "DF9ixKP2tm4khjtLaCqzHw",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "DQ2f5e65-5Qyw3kKHlxrjQ",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 1,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "Dyd9_aQq4CXH3Xx4bUXnKw",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "E1YDDf-OkexbMKiQn5EbWA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "Ey45xetNUCN50MOs0OeK7w",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "F8BPY-xDwhtNn3qspjJWOg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "FBfajT8d5KGIH-wFZbFo5A",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "HjunNOomi_LiV3XNpWcRnQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "IBzUt8AnDBXGZP_c7WG-Ww",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "JkYOUcfW1E7l2ullLN0goQ",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "LahnAroE2htQ05mvHxCG7Q",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "PUwNAzIwS36Z2VcTKpfD2Q",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "PjFuZNRep-2Ghg1_h1srQA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "QO0YPoaDaFR0mTSPvjY7Fg",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "RaT7Kn6OGjd-WNdcPpDtXQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "S1ta5kerzQzmKWX515dzhA",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "SUKBhb5Vmirqu6Eqqeq3kw",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "TGGu790PRA_vnWKbMua4xA",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "TpkzsYHSwqFTcTRu-0SQXA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "UPR2eQlhrzE1aM_8hOwc4g",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "UZjj8E936Cwt9_f1dLk-sQ",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "VGvqfTvUQIM5Undt64OUbQ",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "VX0SpilreMwMccro80FXjw",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "Va8JxzC6g_PUq0JJwLXquw",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "ViUMEouT9brZcocJpsUtTg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "Vz7sxDyXWyQjGiFmOmtAig",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "WKiz5Ayq0D8NedJYhiiVpg",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "YA_gLWICL0gDrbt7PqjdSw",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "YLoNifp1Phdr7qNSw4ot4Q",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "_VioSATkV4dYpf6LvO_Ndg",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "akUmUYY4VI2Ajb3h7v0Isw",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "b7kce14W7jzVSqjph91pEA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "cDJFInew4Mu4lmN-bz-S6A",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "cRD9Q8gFmUDyvEJYKLqoVA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "czBujtbRrXziLIwB-aGMDg",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "dgY5yPhXrraJTOyEkI3D8A",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "doDCBc-DONESkwyHaqpe7Q",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 1,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "ezCtglSP04WYl3LpuMETYQ",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "h2gIEKnlz4lNilNhfSaiyw",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "iBkiPJAK4cDIHPGbIBWeDA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "jLy4SjtOqNvNez_FeAg9iA",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "jdzXkVbC4k482TQEQZawCw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "kKMlIaCxXKpif7XOnYZ9xA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "kvBgE2J8ziZpoha86NLNXw",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "lmLYnY_FdALjkue3d8edBw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "nQ_TyC5-J5tl_tYGwrGjsA",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "nncdPyMZ1h5k4hVhaWrUqw",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "oh3ORmiFMjUhY2STEODl-w",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "r0bl2uHg1hZqvEK3BunVrA",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "rKV90LD5xl1KJPz5YHg6dQ",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 1,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "roPUIwkaNxOkx8lNJMQq_w",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "t5ry2slJoiaJF0nfdAxZvw",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "tV06TATF02ZOBxH4DwrpuA",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "tV0Iu0HmOXUPn3Wi48tp-w",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "u34stlN-ZLDAtDgD757Dlw",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "umSbKrZ0vrBXwE9e8LUbHA",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "vZp24wo0d2Jx8xmd_UQWCg",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "w-P5zRfo5XBde3Bmm7islg",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "w3v5AGjUexRjElQ9O52YDg",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "wMzNmCtIH72_1QhsgNOyCA",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "xZv0gpOmxxUhE89aiSxATQ",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "y7Prdk3EypHTeMT5OxJBIg",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "yJzcu-ezIsqBSNbVzLa6dQ",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_gsv",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "yaIpTibwLE7PK-NVxC_83g",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1048171837395171",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "1062534315912016",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1125260286068930",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1161087199423825",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 2,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1162408982536257",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1164655035789654",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1171431381605089",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 1,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1175095874018468",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "1185713806822866",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "1222425273270976",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1222452929941555",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1229954708959465",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "1314759497005685",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1321899553020334",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1329951288332749",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1337172621216224",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1338686754110443",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "1340281237294438",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1349225106930359",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1350224506043655",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1361524698783040",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "1369230248127514",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1378210510313997",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1423893009354395",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1458258615264761",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "1461635258234682",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1465448277852019",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "1483447699626154",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1496361174779028",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1512787529928130",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "1517299816228613",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1518788286020997",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1527469165128331",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1535322434332846",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1539829630297717",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1540396413968916",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "1545329793166565",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1550352169435830",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1557040268526874",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 1,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1568453127905099",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "1586076936136628",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 1,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1659902464987018",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1735749390429351",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1824905744811261",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "1894850657819898",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "1895225997772744",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "1900603890488727",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1912241163063647",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "1973123443230745",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "1990333295097902",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "2102336717175440",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "2142725129867751",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "2217407802101293",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "2252974625208346",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "2260879557743097",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "2281219182305735",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "2290960884662730",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "25146842334955788",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "25190811433886585",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "25277922765160642",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 3,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "25393196263651274",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "26137311355859436",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "2941904002667822",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "3148199545362586",
+   "tp": 5
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "4175533842712518",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 1,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 5,
+   "pano": "4216189052043049",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "4245707092355026",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "4276172862704339",
+   "tp": 4
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "4302617043349421",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "688881197614168",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "689227697592619",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "696471096852347",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "704289842736043",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 4,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "710168705006001",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "715913028227262",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "720192293894630",
+   "tp": 7
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "727636259805704",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "763361353420163",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "810133888556410",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 1,
+   "pano": "813171344835409",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "813562584985239",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 7,
+   "pano": "818762744118973",
+   "tp": 6
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "822346197177828",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "826717166785763",
+   "tp": 1
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 2,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "834383442517949",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "845899741254441",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 8,
+   "pano": "853035244088834",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "853971067099545",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 3,
+   "pano": "854464513592097",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 0,
+   "pano": "855822370146789",
+   "tp": 0
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 1,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 6,
+   "pano": "856462003604341",
+   "tp": 3
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "858125493614092",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 4,
+   "pano": "863563026117853",
+   "tp": 2
+  },
+  {
+   "arm": "laurens_mapillary",
+   "fn_confirmed": true,
+   "fp": 0,
+   "ignored": 0,
+   "leg": "claude-opus-5-5-effort-low-anthropic",
+   "n_gt": 2,
+   "pano": "878422481186005",
+   "tp": 2
   }
  ],
  "tables": {
@@ -50958,6 +54582,130 @@
      "tp": 96
     },
     "leg": "claude-opus-5-effort-low",
+    "op": 0.0,
+    "op_label": "no score"
+   },
+   {
+    "delta": {
+     "F1": -0.1347,
+     "F1_ci": [
+      -0.2254,
+      -0.0426
+     ],
+     "P": -0.1191,
+     "P_ci": [
+      -0.2283,
+      -0.01
+     ],
+     "R": -0.1287,
+     "R_ci": [
+      -0.2178,
+      -0.0383
+     ]
+    },
+    "delta_whole_arm_F1": -0.0776,
+    "kind": "challenger",
+    "laurens_gsv": {
+     "F1": 0.4113,
+     "P": 0.5859,
+     "R": 0.3169,
+     "fn": 125,
+     "fp": 41,
+     "n_gt": 183,
+     "preds": 102,
+     "tp": 58
+    },
+    "laurens_gsv_whole_arm": {
+     "F1": 0.415,
+     "P": 0.5669,
+     "R": 0.3273,
+     "fn": 148,
+     "fp": 55,
+     "n_gt": 220,
+     "tp": 72
+    },
+    "laurens_mapillary": {
+     "F1": 0.546,
+     "P": 0.7049,
+     "R": 0.4456,
+     "fn": 107,
+     "fp": 36,
+     "n_gt": 193,
+     "preds": 123,
+     "tp": 86
+    },
+    "laurens_mapillary_whole_arm": {
+     "F1": 0.4926,
+     "P": 0.6369,
+     "R": 0.4016,
+     "fn": 149,
+     "fp": 57,
+     "n_gt": 249,
+     "tp": 100
+    },
+    "leg": "claude-fable-5-1-effort-low-anthropic",
+    "op": 0.0,
+    "op_label": "no score"
+   },
+   {
+    "delta": {
+     "F1": -0.0135,
+     "F1_ci": [
+      -0.0788,
+      0.0539
+     ],
+     "P": -0.0164,
+     "P_ci": [
+      -0.1045,
+      0.0683
+     ],
+     "R": -0.0112,
+     "R_ci": [
+      -0.1041,
+      0.0778
+     ]
+    },
+    "delta_whole_arm_F1": 0.022,
+    "kind": "challenger",
+    "laurens_gsv": {
+     "F1": 0.7289,
+     "P": 0.7812,
+     "R": 0.6831,
+     "fn": 58,
+     "fp": 35,
+     "n_gt": 183,
+     "preds": 162,
+     "tp": 125
+    },
+    "laurens_gsv_whole_arm": {
+     "F1": 0.7012,
+     "P": 0.7268,
+     "R": 0.6773,
+     "fn": 71,
+     "fp": 56,
+     "n_gt": 220,
+     "tp": 149
+    },
+    "laurens_mapillary": {
+     "F1": 0.7424,
+     "P": 0.7976,
+     "R": 0.6943,
+     "fn": 59,
+     "fp": 34,
+     "n_gt": 193,
+     "preds": 169,
+     "tp": 134
+    },
+    "laurens_mapillary_whole_arm": {
+     "F1": 0.6792,
+     "P": 0.7056,
+     "R": 0.6546,
+     "fn": 86,
+     "fp": 68,
+     "n_gt": 249,
+     "tp": 163
+    },
+    "leg": "claude-opus-5-5-effort-low-anthropic",
     "op": 0.0,
     "op_label": "no score"
    }
