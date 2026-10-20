@@ -61,9 +61,13 @@ foreach ($s in $Splits) {
   $next = $n * $PerPano * 1.1
   "{0} [{1}] spent so far `${2:N2}; {3} needs <= `${4:N2} (cap `${5})" -f (Get-Stamp), $Account, $spent, $s, $next, $Cap
   if ($spent + $next -gt $Cap) { "STOP: $s would exceed the `$$Cap cap for $Account"; break }
+  # --usage-log names the same file the cap reads; compare.py's own default is the code
+  # checkout's canonical root, which is a different file whenever -DataRoot points elsewhere.
   & $Python (Join-Path $code 'scripts\model_comparison\compare.py') (Join-Path $DataRoot "benchmark\$s") `
       --models "claude:$Model" --claude-serving-path anthropic --claude-effort low `
-      --api-account $Account --cache-dir (Join-Path $DataRoot '.model_cache') 2>&1 |
+      --api-account $Account --cache-dir (Join-Path $DataRoot '.model_cache') `
+      --usage-log $ledger 2>&1 |
     Select-String -Pattern 'usage logged|ledger now|failure|Error|^claude-' | ForEach-Object { "  $_" }
+  if ($LASTEXITCODE -ne 0) { "STOP: compare.py exited $LASTEXITCODE on $s"; break }
 }
 "{0} [{1}] done; ledger total for {1}: `${2:N2}" -f (Get-Stamp), $Account, (Get-AccountSpend)
