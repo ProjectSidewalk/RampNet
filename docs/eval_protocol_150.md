@@ -128,6 +128,11 @@ script prints it), so editing the packaging layer alone does not make the proof 
 | `analysis_out/scoreboard.json` | 175 | 175 | 0 | 0 | 1,750 |
 | `benchmark_eval/` | 30 | 30 | 0 | 0 | 480 |
 
+*Updated 2026-10-20: the board has grown since, so the committed proof now covers **200**
+scoreboard cells (22 model legs, 13 splits; 2,000 field comparisons), still 0 differing and 0
+unchecked. The 25 new cells are the `claude-opus-5-5` and `claude-fable-5-1` legs of
+[`claude_newest_ids.md`](claude_newest_ids.md). The table above is the 2026-10-05/11 run.*
+
 What is compared, and how:
 
 - **Scoreboard cells.** For every (model, split) cell in `per_split`: precision, recall,

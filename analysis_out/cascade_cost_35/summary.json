@@ -65,6 +65,16 @@
   {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
    "split": "bend"
   },
   {

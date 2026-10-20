@@ -3868,6 +3868,67 @@
      "rederived": null
     },
     "f1": {
+     "committed": 0.618968,
+     "equal": true,
+     "rederived": 0.618968
+    },
+    "fn": {
+     "committed": 115,
+     "equal": true,
+     "rederived": 115
+    },
+    "fp": {
+     "committed": 114,
+     "equal": true,
+     "rederived": 114
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.62,
+     "equal": true,
+     "rederived": 0.62
+    },
+    "recall": {
+     "committed": 0.61794,
+     "equal": true,
+     "rederived": 0.61794
+    },
+    "tp": {
+     "committed": 186,
+     "equal": true,
+     "rederived": 186
+    }
+   },
+   "model": "claude-opus-5-5-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
      "committed": 0.721728,
      "equal": true,
      "rederived": 0.721728
@@ -4584,6 +4645,67 @@
    "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__sao_paulo.json",
    "source": "scoreboard",
    "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.539898,
+     "equal": true,
+     "rederived": 0.539898
+    },
+    "fn": {
+     "committed": 142,
+     "equal": true,
+     "rederived": 142
+    },
+    "fp": {
+     "committed": 129,
+     "equal": true,
+     "rederived": 129
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.552083,
+     "equal": true,
+     "rederived": 0.552083
+    },
+    "recall": {
+     "committed": 0.528239,
+     "equal": true,
+     "rederived": 0.528239
+    },
+    "tp": {
+     "committed": 159,
+     "equal": true,
+     "rederived": 159
+    }
+   },
+   "model": "claude-fable-5-1-effort-low-anthropic",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/claude-fable-5-1-effort-low-anthropic__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
    "status": "equal"
   },
   {
@@ -14939,10 +15061,10 @@
    "unchecked": 0
   },
   "scoreboard": {
-   "cells": 198,
+   "cells": 200,
    "differs": 0,
-   "equal": 198,
-   "fields_compared": 1980,
+   "equal": 200,
+   "fields_compared": 2000,
    "unchecked": 0
   }
  },
