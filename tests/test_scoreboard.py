@@ -425,6 +425,66 @@ def test_log_footnote_keeps_supervised_legs_out_of_the_zero_shot_list(board):
             assert flagged == (f1 > rampnet), (split, m["model"])
 
 
+def _footnote_board(rampnet, table_row, extra):
+    """A two-row table on ``bend`` plus one off-table zero-shot leg, for the footnote's
+    closing line. Synthetic on purpose: the branches below have to be exercised whether or
+    not the committed board happens to reach them today."""
+    def cell(f1):
+        return {"bend": {"f1": f1}}
+    return {
+        "per_split": {"rampnet": cell(rampnet), "gemini-3.1-pro-preview": cell(table_row),
+                      "x-leg": cell(extra)},
+        "models": [
+            {"model": "rampnet", "display": "RampNet", "class": "supervised-rampnet"},
+            {"model": "gemini-3.1-pro-preview", "display": "Gemini 3.1 Pro",
+             "class": "chat-vlm"},
+            {"model": "x-leg", "display": "Leg X", "class": "chat-vlm"},
+        ],
+    }
+
+
+def _closing_line(text):
+    parts = text.split("\n\n")
+    return parts[1] if len(parts) > 1 else None
+
+
+def test_footnote_names_a_zero_shot_leg_that_beats_rampnet():
+    """The branch first reached by claude-opus-5-5 on the Laurens arms and bayonne: the
+    off-table leg beats RampNet, and RampNet still leads the table's own best row."""
+    text = sr.log_split_footnote(_footnote_board(0.500, 0.400, 0.600), "bend")
+    assert "Leg X F1 0.600 (**beats RampNet's 0.500 here**)" in text
+    assert _closing_line(text) == (
+        "Against the whole zero-shot field RampNet does not lead on this split: Leg X is "
+        "0.100 F1 ahead of it, where RampNet leads the table's best row by 0.100.")
+
+
+def test_footnote_never_prints_a_negative_lead_over_the_table():
+    """When a standing-table row beats RampNet too, the line says so instead of printing
+    "RampNet leads the table's best row by -0.050"."""
+    text = sr.log_split_footnote(_footnote_board(0.500, 0.550, 0.600), "bend")
+    line = _closing_line(text)
+    assert line == (
+        "Against the whole zero-shot field RampNet does not lead on this split: Leg X is "
+        "0.100 F1 ahead of it, and the table's best row, gemini-3.1-pro-preview, is 0.050 "
+        "ahead of it too.")
+    assert "-0." not in text
+
+
+@pytest.mark.parametrize("table_row, extra", [
+    (0.550, 0.450),   # a table row beats RampNet, the off-table leg does not
+    (0.400, 0.450),   # the off-table leg beats the table's best row but not RampNet
+])
+def test_footnote_closing_line_has_no_negative_number(table_row, extra):
+    text = sr.log_split_footnote(_footnote_board(0.500, table_row, extra), "bend")
+    assert not re.search(r"-\d", text), text
+    if extra > table_row:
+        assert _closing_line(text) == (
+            "Against the whole zero-shot field RampNet's lead on this split is 0.050 F1 "
+            "(over Leg X), not the 0.100 over the table's best row.")
+    else:
+        assert _closing_line(text) is None
+
+
 def test_only_rampnets_ap_is_allowed_to_differ_from_the_log(board):
     """Scope the exception: every other model's AP must be the bundle AP unchanged.
 
