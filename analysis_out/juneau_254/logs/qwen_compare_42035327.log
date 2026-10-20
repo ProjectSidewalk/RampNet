@@ -1,0 +1,44 @@
+--- Qwen model comparison ---
+Model:  Qwen/Qwen3-VL-32B-Instruct
+Bundle: benchmark/juneau
+GPUs:   2 on g3095
+HF_HOME: /gscratch/scrubbed/jfroehli/hf
+Python:  3.12.13 torch 2.14.1+cu126
+name, memory.total [MiB]
+NVIDIA L40, 46068 MiB
+NVIDIA L40, 46068 MiB
+-----------------------------
+Bundle: benchmark/juneau  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/.model_cache
+
+[ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /gscratch/scrubbed/jfroehli/envs/rampnet-eval2/lib/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /gscratch/scrubbed/jfroehli/envs/rampnet-eval2/lib/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[Qwen/Qwen3-VL-32B-Instruct] time this run: 2,359.8s wall  (765.3s model load, 1,592.6s inference over 125 pano(s), 12.74 s/pano)
+[Qwen/Qwen3-VL-32B-Instruct] usage logged to /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/analysis_out/usage_log.jsonl
+[Qwen/Qwen3-VL-32B-Instruct] ledger now: 237 rows, $137.25, 197.3 h (of which $70.09 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+rampnet                               0.967   (0.933-0.984)  0.687   (0.632-0.737)  0.803  0.680         204/7/93/6
+Qwen/Qwen3-VL-32B-Instruct            0.500   (0.422-0.578)  0.259   (0.213-0.312)  0.341    -          77/77/220/1
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    211  (correct 204, incorrect 7)
+Detections duplicate: 2  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    6  (abstained — not in precision or recall)
+Missed ramps marked:  93  (+50 unsure, abstained)
+Precision: 0.967  (95% CI 0.933-0.984)
+Recall:    0.687  (95% CI 0.632-0.737)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    211      0.967    0.687
+     0.60    196      0.969    0.640
+     0.65    175      0.971    0.572
+     0.70    158      0.975    0.519
+     0.75    143      0.979    0.471
+     0.80    126      0.992    0.421
+     0.85     95      0.989    0.316
+     0.90     52      1.000    0.175
+     0.95     15      1.000    0.051
+--- done; rsync .model_cache/ back to score alongside Gemini ---

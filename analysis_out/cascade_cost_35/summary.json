@@ -203,6 +203,61 @@
    "split": "gainesville"
   },
   {
+   "challenger": "gemini-3.6-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-3.1-pro-preview",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "Qwen/Qwen3-VL-8B-Instruct",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "Qwen/Qwen3-VL-32B-Instruct",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "allenai/Molmo2-8B",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "google/owlv2-large-patch14-ensemble",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "IDEA-Research/grounding-dino-base",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-3.7-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "y11l_pano",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "y11x_pano_h200",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "y26_pano",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
    "reason": "no analysis_out/op_cache/<split>.json",
    "split": "laurens_gsv"
   },

@@ -48,6 +48,14 @@
    "records_sha256": "f59e73db5c95017b30d8687eb4e14bccfc10f516bf98fbcb13e502185607c8fc",
    "verdicts_sha256": "93e23394171cf8dd688c5fbb46fb738f8d662b610fddd5964e00721661b81745"
   },
+  "juneau": {
+   "gt_kind": "verdicts",
+   "imagery_digest": "f37ab52d9d1165cf",
+   "n_records": 125,
+   "n_reviewed": 125,
+   "records_sha256": "1a12d664c105109ae65c5221fcf8743c230f6bab47100fcf4b2768049f54e35b",
+   "verdicts_sha256": "e6a31b15096fda9e1e37d9463ad6ce0f503c0757e014fd9f99ca805fbc239d86"
+  },
   "laurens_gsv": {
    "gt_kind": "verdicts",
    "imagery_digest": "2f079d63d4af4063",

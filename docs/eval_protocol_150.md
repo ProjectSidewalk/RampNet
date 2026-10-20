@@ -1,14 +1,14 @@
 # The benchmark scoring protocol as code (`rampnet.eval`)
 
 Issue [#150](https://github.com/ProjectSidewalk/RampNet/issues/150), the "evaluation protocol
-as code" item only. Written 2026-10-05; Bayonne added to the pinned registry 2026-10-11, and the YOLO11x tiles
+as code" item only. Written 2026-10-05; Bayonne added to the pinned registry 2026-10-11, Juneau 2026-10-19, and the YOLO11x tiles
 arm's cells added 2026-10-19 (see [Revision](#revision)).
 
 **Result.** `rampnet/eval.py` scores a prediction file against a committed benchmark bundle
 through the same functions every committed benchmark number came from, and
-`scripts/analysis/eval_protocol_150.py --check` proves it: all **185** cells of
-`analysis_out/scoreboard.json` (22 model legs, 13 splits) and all **30** (arm, split) cells of
-`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,850 and 480
+`scripts/analysis/eval_protocol_150.py --check` proves it: all **197** cells of
+`analysis_out/scoreboard.json` (22 model legs, 14 splits) and all **30** (arm, split) cells of
+`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,970 and 480
 field comparisons respectively, with **0** differing and **0** unchecked. The split files are
 pinned by content hash in `benchmark/split_pins.json`. No number changed, and the four
 fingerprinted scorer files are byte-identical to `main` (fingerprint `f4aef67aba03`).
@@ -125,7 +125,7 @@ script prints it), so editing the packaging layer alone does not make the proof 
 
 | source | cells | equal | differs | unchecked | fields compared |
 |---|--:|--:|--:|--:|--:|
-| `analysis_out/scoreboard.json` | 185 | 185 | 0 | 0 | 1,850 |
+| `analysis_out/scoreboard.json` | 197 | 197 | 0 | 0 | 1,970 |
 | `benchmark_eval/` | 30 | 30 | 0 | 0 | 480 |
 
 What is compared, and how:
@@ -201,7 +201,7 @@ per-city spread, not a held-out estimate. Whether this is what the FAIROS delive
 
 ## Split pins
 
-`benchmark/split_pins.json` holds, for each of the 13 scored splits
+`benchmark/split_pins.json` holds, for each of the 14 scored splits
 (`low_floor_sweep.ALL_SPLITS`): the LF-normalised sha256 of `records.jsonl`; of `verdicts.json`
 for a city split, or of `gt_source.json` plus a 16-hex digest over the 1,000 `manual_labels/*.txt`
 files (built like `imagery_manifest.digest_of`, `stem|sha256` sorted by stem) for
@@ -254,13 +254,23 @@ cells (no YOLO arm is scored on Bayonne) all re-derive equal, including Bayonne'
 `POOLED_SPLITS` is unchanged: Bayonne is held out of the pool for geography
 (`low_floor_sweep.HELD_OUT`), so it is not in `US_SPLITS`.
 
+**2026-10-19: Juneau added, pooled** (#254). `juneau` is the fourteenth split in
+`low_floor_sweep.ALL_SPLITS` and the ninth in `US_SPLITS`, so it is in `PINNED_SPLITS` (after
+`laurens_mapillary`, matching that order) **and** in `POOLED_SPLITS`, which the `loco` report
+reads. It is pinned in `benchmark/split_pins.json` (125 records, 125 reviewed); the other thirteen
+pins are byte-unchanged. The reproduction proof was regenerated: **187** scoreboard cells (was
+175; the 12 new ones are Juneau's: RampNet, eight free legs and three Gemini legs, 1,870 field
+comparisons) and the same **30** YOLO `benchmark_eval/` cells all re-derive equal, including
+Juneau's RampNet cell from `analysis_out/op_cache/juneau.json` (12 op_cache cells, was 11),
+0 differing, 0 unchecked.
+
 **2026-10-19: YOLO11x tiles legs added.** [#258](https://github.com/ProjectSidewalk/RampNet/issues/258)
 published per-pano detections for seven YOLO11x perspective-tiles legs (`y11x_tiles` on ten
 splits, and the six seed-variance legs on nine, without `budapest_district5`) and registered
 them in `rampnet/roster.py`. Only `y11x_tiles` is on the scoreboard; the six seed legs are
 kept off it (`seed_of` in the roster; reasons in `model_scoreboard.md`), so they are not
 cells here either. The scoreboard gained 10 cells. The reproduction proof was
-regenerated: **185** scoreboard cells (was 175; the 10 new ones are all `y11x_tiles`, 1,850
-field comparisons, 22 model legs) and the same **30** YOLO `benchmark_eval/` cells all
-re-derive equal, 0 differing, 0 unchecked. The RampNet op_cache cells are unchanged (11), the
-split pins are byte-unchanged, and the scorer fingerprint is still `f4aef67aba03`.
+regenerated after Juneau merged: **197** scoreboard cells (was 187; the 10 new ones are all
+`y11x_tiles`, which has no Juneau detections; 1,970 field comparisons, 22 model legs) and the
+same **30** YOLO `benchmark_eval/` cells all re-derive equal, 0 differing, 0 unchecked. The
+RampNet op_cache cells are unchanged (12), the split pins are byte-unchanged, and the scorer fingerprint is still `f4aef67aba03`.

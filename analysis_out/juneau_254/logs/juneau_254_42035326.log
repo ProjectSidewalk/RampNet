@@ -1,0 +1,39 @@
+HOST: g3117  job 42035326  STEPS: qwen
+python 3.12.13 torch 2.14.1+cu126 cuda True
+NVIDIA L40, 0 MiB, 46068 MiB
+=== qwen 8B 2026-10-19T08:23:55-07:00
+Bundle: benchmark/juneau  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/.model_cache
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /gscratch/scrubbed/jfroehli/envs/rampnet-eval2/lib/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /gscratch/scrubbed/jfroehli/envs/rampnet-eval2/lib/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+
+[Qwen/Qwen3-VL-8B-Instruct] time this run: 945.5s wall  (216.8s model load, 726.3s inference over 125 pano(s), 5.81 s/pano)
+[Qwen/Qwen3-VL-8B-Instruct] usage logged to /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/analysis_out/usage_log.jsonl
+[Qwen/Qwen3-VL-8B-Instruct] ledger now: 235 rows, $137.25, 196.2 h (of which $70.09 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+Qwen/Qwen3-VL-8B-Instruct             0.226   (0.187-0.272)  0.283   (0.235-0.337)  0.251    -         84/287/213/4
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    211  (correct 204, incorrect 7)
+Detections duplicate: 2  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    6  (abstained — not in precision or recall)
+Missed ramps marked:  93  (+50 unsure, abstained)
+Precision: 0.967  (95% CI 0.933-0.984)
+Recall:    0.687  (95% CI 0.632-0.737)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    211      0.967    0.687
+     0.60    196      0.969    0.640
+     0.65    175      0.971    0.572
+     0.70    158      0.975    0.519
+     0.75    143      0.979    0.471
+     0.80    126      0.992    0.421
+     0.85     95      0.989    0.316
+     0.90     52      1.000    0.175
+     0.95     15      1.000    0.051
+=== qwen done 2026-10-19T08:39:50-07:00
+ALL_STEPS_DONE

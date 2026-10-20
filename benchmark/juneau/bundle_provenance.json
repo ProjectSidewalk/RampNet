@@ -1,7 +1,7 @@
 {
   "split": "juneau",
   "issue": "https://github.com/ProjectSidewalk/RampNet/issues/254",
-  "status": "staged, NOT reviewed: no verdicts.json, nothing scored against ground truth",
+  "status": "reviewed 2026-10-19 (verdicts.json, reviewer jonf, single rater, confidence medium) and pooled as a US split; see docs/juneau_split_254.md",
   "imagery": {
     "source": "mapillary",
     "rig": "Trimble MX7 (120 of 125 panos, Mapillary contributor rking, the same contributor and rig as all of annapolis); 4 GoPro Max at 4096x2048 (tdbowthorpe_AKDOT) and 1 GoPro Max at 5760x2880 (kinneyeng)",
@@ -30,7 +30,7 @@
     "results_jsonl_sha256": "5f7822fb3f977d741c6b6f5d2139bdf1e54c7b5052dd73f1e061ad57c5446ee4",
     "results_record_count": 4999,
     "geometry": "sidewalk_juneau_ak.region (downtown minus Douglas Island, ~4.8 km2); SidewalkWebpage#5737",
-    "archive": "NOT yet in a durable store. results.jsonl (sha256 above) is on Jon's Mac at ~/Git/sidewalk-auto-labeler/runs/juneau/ and is not committed (8.5 MB); the klone job wrote it under the labeler checkout there. The 125 native panos are in the RampNet checkout on the same Mac (benchmark/juneau/panos/, git-ignored) and re-fetch from Mapillary by id. Copying both to makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/juneau/ as bayonne did is open on #254."
+    "archive": "makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/juneau/ (results.jsonl, sha256 above) and its benchmark_bundle_254/panos/ (the 125 sampled native panos, verified against imagery_manifest.json, digest f37ab52d9d1165cf). Unlike bayonne, only the sampled panos are archived; the rest re-fetch from Mapillary by id. benchmark_bundle/ in the same run dir is the superseded pre-resample export (see resample) and is not this split."
   },
   "export": {
     "command": "python scripts/export_benchmark.py runs/juneau/results.jsonl --bundle <scratch>/juneau-bundle --sample 100 --empty-sample 25",

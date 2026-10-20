@@ -1,0 +1,319 @@
+HOST: g3131  job 42034543  STEPS: repro extract parity open qwen
+python 3.12.15 torch 2.14.1+cu126 cuda True
+NVIDIA H200, 0 MiB, 143771 MiB
+=== repro laurens_mapillary 2026-10-19T07:50:16-07:00
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+device=cuda model=projectsidewalk/rampnet-model score_floor=0.05 min_distance=10 tta=False
+  laurens_mapillary: 50/94
+laurens_mapillary: 94 panos -> analysis_out/juneau_254/repro_op_cache/laurens_mapillary.json
+=== repro done 2026-10-19T07:52:31-07:00
+=== extract juneau 2026-10-19T07:52:31-07:00
+device=cuda model=projectsidewalk/rampnet-model score_floor=0.05 min_distance=10 tta=False
+  juneau: 50/125
+  juneau: 100/125
+juneau: 125 panos -> /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/analysis_out/op_cache/juneau.json
+=== extract done 2026-10-19T07:54:24-07:00
+split                   records   cache   exact  within tol   med R   max R  verdict
+--------------------------------------------------------------------------------------------
+juneau                      217     217 100.0%     100.0%   0.000   0.000  OK
+
+Displacements are in match radii (R); tolerance 0.5 R. 'exact' = peak landed in the identical heatmap cell.
+
+Parity gate: PASS — the cache reproduces the committed detections.
+=== owlv2 + gdino 2026-10-19T07:54:24-07:00
+Bundle: benchmark/juneau  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/.model_cache
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/610 [00:00<?, ?it/s]
+Loading weights:  10%|█         | 64/610 [00:00<00:01, 544.93it/s]
+Loading weights:  20%|█▉        | 119/610 [00:00<00:01, 346.31it/s]
+Loading weights:  30%|███       | 183/610 [00:00<00:00, 429.98it/s]
+Loading weights:  38%|███▊      | 231/610 [00:00<00:01, 278.75it/s]
+Loading weights:  44%|████▍     | 267/610 [00:00<00:01, 272.79it/s]
+Loading weights:  50%|████▉     | 304/610 [00:00<00:01, 292.84it/s]
+Loading weights:  57%|█████▋    | 347/610 [00:01<00:00, 323.91it/s]
+Loading weights:  64%|██████▎   | 388/610 [00:01<00:00, 323.91it/s]
+Loading weights:  69%|██████▉   | 423/610 [00:01<00:00, 253.28it/s]
+Loading weights:  74%|███████▍  | 452/610 [00:01<00:00, 200.85it/s]
+Loading weights:  78%|███████▊  | 476/610 [00:01<00:00, 201.74it/s]
+Loading weights:  82%|████████▏ | 499/610 [00:01<00:00, 171.87it/s]
+Loading weights:  85%|████████▌ | 519/610 [00:02<00:00, 174.58it/s]
+Loading weights:  88%|████████▊ | 539/610 [00:02<00:00, 166.54it/s]
+Loading weights:  91%|█████████▏| 557/610 [00:02<00:00, 150.84it/s]
+Loading weights:  97%|█████████▋| 591/610 [00:02<00:00, 184.84it/s]
+Loading weights: 100%|██████████| 610/610 [00:02<00:00, 242.04it/s]
+[google/owlv2-large-patch14-ensemble] time this run: 470.5s wall  (157.3s model load, 312.4s inference over 125 pano(s), 2.50 s/pano)
+[google/owlv2-large-patch14-ensemble] usage logged to /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/analysis_out/usage_log.jsonl
+[google/owlv2-large-patch14-ensemble] ledger now: 232 rows, $137.25, 195.8 h (of which $70.09 recovered, not measured)
+
+Loading weights:   0%|          | 0/1182 [00:00<?, ?it/s]
+Loading weights:  10%|▉         | 113/1182 [00:00<00:01, 946.58it/s]
+Loading weights:  18%|█▊        | 208/1182 [00:01<00:09, 99.54it/s] 
+Loading weights:  21%|██        | 251/1182 [00:01<00:07, 124.07it/s]
+Loading weights:  31%|███▏      | 372/1182 [00:02<00:03, 217.37it/s]
+Loading weights:  38%|███▊      | 454/1182 [00:02<00:02, 287.34it/s]
+Loading weights:  44%|████▍     | 522/1182 [00:02<00:02, 312.77it/s]
+Loading weights:  54%|█████▎    | 634/1182 [00:02<00:01, 391.32it/s]
+Loading weights:  83%|████████▎ | 976/1182 [00:02<00:00, 888.00it/s]
+Loading weights:  95%|█████████▍| 1121/1182 [00:03<00:00, 330.53it/s]
+Loading weights: 100%|██████████| 1182/1182 [00:03<00:00, 308.78it/s]
+[IDEA-Research/grounding-dino-base] time this run: 219.6s wall  (18.5s model load, 200.6s inference over 125 pano(s), 1.60 s/pano)
+[IDEA-Research/grounding-dino-base] usage logged to /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/analysis_out/usage_log.jsonl
+[IDEA-Research/grounding-dino-base] ledger now: 233 rows, $137.25, 195.9 h (of which $70.09 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+google/owlv2-large-patch14-ensemble   0.034   (0.031-0.039)  0.943   (0.910-0.964)  0.066  0.098     280/7851/17/68
+IDEA-Research/grounding-dino-base     0.026   (0.023-0.029)  0.865   (0.822-0.900)  0.050  0.030     257/9764/40/26
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    211  (correct 204, incorrect 7)
+Detections duplicate: 2  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    6  (abstained — not in precision or recall)
+Missed ramps marked:  93  (+50 unsure, abstained)
+Precision: 0.967  (95% CI 0.933-0.984)
+Recall:    0.687  (95% CI 0.632-0.737)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    211      0.967    0.687
+     0.60    196      0.969    0.640
+     0.65    175      0.971    0.572
+     0.70    158      0.975    0.519
+     0.75    143      0.979    0.471
+     0.80    126      0.992    0.421
+     0.85     95      0.989    0.316
+     0.90     52      1.000    0.175
+     0.95     15      1.000    0.051
+=== open done 2026-10-19T08:06:21-07:00
+=== qwen 8B 2026-10-19T08:06:21-07:00
+Bundle: benchmark/juneau  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/.model_cache
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib64/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib64/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+
+
+Loading weights:   0%|          | 0/750 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/750 [00:05<1:12:27,  5.80s/it]
+Loading weights:   1%|          | 4/750 [00:06<16:59,  1.37s/it]  
+Loading weights:   1%|          | 5/750 [00:06<12:54,  1.04s/it]
+Loading weights:   1%|          | 6/750 [00:07<09:53,  1.25it/s]
+Loading weights:   2%|▏         | 12/750 [00:07<03:03,  4.02it/s]
+Loading weights:   2%|▏         | 14/750 [00:07<02:27,  5.00it/s]
+Loading weights:   2%|▏         | 16/750 [00:07<02:15,  5.43it/s]
+Loading weights:   2%|▏         | 18/750 [00:08<02:21,  5.16it/s]
+Loading weights:   3%|▎         | 23/750 [00:08<01:21,  8.91it/s]
+Loading weights:   3%|▎         | 25/750 [00:08<01:18,  9.25it/s]
+Loading weights:   4%|▎         | 27/750 [00:08<01:17,  9.36it/s]
+Loading weights:   4%|▍         | 29/750 [00:09<01:27,  8.21it/s]
+Loading weights:   4%|▍         | 32/750 [00:09<01:10, 10.18it/s]
+Loading weights:   5%|▍         | 34/750 [00:09<01:04, 11.08it/s]
+Loading weights:   5%|▍         | 36/750 [00:09<00:57, 12.47it/s]
+Loading weights:   5%|▌         | 38/750 [00:10<01:46,  6.70it/s]
+Loading weights:   5%|▌         | 40/750 [00:10<01:55,  6.15it/s]
+Loading weights:   6%|▌         | 45/750 [00:10<01:07, 10.43it/s]
+Loading weights:   6%|▋         | 47/750 [00:10<01:02, 11.29it/s]
+Loading weights:   7%|▋         | 49/750 [00:11<01:30,  7.77it/s]
+Loading weights:   7%|▋         | 51/750 [00:11<01:17,  9.00it/s]
+Loading weights:   7%|▋         | 54/750 [00:11<01:08, 10.17it/s]
+Loading weights:   8%|▊         | 59/750 [00:12<01:15,  9.18it/s]
+Loading weights:   8%|▊         | 61/750 [00:13<03:03,  3.76it/s]
+Loading weights:   9%|▉         | 67/750 [00:14<01:44,  6.57it/s]
+Loading weights:   9%|▉         | 69/750 [00:14<01:40,  6.75it/s]
+Loading weights:   9%|▉         | 71/750 [00:14<01:33,  7.28it/s]
+Loading weights:  10%|▉         | 73/750 [00:14<01:26,  7.80it/s]
+Loading weights:  10%|█         | 78/750 [00:14<00:56, 11.80it/s]
+Loading weights:  11%|█         | 81/750 [00:15<00:54, 12.30it/s]
+Loading weights:  11%|█         | 83/750 [00:17<03:23,  3.28it/s]
+Loading weights:  12%|█▏        | 89/750 [00:17<01:58,  5.58it/s]
+Loading weights:  12%|█▏        | 91/750 [00:18<01:57,  5.59it/s]
+Loading weights:  12%|█▏        | 93/750 [00:18<01:57,  5.57it/s]
+Loading weights:  13%|█▎        | 95/750 [00:18<01:49,  5.96it/s]
+Loading weights:  13%|█▎        | 98/750 [00:18<01:23,  7.84it/s]
+Loading weights:  13%|█▎        | 100/750 [00:18<01:14,  8.74it/s]
+Loading weights:  14%|█▎        | 102/750 [00:19<01:12,  8.94it/s]
+Loading weights:  14%|█▍        | 104/750 [00:20<03:06,  3.46it/s]
+Loading weights:  15%|█▍        | 109/750 [00:20<01:48,  5.88it/s]
+Loading weights:  15%|█▍        | 111/750 [00:21<01:40,  6.34it/s]
+Loading weights:  15%|█▌        | 114/750 [00:21<02:02,  5.19it/s]
+Loading weights:  15%|█▌        | 115/750 [00:22<02:05,  5.05it/s]
+Loading weights:  15%|█▌        | 116/750 [00:22<02:10,  4.85it/s]
+Loading weights:  16%|█▌        | 120/750 [00:22<01:18,  7.98it/s]
+Loading weights:  17%|█▋        | 125/750 [00:22<00:54, 11.50it/s]
+Loading weights:  17%|█▋        | 127/750 [00:23<01:07,  9.19it/s]
+Loading weights:  18%|█▊        | 133/750 [00:23<00:42, 14.51it/s]
+Loading weights:  18%|█▊        | 136/750 [00:23<00:42, 14.62it/s]
+Loading weights:  18%|█▊        | 138/750 [00:23<00:56, 10.80it/s]
+Loading weights:  19%|█▉        | 144/750 [00:24<00:37, 16.27it/s]
+Loading weights:  20%|█▉        | 147/750 [00:24<00:38, 15.85it/s]
+Loading weights:  20%|██        | 150/750 [00:24<00:48, 12.50it/s]
+Loading weights:  21%|██        | 155/750 [00:24<00:35, 16.53it/s]
+Loading weights:  21%|██        | 158/750 [00:24<00:37, 15.93it/s]
+Loading weights:  21%|██▏       | 160/750 [00:25<00:51, 11.45it/s]
+Loading weights:  22%|██▏       | 164/750 [00:25<00:40, 14.43it/s]
+Loading weights:  23%|██▎       | 169/750 [00:25<00:34, 17.05it/s]
+Loading weights:  23%|██▎       | 172/750 [00:26<00:43, 13.18it/s]
+Loading weights:  24%|██▎       | 177/750 [00:26<00:33, 17.13it/s]
+Loading weights:  24%|██▍       | 180/750 [00:26<00:34, 16.37it/s]
+Loading weights:  24%|██▍       | 182/750 [00:26<00:48, 11.68it/s]
+Loading weights:  25%|██▍       | 187/750 [00:26<00:35, 15.89it/s]
+Loading weights:  25%|██▌       | 191/750 [00:27<00:33, 16.80it/s]
+Loading weights:  26%|██▌       | 194/750 [00:27<00:42, 13.03it/s]
+Loading weights:  26%|██▋       | 197/750 [00:27<00:38, 14.46it/s]
+Loading weights:  27%|██▋       | 202/750 [00:27<00:32, 17.10it/s]
+Loading weights:  27%|██▋       | 204/750 [00:28<00:45, 12.11it/s]
+Loading weights:  28%|██▊       | 210/750 [00:28<00:30, 17.51it/s]
+Loading weights:  28%|██▊       | 213/750 [00:28<00:32, 16.67it/s]
+Loading weights:  29%|██▉       | 216/750 [00:29<00:41, 12.94it/s]
+Loading weights:  29%|██▉       | 220/750 [00:29<00:33, 15.66it/s]
+Loading weights:  30%|██▉       | 224/750 [00:29<00:31, 16.66it/s]
+Loading weights:  30%|███       | 226/750 [00:29<00:44, 11.83it/s]
+Loading weights:  31%|███       | 232/750 [00:29<00:29, 17.32it/s]
+Loading weights:  31%|███▏      | 235/750 [00:30<00:31, 16.53it/s]
+Loading weights:  32%|███▏      | 238/750 [00:30<00:39, 12.86it/s]
+Loading weights:  32%|███▏      | 242/750 [00:30<00:31, 16.24it/s]
+Loading weights:  33%|███▎      | 245/750 [00:30<00:28, 17.92it/s]
+Loading weights:  33%|███▎      | 248/750 [00:32<01:22,  6.10it/s]
+Loading weights:  34%|███▍      | 254/750 [00:32<00:51,  9.72it/s]
+Loading weights:  34%|███▍      | 257/750 [00:32<00:46, 10.59it/s]
+Loading weights:  35%|███▍      | 260/750 [00:32<00:50,  9.71it/s]
+Loading weights:  35%|███▌      | 265/750 [00:33<00:37, 12.76it/s]
+Loading weights:  36%|███▌      | 268/750 [00:33<00:36, 13.14it/s]
+Loading weights:  36%|███▌      | 270/750 [00:33<00:47, 10.20it/s]
+Loading weights:  37%|███▋      | 276/750 [00:33<00:30, 15.40it/s]
+Loading weights:  37%|███▋      | 279/750 [00:33<00:31, 15.14it/s]
+Loading weights:  38%|███▊      | 282/750 [00:34<00:38, 12.18it/s]
+Loading weights:  38%|███▊      | 285/750 [00:34<00:33, 13.72it/s]
+Loading weights:  39%|███▊      | 290/750 [00:34<00:27, 16.46it/s]
+Loading weights:  39%|███▉      | 292/750 [00:35<00:38, 11.80it/s]
+Loading weights:  39%|███▉      | 296/750 [00:35<00:30, 14.69it/s]
+Loading weights:  40%|████      | 301/750 [00:35<00:26, 17.12it/s]
+Loading weights:  41%|████      | 304/750 [00:35<00:33, 13.23it/s]
+Loading weights:  41%|████      | 309/750 [00:35<00:25, 17.10it/s]
+Loading weights:  42%|████▏     | 312/750 [00:36<00:26, 16.50it/s]
+Loading weights:  42%|████▏     | 314/750 [00:36<00:47,  9.19it/s]
+Loading weights:  42%|████▏     | 317/750 [00:37<00:45,  9.49it/s]
+Loading weights:  43%|████▎     | 319/750 [00:38<01:23,  5.17it/s]
+Loading weights:  43%|████▎     | 320/750 [00:38<01:19,  5.40it/s]
+Loading weights:  43%|████▎     | 323/750 [00:39<01:29,  4.76it/s]
+Loading weights:  43%|████▎     | 324/750 [00:40<03:16,  2.17it/s]
+Loading weights:  44%|████▍     | 330/750 [00:41<01:31,  4.60it/s]
+Loading weights:  45%|████▍     | 334/750 [00:41<01:06,  6.26it/s]
+Loading weights:  45%|████▍     | 336/750 [00:41<01:08,  6.02it/s]
+Loading weights:  45%|████▌     | 340/750 [00:41<00:54,  7.56it/s]
+Loading weights:  46%|████▌     | 344/750 [00:42<00:42,  9.52it/s]
+Loading weights:  46%|████▌     | 346/750 [00:42<00:41,  9.69it/s]
+Loading weights:  46%|████▋     | 348/750 [00:42<00:40,  9.83it/s]
+Loading weights:  47%|████▋     | 353/750 [00:42<00:27, 14.32it/s]
+Loading weights:  47%|████▋     | 356/750 [00:42<00:27, 14.29it/s]
+Loading weights:  48%|████▊     | 358/750 [00:43<00:37, 10.51it/s]
+Loading weights:  49%|████▊     | 364/750 [00:43<00:23, 16.20it/s]
+Loading weights:  49%|████▉     | 367/750 [00:43<00:24, 15.70it/s]
+Loading weights:  49%|████▉     | 369/750 [00:44<00:33, 11.32it/s]
+Loading weights:  50%|████▉     | 373/750 [00:44<00:26, 14.35it/s]
+Loading weights:  50%|█████     | 377/750 [00:44<00:23, 15.68it/s]
+Loading weights:  51%|█████     | 379/750 [00:44<00:25, 14.30it/s]
+Loading weights:  51%|█████     | 381/750 [00:44<00:27, 13.26it/s]
+Loading weights:  51%|█████     | 384/750 [00:44<00:24, 14.83it/s]
+Loading weights:  51%|█████▏    | 386/750 [00:45<00:37,  9.73it/s]
+Loading weights:  52%|█████▏    | 390/750 [00:45<00:30, 11.65it/s]
+Loading weights:  52%|█████▏    | 392/750 [00:45<00:31, 11.36it/s]
+Loading weights:  53%|█████▎    | 395/750 [00:45<00:26, 13.32it/s]
+Loading weights:  56%|█████▌    | 417/750 [00:46<00:07, 47.18it/s]
+Loading weights:  57%|█████▋    | 431/750 [00:46<00:05, 62.78it/s]
+Loading weights:  59%|█████▉    | 444/750 [00:46<00:04, 71.57it/s]
+Loading weights:  60%|██████    | 453/750 [00:46<00:05, 54.03it/s]
+Loading weights:  64%|██████▎   | 477/750 [00:46<00:03, 84.98it/s]
+Loading weights:  66%|██████▌   | 495/750 [00:46<00:02, 94.08it/s]
+Loading weights:  69%|██████▊   | 515/750 [00:46<00:02, 112.26it/s]
+Loading weights:  72%|███████▏  | 538/750 [00:47<00:01, 132.84it/s]
+Loading weights:  75%|███████▌  | 563/750 [00:47<00:01, 153.59it/s]
+Loading weights:  78%|███████▊  | 584/750 [00:47<00:00, 167.20it/s]
+Loading weights:  81%|████████  | 608/750 [00:47<00:00, 177.25it/s]
+Loading weights:  84%|████████▍ | 633/750 [00:47<00:00, 187.17it/s]
+Loading weights:  87%|████████▋ | 656/750 [00:47<00:00, 198.32it/s]
+Loading weights:  90%|█████████ | 677/750 [00:47<00:00, 199.89it/s]
+Loading weights:  93%|█████████▎| 698/750 [00:47<00:00, 195.50it/s]
+Loading weights:  96%|█████████▌| 719/750 [00:47<00:00, 190.18it/s]
+Loading weights:  99%|█████████▊| 739/750 [00:48<00:00, 97.01it/s] 
+Loading weights: 100%|██████████| 750/750 [00:48<00:00, 15.42it/s]
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backends/nvidia/driver.c:9:10: fatal error: Python.h: No such file or directory
+ #include <Python.h>
+          ^~~~~~~~~~
+compilation terminated.
+[Qwen/Qwen3-VL-8B-Instruct] time this run: 261.7s wall  (234.0s model load, 27.7s inference over 10 pano(s), 2.77 s/pano)
+[Qwen/Qwen3-VL-8B-Instruct] usage logged to /mmfs1/gscratch/scrubbed/jfroehli/wt-juneau254/analysis_out/usage_log.jsonl
+[Qwen/Qwen3-VL-8B-Instruct] ledger now: 234 rows, $137.25, 195.9 h (of which $70.09 recovered, not measured)
+[Qwen/Qwen3-VL-8B-Instruct] 11 pano failure(s) isolated (excluded from the score):
+    452394240888222: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backe
+    417191077956040: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backe
+    1601217790448020: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backe
+    1158199608755189: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backe
+    3227193274078752: CalledProcessError: Command '['/usr/bin/gcc', '/mmfs1/gscratch/scrubbed/jfroehli/envs/rampnet-eval/lib/python3.12/site-packages/triton/backe
+    ... and 6 more
+
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+Qwen/Qwen3-VL-8B-Instruct             0.000   (0.000-1.000)  0.000   (0.000-1.000)  0.000    -              0/0/0/0
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    211  (correct 204, incorrect 7)
+Detections duplicate: 2  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    6  (abstained — not in precision or recall)
+Missed ramps marked:  93  (+50 unsure, abstained)
+Precision: 0.967  (95% CI 0.933-0.984)
+Recall:    0.687  (95% CI 0.632-0.737)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    211      0.967    0.687
+     0.60    196      0.969    0.640
+     0.65    175      0.971    0.572
+     0.70    158      0.975    0.519
+     0.75    143      0.979    0.471
+     0.80    126      0.992    0.421
+     0.85     95      0.989    0.316
+     0.90     52      1.000    0.175
+     0.95     15      1.000    0.051
+=== qwen done 2026-10-19T08:11:09-07:00
+ALL_STEPS_DONE

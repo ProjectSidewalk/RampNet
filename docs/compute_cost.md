@@ -384,6 +384,41 @@ makelab2, which has no Slurm; its four `paid: false` rows (`aug-probe-82:*`, 3.9
 for extraction plus a 624 s CPU stats pass) are in `analysis_out/usage_log.jsonl`. What the runs
 produced is in [`aug_transfer_82.md`](aug_transfer_82.md).
 
+## klone, 2026-10-19: the Juneau split's GPU run (#254), 2.75 GPU-hours, $0
+
+The RampNet extraction, the replication control and the eight free challenger legs for the
+juneau split, after makelab2 wedged on a stuck NFS mount (`docs/juneau_split_254.md` §5). The
+first four submissions sat at `AssocGrpCpuLimit` on `gpu-l40s` and were cancelled before
+starting, then resubmitted to `ckpt-g2`. Pulled by job id on 2026-10-19 into
+`docs/data/compute/sacct_klone_2026-10-19_juneau254.txt` (1,704 bytes, sha256
+`93b3355409dd9f072c96f8457ceea789922e84c58b23184143c0200f38623d30`) on a klone login node:
+
+```bash
+IDS=42033697,42033698,42033699,42033700,42034543,42034544,42034545,42034546,42034817,42035326,42035327
+sacct -X -D -P -n -u jfroehli -S 2026-07-01 \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j "$IDS" > sacct_klone_2026-10-19_juneau254.txt
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-10-19_juneau254.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+| job | what | GPU | GPU-h |
+| :--- | :--- | :--- | ---: |
+| 42033697-700 | first submission, cancelled before starting | — | 0 |
+| 42034546 | Qwen3-VL-32B on the broken env, cancelled before starting | — | 0 |
+| 42034543 | repro, extract, parity, OWLv2 + Grounding DINO (its Qwen3-VL-8B step failed) | 1 H200 | 0.36 |
+| 42034544 | the three YOLO pano arms | 1 H200 | 0.07 |
+| 42034545 | Molmo2-8B, failed on every pano (no `Python.h`) | 1 H200 | 0.17 |
+| 42034817 | Molmo2-8B, re-run | 1 L40 | 0.52 |
+| 42035326 | Qwen3-VL-8B, re-run | 1 L40 | 0.28 |
+| 42035327 | Qwen3-VL-32B | 2 L40 | 1.35 |
+| **total** | **11 records** | | **2.75** |
+
+The failed attempts are counted: the GPU time was spent. The abandoned makelab2 attempt that
+preceded this has no Slurm record; its `paid: false` rows (three YOLO legs plus back-filled
+repro and extract) are in `analysis_out/usage_log.jsonl`, marked abandoned.
+
 ## Gaps, stated
 
 - **Tillicum is a snapshot as of 2026-09-21.** Nothing after that date is in the ledger; the

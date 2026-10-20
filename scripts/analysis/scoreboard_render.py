@@ -26,6 +26,7 @@ SPLIT_HEADER = {
     "paterson": "pater",
     "gainesville": "gaines",
     "laurens_mapillary": "laur_mly",
+    "juneau": "juneau",
     "laurens_gsv": "laur_gsv †",
     "budapest_district5": "budapest †",
     "sao_paulo": "sao_paulo †",
@@ -644,6 +645,9 @@ LOG_ROWS = {
     "paterson": LOG_STANDING,
     "gainesville": LOG_STANDING,
     "laurens_mapillary": LOG_STANDING + ("claude-opus-5-effort-low",),
+    # Every standing leg ran on juneau (#254; the Molmo and Qwen legs on klone after
+    # makelab2 wedged), so its table is the full roster.
+    "juneau": LOG_STANDING,
     "laurens_gsv": LOG_STANDING + ("claude-opus-5-effort-low",),
     "budapest_district5": LOG_STANDING,
     "sao_paulo": LOG_STANDING,
