@@ -1,0 +1,45 @@
+WARNING: --usage-log points inside this worktree (D:\Git\RampNet-wt\juneau254), not the main checkout (D:\Git\RampNet). A worktree is deleted when its session ends and takes the ledger with it; commit the log or point it at the main checkout.
+
+Bundle: benchmark/juneau  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: D:/Git/RampNet/.model_cache
+
+[gemini-3.6-flash] API usage this run: 750 calls, 957,000 in / 319,407 out tokens (305,765 thinking)  ~=$1.92 (pricing as of 2026-08-15)
+[gemini-3.6-flash] time this run: 2,860.0s wall  (2.2s model load, 2,857.6s inference over 125 pano(s), 22.86 s/pano)
+[gemini-3.6-flash] served by: gemini-3.6-flash (750 calls)
+[gemini-3.6-flash] usage logged to D:\Git\RampNet-wt\juneau254\analysis_out\usage_log.jsonl
+[gemini-3.6-flash] ledger now: 228 rows, $139.16, 196.3 h (of which $70.09 recovered, not measured)
+[gemini-3.1-pro-preview] API usage this run: 750 calls, 957,000 in / 19,148 out tokens (0 thinking)  ~=$2.14 (pricing as of 2026-08-15)
+[gemini-3.1-pro-preview] time this run: 2,696.4s wall  (0.5s model load, 2,695.7s inference over 125 pano(s), 21.57 s/pano)
+[gemini-3.1-pro-preview] served by: gemini-3.1-pro-preview (750 calls)
+[gemini-3.1-pro-preview] usage logged to D:\Git\RampNet-wt\juneau254\analysis_out\usage_log.jsonl
+[gemini-3.1-pro-preview] ledger now: 236 rows, $141.31, 197.5 h (of which $70.09 recovered, not measured)
+[gemini-3.7-flash] API usage this run: 750 calls, 957,000 in / 218,934 out tokens (209,237 thinking)  ~=$1.54 (pricing as of 2026-08-15)
+[gemini-3.7-flash] time this run: 9,683.1s wall  (0.5s model load, 9,682.4s inference over 125 pano(s), 77.46 s/pano)
+[gemini-3.7-flash] served by: gemini-3.7-flash (750 calls)
+[gemini-3.7-flash] usage logged to D:\Git\RampNet-wt\juneau254\analysis_out\usage_log.jsonl
+[gemini-3.7-flash] ledger now: 245 rows, $142.84, 201.7 h (of which $70.09 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+gemini-3.6-flash                      0.536   (0.476-0.595)  0.475   (0.419-0.531)  0.504    -       141/122/156/12
+gemini-3.1-pro-preview                0.581   (0.520-0.639)  0.508   (0.452-0.565)  0.542    -       151/109/146/16
+gemini-3.7-flash                      0.739   (0.668-0.800)  0.411   (0.356-0.468)  0.528    -         122/43/175/5
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    211  (correct 204, incorrect 7)
+Detections duplicate: 2  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    6  (abstained — not in precision or recall)
+Missed ramps marked:  93  (+50 unsure, abstained)
+Precision: 0.967  (95% CI 0.933-0.984)
+Recall:    0.687  (95% CI 0.632-0.737)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    211      0.967    0.687
+     0.60    196      0.969    0.640
+     0.65    175      0.971    0.572
+     0.70    158      0.975    0.519
+     0.75    143      0.979    0.471
+     0.80    126      0.992    0.421
+     0.85     95      0.989    0.316
+     0.90     52      1.000    0.175
+     0.95     15      1.000    0.051

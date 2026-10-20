@@ -64,9 +64,9 @@ from rampnet.validation import wilson_interval  # noqa: E402
 from operating_point_curve import (  # noqa: E402
     DEPLOYED_THRESHOLD, classify_predictions, pr_curve_and_ap, read_cache)
 
-# The seven US city splits carry verdict-grade GT and are the recommendation's basis.
+# The nine US city splits carry verdict-grade GT and are the recommendation's basis.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
-             "gainesville", "laurens_mapillary")
+             "gainesville", "laurens_mapillary", "juneau")
 CITY_SPLITS = US_SPLITS + ("laurens_gsv", "budapest_district5", "sao_paulo",
                             "bayonne")
 ALL_SPLITS = CITY_SPLITS + ("manual_gold",)

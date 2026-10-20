@@ -47,6 +47,7 @@ a run that hasn't happened, not a result being withheld.
 | morgantown | ✅ | ✅ full roster | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
 | paterson | ✅ | ✅ full roster | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead over the standing roster on a high-confidence split (0.12; bayonne's 0.086 is narrower, on medium-confidence GT); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ full roster | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
+| juneau | ✅ | ⚠️ full roster except **claude-opus-5** (low): not run yet, waiting on the plan API-credits route being set up (it would bill Anthropic's first-party API, which is the same leg — `serving_path` is not in the cache key) | ❌ not run | ✅ 19% (4/21) | the Annapolis rig (Trimble MX7, 120 of 125) on new streets; a Project Sidewalk deployment city on the same Mapillary imagery; GT single-rater, **medium** confidence; pooled (#254, `docs/juneau_split_254.md`) |
 | budapest_district5 | ✅ | ✅ full roster | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
 | sao_paulo | ✅ | ✅ full roster | ✅ | ✅ **12.5% (6/48) — lowest measured** | second non-US split (GSV, NBR 9050), GT **high** confidence — the budapest recall collapse did not replicate; 4th Qwen-32B caution occurrence, this time at parity not inversion |
 | bayonne | ✅ | ⚠️ partial: Gemini 3.6 Flash, Gemini 3.1 Pro, Gemini 3.7 Flash, Qwen3-VL-8B, OWLv2, Grounding DINO, the three YOLO pano arms; off-roster, `claude-opus-5-5` and `claude-fable-5-1` at low (2026-10-20, `docs/claude_newest_ids.md`). **Not run:** Molmo2-8B (failed on every pano), Qwen3-VL-32B (weights not cached on makelab2), claude-opus-5 (bills a separate account, not authorized; the 2026-10-19 campaign ran only the newest ids) | ❌ not run | ❌ gallery built (40 items), **tags pending** | third non-US split, first Panoramax (GoPro Max); GT single-rater, **medium** confidence; lowest recall in the benchmark (`docs/bayonne_split_159.md`) |
@@ -685,6 +686,48 @@ Three things laurens adds:
    established rather than suggestive; rural streetscape is simply the strongest dose of it
    the benchmark has. OWLv2's 0.851 recall against RampNet's 0.390 is, as everywhere, mostly
    density — 68.0 boxes/pano — and is not a recall ceiling anyone can deploy.
+
+**juneau** (125 reviewed panos, 297 GT ramps) — added 2026-10-19 (#254): 120 panos from the
+Annapolis contributor's Trimble MX7 plus 5 GoPro Max, on the Mapillary imagery Project
+Sidewalk's Juneau deployment uses; single rater, reviewer confidence **MEDIUM** (many distant
+ramps marked unsure; diagonal corner ramps; see `benchmark/README.md`)
+
+<!-- BEGIN GENERATED: results:juneau (scripts/analysis/scoreboard.py) -->
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.967** | 0.687 | **0.803** | 0.680 | 204/7/93 |
+| **gemini-3.1-pro-preview** | 0.581 | 0.508 | **0.542** | – | 151/109/146 |
+| gemini-3.6-flash | 0.536 | 0.475 | 0.504 | – | 141/122/156 |
+| **molmo2-8B** (points) | 0.474 | 0.424 | **0.448** | – | 126/140/171 |
+| Qwen3-VL-32B-Instruct | 0.500 | 0.259 | 0.341 | – | 77/77/220 |
+| Qwen3-VL-8B-Instruct | 0.226 | 0.283 | 0.251 | – | 84/287/213 |
+| owlv2-large-patch14-ensemble | 0.034 | **0.943** | 0.066 | 0.098 | 280/7851/17 |
+| grounding-dino-base | 0.026 | 0.865 | 0.050 | 0.030 | 257/9764/40 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.528. Supervised (#71 protocol, not comparable as 'challenger'): YOLO26 (pano) F1 0.496, YOLO11l (pano) F1 0.462, YOLO11x (pano) F1 0.410.
+
+<!-- END GENERATED: results:juneau -->
+
+Paid legs: the three Gemini legs ran on 2026-10-19 ($5.60 estimated; rows in
+`analysis_out/usage_log.jsonl`, `vertex_usage.py --reconcile` ok). The free legs ran on klone
+(`ckpt-g2`, H200 and L40 nodes, 2.75 GPU-h) after makelab2 wedged; the replication control
+(on an H200) reproduced
+`laurens_mapillary`'s committed cache cell for cell and Juneau's parity is exact
+(`analysis_out/juneau_254/checks.json`). **Not run: claude-opus-5 (low)**, so it drops from the
+complete pooled rows to 8 of 9 cities until it runs.
+
+What juneau adds:
+
+1. **The same rig gives the same ranking.** On the standing roster juneau orders every model
+   exactly as annapolis does (RampNet, Gemini 3.1 Pro, Gemini 3.6 Flash, Molmo2-8B, Qwen3-VL-32B,
+   Qwen3-VL-8B, OWLv2, Grounding DINO), with most models a few points lower here; Molmo2-8B
+   (0.448 against 0.424) and OWLv2 (0.066 against 0.063) are higher, as are two of the
+   supervised YOLO arms off the roster (y26_pano 0.496 against 0.450, y11x_pano_h200 0.410
+   against 0.397). One split cannot say whether that is the rig, the
+   contributor or the rubric, since juneau shares all three with annapolis.
+2. **RampNet's lead over the best standing-roster challenger is 0.261 F1** (Gemini 3.1 Pro
+   0.542), against 0.273 over the same challenger on annapolis.
 
 **laurens_gsv** (86 reviewed panos, 220 GT ramps) — the **second imagery arm** of Laurens
 (2026-08-31), reviewer confidence HIGH; Google Street View zoom-5 over the same 1.91 km²
