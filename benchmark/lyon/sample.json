@@ -1,0 +1,93 @@
+{
+  "source_records": "D:\\Git\\labeler-wt\\lyon5m\\runs\\lyon\\results.jsonl",
+  "source_record_count": 174405,
+  "sample": 150,
+  "empty_sample": 25,
+  "seed": 159,
+  "min_spacing_m": 30.0,
+  "min_confidence": 0.55,
+  "selected": 175,
+  "groups": {
+    "top": 10,
+    "random": 140,
+    "empty": 25
+  },
+  "top_n": 10,
+  "record_confidence": 0.3,
+  "stratified": {
+    "group_keys": [
+      "camera_model",
+      "copyright"
+    ],
+    "group_map": [
+      [
+        "Ladybug|grand lyon",
+        "grand_lyon_ladybug"
+      ],
+      [
+        "Ladybug|grand-lyon",
+        "grand_lyon_ladybug"
+      ],
+      [
+        "|grand lyon",
+        "grand_lyon_ladybug"
+      ],
+      [
+        "|grand-lyon",
+        "grand_lyon_ladybug"
+      ],
+      [
+        "Max|ecartip",
+        "ecartip_gopro_max"
+      ],
+      [
+        "Max|*",
+        "other_gopro_max"
+      ],
+      [
+        "*",
+        "other_cameras"
+      ]
+    ],
+    "group_min": 20,
+    "empty_group_min": 3,
+    "strata": {
+      "ecartip_gopro_max": {
+        "pool_with_detections": 14573,
+        "pool_empty": 30829,
+        "top": 3,
+        "random_target": 44,
+        "random": 44,
+        "empty_target": 5,
+        "empty": 5
+      },
+      "grand_lyon_ladybug": {
+        "pool_with_detections": 17083,
+        "pool_empty": 69151,
+        "top": 6,
+        "random_target": 52,
+        "random": 52,
+        "empty_target": 12,
+        "empty": 12
+      },
+      "other_cameras": {
+        "pool_with_detections": 1513,
+        "pool_empty": 7883,
+        "top": 0,
+        "random_target": 20,
+        "random": 20,
+        "empty_target": 3,
+        "empty": 3
+      },
+      "other_gopro_max": {
+        "pool_with_detections": 7709,
+        "pool_empty": 25654,
+        "top": 1,
+        "random_target": 24,
+        "random": 24,
+        "empty_target": 5,
+        "empty": 5
+      }
+    }
+  }
+}

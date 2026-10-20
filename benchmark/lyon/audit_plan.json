@@ -1,0 +1,294 @@
+{
+ "group_table": {
+  "ecartip_gopro_max": {
+   "det030_empty": 3,
+   "det030_random": 145,
+   "det030_top": 29,
+   "det055_empty": 0,
+   "det055_random": 81,
+   "det055_top": 26,
+   "panos_empty": 5,
+   "panos_random": 44,
+   "panos_top": 3,
+   "run_panos_empty": 30829,
+   "run_panos_with_det055": 14576
+  },
+  "grand_lyon_ladybug": {
+   "det030_empty": 0,
+   "det030_random": 165,
+   "det030_top": 59,
+   "det055_empty": 0,
+   "det055_random": 95,
+   "det055_top": 52,
+   "panos_empty": 12,
+   "panos_random": 52,
+   "panos_top": 6,
+   "run_panos_empty": 69151,
+   "run_panos_with_det055": 17089
+  },
+  "other_cameras": {
+   "det030_empty": 2,
+   "det030_random": 52,
+   "det030_top": 0,
+   "det055_empty": 0,
+   "det055_random": 25,
+   "det055_top": 0,
+   "panos_empty": 3,
+   "panos_random": 20,
+   "panos_top": 0,
+   "run_panos_empty": 7883,
+   "run_panos_with_det055": 1513
+  },
+  "other_gopro_max": {
+   "det030_empty": 2,
+   "det030_random": 59,
+   "det030_top": 8,
+   "det055_empty": 0,
+   "det055_random": 43,
+   "det055_top": 8,
+   "panos_empty": 5,
+   "panos_random": 24,
+   "panos_top": 1,
+   "run_panos_empty": 25654,
+   "run_panos_with_det055": 7710
+  }
+ },
+ "groups": {
+  "ecartip_gopro_max": "ecartip, GoPro Max",
+  "grand_lyon_ladybug": "Grand Lyon 8192x4096 (Point Grey Ladybug, incl. the make-less batches; both account spellings)",
+  "other_cameras": "long tail of other cameras",
+  "other_gopro_max": "other GoPro Max accounts"
+ },
+ "never_train": "Every panorama_id in benchmark/lyon/records.jsonl is held out of every training pool, whatever the audit reads.",
+ "pass_bar": {
+  "duplicates": "scored as false positives (rampnet.validation default)",
+  "metric": "precision of the detections at confidence >= 0.55",
+  "read_on": "each audit group's unbiased subset (random + empty strata; the top stratum is excluded, as for every split)",
+  "reported_alongside": [
+   "recall at 0.55",
+   "precision and recall at 0.30",
+   "unsure and duplicate counts",
+   "per-rig breakdown inside each group (descriptive, no bar)"
+  ],
+  "rule": "a group passes if its point estimate is >= 0.80. The 95% Wilson interval is reported beside it; an interval that straddles 0.80 is reported as not decisive. A group that fails is excluded from any Lyon training pool.",
+  "source": "the #158 build line (>= 0.80 build, 0.50-0.80 visibility, < 0.50 drop)",
+  "threshold": 0.8
+ },
+ "question": "Are the RampNet self-labels on each Lyon rig x producer group good enough to train on?",
+ "records_show_detections_down_to": 0.3,
+ "rig_breakdown": [
+  {
+   "group": "grand_lyon_ladybug",
+   "panos": 25,
+   "producer": "grand lyon",
+   "rig": "Point Grey Research Ladybug 8192x4096",
+   "year": "2022"
+  },
+  {
+   "group": "grand_lyon_ladybug",
+   "panos": 14,
+   "producer": "grand lyon",
+   "rig": "Point Grey Research Ladybug 8192x4096",
+   "year": "2020"
+  },
+  {
+   "group": "grand_lyon_ladybug",
+   "panos": 10,
+   "producer": "grand lyon",
+   "rig": "(no make/model) 8192x4096",
+   "year": "2020"
+  },
+  {
+   "group": "grand_lyon_ladybug",
+   "panos": 6,
+   "producer": "grand-lyon",
+   "rig": "(no make/model) 8192x4096",
+   "year": "2021"
+  },
+  {
+   "group": "grand_lyon_ladybug",
+   "panos": 5,
+   "producer": "grand lyon",
+   "rig": "Point Grey Research Ladybug 8192x4096",
+   "year": "2021"
+  },
+  {
+   "group": "grand_lyon_ladybug",
+   "panos": 4,
+   "producer": "grand-lyon",
+   "rig": "(no make/model) 8192x4096",
+   "year": "2023"
+  },
+  {
+   "group": "grand_lyon_ladybug",
+   "panos": 3,
+   "producer": "grand lyon",
+   "rig": "(no make/model) 8192x4096",
+   "year": "2021"
+  },
+  {
+   "group": "grand_lyon_ladybug",
+   "panos": 3,
+   "producer": "grand lyon",
+   "rig": "(no make/model) 8192x4096",
+   "year": "2022"
+  },
+  {
+   "group": "ecartip_gopro_max",
+   "panos": 44,
+   "producer": "ecartip",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2026"
+  },
+  {
+   "group": "ecartip_gopro_max",
+   "panos": 8,
+   "producer": "ecartip",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2025"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 9,
+   "producer": "mike en gyroroue",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2023"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 6,
+   "producer": "ign_ddc_dtce_np",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2026"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 4,
+   "producer": "nuxper_np",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2025"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 4,
+   "producer": "trucbidule",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2025"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 2,
+   "producer": "ign_ddc_dtce_np",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2025"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 1,
+   "producer": "Mike_citadin",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2023"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 1,
+   "producer": "ign_ddc_dtce_fa",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2026"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 1,
+   "producer": "luppano",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2026"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 1,
+   "producer": "olimago",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2023"
+  },
+  {
+   "group": "other_gopro_max",
+   "panos": 1,
+   "producer": "trucbidule",
+   "rig": "GoPro Max 5760x2880",
+   "year": "2026"
+  },
+  {
+   "group": "other_cameras",
+   "panos": 8,
+   "producer": "veloroutelavoiebleue",
+   "rig": "(no make/model) 10560x5280",
+   "year": "2025"
+  },
+  {
+   "group": "other_cameras",
+   "panos": 4,
+   "producer": "bpeel",
+   "rig": "Arashi Vision insta360 x3 5952x2976",
+   "year": "2026"
+  },
+  {
+   "group": "other_cameras",
+   "panos": 4,
+   "producer": "luppano",
+   "rig": "Kandao QooCam 3 11136x5568",
+   "year": "2026"
+  },
+  {
+   "group": "other_cameras",
+   "panos": 2,
+   "producer": "geovelo",
+   "rig": "Garmin VIRB 360 5640x2820",
+   "year": "2018"
+  },
+  {
+   "group": "other_cameras",
+   "panos": 2,
+   "producer": "luppano",
+   "rig": "RICOH THETA S 5376x2688",
+   "year": "2026"
+  },
+  {
+   "group": "other_cameras",
+   "panos": 1,
+   "producer": "bpeel",
+   "rig": "Arashi Vision insta360 x3 5952x2976",
+   "year": "2025"
+  },
+  {
+   "group": "other_cameras",
+   "panos": 1,
+   "producer": "alaeddinejerad",
+   "rig": "Arashi Vision insta360 x5 7680x3840",
+   "year": "2026"
+  },
+  {
+   "group": "other_cameras",
+   "panos": 1,
+   "producer": "j***@***",
+   "rig": "Kandao Qoocam 3 Ultra 7680x3840",
+   "year": "2026"
+  }
+ ],
+ "sampler": {
+  "empty_sample": 25,
+  "groups": {
+   "empty": 25,
+   "random": 140,
+   "top": 10
+  },
+  "min_confidence": 0.55,
+  "min_spacing_m": 30.0,
+  "record_confidence": 0.3,
+  "sample": 150,
+  "seed": 159,
+  "selected": 175,
+  "source_record_count": 174405,
+  "top_n": 10
+ },
+ "what": "Lyon label audit (#159 decision of 2026-10-06, #263 track 2). A working draft posted before the review; Jon may amend it before the review opens. Lyon is not a benchmark split, and these panos never train."
+}

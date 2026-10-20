@@ -1,0 +1,42 @@
+{
+  "bundle": "lyon",
+  "kind": "label audit bundle, NOT a benchmark split: Lyon is a training-only candidate city (#159 decision of 2026-10-06). It is not registered anywhere and nothing scores it as a split.",
+  "issue": "https://github.com/ProjectSidewalk/RampNet/issues/159",
+  "campaign": "https://github.com/ProjectSidewalk/RampNet/issues/263",
+  "status": "staged, NOT reviewed: no verdicts.json, nothing scored. The plan and pass bar in audit_plan.json are a working draft posted before the review.",
+  "never_train": "Every panorama_id in records.jsonl is held out of every training pool, whatever the audit reads.",
+  "imagery": {
+    "source": "panoramax",
+    "instances": {"panoramax.ign.fr": 152, "panoramax.openstreetmap.fr": 23},
+    "licences": {"etalab-2.0": 152, "CC-BY-SA-4.0": 23},
+    "credit": "Each pano is credited by the copyright and license fields of records.jsonl; the gallery shows both and links the pano on its own Panoramax instance. One producer name is email-shaped and is masked in records.jsonl (j***@***), as the labeler census masks it (sidewalk-auto-labeler PR 150)."
+  },
+  "run": {
+    "repo": "ProjectSidewalk/sidewalk-auto-labeler",
+    "pr": "https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/163",
+    "doc": "docs/panoramax-lyon.md section 8 on branch lyon-densify-159 (4335e73)",
+    "detection_commit": "fd08b8f (plain clone of main, Hyak job 41504145, ckpt-g2, one L40S)",
+    "command": "python main.py example_geojson/lyon.geojson --name lyon --source panoramax --reuse-scan --thin-spacing 5",
+    "model": "projectsidewalk/rampnet-model@606a11956743f7eb328d9207769034752f6191f4",
+    "detection_storage_floor": 0.1,
+    "detection_border": "exclude (production drops peaks within 10 heatmap cells of the seam, sidewalk-auto-labeler#130)",
+    "results_jsonl": "runs/lyon/results.jsonl (local copy D:/Git/labeler-wt/lyon5m/runs/lyon/results.jsonl)",
+    "results_jsonl_sha256": "60e688b28b62f85e71f51c603dc1b6f4ff020348220c6cc7955891dcfef061ef",
+    "results_record_count": 174405,
+    "archive": "makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/lyon/panos/ (all 174,405 native panos, index.csv with sha256 per file)"
+  },
+  "export": {
+    "exporter": "scripts/export_benchmark.py at sidewalk-auto-labeler 404d141 (branch lyon-review-bundle-159, PR 167): stratified sampling by --group-key",
+    "command": "python scripts/export_benchmark.py D:/Git/labeler-wt/lyon5m/runs/lyon/results.jsonl --bundle D:/Git/labeler-wt/lyon-bundle --sample 150 --empty-sample 25 --seed 159 --min-spacing 30 --top 10 --group-key camera_model --group-key copyright --group-map D:/Git/labeler-wt/lyon-bundle/group_map.json --group-min 20 --empty-group-min 3 --record-confidence 0.30 --records-only",
+    "written": "2026-10-20",
+    "exporter_records_jsonl_sha256": "d17d367ea9c3602573dc55b78f026f3e90a426d9220a020e20b7b3378ec54767",
+    "reproduced": "re-run from the committed exporter into a fresh directory: records.jsonl and sample.json byte-identical",
+    "pixels": "--records-only: the panos are copied out of the makelab2 archive, not re-fetched from Panoramax"
+  },
+  "staged": {
+    "date": "2026-10-20",
+    "command": "python scripts/analysis/lyon_review_159.py stage --from D:/Git/labeler-wt/lyon-bundle",
+    "changes": "records.jsonl differs from the exporter's only by the one masked email-shaped producer name (1 record)",
+    "files": ["records.jsonl", "sample.json", "group_map.json", "audit_plan.json", "bundle_provenance.json", "nadir_band.json and imagery_manifest.json (once the panos are local)", "index.csv and panos/ (git-ignored, travel with the imagery)"]
+  }
+}

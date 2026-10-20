@@ -235,6 +235,24 @@ def load_nadir_band(bundle_dir):
             if e.get("band_top_y") is not None}
 
 
+def load_nadir_band_labels(bundle_dir):
+    """``{pano_id: label}`` for panos whose ``nadir_band.json`` entry names its overlay.
+
+    Bayonne's band is a white logo band, the viewer's default wording. Other rigs blank
+    the nadir differently: Lyon's Grand Lyon Ladybug panos are solid black below
+    y ~0.81 because the rig has no downward camera (#159, #263). An entry's optional
+    ``label`` ("black nadir (no camera)") replaces the default wording on that pano and
+    in the banner; a bundle without labels renders exactly as before.
+    """
+    path = Path(bundle_dir) / "nadir_band.json"
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8") as f:
+        panos = json.load(f).get("panos", {})
+    return {pid: e["label"] for pid, e in panos.items()
+            if e.get("band_top_y") is not None and e.get("label")}
+
+
 def viewer_url(pano):
     """Link to the pano in its source's own viewer, or '' when there is none.
 
@@ -280,11 +298,12 @@ def _crop_boxes(record):
     return out
 
 
-def entry_meta(record, group, band_y=None):
+def entry_meta(record, group, band_y=None, band_label=None):
     """The viewer entry (pano metadata + crop geometry) for one record, without any I/O.
 
     ``band_y`` is the top of a burned-in nadir overlay (see :func:`load_nadir_band`),
-    or None. ``credit`` names the imagery producer and licence where the record
+    or None; ``band_label`` names it when it is not a logo band
+    (see :func:`load_nadir_band_labels`). ``credit`` names the imagery producer and licence where the record
     carries them, so a reviewer sees whose pixels they are judging.
     """
     pano = record['pano']
@@ -299,13 +318,15 @@ def entry_meta(record, group, band_y=None):
     }
     if band_y is not None:
         entry['band'] = round(float(band_y), 4)
+        if band_label:
+            entry['band_label'] = str(band_label)
     credit = ' / '.join(str(pano[k]) for k in ('copyright', 'license') if pano.get(k))
     if credit:
         entry['credit'] = credit
     return entry
 
 
-def render_pano(record, group, images_dir, panos_dir, band_y=None):
+def render_pano(record, group, images_dir, panos_dir, band_y=None, band_label=None):
     """Downscale one native pano to model resolution, save the clean full image and
     per-detection crops, and return the viewer entry (see :func:`entry_meta`).
 
@@ -326,7 +347,7 @@ def render_pano(record, group, images_dir, panos_dir, band_y=None):
     for box, geom in _crop_boxes(record):
         img.crop(box).save(images_dir / geom['img'], quality=85)
     img.save(images_dir / f"{pid}_full.jpg", quality=82)
-    return entry_meta(record, group, band_y)
+    return entry_meta(record, group, band_y, band_label)
 
 
 def initial_verdicts(verdicts_panos):
@@ -658,6 +679,19 @@ let filterMode = 'all', view = ENTRIES.slice(), idx = 0;
   if (!n) return;
   document.getElementById('bandcount').textContent = n + ' of ' + ENTRIES.length;
   document.getElementById('bandnote').style.display = 'block';
+  // Bundles whose nadir_band.json names its overlays (not a logo band) say what they are.
+  const kinds = {};
+  ENTRIES.forEach(e => { if (e.band != null && e.band_label)
+    kinds[e.band_label] = (kinds[e.band_label] || 0) + 1; });
+  if (Object.keys(kinds).length) {
+    document.getElementById('bandnote').innerHTML = '<b>Nadir overlay.</b> ' + n + ' of ' +
+      ENTRIES.length + ' panos in this bundle have an opaque region at the bottom of the ' +
+      'image (hatched and outlined in blue on the pano): ' +
+      Object.entries(kinds).map(([k, c]) => esc(k) + ' (' + c + ')').join(', ') +
+      '. Nothing under it is visible, so <b>do not mark ramps inside it</b>; judge only ' +
+      'the imagery above the dashed line. The viewer asks before accepting a missed-ramp ' +
+      'mark inside it.';
+  }
 })();
 
 // vcls/fnChecked/reviewed define what "reviewed" means; rampnet.validation.collect()
@@ -764,7 +798,9 @@ view_el.addEventListener('pointerup', ev => {
   if (nx < 0 || nx > 1 || ny < 0 || ny > 1) return;
   const e = view[idx], s = v(e.pid, e.crops.length);
   if (e.band != null && ny >= e.band &&
-      !confirm('This point is inside the nadir logo band, where nothing is visible. ' +
+      !confirm('This point is ' + (e.band_label ? 'inside the ' + e.band_label
+                                                 : 'inside the nadir logo band') +
+               ', where nothing is visible. ' +
                'Mark a missed ramp here anyway?')) return;
   s.missed.push({x: nx, y: ny});
   s.noMissed = false;
@@ -824,7 +860,8 @@ function render() {
     const b = document.createElement('div');
     b.className = 'band';
     b.style.top = (e.band * 100) + '%';
-    b.innerHTML = '<span>nadir logo band: nothing visible below this line</span>';
+    b.innerHTML = '<span>' + esc(e.band_label || 'nadir logo band') +
+                  ': nothing visible below this line</span>';
     layer.appendChild(b);
   }
 
@@ -1088,6 +1125,7 @@ def main():
     bundle = Path(args.bundle)
     records, panos_dir, verdicts_panos, run_key, run_name, review_notes = load_bundle(bundle)
     bands = load_nadir_band(bundle)
+    band_labels = load_nadir_band_labels(bundle)
     if bands:
         print(f"nadir_band.json: {len(bands)} panos carry a nadir overlay; the viewer shades "
               f"it and asks before a missed-ramp mark lands inside it.")
@@ -1114,14 +1152,16 @@ def main():
     if args.html_only:
         # Geometry is independent of the pixels, so entries rebuild without any I/O;
         # only panos whose full image is already on disk are included.
-        entries = [entry_meta(r, g, bands.get(r['pano']['panorama_id'])) for r, g in chosen
+        entries = [entry_meta(r, g, bands.get(r['pano']['panorama_id']),
+                              band_labels.get(r['pano']['panorama_id'])) for r, g in chosen
                    if (images_dir / f"{r['pano']['panorama_id']}_full.jpg").exists()]
         print(f"  --html-only: {len(entries)} panos with existing images.")
     else:
         entries, done = [], 0
         with ThreadPoolExecutor(max_workers=RENDER_WORKERS) as pool:
             futures = {pool.submit(render_pano, r, g, images_dir, panos_dir,
-                                   bands.get(r['pano']['panorama_id'])): r
+                                   bands.get(r['pano']['panorama_id']),
+                                   band_labels.get(r['pano']['panorama_id'])): r
                        for r, g in chosen}
             for future in as_completed(futures):
                 pid = futures[future]['pano']['panorama_id']

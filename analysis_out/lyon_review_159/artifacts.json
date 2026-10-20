@@ -1,0 +1,286 @@
+{
+ "definitions": {
+  "above_horizon": "y_normalized < 0.5",
+  "fixed_cell": "detection in a 1024x512 cell that holds a >= 0.3 peak in >= 5 panos of its own sequence (the pano included)"
+ },
+ "items": [
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.3251,
+   "det": 4,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "03a2955b-7c17-46ae-a4e9-8b3ee4969261",
+   "x": 0.4717,
+   "y": 0.4766
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 4,
+   "confidence": 0.9105,
+   "det": 0,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "13b2b34b-c732-452d-b547-de61081923ed",
+   "x": 0.4258,
+   "y": 0.4902
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.3202,
+   "det": 1,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "13b2b34b-c732-452d-b547-de61081923ed",
+   "x": 0.5352,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.3196,
+   "det": 2,
+   "fixed_cell": false,
+   "group": "other_gopro_max",
+   "pano": "272f58bc-36eb-4184-ae3f-485cdaaa12e9",
+   "x": 0.4561,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.8512,
+   "det": 0,
+   "fixed_cell": false,
+   "group": "other_cameras",
+   "pano": "3379d259-7b31-4c76-90fd-aab059e8bcfa",
+   "x": 0.417,
+   "y": 0.4766
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.5623,
+   "det": 1,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "3a39a0a6-2c67-4f7a-b37e-297e56f2be57",
+   "x": 0.9639,
+   "y": 0.4902
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 6,
+   "confidence": 0.4136,
+   "det": 2,
+   "fixed_cell": true,
+   "group": "other_cameras",
+   "pano": "406505d7-de3a-4013-9364-b793062ca8dd",
+   "x": 0.9092,
+   "y": 0.5859
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 5,
+   "confidence": 0.7239,
+   "det": 0,
+   "fixed_cell": true,
+   "group": "grand_lyon_ladybug",
+   "pano": "50a8ff93-264c-490b-81c5-ccb6ddd02668",
+   "x": 0.4102,
+   "y": 0.7578
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.3216,
+   "det": 1,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "5a7ee908-7735-462c-a06f-924734c70289",
+   "x": 0.4961,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.7052,
+   "det": 0,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "6d6f5c09-5100-414a-bdbc-12f6d66b4d97",
+   "x": 0.9639,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.4431,
+   "det": 3,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "7820a5b8-4ee2-4250-9598-73c7296bbce3",
+   "x": 0.6201,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.827,
+   "det": 0,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "8704f5b1-5627-4c08-b97f-d35d3e8f50b9",
+   "x": 0.0352,
+   "y": 0.4746
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.6322,
+   "det": 0,
+   "fixed_cell": false,
+   "group": "other_cameras",
+   "pano": "8bcd7525-5cd3-4f5d-8ece-36e6adaba9ce",
+   "x": 0.4648,
+   "y": 0.4746
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.3908,
+   "det": 1,
+   "fixed_cell": false,
+   "group": "other_cameras",
+   "pano": "8fb5720f-7879-4739-acd0-d58e52ac702e",
+   "x": 0.4492,
+   "y": 0.4902
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.4675,
+   "det": 1,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "91207821-175d-4c7e-ad80-8509091e7a54",
+   "x": 0.9883,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.5163,
+   "det": 2,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "a185aa46-b6b1-4a75-8430-e554e8d1076b",
+   "x": 0.9648,
+   "y": 0.4902
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.4013,
+   "det": 1,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "ed2bd1d6-d138-4bc7-a063-1c5af59c121b",
+   "x": 0.9727,
+   "y": 0.4297
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.3221,
+   "det": 2,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "ed2bd1d6-d138-4bc7-a063-1c5af59c121b",
+   "x": 0.8936,
+   "y": 0.3809
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.628,
+   "det": 3,
+   "fixed_cell": false,
+   "group": "other_gopro_max",
+   "pano": "f3cde37a-5ec1-4508-ba1c-ac4a8d909cf2",
+   "x": 0.0811,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.6037,
+   "det": 4,
+   "fixed_cell": false,
+   "group": "other_gopro_max",
+   "pano": "f3cde37a-5ec1-4508-ba1c-ac4a8d909cf2",
+   "x": 0.1211,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 10,
+   "confidence": 0.6134,
+   "det": 0,
+   "fixed_cell": true,
+   "group": "grand_lyon_ladybug",
+   "pano": "f9dd506d-0cb6-477e-8b94-768f12601c04",
+   "x": 0.0195,
+   "y": 0.2891
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 4,
+   "confidence": 0.3213,
+   "det": 3,
+   "fixed_cell": false,
+   "group": "grand_lyon_ladybug",
+   "pano": "f9dd506d-0cb6-477e-8b94-768f12601c04",
+   "x": 0.5264,
+   "y": 0.4922
+  }
+ ],
+ "per_group": {
+  "ecartip_gopro_max": {
+   "above_horizon_030": 12,
+   "above_horizon_055": 4,
+   "det030": 177,
+   "det055": 107,
+   "fixed_cell_030": 0,
+   "fixed_cell_055": 0
+  },
+  "grand_lyon_ladybug": {
+   "above_horizon_030": 2,
+   "above_horizon_055": 1,
+   "det030": 224,
+   "det055": 147,
+   "fixed_cell_030": 2,
+   "fixed_cell_055": 2
+  },
+  "other_cameras": {
+   "above_horizon_030": 3,
+   "above_horizon_055": 2,
+   "det030": 54,
+   "det055": 25,
+   "fixed_cell_030": 1,
+   "fixed_cell_055": 0
+  },
+  "other_gopro_max": {
+   "above_horizon_030": 3,
+   "above_horizon_055": 2,
+   "det030": 69,
+   "det055": 51,
+   "fixed_cell_030": 0,
+   "fixed_cell_055": 0
+  }
+ },
+ "results_jsonl_sha256": "60e688b28b62f85e71f51c603dc1b6f4ff020348220c6cc7955891dcfef061ef",
+ "what": "GT-free counts of the #159 known artifacts on the bundle's detections. DO NOT open `items` before verdicts.json is exported: it names detections you are about to judge."
+}
