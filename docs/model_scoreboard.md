@@ -56,6 +56,8 @@ model, and the reasons are in "How to read this" below.
 | YOLO11l (pano) | supervised baseline | 0.25 | 0.943 | 0.428 | 0.583 | -0.209 | 0.706 | 0.1 | 0.46–0.71 |
 | YOLO11x (pano) | supervised baseline | 0.25 | **0.968** | 0.393 | 0.551 | -0.241 | 0.707 | 0.0 | 0.40–0.71 |
 | YOLO26 (pano) | supervised baseline | 0.25 | 0.769 | 0.434 | 0.547 | -0.246 | 0.609 | 0.3 | 0.45–0.68 |
+| Claude Opus 5.5 (low, anthropic) | chat VLM | no score | 0.696 | 0.735 | 0.712 | -0.081 | – | 0.8 | 0.61–0.78 |
+| Claude Fable 5.1 (low, anthropic) | chat VLM | no score | 0.645 | 0.582 | 0.607 | -0.186 | – | 0.8 | 0.49–0.67 |
 | Gemini 3.1 Pro | chat VLM | no score | 0.632 | 0.531 | 0.571 | -0.222 | – | 0.7 | 0.34–0.68 |
 | Gemini 3.7 Flash | chat VLM | no score | 0.686 | 0.453 | 0.538 | -0.255 | – | 0.5 | 0.28–0.66 |
 | Gemini 3.6 Flash | chat VLM | no score | 0.567 | 0.502 | 0.525 | -0.268 | – | 0.9 | 0.28–0.63 |
@@ -71,9 +73,13 @@ model, and the reasons are in "How to read this" below.
 
 ![Pooled F1 by model](figures/scoreboard_f1.png)
 
-**RampNet leads the best challenger with full pooled coverage (YOLO11l) by 0.209 F1** at the
-operating points in the table. (Claude Fable 5 at low effort scores 0.611, but on one split
-only; see the partial table below.) RampNet also leads in F1 on ground truth that never saw a
+**RampNet leads the best challenger with full pooled coverage (Claude Opus 5.5) by 0.081 F1** at the
+operating points in the table. Claude Opus 5.5 at low effort is a zero-shot chat model; it
+joined the board on 2026-10-19 and ran `juneau`, the ninth pooled city, on 2026-10-20
+([`claude_newest_ids.md`](claude_newest_ids.md)). Its numbers are a single run, no seed
+variance, effort low only, first-party serving path, so the 0.081 carries no seed interval.
+Over the eight cities before juneau was pooled the lead was 0.082. Before it, the best
+challenger with full pooled coverage was YOLO11l, 0.209 behind RampNet. RampNet also leads in F1 on ground truth that never saw a
 RampNet review (`manual_gold`, 0.908 against YOLO11x's 0.851), but only in F1 and only at
 these operating points: YOLO11x has the higher `manual_gold` AP (see "In-distribution vs
 deployed" below), and at matched operating points `y11x_tiles` leads RampNet there
@@ -82,18 +88,24 @@ lead survives giving every model a threshold chosen the same way is the subject 
 above, which was measured on seven cities. The four findings that only become visible once
 the splits are pooled:
 
-1. **The supervised baseline and the best zero-shot VLM are close.** YOLO11l trained on
-   the RampNet dataset scores **0.583**; Gemini 3.1 Pro, zero-shot with an untuned prompt,
-   scores **0.571**, 0.012 behind. Issue #51 asks whether RampNet's advantage is the data or
-   the architecture; pooled, the *data alone*, handed to a generic detector at its default
-   threshold, buys a small lead over an off-the-shelf chat model, and the remaining 0.21 F1
-   at these operating points is what the keypoint architecture adds.
+1. **The best zero-shot VLM now beats the supervised baseline.** Claude Opus 5.5 at low
+   effort, zero-shot with an untuned prompt, scores **0.712** pooled; YOLO11l trained on the
+   RampNet dataset scores **0.583** at its default conf 0.25. Claude Fable 5.1 at low effort
+   (0.607) is above YOLO11l too. Both Claude numbers are single runs, no seed variance, effort
+   low only, first-party serving path. Until 2026-10-19 this finding read the other way: the
+   best zero-shot VLM was Gemini 3.1 Pro at **0.571**, 0.012 behind YOLO11l, so the *data
+   alone*, handed to a generic detector at its default threshold, bought a small lead over an
+   off-the-shelf chat model. That no longer holds at these operating points. The YOLO arms are
+   the rows a matched threshold helps most (the note above, measured on seven cities), and the
+   ordering at parity has not been measured. Issue #51 asks whether RampNet's advantage is the
+   data or the architecture; the 0.21 F1 between YOLO11l and RampNet at these operating points
+   is still what the keypoint architecture adds.
 2. **RampNet is stable across eight of the nine pooled cities, not all nine.** Over the
    nine its F1 spans 0.543–0.855, a range of 0.311, and every challenger with full pooled
-   coverage scoring above 0.1 spans 0.182 (Molmo2-8B) to 0.384 (Gemini 3.7 Flash), so RampNet
+   coverage scoring above 0.1 spans 0.174 (Claude Opus 5.5) to 0.384 (Gemini 3.7 Flash), so RampNet
    is not the most stable strong model on this board. Most of its range (0.258 of 0.311) is
    `laurens_mapillary` (0.543): over the other eight cities it spans 0.801–0.855, a range of
-   0.053, against 0.154 (Qwen-8B) to 0.313 (YOLO11x) for the challengers on the same eight.
+   0.053, against 0.121 (Claude Fable 5.1) to 0.313 (YOLO11x) for the challengers on the same eight.
    An earlier version of this page called RampNet the one strong model that is also stable,
    with a range of 0.053. That figure was published when the pool was seven cities, before
    `laurens_mapillary` was added on 2026-08-31. Quote 0.311 for the nine, not the earlier
@@ -105,23 +117,26 @@ the splits are pooled:
    the board (0.968, above RampNet's 0.953) at **0.393 recall against RampNet's 0.686**. Every
    model here can be made precise. Finding the ramps is the hard part, which is why the
    project's operating-point work optimizes recall-first
-   ([`operating_point.md`](operating_point.md)). Claude Opus 5.5 at low effort has higher
-   recall than RampNet on the eight of the nine pooled cities it has run (0.737 against RampNet's 0.686
-   there, at precision 0.691 against 0.951), but it has not run `juneau`, so it is in the
-   partial table below rather than this one.
+   ([`operating_point.md`](operating_point.md)). Claude Opus 5.5 at low effort is the one
+   model with full pooled coverage, apart from the two open-vocabulary detectors at their
+   0.05 floor, whose recall is above RampNet's: **0.735 against 0.686**, at precision 0.696
+   against 0.953.
 4. **A one-split lead of this size is indistinguishable from split noise.** `claude-opus-5`
-   at low effort beat `gemini-3.1-pro` on annapolis by **+0.021 F1** — the only time any model
-   has displaced the top challenger — so #139 ran it on the other splits. It has run eight of
+   at low effort beat `gemini-3.1-pro` on annapolis by **+0.021 F1** — then the only case of
+   any model displacing the top challenger (superseded 2026-10-19: Claude Opus 5.5 displaced
+   it on the pool, below) — so #139 ran it on the other splits. It has run eight of
    the nine pooled cities: every one except `juneau`, which joined the pool on 2026-10-19 and
    which `claude-opus-5` has not run yet. So it has no nine-city mean, sits in the partial
    table below rather than the headline, and **every comparison in this finding is over the
    eight cities both legs have run, with juneau left out of both sides.** Over those eight
    the two are **within 0.01: 0.568 against 0.575**, a −0.007 gap that is far inside the
-   spread below. (Gemini's own nine-city mean, the one in the headline table, is 0.571.) The
-   headline row is unchanged — `gemini-3.1-pro` still tops the chat VLMs — but the claim
-   "nothing has displaced it" is now a tested tie rather than an unchallenged lead. These
-   eight-city numbers are the same ones this finding reported before juneau was added; they
-   will move once `claude-opus-5` runs juneau.
+   spread below. (Gemini's own nine-city mean, the one in the headline table, is 0.571.) So
+   the claim "nothing has displaced it" became a tested tie rather than an unchallenged lead.
+   These eight-city numbers are the same ones this finding reported before juneau was added;
+   they will move once `claude-opus-5` runs juneau. On 2026-10-19/20 Claude Opus 5.5 at low
+   effort did displace `gemini-3.1-pro`: 0.712 pooled over the nine cities, ahead on all nine
+   by 0.061 (paterson) to 0.336 (laurens_mapillary). That margin holds on every pooled city,
+   which is the test this finding sets.
 
    **The eight-city mean is the weaker half of that result.** Per split, the two trade wins:
    Opus takes laurens_mapillary (+0.086, the largest gap of those eight cities),
@@ -158,7 +173,7 @@ and F1 cannot tell you.
 
 ## Legs that have not run every pooled split
 
-Ten legs have not run every pooled split — six of them only one — so they have no pooled mean to put in the table above —
+Eight legs have not run every pooled split — six of them only one — so they have no pooled mean to put in the table above —
 a one-city average printed beside a nine-city one is exactly the comparison the coverage
 column exists to prevent. They are reported per split instead, at the split they ran on:
 
@@ -173,33 +188,7 @@ column exists to prevent. They are reported per split instead, at the split they
 | Mask2Former Vistas (curb cut, 1024) | supervised transfer | `gainesville` | 0.383 | 0.846 | 0.527 | 0.521 | 3.0 | 230/371/42 |
 | Mask2Former Vistas (curb cut) | supervised transfer | `richmond` | 0.411 | 0.697 | 0.517 | 0.513 | 2.5 | 216/309/94 |
 | Mask2Former Vistas (+curb) | supervised transfer | `richmond` | 0.126 | 0.648 | 0.210 | 0.089 | 11.3 | 201/1399/109 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `richmond` | 0.658 | 0.839 | 0.738 | – | 1.1 | 260/135/50 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `bend` | 0.701 | 0.740 | 0.720 | – | 0.9 | 242/103/85 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `clovis` | 0.563 | 0.667 | 0.610 | – | 0.8 | 130/101/65 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `morgantown` | 0.759 | 0.813 | 0.785 | – | 0.6 | 217/69/50 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `annapolis` | 0.694 | 0.748 | 0.720 | – | 0.8 | 220/97/74 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `paterson` | 0.826 | 0.673 | 0.742 | – | 0.4 | 266/56/129 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `gainesville` | 0.622 | 0.761 | 0.684 | – | 1.0 | 207/126/65 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `laurens_mapillary` | 0.706 | 0.655 | 0.679 | – | 0.7 | 163/68/86 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `laurens_gsv` | 0.727 | 0.677 | 0.701 | – | 0.7 | 149/56/71 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `budapest_district5` | 0.517 | 0.400 | 0.451 | – | 0.9 | 120/112/180 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `sao_paulo` | 0.663 | 0.630 | 0.646 | – | 0.7 | 177/90/104 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `bayonne` | 0.620 | 0.618 | 0.619 | – | 0.9 | 186/114/115 |
-| Claude Opus 5.5 (low, anthropic) | chat VLM | `manual_gold` | 0.719 | 0.725 | 0.722 | – | 1.1 | 2840/1111/1079 |
 | Claude Fable 5 (low, anthropic) | chat VLM | `annapolis` | 0.579 | 0.646 | 0.611 | – | 1.1 | 190/138/104 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `richmond` | 0.571 | 0.697 | 0.628 | – | 1.3 | 216/162/94 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `bend` | 0.647 | 0.606 | 0.626 | – | 1.0 | 198/108/129 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `clovis` | 0.591 | 0.518 | 0.552 | – | 0.6 | 101/70/94 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `morgantown` | 0.711 | 0.618 | 0.661 | – | 0.5 | 165/67/102 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `annapolis` | 0.637 | 0.585 | 0.610 | – | 0.8 | 172/98/122 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `paterson` | 0.773 | 0.585 | 0.666 | – | 0.5 | 231/68/164 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `gainesville` | 0.521 | 0.588 | 0.553 | – | 1.2 | 160/147/112 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `laurens_mapillary` | 0.637 | 0.402 | 0.493 | – | 0.6 | 100/57/149 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `laurens_gsv` | 0.567 | 0.327 | 0.415 | – | 0.6 | 72/55/148 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `budapest_district5` | 0.447 | 0.350 | 0.393 | – | 1.0 | 105/130/195 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `sao_paulo` | 0.487 | 0.520 | 0.503 | – | 1.2 | 146/154/135 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `bayonne` | 0.552 | 0.528 | 0.540 | – | 1.0 | 159/129/142 |
-| Claude Fable 5.1 (low, anthropic) | chat VLM | `manual_gold` | 0.681 | 0.600 | 0.638 | – | 1.1 | 2351/1101/1568 |
 | Claude Opus 5 (low) | chat VLM | `richmond` | 0.523 | 0.706 | 0.601 | – | 1.6 | 219/200/91 |
 | Claude Opus 5 (low) | chat VLM | `bend` | 0.586 | 0.624 | 0.604 | – | 1.3 | 204/144/123 |
 | Claude Opus 5 (low) | chat VLM | `clovis` | 0.528 | 0.574 | 0.550 | – | 0.8 | 112/100/83 |
@@ -221,14 +210,14 @@ Three things worth carrying out of that table, all from splits where the roster'
 numbers are directly above them in `model_comparison.md`:
 
 - **Claude Opus 5.5 at low effort is the strongest challenger measured on annapolis** (F1
-  0.720). Before it, Claude Fable 5 (0.611) and Fable
+  0.720, in the headline table, not this one). Before it, Claude Fable 5 (0.611) and Fable
   5.1 (0.610) held that place, having displaced Claude Opus 5 at low effort (0.588), which had
   itself displaced gemini-3.1-pro (0.567) there. The Fable legs and Opus 5.5 ran on
   Anthropic's first-party API rather than the Vertex path the other Claude legs used; the
   path is pinned in each published file and the caveat travels with the numbers in
   `claude_legs_122.md` (#156) and `claude_newest_ids.md`. Opus 5.5 and Fable 5.1 have since
-  run every split but `juneau` (2026-10-19/20), so both are 8/9 and in this table, not the
-  headline one; Fable 5 stays annapolis-only.
+  run every split (2026-10-19/20), `juneau` included, and are in the headline table; Fable 5
+  stays annapolis-only.
 - **More thinking makes it worse.** Claude Opus 5 drops from 0.588 at low effort to 0.520 at
   high on annapolis, and the same direction holds for Sonnet 5 (0.463 → 0.456). Effort moves
   the operating point; it does not raise the ceiling (#122) — and the Fable version is the
@@ -260,6 +249,8 @@ numbers are directly above them in `model_comparison.md`:
 | YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.563 | 0.462 | 0.583 | 0.587 | 0.247 | 0.662 | 0.249 | 0.839 |
 | YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.529 | 0.410 | 0.551 | 0.568 | 0.221 | 0.659 | 0.296 | 0.851 |
 | YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | 0.574 | 0.496 | 0.547 | 0.538 | 0.277 | 0.605 | 0.261 | 0.739 |
+| Claude Opus 5.5 (low, anthropic) | 0.738 | 0.720 | 0.610 | 0.785 | 0.720 | 0.742 | 0.684 | **0.679** | 0.727 | 0.712 | **0.701** | 0.451 | 0.646 | **0.619** | 0.722 |
+| Claude Fable 5.1 (low, anthropic) | 0.628 | 0.626 | 0.552 | 0.661 | 0.610 | 0.666 | 0.553 | 0.493 | 0.673 | 0.607 | 0.415 | 0.393 | 0.503 | 0.540 | 0.638 |
 | Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.542 | 0.571 | 0.279 | 0.381 | 0.454 | 0.431 | – |
 | Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.281 | 0.528 | 0.538 | 0.261 | 0.338 | 0.358 | 0.351 | 0.527 |
 | Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.504 | 0.525 | 0.274 | 0.336 | 0.346 | 0.393 | – |
@@ -271,9 +262,7 @@ numbers are directly above them in `model_comparison.md`:
 | Mask2Former Vistas (curb cut, 1024) | 0.534 | 0.509 | – | – | 0.587 | 0.510 | 0.527 | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – | – | – |
-| Claude Opus 5.5 (low, anthropic) | 0.738 | 0.720 | 0.610 | 0.785 | 0.720 | 0.742 | 0.684 | **0.679** | – | – | **0.701** | 0.451 | 0.646 | **0.619** | 0.722 |
 | Claude Fable 5 (low, anthropic) | – | – | – | – | 0.611 | – | – | – | – | – | – | – | – | – | – |
-| Claude Fable 5.1 (low, anthropic) | 0.628 | 0.626 | 0.552 | 0.661 | 0.610 | 0.666 | 0.553 | 0.493 | – | – | 0.415 | 0.393 | 0.503 | 0.540 | 0.638 |
 | Claude Opus 5 (low) | 0.601 | 0.604 | 0.550 | 0.649 | 0.588 | 0.642 | 0.479 | 0.430 | – | – | 0.437 | 0.378 | 0.468 | – | – |
 | Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – | – | – | – | – |
 | Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – | – | – | – | – |
@@ -309,9 +298,9 @@ Three things this matrix settles that no single-number ranking can:
   confidence, so it has no AP to compare, and neither does Fable 5.1. Every other split has
   RampNet on top.
 - **No single city is hardest for everyone.** `laurens_mapillary` is the worst pooled city
-  for 6 of the 12 models with full pooled coverage, annapolis for 2 (YOLO11x and YOLO26),
-  clovis (2018 GoPro Fusion) for 2 (the two open-vocabulary detectors), juneau for 1
-  (YOLO11l) and gainesville for 1 (Molmo2-8B). "Difficulty" here is not a property of the imagery alone — it is an
+  for 7 of the 14 models with full pooled coverage, annapolis for 2 (YOLO11x and YOLO26),
+  clovis (2018 GoPro Fusion) for 3 (the two open-vocabulary detectors and Claude Opus 5.5),
+  juneau for 1 (YOLO11l) and gainesville for 1 (Molmo2-8B). "Difficulty" here is not a property of the imagery alone — it is an
   interaction between imagery and model.
 - **budapest separates the US-trained models from the zero-shot ones, in the wrong direction.**
   The three YOLO arms fall to 0.221–0.277, *below all three Gemini legs* (0.336–0.381). A
@@ -332,9 +321,10 @@ independently of any model. Plotting it against the deployed average separates t
 that a single F1 confuses:
 
 - **A zero-shot model has no training distribution to be inside**, so it lands on the diagonal
-  — and the six that have a `manual_gold` cell scatter to *both* sides of it, by small
+  — and the eight that have a `manual_gold` cell scatter to *both* sides of it, by small
   amounts (pooled F1 minus `manual_gold` F1): Qwen-32B +0.04, Gemini 3.7 Flash +0.01, Molmo
-  0.00, OWLv2 −0.02, Grounding DINO −0.03, Qwen-8B −0.07. A two-sided scatter within ±0.08
+  0.00, Claude Opus 5.5 −0.01, OWLv2 −0.02, Grounding DINO −0.03, Claude Fable 5.1 −0.03,
+  Qwen-8B −0.07. A two-sided scatter within ±0.08
   with no systematic direction is the
   un-anchored-GT check from #58 coming out clean, and it is a *stronger* result than a
   one-sided one would be: these models neither gain nor lose on a split whose ground truth
@@ -537,13 +527,12 @@ Omissions are content, so they are named rather than left as blanks:
   `rampnet/roster.py`, not because it is untested.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
-- **Ten legs have not run every pooled split — six of them only one**, so they are in the partial table rather than the
+- **Eight legs have not run every pooled split — six of them only one**, so they are in the partial table rather than the
   headline: the three Vistas arms (the 1024 row is the curb-cut arm at resolution parity,
   #126/#163, on richmond and, since the #35 transfer run, bend, paterson, gainesville and
   annapolis — five of the nine pooled splits; the other two on richmond only), four Claude legs on annapolis — Claude Opus 5
-  (high), both Sonnet 5 legs, and Claude Fable 5 — and three Claude legs on eight of the
-  nine pooled splits, missing only `juneau`: Claude Opus 5 (low), plus three held-out ones,
-  and Claude Opus 5.5 and Fable 5.1 (low, anthropic), plus all five held-out ones. Extending any of them
+  (high), both Sonnet 5 legs, and Claude Fable 5 — and Claude Opus 5 (low), on eight of the
+  nine pooled splits plus three held-out ones, missing only `juneau`. Extending any of them
   to the full pool is a run, not a code change.
 - **`claude-opus-5-effort-low` is scored here but is not a standing roster entry.** It has
   8/9 pooled coverage (no `juneau` run yet), so it appears in the partial table and the
@@ -553,7 +542,7 @@ Omissions are content, so they are named rather than left as blanks:
   The consequence is narrow and deliberate: it is absent from the `fp_taxonomy` /
   `null_recall` defaults and from the frozen `WITNESS_POOL_46`, not from the scoreboard. The
   three YOLO pano arms and `gemini-3.7-flash` sit in exactly the same position, and so do
-  `claude-opus-5-5` and `claude-fable-5-1` at low effort, both 8/9 since `juneau` joined the pool (neither has run it yet).
+  `claude-opus-5-5` and `claude-fable-5-1` at low effort, both 9/9 since their `juneau` legs of 2026-10-20.
 - **`claude-opus-5` has no `manual_gold` row, and that is a decision rather than a pending
   run** — `gemini-3.1-pro-preview` has none either, so a Claude-only run there would have no
   peer to compare against. Stated in full in #144. On 2026-10-19 Jon reversed that decision

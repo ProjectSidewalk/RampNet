@@ -2,13 +2,13 @@
 
 ``docs/claude_newest_ids.md`` quotes more than the plain P / R / F1 table that
 ``test_claude_published_legs.py`` pins: paired F1 intervals against RampNet, a radius check
-on all 13 splits, emitted-point counts, per-pano cost ranges, per-call token and thinking
-figures, and a cost estimate for the juneau legs that were not run. Each of those is checked
+on all 14 splits, emitted-point counts, per-pano cost ranges, per-call token and thinking
+figures, and the juneau legs' cost, wall-clock and pre-run estimate. Each of those is checked
 here, from ``benchmark/model_detections/``, the committed bundles,
 ``analysis_out/claude_newest_ids_261/results.json`` and ``analysis_out/usage_log.jsonl``.
 CPU only, no network, no ``.model_cache``.
 
-The full bootstrap over all 13 splits takes about a minute, so the paired intervals are
+The full bootstrap over all 14 splits takes about a minute, so the paired intervals are
 re-derived here only on the three splits where a Claude leg scores above RampNet (the claims
 the docs make); the radius table is re-derived on every split with the bootstrap skipped.
 ``python scripts/analysis/claude_newest_ids_261.py --check`` re-derives everything.
@@ -122,10 +122,10 @@ def test_the_paired_table_matches_and_reads_each_interval_correctly(committed, d
     assert wins == {("bayonne", M.OPUS), ("laurens_mapillary", M.OPUS)}
 
 
-def test_rampnets_ten_leads_over_opus_all_clear_zero_and_the_narrowest_is_quoted(committed, doc):
+def test_rampnets_eleven_leads_over_opus_all_clear_zero_and_the_narrowest_is_quoted(committed, doc):
     leads = {s: v["paired_f1_vs_rampnet"][M.OPUS] for s, v in committed["per_split"].items()
              if v["paired_f1_vs_rampnet"][M.OPUS]["rampnet_minus_leg_f1"] > 0}
-    assert len(leads) == 10
+    assert len(leads) == 11
     assert all(p["ci95"][0] > 0 for p in leads.values())
     s, p = min(leads.items(), key=lambda kv: kv[1]["ci95"][0])
     assert f"the narrowest is {s}, {_signed(p['rampnet_minus_leg_f1'])} " \
@@ -133,11 +133,21 @@ def test_rampnets_ten_leads_over_opus_all_clear_zero_and_the_narrowest_is_quoted
     fable = {s: v["paired_f1_vs_rampnet"][M.FABLE] for s, v in committed["per_split"].items()
              if v["paired_f1_vs_rampnet"][M.FABLE]["rampnet_minus_leg_f1"] > 0}
     above = [s for s, p in fable.items() if p["ci95"][0] > 0]
-    assert len(above) == 11
+    assert len(above) == 12
     (odd,) = set(fable) - set(above)
     q = fable[odd]["ci95"]
     assert f"on `{odd}` it is {_signed(fable[odd]['rampnet_minus_leg_f1'])} " \
            f"[{_signed(q[0])}, {_signed(q[1])}]" in doc
+    # juneau, the split this campaign ran last: RampNet leads both legs, both intervals clear.
+    j = committed["per_split"]["juneau"]["paired_f1_vs_rampnet"]
+    text = " ".join(doc.split())     # the doc wraps and indents its bullets
+    for leg in M.LEGS:
+        assert j[leg]["ci_excludes_zero"] and j[leg]["rampnet_minus_leg_f1"] > 0
+    jo, jf = j[M.OPUS], j[M.FABLE]
+    assert f"On juneau it is {_signed(jo['rampnet_minus_leg_f1'])} " \
+           f"[{_signed(jo['ci95'][0])}, {_signed(jo['ci95'][1])}]" in text
+    assert f"juneau included ({_signed(jf['rampnet_minus_leg_f1'])} " \
+           f"[{_signed(jf['ci95'][0])}, {_signed(jf['ci95'][1])}])" in text
 
 
 def test_the_radius_table_is_the_artifact(committed, doc):
@@ -160,7 +170,7 @@ def test_the_radius_prose_is_the_artifact(committed, doc):
            f"0.022 value, median {round(100 * summ['median'])}%**" in doc.replace("\n", " ")
     shrink = [s for s, v in committed["per_split"].items()
               if v["opus_minus_fable_gap"]["0.044"] < v["opus_minus_fable_gap"]["0.022"]]
-    assert len(shrink) == 12
+    assert len(shrink) == 13
     (grows,) = set(M.SPLITS) - set(shrink)
     assert grows == "clovis"
     g = committed["per_split"]["clovis"]["opus_minus_fable_gap"]
@@ -194,14 +204,16 @@ def test_per_pano_cost_ranges_and_bayonne_costs(ledger, doc):
     fable = _by_model(ledger, "claude-fable-5-1")
     per = lambda r: r["est_cost_usd"] / r["panos_called"]  # noqa: E731
     assert f"Opus 5.5 **${min(map(per, opus)):.4f}–{max(map(per, opus)):.4f}**" in text
-    # "its first 11 legs of this campaign": every Fable 5.1 row but bayonne, which ran last
-    # (ten city splits plus manual_gold; annapolis is #156's leg and has no tagged row).
-    first = [r for r in fable if r["bundle"] != "bayonne"]
+    # "its first 11 legs of this campaign": every Fable 5.1 row but bayonne and juneau, which
+    # ran last (ten city splits plus manual_gold; annapolis is #156's leg and has no tagged row).
+    first = [r for r in fable if r["bundle"] not in ("bayonne", "juneau")]
     assert len(first) == 11
     assert f"Fable 5.1 **${min(map(per, first)):.3f}–{max(map(per, first)):.3f}** on its first 11 " \
            f"legs" in text
     bay = {r["model_id"]: r for r in ledger if r["bundle"] == "bayonne"}
     assert f"**${per(bay['claude-fable-5-1']):.3f}** on bayonne" in text
+    jun = {r["model_id"]: r for r in ledger if r["bundle"] == "juneau"}
+    assert f"**${per(jun['claude-fable-5-1']):.3f}** on juneau" in text
     assert f"bayonne's ${bay['claude-opus-5-5']['est_cost_usd']:.2f} on 2026-10-20" in text
     assert f"bayonne's ${bay['claude-fable-5-1']['est_cost_usd']:.2f} on 2026-10-20" in text
 
@@ -235,16 +247,28 @@ def test_per_call_token_and_thinking_figures(ledger, doc):
     assert all(r["stop_reasons"].get("end_turn", 0) <= 1 for r in ledger)
 
 
-def test_the_juneau_estimate_follows_from_the_measured_per_pano_cost(ledger, doc):
-    """The legs were not run; the estimate is 125 panos at the campaign's per-pano range."""
+def test_the_juneau_legs_cost_what_was_estimated_and_ran_whole(ledger, doc):
+    """The juneau legs ran last (2026-10-20, claude20 org). Before they ran, the write-up
+    estimated them at 125 panos times each model's per-pano range over the rows that existed
+    then; the ledger rows give the real cost and wall-clock."""
     with open(os.path.join(REPO, "benchmark", "juneau", "records.jsonl"), encoding="utf-8") as fh:
         n = sum(1 for line in fh if line.strip())
     assert n == 125
     per = lambda r: r["est_cost_usd"] / r["panos_called"]  # noqa: E731
-    o = [per(r) for r in _by_model(ledger, "claude-opus-5-5")]
-    f = [per(r) for r in _by_model(ledger, "claude-fable-5-1")]
+    before = [r for r in ledger if r["bundle"] != "juneau"]
+    o = [per(r) for r in _by_model(before, "claude-opus-5-5")]
+    f = [per(r) for r in _by_model(before, "claude-fable-5-1")]
     text = doc.replace("\n", " ")
-    assert f"about **${n * min(o):.2f}–{n * max(o):.2f}** for Opus 5.5" in text
-    assert f"**${n * min(f):.2f}–{n * max(f):.2f}** for Fable 5.1" in text
-    assert f"**${n * (min(o) + min(f)):.2f}–{n * (max(o) + max(f)):.2f}** together" in text
-    assert not [r for r in ledger if r["bundle"] == "juneau"], "the juneau legs have run; update the doc"
+    assert f"estimated at **${n * (min(o) + min(f)):.2f}–{n * (max(o) + max(f)):.2f}** together" in text
+
+    jun = [r for r in ledger if r["bundle"] == "juneau"]
+    assert sorted(r["model_id"] for r in jun) == ["claude-fable-5-1", "claude-opus-5-5"]
+    assert {r["api_account"] for r in jun} == {"claude20"}
+    for r in jun:
+        assert r["panos_called"] == r["panos_scored"] == n
+        assert r["calls"] == 6 * n          # six perspective views, one call each
+    assert f"they cost **${sum(r['est_cost_usd'] for r in jun):.2f}**" in text
+    by = {r["model_id"]: r for r in jun}
+    for model, name in (("claude-opus-5-5", "Opus 5.5"), ("claude-fable-5-1", "Fable 5.1")):
+        r = by[model]
+        assert f"{name} in **{r['elapsed_s']:,.0f} s** ({r['s_per_pano']:.1f} s/pano)" in text

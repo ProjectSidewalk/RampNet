@@ -520,8 +520,8 @@ F1 difference.
    precision lead.
 2. **gemini-3.6-flash's recall point estimate is above RampNet's at 0.55** (126 vs 113 of 301
    ramps, R 0.419 vs 0.375), the only split where a chat VLM's is (of the legs run on
-   2026-10-04; superseded 2026-10-19/20: `claude-opus-5-5`'s recall is above RampNet's on seven
-   of thirteen splits, 0.618 here, and `claude-fable-5-1`'s on two, 0.528 here). The paired difference is
+   2026-10-04; superseded 2026-10-19/20: `claude-opus-5-5`'s recall is above RampNet's on eight
+   of fourteen splits, 0.618 here, and `claude-fable-5-1`'s on two, 0.528 here). The paired difference is
    **not significant**: 61 ramps found only by Flash, 48 only by RampNet, exact McNemar
    p = 0.25 (gemini-3.1-pro: 63 vs 56, p = 0.58). Their hits are largely disjoint: the union
    finds 174 of 301 (0.578). At the recommended 0.30 RampNet's recall is 0.498 on the op_cache

@@ -76,8 +76,9 @@ shift. RampNet leads it by **0.251** (0.839 vs 0.588).
 >
 > *Superseded 2026-10-19: "`gemini-3.1-pro` still tops the table" and "the highest recall of
 > any chat VLM with full pooled coverage" were true of the board before the newest-ids legs.
-> `claude-opus-5-5` at effort low now tops the zero-shot rows, pooled F1 0.710 at recall
-> 0.737, and `claude-fable-5-1` (0.598) also pools above `gemini-3.1-pro`. The comparison
+> `claude-opus-5-5` at effort low now tops the zero-shot rows, pooled F1 0.712 at recall
+> 0.735 over the nine US cities (juneau included, 2026-10-20), and `claude-fable-5-1` (0.607)
+> also pools above `gemini-3.1-pro`. The comparison
 > between `claude-opus-5` and `gemini-3.1-pro` above is unchanged. Both newer legs are single
 > runs at effort low on the first-party API ([`claude_newest_ids.md`](claude_newest_ids.md)).*
 
@@ -193,9 +194,9 @@ views = 6,000 calls, so at the measured full-leg rates ($0.0257/call for `claude
 $0.0276/call for `claude-fable-5-1`) it is **~$154 and ~$165 per id** for that split alone.
 It has **not** been taken, and no other split has been run.
 
-*Superseded 2026-10-19 for `claude-fable-5-1`: it has since run the other twelve splits,
+*Superseded 2026-10-19 for `claude-fable-5-1`: it has since run the other thirteen splits,
 `manual_gold` included ($167.92 for that split, against the ~$165 above), alongside
-`claude-opus-5-5` (`bayonne` on 2026-10-20, after the rest). `claude-fable-5` was not part of that run. See
+`claude-opus-5-5` (`bayonne` and `juneau` on 2026-10-20, after the rest). `claude-fable-5` was not part of that run. See
 [`claude_newest_ids.md`](claude_newest_ids.md).*
 
 **Reproducing them** (the detections are committed; nothing below needs an API key):

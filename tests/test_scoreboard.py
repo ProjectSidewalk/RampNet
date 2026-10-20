@@ -733,12 +733,10 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         "claude-opus-5-effort-high": "1/9",
         "claude-sonnet-5-effort-low": "1/9",
         "claude-sonnet-5-effort-high": "1/9",
-        # #156, annapolis only. claude-fable-5 was not part of the 2026-10-19/20
-        # newest-ids campaign, so it stays at one split.
+        # #156, annapolis only. claude-fable-5-1 left this set on 2026-10-19/20, when the
+        # newest-ids campaign ran it on every split, juneau included
+        # (docs/claude_newest_ids.md); claude-fable-5 was not part of that campaign.
         "claude-fable-5-effort-low-anthropic": "1/9",
-        # the newest-ids campaign (docs/claude_newest_ids.md): every split but juneau
-        "claude-fable-5-1-effort-low-anthropic": "8/9",
-        "claude-opus-5-5-effort-low-anthropic": "8/9",
         # every pooled city but juneau (added 2026-10-19, not yet run for this leg)
         "claude-opus-5-effort-low": "8/9",
     }
@@ -762,32 +760,56 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
 
 
 def test_the_newest_ids_legs_are_pooled(board):
-    """claude-opus-5-5 and claude-fable-5-1 at effort low ran every split but juneau on
-    2026-10-19/20, manual_gold and bayonne included (docs/claude_newest_ids.md). juneau
-    joined the pool on 2026-10-19 (#254), so both are 8/9 and partial until they run it.
+    """claude-opus-5-5 and claude-fable-5-1 at effort low ran every split on 2026-10-19/20,
+    manual_gold, bayonne and juneau included (docs/claude_newest_ids.md), so both are
+    complete legs on the nine-city pool. juneau joined the pool on 2026-10-19 (#260) and was
+    the last split they ran; between those two events both were 8/9 and partial.
 
     Pinned by value, like #139's result above, because a regeneration moves the doc and
-    the JSON together: this is the assertion that has to be edited deliberately. The
-    eight-city means are real numbers for those eight cities; they are kept out of the
-    headline table, which compares nine-city means only.
+    the JSON together: this is the assertion that has to be edited deliberately. Opus 5.5
+    is the best challenger with full pooled coverage, and the headline lead is over it.
     """
     opus = _summary(board, "claude-opus-5-5-effort-low-anthropic")
     fable = _summary(board, "claude-fable-5-1-effort-low-anthropic")
     n = len(lfs.US_SPLITS)
     for leg in (opus, fable):
-        assert leg["coverage"] == f"{n - 1}/{n}" and leg["complete"] is False
-        assert set(lfs.US_SPLITS) - set(board["per_split"][leg["model"]]) == {"juneau"}
-        # 8 pooled + laurens_gsv, budapest, sao_paulo, bayonne, manual_gold
-        assert leg["n_splits_run"] == 13
-        assert leg["display"] not in sr.headline_table(board)
-    assert opus["f1"] == pytest.approx(0.710, abs=0.0006)
-    assert opus["recall"] == pytest.approx(0.737, abs=0.0006)
+        assert leg["coverage"] == f"{n}/{n}" and leg["complete"] is True
+        # 9 pooled + laurens_gsv, budapest, sao_paulo, bayonne, manual_gold
+        assert leg["n_splits_run"] == 14
+        assert leg["display"] in sr.headline_table(board)
+    assert opus["f1"] == pytest.approx(0.712, abs=0.0006)
+    assert opus["precision"] == pytest.approx(0.696, abs=0.0006)
+    assert opus["recall"] == pytest.approx(0.735, abs=0.0006)
     assert opus["manual_gold_f1"] == pytest.approx(0.722, abs=0.0006)
-    assert fable["f1"] == pytest.approx(0.598, abs=0.0006)
+    assert fable["f1"] == pytest.approx(0.607, abs=0.0006)
     assert fable["manual_gold_f1"] == pytest.approx(0.638, abs=0.0006)
+    # bayonne (2026-10-20) is held out of the pool, so it moves none of the numbers above.
     assert opus["bayonne_f1"] == pytest.approx(0.619, abs=0.0006)
     assert fable["bayonne_f1"] == pytest.approx(0.540, abs=0.0006)
+    # juneau is pooled, and RampNet tops it.
+    assert _cell(board, opus["model"], "juneau")["f1"] == pytest.approx(0.727, abs=0.0006)
+    assert _cell(board, fable["model"], "juneau")["f1"] == pytest.approx(0.673, abs=0.0006)
 
+    challengers = [m for m in board["models"] if m["complete"] and m["model"] != "rampnet"]
+    assert max(challengers, key=lambda m: m["f1"])["model"] == opus["model"]
+    rampnet = _summary(board, "rampnet")
+    assert rampnet["f1"] - opus["f1"] == pytest.approx(0.081, abs=0.0006)
+    # The one model with full pooled coverage, other than the open-vocabulary detectors at
+    # their 0.05 floor, whose pooled recall is above RampNet's.
+    above = {m["model"] for m in challengers
+             if m["recall"] > rampnet["recall"] and m["class"] != "open-vocab"}
+    assert above == {opus["model"]}
+    # Finding 4's test, met: Opus 5.5 leads gemini-3.1-pro on every pooled city.
+    gem = {s: _cell(board, opus["model"], s)["f1"] - _cell(board, "gemini-3.1-pro-preview", s)["f1"]
+           for s in board["pooled_splits"]}
+    assert min(gem.values()) > 0
+    lo, hi = min(gem, key=gem.get), max(gem, key=gem.get)
+    with open(sb.DEFAULT_DOC, encoding="utf-8") as f:
+        prose = re.sub(r"\s+", " ", f.read())
+    assert (f"ahead on all nine by {gem[lo]:.3f} ({lo}) to {gem[hi]:.3f} ({hi})") in prose
+    # Fable 5.1 pools above every YOLO arm and every Gemini leg.
+    assert fable["f1"] > max(m["f1"] for m in challengers
+                             if m["model"] not in (opus["model"], fable["model"]))
     # The splits where any leg beats RampNet: the two Laurens arms and bayonne, which is
     # what "top score in eleven of the fourteen splits" in model_scoreboard.md rests on.
     per = board["per_split"]
@@ -971,14 +993,14 @@ def test_the_prose_guard_catches_each_171_sentence(board, stale):
     ("scored on 2026-08-30 on the ten splits registered then",
      "scored on 2026-08-30 on the eleven splits registered then"),
     # values, not counts
-    ("(YOLO11l) by 0.209 F1", "(YOLO11l) by 0.219 F1"),
-    ("(YOLO11l) by 0.209 F1", "(Gemini 3.1 Pro) by 0.209 F1"),
+    ("(Claude Opus 5.5) by 0.081 F1", "(Claude Opus 5.5) by 0.082 F1"),
+    ("(Claude Opus 5.5) by 0.081 F1", "(YOLO11l) by 0.081 F1"),
     ("0.543–0.855, a range of 0.311", "0.543–0.855, a range of 0.053"),
-    ("0.182 (Molmo2-8B)", "0.148 (Molmo2-8B)"),
+    ("0.174 (Claude Opus 5.5)", "0.182 (Claude Opus 5.5)"),
     ("Most of its range (0.258 of 0.311)", "The whole of its range (0.311)"),
     ("Most of its range (0.258 of 0.311)", "Most of its range (0.311 of 0.311)"),
     ("0.801–0.855, a range of 0.053", "0.80–0.85, a range of 0.053"),
-    ("0.154 (Qwen-8B) to 0.313 (YOLO11x)", "0.154 (Qwen-8B) to 0.384 (YOLO11x)"),
+    ("0.121 (Claude Fable 5.1) to 0.313 (YOLO11x)", "0.121 (Claude Fable 5.1) to 0.384 (YOLO11x)"),
     ("flatter (0.028, 0.039)", "flatter (0.028, 0.030)"),
     ("macro-to-macro the gap is 0.122", "macro-to-macro the gap is 0.119"),
     ("micro-to-micro 0.119", "micro-to-micro 0.110"),

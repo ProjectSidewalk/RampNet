@@ -8,7 +8,7 @@
  },
  "gap_share_closed_at_0.044": {
   "max": 0.5301,
-  "median": 0.3867,
+  "median": 0.3783,
   "min": -0.0604
  },
  "legs": [
@@ -732,6 +732,126 @@
       "precision": 0.945274,
       "recall": 0.698529,
       "tp": 190
+     }
+    }
+   }
+  },
+  "juneau": {
+   "gap_share_closed_at_0.044": 0.2914,
+   "n_gt": 297,
+   "n_panos": 125,
+   "opus_minus_fable_gap": {
+    "0.022": 0.054057,
+    "0.033": 0.051838,
+    "0.044": 0.038303
+   },
+   "paired_f1_vs_rampnet": {
+    "claude-fable-5-1-effort-low-anthropic": {
+     "ci95": [
+      0.0796,
+      0.1819
+     ],
+     "ci_excludes_zero": true,
+     "rampnet_minus_leg_f1": 0.1306,
+     "share_draws_rampnet_ahead": 1.0
+    },
+    "claude-opus-5-5-effort-low-anthropic": {
+     "ci95": [
+      0.0277,
+      0.1257
+     ],
+     "ci_excludes_zero": true,
+     "rampnet_minus_leg_f1": 0.0765,
+     "share_draws_rampnet_ahead": 0.9986
+    }
+   },
+   "points": {
+    "claude-fable-5-1-effort-low-anthropic": {
+     "emitted": 274,
+     "scored": 265
+    },
+    "claude-opus-5-5-effort-low-anthropic": {
+     "emitted": 304,
+     "scored": 292
+    }
+   },
+   "scores": {
+    "claude-fable-5-1-effort-low-anthropic": {
+     "0.022": {
+      "f1": 0.672598,
+      "fn": 108,
+      "fp": 76,
+      "precision": 0.713208,
+      "recall": 0.636364,
+      "tp": 189
+     },
+     "0.033": {
+      "f1": 0.715564,
+      "fn": 97,
+      "fp": 62,
+      "precision": 0.763359,
+      "recall": 0.673401,
+      "tp": 200
+     },
+     "0.044": {
+      "f1": 0.739286,
+      "fn": 90,
+      "fp": 56,
+      "precision": 0.787072,
+      "recall": 0.69697,
+      "tp": 207
+     }
+    },
+    "claude-opus-5-5-effort-low-anthropic": {
+     "0.022": {
+      "f1": 0.726655,
+      "fn": 83,
+      "fp": 78,
+      "precision": 0.732877,
+      "recall": 0.720539,
+      "tp": 214
+     },
+     "0.033": {
+      "f1": 0.767402,
+      "fn": 71,
+      "fp": 66,
+      "precision": 0.773973,
+      "recall": 0.760943,
+      "tp": 226
+     },
+     "0.044": {
+      "f1": 0.777589,
+      "fn": 68,
+      "fp": 63,
+      "precision": 0.784247,
+      "recall": 0.771044,
+      "tp": 229
+     }
+    },
+    "rampnet": {
+     "0.022": {
+      "f1": 0.80315,
+      "fn": 93,
+      "fp": 7,
+      "precision": 0.966825,
+      "recall": 0.686869,
+      "tp": 204
+     },
+     "0.033": {
+      "f1": 0.80315,
+      "fn": 93,
+      "fp": 7,
+      "precision": 0.966825,
+      "recall": 0.686869,
+      "tp": 204
+     },
+     "0.044": {
+      "f1": 0.80315,
+      "fn": 93,
+      "fp": 7,
+      "precision": 0.966825,
+      "recall": 0.686869,
+      "tp": 204
      }
     }
    }
@@ -1577,7 +1697,7 @@
    }
   }
  },
- "per_split_sha256": "5231d000ccbf3826115d3fdbc9b4b2764ca6cc31d7ed6ca86b128598ac4da9c4",
+ "per_split_sha256": "dee4dd6674b97952b003431813fe418846cc6fdeddab723874823d2691a8362c",
  "radii": [
   0.022,
   0.033,
@@ -1597,6 +1717,7 @@
   "richmond",
   "sao_paulo",
   "bayonne",
+  "juneau",
   "manual_gold"
  ]
 }

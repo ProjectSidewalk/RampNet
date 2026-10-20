@@ -1,7 +1,7 @@
 """Paired intervals and the radius check for the newest-ids Claude legs (PR #261).
 
 The newest-ids campaign (``docs/claude_newest_ids.md``) ran ``claude-opus-5-5`` and
-``claude-fable-5-1`` (effort low, first-party API) on all 13 splits. This script derives the
+``claude-fable-5-1`` (effort low, first-party API) on all 14 splits. This script derives the
 two analyses that write-up quotes beyond the plain P / R / F1 table, from committed files only:
 the bundles (``benchmark/<split>/records.jsonl`` + ``verdicts.json``, or ``manual_labels/`` for
 ``manual_gold``) and the published detections in ``benchmark/model_detections/``. No
@@ -15,7 +15,7 @@ the bundles (``benchmark/<split>/records.jsonl`` + ``verdicts.json``, or ``manua
    ``N_BOOT`` draws, percentile 2.5 / 97.5), with one generator per split, so both legs on a
    split are measured on the same draws and the result does not depend on the order of the
    legs. F1 per draw is ``aggregate``'s: precision over every pano, recall over the panos
-   whose recall is confirmed (all of them, on these 13 splits; asserted).
+   whose recall is confirmed (all of them, on these 14 splits; asserted).
 2. **The radius check.** Both legs re-scored at the standard radius 0.022 and at 1.5x and 2x
    it (0.033, 0.044), on every split, with ``rampnet.detection_eval.score_pano``. The share of
    the Opus-minus-Fable gap that closes at 0.044 is computed from unrounded F1s.
@@ -53,11 +53,13 @@ from export_model_cache import load_detections  # noqa: E402
 OUT = os.path.join(REPO, "analysis_out", "claude_newest_ids_261", "results.json")
 SCOREBOARD = os.path.join(REPO, "analysis_out", "scoreboard.json")
 
-#: The 13 splits the campaign ran, fixed here rather than read from the scoreboard's split
-#: list: a split added later (juneau, PR #260) has no leg from this campaign.
+#: The 14 splits the campaign ran, fixed here rather than read from the scoreboard's split
+#: list, so a split added later does not silently join an analysis it has no legs in. juneau
+#: (pooled by PR #260) was run last, on 2026-10-20 (``claude20`` org), so it is listed last
+#: among the cities.
 SPLITS = ("annapolis", "bend", "budapest_district5", "clovis", "gainesville", "laurens_gsv",
           "laurens_mapillary", "morgantown", "paterson", "richmond", "sao_paulo", "bayonne",
-          "manual_gold")
+          "juneau", "manual_gold")
 #: Published names (``rampnet.roster.published_name``) of the two legs.
 OPUS = "claude-opus-5-5-effort-low-anthropic"
 FABLE = "claude-fable-5-1-effort-low-anthropic"
