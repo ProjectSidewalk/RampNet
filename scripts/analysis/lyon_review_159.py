@@ -14,7 +14,8 @@ and refuses a plan that changed after it was posted.
 Subcommands, in the order the doc runs them:
 
     # copy the exporter's bundle in (masking email-shaped tokens, #149), and write
-    # ids.txt, exclude_ids.txt (the 30 m buffer) and run_peaks.json from the run
+    # ids.txt, exclude_ids.txt (the 30 m buffer), and the run's stored peaks for the
+    # audited panos (analysis_out/lyon_review_159/run_peaks.json, outside the bundle)
     python scripts/analysis/lyon_review_159.py stage --from D:/Git/labeler-wt/lyon-bundle \\
         --results <runs/lyon/results.jsonl>
 
@@ -57,6 +58,9 @@ OUT_DIR = os.path.join(REPO, "analysis_out", "lyon_review_159")
 PLAN_NAME = "audit_plan.json"
 NADIR_BAND_NAME = "nadir_band.json"
 ARTIFACTS = os.path.join(OUT_DIR, "artifacts.json")
+#: The run's stored peaks for the audited panos. Kept out of benchmark/lyon/ so that the
+#: bundle the reviewer opens holds only what the gallery shows (re-review N4).
+RUN_PEAKS = os.path.join(OUT_DIR, "run_peaks.json")
 SCORE = os.path.join(OUT_DIR, "score.json")
 
 STRATA = ("top", "random", "empty")
@@ -148,9 +152,9 @@ def load_records(bundle=BUNDLE):
         return [json.loads(line) for line in f if line.strip()]
 
 
-def load_run_peaks(bundle=BUNDLE):
+def load_run_peaks(path=RUN_PEAKS):
     """``{pano_id: [peak, ...]}``: every peak the run stored (>= 0.10) for the bundle."""
-    with open(os.path.join(bundle, "run_peaks.json"), encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)["panos"]
 
 
@@ -190,7 +194,7 @@ def _order(g):
 # --------------------------------------------------------------------------- #
 STAGED_FILES = ("records.jsonl", "sample.json", "group_map.json")
 #: Every committed text file of the bundle that ``verify`` scans for email-shaped tokens.
-TEXT_FILES = STAGED_FILES + ("ids.txt", "exclude_ids.txt", "run_peaks.json", PLAN_NAME,
+TEXT_FILES = STAGED_FILES + ("ids.txt", "exclude_ids.txt", PLAN_NAME,
                              "bundle_provenance.json", NADIR_BAND_NAME)
 
 
@@ -231,14 +235,14 @@ def exclusion_ids(run_points, audited, buffer_m=EXCLUDE_BUFFER_M):
     return out
 
 
-def stage(src, results, dst=BUNDLE, buffer_m=EXCLUDE_BUFFER_M):
+def stage(src, results, dst=BUNDLE, buffer_m=EXCLUDE_BUFFER_M, peaks_path=RUN_PEAKS):
     """Copy the exporter's bundle files into ``dst``, masking email-shaped tokens in every
     file written, and derive the never-train lists and the run's stored peaks.
 
     Writes ``records.jsonl``, ``sample.json``, ``group_map.json`` (masked copies),
     ``ids.txt`` (the audited ids, sorted), ``exclude_ids.txt`` (every run pano within
-    ``buffer_m`` of an audited one, sorted) and ``run_peaks.json`` (each audited pano's
-    stored peaks, >= 0.10, for the 0.30-tier read). Returns a summary dict. ``panos/``
+    ``buffer_m`` of an audited one, sorted), and ``peaks_path`` (each audited pano's
+    stored peaks, >= 0.10, for the 0.30-tier read; outside the bundle). Returns a summary dict. ``panos/``
     and ``index.csv`` are not copied: they are git-ignored and travel with the imagery."""
     os.makedirs(dst, exist_ok=True)
     masked = {}
@@ -267,7 +271,8 @@ def stage(src, results, dst=BUNDLE, buffer_m=EXCLUDE_BUFFER_M):
     excl = sorted(exclusion_ids(points, audited, buffer_m))
     _write_lines(os.path.join(dst, "exclude_ids.txt"), excl)
     run_sha = _sha256(results)
-    with open(os.path.join(dst, "run_peaks.json"), "wb") as f:
+    os.makedirs(os.path.dirname(peaks_path), exist_ok=True)
+    with open(peaks_path, "wb") as f:
         f.write(_dumps({"what": "every peak the run stored (>= 0.10; seam ring dropped by "
                                 "production) for each audited pano, for the 0.30-tier read. "
                                 "Do not open before verdicts.json is exported.",
@@ -279,6 +284,7 @@ def stage(src, results, dst=BUNDLE, buffer_m=EXCLUDE_BUFFER_M):
 
 def cmd_stage(args):
     out = stage(args.src, args.results, args.bundle, args.buffer)
+    out["run_peaks_sha256"] = _sha256(RUN_PEAKS)
     print(json.dumps(out, sort_keys=True))
     return 0
 
@@ -319,28 +325,24 @@ PASS_BAR = {
     "threshold": PASS_PRECISION,
     "read_on": "each audit group's unbiased subset: the random and empty strata, the top "
                "stratum excluded as for every split",
-    "interval": f"95% percentile interval of a pano bootstrap ({BOOT_REPS} resamples of the "
-                f"group's unbiased panos with replacement, seed {BOOT_SEED}); detections on "
-                "one pano are not independent, so panos are the resampled unit",
-    "outcomes": {
-        "decisive pass (bootstrap lower bound >= 0.80)": "the group is eligible for a Lyon "
-                                                         "training pool",
-        "decisive fail (bootstrap upper bound < 0.80)": "the group is excluded from any Lyon "
-                                                        "training pool",
-        "not decisive (the interval contains 0.80)": "the group is excluded from the first "
-                                                     "retrain; score prints the extra "
-                                                     "random panos a top-up draw would need "
-                                                     "to be decisive at the same point "
-                                                     "estimate",
-    },
+    "rule": "a group is eligible for a Lyon training pool when its point estimate is "
+            ">= 0.80; below 0.80 it is not eligible",
+    "intervals": [f"95% percentile interval of a pano bootstrap ({BOOT_REPS} resamples of the "
+                  f"group's random panos with replacement, seed {BOOT_SEED})",
+                  "95% Wilson interval over detections"],
+    "decisive": "information for Jon, not a separate outcome: a reading is decisive when "
+                "both intervals sit on the same side of 0.80 as the point estimate, and "
+                "'not decisive' when either contains 0.80. score then prints the random "
+                "panos a top-up draw would need, capped at the group's remaining pool",
+    "decisive_fail": "both upper bounds < 0.80: the group is excluded from any Lyon "
+                     "training pool",
     "all_row": "reported, no verdict: the floors over-sample the small groups, so the pool "
                "is not a city rate",
     "source": "the #158 build line (>= 0.80 build, 0.50-0.80 visibility, < 0.50 drop)",
     "reported_alongside": ["recall at 0.55", "precision and recall at 0.30, read the "
                            "standard way (the run's stored peaks matched to the GT, so a "
                            "sub-threshold peak on a ramp the reviewer marked missed is a TP)",
-                           "the Wilson interval over detections", "unsure and duplicate "
-                           "counts", "per-rig rows inside each group (descriptive, no bar)"],
+                           "unsure and duplicate counts", "per-rig rows inside each group (descriptive, no bar)"],
     "duplicates": "of two detections on one ramp, the lower-confidence one is the duplicate; "
                   "scored as a false positive (rampnet.validation default)",
 }
@@ -348,7 +350,7 @@ PASS_BAR = {
 
 def build_plan(bundle=BUNDLE):
     recs = load_records(bundle)
-    peaks = load_run_peaks(bundle)
+    peaks = load_run_peaks()
     with open(os.path.join(bundle, "sample.json"), encoding="utf-8") as f:
         sample = json.load(f)
     strata = sample["stratified"]["strata"]
@@ -489,7 +491,7 @@ def cmd_artifacts(args):
     seqs = {r["pano"].get("sequence_id") for r in recs}
     cells = sequence_cells(_iter_results(args.results), seqs)
     return _check_or_write(build_artifacts(recs, cells, _sha256(args.results),
-                                           load_run_peaks(args.bundle)),
+                                           load_run_peaks()),
                            ARTIFACTS, args.write)
 
 
@@ -621,7 +623,7 @@ def verify_bundle(bundle=BUNDLE, require_imagery=True):
     excl = set(_read_lines(os.path.join(bundle, "exclude_ids.txt")))
     if not set(ids) <= excl:
         problems.append("exclude_ids.txt does not contain every audited id")
-    peaks = load_run_peaks(bundle)
+    peaks = load_run_peaks()
     if set(peaks) != set(ids):
         problems.append("run_peaks.json and records.jsonl list different panos")
     for r in recs:      # the records are the run's >= 0.55 peaks, in order
@@ -722,24 +724,56 @@ def bootstrap_ci(units, reps=BOOT_REPS, seed=BOOT_SEED):
     return vals[int(0.025 * (len(vals) - 1))], vals[int(0.975 * (len(vals) - 1))]
 
 
-def bar_reading(p, lo, hi, n_panos, bar=PASS_PRECISION):
-    """(verdict, extra_panos) for a point estimate and its bootstrap interval. Pure.
+TOP_UP_MIN_GAP = 0.01    # nearer the bar than this, no finite top-up is suggested
 
-    Decisive pass: lo >= bar. Decisive fail: hi < bar. Otherwise not decisive, and
-    ``extra_panos`` is how many more panos would shrink the interval's half-width on the
-    bar's side to |p - bar| at the same p (half-width ~ 1/sqrt(n)); None when p == bar."""
+
+def bar_reading(p, intervals, n_random, pool_left=None, rate=None, bar=PASS_PRECISION):
+    """The bar reading for one group. Pure.
+
+    ``p`` is the point estimate, ``intervals`` the (lo, hi) pairs reported beside it
+    (bootstrap and Wilson), ``n_random`` the group's judged random panos, ``pool_left``
+    the random-eligible panos the run still has for this group (None: no cap), ``rate``
+    detections per random pano. Eligible = ``p >= bar``. Decisive = both intervals on
+    p's side of the bar. A non-decisive reading carries a top-up size: the random panos
+    that would shrink the widest half-width on the bar's side to ``|p - bar|`` at the
+    same p (half-width ~ 1/sqrt(n)); none when p is within 0.01 of the bar, and
+    "not reachable" when it exceeds the pool.
+
+    Example:
+        >>> bar_reading(0.9, [(0.82, 0.96), (0.81, 0.95)], 50)["reading"]
+        'eligible (decisive)'
+    """
     if p is None:
-        return "no detections judged", None
-    if lo >= bar:
-        return "decisive pass: eligible for a training pool", 0
-    if hi < bar:
-        return "decisive fail: excluded from any training pool", 0
+        return {"eligible": None, "decisive": None, "reading": "no detections judged"}
+    eligible = p >= bar
+    ivs = [(lo, hi) for lo, hi in intervals if lo is not None]
+    if eligible:
+        decisive = all(lo >= bar for lo, _ in ivs)
+        reading = ("eligible (decisive)" if decisive else
+                   "eligible, not decisive: an interval contains 0.80")
+    else:
+        decisive = all(hi < bar for _, hi in ivs)
+        reading = ("decisive fail: excluded from any Lyon training pool" if decisive else
+                   "not eligible (point estimate below 0.80), not decisive: an interval "
+                   "contains 0.80")
+    out = {"eligible": eligible, "decisive": decisive, "reading": reading}
+    if decisive:
+        return out
     gap = abs(p - bar)
-    if gap == 0:
-        return "not decisive: excluded from the first retrain (p is exactly the bar)", None
-    half = (p - lo) if p >= bar else (hi - p)
-    need = math.ceil(round(n_panos * (half / gap) ** 2, 6))
-    return "not decisive: excluded from the first retrain", max(0, need - n_panos)
+    if gap < TOP_UP_MIN_GAP:
+        out["top_up"] = (f"no finite top-up: the point estimate is within {TOP_UP_MIN_GAP} "
+                         f"of the bar")
+        return out
+    half = max((p - lo) if eligible else (hi - p) for lo, hi in ivs)
+    extra = max(0, math.ceil(round(n_random * (half / gap) ** 2, 6)) - n_random)
+    if pool_left is not None and extra > pool_left:
+        out["top_up"] = (f"not reachable: needs about {extra} more random panos, the group's "
+                         f"pool has {pool_left} left")
+        return out
+    out["top_up"] = {"extra_random_panos": extra}
+    if rate is not None:
+        out["top_up"]["extra_detections_at_current_rate"] = round(extra * rate)
+    return out
 
 
 def _scan_entries(recs, verdict_panos):
@@ -761,11 +795,14 @@ def _scan_entries(recs, verdict_panos):
     return problems
 
 
-def score_groups(recs, verdict_panos, run_peaks, lenient_duplicates=False):
+def score_groups(recs, verdict_panos, run_peaks, lenient_duplicates=False, pool_left=None):
     """Per audit group (+ ``all``), unbiased subset: precision / recall at 0.55 (from the
     verdicts, rampnet.validation) and at 0.30 (the run's stored peaks matched to the GT,
     rampnet.detection_eval), with pano-bootstrap and Wilson intervals and the bar reading.
-    Pure: ``verdict_panos`` is verdicts.json's ``panos``."""
+    Pure: ``verdict_panos`` is verdicts.json's ``panos``; ``pool_left`` maps a group to the
+    random-eligible panos its run pool still has (caps the top-up). The 0.55 precision is
+    read on the random panos (empty panos carry no 0.55 detection); recall and the 0.30
+    tier on random + empty."""
     from rampnet.detection_eval import build_ground_truth, score_pano
     from rampnet.validation import collect, total_ramps
     confs = {r["pano"]["panorama_id"]: [d["confidence"] for d in r["detections"]]
@@ -797,12 +834,14 @@ def score_groups(recs, verdict_panos, run_peaks, lenient_duplicates=False):
                 if d == "unsure" or (d == "duplicate" and lenient_duplicates):
                     continue
                 ok.append(d is True)
-            units55.append((sum(ok), len(ok)))
+            if group_of[pid] == "random":
+                units55.append((sum(ok), len(ok)))
             fn_ok = (e["no_missed"] or e["missed"]) if "no_missed" in e else True
             if fn_ok:
                 miss = sum(1 for m in e["missed"] if not m.get("unsure"))
                 rec_units55.append((sum(ok), sum(ok) + miss))
         tp55, n55 = sum(k for k, _ in units55), sum(n for _, n in units55)
+        assert n55 == len(pools.judged), "0.55 detections outside the random stratum"
         denom = total_ramps(pools)
         rtp55 = sum(k for k, _ in rec_units55)
         assert rtp55 == denom - pools.missed_total, "recall pool disagrees with collect()"
@@ -835,14 +874,33 @@ def score_groups(recs, verdict_panos, run_peaks, lenient_duplicates=False):
             row["bar"] = "reported, no verdict (the groups are not sampled in proportion)"
         else:
             p = row["precision_055"]
-            verdict, extra = bar_reading(p["p"], *(p["bootstrap95"]), len(units55))
-            row["bar"] = verdict
-            if extra:
-                rate = n55 / len(units55) if units55 else 0
-                row["top_up"] = {"extra_random_panos": extra,
-                                 "extra_detections_at_current_rate": round(extra * rate)}
+            reading = bar_reading(p["p"], [tuple(p["bootstrap95"]), tuple(p["wilson95"])],
+                                  len(units55), (pool_left or {}).get(g),
+                                  n55 / len(units55) if units55 else None)
+            row["bar"] = reading.pop("reading")
+            row.update(reading)
         out[g] = row
     return out, warnings
+
+
+def posted_mismatches(bundle=BUNDLE):
+    """Why the bundle is not the version posted on #159 (empty list = it is).
+
+    Checks the posted sha256 of audit_plan.json and records.jsonl, and that the current
+    code still rebuilds the committed plan byte for byte (the bar's constants live in this
+    script, so a code edit could change the reading while the plan file still matched)."""
+    out = []
+    with open(os.path.join(bundle, "bundle_provenance.json"), encoding="utf-8") as f:
+        posted = json.load(f).get("posted") or {}
+    for name, key in ((PLAN_NAME, "audit_plan_sha256"), ("records.jsonl", "records_jsonl_sha256")):
+        sha = _sha256(os.path.join(bundle, name))
+        if sha != posted.get(key):
+            out.append(f"{name} hashes to {sha[:12]}, the posted value is "
+                       f"{(posted.get(key) or 'none')[:12]}")
+    with open(os.path.join(bundle, PLAN_NAME), "rb") as f:
+        if f.read() != _dumps(build_plan(bundle)).encode("utf-8"):
+            out.append("the current code does not rebuild the committed audit_plan.json")
+    return out
 
 
 def cmd_score(args):
@@ -851,38 +909,41 @@ def cmd_score(args):
         print(f"no {os.path.relpath(vpath, REPO)}: the review has not happened, "
               f"nothing to score")
         return 1
-    plan_sha = _sha256(os.path.join(args.bundle, PLAN_NAME))
-    with open(os.path.join(args.bundle, "bundle_provenance.json"), encoding="utf-8") as f:
-        posted = (json.load(f).get("posted") or {}).get("audit_plan_sha256")
-    if posted != plan_sha and not args.allow_unposted_plan:
-        print(f"audit_plan.json hashes to {plan_sha[:12]}, but the plan posted on #159 is "
-              f"{(posted or 'none')[:12]}: refusing to score against a plan that changed "
-              f"(--allow-unposted-plan overrides, and is recorded)")
+    problems = posted_mismatches(args.bundle)
+    for p in problems:
+        print("  PROBLEM: " + p)
+    if problems and not args.allow_unposted_plan:
+        print("refusing to score against a plan or sample other than the one posted on #159 "
+              "(--allow-unposted-plan overrides, and is recorded)")
         return 1
+    plan_sha = _sha256(os.path.join(args.bundle, PLAN_NAME))
     with open(vpath, encoding="utf-8") as f:
         verdicts = json.load(f)
     recs = load_records(args.bundle)
-    problems = _scan_entries(recs, verdicts.get("panos", {}))
-    for p in problems:
+    problems_v = _scan_entries(recs, verdicts.get("panos", {}))
+    for p in problems_v:
         print("  PROBLEM: " + p)
-    if problems and not args.partial:
-        print(f"{len(problems)} non-top panos are missing, misaligned or partly judged: "
+    if problems_v and not args.partial:
+        print(f"{len(problems_v)} non-top panos are missing, misaligned or partly judged: "
               f"refusing to score (--partial scores the rest, and is recorded)")
         return 1
-    groups, warnings = score_groups(recs, verdicts.get("panos", {}),
-                                    load_run_peaks(args.bundle), args.lenient_duplicates)
+    with open(os.path.join(args.bundle, "sample.json"), encoding="utf-8") as f:
+        strata = json.load(f)["stratified"]["strata"]
+    pool_left = {g: v["pool_with_detections"] - v["random"] for g, v in strata.items()}
+    groups, warnings = score_groups(recs, verdicts.get("panos", {}), load_run_peaks(),
+                                    args.lenient_duplicates, pool_left)
     for w in warnings:
         print("  WARNING: " + w)
     res = {"pass_bar": PASS_BAR, "audit_plan_sha256": plan_sha,
-           "plan_posted": posted == plan_sha, "partial": bool(problems),
-           "unscored_panos": problems, "lenient_duplicates": args.lenient_duplicates,
+           "plan_posted": not posted_mismatches(args.bundle), "partial": bool(problems_v),
+           "unscored_panos": problems_v, "lenient_duplicates": args.lenient_duplicates,
            "review_notes": verdicts.get("review_notes") or {}, "groups": groups}
     for g, row in groups.items():
         p, p3 = row["precision_055"], row["precision_030"]
         print(f"{g:>20}  P@0.55 {p['p']} ({p['tp']}/{p['n']}, boot {p['bootstrap95']})  "
               f"P@0.30 {p3['p']} ({p3['tp']}/{p3['n']})  R@0.55 {row['recall_055']['r']}  "
               f"R@0.30 {row['recall_030']['r']}  -> {row['bar']}"
-              + (f"; top-up {row['top_up']}" if row.get("top_up") else ""))
+              + (f"; top-up: {row['top_up']}" if row.get("top_up") else ""))
     return _check_or_write(res, SCORE, args.write)
 
 

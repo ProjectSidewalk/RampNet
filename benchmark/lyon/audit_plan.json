@@ -62,22 +62,22 @@
  "never_train": "Every id in ids.txt is held out of every training pool, and so is every run pano within 30 m of one (exclude_ids.txt), whatever the audit reads.",
  "pass_bar": {
   "all_row": "reported, no verdict: the floors over-sample the small groups, so the pool is not a city rate",
+  "decisive": "information for Jon, not a separate outcome: a reading is decisive when both intervals sit on the same side of 0.80 as the point estimate, and 'not decisive' when either contains 0.80. score then prints the random panos a top-up draw would need, capped at the group's remaining pool",
+  "decisive_fail": "both upper bounds < 0.80: the group is excluded from any Lyon training pool",
   "duplicates": "of two detections on one ramp, the lower-confidence one is the duplicate; scored as a false positive (rampnet.validation default)",
-  "interval": "95% percentile interval of a pano bootstrap (10000 resamples of the group's unbiased panos with replacement, seed 159); detections on one pano are not independent, so panos are the resampled unit",
+  "intervals": [
+   "95% percentile interval of a pano bootstrap (10000 resamples of the group's random panos with replacement, seed 159)",
+   "95% Wilson interval over detections"
+  ],
   "metric": "precision of the detections at confidence >= 0.55 (the records the reviewer judges)",
-  "outcomes": {
-   "decisive fail (bootstrap upper bound < 0.80)": "the group is excluded from any Lyon training pool",
-   "decisive pass (bootstrap lower bound >= 0.80)": "the group is eligible for a Lyon training pool",
-   "not decisive (the interval contains 0.80)": "the group is excluded from the first retrain; score prints the extra random panos a top-up draw would need to be decisive at the same point estimate"
-  },
   "read_on": "each audit group's unbiased subset: the random and empty strata, the top stratum excluded as for every split",
   "reported_alongside": [
    "recall at 0.55",
    "precision and recall at 0.30, read the standard way (the run's stored peaks matched to the GT, so a sub-threshold peak on a ramp the reviewer marked missed is a TP)",
-   "the Wilson interval over detections",
    "unsure and duplicate counts",
    "per-rig rows inside each group (descriptive, no bar)"
   ],
+  "rule": "a group is eligible for a Lyon training pool when its point estimate is >= 0.80; below 0.80 it is not eligible",
   "source": "the #158 build line (>= 0.80 build, 0.50-0.80 visibility, < 0.50 drop)",
   "threshold": 0.8
  },

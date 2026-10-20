@@ -5,10 +5,12 @@ the pass bar are written down (`benchmark/lyon/audit_plan.json`), the never-trai
 committed, and the known-artifact counts are in. The panos are not local yet, so the overlay
 measurement, the imagery pin and the gallery check are still to do (section 7). Nobody has
 judged a detection. The plan, the pass bar and the group list are a **working draft**; Jon can
-amend them until the review opens. They were posted on #159 on 2026-10-20
-([comment](https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301107391), with the
-sha256 of `audit_plan.json` and `records.jsonl`); `bundle_provenance.json` → `posted` pins that
-version, and `score` refuses any other. Lyon is not approved for training and nothing about it is
+amend them until the review opens. They were first posted on #159 on 2026-10-20
+([comment](https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301107391)), and the
+bar was simplified the same day after a re-review of PR 264 (section 3; the
+[follow-up](POSTED_FOLLOWUP) carries the new sha256 of `audit_plan.json`; `records.jsonl` is
+unchanged). `bundle_provenance.json` → `posted` pins that version. `score` refuses any other plan or
+sample, and refuses when the current code no longer rebuilds the committed plan. Lyon is not approved for training and nothing about it is
 frozen.
 
 Issue [#159](https://github.com/ProjectSidewalk/RampNet/issues/159) (decision of
@@ -89,7 +91,9 @@ The four groups are the four strata of Jon's decision. `benchmark/lyon/group_map
 | **all** | 40,888 / 133,517 | **5** | **170** | **25** | **293** | **503** |
 
 With the 5 `top` panos the reviewer judges **338 detections**. The run's stored peaks for these
-panos (`run_peaks.json`, ≥ 0.10) give the 0.30 read without showing it (section 4).
+panos (`analysis_out/lyon_review_159/run_peaks.json`, ≥ 0.10) give the 0.30 read without showing
+it (section 4). They are kept outside `benchmark/lyon/`, so the bundle the reviewer opens holds only
+what the gallery shows.
 
 **Inside each group** (all strata; `rig_breakdown` in `audit_plan.json`; descriptive, no bar):
 
@@ -109,24 +113,25 @@ tail as a whole", not for any one camera in it.
 `stage` masks email-shaped tokens in every file it writes (#149); this draw contains none, so the
 committed `records.jsonl` is byte-identical to the exporter's.
 
-## 3. The pass bar (draft, posted on #159 on 2026-10-20, before the review)
+## 3. The pass bar (draft, posted on #159 before the review)
 
 - **Metric:** precision of the detections at confidence ≥ 0.55, the shipped threshold, the
   detections the reviewer judges.
 - **Read on:** each group's unbiased subset (`random` + `empty`; the `top` panos are excluded, as
   for every split). `empty` panos carry no 0.55 detection, so at 0.55 this is the `random` stratum.
-- **Interval:** the 95% percentile interval of a **pano bootstrap** (10,000 resamples of the
-  group's unbiased panos with replacement, seed 159). Detections on one pano are not independent
-  (107 detections on 59 Ladybug panos), so panos are the resampled unit. The Wilson interval over
-  detections is reported beside it and is narrower.
-- **Three outcomes**, against the #158 build line of 0.80:
-
-  | reading | rule | consequence |
-  |---|---|---|
-  | decisive pass | bootstrap lower bound ≥ 0.80 | the group is eligible for a Lyon training pool |
-  | decisive fail | bootstrap upper bound < 0.80 | the group is excluded from any Lyon training pool |
-  | not decisive | the interval contains 0.80 | the group is excluded from the first retrain; `score` prints how many more `random` panos a top-up draw would need to be decisive at the same point estimate |
-
+- **Eligibility:** a group is eligible for a Lyon training pool when its **point estimate is
+  ≥ 0.80**, the #158 build line. Below 0.80 it is not eligible.
+- **Two intervals, reported beside it:** the 95% percentile interval of a **pano bootstrap**
+  (10,000 resamples of the group's `random` panos with replacement, seed 159; detections on one
+  pano are not independent, 107 detections on 59 Ladybug panos) and the 95% **Wilson** interval
+  over detections.
+- **Decisive or not, as information for Jon.** A reading is decisive when both intervals sit on
+  the point estimate's side of 0.80. If either contains 0.80, `score` flags it "not decisive" and
+  prints how many more `random` panos a top-up draw would need at the same point estimate. It caps
+  that at the group's remaining pool, and gives no number when the estimate is within 0.01 of the
+  bar. "Not decisive" is not a third outcome and carries no consequence of its own.
+- **Decisive fail:** both upper bounds below 0.80. The group is excluded from any Lyon training
+  pool.
 - **The `all` row** is reported with no verdict. The floors over-sample the small groups
   (`other_cameras` is 18% of `random` against 3.7% of the run's detection panos), so the pool is
   not a city rate.
@@ -136,17 +141,25 @@ committed `records.jsonl` is byte-identical to the exporter's.
   (records list detections by confidence, so it is the later one). It counts as a false positive,
   the `rampnet.validation` default; `--lenient-duplicates` gives the other reading.
 
-**How decisive this can be.** For a guide, the Wilson interval (narrower than the bootstrap) is
-decisive only outside these point estimates: 107 detections (`grand_lyon_ladybug`) ≥ 0.879 or
-≤ 0.720; 87 (`ecartip_gopro_max`) ≥ 0.885 or ≤ 0.713; 50 (`other_gopro_max`) ≥ 0.920 or ≤ 0.680;
-49 (`other_cameras`) ≥ 0.918 or ≤ 0.673. Bayonne read 0.785 and laurens_mapillary 0.863, so a
-"not decisive" reading is likely for some groups. That is why the not-decisive outcome has a
-stated consequence and a sized top-up.
+**Why the rule changed after it was first posted.** The first post made a not-decisive reading a
+third outcome that kept a group out of the first retrain, with the bootstrap interval as the test.
+The re-review of PR 264 measured that at these sizes the percentile bootstrap is the more
+**lenient** of the two: on the real per-pano detection counts at p ≈ 0.87, its lower bound sat
+0.01-0.03 **above** Wilson's (ecartip 0.798-0.810 against 0.788; `other_cameras` 0.773-0.783
+against 0.758). The first version of this section said the opposite. So the bar is now the
+point estimate, as the #158 build line is, and both intervals are shown beside it.
+
+**How decisive this can be.** The Wilson interval is decisive only outside these point estimates:
+107 detections (`grand_lyon_ladybug`) ≥ 0.879 or ≤ 0.720; 87 (`ecartip_gopro_max`) ≥ 0.885 or
+≤ 0.713; 50 (`other_gopro_max`) ≥ 0.920 or ≤ 0.680; 49 (`other_cameras`) ≥ 0.918 or ≤ 0.673. The
+bootstrap is usually a little less strict. Bayonne read 0.785 and laurens_mapillary 0.863, so a
+"not decisive" flag is likely on some groups.
 
 `python scripts/analysis/lyon_review_159.py score` computes all of this from `verdicts.json`. It
-refuses to run before that file exists, refuses an `audit_plan.json` whose sha256 differs from the
-posted one, and refuses when a non-top pano is missing, misaligned or partly judged (`--partial`
-and `--allow-unposted-plan` override, and `score.json` records that they were used).
+refuses to run before that file exists. It also refuses when `audit_plan.json` or `records.jsonl`
+differs from the posted sha256, when the current code no longer rebuilds the committed plan byte
+for byte, and when a non-top pano is missing, misaligned or partly judged. `--partial` and
+`--allow-unposted-plan` override these, and `score.json` records that they were used.
 
 ## 4. What the reviewer sees
 
@@ -159,7 +172,8 @@ the camera.
 
 - **Only the 0.55 detections are shown**, as in every split. Judge each one, then mark every ramp
   with no detection as missed. The 0.30 tier is read the standard way: `score` matches the run's
-  stored peaks ≥ 0.30 (`run_peaks.json`) to the ground truth built from the verdicts
+  stored peaks ≥ 0.30 (`analysis_out/lyon_review_159/run_peaks.json`) to the ground truth
+  built from the verdicts
   (`rampnet.detection_eval`, as `attach-gt` does for an op_cache). A sub-threshold peak on a ramp
   the reviewer marked as missed counts as a true positive at 0.30. Showing the 0.30 crops instead
   is an option Jon can switch on: re-export with `--record-confidence 0.30` (same seed, same 200
@@ -180,7 +194,7 @@ bike-lane cut is not a curb ramp, and the duplicate rule in section 3. From the 
 French lowered kerbs at crossings are often a plain lowering with a white-painted kerb face and no
 flare, sometimes with tactile paving, and they count; driveway and garage lowerings do not.
 
-**Before you start, do not open** `benchmark/lyon/run_peaks.json` or
+**Before you start, do not open** `analysis_out/lyon_review_159/run_peaks.json` or
 `analysis_out/lyon_review_159/artifacts.json`'s `items` list. Both name places you are about to
 judge. The counts below are the part meant to be read first.
 
@@ -281,9 +295,9 @@ was replaced on 2026-10-20 after review, before anyone reviewed it.
 - **The review itself.** Nothing is judged; there is no `verdicts.json`.
 - **Review load.** 200 panos and 338 detections, against Bayonne's 125 and 147. Showing the 0.30
   crops too would be about 1.6x that.
-- **Group sizes.** Even at a floor of 30, the two small groups are decisive only at a point
-  estimate of about 0.92 or above (or 0.68 or below). A "not decisive" group stays out of the first
-  retrain, and `score` sizes the top-up.
+- **Group sizes.** Even at a floor of 30, the two small groups are decisive on Wilson only at a
+  point estimate of about 0.92 or above (or 0.68 or below). Eligibility is the point estimate; a
+  "not decisive" flag is shown beside it for you to weigh, with a top-up size from `score`.
 - **The fixed-pixel cluster** needs a targeted look if the 0.30 tier is to feed mining (section 5).
   Not built.
 - **Per-producer caps on training** (#159 decision, point 2) are a training-side step, not part of

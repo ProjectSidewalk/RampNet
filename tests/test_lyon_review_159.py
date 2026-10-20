@@ -71,12 +71,28 @@ def test_the_plan_reproduces_byte_for_byte_and_carries_the_bar():
         assert f.read() == L._dumps(L.build_plan(BUNDLE)).encode("utf-8")
     plan = L.build_plan(BUNDLE)
     bar = plan["pass_bar"]
-    assert bar["threshold"] == 0.80 and "bootstrap" in bar["interval"]
-    assert len(bar["outcomes"]) == 3 and "no verdict" in bar["all_row"]
+    assert bar["threshold"] == 0.80 and ">= 0.80" in bar["rule"]
+    assert len(bar["intervals"]) == 2 and "not a separate outcome" in bar["decisive"]
+    assert "both upper bounds" in bar["decisive_fail"] and "no verdict" in bar["all_row"]
     assert "lower-confidence" in bar["duplicates"]
     assert "held out of every training pool" in plan["never_train"]
     assert plan["sampler"]["seed"] == 159 and plan["sampler"]["groups"]["top"] == 5
     assert plan["sampler_floors"] == {"group_min": 30, "empty_group_min": 3}
+
+
+def test_posted_mismatches_catches_records_and_code_drift(tmp_path, monkeypatch):
+    # Re-review N2: score checks the posted records hash too, and that the code still
+    # rebuilds the committed plan.
+    import shutil
+    b = tmp_path / "lyon"
+    shutil.copytree(BUNDLE, b, ignore=shutil.ignore_patterns("panos", "gallery"))
+    assert L.posted_mismatches(str(b)) == []
+    monkeypatch.setitem(L.PASS_BAR, "threshold", 0.75)
+    assert any("does not rebuild" in m for m in L.posted_mismatches(str(b)))
+    monkeypatch.undo()
+    lines = (b / "records.jsonl").read_bytes().splitlines(keepends=True)
+    (b / "records.jsonl").write_bytes(b"".join(lines[1:]))
+    assert any(m.startswith("records.jsonl hashes") for m in L.posted_mismatches(str(b)))
 
 
 def test_the_posted_pin_matches_the_committed_plan_and_records():
@@ -129,14 +145,15 @@ def test_stage_masks_every_file_and_writes_the_never_train_lists(tmp_path):
     run[0]["detections"] = [{"x_normalized": 0.5, "y_normalized": 0.6, "confidence": 0.2}]
     results = tmp_path / "results.jsonl"
     results.write_text("".join(json.dumps(r) + "\n" for r in run), encoding="utf-8")
-    out = L.stage(str(src), str(results), str(dst))
+    out = L.stage(str(src), str(results), str(dst), peaks_path=str(tmp_path / "peaks.json"))
     assert out["ids"] == 2 and out["exclude_ids"] == 3
     for name in ("records.jsonl", "sample.json"):
         text = (dst / name).read_text(encoding="utf-8")
         assert "example.org" not in text and "a***@***" in text
     assert (dst / "ids.txt").read_text(encoding="utf-8") == "A\nB\n"
     assert (dst / "exclude_ids.txt").read_text(encoding="utf-8") == "A\nB\nnear\n"
-    peaks = json.loads((dst / "run_peaks.json").read_text(encoding="utf-8"))["panos"]
+    assert not (dst / "run_peaks.json").exists()       # kept out of the bundle (N4)
+    peaks = json.loads((tmp_path / "peaks.json").read_text(encoding="utf-8"))["panos"]
     assert peaks["A"][0]["confidence"] == 0.2 and peaks["B"] == []
 
 
@@ -269,19 +286,39 @@ def test_score_groups_reads_055_from_verdicts_and_030_from_the_run_peaks():
     # 0.30: the 0.40 peak on a marked missed ramp is a TP, elsewhere an FP.
     assert gl["precision_030"]["tp"] == 15 and gl["precision_030"]["n"] == 20
     assert gl["recall_030"]["tp"] == 15 and gl["recall_030"]["n"] == 15
-    assert gl["bar"].startswith("decisive pass")
+    # 10 of 10 is eligible but not decisive: Wilson's lower bound is 0.72.
+    assert gl["eligible"] is True and gl["decisive"] is False
+    assert gl["bar"].startswith("eligible, not decisive")
     ec = out["ecartip_gopro_max"]
     assert ec["precision_055"]["p"] == 0.7 and ec["recall_055"]["n"] == 8
+    assert ec["eligible"] is False and ec["bar"].startswith("not eligible")
     assert out["all"]["precision_055"]["n"] == 20                       # top excluded
     assert "no verdict" in out["all"]["bar"]
 
 
-def test_bar_reading_has_three_outcomes_and_sizes_a_top_up():
-    assert L.bar_reading(0.9, 0.82, 0.96, 50)[0].startswith("decisive pass")
-    assert L.bar_reading(0.6, 0.5, 0.75, 50)[0].startswith("decisive fail")
-    verdict, extra = L.bar_reading(0.85, 0.75, 0.93, 50)
-    assert verdict.startswith("not decisive") and extra == 50 * 4 - 50
-    assert L.bar_reading(None, None, None, 0)[0] == "no detections judged"
+def test_bar_reading_eligibility_is_the_point_estimate():
+    # Re-review N1: eligibility is p >= 0.80; decisiveness is information beside it.
+    r = L.bar_reading(0.9, [(0.82, 0.96), (0.81, 0.95)], 50)
+    assert r["eligible"] and r["decisive"] and "top_up" not in r
+    r = L.bar_reading(0.85, [(0.82, 0.92), (0.75, 0.93)], 50)     # Wilson straddles
+    assert r["eligible"] and not r["decisive"] and r["reading"].startswith("eligible, not")
+    # 50 * (0.10 / 0.05)^2 - 50 = 150 more random panos, from the wider interval.
+    assert r["top_up"]["extra_random_panos"] == 150
+    assert L.bar_reading(0.6, [(0.5, 0.75), (0.48, 0.74)], 50)["reading"].startswith(
+        "decisive fail")
+    r = L.bar_reading(0.75, [(0.6, 0.78), (0.62, 0.85)], 50)      # one upper bound >= 0.80
+    assert not r["eligible"] and not r["decisive"]
+    assert L.bar_reading(None, [], 0)["reading"] == "no detections judged"
+
+
+def test_top_up_is_capped_by_the_pool_and_has_no_finite_size_at_the_bar():
+    # Re-review N3: near the bar the formula explodes; cap it and say so.
+    r = L.bar_reading(0.804, [(0.70, 0.90), (0.71, 0.89)], 59, pool_left=17026)
+    assert r["top_up"].startswith("no finite top-up")
+    r = L.bar_reading(0.83, [(0.70, 0.93), (0.71, 0.92)], 30, pool_left=100)
+    assert r["top_up"].startswith("not reachable")
+    r = L.bar_reading(0.86, [(0.78, 0.93), (0.77, 0.92)], 30, pool_left=1000, rate=1.7)
+    assert r["top_up"] == {"extra_random_panos": 38, "extra_detections_at_current_rate": 65}
 
 
 def test_bootstrap_is_wider_than_wilson_when_detections_cluster():

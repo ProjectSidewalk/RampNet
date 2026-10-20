@@ -46,7 +46,8 @@
     "date": "2026-10-20",
     "command": "python scripts/analysis/lyon_review_159.py stage --from D:/Git/labeler-wt/lyon-bundle --results D:/Git/labeler-wt/lyon5m/runs/lyon/results.jsonl",
     "changes": "records.jsonl is byte-identical to the exporter's (no email-shaped token in this draw)",
-    "files": ["records.jsonl", "sample.json", "group_map.json", "ids.txt", "exclude_ids.txt", "run_peaks.json", "audit_plan.json", "bundle_provenance.json", "nadir_band.json and imagery_manifest.json (once the panos are local)", "index.csv and panos/ (git-ignored, travel with the imagery)"]
+    "run_peaks": "analysis_out/lyon_review_159/run_peaks.json (outside the bundle, so the reviewer's bundle holds only what the gallery shows), sha256 37ad8482e675370962b743a138ae93207ae9e0a8fd0da1b0c599725df39c50d0",
+    "files": ["records.jsonl", "sample.json", "group_map.json", "ids.txt", "exclude_ids.txt", "audit_plan.json", "bundle_provenance.json", "nadir_band.json and imagery_manifest.json (once the panos are local)", "index.csv and panos/ (git-ignored, travel with the imagery)"]
   },
   "posted": {
     "comment": "https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301107391",
