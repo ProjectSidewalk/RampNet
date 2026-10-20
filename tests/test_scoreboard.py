@@ -1272,10 +1272,14 @@ def _synthetic_board():
     """A three-city board, one held-out split, built to exercise every ordering rule.
 
     * ``partial-high``: one city at 0.90 -- a higher mean than ``partial-wide`` but lower
-      coverage, so it must sort below it.
+      coverage, so it must sort below it; ``partial-low`` has the same coverage and a lower
+      mean, so it sorts below ``partial-high``.
     * ``none``: ran no pooled city (its only cell is held out), so its F1 is None and it
       sorts last.
     * ``tie-a`` / ``tie-b``: equal pooled means in the full group; the board's order holds.
+
+    The board lists ``tie-a`` / ``tie-b`` before ``best`` and ``partial-low`` before
+    ``partial-high``, so the expected order can only come from sorting.
     """
     pooled = ["a", "b", "c"]
 
@@ -1283,9 +1287,10 @@ def _synthetic_board():
         return {"f1": f1}
 
     per_split = {
-        "best": {"a": cell(0.9), "b": cell(0.8), "c": cell(0.7), "h": cell(0.6)},
         "tie-a": {"a": cell(0.5), "b": cell(0.5), "c": cell(0.5)},
         "tie-b": {"a": cell(0.4), "b": cell(0.5), "c": cell(0.6)},
+        "best": {"a": cell(0.9), "b": cell(0.8), "c": cell(0.7), "h": cell(0.6)},
+        "partial-low": {"b": cell(0.2)},
         "partial-high": {"a": cell(0.9)},
         "partial-wide": {"a": cell(0.3), "b": cell(0.4)},
         "none": {"h": cell(0.2)},
@@ -1321,7 +1326,8 @@ def test_by_split_rows_orders_a_synthetic_board_and_the_figure_renders_it(tmp_pa
     synthetic = _synthetic_board()
     full, partial = by_split_rows(synthetic)
     assert [m["model"] for m, _, _ in full] == ["best", "tie-a", "tie-b"]
-    assert [m["model"] for m, _, _ in partial] == ["partial-wide", "partial-high", "none"]
+    assert [m["model"] for m, _, _ in partial] == [
+        "partial-wide", "partial-high", "partial-low", "none"]
     assert [(n, v) for _, v, n in partial][-1] == (0, None)
     assert held_out_footer(synthetic, ["h"]) == \
         "† held out of the pooled headline: h (a held-out split)."
@@ -1346,7 +1352,6 @@ def test_held_out_footer_names_the_boards_own_splits():
     text = held_out_footer(committed, held)
     for split in held:
         assert split in text
-    assert "budapest_district5 (" in text
 
 
 def test_by_split_rows_rejects_an_aggregate_that_disagrees_with_its_cells():

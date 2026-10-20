@@ -522,7 +522,9 @@ Omissions are content, so they are named rather than left as blanks:
   desktop-local: `model_comparison.md`'s `manual_gold` "Cost and runtime" section (from
   b148f71) says "Gemini needs no GPU at all — both models ran from a desktop against Vertex";
   only the GPU legs used klone's `ckpt` queue. Both desktops, the Windows workstation and
-  Jon's Mac, are among the machines searched.
+  Jon's Mac, are among the machines searched. `compare.py` keeps its cache inside the checkout
+  it runs from (`--cache-dir` defaults to `<repo>/.model_cache`), so a run from a checkout or
+  worktree that was later removed leaves nothing on either desktop to find.
   **0.568 and 0.540 are therefore historical: they cannot be re-derived from a clean clone**,
   the only numbers in this comparison with that status. Not re-run, by decision (Jon,
   2026-10-20): Opus 5.5 and Gemini 3.7 Flash now cover `manual_gold`, a re-run of a preview id
