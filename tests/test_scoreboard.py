@@ -1233,3 +1233,47 @@ def test_a_figure_helper_survives_a_board_without_rampnet(board, tmp_path):
     out = str(tmp_path / "fig.png")
     fig_headline(trimmed, out, plt)
     fig_by_split(trimmed, out, plt)
+
+
+def test_by_split_heatmap_rows_sort_by_pooled_mean_in_two_groups():
+    """The by-split figure's row order, read from the committed scoreboard.json.
+
+    Full-coverage legs sort by the headline pooled F1, descending; partial-coverage legs
+    form a separate group below, so a one-city mean never outranks a nine-city one. The
+    aggregate is the board's own pooled F1, not a second computation (by_split_rows
+    asserts it equals the mean of the row's cells).
+    """
+    from scoreboard_figures import by_split_rows
+
+    with open(sb.DEFAULT_JSON, encoding="utf-8") as fh:
+        committed = json.load(fh)
+    full, partial = by_split_rows(committed)
+    n_pool = len(committed["pooled_splits"])
+
+    # Every leg lands in exactly one group, in the right one.
+    names = [m["model"] for m, _, _ in full + partial]
+    assert sorted(names) == sorted(m["model"] for m in committed["models"])
+    assert all(m["complete"] and n == n_pool for m, _, n in full)
+    assert all(not m["complete"] and n < n_pool for m, _, n in partial)
+
+    # The aggregate IS the headline number, and each group is sorted by it.
+    for m, mean_f1, _ in full + partial:
+        assert mean_f1 == m["f1"]
+    for group in (full, partial):
+        means = [v for _, v, _ in group if v is not None]
+        assert means == sorted(means, reverse=True)
+
+    # RampNet leads by sorting, not by being pinned there.
+    assert full[0][0]["model"] == "rampnet"
+    assert round(full[0][1], 3) == 0.793
+
+
+def test_by_split_rows_rejects_an_aggregate_that_disagrees_with_its_cells():
+    """A pooled F1 that no longer matches the cells beside it must not be drawn."""
+    from scoreboard_figures import by_split_rows
+
+    with open(sb.DEFAULT_JSON, encoding="utf-8") as fh:
+        committed = json.load(fh)
+    committed["models"][0]["f1"] += 0.01
+    with pytest.raises(AssertionError, match="mean of its cells"):
+        by_split_rows(committed)

@@ -275,6 +275,14 @@ shown because omitting them would be worse, not because they belong in the headl
 
 ![F1 by model and split](figures/scoreboard_by_split.png)
 
+The figure orders its rows differently from the table above, which groups by model class.
+Its **Pooled mean** column, framed and set right of the pooled cities, is the same pooled
+F1 the headline quotes (read from the board, and checked against the mean of the cells
+beside it), and the rows are sorted by it. Legs that have not run every pooled city sit in
+a separate group below a labelled rule, sorted by the mean over the cities they did run,
+and that mean carries its coverage, e.g. `0.533 (5/9)`. So a one-city leg is never ranked
+against a full-pool mean, even when its single city puts it numerically above one.
+
 Three things this matrix settles that no single-number ranking can:
 
 - **RampNet has the top score in eleven of the fourteen splits.** The exceptions are the two
