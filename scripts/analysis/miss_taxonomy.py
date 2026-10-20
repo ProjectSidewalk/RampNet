@@ -52,6 +52,14 @@ stop comparing.
 
     python scripts/analysis/miss_taxonomy.py
     python scripts/analysis/miss_taxonomy.py --threshold 0.55 --json-out out.json
+    python scripts/analysis/miss_taxonomy.py --cities laurens_mapillary,bayonne
+
+``--cities`` restricts the run to the named splits (comma- or space-separated, any
+order; rows still print in registry order). The pool is the named splits that are
+in ``US_SPLITS``, so ``--cities`` with the seven original US splits reproduces the
+#46 pooled table (``analysis_out/miss_taxonomy.json``). With no flag the output is
+unchanged, including its "seven US splits" title, which predates laurens_mapillary
+and juneau joining ``US_SPLITS`` and is kept so the default stays byte-stable.
 
 **What this does NOT do.** It separates causes the *cached detections* can witness.
 It cannot tell occlusion from deep shadow from debris from GT disagreement inside
@@ -319,6 +327,22 @@ def print_buckets(title, rows):
     return s
 
 
+def parse_cities(values):
+    """Split names from ``--cities``, validated against the registry.
+
+    Accepts ``a,b`` or ``a b`` (or both). Returns them in ``ALL_SPLITS`` order, so a
+    restricted run prints rows exactly as the default run would, just fewer of them.
+    An unknown name is an error, not a skip: a typo that silently drops a split
+    looks exactly like a split with no misses.
+    """
+    names = [n for v in values for n in v.split(",") if n]
+    unknown = sorted(set(names) - set(ALL_SPLITS))
+    if unknown:
+        raise SystemExit(f"--cities: unknown split(s) {unknown}; "
+                         f"known: {', '.join(ALL_SPLITS)}")
+    return tuple(c for c in ALL_SPLITS if c in set(names))
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD)
@@ -328,7 +352,11 @@ def main(argv=None):
     p.add_argument("--trials", type=int, default=NULL_TRIALS,
                    help="Azimuth-randomization trials per miss for the null (0 to skip).")
     p.add_argument("--json-out", default=None)
+    p.add_argument("--cities", nargs="+", default=None,
+                   help="Restrict to these splits (comma- or space-separated). "
+                        "Pooled = the named splits in US_SPLITS. Default: all.")
     args = p.parse_args(argv)
+    cities = ALL_SPLITS if args.cities is None else parse_cities(args.cities)
 
     rng = random.Random(NULL_SEED) if args.trials else None
     print(f"=== Miss taxonomy: what caused each miss? (threshold {args.threshold}, "
@@ -338,7 +366,7 @@ def main(argv=None):
 
     pooled, match_check = [], {"greedy_only": 0, "optimal_only": 0}
     per_city = {}
-    for city in ALL_SPLITS:
+    for city in cities:
         loaded = load_rows(city, args.threshold, args.cache, rng, args.trials,
                            args.boundary)
         if loaded is None:
@@ -356,10 +384,24 @@ def main(argv=None):
             for k in match_check:
                 match_check[k] += mc[k]
     for city, why in HELD_OUT.items():
-        print(f"† {city} shown but not pooled — {why}")
+        if city in cities:
+            print(f"† {city} shown but not pooled — {why}")
 
     print(f"\n{'='*78}")
-    overall = print_buckets("POOLED, seven US splits", pooled)
+    if not pooled:
+        # Only held-out splits were named: there is no pool, and every section below
+        # is a statement about the pool. The per-split rows above are the result.
+        print("No pooled split among --cities (all held out); per-split rows only.")
+        if args.json_out:
+            _write_json(args.json_out, {
+                "threshold": args.threshold, "boundary_m": args.boundary,
+                "null_trials": args.trials, "null_seed": NULL_SEED,
+                "cities": list(cities), "per_city": per_city, "pooled": None})
+        return 0
+    n_pool = sum(1 for c in cities if c in US_SPLITS)
+    title = ("POOLED, seven US splits" if args.cities is None
+             else f"POOLED, {n_pool} US split{'' if n_pool == 1 else 's'}")
+    overall = print_buckets(title, pooled)
     near = [r for r in pooled if r["field"] == "near"]
     far = [r for r in pooled if r["field"] == "far"]
     near_s = print_buckets(f"NEAR-FIELD only (< {args.boundary:.0f} m)", near)
@@ -444,7 +486,6 @@ def main(argv=None):
     print(f"  all still inside it and need the imagery to separate (#46 gallery).")
 
     if args.json_out:
-        os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
         payload = {
             "threshold": args.threshold, "boundary_m": args.boundary,
             "null_trials": args.trials, "null_seed": NULL_SEED,
@@ -460,10 +501,17 @@ def main(argv=None):
             },
             "sourcing_addressable_recall_pts": addressable / overall["n_gt"],
         }
-        with open(args.json_out, "w", encoding="utf-8") as fh:
-            json.dump(payload, fh, indent=2)
-        print(f"\nWrote {args.json_out}")
+        if args.cities is not None:
+            payload["cities"] = list(cities)
+        _write_json(args.json_out, payload)
     return 0
+
+
+def _write_json(path, payload):
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2)
+    print(f"\nWrote {path}")
 
 
 if __name__ == "__main__":
