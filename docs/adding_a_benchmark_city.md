@@ -41,8 +41,8 @@ gets lost:
 | laurens_gsv | the same town on GSV: the rig-vs-town control for #151 (second imagery arm) |
 | sao_paulo | non-US GSV city |
 | manual_gold | in-distribution reference with **un-anchored** GT |
-| bayonne *(staged, unreviewed — #159)* | first Panoramax split; single-account municipal GoPro Max capture with a burned-in nadir logo band; first non-US deployment target |
-| juneau *(staged, unreviewed — #254)* | second Trimble MX7 city from the Annapolis contributor `rking`: a replication of the far-field finding on new streets and seasons, not a new provider; the highest latitude on the board; pooling and tier not yet decided |
+| bayonne *(held out — #159)* | first Panoramax split; single-account municipal GoPro Max capture with a burned-in nadir logo band; first non-US deployment target |
+| juneau *(pooled — #254)* | second Trimble MX7 city from the Annapolis contributor `rking`: a replication of the far-field finding on new streets and seasons, not a new provider; the highest latitude on the board; a Project Sidewalk deployment city on the same Mapillary imagery |
 
 A city that duplicates an existing split's answer costs a day of review and buys a row in a
 table. A **second rater on budapest** is still the most valuable single addition, and it is a

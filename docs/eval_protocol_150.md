@@ -6,9 +6,9 @@ as code" item only. Written 2026-10-05; Bayonne added to the pinned registry 202
 
 **Result.** `rampnet/eval.py` scores a prediction file against a committed benchmark bundle
 through the same functions every committed benchmark number came from, and
-`scripts/analysis/eval_protocol_150.py --check` proves it: all **175** cells of
-`analysis_out/scoreboard.json` (21 model legs, 13 splits) and all **30** (arm, split) cells of
-`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,750 and 480
+`scripts/analysis/eval_protocol_150.py --check` proves it: all **187** cells of
+`analysis_out/scoreboard.json` (21 model legs, 14 splits) and all **30** (arm, split) cells of
+`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,870 and 480
 field comparisons respectively, with **0** differing and **0** unchecked. The split files are
 pinned by content hash in `benchmark/split_pins.json`. No number changed, and the four
 fingerprinted scorer files are byte-identical to `main` (fingerprint `f4aef67aba03`).
@@ -201,7 +201,7 @@ per-city spread, not a held-out estimate. Whether this is what the FAIROS delive
 
 ## Split pins
 
-`benchmark/split_pins.json` holds, for each of the 13 scored splits
+`benchmark/split_pins.json` holds, for each of the 14 scored splits
 (`low_floor_sweep.ALL_SPLITS`): the LF-normalised sha256 of `records.jsonl`; of `verdicts.json`
 for a city split, or of `gt_source.json` plus a 16-hex digest over the 1,000 `manual_labels/*.txt`
 files (built like `imagery_manifest.digest_of`, `stem|sha256` sorted by stem) for
@@ -253,3 +253,13 @@ byte-unchanged. The reproduction proof was regenerated: **175** scoreboard cells
 cells (no YOLO arm is scored on Bayonne) all re-derive equal, including Bayonne's RampNet cell, whose AP comes from `analysis_out/op_cache/bayonne.json` (11 op_cache cells, was 10), 0 differing, 0 unchecked.
 `POOLED_SPLITS` is unchanged: Bayonne is held out of the pool for geography
 (`low_floor_sweep.HELD_OUT`), so it is not in `US_SPLITS`.
+
+**2026-10-19: Juneau added, pooled** (#254). `juneau` is the fourteenth split in
+`low_floor_sweep.ALL_SPLITS` and the ninth in `US_SPLITS`, so it is in `PINNED_SPLITS` (after
+`laurens_mapillary`, matching that order) **and** in `POOLED_SPLITS`, which the `loco` report
+reads. It is pinned in `benchmark/split_pins.json` (125 records, 125 reviewed); the other thirteen
+pins are byte-unchanged. The reproduction proof was regenerated: **187** scoreboard cells (was
+175; the 12 new ones are Juneau's: RampNet, eight free legs and three Gemini legs, 1,870 field
+comparisons) and the same **30** YOLO `benchmark_eval/` cells all re-derive equal, including
+Juneau's RampNet cell from `analysis_out/op_cache/juneau.json` (12 op_cache cells, was 11),
+0 differing, 0 unchecked.

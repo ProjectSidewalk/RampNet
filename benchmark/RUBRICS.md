@@ -57,6 +57,7 @@ silently deleting them. `score_validation.py` prints `review_notes` above the nu
 | question | rule | stated |
 | :--- | :--- | :--- |
 | Does a curb cut for a bike lane count? | **No.** A cut that serves a bike lane, not a pedestrian crossing, is not a pedestrian curb ramp. | Jon Froehlich, 2026-10-04. It arose from a pano note in the Bayonne review (#159) and was stated after that review, so earlier splits were not re-checked against it. |
+| Does a diagonal corner ramp get one label or two? | **It depends on size and orientation.** A diagonal ramp large enough to cleanly serve crossings in both orthogonal directions takes **two** labels, one per direction. A small diagonal ramp that points into the intersection takes **one**. | Jon Froehlich, 2026-10-19. It arose from a pano note in the Juneau review (#254) and was stated after that review, so Juneau's verdicts and earlier splits were not re-checked against it. Budapest's review had already marked broad diagonal aprons as two (its `review_notes`). |
 
 ---
 

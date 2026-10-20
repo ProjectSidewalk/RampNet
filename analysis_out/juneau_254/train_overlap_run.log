@@ -1,0 +1,40 @@
+'The read operation timed out' thrown while requesting GET https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/resolve/main/train/data-00003-of-00128.parquet
+Retrying in 1s [Retry 1/5].
+'The read operation timed out' thrown while requesting GET https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/resolve/main/train/data-00000-of-00128.parquet
+Retrying in 1s [Retry 1/5].
+'The read operation timed out' thrown while requesting GET https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/resolve/main/train/data-00003-of-00128.parquet
+Retrying in 1s [Retry 1/5].
+'The read operation timed out' thrown while requesting GET https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/resolve/main/train/data-00000-of-00128.parquet
+Retrying in 2s [Retry 2/5].
+'The read operation timed out' thrown while requesting GET https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/resolve/main/train/data-00003-of-00128.parquet
+Retrying in 2s [Retry 2/5].
+'The read operation timed out' thrown while requesting GET https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/resolve/main/train/data-00000-of-00128.parquet
+Retrying in 4s [Retry 3/5].
+'The read operation timed out' thrown while requesting GET https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/resolve/main/train/data-00003-of-00128.parquet
+Retrying in 1s [Retry 1/5].
+'The read operation timed out' thrown while requesting GET https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/resolve/main/train/data-00000-of-00128.parquet
+Retrying in 1s [Retry 1/5].
+train: 128 shards, 150,066 panos
+validation: 128 shards, 42,878 panos
+
+benchmark split      reviewed  overlap
+--------------------------------------
+annapolis                 125        0
+bayonne                   125        0
+bend                      110        4
+budapest_district5        125        0
+clovis                    125        0
+gainesville               125        0
+juneau                    125        0
+laurens_gsv                86        0
+laurens_mapillary          94        0
+morgantown                125        0
+paterson                  125        0
+richmond                  124        0
+sao_paulo                 125        0
+  bend: 6WC0hdAYRsSAcluKSs5iRg
+  bend: 9kW9cxpuj7q8DMzf-ClrQQ
+  bend: DJ8Zp111zu6KnMZz-0PHgQ
+  bend: VgWpqFkTwCIROvM0z-DkOw
+
+wrote benchmark\train_overlap.json

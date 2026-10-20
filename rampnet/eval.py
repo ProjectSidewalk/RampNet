@@ -80,19 +80,20 @@ PINS_PATH = os.path.join(BENCHMARK_DIR, "split_pins.json")
 SCORER_SOURCES = ("geometry.py", "metrics.py", "detection_eval.py", "validation.py")
 
 #: The scored splits whose files are pinned in ``benchmark/split_pins.json``: the
-#: thirteen bundles on the scoreboard (Bayonne joined on 2026-10-11, once #239 committed
-#: its verdicts). Restates ``scripts/analysis/low_floor_sweep.ALL_SPLITS`` (a package
-#: cannot import a script); ``tests/test_eval_protocol_150.py`` asserts the two agree.
+#: fourteen bundles on the scoreboard (Bayonne joined on 2026-10-11, once #239 committed
+#: its verdicts; Juneau, pooled, once #254's review was committed). Restates
+#: ``scripts/analysis/low_floor_sweep.ALL_SPLITS`` (a package cannot import a script);
+#: ``tests/test_eval_protocol_150.py`` asserts the two agree.
 #: Bundles not yet committed (vancouver) or that borrow another split's verdicts (the
 #: #48 neighbourhood bundles) are left out on purpose until their files settle.
 PINNED_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
-                 "gainesville", "laurens_mapillary", "laurens_gsv", "budapest_district5",
-                 "sao_paulo", "bayonne", "manual_gold")
+                 "gainesville", "laurens_mapillary", "juneau", "laurens_gsv",
+                 "budapest_district5", "sao_paulo", "bayonne", "manual_gold")
 
 #: The in-distribution (pooled) splits, ``low_floor_sweep.US_SPLITS`` restated (tested).
 #: The ``loco`` report holds each one out in turn against the rest of this pool.
 POOLED_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
-                 "gainesville", "laurens_mapillary")
+                 "gainesville", "laurens_mapillary", "juneau")
 
 MATCHING_RULE = "greedy 1:1, confidence-descending, strict radius"
 RECALL_OVER = "fn_confirmed panos"
