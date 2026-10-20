@@ -96,6 +96,17 @@ PRICING = {
         "note": ("Anthropic first-party API, NOT Vertex (gated there). No regional "
                  "tier. Cache read $0.25/MTok is a rate of its own, not 0.1x input."),
     },
+    # Claude Opus 5.5, first-party API, paid from the subscription API credits
+    # (claude5 / claude20 / claude-team orgs). Source: the platform pricing page
+    # (platform.claude.com/docs/en/about-claude/pricing), read 2026-10-19. Cheaper
+    # than claude-opus-5 ($5/$25). Same trap as Fable 5.1: cache reads are 0.05x
+    # input ($0.20), not the usual 0.1x. Cache write is the 5-minute 1.25x rate.
+    "claude-opus-5-5": {
+        "input_per_m": 4.00, "output_per_m": 20.00,
+        "cache_read_per_m": 0.20, "cache_write_per_m": 5.00, "as_of": "2026-10-19",
+        "note": ("Anthropic first-party API. No regional tier. Cache read $0.20/MTok "
+                 "is 0.05x input, not 0.1x."),
+    },
 }
 
 

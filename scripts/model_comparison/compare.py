@@ -24,6 +24,13 @@ The supervised YOLO baseline (--models yolo:<best.pt>) is evaluated under the
 pre-registered checkpoint-selection & eval protocol in
 scripts/model_comparison/yolo_baseline/README.md (issue #71): checkpoint and
 config chosen on val only, headline F1 at conf 0.25, test bundles touched once.
+
+Exit status: 0 when every leg ran to the end, including a leg that isolated a few
+per-pano failures (printed, excluded from the score, filled by a re-run from the
+cache). EXIT_INCOMPLETE (3) when any leg was not runnable or aborted after
+consecutive failures, so a launcher looping over splits can stop instead of
+leaving one partial leg per remaining split. Either way every leg's usage row is
+written first.
 """
 import argparse
 import hashlib
@@ -59,6 +66,17 @@ from pricing import estimate_cost, price_for  # noqa: E402
 # (op_cache/, fp_taxonomy.json, silent_witness.json), and .gitignore re-includes
 # this file by name.
 DEFAULT_USAGE_LOG_REL = os.path.join("analysis_out", "usage_log.jsonl")
+
+# The first-party orgs whose API credits can pay for a leg (--api-account). A closed
+# set because the label is the only thing that splits one org's spend from another's:
+# a typo would silently open a new bucket that no cap or reconciliation reads.
+# run_claude_legs_by_account.ps1 validates the same names; a test keeps them equal.
+API_ACCOUNTS = ("claude5", "claude20", "claude-team")
+
+# main()'s return code when any leg was not runnable or aborted early. Not 1 (an
+# uncaught exception) or 2 (argparse), so a caller can tell "a leg is incomplete"
+# from "compare.py itself failed".
+EXIT_INCOMPLETE = 3
 
 
 def canonical_repo_root(start=None):
@@ -323,7 +341,8 @@ def hardware_note():
     return note
 
 
-def report_usage(detector, label, city, panos_scored, usage_log_path, timing=None):
+def report_usage(detector, label, city, panos_scored, usage_log_path, timing=None,
+                 api_account=None):
     """Print and (append-)log what one leg cost: time always, tokens and dollars
     when the provider bills for them.
 
@@ -440,6 +459,12 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
         # server-side spend for `vertex` and has no equivalent for `anthropic`.
         # None for providers that have no such notion.
         "serving_path": getattr(detector, "serving_path", None),
+        # WHICH first-party org paid, as a label (`--api-account`, e.g. claude5),
+        # never the key. Three subscription orgs each get their own monthly API
+        # credits, and `serving_path` alone cannot tell them apart, so without
+        # this a per-org Console bill cannot be reconciled against the ledger.
+        # None when not given, and on every row written before it existed.
+        "api_account": api_account,
         # How each call terminated. Empty for providers that report nothing.
         "stop_reasons": stop_reasons or None,
         **usage,
@@ -618,6 +643,11 @@ def build_parser():
                          "bills for it -- but it IS recorded in --usage-log, and "
                          "a number produced on one path carries that as a caveat "
                          "when compared with numbers from the other.")
+    ap.add_argument("--api-account", default=None, choices=API_ACCOUNTS,
+                    help="A label for the account that pays, e.g. claude5 / claude20 / "
+                         "claude-team, recorded as `api_account` in --usage-log. The "
+                         "label only -- never the key. Lets each first-party org's "
+                         "Console bill be reconciled against the ledger.")
     ap.add_argument("--claude-max-tokens", type=int, default=_D["claude_max_tokens"],
                     help="Ceiling on one call's answer. Thinking bills against it, so "
                          "a call that thinks too long is CUT OFF mid-thought and the "
@@ -826,6 +856,8 @@ def main():
 
     rows, runs = [], []
     seen = {}
+    # Legs that did not run to the end, as (label, why). Decides the exit status.
+    incomplete = []
     for provider, model_id in specs:
         label, detector = build_detector(provider, model_id, records, args)
         # Disambiguate if the same label appears twice (e.g. same model, two configs).
@@ -855,6 +887,7 @@ def main():
             # validate_bundle before any of this. The type is printed so a genuine
             # bug here is still diagnosable rather than silently "not runnable".
             print(f"[{label}] not runnable: {type(e).__name__}: {e}\n")
+            incomplete.append((label, f"not runnable ({type(e).__name__})"))
         finally:
             # In a finally, not after the try: the run that dies or is Ctrl-C'd
             # partway through has ALREADY paid for the calls it made, and that is
@@ -868,9 +901,11 @@ def main():
             timing["elapsed_s"] = round(perf_counter() - t_leg, 3)
             report_usage(detector, label, city,
                          len(run.scored) if run is not None else None, usage_log,
-                         timing=timing)
+                         timing=timing, api_account=args.api_account)
         if run is None:
             continue
+        if run.failures and run.failures[-1][0] == "<abort>":
+            incomplete.append((label, run.failures[-1][1]))
         report = operating_report(run.report, run.scored, radius_sq, args.op_threshold)
         rows.append((label, report))
         # The detector's cache floor travels with the run so the sweep can drop
@@ -892,7 +927,7 @@ def main():
               f"cached under {args.cache_dir}; nothing scored.")
         for label, run, _ in runs:
             print(f"  {label}: {len(run.failures)} pano failure(s)")
-        return
+        return exit_status(incomplete)
     if rows:
         if args.op_threshold > 0:
             print(f"Operating point: predictions with confidence < {args.op_threshold} dropped "
@@ -935,7 +970,26 @@ def main():
         # documented in docs/model_comparison.md).
         print("\nManual-GT bundle: no verdict-based cross-check (validate the rampnet row "
               "against the published gold-set numbers instead; see docs/model_comparison.md).")
+    return exit_status(incomplete)
+
+
+def exit_status(incomplete):
+    """0, or EXIT_INCOMPLETE with a closing note naming each leg that stopped short.
+
+    Isolated per-pano failures alone stay 0 on purpose: the leg ran to its end and
+    printed them, and a launcher that stopped on one transient 529 would leave every
+    later split unrun. A leg that never became runnable, or that aborted after
+    ``max_consecutive_failures`` in a row (an outage, or credits running out), is a
+    different thing -- the next split would almost certainly hit it too. The usage
+    rows were already written by main()'s per-leg ``finally``."""
+    if not incomplete:
+        return 0
+    print(f"\nINCOMPLETE: {len(incomplete)} leg(s) did not run to the end; "
+          f"exiting {EXIT_INCOMPLETE}.")
+    for label, why in incomplete:
+        print(f"    {label}: {why}")
+    return EXIT_INCOMPLETE
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

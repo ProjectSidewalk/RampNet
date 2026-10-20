@@ -729,6 +729,16 @@ def log_split_footnote(result, split):
 
         Against the whole zero-shot field RampNet's lead on this split is 0.229 F1
         (over Claude Fable 5 (low, anthropic)), not the 0.273 over the table's best row.
+
+    When that leg beats RampNet the line says so instead of printing a negative lead
+    (bayonne, 2026-10-20)::
+
+        Against the whole zero-shot field RampNet does not lead on this split: Claude Opus
+        5.5 (low, anthropic) is 0.102 F1 ahead of it, where RampNet leads the table's best
+        row by 0.086.
+
+    and if a table row beats RampNet too, the clause after the comma names that row and its
+    margin rather than a negative "leads ... by".
     """
     from scoreboard import RAMPNET
 
@@ -771,8 +781,27 @@ def log_split_footnote(result, split):
     in_table = [n for n in LOG_ROWS[split] if n != RAMPNET and split in per.get(n, {})]
     if rampnet_f1 is not None and zero_shot and in_table:
         top = zero_shot[0]
-        table_best = max(per[n][split]["f1"] for n in in_table)
-        if f1[top["model"]] > table_best:
+        best_row = max(in_table, key=lambda n: per[n][split]["f1"])
+        table_best = per[best_row][split]["f1"]
+        if f1[top["model"]] > rampnet_f1:
+            # A negative "lead" reads as a typo, so a zero-shot leg that beats RampNet
+            # is stated as that (first seen on the Laurens arms, claude-opus-5-5), and so
+            # is a table row that beats it too: the closing clause never prints a lead
+            # below zero.
+            text += ("\n\nAgainst the whole zero-shot field RampNet does not lead on this "
+                     f"split: {top['display']} is {num(f1[top['model']] - rampnet_f1)} F1 "
+                     "ahead of it")
+            if table_best > rampnet_f1:
+                # Display name, like every other model this footnote names -- not the
+                # table's LOG_LABEL id, which mixed two naming schemes in one sentence.
+                best_display = next(m["display"] for m in result["models"]
+                                    if m["model"] == best_row)
+                text += (f", and the table's best row, {best_display}, is "
+                         f"{num(table_best - rampnet_f1)} ahead of it too.")
+            else:
+                text += (", where RampNet leads the table's best row by "
+                         f"{num(rampnet_f1 - table_best)}.")
+        elif f1[top["model"]] > table_best:
             text += ("\n\nAgainst the whole zero-shot field RampNet's lead on this split is "
                      f"{num(rampnet_f1 - f1[top['model']])} F1 (over {top['display']}), "
                      f"not the {num(rampnet_f1 - table_best)} over the table's best row.")

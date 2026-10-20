@@ -499,7 +499,16 @@ CPU, committed inputs, pinned by `tests/test_bayonne_159.py`): an exact two-side
 over per-GT-ramp hits for recall, and a 10,000-draw pano-level paired bootstrap (seed 0) for the
 F1 difference.
 
-1. **RampNet has the top F1, by the narrowest lead over a zero-shot challenger on any split:
+1. *Superseded 2026-10-20: RampNet no longer has the top F1 here. Off-roster
+   `claude-opus-5-5` (0.619) and `claude-fable-5-1` (0.540) at effort low both score above
+   RampNet's 0.517, each a single run, no seed variance, effort low only, first-party serving path
+   ([`claude_newest_ids.md`](claude_newest_ids.md)). With the same pano-level paired bootstrap
+   (10,000 draws, seed 0; `scripts/analysis/claude_newest_ids_261.py`), RampNet minus Opus 5.5 is −0.102,
+   95% CI [−0.165, −0.040], so Opus 5.5 beats RampNet here. RampNet minus Fable 5.1 is −0.023
+   [−0.096, +0.050]; that interval includes zero, so Fable 5.1's higher F1 is a point estimate,
+   not an established win. The finding below is as written, against the legs run on
+   2026-10-04.*
+   **RampNet has the top F1, by the narrowest lead over a zero-shot challenger on any split:
    0.086** over gemini-3.1-pro-preview, bootstrap 95% CI [0.005, 0.168] (RampNet ahead in 98.2%
    of draws). The previous zero-shot low was laurens_mapillary's 0.114 over claude-opus-5 at
    effort low (off the standing roster); against the standing roster it was paterson's 0.124.
@@ -510,7 +519,9 @@ F1 difference.
    RampNet struggles (F1 0.431 vs 0.343 laurens_mapillary, 0.381 budapest). RampNet keeps a wide
    precision lead.
 2. **gemini-3.6-flash's recall point estimate is above RampNet's at 0.55** (126 vs 113 of 301
-   ramps, R 0.419 vs 0.375), the only split where a chat VLM's is. The paired difference is
+   ramps, R 0.419 vs 0.375), the only split where a chat VLM's is (of the legs run on
+   2026-10-04; superseded 2026-10-19/20: `claude-opus-5-5`'s recall is above RampNet's on eight
+   of fourteen splits, 0.618 here, and `claude-fable-5-1`'s on two, 0.528 here). The paired difference is
    **not significant**: 61 ramps found only by Flash, 48 only by RampNet, exact McNemar
    p = 0.25 (gemini-3.1-pro: 63 vs 56, p = 0.58). Their hits are largely disjoint: the union
    finds 174 of 301 (0.578). At the recommended 0.30 RampNet's recall is 0.498 on the op_cache
