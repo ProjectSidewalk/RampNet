@@ -33,6 +33,7 @@ gap with the command that fills it, never silently dropped.
 """
 import argparse
 import json
+import math
 import os
 import random
 import statistics
@@ -180,7 +181,10 @@ def summarize_population(rows, units_by_split, sub_scores, reps=BOOT_REPS):
             "wilson95": [_r(lo), _r(hi)],
             "boot95": [_r(boot[b][0]), _r(boot[b][1])],
             "recall_pts": _r(k / n_gt) if n_gt else None,
-            "null_rate": (_r(sum(nulls) / len(nulls))
+            # math.fsum, not sum: Python 3.12 made sum() of floats compensated, so the
+            # two disagree in the last bits and a 4-dp rounding flips between CI's
+            # Python 3.10 and 3.12 legs. fsum is exact on every version.
+            "null_rate": (_r(math.fsum(nulls) / len(nulls))
                           if nulls and b != "silent" else None),
         }
     fields = {}
