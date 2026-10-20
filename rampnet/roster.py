@@ -305,6 +305,16 @@ ROSTER = (
              "precision for 0.061 recall: within this family the model version is "
              "an operating-point dial, the same shape as effort in #123. Also "
              "spends ~33 thinking tokens/call against 5.1's ~0.35, for no F1."),
+    # The newest-ids campaign (2026-10-19): Opus 5.5 and Fable 5.1 on every split,
+    # paid from the three subscriptions' monthly API credits, first-party only.
+    Challenger(
+        spec="claude:claude-opus-5-5", label="claude-opus-5-5", provider="claude",
+        density="sparse", standing=False, added="2026-10-19",
+        pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
+        published_as="claude-opus-5-5-effort-low-anthropic",
+        note="F1 0.720 on annapolis (P 0.694 / R 0.748) -- ahead of claude-fable-5-1 "
+             "(0.610) on every split run so far, at the same tokens per call and "
+             "~2.5x lower cost. Campaign in progress; see docs/claude_newest_ids.md."),
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
