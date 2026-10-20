@@ -43,7 +43,7 @@ a run that hasn't happened, not a result being withheld.
 | richmond | ✅ | ✅ full roster | ✅ | ✅ 17% (5/29) | OOD deployment, Mapillary 360 |
 | bend | ✅ | ✅ full roster | ✅ | ✅ 29% (7/24) | in-domain GSV reference |
 | clovis | ✅ | ✅ full roster | ✅ | ✅ 30% (7/23) | hardest split — 2018 GoPro Fusion |
-| annapolis | ✅ | ✅ full roster | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with all seven Claude legs** (#122, #156, `docs/claude_newest_ids.md`; `claude-opus-5` low has run eleven of the twelve city splits (not `bayonne`), `claude-opus-5-5` and `claude-fable-5-1` low all fourteen splits) |
+| annapolis | ✅ | ✅ full roster | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with all seven Claude legs** (#122, #156, `docs/claude_newest_ids.md`; `claude-opus-5` low has run eleven of the thirteen city splits (not `bayonne` or `juneau`), `claude-opus-5-5` and `claude-fable-5-1` low all fourteen splits) |
 | morgantown | ✅ | ✅ full roster | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
 | paterson | ✅ | ✅ full roster | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead over the standing roster on a high-confidence split (0.12; bayonne's 0.086 is narrower, on medium-confidence GT); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ full roster | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
@@ -111,10 +111,10 @@ absent from the roster tables below, so no number in those tables moves; each ge
 table's footnote lists the ones scored on that split. `claude-opus-5`, `claude-opus-5-5` and
 `claude-fable-5-1` at `low` **are** scored in the pooled tables of
 [`model_scoreboard.md`](model_scoreboard.md), which keys off coverage rather than
-`standing`. Detections are published (`benchmark/model_detections/claude-*__*.json`, 41
-files) and 39 of the 41 are verified identical to the cache that produced them with
+`standing`. Detections are published (`benchmark/model_detections/claude-*__*.json`, 43
+files) and 41 of the 43 are verified identical to the cache that produced them with
 `export_model_cache.py --verify` (the four Vertex annapolis legs, the eight #139 splits, the
-two Fable annapolis legs, and the 26 files of the 2026-10-19/20 campaign, which include the
+two Fable annapolis legs, and the 28 files of the 2026-10-19/20 campaign, which include the
 Fable 5.1 annapolis file a second time); the two Laurens files of `claude-opus-5` were
 exported with `n_uncached` 0 on the machine that ran #151, which never had a recorded
 `--verify`, and are re-scored from the committed detections by
@@ -141,7 +141,7 @@ Coverage is not uniform across the seven, so it is stated per leg:
   compare against. On 2026-10-19 Jon decided to run the newest ids there anyway, because he
   wants the coverage regardless of that peer. The run cost $167.92 for Fable 5.1 and $67.98
   for Opus 5.5 (`analysis_out/usage_log.jsonl`); #156's estimate for Fable 5.1 was ~$165.
-- **`claude-opus-5` at `low` has run eleven splits** — everything but `bayonne` and `manual_gold`: the
+- **`claude-opus-5` at `low` has run eleven splits** — everything but `bayonne`, `juneau` and `manual_gold`: the
   nine of #139 plus both Laurens arms (#151). Its `manual_gold` absence is still the #144
   decision; the 2026-10-19 reversal covered only the two newest ids.
 - **The other four legs have run annapolis only.** A gap in coverage, not a withheld
@@ -345,7 +345,7 @@ These tables are now checked against the scorer on every CI run
 (`tests/test_scoreboard.py::test_every_number_matches_model_comparison`), so a code change
 that moves a published number here fails the build instead of going unnoticed.
 
-The twelve city tables below are generated blocks, written by `scripts/analysis/scoreboard.py`
+The thirteen city tables below are generated blocks, written by `scripts/analysis/scoreboard.py`
 and checked by its `--check` (#145); each carries the standing roster the log has always
 printed, and its footnote names every other leg scored on that split. `manual_gold`'s table
 is hand-maintained, because two of its rows have no published detections to score.
@@ -1064,7 +1064,7 @@ no experiment here tested (OWLv2 / Grounding DINO are general open-vocab models,
 curb-ramp detectors). How much of the gap survives a tuned prompt (#45), a failure-artifact
 audit (#46), and a nadir/hood mask (#47) is exactly what those follow-ups measure.
 
-**What the claim now rests on:** twelve city splits across four countries (the US, Hungary,
+**What the claim now rests on:** thirteen city splits across four countries (the US, Hungary,
 Brazil, France), four camera rigs (GSV, iSTAR Pulsar, GoPro Max/Fusion, Trimble MX7) and one
 1,000-pano un-anchored gold set — RampNet has the top F1 against every zero-shot challenger on
 every one, by **0.09–0.49 F1** against the standing roster (`analysis_out/scoreboard.json`;

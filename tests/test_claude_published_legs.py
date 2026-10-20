@@ -321,7 +321,7 @@ def test_the_strongest_annapolis_claim_tracks_the_published_legs():
         assert "**Both displace `claude-opus-5` at the top of this split**" in doc
     # The coverage paragraph at the top of the doc names every off-roster Claude leg
     # (not "annapolis only" any more: Opus-low has eleven splits since #139/#151, and
-    # Opus 5.5 / Fable 5.1 have all thirteen since 2026-10-20). Every one of them has an
+    # Opus 5.5 / Fable 5.1 have all fourteen since 2026-10-20). Every one of them has an
     # annapolis row, so the annapolis legs are the full set.
     assert "**Seven Claude legs are off-roster.**" in log
     assert len({k[:3] for k in scored}) == 7

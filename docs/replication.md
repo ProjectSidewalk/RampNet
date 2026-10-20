@@ -149,7 +149,7 @@ test rather than a promise.
 
 #### The gemini-3.7-flash leg is published but off the default roster
 
-`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all thirteen splits** (bayonne since 2026-10-04, #159), including
+`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all fourteen splits** (bayonne since 2026-10-04, #159; juneau since 2026-10-19, #254), including
 `manual_gold` (1,000 panoramas, 0 uncached — that leg finished 2026-08-15 08:04 UTC, after the
 first nine were exported). It is currently the only Gemini with a `manual_gold` file: the other
 two are absent for a different reason, their `manual_gold` detections not being in the cache

@@ -12,9 +12,9 @@ the bundles (``benchmark/<split>/records.jsonl`` + ``verdicts.json``, or ``manua
    recompute both F1s on the same draw. RampNet is read from the committed records at the
    deployed 0.55 (confidence >= 0.55), the operating point of the scoreboard's per-split cells. The
    draw construction and seed are ``bayonne_paired_159.py``'s (``random.Random(SEED)``,
-   ``N_BOOT`` draws, percentile 2.5 / 97.5), with one generator per split, so both legs on a
-   split are measured on the same draws and the result does not depend on the order of the
-   legs. F1 per draw is ``aggregate``'s: precision over every pano, recall over the panos
+   ``N_BOOT`` draws, percentile 2.5 / 97.5), with one generator per split, consumed leg by leg
+   as in ``bayonne_paired_159``, so each leg gets its own draws: the result depends on the order
+   of the legs, not on the order of the splits. F1 per draw is ``aggregate``'s: precision over every pano, recall over the panos
    whose recall is confirmed (all of them, on these 14 splits; asserted).
 2. **The radius check.** Both legs re-scored at the standard radius 0.022 and at 1.5x and 2x
    it (0.033, 0.044), on every split, with ``rampnet.detection_eval.score_pano``. The share of

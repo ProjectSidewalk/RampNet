@@ -785,8 +785,9 @@ def fig_heatmap(plt, bench_root=BENCH_ROOT, split=HEATMAP_SPLIT, pano=HEATMAP_PA
 # The bundle count is a literal (thirteen as of 2026-10-11, after #239 added Bayonne); check it
 # against len(scoreboard.json per_split.rampnet) before reuse.
 # TODO(Jon): "leads every zero-shot model on all thirteen benchmark bundles" is false since
-# 2026-10-19/20 (claude-opus-5-5 beats RampNet on both Laurens arms and bayonne; see
-# docs/claude_newest_ids.md). Left as the talk's text until Jon decides how the slide says it.
+# 2026-10-19/20 (claude-opus-5-5 beats RampNet on laurens_mapillary and bayonne with paired CIs
+# that exclude zero; laurens_gsv is a point estimate; see docs/claude_newest_ids.md). Left as
+# the text of the talk as delivered on 2026-10-16.
 ROADMAP = [
     ("FIND", "Where is every curb ramp?",
      "Gold-set F1 0.91; leads every zero-shot model on all thirteen benchmark bundles; "
