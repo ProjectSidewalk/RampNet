@@ -16,10 +16,11 @@ Coverage is not symmetric across the legs:
   only, of the Vertex legs. Those two arms were run to answer whether Laurens is hard
   because it is rural or because of the imagery rig, and that test wanted the
   strongest zero-shot model in the benchmark on both arms.
-* All twelve splits, ``manual_gold`` included -- ``claude-opus-5-5`` and
+* All thirteen splits, ``manual_gold`` included -- ``claude-opus-5-5`` and
   ``claude-fable-5-1`` at effort low on the first-party API, the newest-ids campaign
-  of 2026-10-19 (``docs/claude_newest_ids.md``). Fable 5.1's annapolis row is the
-  #156 leg; the campaign did not re-run it.
+  of 2026-10-19/20 (``docs/claude_newest_ids.md``). Fable 5.1's annapolis row is the
+  #156 leg; the campaign did not re-run it. ``bayonne`` was run last (2026-10-20),
+  because the first split list was read from a checkout that predated it.
 
 The other city splits of ``claude-opus-5`` at effort low (#139) are pinned in
 ``test_scoreboard.py``, not here.
@@ -62,6 +63,7 @@ RECOVERED = {
 # split -> (panos, GT ramps) the bundle must hold for these numbers to mean anything.
 SPLITS = {
     "annapolis": (125, 294),
+    "bayonne": (125, 301),
     "bend": (110, 327),
     "budapest_district5": (125, 300),
     "clovis": (125, 195),
@@ -90,9 +92,10 @@ PUBLISHED_LEGS = {
     ("claude-opus-5", "low", "vertex", "laurens_gsv"): (86, 220, 87, 91, 133, 0.489, 0.395, 0.437),
     ("claude-fable-5-1", "low", "anthropic", "annapolis"): (125, 294, 172, 98, 122, 0.637, 0.585, 0.610),
     ("claude-fable-5", "low", "anthropic", "annapolis"): (125, 294, 190, 138, 104, 0.579, 0.646, 0.611),
-    # The newest-ids campaign (2026-10-19, docs/claude_newest_ids.md): every split,
-    # manual_gold included. Fable 5.1's annapolis row is the #156 leg above.
+    # The newest-ids campaign (2026-10-19/20, docs/claude_newest_ids.md): every split,
+    # manual_gold and bayonne included. Fable 5.1's annapolis row is the #156 leg above.
     ("claude-opus-5-5", "low", "anthropic", "annapolis"): (125, 294, 220, 97, 74, 0.694, 0.748, 0.720),
+    ("claude-opus-5-5", "low", "anthropic", "bayonne"): (125, 301, 186, 114, 115, 0.620, 0.618, 0.619),
     ("claude-opus-5-5", "low", "anthropic", "bend"): (110, 327, 242, 103, 85, 0.701, 0.740, 0.720),
     ("claude-opus-5-5", "low", "anthropic", "budapest_district5"): (125, 300, 120, 112, 180, 0.517, 0.400, 0.451),
     ("claude-opus-5-5", "low", "anthropic", "clovis"): (125, 195, 130, 101, 65, 0.563, 0.667, 0.610),
@@ -104,6 +107,7 @@ PUBLISHED_LEGS = {
     ("claude-opus-5-5", "low", "anthropic", "paterson"): (125, 395, 266, 56, 129, 0.826, 0.673, 0.742),
     ("claude-opus-5-5", "low", "anthropic", "richmond"): (124, 310, 260, 135, 50, 0.658, 0.839, 0.738),
     ("claude-opus-5-5", "low", "anthropic", "sao_paulo"): (125, 281, 177, 90, 104, 0.663, 0.630, 0.646),
+    ("claude-fable-5-1", "low", "anthropic", "bayonne"): (125, 301, 159, 129, 142, 0.552, 0.528, 0.540),
     ("claude-fable-5-1", "low", "anthropic", "bend"): (110, 327, 198, 108, 129, 0.647, 0.606, 0.626),
     ("claude-fable-5-1", "low", "anthropic", "budapest_district5"): (125, 300, 105, 130, 195, 0.447, 0.350, 0.393),
     ("claude-fable-5-1", "low", "anthropic", "clovis"): (125, 195, 101, 70, 94, 0.591, 0.518, 0.552),
@@ -313,7 +317,7 @@ def test_the_strongest_annapolis_claim_tracks_the_published_legs():
         assert "**Both displace `claude-opus-5` at the top of this split**" in doc
     # The coverage paragraph at the top of the doc names every off-roster Claude leg
     # (not "annapolis only" any more: Opus-low has eleven splits since #139/#151, and
-    # Opus 5.5 / Fable 5.1 have all twelve since 2026-10-19). Every one of them has an
+    # Opus 5.5 / Fable 5.1 have all thirteen since 2026-10-20). Every one of them has an
     # annapolis row, so the annapolis legs are the full set.
     assert "**Seven Claude legs are off-roster.**" in log
     assert len({k[:3] for k in scored}) == 7
@@ -336,7 +340,7 @@ def _fable_ledger():
     """``{model_id: [rows]}`` for the two Fable ids' #156 annapolis legs, in ledger order.
 
     Scoped to the 2026-09-05 annapolis rows the doc's figures were read from. The
-    newest-ids campaign (2026-10-19) added eleven more claude-fable-5-1 rows on other
+    newest-ids campaign (2026-10-19/20) added twelve more claude-fable-5-1 rows on other
     splits; ``test_the_newest_ids_cost_figures_are_what_the_ledger_says`` checks those.
     """
     rows = {}
@@ -420,8 +424,9 @@ def test_the_newest_ids_results_table_is_what_the_detections_say():
 
 def test_the_newest_ids_cost_figures_are_what_the_ledger_says():
     """The cost table in docs/claude_newest_ids.md, summed from the ledger rows the
-    campaign tagged with --api-account. Every one of its 24 legs has exactly one row,
-    plus the one 5-pano Opus 5.5 calibration row on annapolis."""
+    campaign tagged with --api-account. Every one of its 25 legs has exactly one row,
+    plus the one 5-pano Opus 5.5 calibration row on annapolis. (26 legs make up the two
+    models' 13 splits; the 26th, Fable 5.1 on annapolis, is #156's untagged row.)"""
     with open(NEWEST_DOC, encoding="utf-8") as fh:
         doc = fh.read()
     rows = [r for r in _ledger_rows() if r.get("api_account")]
@@ -450,3 +455,11 @@ def test_the_newest_ids_cost_figures_are_what_the_ledger_says():
     assert f"| ${total('claude-fable-5-1', city, 'claude-team'):.2f} |" in doc
     assert f"| ${total('claude-fable-5-1', ['manual_gold'], 'claude-team'):.2f} |" in doc
     assert f"| ${total('claude-opus-5-5', ['manual_gold'], 'claude-team'):.2f} |" in doc
+    # The per-org totals the write-up quotes, summed over every tagged row. Nothing
+    # outside this campaign carries an --api-account tag, and claude20 was never used.
+    org = {}
+    for r in rows:
+        org[r["api_account"]] = org.get(r["api_account"], 0.0) + r["est_cost_usd"]
+    assert set(org) == {"claude5", "claude-team"}
+    assert f"**${org['claude5']:.2f} of $100**" in doc
+    assert f"**${org['claude-team']:.2f} of $500**" in doc

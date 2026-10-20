@@ -1,10 +1,18 @@
 # Newest Claude ids on every split: Opus 5.5 and Fable 5.1 (2026-10-19)
 
-**Status: done.** All 24 legs (2 models x 12 splits) finished on 2026-10-19/20 UTC. The
-published detections are in `benchmark/model_detections/` and were verified identical to the
-cache that produced them (`export_model_cache.py --verify`, 24 of 24 pairs). Every P / R / F1
-and every cost total below is re-derived from those files and from
-`analysis_out/usage_log.jsonl` by `tests/test_claude_published_legs.py`.
+**Status: done.** Both models have run all 13 splits: 26 legs (2 models x 13 splits). This
+campaign ran 25 of them; their ledger rows are stamped 2026-10-19 20:13 to 2026-10-20 08:16 UTC.
+The 26th, Fable 5.1 on annapolis, is the #156 leg from 2026-09-05, which the campaign did not
+re-run. The published detections are in `benchmark/model_detections/` and were verified
+identical to the cache that produced them (`export_model_cache.py --verify`: 24 of 24 pairs,
+then the two bayonne pairs). Every P / R / F1 and every cost total below is re-derived from
+those files and from `analysis_out/usage_log.jsonl` by `tests/test_claude_published_legs.py`.
+
+**`bayonne` was missed at first.** The split list for the campaign was taken from the main
+checkout, whose branch predates bayonne joining `main`, so the first pass covered 12 splits and
+this write-up said "every split" while it was 12 of 13. Review caught it. Both bayonne legs were
+run last, on 2026-10-20, with the panos copied from the labeler bundle into this worktree and
+verified against `imagery_manifest.json` (125 of 125).
 
 ## What and why
 
@@ -29,17 +37,23 @@ what the run cost, the same as always.
 
 | Org (`--api-account`) | Credit, expiry (UTC) | Leg | Splits finished | Ledger cost |
 |---|---|---|---|---|
-| `claude5` | $100, 2026-10-23 | Opus 5.5, 11 city splits | 11 of 11 | $86.82 (incl. $0.33 calibration) |
-| `claude-team` | $500, 2026-10-27 | Fable 5.1, 10 city splits | 10 of 10 | $193.85 |
+| `claude5` | $100, 2026-10-23 | Opus 5.5, 12 city splits | 12 of 12 (bayonne's $8.53 on 2026-10-20) | $95.35 (incl. $0.33 calibration) |
+| `claude-team` | $500, 2026-10-27 | Fable 5.1, 11 city splits (annapolis is #156's) | 11 of 11 (bayonne's $21.24 on 2026-10-20) | $215.09 |
 | `claude-team` | (same) | Fable 5.1, `manual_gold` | done (1,000 panos, 5.0 h) | $167.92 |
 | `claude-team` | (same) | Opus 5.5, `manual_gold` | done (moved here from claude20: Team's credit expires first) | $67.98 |
-| `claude20` | $200, 2026-11-18 | unused so far | — | — |
+| `claude20` | $200, 2026-11-18 | unused | — | — |
+
+**Per org:** `claude5` spent **$95.35 of $100**; `claude-team` spent **$450.99 of $500**
+($215.09 + $167.92 + $67.98); `claude20` spent nothing.
 
 The Team org also holds $63.93 of purchased credit, which is spent after the promotional $500. To
-stay inside the free allocation, its streams run under a $440 ledger cap.
+stay inside the free allocation, its runner streams ran under a $440 ledger cap, and they finished
+at $429.75. The bayonne leg came after them as a direct `compare.py` call, outside the runner, so
+no cap applied to it; it took the org to $450.99, still inside the $500.
 
-**Per pano:** Opus 5.5 **$0.0665–0.068**, Fable 5.1 **$0.166–0.168**. The 5-pano Opus 5.5
-calibration ($0.0665/pano) predicted the full annapolis leg ($0.0676/pano) to within 2%.
+**Per pano:** Opus 5.5 **$0.0665–0.068**. Fable 5.1 **$0.165–0.168** on its first 11 legs of this
+campaign, and **$0.170** on bayonne. The 5-pano Opus 5.5 calibration ($0.0665/pano) predicted the
+full annapolis leg ($0.0676/pano) to within 2%.
 
 ## Results (F1 at the standard radius 0.022, effort low)
 
@@ -56,9 +70,10 @@ calibration ($0.0665/pano) predicted the full annapolis leg ($0.0676/pano) to wi
 | paterson | 0.826 / 0.673 / **0.742** | 0.773 / 0.585 / **0.666** | +0.076 |
 | richmond | 0.658 / 0.839 / **0.738** | 0.571 / 0.697 / **0.628** | +0.110 |
 | sao_paulo | 0.663 / 0.630 / **0.646** | 0.487 / 0.520 / **0.503** | +0.143 |
+| bayonne | 0.620 / 0.618 / **0.619** (tp/fp/fn 186/114/115) | 0.552 / 0.528 / **0.540** (tp/fp/fn 159/129/142) | +0.079 |
 | manual_gold | 0.719 / 0.725 / **0.722** (tp/fp/fn 2840/1111/1079) | 0.681 / 0.600 / **0.638** (tp/fp/fn 2351/1101/1568) | +0.084 |
 
-**Opus 5.5 leads Fable 5.1 on all 12 splits**: the 11 city splits by 0.06 to 0.29 F1 (median +0.110), and `manual_gold` by +0.084. The gain is
+**Opus 5.5 leads Fable 5.1 on all 13 splits**: the 12 city splits by 0.06 to 0.29 F1 (median +0.110), and `manual_gold` by +0.084. The gain is
 mostly recall. On Laurens, Fable's recall is 0.33/0.40 against Opus 5.5's 0.68/0.66.
 
 These are single runs. There is no seed-variance estimate for either model, so a gap near 0.06 on one
@@ -67,9 +82,13 @@ stronger evidence.
 
 ## Why Opus 5.5 does better: placement plus detection, not effort
 
-**Same work per call.** Every ledger row in this campaign shows 2,033 input tokens per call for
-both models, and 142–164 output tokens per call. Every call ended in a tool call except one
-`end_turn` in Opus 5.5's clovis leg. At `effort=low`, neither model is thinking more than the other.
+**Nearly the same work per call.** Every ledger row in this campaign shows 2,033 input tokens per
+call for both models. Output, which includes thinking (Anthropic bills it as output), is 143–164
+tokens per call on every leg: 157 per call for Opus 5.5 and 151 for Fable 5.1, pooled over each
+model's campaign rows. Both think little at `effort=low`, but not equally. The ledger's
+`thoughts_tokens` is 18 per call for Opus 5.5 (9–33 by leg, about 12% of its output) and 2.6 per
+call for Fable 5.1 (0.5–7 by leg, median 1.1, about 2% of its output). Every call ended in a tool
+call except two `end_turn`s, both Opus 5.5's: one in clovis and one in `manual_gold`.
 
 **About half the gap is where the point lands.** The cached detections were re-scored at 1.5x
 and 2x the match radius. This cost nothing: no API key was set, so no call was possible. Fable gains
@@ -103,7 +122,8 @@ its cached detections, so the two models are being scored the same way.
 ## How it was run
 
 API keys are Windows user environment variables (`ANTHROPIC_API_KEY_CLAUDE5`, `_CLAUDE20`, `_TEAM`).
-Panos and `.model_cache` live only in the main checkout, so `-DataRoot` points there.
+Panos and `.model_cache` live only in the main checkout, so `-DataRoot` points there. The one
+exception is bayonne, whose panos were only in this worktree (see the top of this page).
 
 ```powershell
 # calibration: 5 panos, claude5 org
@@ -124,6 +144,21 @@ scripts/model_comparison/run_claude_legs_by_account.ps1 -Account claude-team -Mo
 scripts/model_comparison/run_claude_legs_by_account.ps1 -Account claude-team -Model claude-fable-5-1 `
   -PerPano 0.1654 -Cap 440 -DataRoot <main> -Splits bend,budapest_district5,clovis,laurens_gsv,laurens_mapillary
 
+# Opus 5.5, manual_gold, Team org (under the same $440 cap)
+scripts/model_comparison/run_claude_legs_by_account.ps1 -Account claude-team -Model claude-opus-5-5 `
+  -PerPano 0.0665 -Cap 440 -DataRoot <main> -Splits manual_gold
+
+# bayonne, both models, run last (2026-10-20) as direct compare.py calls from this worktree,
+# whose benchmark/bayonne holds the panos. The key is set by hand, as the runner does.
+$env:ANTHROPIC_API_KEY = [Environment]::GetEnvironmentVariable('ANTHROPIC_API_KEY_CLAUDE5', 'User')
+python scripts/model_comparison/compare.py benchmark/bayonne --models claude:claude-opus-5-5 `
+  --claude-serving-path anthropic --claude-effort low --api-account claude5 `
+  --cache-dir <main>/.model_cache --usage-log <main>/analysis_out/usage_log.jsonl
+$env:ANTHROPIC_API_KEY = [Environment]::GetEnvironmentVariable('ANTHROPIC_API_KEY_TEAM', 'User')
+python scripts/model_comparison/compare.py benchmark/bayonne --models claude:claude-fable-5-1 `
+  --claude-serving-path anthropic --claude-effort low --api-account claude-team `
+  --cache-dir <main>/.model_cache --usage-log <main>/analysis_out/usage_log.jsonl
+
 # publish + verify (per model; list the finished splits)
 python scripts/analysis/export_model_cache.py --cache-dir <main>/.model_cache --models claude:claude-opus-5-5 `
   --claude-effort low --claude-serving-path anthropic --publish-as claude-opus-5-5-effort-low-anthropic `
@@ -131,8 +166,12 @@ python scripts/analysis/export_model_cache.py --cache-dir <main>/.model_cache --
 python scripts/analysis/export_model_cache.py ... --verify
 ```
 
-These ran via a scratch copy of `run_claude_legs_by_account.ps1` that hardcoded the main checkout
-path. The committed version takes `-DataRoot` instead and is otherwise the same logic.
+The runner calls ran via a scratch copy of `run_claude_legs_by_account.ps1` that hardcoded the
+main checkout path. The committed version takes `-DataRoot` instead. It also has two fixes that
+landed in b202470, after every run here: it passes `--usage-log` explicitly, so the cap reads the
+same ledger `compare.py` writes, and it stops when `compare.py` exits non-zero. Neither fix changes
+a result here. The scratch copy ran both the code and the data from the main checkout, so
+`compare.py`'s default ledger and the ledger the cap read were the same file.
 
 ## What it changes on the scoreboard
 
@@ -141,12 +180,24 @@ pooled tables of [`model_scoreboard.md`](model_scoreboard.md). Both stay `standi
 `rampnet/roster.py`, so the standing roster tables in `model_comparison.md` do not change;
 each generated city table's footnote lists them.
 
+Every Claude number in these bullets is a single run, with no seed variance, at effort low only,
+through the first-party serving path (`anthropic`). Read each comparison with RampNet with that
+in mind.
+
 - **Claude Opus 5.5 is the best challenger with full pooled coverage**: pooled F1 0.710
   (P 0.691 / R 0.737) over the eight US city splits. RampNet's lead over it is 0.082 F1;
-  before it, the best such challenger was YOLO11l, 0.193 behind RampNet.
-- **It beats RampNet on both Laurens arms**: 0.679 against 0.543 on `laurens_mapillary` and
-  0.701 against 0.659 on `laurens_gsv`. RampNet keeps the top F1 on every other split Opus 5.5
-  ran, `manual_gold` included (0.908 against 0.722).
+  before it, the best such challenger was YOLO11l, 0.193 behind RampNet. Bayonne is held out
+  of the pool, so it moves none of these pooled numbers.
+- **It beats RampNet on three splits**: both Laurens arms (0.679 against 0.543 on
+  `laurens_mapillary`, 0.701 against 0.659 on `laurens_gsv`) and `bayonne` (0.619 against
+  0.517). RampNet keeps the top F1 on the other ten splits, `manual_gold` included (0.908
+  against 0.722), so it tops 10 of the 13.
+- **Fable 5.1 also beats RampNet on `bayonne`** (0.540 against 0.517), the only split where it
+  does. Bayonne's GT is single-rater at medium reviewer confidence, and French street design
+  fought the US-written rubric ([`bayonne_split_159.md`](bayonne_split_159.md)). RampNet's
+  bayonne F1 is low because of its recall (0.375 at 0.55, its lowest anywhere), not its
+  precision (0.831). Both Claude legs have lower precision there (0.620, 0.552) and higher
+  recall (0.618, 0.528).
 - **Its pooled recall, 0.737, is above RampNet's 0.686**, the only model with full pooled
   coverage for which that is true apart from the two open-vocabulary detectors at their 0.05
   floor. Its precision is 0.691 against RampNet's 0.951.
@@ -155,4 +206,7 @@ each generated city table's footnote lists them.
 ## Not done yet
 
 - Seed variance: neither model has been run twice on any split.
+- Effort: both legs ran at `low` only. No other effort level was run.
+- Serving path: first-party API only, so nothing here says how the same ids behave on Vertex.
 - `claude-fable-5` was not part of this campaign, so it is still annapolis-only.
+- The `claude20` org's $200 credit was not used.

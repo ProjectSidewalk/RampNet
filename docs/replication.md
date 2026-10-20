@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 26.3 MB (185 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 26.3 MB (187 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -60,7 +60,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-10-19 that is **185 files, 26.3 MB**, and every one of
+signature recorded inside. As of 2026-10-20 that is **187 files, 26.3 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -71,8 +71,8 @@ them belongs to a registered leg:
 | `claude-opus-5` at `low` effort, eleven splits (#122; the pool by #139, both Laurens arms by #151) | 11 | [`claude_legs_122.md`](claude_legs_122.md) |
 | the other three Vertex Claude legs, annapolis only (#122) | 3 | [`claude_legs_122.md`](claude_legs_122.md) |
 | `claude-fable-5` at `low` effort, annapolis only, served on Anthropic's first-party API (#156) | 1 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
-| `claude-fable-5-1` at `low` effort, first-party API, all twelve splits: annapolis (#156) and the other eleven (2026-10-19) | 12 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md), [`claude_newest_ids.md`](claude_newest_ids.md) |
-| `claude-opus-5-5` at `low` effort, first-party API, all twelve splits (2026-10-19) | 12 | [`claude_newest_ids.md`](claude_newest_ids.md) |
+| `claude-fable-5-1` at `low` effort, first-party API, all thirteen splits: annapolis (#156) and the other twelve (2026-10-19/20) | 13 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md), [`claude_newest_ids.md`](claude_newest_ids.md) |
+| `claude-opus-5-5` at `low` effort, first-party API, all thirteen splits (2026-10-19/20) | 13 | [`claude_newest_ids.md`](claude_newest_ids.md) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`vistas_transfer_126.md`](vistas_transfer_126.md) |
 | the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg: richmond (#126, #137; re-run and published under #163), and bend, paterson, gainesville, annapolis for the #35 cascade transfer read (klone job 40774146, 2026-09-27) | 5 | [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md); the four transfer splits in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md) |
 
@@ -149,7 +149,7 @@ test rather than a promise.
 
 #### The gemini-3.7-flash leg is published but off the default roster
 
-`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all twelve splits**, including
+`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all thirteen splits** (bayonne since 2026-10-04, #159), including
 `manual_gold` (1,000 panoramas, 0 uncached — that leg finished 2026-08-15 08:04 UTC, after the
 first nine were exported). It is currently the only Gemini with a `manual_gold` file: the other
 two are absent for a different reason, their `manual_gold` detections not being in the cache
