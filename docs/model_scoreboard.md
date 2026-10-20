@@ -518,7 +518,7 @@ Omissions are content, so they are named rather than left as blanks:
   peer to compare against. Stated in full in #144.
 - **Nothing else in the registry is missing.** The board is driven by `rampnet/roster.py`,
   and `unregistered_exports` is empty — every published detections file is claimed by a
-  roster entry and scored here.
+  roster entry, and every entry is scored here except the six seed legs named above.
 
 ---
 

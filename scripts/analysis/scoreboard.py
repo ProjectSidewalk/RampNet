@@ -231,7 +231,7 @@ def display_of(leg):
 
 
 def legs():
-    """Every registered leg, in roster order (which is results-table order).
+    """Every registered leg except seed legs, in roster order (results-table order).
 
     Driven by ``rampnet.roster`` rather than by scanning ``benchmark/model_detections/``:
     filenames are ambiguous now that one model id can be several legs

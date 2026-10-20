@@ -12,7 +12,7 @@ model-agnostic, so new models (issues #20, #39) plug in the same way.
 > and by how much" is spread across a dozen tables in chronological order. `model_scoreboard.md`
 > is the same data pivoted the other way (rows are models, columns are metrics, aggregated
 > across splits) plus five summary figures, and it covers every leg in `rampnet/roster.py`
-> rather than the standing eight. It is generated from the committed detections by
+> except the seed legs (`seed_of`), rather than the standing eight. It is generated from the committed detections by
 > `scripts/analysis/scoreboard.py`, and a test fails if it drifts from this log.
 
 > **Start here.** This file is the log: per-split results in run order, the mechanism behind each
