@@ -4,7 +4,7 @@
 partial results don't live only on one disk. Every number below is from a split that finished;
 splits still running are marked as such. The published detections for every finished split are in
 `benchmark/model_detections/` and were verified identical to the cache that produced them
-(`export_model_cache.py --verify`, 23 of 23 pairs).
+(`export_model_cache.py --verify`, 24 of 24 pairs).
 
 ## What and why
 
@@ -32,7 +32,7 @@ what the run cost, the same as always.
 | `claude5` | $100, 2026-10-23 | Opus 5.5, 11 city splits | 11 of 11 | $86.82 (incl. $0.33 calibration) |
 | `claude-team` | $500, 2026-10-27 | Fable 5.1, 10 city splits | 10 of 10 | $193.85 |
 | `claude-team` | (same) | Fable 5.1, `manual_gold` | done (1,000 panos, 5.0 h) | $167.92 |
-| `claude-team` | (same) | Opus 5.5, `manual_gold` | running (moved here from claude20: Team's credit expires first) | — |
+| `claude-team` | (same) | Opus 5.5, `manual_gold` | done (moved here from claude20: Team's credit expires first) | $67.99 |
 | `claude20` | $200, 2026-11-18 | unused so far | — | — |
 
 The Team org also holds $63.93 of purchased credit, which is spent after the promotional $500. To
@@ -56,9 +56,9 @@ calibration ($0.0665/pano) predicted the full annapolis leg ($0.0676/pano) to wi
 | paterson | 0.826 / 0.673 / **0.742** | 0.773 / 0.585 / **0.666** | +0.076 |
 | richmond | 0.658 / 0.839 / **0.738** | 0.571 / 0.697 / **0.628** | +0.110 |
 | sao_paulo | 0.663 / 0.630 / **0.646** | 0.487 / 0.520 / **0.503** | +0.143 |
-| manual_gold | running | 0.681 / 0.600 / **0.638** (tp/fp/fn 2351/1101/1568) | — |
+| manual_gold | 0.719 / 0.725 / **0.722** (tp/fp/fn 2840/1111/1079) | 0.681 / 0.600 / **0.638** (tp/fp/fn 2351/1101/1568) | +0.084 |
 
-**Opus 5.5 leads Fable 5.1 on all 11 city splits**, by 0.06 to 0.29 F1 (median +0.110). The gain is
+**Opus 5.5 leads Fable 5.1 on all 12 splits**: the 11 city splits by 0.06 to 0.29 F1 (median +0.110), and `manual_gold` by +0.084. The gain is
 mostly recall. On Laurens, Fable's recall is 0.33/0.40 against Opus 5.5's 0.68/0.66.
 
 These are single runs. There is no seed-variance estimate for either model, so a gap near 0.06 on one
@@ -136,7 +136,6 @@ path. The committed version takes `-DataRoot` instead and is otherwise the same 
 
 ## Not done yet
 
-- Opus 5.5 on `manual_gold` (running on the Team org).
 - Scoreboard regeneration, coverage text in `docs/model_comparison.md`, and the tests that pin
   coverage (`tests/test_scoreboard.py`, `tests/test_claude_published_legs.py`). These wait for the
   full set.
