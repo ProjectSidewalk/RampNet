@@ -65,7 +65,7 @@ def test_mix_has_every_sparse_pano_and_a_seeded_gsv_sample(inputs, tmp_path):
     names = sorted(os.listdir(out / "train"))
     assert len(names) == 18
     assert (out / "train" / "S1.jpg").read_bytes() == b"jpgS1"
-    assert os.path.islink(out / "val") and os.listdir(out / "val") == ["V1.jpg", "V1.json"]
+    assert os.path.islink(out / "val") and sorted(os.listdir(out / "val")) == ["V1.jpg", "V1.json"]
     assert mix.main(_argv(inputs, out, "--ratio", "2", "--seed", "4", "--check")) == 0
 
 
