@@ -166,6 +166,17 @@ without the weights. `silent_witness` is not in that list — it defaults to the
 `WITNESS_POOL_46`, so the #46 human pass is unaffected by any promotion, which is what the
 freeze is for.
 
+**The three `mask2former-vistas-*` rows are supervised transfer** (#126): a checkpoint trained on
+somebody else's curb-cut labels, read with no training of ours. That puts them outside the
+zero-shot tables for the same reason as the YOLO arms. Coverage is per leg. The 384 arm and the
+`+curb` union arm have run richmond only, and they stay there by decision. The 1024 parity arm
+(`mask2former-vistas-curb-cut-1024x1024`) has run **all fourteen splits**: richmond (#163),
+bend/paterson/gainesville/annapolis (#35, 2026-09-27), and the other nine on 2026-10-20. Each
+generated city table's footnote lists it, and [`model_scoreboard.md`](model_scoreboard.md) scores
+it in the pooled headline (F1 0.519, 0.274 behind RampNet, recall 0.836). The per-split table,
+what it changes and what it cost are in
+[`vistas_transfer_126.md` § "All fourteen splits"](vistas_transfer_126.md).
+
 ### Are gemini-3.7-flash's silent panoramas real, or lost responses? (#120 review)
 
 The leg returns **nothing at all** on 345 of the 1,109 city-split panoramas (31.1%), against

@@ -2,10 +2,11 @@
 
 The Mapillary Vistas arms: the supervised-transfer baseline, its instrument checks, the
 richmond result, resolution parity, complementarity with RampNet, and the cascade gate.
-**Since 2026-09-27 the 1024 parity arm also has detections on bend, paterson, gainesville and
-annapolis** (klone, one L40S; solo scores in [`model_scoreboard.md`](model_scoreboard.md), the
-cascade read in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md)). Everything below is
-richmond, as written.
+**Since 2026-10-20 the 1024 parity arm has detections on all fourteen splits** (§ "All fourteen
+splits" at the end of this file; pooled scores in [`model_scoreboard.md`](model_scoreboard.md)).
+bend, paterson, gainesville and annapolis came first, on 2026-09-27 (klone, one L40S, for the
+cascade read in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md)). Everything under § "The
+Vistas arms" is richmond, as written.
 Moved verbatim from [`model_comparison.md`](model_comparison.md) under #145, where it sat under
 § "What each model class buys you"; heading levels are unchanged, so the moved `###`
 sections sit under the one `##` below, added so the outline has no skipped level. "Above" and
@@ -785,3 +786,119 @@ PYTHON=$ENVPY MODELS=rampnet,vistas:curb-cut BUNDLE=benchmark/richmond \
     sbatch -A <account> scripts/model_comparison/run_open_models.slurm
 ```
 
+
+## All fourteen splits (2026-10-20)
+
+The 1024 parity arm (`mask2former-vistas-curb-cut-1024x1024`) now has published detections on
+every benchmark split. richmond is the #163 run, and bend, paterson, gainesville and annapolis are
+the #35 transfer run (klone job 40774146). The other nine (clovis, morgantown,
+`laurens_mapillary`, juneau, `laurens_gsv`, `budapest_district5`, `sao_paulo`, bayonne and
+`manual_gold`) were run on 2026-10-20 on makelab2, one A40. The flags are exactly the richmond
+ones: `--models rampnet,vistas:curb-cut --vistas-input-size 1024 1024`, fp16, `min_area_px` 16,
+no `--vistas-revision`. The 384 arm and the `+curb` union arm were deliberately **not** extended;
+they stay richmond-only.
+
+RampNet is its committed bundle at the shipped 0.55 (`manual_gold`: the 0.55 gate applied to its
+0.05-floor export). The Vistas arm is scored at its export floor, as everywhere else on the
+scoreboard. † = held out of the pooled mean
+([`model_scoreboard.md`](model_scoreboard.md), "How to read this"). `tests/test_scoreboard.py`
+checks every row of this table against the scorer.
+
+| split | RampNet P / R / F1 | Vistas 1024 P / R / F1 | Vistas AP | tp/fp/fn | ΔF1 (Vistas − RampNet) | run |
+|---|---|---|---:|---|---:|---|
+| `richmond` | 0.964 / 0.768 / 0.855 | 0.383 / 0.884 / **0.534** | 0.649 | 274/442/36 | −0.320 | 2026-09-20 makelab2 |
+| `bend` | 0.961 / 0.761 / 0.850 | 0.367 / 0.832 / **0.509** | 0.425 | 272/469/55 | −0.340 | 2026-09-27 klone |
+| `clovis` | 0.914 / 0.713 / 0.801 | 0.233 / 0.877 / **0.368** | 0.320 | 171/563/24 | −0.433 | 2026-10-20 makelab2 |
+| `morgantown` | 0.975 / 0.730 / 0.835 | 0.379 / 0.831 / **0.521** | 0.536 | 222/364/45 | −0.315 | 2026-10-20 makelab2 |
+| `annapolis` | 0.973 / 0.738 / 0.839 | 0.436 / 0.898 / **0.587** | 0.526 | 264/342/30 | −0.253 | 2026-09-27 klone |
+| `paterson` | 0.975 / 0.686 / 0.805 | 0.401 / 0.701 / **0.510** | 0.430 | 277/414/118 | −0.295 | 2026-09-27 klone |
+| `gainesville` | 0.945 / 0.699 / 0.803 | 0.383 / 0.846 / **0.527** | 0.521 | 230/371/42 | −0.276 | 2026-09-27 klone |
+| `laurens_mapillary` | 0.898 / 0.390 / 0.543 | 0.405 / 0.787 / **0.535** | 0.457 | 196/288/53 | −0.009 | 2026-10-20 makelab2 |
+| `juneau` | 0.967 / 0.687 / 0.803 | 0.433 / 0.865 / **0.577** | 0.523 | 257/337/40 | −0.226 | 2026-10-20 makelab2 |
+| `laurens_gsv` † | 0.933 / 0.509 / 0.659 | 0.377 / 0.818 / **0.516** | 0.481 | 180/297/40 | −0.142 | 2026-10-20 makelab2 |
+| `budapest_district5` † | 0.874 / 0.510 / 0.644 | 0.438 / 0.660 / **0.527** | 0.439 | 198/254/102 | −0.118 | 2026-10-20 makelab2 |
+| `sao_paulo` † | 0.894 / 0.687 / 0.777 | 0.340 / 0.833 / **0.483** | 0.480 | 234/454/47 | −0.294 | 2026-10-20 makelab2 |
+| `bayonne` † | 0.831 / 0.375 / 0.517 | 0.377 / 0.731 / **0.497** | 0.441 | 220/364/81 | −0.020 | 2026-10-20 makelab2 |
+| `manual_gold` † | 0.947 / 0.873 / 0.908 | 0.534 / 0.825 / **0.649** | 0.587 | 3235/2820/684 | −0.260 | 2026-10-20 makelab2 |
+| **pooled (nine cities, macro)** | 0.953 / 0.686 / 0.793 | 0.380 / 0.836 / **0.519** | 0.488 | – | −0.274 | |
+
+What the eight new pooled-or-held-out cities show, against the richmond reading above:
+
+- **"Transfers but does not compete" stands everywhere.** RampNet leads on all fourteen splits,
+  by 0.009 F1 (`laurens_mapillary`) to 0.433 (clovis), and by 0.274 pooled. The arm's closest
+  approaches are on the two splits RampNet does worst on: `laurens_mapillary` (0.535 against
+  0.543) and bayonne (0.497 against 0.517). Those are point estimates. No paired interval was
+  computed for them.
+- **The recall finding generalizes.** At RampNet's shipped 0.55 the arm out-recalls RampNet on
+  all nine pooled cities, and on four of the five held-out splits. The exception is
+  `manual_gold` (0.825 against 0.873). Pooled it is 0.836 against 0.686, the highest pooled
+  recall on the board apart from the two open-vocabulary detectors at their 0.05 floor. RampNet's
+  own curve, read to its 0.05 floor, still reaches further (micro recall 0.862 against 0.830) and
+  sits above this arm's curve at every recall the arm reaches. So the out-recall is a statement
+  about RampNet's shipped threshold, not about its ceiling.
+- **Precision is still the whole story.** It is 0.233 (clovis) to 0.436 (annapolis) on the pooled
+  cities, 2.7–4.5 false positives per panorama. clovis, the 2018 GoPro Fusion split, is this arm's
+  worst city, as it is for the two open-vocabulary detectors and Claude Opus 5.5.
+- **On budapest it is the strongest challenger on the board.** It scores 0.527 against RampNet's
+  0.644, Claude Opus 5.5's 0.451, Gemini 3.1 Pro's 0.381 and the YOLO arms' 0.221–0.277. Vistas
+  is a worldwide dataset, and this is the one split where the design vocabulary is not American.
+  Read it with budapest's low-confidence-GT caveat (`benchmark/README.md`).
+- **It rises on `manual_gold`, unlike the zero-shot models.** It scores 0.649 there against 0.519
+  pooled, and the gain is all precision (0.534 against 0.380). The two candidate readings are in
+  [`model_scoreboard.md`](model_scoreboard.md) ("In-distribution vs deployed"). Neither is
+  measured.
+- **Density** (published points per panorama) is 3.8 (budapest) to 6.1 (`manual_gold`) on the
+  nine new splits. That is the same band as richmond's 6.2 and the transfer splits' 5.0–7.0.
+
+**Not run on the new splits, and named so the gap is visible:** the complementarity read, the
+chance null (`null_recall.py`) and the #35 cascade grid. `analysis_out/cascade_cost_35/summary.json`
+lists each new (split, parity arm) pair under `gaps` as "published detections exist but this pair
+was not run". `laurens_gsv` has no op_cache, so it cannot enter the cascade at all. Each of these
+reads the published files and needs no GPU, except `cascade_gate.py`.
+
+**Cost.** Free model, so the cost is time. One `compare.py` process per split, one `paid: false`
+row each in `analysis_out/usage_log.jsonl` (makelab2 has no Slurm, so there is no
+`compute_log.jsonl` row; see [`compute_cost.md`](compute_cost.md), "Gaps, stated"). Each
+process held the one A40 for its whole wall-clock, so GPU time equals wall-clock here:
+
+| split | panos | wall-clock s | model load s | detect s | s/pano |
+|---|---:|---:|---:|---:|---:|
+| `clovis` | 125 | 203.3 | 23.8 | 179.2 | 1.434 |
+| `morgantown` | 125 | 151.5 | 12.8 | 138.4 | 1.107 |
+| `laurens_mapillary` | 94 | 132.8 | 12.2 | 120.4 | 1.281 |
+| `juneau` | 125 | 187.3 | 12.3 | 174.7 | 1.397 |
+| `laurens_gsv` | 86 | 206.7 | 12.3 | 194.1 | 2.257 |
+| `budapest_district5` | 125 | 169.3 | 12.2 | 156.9 | 1.255 |
+| `sao_paulo` | 125 | 293.6 | 12.4 | 280.9 | 2.247 |
+| `bayonne` | 125 | 172.7 | 12.1 | 160.3 | 1.282 |
+| `manual_gold` | 1000 | 1191.1 | 12.2 | 1176.4 | 1.176 |
+| **total** | **1930** | **2708.3** (0.75 h) | | 2581.3 | 1.337 |
+
+The whole run, including the gaps between processes, took 45 min 32 s (18:50:40–19:36:12 UTC).
+The A40 was shared: another process (pid 5178, not this run) held 9.2 GB of its memory
+throughout. It sat at 0% utilisation when the run started, and the GPU was at 9% utilisation
+during clovis, because this arm is bound by the CPU-side reprojection rather than the forward
+pass (#137 measured the forward at 0.092 s/view). So the per-split seconds are an upper bound on
+what the arm needs, not a measurement of an idle GPU.
+
+**Provenance.** The run was made from a scratch worktree at `ece4fc4` (the head of PR #261), with a
+private `--cache-dir`. Environment: python 3.12.13, torch 2.13.0+cu130, transformers 5.15.0,
+offline load of snapshot `4772b6bf…`, the same snapshot the klone transfer run loaded. Before
+any GPU time, all nine splits' panoramas passed `imagery_manifest.py --verify` against the
+committed manifests. Most came from the makelab2 checkout. bayonne came from the #159 worktree
+there, and juneau was copied from the Windows checkout, since neither is on HF. After the run,
+`export_model_cache.py --verify` reported 9/9 pairs scoring identically to the producing cache
+(1,930 shards). Records are in `docs/data/vistas1024_all_splits/`: `env.txt`, `run.log`, one log
+per split, `imagery_verify.log` and `export_verify.log`. The launcher is
+`scripts/analysis/vistas1024_all_splits.sh`:
+
+```bash
+W=$HOME/vistas1024_run PY=<env python> bash scripts/analysis/vistas1024_all_splits.sh
+python scripts/analysis/export_model_cache.py --write --models vistas:curb-cut \
+    --vistas-input-size 1024 1024 --cache-dir $W/model_cache \
+    --splits clovis,morgantown,laurens_mapillary,juneau,laurens_gsv,budapest_district5,sao_paulo,bayonne,manual_gold
+python scripts/analysis/export_model_cache.py --verify   # same flags
+```
+
+Re-running it needs the native panoramas. `laurens_gsv`, `laurens_mapillary`, bayonne and juneau
+are not on HF yet ([`replication.md`](replication.md), the benchmark panos row).

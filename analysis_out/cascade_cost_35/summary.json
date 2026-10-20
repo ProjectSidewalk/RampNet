@@ -43,6 +43,11 @@
    "split": "bayonne"
   },
   {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
    "challenger": "gemini-3.7-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "bayonne"
@@ -83,6 +88,11 @@
    "split": "bend"
   },
   {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "budapest_district5"
@@ -91,6 +101,11 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "budapest_district5"
+  },
+  {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
   },
   {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
@@ -148,6 +163,11 @@
    "split": "juneau"
   },
   {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
    "challenger": "gemini-3.7-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "juneau"
@@ -182,6 +202,11 @@
    "split": "laurens_gsv"
   },
   {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "laurens_mapillary"
@@ -192,6 +217,11 @@
    "split": "laurens_mapillary"
   },
   {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "manual_gold"
@@ -200,6 +230,11 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "manual_gold"
+  },
+  {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
   },
   {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
@@ -230,6 +265,11 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "richmond"
+  },
+  {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
   },
   {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
