@@ -280,7 +280,7 @@ Its **Pooled mean** column, framed and set right of the pooled cities, is the sa
 F1 the headline quotes (read from the board, and checked against the mean of the cells
 beside it), and the rows are sorted by it. Legs that have not run every pooled city sit in
 a separate group below a labelled rule, sorted by how many pooled cities they ran and then by
-the mean over those cities, and that mean carries its coverage, e.g. `0.533 (5/9)`. So a
+the mean over those cities, and that mean carries its coverage, e.g. `0.568 (8/9)`. So a
 one-city leg is never ranked against a full-pool mean, or above a leg that ran eight cities,
 even when its single city puts it numerically above one.
 
@@ -518,8 +518,11 @@ Omissions are content, so they are named rather than left as blanks:
   lost.** On 2026-10-20 the cache keys were reconstructed (the same probe finds the richmond
   entries, so the method is sound) and searched for in every model cache on the Windows
   workstation, on makelab2 (`/homes/gws/jonf`), on klone (home, `/gscratch/makelab`,
-  `/gscratch/scrubbed`) and on Jon's Mac; none holds a single entry. The sweep used klone's
-  `ckpt` partition, so the likeliest home was purged scratch, but that is not established.
+  `/gscratch/scrubbed`) and on Jon's Mac; none holds a single entry. The cache was
+  desktop-local: `model_comparison.md`'s `manual_gold` "Cost and runtime" section (from
+  b148f71) says "Gemini needs no GPU at all — both models ran from a desktop against Vertex";
+  only the GPU legs used klone's `ckpt` queue. Both desktops, the Windows workstation and
+  Jon's Mac, are among the machines searched.
   **0.568 and 0.540 are therefore historical: they cannot be re-derived from a clean clone**,
   the only numbers in this comparison with that status. Not re-run, by decision (Jon,
   2026-10-20): Opus 5.5 and Gemini 3.7 Flash now cover `manual_gold`, a re-run of a preview id

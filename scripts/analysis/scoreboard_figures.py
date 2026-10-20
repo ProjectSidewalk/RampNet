@@ -25,6 +25,7 @@ discharged the way ``plot_operating_point.py`` discharges it: every plotted numb
 also in a table, in ``docs/model_scoreboard.md`` and ``analysis_out/scoreboard.json``.
 """
 import os
+import re
 
 # Palette: validated categorical slot 1, the sequential blue ramp, and the neutral inks
 # (references/palette.md). Same values plot_operating_point.py uses, so the two figures
@@ -318,7 +319,7 @@ def by_split_rows(result):
         cells = per[m["model"]]
         f1s = [cells[s]["f1"] for s in pooled if cells.get(s)]
         n_run = len(f1s)
-        assert m["coverage"] == f"{n_run}/{len(pooled)}", (m["model"], m["coverage"], n_run)
+        assert len(m["pooled_splits"]) == n_run, (m["model"], m["pooled_splits"], n_run)
         assert m["complete"] == (n_run == len(pooled)), m["model"]
         if f1s:
             recomputed = sum(f1s) / n_run
@@ -330,6 +331,34 @@ def by_split_rows(result):
     full.sort(key=lambda r: -r[1])
     partial.sort(key=lambda r: (r[1] is None, -r[2], -(r[1] or 0.0)))
     return full, partial
+
+
+def held_out_footer(result, held):
+    """The by-split figure's dagger footnote, built from ``result["held_out"]``.
+
+    Each reason is cut to its first clause (up to the first comma, parenthesis or dash),
+    and splits that share a short reason are named together, so the footnote follows the
+    board's own split names and reasons rather than a hand-typed copy of them.
+
+    Example::
+
+        held_out_footer({"held_out": {"sao_paulo": "non-US city -- ...",
+                                      "bayonne": "non-US city -- ..."}},
+                        ["sao_paulo", "bayonne"])
+        # '† held out of the pooled headline: sao_paulo and bayonne (non-US city).'
+    """
+    groups = {}
+    for split in held:
+        reason = result["held_out"].get(split, "")
+        short = re.split(r",| \(| — | -- ", reason, maxsplit=1)[0].strip()
+        groups.setdefault(short, []).append(split)
+    def names(splits):
+        return splits[0] if len(splits) == 1 else \
+            ", ".join(splits[:-1]) + " and " + splits[-1]
+
+    parts = [names(splits) + (f" ({short})" if short else "")
+             for short, splits in groups.items()]
+    return "† held out of the pooled headline: " + ", ".join(parts) + "."
 
 
 def fig_by_split(result, path, plt):
@@ -348,7 +377,7 @@ def fig_by_split(result, path, plt):
     n_pool = len(pooled)
 
     # Columns, in data units: cities, a narrow gap, the wider aggregate column (it has to
-    # hold "0.533 (5/9)"), the gutter, then the held-out splits.
+    # hold e.g. "0.568 (8/9)"), the gutter, then the held-out splits.
     agg_gap, agg_w, gutter = 0.3, 1.6, 1.0
     col_x = {s: float(i) for i, s in enumerate(pooled)}
     agg_x = n_pool + agg_gap
@@ -364,9 +393,12 @@ def fig_by_split(result, path, plt):
     placed += [(r, sep_y + sep + i) for i, r in enumerate(partial)]
     height = len(full) + (sep + len(partial) if partial else 0.0)
 
-    # Height tracks the row count so adding a leg does not silently squash the cells.
+    # Height tracks the row count and width the column count, so adding a leg or a split
+    # does not silently squash the cells. The constant terms hold the row labels, titles
+    # and footer; at fourteen splits this is the 13-inch width the figure was drawn at.
     fig_h = 1.9 + 0.42 * (height + head)
-    fig, ax = plt.subplots(figsize=(13.0, fig_h))
+    fig_w = 3.0 + 0.59 * width
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
     fig.patch.set_facecolor(SURFACE)
     ax.set_facecolor(SURFACE)
 
@@ -417,11 +449,14 @@ def fig_by_split(result, path, plt):
         group(held_x0, width, "Held out †", color=INK_SECONDARY)
 
     if partial:
-        ax.plot([-0.0, width], [sep_y + 0.16, sep_y + 0.16], color=BASELINE, lw=1.0,
+        ax.plot([0.0, width], [sep_y + 0.16, sep_y + 0.16], color=BASELINE, lw=1.0,
                 zorder=3)
+        # The "rows above" clause only makes sense when there are rows above.
+        not_ranked = (", and these rows are not ranked against the rows above."
+                      if full else ".")
         ax.text(0.04, sep_y + sep / 2 + 0.1,
                 "Partial pooled coverage: the mean is over the pooled cities each leg ran "
-                f"(n/{n_pool}), and these rows are not ranked against the rows above.",
+                f"(n/{n_pool}){not_ranked}",
                 ha="left", va="center", fontsize=8.4, color=INK_SECONDARY,
                 fontstyle="italic", zorder=3)
 
@@ -472,11 +507,9 @@ def fig_by_split(result, path, plt):
              "headline number (docs/model_scoreboard.md); full-coverage rows are sorted by it, "
              "partial rows by coverage, then by it.",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
-    fig.text(0.008, 0.008,
-             "† held out of the pooled headline: laurens_gsv (second imagery arm of pooled "
-             "laurens), budapest (single-rater GT at low reviewer confidence), sao_paulo "
-             "and bayonne (non-US), manual_gold (in-distribution reference).",
-             fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
+    if held:
+        fig.text(0.008, 0.008, held_out_footer(result, held),
+                 fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     fig.tight_layout(rect=(0, 0.008 + 2.4 * line, 1, 1))
     fig.savefig(path, dpi=170, facecolor=fig.get_facecolor())
     plt.close(fig)
