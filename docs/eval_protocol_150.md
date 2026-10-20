@@ -2,13 +2,13 @@
 
 Issue [#150](https://github.com/ProjectSidewalk/RampNet/issues/150), the "evaluation protocol
 as code" item only. Written 2026-10-05; Bayonne added to the pinned registry 2026-10-11, and the YOLO11x tiles
-legs' cells added 2026-10-19 (see [Revision](#revision)).
+arm's cells added 2026-10-19 (see [Revision](#revision)).
 
 **Result.** `rampnet/eval.py` scores a prediction file against a committed benchmark bundle
 through the same functions every committed benchmark number came from, and
-`scripts/analysis/eval_protocol_150.py --check` proves it: all **239** cells of
-`analysis_out/scoreboard.json` (28 model legs, 13 splits) and all **30** (arm, split) cells of
-`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 2,390 and 480
+`scripts/analysis/eval_protocol_150.py --check` proves it: all **185** cells of
+`analysis_out/scoreboard.json` (22 model legs, 13 splits) and all **30** (arm, split) cells of
+`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,850 and 480
 field comparisons respectively, with **0** differing and **0** unchecked. The split files are
 pinned by content hash in `benchmark/split_pins.json`. No number changed, and the four
 fingerprinted scorer files are byte-identical to `main` (fingerprint `f4aef67aba03`).
@@ -125,7 +125,7 @@ script prints it), so editing the packaging layer alone does not make the proof 
 
 | source | cells | equal | differs | unchecked | fields compared |
 |---|--:|--:|--:|--:|--:|
-| `analysis_out/scoreboard.json` | 239 | 239 | 0 | 0 | 2,390 |
+| `analysis_out/scoreboard.json` | 185 | 185 | 0 | 0 | 1,850 |
 | `benchmark_eval/` | 30 | 30 | 0 | 0 | 480 |
 
 What is compared, and how:
@@ -257,8 +257,10 @@ cells (no YOLO arm is scored on Bayonne) all re-derive equal, including Bayonne'
 **2026-10-19: YOLO11x tiles legs added.** [#258](https://github.com/ProjectSidewalk/RampNet/issues/258)
 published per-pano detections for seven YOLO11x perspective-tiles legs (`y11x_tiles` on ten
 splits, and the six seed-variance legs on nine, without `budapest_district5`) and registered
-them in `rampnet/roster.py`, so the scoreboard gained 64 cells. The reproduction proof was
-regenerated: **239** scoreboard cells (was 175; the 64 new ones are all `y11x_tiles*`, 2,390
-field comparisons, 28 model legs) and the same **30** YOLO `benchmark_eval/` cells all
+them in `rampnet/roster.py`. Only `y11x_tiles` is on the scoreboard; the six seed legs are
+kept off it (`seed_of` in the roster; reasons in `model_scoreboard.md`), so they are not
+cells here either. The scoreboard gained 10 cells. The reproduction proof was
+regenerated: **185** scoreboard cells (was 175; the 10 new ones are all `y11x_tiles`, 1,850
+field comparisons, 22 model legs) and the same **30** YOLO `benchmark_eval/` cells all
 re-derive equal, 0 differing, 0 unchecked. The RampNet op_cache cells are unchanged (11), the
 split pins are byte-unchanged, and the scorer fingerprint is still `f4aef67aba03`.

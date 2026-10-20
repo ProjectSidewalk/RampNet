@@ -1,6 +1,6 @@
 # Scoreboard: every model, one table
 
-Twenty-eight model legs, thirteen splits (eight of them pooled), one page. This is the summary
+Twenty-two model legs, thirteen splits (eight of them pooled), one page. This is the summary
 view of the curb-ramp benchmark — **rows are models, columns are metrics** — for the
 question "which model is best, and by how much".
 
@@ -73,7 +73,7 @@ model, and the reasons are in "How to read this" below.
 
 **RampNet leads the best challenger with full pooled coverage (YOLO11l) by 0.193 F1** at the
 operating points in the table. (Claude Fable 5 at low effort scores 0.611, but on one split
-only, and the seven YOLO11x tiles legs reach 0.666–0.678 macro F1, but over seven of the eight
+only, and YOLO11x at perspective tiles reaches 0.667 macro F1, but over seven of the eight
 pooled splits, without `laurens_mapillary`; neither is comparable to a full-coverage mean. See
 the partial table below.) RampNet also leads in F1 on ground truth that never saw a
 RampNet review (`manual_gold`, 0.908 against YOLO11x's 0.851), but only in F1 and only at
@@ -149,7 +149,7 @@ and F1 cannot tell you.
 
 ## Legs that have not run every pooled split
 
-Fifteen legs have not run every pooled split — seven of them only one — so they have no pooled mean to put in the table above —
+Nine legs have not run every pooled split — seven of them only one — so they have no pooled mean to put in the table above —
 a one-city average printed beside an eight-city one is exactly the comparison the coverage
 column exists to prevent. They are reported per split instead, at the split they ran on:
 
@@ -157,51 +157,6 @@ column exists to prevent. They are reported per split instead, at the split they
 
 | model | class | split | P | R | F1 | AP | FP/pano | tp/fp/fn |
 |---|---|---|--:|--:|--:|--:|--:|--:|
-| YOLO11x (tiles) s2 best | supervised baseline | `richmond` | 0.909 | 0.513 | 0.656 | 0.779 | 0.1 | 159/16/151 |
-| YOLO11x (tiles) s2 best | supervised baseline | `bend` | 0.966 | 0.609 | 0.747 | 0.844 | 0.1 | 199/7/128 |
-| YOLO11x (tiles) s2 best | supervised baseline | `clovis` | 0.856 | 0.641 | 0.733 | 0.815 | 0.2 | 125/21/70 |
-| YOLO11x (tiles) s2 best | supervised baseline | `morgantown` | 0.982 | 0.599 | 0.744 | 0.839 | 0.0 | 160/3/107 |
-| YOLO11x (tiles) s2 best | supervised baseline | `annapolis` | 0.929 | 0.493 | 0.644 | 0.759 | 0.1 | 145/11/149 |
-| YOLO11x (tiles) s2 best | supervised baseline | `paterson` | 0.974 | 0.481 | 0.644 | 0.718 | 0.0 | 190/5/205 |
-| YOLO11x (tiles) s2 best | supervised baseline | `gainesville` | 0.912 | 0.419 | 0.574 | 0.771 | 0.1 | 114/11/158 |
-| YOLO11x (tiles) s2 best | supervised baseline | `sao_paulo` | 0.913 | 0.484 | 0.633 | 0.760 | 0.1 | 136/13/145 |
-| YOLO11x (tiles) s2 best | supervised baseline | `manual_gold` | 0.968 | 0.733 | 0.834 | 0.909 | 0.1 | 2871/95/1048 |
-| YOLO11x (tiles) s1 best | supervised baseline | `richmond` | 0.921 | 0.526 | 0.669 | 0.795 | 0.1 | 163/14/147 |
-| YOLO11x (tiles) s1 best | supervised baseline | `bend` | 0.966 | 0.602 | 0.742 | 0.840 | 0.1 | 197/7/130 |
-| YOLO11x (tiles) s1 best | supervised baseline | `clovis` | 0.868 | 0.605 | 0.713 | 0.798 | 0.1 | 118/18/77 |
-| YOLO11x (tiles) s1 best | supervised baseline | `morgantown` | 0.987 | 0.588 | 0.737 | 0.840 | 0.0 | 157/2/110 |
-| YOLO11x (tiles) s1 best | supervised baseline | `annapolis` | 0.948 | 0.500 | 0.655 | 0.776 | 0.1 | 147/8/147 |
-| YOLO11x (tiles) s1 best | supervised baseline | `paterson` | 0.963 | 0.458 | 0.621 | 0.727 | 0.1 | 181/7/214 |
-| YOLO11x (tiles) s1 best | supervised baseline | `gainesville` | 0.930 | 0.438 | 0.595 | 0.751 | 0.1 | 119/9/153 |
-| YOLO11x (tiles) s1 best | supervised baseline | `sao_paulo` | 0.891 | 0.495 | 0.636 | 0.755 | 0.1 | 139/17/142 |
-| YOLO11x (tiles) s1 best | supervised baseline | `manual_gold` | 0.973 | 0.725 | 0.831 | 0.909 | 0.1 | 2841/80/1078 |
-| YOLO11x (tiles) s3 best | supervised baseline | `richmond` | 0.913 | 0.542 | 0.680 | 0.781 | 0.1 | 168/16/142 |
-| YOLO11x (tiles) s3 best | supervised baseline | `bend` | 0.974 | 0.566 | 0.716 | 0.839 | 0.0 | 185/5/142 |
-| YOLO11x (tiles) s3 best | supervised baseline | `clovis` | 0.875 | 0.610 | 0.719 | 0.793 | 0.1 | 119/17/76 |
-| YOLO11x (tiles) s3 best | supervised baseline | `morgantown` | 0.994 | 0.610 | 0.756 | 0.844 | 0.0 | 163/1/104 |
-| YOLO11x (tiles) s3 best | supervised baseline | `annapolis` | 0.959 | 0.476 | 0.636 | 0.761 | 0.0 | 140/6/154 |
-| YOLO11x (tiles) s3 best | supervised baseline | `paterson` | 0.978 | 0.456 | 0.622 | 0.731 | 0.0 | 180/4/215 |
-| YOLO11x (tiles) s3 best | supervised baseline | `gainesville` | 0.928 | 0.426 | 0.584 | 0.764 | 0.1 | 116/9/156 |
-| YOLO11x (tiles) s3 best | supervised baseline | `sao_paulo` | 0.905 | 0.477 | 0.625 | 0.766 | 0.1 | 134/14/147 |
-| YOLO11x (tiles) s3 best | supervised baseline | `manual_gold` | 0.971 | 0.725 | 0.830 | 0.914 | 0.1 | 2842/84/1077 |
-| YOLO11x (tiles) s1 ep44 | supervised baseline | `richmond` | 0.928 | 0.539 | 0.682 | 0.784 | 0.1 | 167/13/143 |
-| YOLO11x (tiles) s1 ep44 | supervised baseline | `bend` | 0.981 | 0.618 | 0.758 | 0.854 | 0.0 | 202/4/125 |
-| YOLO11x (tiles) s1 ep44 | supervised baseline | `clovis` | 0.831 | 0.605 | 0.700 | 0.783 | 0.2 | 118/24/77 |
-| YOLO11x (tiles) s1 ep44 | supervised baseline | `morgantown` | 0.988 | 0.592 | 0.740 | 0.838 | 0.0 | 158/2/109 |
-| YOLO11x (tiles) s1 ep44 | supervised baseline | `annapolis` | 0.947 | 0.483 | 0.640 | 0.738 | 0.1 | 142/8/152 |
-| YOLO11x (tiles) s1 ep44 | supervised baseline | `paterson` | 0.978 | 0.448 | 0.615 | 0.722 | 0.0 | 177/4/218 |
-| YOLO11x (tiles) s1 ep44 | supervised baseline | `gainesville` | 0.941 | 0.408 | 0.569 | 0.768 | 0.1 | 111/7/161 |
-| YOLO11x (tiles) s1 ep44 | supervised baseline | `sao_paulo` | 0.910 | 0.502 | 0.647 | 0.765 | 0.1 | 141/14/140 |
-| YOLO11x (tiles) s1 ep44 | supervised baseline | `manual_gold` | 0.973 | 0.721 | 0.828 | 0.910 | 0.1 | 2826/77/1093 |
-| YOLO11x (tiles) s2 ep44 | supervised baseline | `richmond` | 0.911 | 0.529 | 0.669 | 0.770 | 0.1 | 164/16/146 |
-| YOLO11x (tiles) s2 ep44 | supervised baseline | `bend` | 0.969 | 0.581 | 0.727 | 0.847 | 0.1 | 190/6/137 |
-| YOLO11x (tiles) s2 ep44 | supervised baseline | `clovis` | 0.866 | 0.631 | 0.730 | 0.787 | 0.2 | 123/19/72 |
-| YOLO11x (tiles) s2 ep44 | supervised baseline | `morgantown` | 0.975 | 0.588 | 0.734 | 0.821 | 0.0 | 157/4/110 |
-| YOLO11x (tiles) s2 ep44 | supervised baseline | `annapolis` | 0.946 | 0.480 | 0.637 | 0.747 | 0.1 | 141/8/153 |
-| YOLO11x (tiles) s2 ep44 | supervised baseline | `paterson` | 0.977 | 0.433 | 0.600 | 0.721 | 0.0 | 171/4/224 |
-| YOLO11x (tiles) s2 ep44 | supervised baseline | `gainesville` | 0.935 | 0.423 | 0.582 | 0.770 | 0.1 | 115/8/157 |
-| YOLO11x (tiles) s2 ep44 | supervised baseline | `sao_paulo` | 0.896 | 0.491 | 0.634 | 0.757 | 0.1 | 138/16/143 |
-| YOLO11x (tiles) s2 ep44 | supervised baseline | `manual_gold` | 0.970 | 0.718 | 0.825 | 0.909 | 0.1 | 2812/86/1107 |
 | YOLO11x (tiles) | supervised baseline | `richmond` | 0.920 | 0.523 | 0.667 | 0.773 | 0.1 | 162/14/148 |
 | YOLO11x (tiles) | supervised baseline | `bend` | 0.975 | 0.609 | 0.750 | 0.844 | 0.0 | 199/5/128 |
 | YOLO11x (tiles) | supervised baseline | `clovis` | 0.885 | 0.595 | 0.712 | 0.769 | 0.1 | 116/15/79 |
@@ -212,15 +167,6 @@ column exists to prevent. They are reported per split instead, at the split they
 | YOLO11x (tiles) | supervised baseline | `budapest_district5` | 0.843 | 0.197 | 0.319 | 0.458 | 0.1 | 59/11/241 |
 | YOLO11x (tiles) | supervised baseline | `sao_paulo` | 0.894 | 0.480 | 0.625 | 0.751 | 0.1 | 135/16/146 |
 | YOLO11x (tiles) | supervised baseline | `manual_gold` | 0.970 | 0.711 | 0.820 | 0.909 | 0.1 | 2786/86/1133 |
-| YOLO11x (tiles) s3 ep42 | supervised baseline | `richmond` | 0.925 | 0.519 | 0.665 | 0.789 | 0.1 | 161/13/149 |
-| YOLO11x (tiles) s3 ep42 | supervised baseline | `bend` | 0.990 | 0.584 | 0.735 | 0.861 | 0.0 | 191/2/136 |
-| YOLO11x (tiles) s3 ep42 | supervised baseline | `clovis` | 0.868 | 0.605 | 0.713 | 0.796 | 0.1 | 118/18/77 |
-| YOLO11x (tiles) s3 ep42 | supervised baseline | `morgantown` | 0.976 | 0.599 | 0.742 | 0.825 | 0.0 | 160/4/107 |
-| YOLO11x (tiles) s3 ep42 | supervised baseline | `annapolis` | 0.946 | 0.480 | 0.637 | 0.740 | 0.1 | 141/8/153 |
-| YOLO11x (tiles) s3 ep42 | supervised baseline | `paterson` | 0.977 | 0.430 | 0.598 | 0.711 | 0.0 | 170/4/225 |
-| YOLO11x (tiles) s3 ep42 | supervised baseline | `gainesville` | 0.941 | 0.408 | 0.569 | 0.768 | 0.1 | 111/7/161 |
-| YOLO11x (tiles) s3 ep42 | supervised baseline | `sao_paulo` | 0.918 | 0.480 | 0.631 | 0.755 | 0.1 | 135/12/146 |
-| YOLO11x (tiles) s3 ep42 | supervised baseline | `manual_gold` | 0.971 | 0.711 | 0.821 | 0.910 | 0.1 | 2788/82/1131 |
 | Mask2Former Vistas (curb cut, 1024) | supervised transfer | `richmond` | 0.383 | 0.884 | 0.534 | 0.649 | 3.6 | 274/442/36 |
 | Mask2Former Vistas (curb cut, 1024) | supervised transfer | `bend` | 0.367 | 0.832 | 0.509 | 0.425 | 4.3 | 272/469/55 |
 | Mask2Former Vistas (curb cut, 1024) | supervised transfer | `annapolis` | 0.436 | 0.898 | 0.587 | 0.526 | 2.7 | 264/342/30 |
@@ -240,7 +186,8 @@ Three things worth carrying out of that table, all from splits where the roster'
 numbers are directly above them in `model_comparison.md`:
 
 - **YOLO11x at perspective tiles is the strongest challenger measured on annapolis** (F1
-  0.640 for the published seed-0 arm, 0.636–0.655 across the six seed legs) — a supervised
+  0.640 for the published seed-0 arm; its six seed legs, which are not on this board, span
+  0.636–0.655) — a supervised
   baseline trained on the RampNet dataset, published here under #258; RampNet is 0.839.
   Among the zero-shot legs, Claude Fable 5 at low effort leads (F1 0.611), with Fable 5.1 at
   0.610 — both displace Claude Opus 5 at low effort (0.588),
@@ -288,13 +235,7 @@ numbers are directly above them in `model_comparison.md`:
 | Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.419 | 0.307 | 0.274 | 0.326 | – | 0.422 |
 | OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.065 | 0.055 | 0.062 | 0.052 | 0.065 | 0.088 |
 | Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.054 | 0.042 | 0.049 | 0.048 | 0.082 |
-| YOLO11x (tiles) s2 best | 0.656 | 0.747 | 0.733 | 0.744 | 0.644 | 0.644 | 0.574 | – | – | – | – | 0.633 | – | 0.834 |
-| YOLO11x (tiles) s1 best | 0.669 | 0.742 | 0.713 | 0.737 | 0.655 | 0.621 | 0.595 | – | – | – | – | 0.636 | – | 0.831 |
-| YOLO11x (tiles) s3 best | 0.680 | 0.716 | 0.719 | 0.756 | 0.636 | 0.622 | 0.584 | – | – | – | – | 0.625 | – | 0.830 |
-| YOLO11x (tiles) s1 ep44 | 0.682 | 0.758 | 0.700 | 0.740 | 0.640 | 0.615 | 0.569 | – | – | – | – | 0.647 | – | 0.828 |
-| YOLO11x (tiles) s2 ep44 | 0.669 | 0.727 | 0.730 | 0.734 | 0.637 | 0.600 | 0.582 | – | – | – | – | 0.634 | – | 0.825 |
 | YOLO11x (tiles) | 0.667 | 0.750 | 0.712 | 0.728 | 0.640 | 0.595 | 0.576 | – | – | – | 0.319 | 0.625 | – | 0.820 |
-| YOLO11x (tiles) s3 ep42 | 0.665 | 0.735 | 0.713 | 0.742 | 0.637 | 0.598 | 0.569 | – | – | – | – | 0.631 | – | 0.821 |
 | Mask2Former Vistas (curb cut, 1024) | 0.534 | 0.509 | – | – | 0.587 | 0.510 | 0.527 | – | – | – | – | – | – | – |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – | – |
@@ -542,20 +483,29 @@ Omissions are content, so they are named rather than left as blanks:
   was scored on 2026-08-30 on the ten splits registered then (every split here except the
   two Laurens arms; two reports per split in `docs/data/yolo_geometry_51/`,
   `<split>_pano.txt` and `<split>_tiles.txt`), and it is the best YOLO cell in that grid.
-  See [`yolo_geometry_51.md`](yolo_geometry_51.md). Its detections and those of the six
-  #135 seed legs were published and registered in `rampnet/roster.py` on 2026-10-19
-  ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258)). None of the seven ran
-  `laurens_mapillary`, so none has a pooled mean.
+  See [`yolo_geometry_51.md`](yolo_geometry_51.md). Its detections were published and
+  registered in `rampnet/roster.py` on 2026-10-19
+  ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258)). It never ran
+  `laurens_mapillary`, so it has no pooled mean.
+- **Six seed legs of `y11x_tiles` are not on this board**: `y11x_tiles_s1_ep44`,
+  `y11x_tiles_s2_ep44`, `y11x_tiles_s3_ep42`, `y11x_tiles_s1_best`, `y11x_tiles_s2_best` and
+  `y11x_tiles_s3_best` (#135). They are the same recipe retrained from other seeds, so they
+  measure how much one model varies between training runs, not which model is best.
+  RampNet's nine seed replicates are not on the board either, so showing YOLO's six would
+  give one model several rows here where every other has one. Both sets are analysed in
+  [`seed_variance_51_135.md`](seed_variance_51_135.md) (RampNet +0.016 F1 over
+  `y11x_tiles`, CI [0.008, 0.024]). Their detections are published and registered under
+  #258 like any leg (`seed_of` in `rampnet/roster.py`), and `analysis_out/scoreboard.json`
+  lists them under `off_scoreboard`.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
-- **Fifteen legs have not run every pooled split — seven of them only one**, so they are in the partial table rather than the
+- **Nine legs have not run every pooled split — seven of them only one**, so they are in the partial table rather than the
   headline: the three Vistas arms (the 1024 row is the curb-cut arm at resolution parity,
   #126/#163, on richmond and, since the #35 transfer run, bend, paterson, gainesville and
   annapolis — five of the eight pooled splits; the other two on richmond only), and five Claude legs on annapolis — Claude Opus 5
-  (high), both Sonnet 5 legs, and both Fable legs; and the seven YOLO11x perspective-tiles legs
-  (#51, #135; published under #258), which ran seven of the eight pooled splits — every one
-  but `laurens_mapillary` — plus `sao_paulo` and `manual_gold` (and, for the seed-0 arm,
-  `budapest_district5`). Extending any of them to the full pool is a run, not a code change.
+  (high), both Sonnet 5 legs, and both Fable legs; and YOLO11x at perspective tiles
+  (#51; published under #258), which ran seven of the eight pooled splits — every one
+  but `laurens_mapillary` — plus `budapest_district5`, `sao_paulo` and `manual_gold`. Extending any of them to the full pool is a run, not a code change.
 - **`claude-opus-5-effort-low` is scored here but is not a standing roster entry.** It has
   full 8/8 coverage, so it appears in every table above; `standing` stays `False` because
   `roster.py` forbids a *pinned* leg from being standing — a scored entry has to be what a

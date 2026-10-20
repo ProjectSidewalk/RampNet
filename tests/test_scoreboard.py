@@ -488,11 +488,14 @@ def test_scores_every_registered_leg(board):
 
     Hardcoding a roster here is how gemini-3.7-flash sat published-but-unscored for a
     while. Reading rampnet.roster instead means a new leg reaches this page by being
-    registered, which is the same act that publishes its detections.
+    registered, which is the same act that publishes its detections. Seed legs are the
+    one deliberate exception, and test_seed_legs_are_named_but_not_scored pins it.
     """
     scored = {m["model"] for m in board["models"]}
-    registered = {roster.published_name(c) for c in roster.ROSTER}
+    registered = {roster.published_name(c) for c in roster.ROSTER if not c.seed_of}
     assert scored == registered, f"registered but not scored: {registered - scored}"
+    assert set(board["off_scoreboard"]) == {
+        roster.published_name(c) for c in roster.ROSTER if c.seed_of}
 
 
 def test_no_published_file_is_left_unscored(board):
@@ -639,15 +642,9 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         # grow past 1/8 later; until they do, partial coverage means excluded.
         "claude-fable-5-1-effort-low-anthropic": "1/8",
         "claude-fable-5-effort-low-anthropic": "1/8",
-        # #258: the YOLO tiles arms, published from the cache that scored them under
-        # #51/#135. Never run on laurens_mapillary.
+        # #258: the YOLO tiles arm, published from the cache that scored it under #51.
+        # Never run on laurens_mapillary. Its #135 seed legs are off the board.
         "y11x_tiles": "7/8",
-        "y11x_tiles_s1_ep44": "7/8",
-        "y11x_tiles_s2_ep44": "7/8",
-        "y11x_tiles_s3_ep42": "7/8",
-        "y11x_tiles_s1_best": "7/8",
-        "y11x_tiles_s2_best": "7/8",
-        "y11x_tiles_s3_best": "7/8",
     }
     single = [m for m in board["models"] if not m["complete"]]
     assert {m["model"] for m in single} == set(want_coverage)
@@ -1013,7 +1010,7 @@ def test_check_fails_on_stale_prose(tmp_path):
     """The tables can be current while a sentence beside them is not (#171)."""
     with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
         doc = fh.read()
-    doc = doc.replace("Twenty-eight model legs", "Eighteen model legs", 1)
+    doc = doc.replace("Twenty-two model legs", "Eighteen model legs", 1)
     stale = tmp_path / "model_scoreboard.md"
     stale.write_text(doc, encoding="utf-8", newline="")
     done = _run_scoreboard("--check", "--doc", str(stale))
@@ -1070,3 +1067,23 @@ def test_a_figure_helper_survives_a_board_without_rampnet(board, tmp_path):
     out = str(tmp_path / "fig.png")
     fig_headline(trimmed, out, plt)
     fig_by_split(trimmed, out, plt)
+
+
+def test_seed_legs_are_named_but_not_scored(board):
+    """Seed legs stay off the board, and the JSON and the page both say so (#258).
+
+    The scoreboard's rule is that a registered leg is never omitted silently. Seed legs
+    are the one deliberate omission, so the test pins all three sides of it: none is a
+    row, each is listed under ``off_scoreboard`` with the leg it replicates, and the page
+    names every one.
+    """
+    seeds = {roster.published_name(leg): leg.seed_of for leg in roster.SEED_LEGS}
+    assert len(seeds) == 6
+    assert set(seeds.values()) == {"y11x_tiles"}
+    assert not seeds.keys() & {m["model"] for m in board["models"]}
+    assert not seeds.keys() & set(board["per_split"])
+    assert board["off_scoreboard"] == seeds
+    with open(sb.DEFAULT_DOC, encoding="utf-8") as fh:
+        doc = fh.read()
+    for name in seeds:
+        assert f"`{name}`" in doc, name
