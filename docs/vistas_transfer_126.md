@@ -852,8 +852,9 @@ What the eight new pooled-or-held-out cities show, against the richmond reading 
 
 **Not run on the new splits, and named so the gap is visible:** the complementarity read, the
 chance null (`null_recall.py`) and the #35 cascade grid. `analysis_out/cascade_cost_35/summary.json`
-lists each new (split, parity arm) pair under `gaps` as "published detections exist but this pair
-was not run". `laurens_gsv` has no op_cache, so it cannot enter the cascade at all. Each of these
+lists eight of the nine new (split, parity arm) pairs under `gaps` as "published detections
+exist but this pair was not run". The ninth, `laurens_gsv`, has no op_cache, so it cannot enter
+the cascade at all. Each of these
 reads the published files and needs no GPU, except `cascade_gate.py`.
 
 **Cost.** Free model, so the cost is time. One `compare.py` process per split, one `paid: false`
