@@ -130,6 +130,7 @@ Supporting directories (not indexed row by row):
 |---|---|---|---|---|---|
 | [`tag_rubric_draft.md`](tag_rubric_draft.md) | #86 | protocol/rubric | in progress (working draft, no open PR) | The curb-ramp tag rubric and review list: an explicit "tag it when" / "do not tag when" threshold per tag, with Jon's decisions applied; one rater for now, so the pass produces no κ. | none (text only) |
 | [`tag_review_protocol.md`](tag_review_protocol.md) | #86 | protocol/rubric | in progress (working draft, no open PR) | How a tag review pass is run, recorded per rater with the rubric embedded, and how a second blind pass would be compared. | none (text only) |
+| [`lyon_review_159.md`](lyon_review_159.md) | #159, #263 | protocol/rubric | in progress (working draft, draft PR #264; staged, not reviewed, imagery not yet fetched) | The Lyon label audit: 175 panos of the 5 m run stratified by rig x producer into four groups, detections shown down to 0.30, and the pass bar posted before the review (precision of the 0.55 detections ≥ 0.80 per group, the #158 build line); Lyon is not a split and these panos never train. | `scripts/analysis/lyon_review_159.py` (verify) |
 
 ## Ledgers, how-tos & indexes
 
