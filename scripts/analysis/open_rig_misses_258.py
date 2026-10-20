@@ -476,9 +476,25 @@ def _pct(x):
     return f"{100 * x:.1f}%"
 
 
+def _signed(x, fmt):
+    """``x`` with an explicit sign, the typographic minus (U+2212) the prose uses, and
+    no sign at all on an exact zero -- so a bound of exactly 0 does not print as "+0.0"
+    beside a "neither leads" that it caused (the rule needs a bound strictly above 0)."""
+    if x == 0:
+        return format(0.0, fmt)
+    return ("+" if x > 0 else "−") + format(abs(x), fmt)
+
+
 def _pts(lohi, digits=1):
+    """A share-difference interval in percentage points."""
     lo, hi = lohi
-    return f"{100 * lo:+.{digits}f} to {100 * hi:+.{digits}f}"
+    return f"{_signed(100 * lo, f'.{digits}f')} to {_signed(100 * hi, f'.{digits}f')}"
+
+
+def _frac(lohi):
+    """A recall-point interval, in the same fraction units as its point estimate."""
+    lo, hi = lohi
+    return f"{_signed(lo, '.3f')} to {_signed(hi, '.3f')}"
 
 
 def _populations(block, include_refs=True):
@@ -522,13 +538,13 @@ def table_excess(block, ref="reference_7"):
             pts = s["buckets"][b]["recall_pts"]
             if ex:
                 e = ex[b]
-                cells.append(f"{pts:.3f} ({e['pts']:+.3f}; {_pts(e['boot95'])})")
+                cells.append(f"{pts:.3f} ({_signed(e['pts'], '.3f')}; {_frac(e['boot95'])})")
             else:
                 cells.append(f"{pts:.3f}")
         if ex:
             t, d = ex["total"], ex["sub_minus_silent_excess"]
-            tail = (f"{t['pts']:+.3f} ({_pts(t['boot95'])}) | "
-                    f"{d['pts']:+.3f} ({_pts(d['boot95'])})")
+            tail = (f"{_signed(t['pts'], '.3f')} ({_frac(t['boot95'])}) | "
+                    f"{_signed(d['pts'], '.3f')} ({_frac(d['boot95'])})")
         else:
             tail = "— | —"
         lines.append(f"| {LABEL[name]} | " + " | ".join(cells) + f" | {tail} |")
@@ -604,7 +620,9 @@ def fill_doc(text, tables):
     out = BLOCK_RE.sub(sub, text)
     missing = sorted(set(tables) - seen)
     if missing:
-        raise SystemExit(f"doc is missing generated blocks {missing}")
+        hint = (" -- the doc has CRLF line endings; it is pinned eol=lf in .gitattributes, "
+                "so re-check it out" if chr(13) + chr(10) in text else "")
+        raise SystemExit(f"doc is missing generated blocks {missing}{hint}")
     return out
 
 

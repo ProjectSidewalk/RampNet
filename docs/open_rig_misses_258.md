@@ -36,7 +36,9 @@ model does not respond, so it has to be taught). **If sub_threshold dominates, t
 calibration**, and the cheap verifier rungs in #258 come before any retrain.
 
 #263 did not say what "dominates" means. This PR makes it concrete: the pano-bootstrap 95%
-interval of (sub_threshold share minus silent share) excludes zero, otherwise neither leads. The
+interval of (sub_threshold share minus silent share) lies strictly above or strictly below zero,
+otherwise neither leads. A bound of exactly zero counts as including zero, and the tables print it
+unsigned, as 0.0. The
 bootstrap resamples panos within each split, because misses cluster by pano (a merged pair is two
 misses on one pano), so it is wider than the Wilson interval, which treats misses as independent.
 Both are reported.
@@ -108,11 +110,11 @@ is Jon's call.
 | population | panos | GT | misses | recall | merged | sub_threshold | localization | silent | of which strict | sub − silent, boot 95% (pts) | reading |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|
 | `laurens_mapillary` | 59 | 249 | 118 | 0.526 | 12 · 10.2% [6–17] | 70 · 59.3% [50–68] | 2 · 1.7% [0–6] | 34 · 28.8% [21–38] | 23 · 19.5% [13–28] | +12.6 to +48.0 | sub_threshold leads: calibration |
-| `bayonne` | 87 | 301 | 152 | 0.495 | 3 · 2.0% [1–6] | 72 · 47.4% [40–55] | 7 · 4.6% [2–9] | 70 · 46.1% [38–54] | 46 · 30.3% [24–38] | -13.6 to +14.9 | neither leads |
-| `budapest_district5` (held out, not pooled) | 89 | 300 | 107 | 0.643 | 14 · 13.1% [8–21] | 35 · 32.7% [25–42] | 11 · 10.3% [6–17] | 47 · 43.9% [35–53] | 25 · 23.4% [16–32] | -28.2 to +5.8 | neither leads |
-| `juneau` | 94 | 297 | 72 | 0.758 | 10 · 13.9% [8–24] | 36 · 50.0% [39–61] | 2 · 2.8% [1–10] | 24 · 33.3% [24–45] | 12 · 16.7% [10–27] | -4.2 to +35.6 | neither leads |
+| `bayonne` | 87 | 301 | 152 | 0.495 | 3 · 2.0% [1–6] | 72 · 47.4% [40–55] | 7 · 4.6% [2–9] | 70 · 46.1% [38–54] | 46 · 30.3% [24–38] | −13.6 to +14.9 | neither leads |
+| `budapest_district5` (held out, not pooled) | 89 | 300 | 107 | 0.643 | 14 · 13.1% [8–21] | 35 · 32.7% [25–42] | 11 · 10.3% [6–17] | 47 · 43.9% [35–53] | 25 · 23.4% [16–32] | −28.2 to +5.8 | neither leads |
+| `juneau` | 94 | 297 | 72 | 0.758 | 10 · 13.9% [8–24] | 36 · 50.0% [39–61] | 2 · 2.8% [1–10] | 24 · 33.3% [24–45] | 12 · 16.7% [10–27] | −4.2 to +35.6 | neither leads |
 | **GoPro Max pool** (laurens_mapillary + bayonne) | 146 | 550 | 270 | 0.509 | 15 · 5.6% [3–9] | 142 · 52.6% [47–58] | 9 · 3.3% [2–6] | 104 · 38.5% [33–44] | 69 · 25.6% [21–31] | +2.1 to +25.2 | sub_threshold leads: calibration |
-| `morgantown` (GoPro Max, in the reference) | 95 | 267 | 52 | 0.805 | 9 · 17.3% [9–30] | 22 · 42.3% [30–56] | 1 · 1.9% [0–10] | 20 · 38.5% [26–52] | 13 · 25.0% [15–38] | -17.6 to +26.5 | neither leads |
+| `morgantown` (GoPro Max, in the reference) | 95 | 267 | 52 | 0.805 | 9 · 17.3% [9–30] | 22 · 42.3% [30–56] | 1 · 1.9% [0–10] | 20 · 38.5% [26–52] | 13 · 25.0% [15–38] | −17.6 to +26.5 | neither leads |
 | #46 reference without paterson (6 splits) | 559 | 1665 | 316 | 0.810 | 44 · 13.9% [11–18] | 150 · 47.5% [42–53] | 8 · 2.5% [1–5] | 114 · 36.1% [31–42] | 50 · 15.8% [12–20] | +0.9 to +21.6 | sub_threshold leads: calibration |
 | **#46 reference** (7 US splits) | 657 | 2060 | 427 | 0.793 | 124 · 29.0% [25–34] | 166 · 38.9% [34–44] | 9 · 2.1% [1–4] | 128 · 30.0% [26–34] | 53 · 12.4% [10–16] | +0.9 to +17.4 | sub_threshold leads: calibration |
 | `laurens_gsv` | — | — | — | — | not run: no op_cache (see Gaps) | | | | | | |
@@ -129,18 +131,22 @@ panos, 59 of them with a ramp.
 
 ### Recall points per bucket at 0.30, all panos, with the excess over the #46 reference
 
-Each cell is the bucket's recall points, then the excess over the reference with its pano-bootstrap
-95% interval in points.
+Each cell is the bucket's recall points, then the excess over the reference and its pano-bootstrap
+95% interval, all in recall points (fractions of GT).
+
+Morgantown's excess interval is conservative. Morgantown is one of the seven reference splits,
+and the bootstrap resamples it independently of the reference that contains it, so it ignores
+their positive covariance.
 
 <!-- BEGIN GENERATED: excess-0.30-all -->
 | population | merged | sub_threshold | localization | silent | strict silent | recall gap | sub excess − silent excess |
 |---|--:|--:|--:|--:|--:|--:|--:|
-| `laurens_mapillary` | 0.048 (-0.012; -4.4 to +2.5) | 0.281 (+0.201; +13.7 to +26.0) | 0.008 (+0.004; -0.5 to +1.7) | 0.137 (+0.074; +2.8 to +12.1) | 0.092 (+0.067; +2.8 to +10.5) | +0.267 (+19.5 to +33.4) | +0.126 (+3.8 to +21.4) |
-| `bayonne` | 0.010 (-0.050; -6.6 to -3.4) | 0.239 (+0.159; +10.4 to +21.3) | 0.023 (+0.019; +0.2 to +4.0) | 0.233 (+0.171; +11.9 to +22.5) | 0.153 (+0.127; +8.1 to +17.6) | +0.298 (+22.4 to +36.5) | -0.012 (-9.2 to +6.2) |
-| `budapest_district5` (held out, not pooled) | 0.047 (-0.013; -4.4 to +2.1) | 0.117 (+0.036; -0.5 to +7.8) | 0.037 (+0.032; +0.9 to +6.0) | 0.157 (+0.095; +4.8 to +14.4) | 0.083 (+0.058; +1.9 to +10.2) | +0.149 (+7.8 to +21.6) | -0.059 (-12.3 to +0.4) |
-| `juneau` | 0.034 (-0.026; -4.9 to -0.3) | 0.121 (+0.041; -0.5 to +8.3) | 0.007 (+0.002; -0.6 to +1.3) | 0.081 (+0.019; -1.6 to +5.7) | 0.040 (+0.015; -1.0 to +4.4) | +0.035 (-2.9 to +9.9) | +0.022 (-3.1 to +7.0) |
-| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.027 (-0.033; -5.2 to -1.2) | 0.258 (+0.178; +13.6 to +22.0) | 0.016 (+0.012; +0.2 to +2.5) | 0.189 (+0.127; +9.0 to +16.5) | 0.126 (+0.100; +6.9 to +13.1) | +0.284 (+22.9 to +33.3) | +0.051 (-0.8 to +10.9) |
-| `morgantown` (GoPro Max, in the reference) | 0.034 (-0.026; -5.0 to +0.0) | 0.082 (+0.002; -3.0 to +3.8) | 0.004 (-0.001; -0.7 to +0.8) | 0.075 (+0.013; -2.1 to +4.8) | 0.049 (+0.023; -0.2 to +5.0) | -0.013 (-7.0 to +4.6) | -0.011 (-5.4 to +3.4) |
+| `laurens_mapillary` | 0.048 (−0.012; −0.044 to +0.025) | 0.281 (+0.201; +0.137 to +0.260) | 0.008 (+0.004; −0.005 to +0.017) | 0.137 (+0.074; +0.028 to +0.121) | 0.092 (+0.067; +0.028 to +0.105) | +0.267 (+0.195 to +0.334) | +0.126 (+0.038 to +0.214) |
+| `bayonne` | 0.010 (−0.050; −0.066 to −0.034) | 0.239 (+0.159; +0.104 to +0.213) | 0.023 (+0.019; +0.002 to +0.040) | 0.233 (+0.171; +0.119 to +0.225) | 0.153 (+0.127; +0.081 to +0.176) | +0.298 (+0.224 to +0.365) | −0.012 (−0.092 to +0.062) |
+| `budapest_district5` (held out, not pooled) | 0.047 (−0.013; −0.044 to +0.021) | 0.117 (+0.036; −0.005 to +0.079) | 0.037 (+0.032; +0.009 to +0.060) | 0.157 (+0.095; +0.048 to +0.144) | 0.083 (+0.058; +0.019 to +0.102) | +0.149 (+0.078 to +0.216) | −0.059 (−0.123 to +0.004) |
+| `juneau` | 0.034 (−0.026; −0.049 to −0.003) | 0.121 (+0.041; −0.005 to +0.083) | 0.007 (+0.002; −0.006 to +0.013) | 0.081 (+0.019; −0.016 to +0.057) | 0.040 (+0.015; −0.010 to +0.044) | +0.035 (−0.029 to +0.099) | +0.022 (−0.031 to +0.070) |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.027 (−0.033; −0.052 to −0.013) | 0.258 (+0.178; +0.136 to +0.220) | 0.016 (+0.012; +0.002 to +0.025) | 0.189 (+0.127; +0.090 to +0.165) | 0.126 (+0.100; +0.069 to +0.131) | +0.284 (+0.229 to +0.333) | +0.051 (−0.008 to +0.109) |
+| `morgantown` (GoPro Max, in the reference) | 0.034 (−0.026; −0.050 to +0.000) | 0.082 (+0.002; −0.030 to +0.038) | 0.004 (−0.001; −0.007 to +0.008) | 0.075 (+0.013; −0.021 to +0.048) | 0.049 (+0.023; −0.002 to +0.050) | −0.013 (−0.070 to +0.046) | −0.011 (−0.054 to +0.034) |
 | #46 reference without paterson (6 splits) | 0.026 | 0.090 | 0.005 | 0.069 | 0.030 | — | — |
 | **#46 reference** (7 US splits) | 0.060 | 0.081 | 0.004 | 0.062 | 0.026 | — | — |
 <!-- END GENERATED: excess-0.30-all -->
@@ -150,12 +156,12 @@ The same, against the reference without Paterson (the merged column is the one t
 <!-- BEGIN GENERATED: excess-0.30-all-no-paterson -->
 | population | merged | sub_threshold | localization | silent | strict silent | recall gap | sub excess − silent excess |
 |---|--:|--:|--:|--:|--:|--:|--:|
-| `laurens_mapillary` | 0.048 (+0.022; -0.8 to +5.7) | 0.281 (+0.191; +12.9 to +25.0) | 0.008 (+0.003; -0.6 to +1.6) | 0.137 (+0.068; +2.2 to +11.5) | 0.092 (+0.062; +2.4 to +10.1) | +0.284 (+21.2 to +35.1) | +0.123 (+3.8 to +20.8) |
-| `bayonne` | 0.010 (-0.016; -2.9 to -0.2) | 0.239 (+0.149; +9.2 to +20.4) | 0.023 (+0.018; +0.2 to +3.8) | 0.233 (+0.164; +11.1 to +21.9) | 0.153 (+0.123; +7.6 to +17.2) | +0.315 (+23.3 to +38.9) | -0.015 (-9.5 to +6.3) |
-| `budapest_district5` (held out, not pooled) | 0.047 (+0.020; -0.9 to +5.3) | 0.117 (+0.027; -1.7 to +7.1) | 0.037 (+0.032; +0.9 to +5.8) | 0.157 (+0.088; +4.1 to +13.7) | 0.083 (+0.053; +1.6 to +9.7) | +0.167 (+9.4 to +23.6) | -0.062 (-13.0 to +0.7) |
-| `juneau` | 0.034 (+0.007; -1.3 to +3.1) | 0.121 (+0.031; -1.3 to +7.6) | 0.007 (+0.002; -0.6 to +1.3) | 0.081 (+0.012; -2.3 to +5.1) | 0.040 (+0.010; -1.4 to +4.0) | +0.053 (-1.6 to +11.7) | +0.019 (-3.3 to +6.8) |
-| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.027 (+0.001; -1.6 to +2.0) | 0.258 (+0.168; +12.7 to +20.9) | 0.016 (+0.012; +0.1 to +2.4) | 0.189 (+0.121; +8.2 to +15.7) | 0.126 (+0.096; +6.5 to +12.8) | +0.301 (+24.6 to +35.5) | +0.048 (-0.9 to +10.4) |
-| `morgantown` (GoPro Max, in the reference) | 0.034 (+0.007; -1.4 to +3.4) | 0.082 (-0.008; -4.3 to +2.7) | 0.004 (-0.001; -0.8 to +0.8) | 0.075 (+0.006; -2.6 to +4.1) | 0.049 (+0.019; -0.7 to +4.5) | +0.005 (-5.4 to +6.2) | -0.014 (-6.1 to +2.9) |
+| `laurens_mapillary` | 0.048 (+0.022; −0.008 to +0.057) | 0.281 (+0.191; +0.129 to +0.250) | 0.008 (+0.003; −0.006 to +0.016) | 0.137 (+0.068; +0.022 to +0.115) | 0.092 (+0.062; +0.024 to +0.101) | +0.284 (+0.212 to +0.351) | +0.123 (+0.038 to +0.207) |
+| `bayonne` | 0.010 (−0.016; −0.029 to −0.002) | 0.239 (+0.149; +0.092 to +0.204) | 0.023 (+0.018; +0.002 to +0.038) | 0.233 (+0.164; +0.111 to +0.220) | 0.153 (+0.123; +0.076 to +0.172) | +0.315 (+0.233 to +0.389) | −0.015 (−0.095 to +0.063) |
+| `budapest_district5` (held out, not pooled) | 0.047 (+0.020; −0.009 to +0.053) | 0.117 (+0.027; −0.017 to +0.071) | 0.037 (+0.032; +0.009 to +0.058) | 0.157 (+0.088; +0.041 to +0.137) | 0.083 (+0.053; +0.016 to +0.097) | +0.167 (+0.094 to +0.236) | −0.062 (−0.130 to +0.006) |
+| `juneau` | 0.034 (+0.007; −0.013 to +0.031) | 0.121 (+0.031; −0.013 to +0.076) | 0.007 (+0.002; −0.006 to +0.013) | 0.081 (+0.012; −0.023 to +0.051) | 0.040 (+0.010; −0.014 to +0.040) | +0.053 (−0.016 to +0.117) | +0.019 (−0.033 to +0.068) |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.027 (+0.001; −0.016 to +0.020) | 0.258 (+0.168; +0.127 to +0.209) | 0.016 (+0.012; +0.001 to +0.024) | 0.189 (+0.121; +0.082 to +0.157) | 0.126 (+0.096; +0.065 to +0.128) | +0.301 (+0.246 to +0.355) | +0.048 (−0.009 to +0.104) |
+| `morgantown` (GoPro Max, in the reference) | 0.034 (+0.007; −0.014 to +0.034) | 0.082 (−0.008; −0.043 to +0.027) | 0.004 (−0.001; −0.008 to +0.008) | 0.075 (+0.006; −0.026 to +0.041) | 0.049 (+0.019; −0.007 to +0.045) | +0.005 (−0.054 to +0.062) | −0.014 (−0.061 to +0.029) |
 | #46 reference without paterson (6 splits) | 0.026 | 0.090 | 0.005 | 0.069 | 0.030 | — | — |
 | **#46 reference** (7 US splits) | 0.060 | 0.081 | 0.004 | 0.062 | 0.026 | — | — |
 <!-- END GENERATED: excess-0.30-all-no-paterson -->
@@ -166,12 +172,12 @@ The same, against the reference without Paterson (the merged column is the one t
 | population | panos | GT | misses | recall | merged | sub_threshold | localization | silent | of which strict | sub − silent, boot 95% (pts) | reading |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|
 | `laurens_mapillary` | 54 | 212 | 110 | 0.481 | 12 · 10.9% [6–18] | 65 · 59.1% [50–68] | 2 · 1.8% [0–6] | 31 · 28.2% [21–37] | 20 · 18.2% [12–26] | +12.6 to +49.5 | sub_threshold leads: calibration |
-| `bayonne` | 82 | 261 | 144 | 0.448 | 2 · 1.4% [0–5] | 68 · 47.2% [39–55] | 6 · 4.2% [2–9] | 68 · 47.2% [39–55] | 45 · 31.2% [24–39] | -14.8 to +14.7 | neither leads |
-| `budapest_district5` (held out, not pooled) | 84 | 268 | 104 | 0.612 | 14 · 13.5% [8–21] | 33 · 31.7% [24–41] | 11 · 10.6% [6–18] | 46 · 44.2% [35–54] | 24 · 23.1% [16–32] | -30.3 to +4.8 | neither leads |
-| `juneau` | 89 | 262 | 67 | 0.744 | 8 · 11.9% [6–22] | 33 · 49.2% [38–61] | 2 · 3.0% [1–10] | 24 · 35.8% [25–48] | 12 · 17.9% [11–29] | -7.6 to +33.3 | neither leads |
+| `bayonne` | 82 | 261 | 144 | 0.448 | 2 · 1.4% [0–5] | 68 · 47.2% [39–55] | 6 · 4.2% [2–9] | 68 · 47.2% [39–55] | 45 · 31.2% [24–39] | −14.8 to +14.7 | neither leads |
+| `budapest_district5` (held out, not pooled) | 84 | 268 | 104 | 0.612 | 14 · 13.5% [8–21] | 33 · 31.7% [24–41] | 11 · 10.6% [6–18] | 46 · 44.2% [35–54] | 24 · 23.1% [16–32] | −30.3 to +4.8 | neither leads |
+| `juneau` | 89 | 262 | 67 | 0.744 | 8 · 11.9% [6–22] | 33 · 49.2% [38–61] | 2 · 3.0% [1–10] | 24 · 35.8% [25–48] | 12 · 17.9% [11–29] | −7.6 to +33.3 | neither leads |
 | **GoPro Max pool** (laurens_mapillary + bayonne) | 136 | 473 | 254 | 0.463 | 14 · 5.5% [3–9] | 133 · 52.4% [46–58] | 8 · 3.1% [2–6] | 99 · 39.0% [33–45] | 65 · 25.6% [21–31] | +1.9 to +25.4 | sub_threshold leads: calibration |
-| `morgantown` (GoPro Max, in the reference) | 90 | 225 | 51 | 0.773 | 9 · 17.6% [10–30] | 21 · 41.2% [29–55] | 1 · 2.0% [0–10] | 20 · 39.2% [27–53] | 13 · 25.5% [16–39] | -18.2 to +23.5 | neither leads |
-| #46 reference without paterson (6 splits) | 529 | 1414 | 306 | 0.784 | 40 · 13.1% [10–17] | 146 · 47.7% [42–53] | 8 · 2.6% [1–5] | 112 · 36.6% [31–42] | 50 · 16.3% [13–21] | +0.0 to +22.0 | neither leads |
+| `morgantown` (GoPro Max, in the reference) | 90 | 225 | 51 | 0.773 | 9 · 17.6% [10–30] | 21 · 41.2% [29–55] | 1 · 2.0% [0–10] | 20 · 39.2% [27–53] | 13 · 25.5% [16–39] | −18.2 to +23.5 | neither leads |
+| #46 reference without paterson (6 splits) | 529 | 1414 | 306 | 0.784 | 40 · 13.1% [10–17] | 146 · 47.7% [42–53] | 8 · 2.6% [1–5] | 112 · 36.6% [31–42] | 50 · 16.3% [13–21] | 0.0 to +22.0 | neither leads |
 | **#46 reference** (7 US splits) | 622 | 1768 | 415 | 0.765 | 119 · 28.7% [25–33] | 162 · 39.0% [34–44] | 9 · 2.2% [1–4] | 125 · 30.1% [26–35] | 53 · 12.8% [10–16] | +0.7 to +17.3 | sub_threshold leads: calibration |
 | `laurens_gsv` | — | — | — | — | not run: no op_cache (see Gaps) | | | | | | |
 <!-- END GENERATED: shares-0.30-unbiased -->
@@ -179,12 +185,12 @@ The same, against the reference without Paterson (the merged column is the one t
 <!-- BEGIN GENERATED: excess-0.30-unbiased -->
 | population | merged | sub_threshold | localization | silent | strict silent | recall gap | sub excess − silent excess |
 |---|--:|--:|--:|--:|--:|--:|--:|
-| `laurens_mapillary` | 0.057 (-0.011; -4.8 to +3.2) | 0.307 (+0.215; +14.3 to +27.9) | 0.009 (+0.004; -0.7 to +1.9) | 0.146 (+0.075; +2.2 to +13.1) | 0.094 (+0.064; +2.3 to +11.1) | +0.284 (+21.7 to +34.8) | +0.140 (+3.3 to +23.3) |
-| `bayonne` | 0.008 (-0.060; -7.7 to -4.2) | 0.261 (+0.169; +11.4 to +22.3) | 0.023 (+0.018; +0.0 to +4.2) | 0.261 (+0.190; +13.5 to +24.0) | 0.172 (+0.142; +9.4 to +19.1) | +0.317 (+24.9 to +38.1) | -0.021 (-10.4 to +6.1) |
-| `budapest_district5` (held out, not pooled) | 0.052 (-0.015; -5.1 to +2.0) | 0.123 (+0.032; -1.2 to +7.9) | 0.041 (+0.036; +1.0 to +6.7) | 0.172 (+0.101; +5.1 to +15.5) | 0.090 (+0.060; +1.8 to +10.7) | +0.153 (+8.1 to +22.3) | -0.069 (-14.0 to +0.2) |
-| `juneau` | 0.030 (-0.037; -6.0 to -1.3) | 0.126 (+0.034; -1.3 to +8.2) | 0.008 (+0.003; -0.6 to +1.5) | 0.092 (+0.021; -1.9 to +6.2) | 0.046 (+0.016; -1.2 to +4.9) | +0.021 (-4.9 to +9.0) | +0.013 (-4.2 to +6.8) |
-| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.030 (-0.038; -6.0 to -1.4) | 0.281 (+0.190; +14.8 to +23.3) | 0.017 (+0.012; -0.1 to +2.6) | 0.209 (+0.139; +9.9 to +17.9) | 0.137 (+0.107; +7.4 to +14.2) | +0.302 (+25.3 to +35.5) | +0.051 (-1.6 to +11.4) |
-| `morgantown` (GoPro Max, in the reference) | 0.040 (-0.027; -5.6 to +0.4) | 0.093 (+0.002; -3.6 to +4.2) | 0.004 (-0.001; -0.8 to +1.0) | 0.089 (+0.018; -1.9 to +5.7) | 0.058 (+0.028; -0.0 to +5.8) | -0.008 (-6.5 to +5.2) | -0.017 (-6.7 to +3.7) |
+| `laurens_mapillary` | 0.057 (−0.011; −0.048 to +0.032) | 0.307 (+0.215; +0.143 to +0.279) | 0.009 (+0.004; −0.007 to +0.019) | 0.146 (+0.075; +0.022 to +0.131) | 0.094 (+0.064; +0.023 to +0.111) | +0.284 (+0.217 to +0.348) | +0.140 (+0.033 to +0.233) |
+| `bayonne` | 0.008 (−0.060; −0.077 to −0.042) | 0.261 (+0.169; +0.114 to +0.223) | 0.023 (+0.018; 0.000 to +0.042) | 0.261 (+0.190; +0.135 to +0.240) | 0.172 (+0.142; +0.094 to +0.191) | +0.317 (+0.249 to +0.381) | −0.021 (−0.104 to +0.061) |
+| `budapest_district5` (held out, not pooled) | 0.052 (−0.015; −0.051 to +0.020) | 0.123 (+0.032; −0.012 to +0.079) | 0.041 (+0.036; +0.010 to +0.067) | 0.172 (+0.101; +0.051 to +0.155) | 0.090 (+0.060; +0.018 to +0.107) | +0.153 (+0.081 to +0.223) | −0.069 (−0.140 to +0.002) |
+| `juneau` | 0.030 (−0.037; −0.060 to −0.013) | 0.126 (+0.034; −0.013 to +0.082) | 0.008 (+0.003; −0.006 to +0.015) | 0.092 (+0.021; −0.019 to +0.062) | 0.046 (+0.016; −0.012 to +0.049) | +0.021 (−0.049 to +0.090) | +0.013 (−0.042 to +0.068) |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.030 (−0.038; −0.060 to −0.014) | 0.281 (+0.190; +0.148 to +0.233) | 0.017 (+0.012; −0.001 to +0.026) | 0.209 (+0.139; +0.099 to +0.179) | 0.137 (+0.107; +0.074 to +0.142) | +0.302 (+0.253 to +0.355) | +0.051 (−0.016 to +0.114) |
+| `morgantown` (GoPro Max, in the reference) | 0.040 (−0.027; −0.056 to +0.004) | 0.093 (+0.002; −0.036 to +0.042) | 0.004 (−0.001; −0.008 to +0.010) | 0.089 (+0.018; −0.019 to +0.057) | 0.058 (+0.028; −0.000 to +0.058) | −0.008 (−0.065 to +0.052) | −0.017 (−0.067 to +0.037) |
 | #46 reference without paterson (6 splits) | 0.028 | 0.103 | 0.006 | 0.079 | 0.035 | — | — |
 | **#46 reference** (7 US splits) | 0.067 | 0.092 | 0.005 | 0.071 | 0.030 | — | — |
 <!-- END GENERATED: excess-0.30-unbiased -->
@@ -261,7 +267,7 @@ Trimble MX7 city, looks like its sibling annapolis: near recall 0.858, and most 
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|
 | `laurens_mapillary` | 59 | 249 | 152 | 0.390 | 9 · 5.9% [3–11] | 107 · 70.4% [63–77] | 0 · 0.0% [0–2] | 36 · 23.7% [18–31] | 23 · 15.1% [10–22] | +32.5 to +60.5 | sub_threshold leads: calibration |
 | `bayonne` | 87 | 301 | 188 | 0.375 | 3 · 1.6% [1–5] | 108 · 57.5% [50–64] | 2 · 1.1% [0–4] | 75 · 39.9% [33–47] | 46 · 24.5% [19–31] | +3.4 to +30.6 | sub_threshold leads: calibration |
-| `budapest_district5` (held out, not pooled) | 89 | 300 | 147 | 0.510 | 8 · 5.4% [3–10] | 81 · 55.1% [47–63] | 2 · 1.4% [0–5] | 56 · 38.1% [31–46] | 25 · 17.0% [12–24] | -1.4 to +33.8 | neither leads |
+| `budapest_district5` (held out, not pooled) | 89 | 300 | 147 | 0.510 | 8 · 5.4% [3–10] | 81 · 55.1% [47–63] | 2 · 1.4% [0–5] | 56 · 38.1% [31–46] | 25 · 17.0% [12–24] | −1.4 to +33.8 | neither leads |
 | `juneau` | 94 | 297 | 93 | 0.687 | 9 · 9.7% [5–17] | 58 · 62.4% [52–72] | 0 · 0.0% [0–4] | 26 · 28.0% [20–38] | 12 · 12.9% [8–21] | +16.7 to +51.5 | sub_threshold leads: calibration |
 | **GoPro Max pool** (laurens_mapillary + bayonne) | 146 | 550 | 340 | 0.382 | 12 · 3.5% [2–6] | 215 · 63.2% [58–68] | 2 · 0.6% [0–2] | 111 · 32.6% [28–38] | 69 · 20.3% [16–25] | +20.3 to +40.8 | sub_threshold leads: calibration |
 | `morgantown` (GoPro Max, in the reference) | 95 | 267 | 72 | 0.730 | 8 · 11.1% [6–20] | 43 · 59.7% [48–70] | 0 · 0.0% [0–5] | 21 · 29.2% [20–41] | 13 · 18.1% [11–28] | +11.9 to +50.8 | sub_threshold leads: calibration |
@@ -273,12 +279,12 @@ Trimble MX7 city, looks like its sibling annapolis: near recall 0.858, and most 
 <!-- BEGIN GENERATED: excess-0.55-all -->
 | population | merged | sub_threshold | localization | silent | strict silent | recall gap | sub excess − silent excess |
 |---|--:|--:|--:|--:|--:|--:|--:|
-| `laurens_mapillary` | 0.036 (-0.017; -4.4 to +1.4) | 0.430 (+0.272; +19.1 to +34.7) | 0.000 (-0.002; -0.3 to +0.0) | 0.145 (+0.080; +3.3 to +12.4) | 0.092 (+0.067; +2.8 to +10.5) | +0.333 (+25.2 to +40.5) | +0.192 (+9.0 to +29.4) |
-| `bayonne` | 0.010 (-0.043; -5.8 to -2.8) | 0.359 (+0.201; +13.9 to +25.8) | 0.007 (+0.005; -0.3 to +2.0) | 0.249 (+0.184; +13.4 to +23.9) | 0.153 (+0.127; +8.1 to +17.6) | +0.347 (+27.7 to +41.4) | +0.017 (-7.8 to +10.4) |
-| `budapest_district5` (held out, not pooled) | 0.027 (-0.027; -4.7 to -0.4) | 0.270 (+0.112; +4.7 to +17.5) | 0.007 (+0.005; -0.2 to +1.6) | 0.187 (+0.122; +6.7 to +17.4) | 0.083 (+0.058; +1.9 to +10.2) | +0.212 (+12.9 to +28.6) | -0.009 (-10.1 to +7.8) |
-| `juneau` | 0.030 (-0.023; -4.5 to -0.0) | 0.195 (+0.037; -1.2 to +9.0) | 0.000 (-0.002; -0.3 to +0.0) | 0.087 (+0.022; -1.2 to +6.1) | 0.040 (+0.015; -1.0 to +4.4) | +0.035 (-3.4 to +10.4) | +0.015 (-4.5 to +7.5) |
-| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.022 (-0.032; -4.8 to -1.4) | 0.391 (+0.233; +18.6 to +28.4) | 0.004 (+0.002; -0.3 to +1.1) | 0.202 (+0.137; +10.0 to +17.3) | 0.126 (+0.100; +6.9 to +13.1) | +0.341 (+28.7 to +39.0) | +0.096 (+2.8 to +16.6) |
-| `morgantown` (GoPro Max, in the reference) | 0.030 (-0.023; -4.6 to +0.2) | 0.161 (+0.003; -4.3 to +5.3) | 0.000 (-0.002; -0.3 to +0.0) | 0.079 (+0.014; -2.0 to +4.8) | 0.049 (+0.023; -0.2 to +5.0) | -0.008 (-7.3 to +5.6) | -0.011 (-6.4 to +4.8) |
+| `laurens_mapillary` | 0.036 (−0.017; −0.044 to +0.014) | 0.430 (+0.272; +0.191 to +0.347) | 0.000 (−0.002; −0.003 to 0.000) | 0.145 (+0.080; +0.033 to +0.124) | 0.092 (+0.067; +0.028 to +0.105) | +0.333 (+0.252 to +0.405) | +0.192 (+0.090 to +0.294) |
+| `bayonne` | 0.010 (−0.043; −0.058 to −0.028) | 0.359 (+0.201; +0.139 to +0.258) | 0.007 (+0.005; −0.003 to +0.020) | 0.249 (+0.184; +0.134 to +0.239) | 0.153 (+0.127; +0.081 to +0.176) | +0.347 (+0.277 to +0.414) | +0.017 (−0.078 to +0.104) |
+| `budapest_district5` (held out, not pooled) | 0.027 (−0.027; −0.047 to −0.004) | 0.270 (+0.112; +0.047 to +0.175) | 0.007 (+0.005; −0.002 to +0.016) | 0.187 (+0.122; +0.067 to +0.174) | 0.083 (+0.058; +0.019 to +0.102) | +0.212 (+0.129 to +0.286) | −0.009 (−0.101 to +0.078) |
+| `juneau` | 0.030 (−0.023; −0.045 to −0.000) | 0.195 (+0.037; −0.012 to +0.090) | 0.000 (−0.002; −0.003 to 0.000) | 0.087 (+0.022; −0.012 to +0.061) | 0.040 (+0.015; −0.010 to +0.044) | +0.035 (−0.034 to +0.104) | +0.015 (−0.045 to +0.075) |
+| **GoPro Max pool** (laurens_mapillary + bayonne) | 0.022 (−0.032; −0.048 to −0.014) | 0.391 (+0.233; +0.186 to +0.284) | 0.004 (+0.002; −0.003 to +0.011) | 0.202 (+0.137; +0.100 to +0.173) | 0.126 (+0.100; +0.069 to +0.131) | +0.341 (+0.287 to +0.390) | +0.096 (+0.028 to +0.166) |
+| `morgantown` (GoPro Max, in the reference) | 0.030 (−0.023; −0.046 to +0.002) | 0.161 (+0.003; −0.043 to +0.053) | 0.000 (−0.002; −0.003 to 0.000) | 0.079 (+0.014; −0.020 to +0.048) | 0.049 (+0.023; −0.002 to +0.050) | −0.008 (−0.073 to +0.056) | −0.011 (−0.064 to +0.048) |
 | #46 reference without paterson (6 splits) | 0.020 | 0.174 | 0.001 | 0.072 | 0.030 | — | — |
 | **#46 reference** (7 US splits) | 0.053 | 0.158 | 0.002 | 0.065 | 0.026 | — | — |
 <!-- END GENERATED: excess-0.55-all -->
@@ -290,7 +296,7 @@ Unbiased subset at 0.55:
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|
 | `laurens_mapillary` | 54 | 212 | 143 | 0.326 | 9 · 6.3% [3–12] | 101 · 70.6% [63–77] | 0 · 0.0% [0–3] | 33 · 23.1% [17–31] | 20 · 14.0% [9–21] | +32.3 to +62.2 | sub_threshold leads: calibration |
 | `bayonne` | 82 | 261 | 176 | 0.326 | 2 · 1.1% [0–4] | 100 · 56.8% [49–64] | 2 · 1.1% [0–4] | 72 · 40.9% [34–48] | 45 · 25.6% [20–32] | +1.6 to +30.4 | sub_threshold leads: calibration |
-| `budapest_district5` (held out, not pooled) | 84 | 268 | 143 | 0.466 | 8 · 5.6% [3–11] | 78 · 54.5% [46–62] | 2 · 1.4% [0–5] | 55 · 38.5% [31–47] | 24 · 16.8% [12–24] | -2.9 to +32.6 | neither leads |
+| `budapest_district5` (held out, not pooled) | 84 | 268 | 143 | 0.466 | 8 · 5.6% [3–11] | 78 · 54.5% [46–62] | 2 · 1.4% [0–5] | 55 · 38.5% [31–47] | 24 · 16.8% [12–24] | −2.9 to +32.6 | neither leads |
 | `juneau` | 89 | 262 | 88 | 0.664 | 7 · 8.0% [4–16] | 55 · 62.5% [52–72] | 0 · 0.0% [0–4] | 26 · 29.5% [21–40] | 12 · 13.6% [8–22] | +15.2 to +51.4 | sub_threshold leads: calibration |
 | **GoPro Max pool** (laurens_mapillary + bayonne) | 136 | 473 | 319 | 0.326 | 11 · 3.5% [2–6] | 201 · 63.0% [58–68] | 2 · 0.6% [0–2] | 105 · 32.9% [28–38] | 65 · 20.4% [16–25] | +20.1 to +40.3 | sub_threshold leads: calibration |
 | `morgantown` (GoPro Max, in the reference) | 90 | 225 | 71 | 0.684 | 8 · 11.3% [6–21] | 42 · 59.2% [48–70] | 0 · 0.0% [0–5] | 21 · 29.6% [20–41] | 13 · 18.3% [11–29] | +11.5 to +49.3 | sub_threshold leads: calibration |
@@ -336,7 +342,8 @@ two on budapest (judged unsure), which are exactly the 1 and 2 ramps of differen
 - **GSV in the same town (laurens_gsv).** Not run. It is the cleanest control (same town, largely
   the same ramps, rig the only change) and it needs one GPU extract. See [Gaps](#gaps).
 - **GoPro Max inside the reference (morgantown).** At reference level: recall 0.805, gap −0.013
-  (−0.070 to +0.046). That suggests the camera model alone does not explain the open-rig
+  (−0.070 to +0.046). That interval is conservative, because morgantown is part of the
+  reference. It suggests the camera model alone does not explain the open-rig
   deficit. It is one split with 52 misses, though, and it differs from bayonne in country and in
   how well the rubric fit, so it is not a controlled comparison. Richmond also has 18 GoPro Max
   panos beside its 64 iSTAR Pulsar.
