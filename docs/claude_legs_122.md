@@ -49,7 +49,9 @@ tokens to lose 0.068 F1.
 
 **`claude-opus-5` at `low` was the strongest general model measured on annapolis**, at
 0.588 — the first to displace `gemini-3.1-pro-preview` (0.567) from that slot — **until the
-two Fable legs (0.611 and 0.610, next section) displaced it in turn.** Against
+two Fable legs (0.611 and 0.610, next section) displaced it in turn**, and
+`claude-opus-5-5` (0.720, 2026-10-19, [`claude_newest_ids.md`](claude_newest_ids.md))
+displaced those. Against
 `claude-sonnet-5` at the same effort it gains **+0.224 recall at essentially unchanged
 precision** (0.589 → 0.572), which is a capability difference rather than a threshold
 shift. RampNet leads it by **0.251** (0.839 vs 0.588).
@@ -174,12 +176,18 @@ Opus-low's ~0.7 — always-on thinking is *adaptive*, and on a localization task
 effort it costs essentially nothing. A 5-pano calibration predicted the full-leg cost to
 within 1.5% on both ids.
 
-**These legs are `standing=False` and cover annapolis only (1 of 8 pooled splits).** Both
+**These legs are `standing=False` and cover annapolis only (1 of 8 pooled splits)** (true as
+of #156; see the note at the end of this paragraph). Both
 clear the pre-registered 0.567 gate for expanding to the full split set, so that expansion
 is now a live decision rather than a hypothetical — `manual_gold` is 1,000 panos × 6
 views = 6,000 calls, so at the measured full-leg rates ($0.0257/call for `claude-fable-5`,
 $0.0276/call for `claude-fable-5-1`) it is **~$154 and ~$165 per id** for that split alone.
 It has **not** been taken, and no other split has been run.
+
+*Superseded 2026-10-19 for `claude-fable-5-1`: it has since run the other eleven splits,
+`manual_gold` included ($167.92 for that split, against the ~$165 above), alongside
+`claude-opus-5-5`. `claude-fable-5` was not part of that run. See
+[`claude_newest_ids.md`](claude_newest_ids.md).*
 
 **Reproducing them** (the detections are committed; nothing below needs an API key):
 
