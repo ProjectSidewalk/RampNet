@@ -105,6 +105,7 @@ LABEL = {
     "bayonne": "`bayonne`",
     "budapest_district5": "`budapest_district5` (held out, not pooled)",
     "juneau": "`juneau`",
+    "laurens_gsv": "`laurens_gsv` (held out; under-scored cache, see Gaps)",
     "gopro_max": "**GoPro Max pool** (laurens_mapillary + bayonne)",
     "morgantown_gopro_max": "`morgantown` (GoPro Max, in the reference)",
     "reference_no_paterson": "#46 reference without paterson (6 splits)",
@@ -585,6 +586,29 @@ def table_detail(block):
     return "\n".join(lines)
 
 
+def table_two_rigs(result):
+    """laurens_mapillary against laurens_gsv: one town, two rigs, all panos."""
+    lines = ["| threshold | rig | GT | misses | recall | merged | sub_threshold | "
+             "localization | silent (strict) |",
+             "|--:|---|--:|--:|--:|--:|--:|--:|--:|"]
+    for th in result["thresholds"]:
+        block = result["by_subset"]["all"][f"{th:.2f}"]["splits"]
+        for c, rig in (("laurens_mapillary", "GoPro Max (Mapillary)"),
+                       ("laurens_gsv", "GSV")):
+            if c not in block:
+                continue
+            s, b = block[c], block[c]["buckets"]
+
+            def cell(k):
+                return f"{b[k]['n']} · {b[k]['recall_pts']:.3f}"
+            lines.append(
+                f"| {th:.2f} | {rig} | {s['n_gt']} | {s['n_miss']} | {s['recall']:.3f} | "
+                f"{cell('merged')} | {cell('sub_threshold')} | {cell('localization')} | "
+                f"{cell('silent')} ({b['strict_silent']['n']} · "
+                f"{b['strict_silent']['recall_pts']:.3f}) |")
+    return chr(10).join(lines)
+
+
 def render_tables(result):
     """``{block name: markdown}`` for every generated table in the doc."""
     a, u = result["by_subset"]["all"], result["by_subset"]["unbiased"]
@@ -600,6 +624,7 @@ def render_tables(result):
         "shares-0.55-all": table_shares(a["0.55"], gaps),
         "excess-0.55-all": table_excess(a["0.55"]),
         "shares-0.55-unbiased": table_shares(u["0.55"], gaps),
+        "laurens-two-rigs": table_two_rigs(result),
     }
 
 

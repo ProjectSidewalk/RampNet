@@ -109,7 +109,9 @@ def test_committed_artifact_is_lf_rounded_and_hashed(committed):
     assert lp.rows_sha256(committed) == committed["rows_sha256"]
     # Moved from 034e84cd... on 2026-10-19, when the newest-ids campaign added the
     # claude-opus-5-5 and claude-fable-5-1 legs to both arms; no earlier row changed.
-    assert committed["rows_sha256"] == "89e7ead4da8e9f8a0fd46fad04eee28b1d02684ec333cc483cc0982307bcdc5c"
+    # Moved from 89e7ead4... on 2026-10-20, when #263 added analysis_out/op_cache/laurens_gsv.json:
+    # the rampnet@0.30 row gained its GSV side (equal to rampnet_r2048@0.30); no other row changed.
+    assert committed["rows_sha256"] == "d017a376ba67df2fe6492e18c7f795c57823f461bd276f4b994f735ff4a565be"
     for row in committed["gt"]:
         for key, v in row.items():
             if isinstance(v, float) and key not in ("x", "y"):
@@ -210,12 +212,16 @@ def test_fisher_exact():
     assert lp.fisher_exact(2, 2, 2, 2) == pytest.approx(1.0)
 
 
-def test_rampnet_030_has_no_gsv_side(committed):
-    """Documents a current gap, not a requirement: there is no laurens_gsv op_cache yet. When one
-    is produced, input_hashes() hashes it and this test should be updated with the new rows."""
-    row = next(r for r in committed["tables"]["scores"] if r["leg"] == "rampnet@0.30")
-    assert row["laurens_gsv"] is None and row["delta"] is None
-    assert not os.path.exists(os.path.join(REPO, "analysis_out", "op_cache", "laurens_gsv.json"))
+def test_rampnet_030_gsv_side_is_the_r2048_instrument(committed):
+    """The laurens_gsv op_cache arrived on 2026-10-20 (#263; a parity exception, see
+    low_floor_sweep.PARITY_EXCEPTIONS). It is the same re-extraction instrument as the #25 r2048
+    leg, so the rampnet@0.30 row's GSV side must equal rampnet_r2048@0.30's, cell for cell."""
+    assert os.path.exists(os.path.join(REPO, "analysis_out", "op_cache", "laurens_gsv.json"))
+    rows = {r["leg"]: r for r in committed["tables"]["scores"]}
+    a, b = rows["rampnet@0.30"], rows["rampnet_r2048@0.30"]
+    assert a["laurens_gsv"] is not None and a["delta"] is not None
+    assert ({k: v for k, v in a.items() if k not in ("leg", "kind")}
+            == {k: v for k, v in b.items() if k not in ("leg", "kind")})
 
 
 def test_the_doc_tables_are_the_committed_tables(committed):

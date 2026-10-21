@@ -512,9 +512,8 @@ analysis_out/pu_training_86/*
 # scripts/analysis/open_rig_misses_258.py --check.
 !analysis_out/open_rig_misses_258.json
 
-# #263 Track 1: the laurens_gsv candidate op_cache that FAILED the parity gate (kept, not
-# read by any analysis, pending a decision) and the two GPU run logs.
+# #263 Track 1: the two GPU run logs of the laurens_gsv extract (the cache itself is in
+# analysis_out/op_cache/).
 !analysis_out/open_rig_258/
 analysis_out/open_rig_258/*
-!analysis_out/open_rig_258/*.json
 !analysis_out/open_rig_258/*.log

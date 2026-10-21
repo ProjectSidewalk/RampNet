@@ -154,7 +154,7 @@ reproduces the 2026-09-03 table to ±0.001: that table took differences of round
 | leg | op | predictions GSV / Mly | GSV P / R / F1 | Mapillary P / R / F1 | ΔP [95% CI] | ΔR [95% CI] | **ΔF1 [95% CI]** | whole-arm ΔF1 |
 |---|---:|---:|---|---|---|---|---|---:|
 | rampnet@0.55 | 0.55 | 99 / 80 | 0.969 / 0.519 / 0.676 | 0.963 / 0.399 / 0.564 | +0.007 [-0.038, +0.055] | +0.120 [+0.036, +0.211] | **+0.112** [+0.033, +0.199] | +0.115 |
-| rampnet@0.30 | 0.30 | – / 113 | – | 0.946 / 0.544 / 0.691 | – | – | – | – |
+| rampnet@0.30 | 0.30 | 134 / 113 | 0.946 / 0.672 / 0.786 | 0.946 / 0.544 / 0.691 | +0.000 [-0.064, +0.060] | +0.128 [+0.055, +0.202] | **+0.095** [+0.040, +0.152] | +0.106 |
 | rampnet_r2048@0.55 | 0.55 | 91 / 80 | 0.978 / 0.475 / 0.640 | 0.963 / 0.399 / 0.564 | +0.015 [-0.036, +0.073] | +0.076 [-0.007, +0.167] | **+0.076** [-0.005, +0.164] | +0.072 |
 | rampnet_r2048@0.30 | 0.30 | 134 / 113 | 0.946 / 0.672 / 0.786 | 0.946 / 0.544 / 0.691 | +0.000 [-0.064, +0.060] | +0.128 [+0.055, +0.202] | **+0.095** [+0.040, +0.152] | +0.106 |
 | gemini-3.6-flash | no score | 103 / 87 | 0.372 / 0.208 / 0.267 | 0.483 / 0.218 / 0.300 | -0.110 [-0.236, +0.028] | -0.010 [-0.074, +0.060] | **-0.033** [-0.113, +0.055] | -0.003 |
@@ -181,9 +181,17 @@ the whole arms, Opus 5.5's higher F1 is established on `laurens_mapillary` (Ramp
 includes zero); pano bootstrap, `scripts/analysis/claude_newest_ids_261.py`. Both legs are single runs, no seed
 variance, effort low only, first-party serving path.*
 
-- **`rampnet@0.30` has no GSV side.** `laurens_gsv` has no `op_cache`: its bundle stops at the
-  deployed 0.55, and producing the low-floor cache needs GPU inference, which this CPU-only
-  analysis did not run. So RampNet at the recommended 0.30 is Mapillary-only here.
+- **`rampnet@0.30` had no GSV side when this doc was written.** `laurens_gsv` had no `op_cache`:
+  its bundle stops at the deployed 0.55, and producing the low-floor cache needs GPU inference,
+  which this CPU-only analysis did not run. So RampNet at the recommended 0.30 was Mapillary-only
+  here.
+
+  *Added 2026-10-20:* #263 added `analysis_out/op_cache/laurens_gsv.json`
+  (`docs/open_rig_misses_258.md`), and the regenerated `analysis_out/laurens_paired_151.md` now
+  fills the GSV side. It equals the `rampnet_r2048@0.30` row exactly, because the new cache is the
+  same re-extraction instrument as r2048: ΔF1 **+0.095** [+0.040, +0.152]. It is not the deployed
+  run, and that cache is a parity exception for the reason given in the next bullet. No other row
+  changed.
 - **`rampnet_r2048` is the #25 sweep's re-extraction** (`analysis_out/input_res_sweep_25/cache/r2048/`):
   the same model, run on the committed benchmark JPEGs resized to 2048×4096, on both arms, at both
   thresholds. On `laurens_mapillary` it reproduces the deployed records at 0.55 (whole-arm F1 0.543
@@ -248,12 +256,14 @@ split of the same 2024 rig vintage. That was not run here.
 
 | match radius | leg | matched ramps | hit on both | GSV only | Mapillary only | neither | net (GSV − Mly) | exact McNemar p | recall GSV | recall Mapillary |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 5 m | rampnet@0.30 | 86 | 40 | 22 | 14 | 10 | +8 | 0.24 | 0.721 | 0.628 |
 | 5 m | rampnet@0.55 | 86 | 21 | 23 | 16 | 26 | +7 | 0.34 | 0.512 | 0.430 |
 | 5 m | rampnet_r2048@0.30 | 86 | 40 | 22 | 14 | 10 | +8 | 0.24 | 0.721 | 0.628 |
 | 5 m | rampnet_r2048@0.55 | 86 | 21 | 19 | 16 | 30 | +3 | 0.74 | 0.465 | 0.430 |
 | 5 m | y11l_pano | 86 | 26 | 20 | 15 | 25 | +5 | 0.50 | 0.535 | 0.477 |
 | 5 m | y11x_pano_h200 | 86 | 23 | 19 | 14 | 30 | +5 | 0.49 | 0.488 | 0.430 |
 | 5 m | y26_pano | 86 | 33 | 18 | 16 | 19 | +2 | 0.86 | 0.593 | 0.570 |
+| 3 m | rampnet@0.30 | 54 | 28 | 15 | 6 | 5 | +9 | 0.08 | 0.796 | 0.630 |
 | 3 m | rampnet@0.55 | 54 | 14 | 17 | 8 | 15 | +9 | 0.11 | 0.574 | 0.407 |
 | 3 m | rampnet_r2048@0.30 | 54 | 28 | 15 | 6 | 5 | +9 | 0.08 | 0.796 | 0.630 |
 | 3 m | rampnet_r2048@0.55 | 54 | 13 | 15 | 9 | 17 | +6 | 0.31 | 0.518 | 0.407 |

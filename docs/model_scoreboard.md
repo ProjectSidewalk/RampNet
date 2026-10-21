@@ -464,7 +464,7 @@ apart without failing CI:
 | `gainesville` | 0.691 | **0.846** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `laurens_mapillary` | 0.377 | **0.691** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `juneau` | 0.680 | **0.833** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
-| `laurens_gsv` | 0.494 | 0.494 | bundle — 0.55 floor, no `op_cache` | **truncated**; not comparable with the rows above |
+| `laurens_gsv` | 0.494 | **0.768** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `budapest_district5` | 0.478 | **0.648** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `sao_paulo` | 0.666 | **0.812** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `bayonne` | 0.344 | **0.587** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
