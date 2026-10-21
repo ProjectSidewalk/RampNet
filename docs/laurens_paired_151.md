@@ -164,6 +164,7 @@ reproduces the 2026-09-03 table to ±0.001: that table took differences of round
 | allenai/Molmo2-8B | no score | 132 / 140 | 0.379 / 0.273 / 0.318 | 0.449 / 0.321 / 0.375 | -0.070 [-0.189, +0.048] | -0.048 [-0.139, +0.044] | **-0.057** [-0.156, +0.042] | -0.032 |
 | google/owlv2-large-patch14-ensemble | 0.05 floor | 3862 / 3522 | 0.041 / 0.853 / 0.077 | 0.047 / 0.845 / 0.088 | -0.006 [-0.011, -0.001] | +0.008 [-0.057, +0.070] | **-0.011** [-0.020, -0.002] | -0.007 |
 | IDEA-Research/grounding-dino-base | 0.05 floor | 3976 / 4272 | 0.041 / 0.891 / 0.079 | 0.036 / 0.798 / 0.069 | +0.005 [-0.000, +0.010] | +0.093 [+0.025, +0.161] | **+0.009** [-0.001, +0.018] | +0.009 |
+| mask2former-vistas-curb-cut-1024x1024 | export floor | 334 / 316 | 0.459 / 0.825 / 0.590 | 0.497 / 0.803 / 0.614 | -0.038 [-0.094, +0.017] | +0.022 [-0.082, +0.120] | **-0.024** [-0.080, +0.029] | -0.018 |
 | gemini-3.7-flash | no score | 52 / 67 | 0.596 / 0.169 / 0.264 | 0.552 / 0.192 / 0.285 | +0.044 [-0.159, +0.234] | -0.022 [-0.094, +0.052] | **-0.021** [-0.123, +0.084] | -0.020 |
 | y11l_pano | 0.25 | 88 / 94 | 0.955 / 0.459 / 0.620 | 0.947 / 0.461 / 0.620 | +0.008 [-0.066, +0.078] | -0.002 [-0.085, +0.086] | **-0.000** [-0.078, +0.082] | +0.023 |
 | y11x_pano_h200 | 0.25 | 81 / 84 | 0.988 / 0.437 / 0.606 | 0.952 / 0.414 / 0.578 | +0.035 [-0.021, +0.102] | +0.023 [-0.075, +0.124] | **+0.028** [-0.066, +0.130] | +0.039 |
@@ -180,6 +181,12 @@ the whole arms, Opus 5.5's higher F1 is established on `laurens_mapillary` (Ramp
 5.5 −0.136, 95% CI [−0.216, −0.053]) but not on `laurens_gsv` (−0.042 [−0.101, +0.020], which
 includes zero); pano bootstrap, `scripts/analysis/claude_newest_ids_261.py`. Both legs are single runs, no seed
 variance, effort low only, first-party serving path.*
+
+*The `mask2former-vistas-curb-cut-1024x1024` row was added on 2026-10-20, when the Vistas
+parity arm ran both Laurens arms ([`vistas_transfer_126.md`](vistas_transfer_126.md) § "All
+fourteen splits"); no other row changed. Like Opus 5.5 it is flat across the rigs on the paired
+corners (−0.024 [−0.080, +0.029]), where RampNet gains +0.112. On the whole arms it scores 0.516
+(GSV) and 0.535 (Mapillary) against RampNet's 0.659 and 0.543.*
 
 - **`rampnet@0.30` had no GSV side when this doc was written.** `laurens_gsv` had no `op_cache`:
   its bundle stops at the deployed 0.55, and producing the low-floor cache needs GPU inference,

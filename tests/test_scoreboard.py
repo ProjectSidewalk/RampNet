@@ -716,8 +716,12 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
 
 
 def test_single_split_legs_stay_out_of_the_pooled_tables(board):
-    """Two Vistas arms ran richmond only and the 1024 arm five of the nine pooled splits
-    (#163, #35); the other Claude legs ran annapolis only.
+    """Two Vistas arms ran richmond only; the other Claude legs ran annapolis only.
+
+    The 1024 Vistas arm left this set on 2026-10-20: it was 5/9 (richmond for #163, then
+    bend/paterson/gainesville/annapolis for the #35 transfer read) until it ran the other
+    four pooled cities and every held-out split (docs/vistas_transfer_126.md, "All
+    fourteen splits"). test_the_vistas_parity_arm_is_pooled pins it in the headline.
 
     claude-opus-5-effort-low is back in this set. #139 took it to nine splits and #151 to
     both Laurens arms, which made it complete on the eight-city pool; juneau joined the
@@ -737,8 +741,6 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
     want_coverage = {
         "mask2former-vistas-curb-cut": "1/9",
         "mask2former-vistas-curb-cut+curb": "1/9",
-        # #163 richmond, then bend/paterson/gainesville/annapolis for the #35 transfer read
-        "mask2former-vistas-curb-cut-1024x1024": "5/9",
         "claude-opus-5-effort-high": "1/9",
         "claude-sonnet-5-effort-low": "1/9",
         "claude-sonnet-5-effort-high": "1/9",
@@ -806,11 +808,12 @@ def test_the_newest_ids_legs_are_pooled(board):
     assert max(challengers, key=lambda m: m["f1"])["model"] == opus["model"]
     rampnet = _summary(board, "rampnet")
     assert rampnet["f1"] - opus["f1"] == pytest.approx(0.081, abs=0.0006)
-    # The one model with full pooled coverage, other than the open-vocabulary detectors at
-    # their 0.05 floor, whose pooled recall is above RampNet's.
+    # The models with full pooled coverage, other than the open-vocabulary detectors at
+    # their 0.05 floor, whose pooled recall is above RampNet's. Opus 5.5 was the only one
+    # until the Vistas parity arm completed the pool on 2026-10-20 (finding 3).
     above = {m["model"] for m in challengers
              if m["recall"] > rampnet["recall"] and m["class"] != "open-vocab"}
-    assert above == {opus["model"]}
+    assert above == {opus["model"], "mask2former-vistas-curb-cut-1024x1024"}
     # Finding 4's test, met: Opus 5.5 leads gemini-3.1-pro on every pooled city.
     gem = {s: _cell(board, opus["model"], s)["f1"] - _cell(board, "gemini-3.1-pro-preview", s)["f1"]
            for s in board["pooled_splits"]}
@@ -1246,6 +1249,74 @@ def test_a_figure_helper_survives_a_board_without_rampnet(board, tmp_path):
     out = str(tmp_path / "fig.png")
     fig_headline(trimmed, out, plt)
     fig_by_split(trimmed, out, plt)
+
+
+_VISTAS_1024 = "mask2former-vistas-curb-cut-1024x1024"
+
+
+def _vistas_all_splits_rows():
+    """The per-split rows of docs/vistas_transfer_126.md, "All fourteen splits"."""
+    with open(os.path.join(REPO, "docs", "vistas_transfer_126.md"), encoding="utf-8") as fh:
+        text = fh.read()
+    section = text[text.index("## All fourteen splits"):]
+    rows = {}
+    for line in section.split("\n"):
+        m = re.match(r"^\| `(\w+)`(?: †)? \| ([\d.]+) / ([\d.]+) / ([\d.]+) \| "
+                     r"([\d.]+) / ([\d.]+) / \*\*([\d.]+)\*\* \| ([\d.]+) \| (\d+)/(\d+)/(\d+) \| "
+                     r"([−+-][\d.]+) \|", line)
+        if m:
+            rows[m.group(1)] = m.groups()[1:]
+    return rows
+
+
+def test_the_vistas_parity_arm_is_pooled(board):
+    """The 1024 Vistas arm ran the nine remaining splits on 2026-10-20 (makelab2, A40) and
+    joined the headline: 9/9 pooled, all fourteen splits run. Every row of the doc's
+    "All fourteen splits" table is checked against the scorer here, so the table cannot
+    drift from the committed detections.
+    """
+    v = _summary(board, _VISTAS_1024)
+    n = len(lfs.US_SPLITS)
+    assert v["coverage"] == f"{n}/{n}" and v["complete"] is True
+    assert v["n_splits_run"] == 14
+    assert v["class"] == "supervised-transfer"
+    assert v["display"] in sr.headline_table(board)
+    assert v["precision"] == pytest.approx(0.380, abs=0.0006)
+    assert v["recall"] == pytest.approx(0.836, abs=0.0006)
+    assert v["f1"] == pytest.approx(0.519, abs=0.0006)
+    assert v["ap"] == pytest.approx(0.488, abs=0.0006)
+    # Finding 3 / the doc: it out-recalls RampNet (at its shipped 0.55) on every pooled
+    # city, and RampNet still leads it in F1 on every split.
+    for s in board["all_splits"]:
+        cell, rn = _cell(board, _VISTAS_1024, s), _cell(board, "rampnet", s)
+        assert cell["f1"] < rn["f1"], s
+        if s in board["pooled_splits"]:
+            assert cell["recall"] > rn["recall"], s
+
+    rows = _vistas_all_splits_rows()
+    assert set(rows) == set(lfs.ALL_SPLITS), sorted(rows)
+    for s, (rp, rr, rf, vp, vr, vf, ap, tp, fp, fn, d) in rows.items():
+        cell, rn = _cell(board, _VISTAS_1024, s), _cell(board, "rampnet", s)
+        assert (int(tp), int(fp), int(fn)) == (cell["tp"], cell["fp"], cell["fn"]), s
+        for want, have in ((rp, rn["precision"]), (rr, rn["recall"]), (rf, rn["f1"]),
+                           (vp, cell["precision"]), (vr, cell["recall"]), (vf, cell["f1"]),
+                           (ap, cell["ap"])):
+            assert float(want) == pytest.approx(have, abs=0.0006), s
+        assert float(d.replace("−", "-")) == pytest.approx(cell["f1"] - rn["f1"], abs=0.0011), s
+
+
+def test_partial_footer_counts_the_board():
+    """fig_headline's footer clause is counted off the board, never typed (#267 review)."""
+    from scoreboard_figures import _partial_footer
+
+    board = {"pooled_splits": list("abcdefghi"), "models": [
+        {"complete": True, "pooled_splits": 9},
+        {"complete": False, "pooled_splits": 1},
+        {"complete": False, "pooled_splits": 8}]}
+    assert _partial_footer(board).startswith("2 legs that cover 1–8 of the nine pooled splits")
+    one = dict(board, models=board["models"][:2])
+    assert _partial_footer(one).startswith("1 leg that covers 1 of the nine pooled splits")
+    assert _partial_footer(dict(board, models=board["models"][:1])) == ""
 
 
 def test_by_split_heatmap_rows_sort_by_pooled_mean_in_two_groups():

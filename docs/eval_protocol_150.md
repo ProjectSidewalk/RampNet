@@ -1,14 +1,15 @@
 # The benchmark scoring protocol as code (`rampnet.eval`)
 
 Issue [#150](https://github.com/ProjectSidewalk/RampNet/issues/150), the "evaluation protocol
-as code" item only. Written 2026-10-05; Bayonne added to the pinned registry 2026-10-11, Juneau 2026-10-19, and the YOLO11x tiles
-arm's cells added 2026-10-19 (see [Revision](#revision)).
+as code" item only. Written 2026-10-05; Bayonne added to the pinned registry 2026-10-11, Juneau 2026-10-19, the YOLO11x tiles
+arm's cells added 2026-10-19, and the Vistas 1024 arm's last nine cells 2026-10-20 (see
+[Revision](#revision)).
 
 **Result.** `rampnet/eval.py` scores a prediction file against a committed benchmark bundle
 through the same functions every committed benchmark number came from, and
-`scripts/analysis/eval_protocol_150.py --check` proves it: all **224** cells of
+`scripts/analysis/eval_protocol_150.py --check` proves it: all **233** cells of
 `analysis_out/scoreboard.json` (23 model legs, 14 splits) and all **30** (arm, split) cells of
-`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 2,240 and 480
+`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 2,330 and 480
 field comparisons respectively, with **0** differing and **0** unchecked. The split files are
 pinned by content hash in `benchmark/split_pins.json`. No number changed, and the four
 fingerprinted scorer files are byte-identical to `main` (fingerprint `f4aef67aba03`).
@@ -134,6 +135,11 @@ unchecked. Beyond Juneau's 12 (Revision, below), 27 new cells are the `claude-op
 `claude-fable-5-1` legs of [`claude_newest_ids.md`](claude_newest_ids.md), juneau included,
 and 10 are `y11x_tiles` (#258, Revision below). The
 table above is the 2026-10-05/11 run.*
+
+*Updated again 2026-10-20: **233** scoreboard cells (was 224; 2,330 field comparisons), still 0
+differing and 0 unchecked. The 9 new cells are the Vistas parity arm on the nine splits it had
+not run ([`vistas_transfer_126.md`](vistas_transfer_126.md) § "All fourteen splits"). The leg
+count is unchanged at 23.*
 
 What is compared, and how:
 
@@ -283,12 +289,19 @@ the 10 new ones are all `y11x_tiles`, which has no Juneau detections; 2,240 fiel
 same **30** YOLO `benchmark_eval/` cells all re-derive equal, 0 differing, 0 unchecked. The
 RampNet op_cache cells are unchanged (12), the split pins are byte-unchanged, and the scorer fingerprint is still `f4aef67aba03`.
 
+**2026-10-20: Vistas 1024 on all fourteen splits** (#267). The Mask2Former Vistas parity arm
+(`mask2former-vistas-curb-cut-1024x1024`) ran the nine splits it had not run, so it moved from
+partial to full pooled coverage. The scoreboard gained 9 cells: **233** scoreboard cells (was
+224; 2,330 field comparisons, still 23 model legs), all equal, 0 differing, 0 unchecked; the 30
+YOLO `benchmark_eval/` cells, the 12 RampNet op_cache cells, the split pins and the scorer
+fingerprint `f4aef67aba03` are unchanged.
+
 **2026-10-20: laurens_gsv's AP moves to its op_cache** (#263,
 [PR #265](https://github.com/ProjectSidewalk/RampNet/pull/265)). `analysis_out/op_cache/laurens_gsv.json`
 now exists, admitted as a `low_floor_sweep.PARITY_EXCEPTIONS` entry: it under-scores the deployed
 GSV run's records (111 against 121 detections at 0.55). So the scoreboard reads laurens_gsv's RampNet
 AP from it (0.768, against the 0.55-truncated bundle's 0.494), while its P/R/F1 stay records-based
 (tp 112 / fp 8). No split was added and the pins are unchanged. The reproduction proof was
-regenerated after the YOLO11x tiles legs (above) merged: **224** scoreboard cells and the same **30**
+regenerated after the YOLO11x tiles and Vistas 1024 legs (above) merged: **233** scoreboard cells and the same **30**
 YOLO `benchmark_eval/` cells all re-derive equal, with **13** op_cache cells (was 12), 0 differing,
 0 unchecked.

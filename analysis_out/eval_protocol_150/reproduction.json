@@ -3433,6 +3433,860 @@
    "ap_source": "bundle",
    "fields": {
     "ap": {
+     "committed": 0.648753,
+     "equal": true,
+     "rederived": 0.648753
+    },
+    "ap_bundle": {
+     "committed": 0.648753,
+     "equal": true,
+     "rederived": 0.648753
+    },
+    "f1": {
+     "committed": 0.534113,
+     "equal": true,
+     "rederived": 0.534113
+    },
+    "fn": {
+     "committed": 36,
+     "equal": true,
+     "rederived": 36
+    },
+    "fp": {
+     "committed": 442,
+     "equal": true,
+     "rederived": 442
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.382682,
+     "equal": true,
+     "rederived": 0.382682
+    },
+    "recall": {
+     "committed": 0.883871,
+     "equal": true,
+     "rederived": 0.883871
+    },
+    "tp": {
+     "committed": 274,
+     "equal": true,
+     "rederived": 274
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.424888,
+     "equal": true,
+     "rederived": 0.424888
+    },
+    "ap_bundle": {
+     "committed": 0.424888,
+     "equal": true,
+     "rederived": 0.424888
+    },
+    "f1": {
+     "committed": 0.509363,
+     "equal": true,
+     "rederived": 0.509363
+    },
+    "fn": {
+     "committed": 55,
+     "equal": true,
+     "rederived": 55
+    },
+    "fp": {
+     "committed": 469,
+     "equal": true,
+     "rederived": 469
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.367072,
+     "equal": true,
+     "rederived": 0.367072
+    },
+    "recall": {
+     "committed": 0.831804,
+     "equal": true,
+     "rederived": 0.831804
+    },
+    "tp": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.319801,
+     "equal": true,
+     "rederived": 0.319801
+    },
+    "ap_bundle": {
+     "committed": 0.319801,
+     "equal": true,
+     "rederived": 0.319801
+    },
+    "f1": {
+     "committed": 0.368138,
+     "equal": true,
+     "rederived": 0.368138
+    },
+    "fn": {
+     "committed": 24,
+     "equal": true,
+     "rederived": 24
+    },
+    "fp": {
+     "committed": 563,
+     "equal": true,
+     "rederived": 563
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.23297,
+     "equal": true,
+     "rederived": 0.23297
+    },
+    "recall": {
+     "committed": 0.876923,
+     "equal": true,
+     "rederived": 0.876923
+    },
+    "tp": {
+     "committed": 171,
+     "equal": true,
+     "rederived": 171
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.536467,
+     "equal": true,
+     "rederived": 0.536467
+    },
+    "ap_bundle": {
+     "committed": 0.536467,
+     "equal": true,
+     "rederived": 0.536467
+    },
+    "f1": {
+     "committed": 0.520516,
+     "equal": true,
+     "rederived": 0.520516
+    },
+    "fn": {
+     "committed": 45,
+     "equal": true,
+     "rederived": 45
+    },
+    "fp": {
+     "committed": 364,
+     "equal": true,
+     "rederived": 364
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.37884,
+     "equal": true,
+     "rederived": 0.37884
+    },
+    "recall": {
+     "committed": 0.831461,
+     "equal": true,
+     "rederived": 0.831461
+    },
+    "tp": {
+     "committed": 222,
+     "equal": true,
+     "rederived": 222
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.52649,
+     "equal": true,
+     "rederived": 0.52649
+    },
+    "ap_bundle": {
+     "committed": 0.52649,
+     "equal": true,
+     "rederived": 0.52649
+    },
+    "f1": {
+     "committed": 0.586667,
+     "equal": true,
+     "rederived": 0.586667
+    },
+    "fn": {
+     "committed": 30,
+     "equal": true,
+     "rederived": 30
+    },
+    "fp": {
+     "committed": 342,
+     "equal": true,
+     "rederived": 342
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.435644,
+     "equal": true,
+     "rederived": 0.435644
+    },
+    "recall": {
+     "committed": 0.897959,
+     "equal": true,
+     "rederived": 0.897959
+    },
+    "tp": {
+     "committed": 264,
+     "equal": true,
+     "rederived": 264
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.430178,
+     "equal": true,
+     "rederived": 0.430178
+    },
+    "ap_bundle": {
+     "committed": 0.430178,
+     "equal": true,
+     "rederived": 0.430178
+    },
+    "f1": {
+     "committed": 0.510129,
+     "equal": true,
+     "rederived": 0.510129
+    },
+    "fn": {
+     "committed": 118,
+     "equal": true,
+     "rederived": 118
+    },
+    "fp": {
+     "committed": 414,
+     "equal": true,
+     "rederived": 414
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.400868,
+     "equal": true,
+     "rederived": 0.400868
+    },
+    "recall": {
+     "committed": 0.701266,
+     "equal": true,
+     "rederived": 0.701266
+    },
+    "tp": {
+     "committed": 277,
+     "equal": true,
+     "rederived": 277
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.521291,
+     "equal": true,
+     "rederived": 0.521291
+    },
+    "ap_bundle": {
+     "committed": 0.521291,
+     "equal": true,
+     "rederived": 0.521291
+    },
+    "f1": {
+     "committed": 0.526919,
+     "equal": true,
+     "rederived": 0.526919
+    },
+    "fn": {
+     "committed": 42,
+     "equal": true,
+     "rederived": 42
+    },
+    "fp": {
+     "committed": 371,
+     "equal": true,
+     "rederived": 371
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.382696,
+     "equal": true,
+     "rederived": 0.382696
+    },
+    "recall": {
+     "committed": 0.845588,
+     "equal": true,
+     "rederived": 0.845588
+    },
+    "tp": {
+     "committed": 230,
+     "equal": true,
+     "rederived": 230
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.456864,
+     "equal": true,
+     "rederived": 0.456864
+    },
+    "ap_bundle": {
+     "committed": 0.456864,
+     "equal": true,
+     "rederived": 0.456864
+    },
+    "f1": {
+     "committed": 0.534789,
+     "equal": true,
+     "rederived": 0.534789
+    },
+    "fn": {
+     "committed": 53,
+     "equal": true,
+     "rederived": 53
+    },
+    "fp": {
+     "committed": 288,
+     "equal": true,
+     "rederived": 288
+    },
+    "n_gt_recall": {
+     "committed": 249,
+     "equal": true,
+     "rederived": 249
+    },
+    "n_panos": {
+     "committed": 94,
+     "equal": true,
+     "rederived": 94
+    },
+    "precision": {
+     "committed": 0.404959,
+     "equal": true,
+     "rederived": 0.404959
+    },
+    "recall": {
+     "committed": 0.787149,
+     "equal": true,
+     "rederived": 0.787149
+    },
+    "tp": {
+     "committed": 196,
+     "equal": true,
+     "rederived": 196
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__laurens_mapillary.json",
+   "source": "scoreboard",
+   "split": "laurens_mapillary",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.523376,
+     "equal": true,
+     "rederived": 0.523376
+    },
+    "ap_bundle": {
+     "committed": 0.523376,
+     "equal": true,
+     "rederived": 0.523376
+    },
+    "f1": {
+     "committed": 0.57688,
+     "equal": true,
+     "rederived": 0.57688
+    },
+    "fn": {
+     "committed": 40,
+     "equal": true,
+     "rederived": 40
+    },
+    "fp": {
+     "committed": 337,
+     "equal": true,
+     "rederived": 337
+    },
+    "n_gt_recall": {
+     "committed": 297,
+     "equal": true,
+     "rederived": 297
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.43266,
+     "equal": true,
+     "rederived": 0.43266
+    },
+    "recall": {
+     "committed": 0.86532,
+     "equal": true,
+     "rederived": 0.86532
+    },
+    "tp": {
+     "committed": 257,
+     "equal": true,
+     "rederived": 257
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__juneau.json",
+   "source": "scoreboard",
+   "split": "juneau",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.481011,
+     "equal": true,
+     "rederived": 0.481011
+    },
+    "ap_bundle": {
+     "committed": 0.481011,
+     "equal": true,
+     "rederived": 0.481011
+    },
+    "f1": {
+     "committed": 0.516499,
+     "equal": true,
+     "rederived": 0.516499
+    },
+    "fn": {
+     "committed": 40,
+     "equal": true,
+     "rederived": 40
+    },
+    "fp": {
+     "committed": 297,
+     "equal": true,
+     "rederived": 297
+    },
+    "n_gt_recall": {
+     "committed": 220,
+     "equal": true,
+     "rederived": 220
+    },
+    "n_panos": {
+     "committed": 86,
+     "equal": true,
+     "rederived": 86
+    },
+    "precision": {
+     "committed": 0.377358,
+     "equal": true,
+     "rederived": 0.377358
+    },
+    "recall": {
+     "committed": 0.818182,
+     "equal": true,
+     "rederived": 0.818182
+    },
+    "tp": {
+     "committed": 180,
+     "equal": true,
+     "rederived": 180
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__laurens_gsv.json",
+   "source": "scoreboard",
+   "split": "laurens_gsv",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.439344,
+     "equal": true,
+     "rederived": 0.439344
+    },
+    "ap_bundle": {
+     "committed": 0.439344,
+     "equal": true,
+     "rederived": 0.439344
+    },
+    "f1": {
+     "committed": 0.526596,
+     "equal": true,
+     "rederived": 0.526596
+    },
+    "fn": {
+     "committed": 102,
+     "equal": true,
+     "rederived": 102
+    },
+    "fp": {
+     "committed": 254,
+     "equal": true,
+     "rederived": 254
+    },
+    "n_gt_recall": {
+     "committed": 300,
+     "equal": true,
+     "rederived": 300
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.438053,
+     "equal": true,
+     "rederived": 0.438053
+    },
+    "recall": {
+     "committed": 0.66,
+     "equal": true,
+     "rederived": 0.66
+    },
+    "tp": {
+     "committed": 198,
+     "equal": true,
+     "rederived": 198
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__budapest_district5.json",
+   "source": "scoreboard",
+   "split": "budapest_district5",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.479881,
+     "equal": true,
+     "rederived": 0.479881
+    },
+    "ap_bundle": {
+     "committed": 0.479881,
+     "equal": true,
+     "rederived": 0.479881
+    },
+    "f1": {
+     "committed": 0.482972,
+     "equal": true,
+     "rederived": 0.482972
+    },
+    "fn": {
+     "committed": 47,
+     "equal": true,
+     "rederived": 47
+    },
+    "fp": {
+     "committed": 454,
+     "equal": true,
+     "rederived": 454
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.340116,
+     "equal": true,
+     "rederived": 0.340116
+    },
+    "recall": {
+     "committed": 0.83274,
+     "equal": true,
+     "rederived": 0.83274
+    },
+    "tp": {
+     "committed": 234,
+     "equal": true,
+     "rederived": 234
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.441287,
+     "equal": true,
+     "rederived": 0.441287
+    },
+    "ap_bundle": {
+     "committed": 0.441287,
+     "equal": true,
+     "rederived": 0.441287
+    },
+    "f1": {
+     "committed": 0.497175,
+     "equal": true,
+     "rederived": 0.497175
+    },
+    "fn": {
+     "committed": 81,
+     "equal": true,
+     "rederived": 81
+    },
+    "fp": {
+     "committed": 364,
+     "equal": true,
+     "rederived": 364
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.376712,
+     "equal": true,
+     "rederived": 0.376712
+    },
+    "recall": {
+     "committed": 0.730897,
+     "equal": true,
+     "rederived": 0.730897
+    },
+    "tp": {
+     "committed": 220,
+     "equal": true,
+     "rederived": 220
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": 0.587184,
+     "equal": true,
+     "rederived": 0.587184
+    },
+    "ap_bundle": {
+     "committed": 0.587184,
+     "equal": true,
+     "rederived": 0.587184
+    },
+    "f1": {
+     "committed": 0.648687,
+     "equal": true,
+     "rederived": 0.648687
+    },
+    "fn": {
+     "committed": 684,
+     "equal": true,
+     "rederived": 684
+    },
+    "fp": {
+     "committed": 2820,
+     "equal": true,
+     "rederived": 2820
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.534269,
+     "equal": true,
+     "rederived": 0.534269
+    },
+    "recall": {
+     "committed": 0.825466,
+     "equal": true,
+     "rederived": 0.825466
+    },
+    "tp": {
+     "committed": 3235,
+     "equal": true,
+     "rederived": 3235
+    }
+   },
+   "model": "mask2former-vistas-curb-cut-1024x1024",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
      "committed": null,
      "equal": true,
      "rederived": null
@@ -12339,311 +13193,6 @@
    "ap_source": "bundle",
    "fields": {
     "ap": {
-     "committed": 0.648753,
-     "equal": true,
-     "rederived": 0.648753
-    },
-    "ap_bundle": {
-     "committed": 0.648753,
-     "equal": true,
-     "rederived": 0.648753
-    },
-    "f1": {
-     "committed": 0.534113,
-     "equal": true,
-     "rederived": 0.534113
-    },
-    "fn": {
-     "committed": 36,
-     "equal": true,
-     "rederived": 36
-    },
-    "fp": {
-     "committed": 442,
-     "equal": true,
-     "rederived": 442
-    },
-    "n_gt_recall": {
-     "committed": 310,
-     "equal": true,
-     "rederived": 310
-    },
-    "n_panos": {
-     "committed": 124,
-     "equal": true,
-     "rederived": 124
-    },
-    "precision": {
-     "committed": 0.382682,
-     "equal": true,
-     "rederived": 0.382682
-    },
-    "recall": {
-     "committed": 0.883871,
-     "equal": true,
-     "rederived": 0.883871
-    },
-    "tp": {
-     "committed": 274,
-     "equal": true,
-     "rederived": 274
-    }
-   },
-   "model": "mask2former-vistas-curb-cut-1024x1024",
-   "op_threshold": 0.0,
-   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__richmond.json",
-   "source": "scoreboard",
-   "split": "richmond",
-   "status": "equal"
-  },
-  {
-   "ap_source": "bundle",
-   "fields": {
-    "ap": {
-     "committed": 0.424888,
-     "equal": true,
-     "rederived": 0.424888
-    },
-    "ap_bundle": {
-     "committed": 0.424888,
-     "equal": true,
-     "rederived": 0.424888
-    },
-    "f1": {
-     "committed": 0.509363,
-     "equal": true,
-     "rederived": 0.509363
-    },
-    "fn": {
-     "committed": 55,
-     "equal": true,
-     "rederived": 55
-    },
-    "fp": {
-     "committed": 469,
-     "equal": true,
-     "rederived": 469
-    },
-    "n_gt_recall": {
-     "committed": 327,
-     "equal": true,
-     "rederived": 327
-    },
-    "n_panos": {
-     "committed": 110,
-     "equal": true,
-     "rederived": 110
-    },
-    "precision": {
-     "committed": 0.367072,
-     "equal": true,
-     "rederived": 0.367072
-    },
-    "recall": {
-     "committed": 0.831804,
-     "equal": true,
-     "rederived": 0.831804
-    },
-    "tp": {
-     "committed": 272,
-     "equal": true,
-     "rederived": 272
-    }
-   },
-   "model": "mask2former-vistas-curb-cut-1024x1024",
-   "op_threshold": 0.0,
-   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__bend.json",
-   "source": "scoreboard",
-   "split": "bend",
-   "status": "equal"
-  },
-  {
-   "ap_source": "bundle",
-   "fields": {
-    "ap": {
-     "committed": 0.52649,
-     "equal": true,
-     "rederived": 0.52649
-    },
-    "ap_bundle": {
-     "committed": 0.52649,
-     "equal": true,
-     "rederived": 0.52649
-    },
-    "f1": {
-     "committed": 0.586667,
-     "equal": true,
-     "rederived": 0.586667
-    },
-    "fn": {
-     "committed": 30,
-     "equal": true,
-     "rederived": 30
-    },
-    "fp": {
-     "committed": 342,
-     "equal": true,
-     "rederived": 342
-    },
-    "n_gt_recall": {
-     "committed": 294,
-     "equal": true,
-     "rederived": 294
-    },
-    "n_panos": {
-     "committed": 125,
-     "equal": true,
-     "rederived": 125
-    },
-    "precision": {
-     "committed": 0.435644,
-     "equal": true,
-     "rederived": 0.435644
-    },
-    "recall": {
-     "committed": 0.897959,
-     "equal": true,
-     "rederived": 0.897959
-    },
-    "tp": {
-     "committed": 264,
-     "equal": true,
-     "rederived": 264
-    }
-   },
-   "model": "mask2former-vistas-curb-cut-1024x1024",
-   "op_threshold": 0.0,
-   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__annapolis.json",
-   "source": "scoreboard",
-   "split": "annapolis",
-   "status": "equal"
-  },
-  {
-   "ap_source": "bundle",
-   "fields": {
-    "ap": {
-     "committed": 0.430178,
-     "equal": true,
-     "rederived": 0.430178
-    },
-    "ap_bundle": {
-     "committed": 0.430178,
-     "equal": true,
-     "rederived": 0.430178
-    },
-    "f1": {
-     "committed": 0.510129,
-     "equal": true,
-     "rederived": 0.510129
-    },
-    "fn": {
-     "committed": 118,
-     "equal": true,
-     "rederived": 118
-    },
-    "fp": {
-     "committed": 414,
-     "equal": true,
-     "rederived": 414
-    },
-    "n_gt_recall": {
-     "committed": 395,
-     "equal": true,
-     "rederived": 395
-    },
-    "n_panos": {
-     "committed": 125,
-     "equal": true,
-     "rederived": 125
-    },
-    "precision": {
-     "committed": 0.400868,
-     "equal": true,
-     "rederived": 0.400868
-    },
-    "recall": {
-     "committed": 0.701266,
-     "equal": true,
-     "rederived": 0.701266
-    },
-    "tp": {
-     "committed": 277,
-     "equal": true,
-     "rederived": 277
-    }
-   },
-   "model": "mask2former-vistas-curb-cut-1024x1024",
-   "op_threshold": 0.0,
-   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__paterson.json",
-   "source": "scoreboard",
-   "split": "paterson",
-   "status": "equal"
-  },
-  {
-   "ap_source": "bundle",
-   "fields": {
-    "ap": {
-     "committed": 0.521291,
-     "equal": true,
-     "rederived": 0.521291
-    },
-    "ap_bundle": {
-     "committed": 0.521291,
-     "equal": true,
-     "rederived": 0.521291
-    },
-    "f1": {
-     "committed": 0.526919,
-     "equal": true,
-     "rederived": 0.526919
-    },
-    "fn": {
-     "committed": 42,
-     "equal": true,
-     "rederived": 42
-    },
-    "fp": {
-     "committed": 371,
-     "equal": true,
-     "rederived": 371
-    },
-    "n_gt_recall": {
-     "committed": 272,
-     "equal": true,
-     "rederived": 272
-    },
-    "n_panos": {
-     "committed": 125,
-     "equal": true,
-     "rederived": 125
-    },
-    "precision": {
-     "committed": 0.382696,
-     "equal": true,
-     "rederived": 0.382696
-    },
-    "recall": {
-     "committed": 0.845588,
-     "equal": true,
-     "rederived": 0.845588
-    },
-    "tp": {
-     "committed": 230,
-     "equal": true,
-     "rederived": 230
-    }
-   },
-   "model": "mask2former-vistas-curb-cut-1024x1024",
-   "op_threshold": 0.0,
-   "predictions": "benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__gainesville.json",
-   "source": "scoreboard",
-   "split": "gainesville",
-   "status": "equal"
-  },
-  {
-   "ap_source": "bundle",
-   "fields": {
-    "ap": {
      "committed": 0.512564,
      "equal": true,
      "rederived": 0.512564
@@ -16535,10 +17084,10 @@
    "unchecked": 0
   },
   "scoreboard": {
-   "cells": 224,
+   "cells": 233,
    "differs": 0,
-   "equal": 224,
-   "fields_compared": 2240,
+   "equal": 233,
+   "fields_compared": 2330,
    "unchecked": 0
   }
  },
