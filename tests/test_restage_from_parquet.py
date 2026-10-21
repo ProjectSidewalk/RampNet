@@ -178,6 +178,7 @@ def test_check_record_then_check_detects_an_id_change(tmp_path, monkeypatch):
         (out / s / "a.jpg").write_bytes(JPEG)
         (out / s / "a.json").write_text("{}")
     monkeypatch.setattr(m, "EXPECTED", {"train": 1, "val": 1, "test": 1})
+    monkeypatch.setattr(m, "REFERENCE_IDS_SHA256", {})
     monkeypatch.setattr(sys, "argv", ["x", "--out", str(out), "--check", "--record"])
     assert m.main() == 0
     counts = json.loads((out / m.COUNTS_FILE).read_text())
@@ -204,6 +205,7 @@ def test_write_mode_end_to_end_with_shrunk_expected(tmp_path, monkeypatch):
     (out / "train").mkdir(parents=True)
     (out / "train" / "stale.jpg.tmp").write_bytes(b"x")  # from a pretend preemption
     monkeypatch.setattr(m, "EXPECTED", {"train": 1, "val": 1, "test": 1})
+    monkeypatch.setattr(m, "REFERENCE_IDS_SHA256", {})
     monkeypatch.setattr(sys, "argv", ["x", "--snapshot", str(snap), "--out", str(out), "--workers", "1"])
     assert m.main() == 0
     assert not list((out / "train").glob("*.tmp"))
@@ -212,3 +214,64 @@ def test_write_mode_end_to_end_with_shrunk_expected(tmp_path, monkeypatch):
                                                                               "train/file_1.json"]
     monkeypatch.setattr(sys, "argv", ["x", "--out", str(out), "--check"])
     assert m.main() == 0
+
+
+def _three_splits(out):
+    for s in ("train", "val", "test"):
+        (out / s).mkdir(parents=True)
+        (out / s / "a.jpg").write_bytes(JPEG)
+        (out / s / "a.json").write_text("{}")
+
+
+def test_reference_id_hashes_are_the_published_ids():
+    m = _load()
+    assert set(m.REFERENCE_IDS_SHA256) == set(m.EXPECTED)
+    assert all(len(v) == 64 for v in m.REFERENCE_IDS_SHA256.values())
+
+
+def test_check_fails_when_ids_differ_from_the_reference(tmp_path, monkeypatch):
+    """Right count, wrong id set: the committed reference hash catches it even without COUNTS.json."""
+    m = _load()
+    out = tmp_path / "out"
+    _three_splits(out)
+    monkeypatch.setattr(m, "EXPECTED", {"train": 1, "val": 1, "test": 1})
+    monkeypatch.setattr(m, "REFERENCE_IDS_SHA256", {"train": "0" * 64})
+    monkeypatch.setattr(sys, "argv", ["x", "--out", str(out), "--check", "--record"])
+    assert m.main() == 1
+    assert not (out / m.COUNTS_FILE).exists()  # nothing is recorded for a copy that failed
+
+
+def test_check_flags_tmp_files_under_quarantine_and_record_waits_for_a_clean_copy(tmp_path, monkeypatch):
+    m = _load()
+    out = tmp_path / "out"
+    _three_splits(out)
+    q = out / "_quarantine" / "train"
+    q.mkdir(parents=True)
+    (q / "file_1.jpg").write_bytes(DUMMY)
+    (q / "file_1.json").write_text("{}")
+    (q / "file_2.jpg.tmp").write_bytes(b"x")
+    monkeypatch.setattr(m, "EXPECTED", {"train": 1, "val": 1, "test": 1})
+    monkeypatch.setattr(m, "REFERENCE_IDS_SHA256", {})
+    monkeypatch.setattr(sys, "argv", ["x", "--out", str(out), "--check", "--record"])
+    assert m.main() == 1
+    assert not (out / m.COUNTS_FILE).exists()
+    manifest = (out / "_quarantine" / "MANIFEST.txt").read_text().splitlines()
+    assert manifest == ["train/file_1.jpg", "train/file_1.json"]  # the .tmp is never listed
+    (q / "file_2.jpg.tmp").unlink()
+    assert m.main() == 0
+    assert (out / m.COUNTS_FILE).is_file()
+
+
+def test_check_fails_when_counts_json_lacks_a_split(tmp_path, monkeypatch):
+    m = _load()
+    out = tmp_path / "out"
+    _three_splits(out)
+    monkeypatch.setattr(m, "EXPECTED", {"train": 1, "val": 1, "test": 1})
+    monkeypatch.setattr(m, "REFERENCE_IDS_SHA256", {})
+    monkeypatch.setattr(sys, "argv", ["x", "--out", str(out), "--check", "--record"])
+    assert m.main() == 0
+    counts = json.loads((out / m.COUNTS_FILE).read_text())
+    del counts["val"]
+    (out / m.COUNTS_FILE).write_text(json.dumps(counts))
+    monkeypatch.setattr(sys, "argv", ["x", "--out", str(out), "--check"])
+    assert m.main() == 1

@@ -56,6 +56,15 @@ from pathlib import Path
 
 SPLIT_DIRS = {"train": "train", "val": "val", "validation": "val", "test": "test"}
 EXPECTED = {"train": 150063, "val": 42875, "test": 21438}
+# sha256 over the sorted, LF-joined pano ids of each split, from the staged copy of Hub revision
+# ee882e3f3c779dc13182f307bca616e50d9b8c5c with the three placeholder rows removed (2026-10-21).
+# val and test were re-derived independently from the Hub's pano_id columns and agree. A copy
+# whose ids hash differently is not the published dataset, whatever its count says.
+REFERENCE_IDS_SHA256 = {
+    "train": "63e2755d6434a364be2d54ef2f8bbc8e561c1defba480cacb0c508c8ba1eb422",
+    "val": "0d8aaf9e45c08dcc402794b2493ff4fd723e20cc64847fa72c4f3fcb475e61a9",
+    "test": "0c431c2aba722d4ef129917f0d511d62d819e9199c0f1c527f93db6f47f370a0",
+}
 JPEG_MAGIC = b"\xff\xd8\xff"
 COUNTS_FILE = "COUNTS.json"
 
@@ -131,12 +140,17 @@ def count_pairs(d: Path):
 
 
 def quarantine_listing(root: Path):
-    """Sorted relative paths of every quarantined file (the manifest's content)."""
+    """Sorted relative paths of every quarantined file (the manifest's content); ``.tmp`` excluded."""
     q = root / "_quarantine"
     if not q.is_dir():
         return []
     return sorted(p.relative_to(q).as_posix() for p in q.rglob("*")
-                  if p.is_file() and p.name != "MANIFEST.txt")
+                  if p.is_file() and p.name != "MANIFEST.txt" and p.suffix != ".tmp")
+
+
+def quarantine_tmp_files(root: Path):
+    q = root / "_quarantine"
+    return sorted(q.rglob("*.tmp")) if q.is_dir() else []
 
 
 def write_quarantine_manifest(root: Path) -> int:
@@ -193,7 +207,7 @@ def main() -> int:
             out_dir = a.out / out_split
             quarantine_dir = a.out / "_quarantine" / out_split
             out_dir.mkdir(parents=True, exist_ok=True)
-            swept = sweep_tmp(out_dir)
+            swept = sweep_tmp(out_dir) + (sweep_tmp(quarantine_dir) if quarantine_dir.is_dir() else 0)
             shards = sorted(str(p) for p in hf_dirs[out_split].glob("*.parquet"))
             print(f"[{out_split}] {len(shards)} shards -> {out_dir} (swept {swept} .tmp)", flush=True)
             jobs = [(sh, str(out_dir), str(quarantine_dir)) for sh in shards]
@@ -216,9 +230,18 @@ def main() -> int:
             continue
         pairs, jpg_only, json_only, tmps, digest = split_state(out_dir)
         ok = exp == pairs and not jpg_only and not json_only and not tmps
-        if a.check and previous.get(out_split, {}).get("ids_sha256") not in (None, digest):
+        ref = REFERENCE_IDS_SHA256.get(out_split)
+        if ref is not None and digest != ref:
             ok = False
-            print(f"[{out_split}] id hash {digest[:12]} differs from {COUNTS_FILE}", flush=True)
+            print(f"[{out_split}] id hash {digest[:12]} differs from the reference {ref[:12]}", flush=True)
+        if a.check and previous:
+            recorded = previous.get(out_split, {}).get("ids_sha256")
+            if recorded is None:
+                ok = False
+                print(f"[{out_split}] no entry in {COUNTS_FILE}", flush=True)
+            elif recorded != digest:
+                ok = False
+                print(f"[{out_split}] id hash {digest[:12]} differs from {COUNTS_FILE}", flush=True)
         if not ok:
             rc = 1
         counts[out_split] = {"pairs": pairs, "expected": exp, "ids_sha256": digest}
@@ -226,22 +249,27 @@ def main() -> int:
               f"json-only {json_only}, tmp {tmps}, ids sha256 {digest[:12]}: {'OK' if ok else 'MISMATCH'}",
               flush=True)
 
-    if a.check and a.record:
-        if not (a.out / "_quarantine" / "MANIFEST.txt").is_file():
-            write_quarantine_manifest(a.out)
-        if rc == 0 and not counts_path.is_file():
-            with open(counts_path, "w", encoding="utf-8", newline="\n") as f:
-                json.dump(counts, f, indent=2, sort_keys=True)
-                f.write("\n")
-            print(f"[counts] recorded {counts_path}", flush=True)
     if a.check:
+        q_tmp = quarantine_tmp_files(a.out)
+        if q_tmp:
+            print(f"[quarantine] {len(q_tmp)} .tmp file(s) under _quarantine/: MISMATCH", flush=True)
+            rc = 1
+        if a.record and not (a.out / "_quarantine" / "MANIFEST.txt").is_file():
+            write_quarantine_manifest(a.out)
         if not check_quarantine_manifest(a.out):
             print("[quarantine] MANIFEST.txt missing or differs from the directory: MISMATCH", flush=True)
             rc = 1
         else:
             print(f"[quarantine] {len(quarantine_listing(a.out))} files, manifest matches", flush=True)
+        if a.record and rc == 0 and not counts_path.is_file():
+            # Only a copy that passed every check above is worth recording.
+            with open(counts_path, "w", encoding="utf-8", newline="\n") as f:
+                json.dump(counts, f, indent=2, sort_keys=True)
+                f.write("\n")
+            print(f"[counts] recorded {counts_path}", flush=True)
         if not counts_path.is_file():
-            print(f"[counts] {COUNTS_FILE} missing (write mode records it): MISMATCH", flush=True)
+            print(f"[counts] {COUNTS_FILE} missing (write mode or --check --record writes it): MISMATCH",
+                  flush=True)
             rc = 1
     else:
         n_q = write_quarantine_manifest(a.out)

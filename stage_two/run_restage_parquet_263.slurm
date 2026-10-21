@@ -53,9 +53,11 @@ SNAP_ROOT="$HF_HOME/hub/datasets--projectsidewalk--rampnet-dataset/snapshots"
 if [ -n "${HF_REVISION:-}" ]; then
     SNAP="$SNAP_ROOT/$HF_REVISION"
 else
-    n=$(ls -d "$SNAP_ROOT"/*/ 2>/dev/null | wc -l)
-    [ "$n" -eq 1 ] || { echo "FATAL: $SNAP_ROOT holds $n snapshots; set HF_REVISION" >&2; exit 1; }
-    SNAP=$(ls -d "$SNAP_ROOT"/*/)
+    shopt -s nullglob
+    snaps=("$SNAP_ROOT"/*/)
+    shopt -u nullglob
+    [ "${#snaps[@]}" -eq 1 ] || { echo "FATAL: $SNAP_ROOT holds ${#snaps[@]} snapshots (download the dataset, or set HF_REVISION)" >&2; exit 1; }
+    SNAP="${snaps[0]}"
 fi
 [ -d "$SNAP/train" ] || { echo "FATAL: $SNAP has no train/ shards; download the dataset first" >&2; exit 1; }
 OUT="${OUT:-/gscratch/scrubbed/$USER/rampnet_dataset_v2}"

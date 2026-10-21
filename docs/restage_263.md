@@ -68,8 +68,20 @@ python scripts/restage_from_parquet.py --out /gscratch/scrubbed/jfroehli/rampnet
 ```
 
 It exits 0 only when all three split directories exist and hold exactly 150,063 / 42,875 /
-21,438 complete pairs, no jpg-only or json-only strays, no `.tmp` files, per-split id hashes
-equal to `COUNTS.json`, and a quarantine manifest equal to the directory. The run of record's
+21,438 complete pairs, no jpg-only or json-only strays, no `.tmp` files (in the splits or under
+`_quarantine/`), per-split id hashes equal to the committed reference below and to
+`COUNTS.json`, and a quarantine manifest equal to the directory. The reference hashes (sha256
+over the sorted, LF-joined pano ids; val and test re-derived independently from the Hub's
+`pano_id` columns during review and equal) are in the script as `REFERENCE_IDS_SHA256`:
+
+| split | ids | sha256 |
+| :--- | ---: | :--- |
+| train | 150,063 | `63e2755d6434a364be2d54ef2f8bbc8e561c1defba480cacb0c508c8ba1eb422` |
+| val | 42,875 | `0d8aaf9e45c08dcc402794b2493ff4fd723e20cc64847fa72c4f3fcb475e61a9` |
+| test | 21,438 | `0c431c2aba722d4ef129917f0d511d62d819e9199c0f1c527f93db6f47f370a0` |
+
+A re-stage from a clean clone whose ids hash differently is not the published dataset, whatever
+its counts say. The run of record's
 output is quoted in the PR (#268). The check needs no shard cache, which was removed after
 verification. The control launcher in #266 refuses to start unless `train/` and `val/` hold
 exactly these counts.
