@@ -503,3 +503,17 @@ def test_provider_defaults_match_compare_pys_parser():
     defaults = {a.dest: a.default for a in compare.build_parser()._actions}
     for key, value in roster.PROVIDER_DEFAULTS.items():
         assert defaults[key] == value, key
+
+
+def test_seed_of_names_a_registered_non_seed_leg():
+    """A seed leg's parent must be a registered leg that is not itself a seed leg, and a seed
+    leg is never standing: a typo in ``seed_of`` would otherwise drop the leg from the board
+    and leave a dangling parent (#259 re-review)."""
+    from rampnet.roster import BY_PUBLISHED, SEED_LEGS
+
+    assert SEED_LEGS, "the guard should have something to check"
+    for c in SEED_LEGS:
+        assert c.seed_of in BY_PUBLISHED, (c.published_as, c.seed_of)
+        assert not BY_PUBLISHED[c.seed_of].seed_of, (c.published_as, c.seed_of)
+        assert not c.standing, c.published_as
+

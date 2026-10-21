@@ -852,7 +852,8 @@ What the eight new pooled-or-held-out cities show, against the richmond reading 
   cities, 2.7–4.5 false positives per panorama. clovis, the 2018 GoPro Fusion split, is this arm's
   worst city, as it is for the two open-vocabulary detectors and Claude Opus 5.5.
 - **On budapest it is the strongest challenger on the board.** It scores 0.527 against RampNet's
-  0.644, Claude Opus 5.5's 0.451, Gemini 3.1 Pro's 0.381 and the YOLO arms' 0.221–0.277. Vistas
+  0.644, Claude Opus 5.5's 0.451, Gemini 3.1 Pro's 0.381 and the four YOLO arms' 0.221–0.319 (the top of that range is
+  YOLO11x at perspective tiles, #258). Vistas
   is a worldwide dataset, and this is the one split where the design vocabulary is not American.
   Read it with budapest's low-confidence-GT caveat (`benchmark/README.md`).
 - **It rises on `manual_gold`, unlike the zero-shot models.** It scores 0.649 there against 0.519

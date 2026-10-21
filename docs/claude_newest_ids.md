@@ -281,9 +281,12 @@ in mind.
   its precision (0.831). Both Claude legs have lower precision there (0.620, 0.552) and higher
   recall (0.618, 0.528). Juneau's GT is single-rater at medium confidence too
   ([`juneau_split_254.md`](juneau_split_254.md)), but juneau is pooled.
-- **Its pooled recall, 0.735, is above RampNet's 0.686**, the only model with full pooled
+- **Its pooled recall, 0.735, is above RampNet's 0.686**, one of two models with full pooled
   coverage for which that is true apart from the two open-vocabulary detectors at their 0.05
-  floor. Its precision is 0.696 against RampNet's 0.953.
+  floor. Its precision is 0.696 against RampNet's 0.953. (The other is the Mapillary Vistas
+  curb-cut arm at 1024, recall 0.836 at precision 0.380, which joined the pool on 2026-10-20;
+  [`vistas_transfer_126.md`](vistas_transfer_126.md) § "All fourteen splits".) Until then
+  Opus 5.5 was the only one.
 - **Fable 5.1 pools at 0.607**, above YOLO11l (0.583) by 0.023 and Gemini 3.1 Pro (0.571) by
   0.035. Over the eight cities before juneau it was level with YOLO11l (0.598 against 0.599);
   juneau moved both, YOLO11l down (0.462 there, its worst pooled city) and Fable 5.1 up (0.673).

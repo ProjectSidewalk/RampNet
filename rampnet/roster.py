@@ -15,7 +15,7 @@ CPU-only test suite has to cover it. It follows the splits registry in
 literally rather than derived from ``ROSTER`` precisely so that adding a challenger
 cannot touch it. See the comment on it.
 
-Five properties of an entry are worth stating because they are easy to get wrong:
+These properties of an entry are worth stating because they are easy to get wrong:
 
 * ``density`` is **evidence, not configuration** — it comes from the measured
   boxes-per-panorama in ``docs/model_comparison.md`` (sparse models emit 1-4, the
@@ -60,6 +60,13 @@ Five properties of an entry are worth stating because they are easy to get wrong
   cache key — on another host or in another environment, kept so the published
   numbers can be shown to reproduce (or not). ``REPLICATES`` registers them, and
   they publish under ``benchmark/model_detections/replicates/<tag>/``.
+* ``seed_of`` marks a **seed leg**: the same recipe as another leg, retrained from a
+  different random seed. Unlike a replicate it is a different checkpoint, so it has its
+  own detections and its own scores. It is published and registered like any leg, but it
+  stays off the scoreboard (``scripts/analysis/scoreboard.py``), whose question is "which
+  model is best" rather than "how much does one model vary between training runs". That
+  second question has its own write-up, ``docs/seed_variance_51_135.md``. The value is
+  the published name of the leg it replicates.
 """
 from collections import namedtuple
 import os
@@ -79,8 +86,9 @@ def slug(label):
 #: One registered leg. ``spec`` is the ``compare.py --models`` token; ``pins`` are the
 #: extra signature-entering settings it was run with, if any.
 Challenger = namedtuple(
-    "Challenger", "spec label provider density standing added note pins published_as",
-    defaults=((), None))
+    "Challenger",
+    "spec label provider density standing added note pins published_as seed_of",
+    defaults=((), None, None))
 
 # --------------------------------------------------------------------------- #
 # The registry
@@ -231,6 +239,27 @@ ROSTER = (
         note="YOLO26-L. The loosest of the trio -- 2.60 boxes/pano at 0.25 and 9.39 "
              "at 0.05, roughly double the YOLO11 arms -- which is why it leads only "
              "on budapest, where firing at all is the binding constraint."),
+
+    # The perspective-tiles YOLO arms (#51 geometry read, #135 seed variance),
+    # published 2026-10-19 (#258) from the makelab2 .model_cache that scored them --
+    # until then they lived only there. Run with --tiling perspective --yolo-imgsz
+    # 1024, the exporter's defaults. Same SCORED_SPECS exclusion as the pano trio.
+    Challenger(
+        spec="yolo:yolo_ckpts/y11x_tiles.pt", label="y11x_tiles", provider="yolo",
+        density="sparse", standing=False, added="2026-10-19",
+        note="YOLO11-X, perspective tiles, best.pt at ep44 (sha256 63bbe5d6...). The "
+             "strongest YOLO arm: docs/yolo_geometry_51.md. Ten splits, scored "
+             "2026-08-30 on makelab2 (ultralytics 8.4.120, A40)."),
+    *[Challenger(
+        spec=f"yolo:seedvar_ckpts/y11x_tiles_{leg}.pt", label=f"y11x_tiles_{leg}",
+        provider="yolo", density="sparse", standing=False, added="2026-10-19",
+        seed_of="y11x_tiles",
+        note="Seed-variance replicate of y11x_tiles (Campaign A, Tillicum; "
+             "docs/seed_variance_51_135.md). Nine splits, no budapest_district5. "
+             "The _ep legs are the epoch pick_epoch chose (Ultralytics' 0-based "
+             "epochN.pt is results.csv row N+1); checkpoint sha256s are in "
+             "docs/data/seed_variance_51_135/env.txt.")
+      for leg in ("s1_ep44", "s2_ep44", "s3_ep42", "s1_best", "s2_best", "s3_best")],
 
     # The Claude legs (#122). Two model ids x two efforts, all four on annapolis.
     # The opus/low leg now covers eleven splits -- the nine of #139 plus both
@@ -626,6 +655,9 @@ SCORED_SPECS = tuple(c.spec for c in SCORED)
 
 #: Published and verified, but not scored in the roster tables.
 OFF_ROSTER = tuple(c for c in ROSTER if not c.standing)
+
+#: Seed legs (``seed_of`` set): published and registered, but not on the scoreboard.
+SEED_LEGS = tuple(c for c in ROSTER if c.seed_of)
 
 # Read off the entries, not by looking each spec back up in BY_SPEC: that mapping
 # holds default legs only, so a spec-keyed lookup here would resolve to the wrong

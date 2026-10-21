@@ -1,14 +1,15 @@
 # The benchmark scoring protocol as code (`rampnet.eval`)
 
 Issue [#150](https://github.com/ProjectSidewalk/RampNet/issues/150), the "evaluation protocol
-as code" item only. Written 2026-10-05; Bayonne added to the pinned registry 2026-10-11
-(see [Revision](#revision)).
+as code" item only. Written 2026-10-05; Bayonne added to the pinned registry 2026-10-11, Juneau 2026-10-19, the YOLO11x tiles
+arm's cells added 2026-10-19, and the Vistas 1024 arm's last nine cells 2026-10-20 (see
+[Revision](#revision)).
 
 **Result.** `rampnet/eval.py` scores a prediction file against a committed benchmark bundle
 through the same functions every committed benchmark number came from, and
-`scripts/analysis/eval_protocol_150.py --check` proves it: all **187** cells of
-`analysis_out/scoreboard.json` (21 model legs, 14 splits) and all **30** (arm, split) cells of
-`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,870 and 480
+`scripts/analysis/eval_protocol_150.py --check` proves it: all **233** cells of
+`analysis_out/scoreboard.json` (23 model legs, 14 splits) and all **30** (arm, split) cells of
+`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 2,330 and 480
 field comparisons respectively, with **0** differing and **0** unchecked. The split files are
 pinned by content hash in `benchmark/split_pins.json`. No number changed, and the four
 fingerprinted scorer files are byte-identical to `main` (fingerprint `f4aef67aba03`).
@@ -128,16 +129,17 @@ script prints it), so editing the packaging layer alone does not make the proof 
 | `analysis_out/scoreboard.json` | 175 | 175 | 0 | 0 | 1,750 |
 | `benchmark_eval/` | 30 | 30 | 0 | 0 | 480 |
 
-*Updated 2026-10-20: the board has grown since, so the committed proof now covers **214**
-scoreboard cells (22 model legs, 14 splits; 2,140 field comparisons), still 0 differing and 0
-unchecked. Beyond Juneau's 12 (Revision, below), the 27 new cells are the `claude-opus-5-5` and
-`claude-fable-5-1` legs of [`claude_newest_ids.md`](claude_newest_ids.md), juneau included. The
+*Updated 2026-10-20: the board has grown since, so the committed proof now covers **224**
+scoreboard cells (23 model legs, 14 splits; 2,240 field comparisons), still 0 differing and 0
+unchecked. Beyond Juneau's 12 (Revision, below), 27 new cells are the `claude-opus-5-5` and
+`claude-fable-5-1` legs of [`claude_newest_ids.md`](claude_newest_ids.md), juneau included,
+and 10 are `y11x_tiles` (#258, Revision below). The
 table above is the 2026-10-05/11 run.*
 
-*Updated again 2026-10-20: **223** scoreboard cells (2,230 field comparisons), still 0 differing
-and 0 unchecked. The 9 new cells are the Vistas parity arm on the nine splits it had not run
-([`vistas_transfer_126.md`](vistas_transfer_126.md) § "All fourteen splits"). The leg count is
-unchanged at 22.*
+*Updated again 2026-10-20: **233** scoreboard cells (was 224; 2,330 field comparisons), still 0
+differing and 0 unchecked. The 9 new cells are the Vistas parity arm on the nine splits it had
+not run ([`vistas_transfer_126.md`](vistas_transfer_126.md) § "All fourteen splits"). The leg
+count is unchanged at 23.*
 
 What is compared, and how:
 
@@ -274,3 +276,15 @@ pins are byte-unchanged. The reproduction proof was regenerated: **187** scorebo
 comparisons) and the same **30** YOLO `benchmark_eval/` cells all re-derive equal, including
 Juneau's RampNet cell from `analysis_out/op_cache/juneau.json` (12 op_cache cells, was 11),
 0 differing, 0 unchecked.
+
+**2026-10-19: YOLO11x tiles legs added.** [#258](https://github.com/ProjectSidewalk/RampNet/issues/258)
+published per-pano detections for seven YOLO11x perspective-tiles legs (`y11x_tiles` on ten
+splits, and the six seed-variance legs on nine, without `budapest_district5`) and registered
+them in `rampnet/roster.py`. Only `y11x_tiles` is on the scoreboard; the six seed legs are
+kept off it (`seed_of` in the roster; reasons in `model_scoreboard.md`), so they are not
+cells here either. The scoreboard gained 10 cells. The reproduction proof was
+regenerated after Juneau and the newest Claude legs merged: **224** scoreboard cells (was 214;
+the 10 new ones are all `y11x_tiles`, which has no Juneau detections; 2,240 field comparisons,
+23 model legs) and the
+same **30** YOLO `benchmark_eval/` cells all re-derive equal, 0 differing, 0 unchecked. The
+RampNet op_cache cells are unchanged (12), the split pins are byte-unchanged, and the scorer fingerprint is still `f4aef67aba03`.
