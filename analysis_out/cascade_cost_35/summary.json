@@ -378,6 +378,11 @@
    "split": "laurens_gsv"
   },
   {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
    "challenger": "gemini-3.7-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "laurens_gsv"
