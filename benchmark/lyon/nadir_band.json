@@ -1,0 +1,1384 @@
+{
+ "by_rig": [
+  {
+   "band_top_y_max": 0.873,
+   "band_top_y_median": 0.873,
+   "band_top_y_min": 0.873,
+   "kind": "logo",
+   "panos": 6,
+   "rig": "(no make/model) 10560x5280"
+  },
+  {
+   "band_top_y_max": 0.8203,
+   "band_top_y_median": 0.8203,
+   "band_top_y_min": 0.8203,
+   "kind": "black",
+   "panos": 34,
+   "rig": "(no make/model) 8192x4096"
+  },
+  {
+   "band_top_y_max": null,
+   "band_top_y_median": null,
+   "band_top_y_min": null,
+   "kind": null,
+   "panos": 6,
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  {
+   "band_top_y_max": null,
+   "band_top_y_median": null,
+   "band_top_y_min": null,
+   "kind": null,
+   "panos": 1,
+   "rig": "Arashi Vision insta360 x5 11904x5952"
+  },
+  {
+   "band_top_y_max": null,
+   "band_top_y_median": null,
+   "band_top_y_min": null,
+   "kind": null,
+   "panos": 5,
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  {
+   "band_top_y_max": null,
+   "band_top_y_median": null,
+   "band_top_y_min": null,
+   "kind": null,
+   "panos": 1,
+   "rig": "GoPro MAX2 7680x3840"
+  },
+  {
+   "band_top_y_max": null,
+   "band_top_y_median": null,
+   "band_top_y_min": null,
+   "kind": null,
+   "panos": 87,
+   "rig": "GoPro Max 5760x2880"
+  },
+  {
+   "band_top_y_max": 0.9668,
+   "band_top_y_median": 0.9668,
+   "band_top_y_min": 0.9668,
+   "kind": "black",
+   "panos": 1,
+   "rig": "GoPro Max 5760x2880"
+  },
+  {
+   "band_top_y_max": 0.8418,
+   "band_top_y_median": 0.8398,
+   "band_top_y_min": 0.8398,
+   "kind": "logo",
+   "panos": 4,
+   "rig": "GoPro Max 5760x2880"
+  },
+  {
+   "band_top_y_max": null,
+   "band_top_y_median": null,
+   "band_top_y_min": null,
+   "kind": null,
+   "panos": 12,
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  {
+   "band_top_y_max": 0.8203,
+   "band_top_y_median": 0.8203,
+   "band_top_y_min": 0.8184,
+   "kind": "black",
+   "panos": 41,
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  {
+   "band_top_y_max": null,
+   "band_top_y_median": null,
+   "band_top_y_min": null,
+   "kind": null,
+   "panos": 2,
+   "rig": "RICOH THETA S 5376x2688"
+  }
+ ],
+ "found_by_eye": "all 200 panos' bottom 31% were looked at on a contact sheet (2026-10-20, claude-opus-5-5); the black nadirs are found by the rule, the two logo graphics by eye (LOGO_BANDS); rig parts such as roof racks and car bodies are imagery and not marked",
+ "method": {
+  "black": "every channel <= 24",
+  "columns": "all",
+  "downsample": "1024x512 bilinear",
+  "logo": "rows >= 380: first row whose share of logo blue (b > r + 40, r < 90) is >= 0.1 for 9 rows running",
+  "row_is_band": ">= 0.98 of the row qualifies",
+  "scan": "up from row 496 while rows qualify",
+  "script": "scripts/analysis/lyon_review_159.py band",
+  "white": "every channel > 235"
+ },
+ "n_with_band": 86,
+ "n_without_band": 114,
+ "panos": {
+  "0251def3-96a7-4d4b-a58f-3c78cc93cef7": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "03a2955b-7c17-46ae-a4e9-8b3ee4969261": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "03e0fcc2-c872-409f-a587-105e32da8e84": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "06d86bb6-d15d-4842-be80-882405325b86": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "0bb048b1-2fa2-4e8d-9702-80c173e55598": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "0c90b917-a4ff-4489-aceb-58440e3fed58": {
+   "band_top_y": 0.8398,
+   "group": "other_gopro_max",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "navy 'la ville a velo' logo",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "108b2af3-9995-4636-9b97-c26af1b22198": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "115a7860-fa72-4f01-90d4-e4f072786610": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "11f700f8-c2d3-47fa-89ea-7d4464d1c64c": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "12aa94b3-8672-4aca-83b9-8af5d32774f6": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "13b2b34b-c732-452d-b547-de61081923ed": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "15f8534c-769f-4edd-bd99-c0f91a5ed864": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "177893f6-c2e5-4ba5-beb2-aac2935c4219": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "185cc33a-f18f-43a8-8862-2887e2e4107b": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "18b1d7b1-4b44-4c0c-91d9-de7e6f34b471": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "1a0e119e-e1a9-403f-ab4f-b49111a5fc0a": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "1cd831a9-5bd6-443b-957b-3ee013a19814": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "1e003752-8f9f-4265-9bfa-d65e4f477c3c": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "1e2b8696-3c14-49d7-87f7-501d08ce7536": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "1f66c233-83c9-4a11-9000-2e560e42eb87": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "1fa0c0f1-7964-431b-b599-9103459b89e8": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "24664953-17a7-48f8-a35c-1c705dafddcf": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "25236509-31bc-40b4-8e0e-6e7fb206e0ee": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "26d51bb9-d1f9-40e7-bf15-c7b22883cd8a": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "272f58bc-36eb-4184-ae3f-485cdaaa12e9": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "274eac7c-4552-4933-b5bc-cf32d4cbd630": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "28da18e2-134b-46de-86e6-e8b081e7b041": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "29486f29-c2ed-408a-a160-eab83c1b4e6f": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "29ea0c81-73d5-42b7-b66e-69ebf1be1f2c": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "2b8c9798-08e1-4010-b9cd-cdceb655a7e3": {
+   "band_top_y": 0.8398,
+   "group": "other_gopro_max",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "navy 'la ville a velo' logo",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "2bcc1596-a2c4-41da-b387-bf7ef581d16c": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "2db1677b-3ba2-4284-9f28-164f4de8f607": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "2f2146f0-f39c-40fd-9611-989ff37b445d": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "32dc3ea7-b1c2-4a47-a02e-f164efe0c94e": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "34e1a9e0-103a-4b46-9802-3ab010a21492": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "352782c1-cd11-4f66-b1cc-f44451edc747": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "352f24f3-daa0-4d95-93c4-14ab4d345ddf": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "3744af9d-456c-48a6-a4ba-f3d2917cd91b": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "389d9675-dc3d-4652-a728-7bc8a9716807": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "3a17f053-ff4a-4178-923f-e42ab2c5ea60": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "3c7667d4-ccac-4ed4-8b83-7a6f58c7e0ed": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "40183997-60c6-4d7a-b116-4aa9de46ea0f": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "40dc9043-0da4-479b-ac14-2a443a879fee": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "41d7865c-a85e-4f74-ad91-eb7d3affc803": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "41e43f3b-5a3c-4633-b445-c5d976e13356": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "42b72b8b-5145-4507-a1f6-b5371f34ea9e": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "435fe88e-55ef-4553-8948-fffbfbb08449": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x5 11904x5952"
+  },
+  "43d24c85-42d4-4304-b970-32c2d2e41c83": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "4481d780-e109-401e-a595-5015ba63284c": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "45143ce9-d752-476b-9ca6-cbb8046849ca": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "45ee349d-8d94-433d-bc65-5754dd3bb5ea": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "474dd0c2-c601-4bf7-a3ab-ae6a51c2123b": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "47983a0e-3eb9-481f-8214-4ee15c14aee2": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "4a3e2dad-f3ac-4297-892b-918cd0eb5493": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "4cc98851-a96c-4229-87a5-1268ccfb65db": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "4cd23f2f-3d09-4db6-b2dd-3b80e62f55f6": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "4f2e184e-3108-45fb-8f99-48b8509da73c": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "4f78e494-f18b-4882-87d1-a49b08688398": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "4fd4ad01-05a7-4e3a-8795-849a7389640b": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "52847a1b-e7de-43a6-9cec-183dd9a4f0fd": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "5296839b-6864-4308-842d-beb759b08d8f": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "529a81df-f9a7-4bcc-b45f-bee44178161b": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "52dbe027-7442-4e46-9a1c-836b11b1af56": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "54ebd096-4743-43b5-b991-76bba67d3af6": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "5544d785-2d74-4cdd-a0b5-448c89b26dae": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "5a7ee908-7735-462c-a06f-924734c70289": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "5b8fd55b-6200-4765-8b62-0975259339bc": {
+   "band_top_y": 0.8184,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "5cf637a8-de81-4f09-a5c8-c9cd16f3846e": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "5d9e19f2-38fa-4ceb-a877-d40b9a013d2c": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "5dcfe1ea-d787-4986-9883-9a17ddae844c": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "5df72f9d-340d-42a8-897e-49536cecb759": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "5f0ac09a-b6b9-463e-a819-1d59ee23c62d": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "5f1bd59a-d83f-4376-a7d5-5afa48586aad": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "6064e943-53c9-4101-ae39-69319944df63": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "6359cf72-cb45-439d-999e-11b402ab0ce5": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "637f5103-6333-4ddf-bab9-3309ce52b33a": {
+   "band_top_y": 0.8418,
+   "group": "other_gopro_max",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "navy 'la ville a velo' logo",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "6411d38d-5ba4-4cc2-9afd-c6d434560e58": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "64402920-9aaa-4ceb-a6ca-69e9c035e3c0": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "64527dc4-b421-4ff7-b537-e9e522106533": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "6471e449-f399-4675-be1f-2b737e3cf28f": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "652da0b0-737d-46dd-becb-556bad0dbc0b": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "66ba1661-8f2c-4770-9748-0c11b36b8daf": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "66ccafba-7fd8-4019-88e7-65f3e60aee43": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "674e8a36-c43b-438f-9f72-5f2c6c6474a5": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "67a1066b-1904-4881-a330-bce8dda7f81a": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "69007277-80ec-4bdc-afee-ef29cc8174d3": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "6bbf88af-ed13-4bba-8905-cc7031d7a279": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "6e6cf5e3-d6a1-4d1d-829d-932c4378eac8": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "6e9ff6fc-cafe-47d6-931f-3f607cef4471": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "71836e76-342b-4679-96f5-d686d15475b1": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "72f67d3a-6b14-4ce4-b40c-4cd83db323bd": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "74f2157e-8261-40bc-8e3c-627bc5806b7a": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "760f27c4-9cd1-4bb5-9e93-67864bdb282d": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "781655b5-1c1c-47bd-8080-c4a17215ef6e": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "78577d51-2224-4feb-81c3-bc329fc8f3e3": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "7c3a6c9c-89cf-4631-b25b-ea5a934345c1": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "7d0e2466-ebb8-4e46-b470-a74edbd77f87": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "7eed2455-5adc-47a6-b9e3-dadcd3b9fd9c": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "83b5e91f-d0fe-4517-90fa-50d99871dfda": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "84fc5151-0502-425a-a9f5-7403542fe165": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "852db176-5973-476f-bf92-4bdd4972b44a": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "8583d99d-076d-4ca4-99e7-f53eb6eec3ee": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "86e36565-21e8-457d-af67-6670a3be3168": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "871642a5-b88c-4d7c-a760-bfe0c7a319c3": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "87819c5c-a869-45d3-adac-0236504336ae": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "8871890f-1373-4681-9495-ae0fad3639b1": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "888dcc5d-3135-4292-99d3-43ae4decd08b": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "8b134e92-85df-402b-9577-c3bc4ac7283e": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "8bbea93e-c013-4159-8e11-e1bb6257c4f4": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "8c812ccb-295b-4326-bc87-1efad71fee0b": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "8da08e12-ee2a-46d2-b533-aa1c01bd1e85": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "9119ff94-fd99-426c-916a-7c8492b8d2f8": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "91b7cb2a-9912-4ff6-83b1-6cc04c2e6b4f": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "9376c3bc-4d39-4890-898e-07165249a5dc": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "9378fa9b-2533-4fe0-b409-0edf45b3682b": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "93cef77e-a16c-4e6c-a5e5-1d380b03243d": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "94f69dba-977b-49e8-91e5-11e7fc5b4984": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "966f06a8-f832-4760-accc-d01ea9bfc15d": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "9690d724-e829-44ca-8656-e0d7915c8644": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "97848f98-bb65-4ac4-8ba1-6627c5456b8b": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "97e7f15b-90a3-42e5-a074-246659be16a9": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "9c6dfd07-8e0a-432d-b485-5d994fcc4905": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "9d60a85d-d29e-4b2b-a004-67119378e070": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "9e1d55b4-7ef7-4ba1-80c4-085e87b5ac02": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "9e25b806-2792-4b3d-9b44-0ebe757ce5a9": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "a17688e5-bd92-4b53-8fed-5500f143267d": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "a18f0da7-bb15-4a60-aff4-8ba5b084f28d": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "a2cddf32-fa4c-4173-961a-0373506c0aec": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "a31f6245-29a5-4b35-97b9-bef88d6fca8b": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "a3a03099-0daf-471f-9095-4a2be694a727": {
+   "band_top_y": 0.8398,
+   "group": "other_gopro_max",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "navy 'la ville a velo' logo",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "a8076887-81f3-4121-82a9-ee4f04419a46": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "acdf5269-e674-461b-b0f5-b7c07fa61028": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "aeb89a00-4db4-4db0-8816-23bebd407a74": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "b0b721cf-c9a5-4935-91b3-1c60479fd5bf": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "b2ef9f29-b9ba-4aea-a5d8-6746f66739c2": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "b3f788cb-f94a-495c-a769-4da77d13edbe": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "b620da0c-33e4-4475-bcce-d3d85e155696": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "b7002c07-7af9-4d2b-b2e2-d627d9fd32e5": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "b780053d-ae80-4352-9a7f-df460a9084a1": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "b7823972-59c1-44ff-be66-ab1595688f64": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "b7ba7fcc-cf9e-4598-83c8-1ff50088aed5": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "b9bd572d-69ef-4554-8d44-08e59251bb46": {
+   "band_top_y": 0.9668,
+   "group": "other_gopro_max",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "ba387f92-cdcd-4ddf-9013-d0afbf32d27e": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "bccaeeb3-617c-41be-b525-ed63fc64168c": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "bef147b1-a80e-4437-94ba-3453d038d3fa": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "bfc80ef5-3142-428b-9e71-61858065078a": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "c0de310a-4709-4844-b329-57f801f53a34": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "c0f8529c-bf06-4c65-a389-4ee227f91852": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "c2667282-a470-46e4-b80c-64ec45c49e92": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "c2bfb3bc-0218-446c-8023-1459b65db023": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "c2f167ab-8469-4c5b-8b59-c3858f5602ab": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "c2f7fbde-8d08-4b0b-87b2-5ce2afb115b9": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "c6b348dd-53b1-48a2-a6ea-e4aeb4e4a307": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "c810ee18-9117-4d7a-8d30-3ef4d390bd88": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "cc1624fd-68f4-437a-a721-cdb7fe90b5c9": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "cc8a7979-4aac-4859-ae5a-eb15c9808c8d": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "ccd9dd72-1a99-4d0c-8539-cdf84b5d3268": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "cd7f08d2-8cf1-42dc-9ae8-9ff0467f6f80": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "cdd193de-be7d-4470-812e-15ccc0c04006": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "cdf581e6-927d-48b6-82cd-23ef70699f03": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "cfac7ebd-6f22-4303-a329-75703f3e2a4d": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "d08a82fc-9ce7-4378-bbba-0467f5bde04a": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "d113e602-4bb5-418f-b9de-2e56c64f1821": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "GoPro MAX2 7680x3840"
+  },
+  "d15c6a39-d187-4661-a911-a84450144c57": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "d1dc28e1-70de-4bff-b964-8e1973b06981": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "d50a199d-233e-40e5-8d6b-e6cad429e61e": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "d528e025-6fbc-4209-bd2c-2d7a47a27827": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "d708b387-403b-4467-b7b0-8da59f8ab583": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "d86d4363-e12f-4be8-b906-8a194a77fd12": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "d9cb24cf-1362-4123-9187-47ea7db1ad2a": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "dabf7517-20a1-4b96-89a8-c80372bb42ec": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "db1b26ae-dd49-40fb-8522-ef58fbd6e813": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "dc326ab1-eabb-44e8-b88d-9e46f03efbb1": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "dd064cf6-d5af-459a-8570-ff10d2c7c62c": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "de7d37d3-980f-470b-b4ec-c891c285823b": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "e0603d1c-a419-411c-8d3b-a3b7210e3b0b": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "e0a38610-6ddf-4397-b707-29a62d415106": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "e0c7e610-ffd7-4cdd-929a-943aebf3b05c": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "e12e0977-9662-4818-b901-18d76e1c9452": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "e1d9a558-bad8-4037-abc4-1315441d3f5b": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "e20eb107-751a-446b-8d04-d5aa047c892b": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "e31db8f2-ff60-45a7-84b3-01707f8565d2": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "e4028452-3e8d-4839-889a-2ca03ccccd80": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "e47cb87c-c612-430b-9bc5-101c96b69cbd": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "e852e956-3f90-44fa-8d23-a50bdff94feb": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "e8dcfd42-97d3-47ed-81e5-8ef5d307245b": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "eb84933a-6801-4323-968f-0c2c04bee97b": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "ed7fc06f-4f38-4d0e-a9c9-85d1468de6c8": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "ee06646a-23cc-4fb3-a17f-4482828f472f": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "ef0751f9-0c10-48fb-8f75-5d0e30feb5eb": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "f0589531-17db-4f5e-80d5-e61f4d5d7ba2": {
+   "group": "ecartip_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "f0752487-a9ea-4073-96d3-3ce22bd825fc": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "f176ca66-8dad-4b6f-aa16-e21aaf7a3602": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "f5f1843a-3be2-486d-8252-e76e1f2ff9ff": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "Point Grey Research Ladybug 8192x4096"
+  },
+  "f8d6d0b9-a40a-4bd5-83de-6318359edb98": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "f96b8bac-6146-4d1d-abbb-1d370fe43cfd": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "fbb749c6-8063-4c86-9cf4-62884019159a": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  },
+  "fbf5d296-2680-4f91-bbb0-7ee2d89877ca": {
+   "group": "other_gopro_max",
+   "method": "auto",
+   "rig": "GoPro Max 5760x2880"
+  },
+  "feb8e9dd-5fd1-452d-9901-9212f9fe8b8a": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "ff4b1d5b-c744-4c96-b0cf-29919192e56e": {
+   "band_top_y": 0.8203,
+   "group": "grand_lyon_ladybug",
+   "kind": "black",
+   "label": "black nadir (no camera)",
+   "method": "auto",
+   "rig": "(no make/model) 8192x4096"
+  }
+ },
+ "what": "top edge of an opaque region at the bottom of the equirect, normalized y (0 = top), per pano. kind black = solid black (no downward camera); white = a burned-in logo band. Absent band_top_y = none found. gt_gallery.py hatches it, labels it, and asks before a missed-ramp mark lands inside it."
+}

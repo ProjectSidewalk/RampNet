@@ -131,3 +131,8 @@ docs/open_rig_misses_258.md text eol=lf
 
 # #263 Track 1 laurens_gsv GPU run logs: byte-exact as fetched from makelab2.
 analysis_out/open_rig_258/** -text
+
+# The Lyon label audit (#159, #263): the sha256 of audit_plan.json and records.jsonl is posted
+# on #159 and `lyon_review_159.py score` refuses a plan whose bytes differ, and the never-train
+# lists are read as LF. Keep git from rewriting their line endings on any checkout.
+benchmark/lyon/*  -text

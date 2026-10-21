@@ -504,6 +504,14 @@ analysis_out/pu_training_86/*
 !analysis_out/pu_training_86/*.json
 !analysis_out/pu_training_86/*.csv
 
+# Lyon label audit (#159, #263): the GT-free artifact reads and, after the review, the
+# per-group score are small and re-derivable only from the run's results.jsonl, which
+# is not in this repo, so they are committed. Rendered crops stay out.
+!analysis_out/lyon_review_159/
+analysis_out/lyon_review_159/**/*.jpg
+analysis_out/lyon_review_159/**/*.png
+analysis_out/lyon_review_159/**/*.html
+
 # PR #261: paired intervals and the radius check for the newest-ids Claude legs, re-derived
 # from committed detections by scripts/analysis/claude_newest_ids_261.py --check.
 !analysis_out/claude_newest_ids_261/
