@@ -822,6 +822,17 @@ checks every row of this table against the scorer.
 | `manual_gold` † | 0.947 / 0.873 / 0.908 | 0.534 / 0.825 / **0.649** | 0.587 | 3235/2820/684 | −0.260 | 2026-10-20 makelab2 |
 | **pooled (nine cities, macro)** | 0.953 / 0.686 / 0.793 | 0.380 / 0.836 / **0.519** | 0.488 | – | −0.274 | |
 
+**The pooled 0.519 mixes two environments.** richmond, clovis, morgantown,
+`laurens_mapillary` and juneau (five of the nine pooled cities), and all five held-out splits,
+ran on makelab2 (A40, torch 2.13.0+cu130). bend, paterson, gainesville and annapolis ran on klone
+(L40S, torch 2.6.0+cu126). Both used the same detection signature and transformers 5.15.0. The
+two runs that record a checkpoint snapshot, klone's (`docs/data/cascade_transfer_35/env.txt`) and
+the 2026-10-20 one (`docs/data/vistas1024_all_splits/env.txt`), both loaded `4772b6bf…`. richmond's
+2026-09-20 record does not name one. The expected size of the effect is the #163 same-checkpoint
+environment control above: the 384 arm, re-run in a different environment, landed within one
+detection out of 523 of the published run. No split was run in both environments for the 1024
+arm, so that control is the only measurement of it.
+
 What the eight new pooled-or-held-out cities show, against the richmond reading above:
 
 - **"Transfers but does not compete" stands everywhere.** RampNet leads on all fourteen splits,
@@ -876,11 +887,13 @@ process held the one A40 for its whole wall-clock, so GPU time equals wall-clock
 | **total** | **1930** | **2708.3** (0.75 h) | | 2581.3 | 1.337 |
 
 The whole run, including the gaps between processes, took 45 min 32 s (18:50:40–19:36:12 UTC).
-The A40 was shared: another process (pid 5178, not this run) held 9.2 GB of its memory
-throughout. It sat at 0% utilisation when the run started, and the GPU was at 9% utilisation
-during clovis, because this arm is bound by the CPU-side reprojection rather than the forward
-pass (#137 measured the forward at 0.092 s/view). So the per-split seconds are an upper bound on
-what the arm needs, not a measurement of an idle GPU.
+The A40 was shared: another process (pid 5178, not this run) held 9.2 GB of its memory at the
+start and at the end of the run (both `nvidia-smi` queries are in `run.log`). Its utilisation
+and this run's were not logged. Two `nvidia-smi` reads taken by hand during the run, and not
+recorded anywhere, showed 0% at the start and 9% during clovis. That points to the CPU-side
+reprojection, not the forward pass, as the bound (#137 measured the forward at 0.092 s/view),
+but it is not a measurement this repo holds. The per-split seconds are wall-clock on a shared
+GPU, so they are an upper bound on what the arm needs.
 
 **Provenance.** The run was made from a scratch worktree at `ece4fc4` (the head of PR #261), with a
 private `--cache-dir`. Environment: python 3.12.13, torch 2.13.0+cu130, transformers 5.15.0,
@@ -894,12 +907,41 @@ per split, `imagery_verify.log` and `export_verify.log`. The launcher is
 `scripts/analysis/vistas1024_all_splits.sh`:
 
 ```bash
+# 1. The run. Writes $W/model_cache, $W/usage_log.jsonl (one row per split), $W/env.txt, $W/logs/.
 W=$HOME/vistas1024_run PY=<env python> bash scripts/analysis/vistas1024_all_splits.sh
+
+# 2. Publish the detections, and check the published files score identically to the cache.
 python scripts/analysis/export_model_cache.py --write --models vistas:curb-cut \
     --vistas-input-size 1024 1024 --cache-dir $W/model_cache \
     --splits clovis,morgantown,laurens_mapillary,juneau,laurens_gsv,budapest_district5,sao_paulo,bayonne,manual_gold
 python scripts/analysis/export_model_cache.py --verify   # same flags
+
+# 3. Append the run's nine paid:false rows to the committed ledger, then check that exactly
+#    those nine rows arrived, byte for byte, one per split.
+SPLITS="clovis morgantown laurens_mapillary juneau laurens_gsv budapest_district5 sao_paulo bayonne manual_gold"
+N=$(wc -l < analysis_out/usage_log.jsonl)
+cat $W/usage_log.jsonl >> analysis_out/usage_log.jsonl
+python - "$W/usage_log.jsonl" "$N" $SPLITS <<'EOF'
+import json, sys
+run_path, n_before, splits = sys.argv[1], int(sys.argv[2]), sys.argv[3:]
+run = open(run_path, "rb").read().splitlines(keepends=True)
+ledger = open("analysis_out/usage_log.jsonl", "rb").read().splitlines(keepends=True)
+assert len(run) == 9, f"run log has {len(run)} rows, expected 9"
+assert len(ledger) == n_before + 9, f"ledger grew by {len(ledger) - n_before}, expected 9"
+assert ledger[-9:] == run, "ledger tail is not the run's rows byte for byte"
+rows = [json.loads(line) for line in run]
+assert all(r["paid"] is False and r["label"] == "mask2former-vistas-curb-cut" for r in rows)
+assert sorted(r["bundle"] for r in rows) == sorted(splits), "one row per split"
+print(f"ok: 9 rows, {sum(r['elapsed_s'] for r in rows):.1f} s wall-clock")
+EOF
 ```
+
+Step 3 is written down after the fact. The append was a plain concatenation of the run's
+`usage_log.jsonl` onto the ledger, and the shell command used was not recorded. What is recorded is
+its result: the ledger's last nine lines are byte-identical to the run's `usage_log.jsonl` (copied
+off makelab2 in the run tarball, the one `export_verify.log` names), and the 285 lines before them
+are origin/main's ledger unchanged. The check above, run on 2026-10-20 against that file with
+`N=285`, prints `ok: 9 rows, 2708.3 s wall-clock`.
 
 Re-running it needs the native panoramas. `laurens_gsv`, `laurens_mapillary`, bayonne and juneau
 are not on HF yet ([`replication.md`](replication.md), the benchmark panos row).

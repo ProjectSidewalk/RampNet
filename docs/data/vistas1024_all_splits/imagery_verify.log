@@ -1,3 +1,8 @@
+# python scripts/analysis/imagery_manifest.py --verify --cities clovis,morgantown,laurens_mapillary,juneau,laurens_gsv,budapest_district5,sao_paulo,bayonne,manual_gold
+# host: makelab2, from the scratch worktree /homes/gws/jonf/wt-vistas1024 (the path run.log names), with the panoramas in benchmark/<split>/panos
+# time: not recorded. It ran on 2026-10-20 before the launcher started (env.txt: 2026-10-20T18:50:40Z), so before any GPU time.
+# This header was added afterwards (PR #267 review). The lines below it are the file as first committed in 1392346, unchanged.
+# The nine digests equal the "digest" field of each split's committed benchmark/<split>/imagery_manifest.json.
                split  panos             digest  status
               clovis    125   e218ae3a9afc9ae0  OK
           morgantown    125   6550b61787e6f8e6  OK

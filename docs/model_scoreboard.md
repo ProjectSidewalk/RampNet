@@ -238,9 +238,13 @@ numbers are directly above them in `model_comparison.md`:
   `1024` row) buys recall, 0.697 → 0.884, and AP, 0.513 → 0.649, and only 0.018 of F1,
   because precision gets slightly worse; the gap to RampNet is 0.321 at parity. The `1024`
   arm has since run all fourteen splits (2026-10-20) and left this table for the headline
-  one: **0.519 pooled, 0.274 behind RampNet**, with the highest pooled recall of any model
-  above the open detectors (0.836) and precision 0.380. Its closest approaches to RampNet are
-  the two splits RampNet does worst on, `laurens_mapillary` (0.535 against 0.543) and
+  one: **0.519 pooled, 0.274 behind RampNet**, with precision 0.380 and recall 0.836, the
+  highest pooled recall of any model apart from the two open detectors. That pooled number mixes
+  two environments: five of the nine cities ran on makelab2 (A40, torch 2.13.0+cu130) and four
+  on klone (L40S, torch 2.6.0+cu126), with the same detection signature and transformers 5.15.0.
+  The #163 same-checkpoint environment control put that kind of difference within one detection
+  out of 523 ([`vistas_transfer_126.md`](vistas_transfer_126.md), "All fourteen splits"). Its
+  closest approaches to RampNet are the two splits RampNet does worst on, `laurens_mapillary` (0.535 against 0.543) and
   `bayonne` (0.497 against 0.517), and on `budapest_district5` it is the strongest
   challenger on the board (0.527 against RampNet's 0.644, Claude Opus 5.5's 0.451 and the
   YOLO arms' 0.221–0.277). The 384 arm and the union arm stay richmond-only. The union arm (`+curb`) is a committed negative result: adding Vistas' `Curb` class
@@ -386,9 +390,11 @@ The figure says three things a table of F1 cannot:
    no second inference pass. The Gemini/Qwen/Molmo rows are single points because those
    models emit no confidence to threshold on. Comparing a tuned model against an untunable
    one at one threshold flatters whichever happened to land well.
-2. **RampNet's curve dominates over the whole range**, not just at 0.55. At every recall the
-   YOLO arms and the Vistas arm reach (at most 0.794 and 0.830), RampNet is above them, and the AP ordering (0.829 vs 0.710 for YOLO11x) is
-   the integral of that.
+2. **RampNet's curve is on top over the whole range**, not just at 0.55. At every recall the
+   YOLO arms and the Vistas arm reach (at most 0.794 and 0.830), RampNet is at or above them,
+   with one exception too small to see: at recall 0.087–0.090 YOLO11x is still at precision
+   1.000 and RampNet is at 0.998, a margin of −0.0016. The AP ordering (0.829 vs 0.710 for
+   YOLO11x) is the integral of that.
 3. **The deployed point is not the F1 optimum.** RampNet sits at 0.55 (hollow marker) where
    the curve is nearly flat; #54's recommended 0.30 (filled) buys recall at a shallow
    precision cost.

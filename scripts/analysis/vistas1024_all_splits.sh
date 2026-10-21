@@ -23,12 +23,20 @@
 #   HF_OFFLINE  1 = load the checkpoint from the local HF cache only   default: 1
 #
 # One compare.py process per split, so each split's usage row carries its own model load,
-# inference seconds and s/pano (paid: false; appended to analysis_out/usage_log.jsonl
-# afterwards). Resumable: compare.py skips panos already in $W/model_cache. Afterwards, on a
-# clone that has the cache:
+# inference seconds and s/pano (paid: false). The rows go to $W/usage_log.jsonl, not the
+# committed ledger. Resumable: compare.py skips panos already in $W/model_cache. Afterwards, on
+# a clone that has the cache (the main checkout, not a scratch worktree):
 #   python scripts/analysis/export_model_cache.py --write --models vistas:curb-cut \
 #       --vistas-input-size 1024 1024 --cache-dir $W/model_cache --splits <the nine>
 #   python scripts/analysis/export_model_cache.py --verify (same flags)
+# then append the nine rows to the committed ledger and check that exactly they arrived:
+#   N=$(wc -l < analysis_out/usage_log.jsonl)
+#   cat $W/usage_log.jsonl >> analysis_out/usage_log.jsonl
+#   test $(wc -l < analysis_out/usage_log.jsonl) -eq $((N + 9)) &&
+#       tail -n 9 analysis_out/usage_log.jsonl | cmp - $W/usage_log.jsonl
+# docs/vistas_transfer_126.md ("All fourteen splits", Provenance) has the full check (paid:
+# false, one row per split). The 2026-10-20 append was this concatenation; the command used
+# was not recorded, and its result is what the check verifies.
 set -o pipefail
 W=${W:-$PWD/vistas1024_run}
 PY=${PY:-python}
