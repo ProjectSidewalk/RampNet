@@ -14,8 +14,8 @@ label-budget curve need the full copy back.
 ## What failed first
 
 `download_dataset.py` (repo root) is the documented route. It calls `load_dataset()`, which
-downloads the parquet shards (431 GB) and then converts every shard into an Arrow cache
-(another ~460 GB) before `.map()` writes the jpg/json pairs (465 GB). On 2026-10-20 the
+downloads the parquet shards (431 GiB on disk, `du -sh`) and then converts every shard into an
+Arrow cache of about the same size before `.map()` writes the jpg/json pairs. On 2026-10-20 the
 conversion died after 2 h 02 m with `OSError: [Errno 122] Disk quota exceeded` (klone job
 `42083469`, launcher `stage_two/run_restage_263.slurm`, committed with #266). `/mmfs1` was at
 99 % cluster-wide and `/gscratch/makelab` at 1019 of 1024 GB, so a three-copy staging path had
@@ -28,13 +28,15 @@ directly, so the only space it needs is the output. Launcher
 `stage_two/run_restage_parquet_263.slurm`, klone job `42090420`, 2026-10-20, two incarnations
 on the preemptible `ckpt` partition: 4 h 14 m on n3081 until preemption, then 37 m on n3026
 after the requeue (the resume skipped every pano already written). 12 CPUs, no GPU, $0.
-Output 462 GB. The second incarnation ends `FAILED 1:0` in `sacct` because the script's count
-check saw the nine placeholder rows (next section), not because anything was lost.
+Output 462 GiB (`du -sh`; not derivable from a committed file). The second incarnation ends
+`FAILED 1:0` in `sacct` because the script's count check saw the nine placeholder rows (next
+section), not because anything was lost.
 
-Three deliberate differences from `download_dataset.py`:
+Four deliberate differences from `download_dataset.py`:
 
 - the jpg is the parquet's own bytes (the file uploaded to the Hub), not a PIL re-encode at
   quality 95;
+- the json is compact rather than `indent=4`; same keys, same values;
 - the Hub's `validation` split is written to `val/`, as before;
 - rows whose image bytes are not a JPEG are quarantined rather than written.
 
@@ -43,39 +45,49 @@ Three deliberate differences from `download_dataset.py`:
 The raw write produced 150,066 / 42,878 / 21,441 panos, three more per split than every
 RampNet document quotes (150,063 / 42,875 / 21,438). The extras are placeholder rows in the
 Hub dataset: `pano_id` `file_1`, `file_2`, `file_3` in each split, each with a 19-byte image
-blob beginning `dumm` that no decoder opens. `download_dataset.py` skips them only because its
-PIL re-encode raises inside a `try`, which is where the published counts come from. They now
-sit in `rampnet_dataset_v2/_quarantine/<split>/` with a sorted manifest. Reported on #150 as a
+blob beginning `dumm` that no decoder opens. `download_dataset.py` never writes them: the image
+decode raises inside its per-row `try` (in the `datasets` image feature on a current install,
+checked with `datasets` 5.0.0; the 2025 environment was not re-run) and the row is skipped
+before any file is written. That is where the published counts come from. They now sit in
+`rampnet_dataset_v2/_quarantine/<split>/` with a sorted manifest. Reported on #150 as a
 dataset-card item: Hub row counts and usable pano counts differ by nine.
 
-History, for the record: job `42090420` ran the script before the quarantine step existed; the
-nine files were moved by hand and `--check` re-run. The committed script does both in one pass,
-and its `--check` was run against the staged copy on 2026-10-21 (output above). The committed
-launcher's header was expanded after the run; its `#SBATCH` directives and commands are the
-ones that ran, with `OUT`, `HF_HOME`, `PY` and `REPO` made overridable.
+History, for the record: job `42090420` ran the script before the quarantine step, the `.tmp`
+sweep and `COUNTS.json` existed. The nine files were moved by hand, then `--check --record` was
+run once on 2026-10-21 against the staged copy to write the manifest and the per-split id
+hashes (the shard cache had already been removed). The committed script does the quarantine in
+write mode on an empty or partially written output; over an output of the old version it also
+removes any placeholder pair it finds there. The committed launcher's header, provenance lines
+and overridable variables (`REPO`, `RAMPNET_ENV`, `HF_HOME`, `HF_REVISION`, `OUT`) were added
+after the run; its `#SBATCH` directives and the python command are the ones that ran.
 
 ## Verify
 
 ```bash
-python scripts/restage_from_parquet.py --snapshot <unused in check mode> \
-    --out /gscratch/scrubbed/jfroehli/rampnet_dataset_v2 --check
-# [train] pairs 150063 (expected 150063), jpg-only 0, json-only 0: OK
-# [val]   pairs 42875  (expected 42875),  jpg-only 0, json-only 0: OK
-# [test]  pairs 21438  (expected 21438),  jpg-only 0, json-only 0: OK
-# [quarantine] 18 files listed in .../_quarantine/MANIFEST.txt
+python scripts/restage_from_parquet.py --out /gscratch/scrubbed/jfroehli/rampnet_dataset_v2 --check
 ```
 
-The check needs no shard cache, which was removed after verification. The control launcher in
-#266 refuses to start unless `train/` and `val/` hold exactly these counts.
+It exits 0 only when all three split directories exist and hold exactly 150,063 / 42,875 /
+21,438 complete pairs, no jpg-only or json-only strays, no `.tmp` files, per-split id hashes
+equal to `COUNTS.json`, and a quarantine manifest equal to the directory. The run of record's
+output is quoted in the PR (#268). The check needs no shard cache, which was removed after
+verification. The control launcher in #266 refuses to start unless `train/` and `val/` hold
+exactly these counts.
 
 ## Reproduce from a clean clone
 
 ```bash
 export HF_HOME=/gscratch/scrubbed/$USER/hf
-huggingface-cli download projectsidewalk/rampnet-dataset --repo-type dataset   # 431 GB of shards
+huggingface-cli download projectsidewalk/rampnet-dataset --repo-type dataset \
+    --revision ee882e3f3c779dc13182f307bca616e50d9b8c5c      # the revision of record; 431 GiB
 cd <clone> && mkdir -p logs
-OUT=/gscratch/scrubbed/$USER/rampnet_dataset_v2 sbatch stage_two/run_restage_parquet_263.slurm
+RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 \
+    OUT=/gscratch/scrubbed/$USER/rampnet_dataset_v2 sbatch stage_two/run_restage_parquet_263.slurm
+python scripts/restage_from_parquet.py --out /gscratch/scrubbed/$USER/rampnet_dataset_v2 --check
 ```
+
+The launcher runs the submitting checkout (`SLURM_SUBMIT_DIR`), needs `RAMPNET_ENV` like the
+other launchers, and refuses to guess when more than one snapshot revision is present.
 
 Not checked: whether the jpg bytes here equal the files the paper's Stage 1 run wrote to disk
 in 2025; the Hub copy is the published artifact and is what every later run reads.

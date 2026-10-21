@@ -395,7 +395,7 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     # The #263 re-stage (docs/restage_263.md, klone 2026-10-21): three CPU-only incarnations,
     # 0 GPU-hours, 6.89 wall-hours, all free.
     rst = [r for r in committed if r["cluster"] == "klone"
-           and r["recorded_at"].startswith("2026-10-21T")]
+           and r["job_name"].startswith("rampnet_restage")]
     assert len(rst) == 3 and all(r["gpus"] == 0 and r["est_cost_usd"] == 0.0 for r in rst)
     assert round(sum(r["elapsed_s"] for r in rst) / 3600, 2) == 6.89
     # The #82 screen (docs/compute_cost.md, klone 2026-10-03): 108.66 GPU-hours, all free.
