@@ -110,8 +110,9 @@ def test_committed_artifact_is_lf_rounded_and_hashed(committed):
     # Moved from 034e84cd... on 2026-10-19, when the newest-ids campaign added the
     # claude-opus-5-5 and claude-fable-5-1 legs to both arms; no earlier row changed.
     # Moved from 89e7ead4... on 2026-10-20, when #263 added analysis_out/op_cache/laurens_gsv.json:
-    # the rampnet@0.30 row gained its GSV side (equal to rampnet_r2048@0.30); no other row changed.
-    assert committed["rows_sha256"] == "d017a376ba67df2fe6492e18c7f795c57823f461bd276f4b994f735ff4a565be"
+    # the rampnet@0.30 row gained its GSV side (equal to rampnet_r2048@0.30), and that leg's note
+    # stopped saying "laurens_gsv has none"; no other row changed.
+    assert committed["rows_sha256"] == "6a94d27b2b890a6664de187a171b44f264a8e63363639bcfb2d61e741632eeb4"
     for row in committed["gt"]:
         for key, v in row.items():
             if isinstance(v, float) and key not in ("x", "y"):

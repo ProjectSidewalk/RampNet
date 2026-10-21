@@ -262,7 +262,8 @@ def legs():
         else:
             opc[a] = None
     out.append(("rampnet@0.30", "rampnet", opc, RECOMMENDED,
-                "analysis_out/op_cache (laurens_gsv has none)"))
+                "analysis_out/op_cache (laurens_gsv's is a parity exception: "
+                "the same re-extraction instrument as the r2048 leg)"))
     r2 = {}
     for a in ARMS:
         with open(os.path.join(R2048_DIR, f"{a}.json"), encoding="utf-8") as fh:

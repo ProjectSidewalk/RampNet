@@ -34,12 +34,13 @@
 #             score, by at most 5.4e-5, and no peak crossed either threshold.
 #   extract   laurens_gsv is reviewed (verdicts.json committed), so it is written straight
 #             to analysis_out/op_cache/laurens_gsv.json with verdict-derived GT.
-#   ledger    one paid:false row per GPU step that ran (repro, extract: host, GPU, elapsed_s)
-#             appended to $LEDGER
-#             via rampnet.ledger.append_rows, BEFORE any gate that reads the result, so a
-#             failing gate cannot cost the row (the #139 / #143 rule: a ledger row outlives
-#             the run). If a GPU step dies part-way, an EXIT trap still writes its row, with
-#             status "failed" and the time spent until then. LEDGER defaults to the
+#   ledger    not a separate step: a switch (on by default) for one paid:false row per GPU step
+#             that ran (repro, extract: host, GPU, elapsed_s), appended to $LEDGER via
+#             rampnet.ledger.append_rows the moment that step's GPU work finishes -- before
+#             its own gate and before any later step -- so no failing gate or later crash can
+#             cost a finished step's row (the #139 / #143 rule: a ledger row outlives the run).
+#             If a GPU step dies part-way, an EXIT trap writes its row with status "failed"
+#             and the time spent until then; a done-set keeps any row from being written twice. LEDGER defaults to the
 #             MAIN checkout's analysis_out/usage_log.jsonl (rampnet.ledger.canonical_repo_root,
 #             so a worktree run lands there); makelab2 has no Slurm, so its GPU time goes in
 #             usage_log.jsonl, not compute_log.jsonl (docs/compute_cost.md). Copy the row into
@@ -99,15 +100,30 @@ append_rows(ledger, [row])
 print(json.dumps(row))
 PYEOF
 }
-# A GPU step that started and never finished (one timestamp in its times file) still spent
-# GPU time; a finished one is recorded by the ledger step, or deliberately skipped via STEPS.
+# Each GPU step's row is written the moment its GPU work finishes, BEFORE that step's own
+# gate (repro's tolerance check) and before any later step can fail, so no exit path after a
+# finished step can lose it. DONE is the set of steps already recorded; the EXIT trap writes
+# only what is missing (a step that died part-way, as "failed"), so nothing is written twice.
+# STEPS without "ledger" opts out of rows entirely.
+DONE=" "
+record() {   # $1 = step, $2 = status
+  has ledger || return 0
+  case "$DONE" in *" $1 "*) return 0;; esac
+  write_ledger "$1" "$2"
+  DONE="$DONE$1 "
+}
 on_exit() {
   rc=$?
   for step in repro extract; do
     t="$(times_of "$step")"
-    if [ -f "$t" ] && [ "$(wc -w < "$t")" -eq 1 ]; then
+    case "$DONE" in *" $step "*) continue;; esac
+    [ -f "$t" ] || continue
+    if [ "$(wc -w < "$t")" -eq 1 ]; then
       echo "=== exit $rc during $step: recording it as failed"
-      write_ledger "$step" failed || true
+      record "$step" failed || true
+    else
+      echo "=== exit $rc: $step finished but was not yet recorded; recording it"
+      record "$step" ok || true
     fi
   done
 }
@@ -129,6 +145,7 @@ if has repro; then
   $PY -u scripts/analysis/operating_point_curve.py extract --cities laurens_mapillary \
       --cache analysis_out/open_rig_258_repro_op_cache --force
   echo "$(cat "$(times_of repro)") $(date +%s.%N)" > "$(times_of repro)"
+  record repro ok      # before the tolerance gate below: a failed gate still spent the GPU time
   $PY - <<'PYEOF'
 import json, sys
 a = json.load(open("analysis_out/op_cache/laurens_mapillary.json"))
@@ -167,14 +184,8 @@ if has extract; then
   date +%s.%N > "$(times_of extract)"
   $PY -u scripts/analysis/operating_point_curve.py extract --cities laurens_gsv --force
   echo "$(cat "$(times_of extract)") $(date +%s.%N)" > "$(times_of extract)"
+  record extract ok    # before parity and score
   stamp "extract done"
-fi
-
-if has ledger; then
-  stamp "ledger"
-  for step in repro extract; do
-    [ -f "$(times_of "$step")" ] && write_ledger "$step" ok
-  done
 fi
 
 if has parity; then

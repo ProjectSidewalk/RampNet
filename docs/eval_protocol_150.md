@@ -140,8 +140,8 @@ What is compared, and how:
   F1, AP, `ap_bundle`, tp, fp, fn, n_panos and n_gt_recall, at the cell's operating point.
   The scoreboard stores floats rounded to 6 decimals (`scoreboard_render.JSON_PRECISION`), so
   the re-derived float is rounded to 6 decimals and compared with `==`; integers are compared
-  as they are. For the 11 RampNet cells whose `ap_source` is the op_cache (every split but
-  `laurens_gsv`, which has no op_cache, and `manual_gold`, whose bundle is already at 0.05),
+  as they are. For the 13 RampNet cells whose `ap_source` is the op_cache (every split but
+  `manual_gold`, whose bundle is already at 0.05; `laurens_gsv` joined on 2026-10-20, below),
   `analysis_out/op_cache/<split>.json` is converted to the prediction format and scored
   against the **bundle's** ground truth through `score_split`, and that AP equals the stored
   one. The scoreboard itself scores that cache against the GT stored inside the cache, so
@@ -269,3 +269,12 @@ pins are byte-unchanged. The reproduction proof was regenerated: **187** scorebo
 comparisons) and the same **30** YOLO `benchmark_eval/` cells all re-derive equal, including
 Juneau's RampNet cell from `analysis_out/op_cache/juneau.json` (12 op_cache cells, was 11),
 0 differing, 0 unchecked.
+
+**2026-10-20: laurens_gsv's AP moves to its op_cache** (#263,
+[PR #265](https://github.com/ProjectSidewalk/RampNet/pull/265)). `analysis_out/op_cache/laurens_gsv.json`
+now exists, admitted as a `low_floor_sweep.PARITY_EXCEPTIONS` entry: it under-scores the deployed
+GSV run's records (111 against 121 detections at 0.55). So the scoreboard reads laurens_gsv's RampNet
+AP from it (0.768, against the 0.55-truncated bundle's 0.494), while its P/R/F1 stay records-based
+(tp 112 / fp 8). No split was added and the pins are unchanged. The reproduction proof was
+regenerated: **214** scoreboard cells and the same **30** YOLO `benchmark_eval/` cells all re-derive
+equal, with **13** op_cache cells (was 12), 0 differing, 0 unchecked.

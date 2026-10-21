@@ -836,7 +836,10 @@ would turn this into a measurement, and both arms' detections are now committed,
 analysis needs no new inference. And **the AP column is not comparable across the two arms
 for RampNet**: `laurens_mapillary` has a 0.05-floor `op_cache` and `laurens_gsv` does not, so
 its 0.494 is truncated at the deployed 0.55 while the other arm's 0.691 is not. The F1, P and
-R columns are comparable — both arms are read at 0.55.
+R columns are comparable — both arms are read at 0.55. *Added 2026-10-20:* `laurens_gsv` now has
+an op_cache (#263, a `low_floor_sweep.PARITY_EXCEPTIONS` entry because it under-scores the
+deployed run), and `docs/model_scoreboard.md` reads its RampNet AP from it: 0.768. The 0.494 in
+this table is still the bundle's, so the caveat holds for this table as written.
 
 **The paired version is done** (`docs/laurens_paired_151.md`, 2026-09-27, corrected after
 [review](https://github.com/ProjectSidewalk/RampNet/pull/201#issuecomment-5858671681)), and it

@@ -468,7 +468,7 @@ two on budapest (judged unsure), which are exactly the 1 and 2 ramps of differen
   `low_floor_sweep.PARITY_EXCEPTIONS` entry with this diagnosis, and copied to
   `analysis_out/op_cache/laurens_gsv.json` (sha256 `af95b501…`).
 
-  **What adding the cache changed elsewhere.** Nothing else moved:
+  **What adding the cache changed elsewhere.** Every change is a laurens_gsv value appearing where there was none; no existing number moved:
   - **Scoreboard.** The laurens_gsv RampNet AP now reads from the op_cache: 0.768, against the
     0.55-truncated bundle's 0.494. Its P/R/F1 stay records-based (tp 112 / fp 8).
   - **#25.** `input_res_sweep_25` now checks laurens_gsv (`instrument_check.json` and
@@ -526,8 +526,9 @@ That includes the title "seven US splits", which is stale: laurens_mapillary and
 joined `US_SPLITS`, so the default pool is nine splits and 2,606 GT. The label is kept so the
 default output does not move. `--cities` runs print the real count.
 
-**Cost.** No GPU and no paid model were used for any number in this doc. The laurens_gsv extract
-(see Gaps) is not used by any number either, but it spent A40 time. That time is recorded as four
-`paid: false` rows in `analysis_out/usage_log.jsonl`:
+**Cost.** No paid model was used. Every number in this doc is CPU-derived from committed caches,
+and one GPU step produced one of those caches: the laurens_gsv extract (see Gaps), which every
+laurens_gsv number here reads. Its A40 time is recorded as four `paid: false` rows in
+`analysis_out/usage_log.jsonl`:
 - this run: `open-rig-258:repro`, 89.5 s, and `open-rig-258:extract`, 164.6 s;
 - the superseded d74d680 launch: 91 s and 167 s.

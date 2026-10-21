@@ -19257,7 +19257,7 @@
    ],
    "kind": "rampnet",
    "leg": "rampnet@0.30",
-   "note": "analysis_out/op_cache (laurens_gsv has none)",
+   "note": "analysis_out/op_cache (laurens_gsv's is a parity exception: the same re-extraction instrument as the r2048 leg)",
    "op": 0.3
   },
   {
@@ -21824,7 +21824,7 @@
    "pano": "878422481186005"
   }
  ],
- "rows_sha256": "d017a376ba67df2fe6492e18c7f795c57823f461bd276f4b994f735ff4a565be",
+ "rows_sha256": "6a94d27b2b890a6664de187a171b44f264a8e63363639bcfb2d61e741632eeb4",
  "scores": [
   {
    "arm": "laurens_gsv",
