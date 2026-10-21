@@ -217,7 +217,12 @@ The best viable row gains **12 ramps, all 12 of them among #126's 19 promotable 
 
 The null is small at these settings because the gate is tight: a wrong-pano box rarely lands within 11 px of a sub-threshold peak. For the headline row the worst of the 123 shifts gains 4 ramps against the real 12.
 
-## (d) Every published challenger on richmond, T_hi 0.30, all 123 shifts
+## (d) Every challenger published at the time on richmond, T_hi 0.30, all 123 shifts
+
+This section covers the 15 challengers that were published when it was run. The seven YOLO11x
+tiles legs published on 2026-10-19 ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258))
+were not run here or in (e); `summary.json` lists every one of those (leg, split) pairs under
+`gaps` as "published detections exist but this pair was not run".
 
 | challenger | verdict | best viable (T_lo, r_gate, c_min) | F1 | attributable ΔR | FP / attr ramp | fixed setting F1 | fixed ΔF1 [95% CI] | fixed attributable ΔR | union F1 |
 |---|---|---|---:|---:|---:|---:|---|---:|---:|

@@ -189,6 +189,7 @@ DISPLAY = {
     "y11x_pano_h200": "YOLO11x (pano)",
     "y11l_pano": "YOLO11l (pano)",
     "y26_pano": "YOLO26 (pano)",
+    "y11x_tiles": "YOLO11x (tiles)",
     "gemini-3.1-pro-preview": "Gemini 3.1 Pro",
     "gemini-3.7-flash": "Gemini 3.7 Flash",
     "gemini-3.6-flash": "Gemini 3.6 Flash",
@@ -231,7 +232,7 @@ def display_of(leg):
 
 
 def legs():
-    """Every registered leg, in roster order (which is results-table order).
+    """Every registered leg except seed legs, in roster order (results-table order).
 
     Driven by ``rampnet.roster`` rather than by scanning ``benchmark/model_detections/``:
     filenames are ambiguous now that one model id can be several legs
@@ -239,8 +240,15 @@ def legs():
     can itself contain the ``__`` separator (``mask2former-vistas-curb-cut__curb``).
     ``test_roster.py`` already asserts the directory and the registry agree, so the
     registry is the safe side of that pair to read from.
+
+    Seed legs (``roster.SEED_LEGS``) are left out. They are one model retrained from
+    other seeds, so showing them as rows would give that one model several rows where
+    every other model has one, and would invite quoting its best seed. RampNet's own
+    nine seed replicates are not here either. Both sets are analysed in
+    ``docs/seed_variance_51_135.md``. The omission is listed in the JSON
+    (``off_scoreboard``) and named on the page, so nothing drops out silently.
     """
-    return list(roster.ROSTER)
+    return [leg for leg in roster.ROSTER if not leg.seed_of]
 
 
 def unregistered_exports():
@@ -559,6 +567,9 @@ def build(models=None):
         "held_out": dict(HELD_OUT),
         "in_distribution_split": IN_DISTRIBUTION,
         "unregistered_exports": unregistered_exports(),
+        # Registered and published, deliberately not scored here (see legs()).
+        "off_scoreboard": {roster.published_name(leg): leg.seed_of
+                           for leg in roster.SEED_LEGS},
         "curves": curves,
         "splits": {s: {"n_panos": len(gts),
                        "n_gt": sum(len(g.gt_points) for g in gts.values()),

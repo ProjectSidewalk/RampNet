@@ -13,6 +13,41 @@
  },
  "gaps": [
   {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "annapolis"
@@ -73,6 +108,41 @@
    "split": "bayonne"
   },
   {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "bend"
@@ -81,6 +151,11 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "bend"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
   },
   {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
@@ -93,6 +168,41 @@
    "split": "budapest_district5"
   },
   {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "clovis"
@@ -101,6 +211,41 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "clovis"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
   },
   {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
@@ -258,6 +403,41 @@
    "split": "laurens_mapillary"
   },
   {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "manual_gold"
@@ -266,6 +446,41 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
   },
   {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
@@ -278,6 +493,41 @@
    "split": "morgantown"
   },
   {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "paterson"
@@ -288,6 +538,41 @@
    "split": "paterson"
   },
   {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "richmond"
@@ -296,6 +581,41 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "richmond"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
   },
   {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
