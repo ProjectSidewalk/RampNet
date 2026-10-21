@@ -15,7 +15,7 @@ CPU-only test suite has to cover it. It follows the splits registry in
 literally rather than derived from ``ROSTER`` precisely so that adding a challenger
 cannot touch it. See the comment on it.
 
-Five properties of an entry are worth stating because they are easy to get wrong:
+These properties of an entry are worth stating because they are easy to get wrong:
 
 * ``density`` is **evidence, not configuration** — it comes from the measured
   boxes-per-panorama in ``docs/model_comparison.md`` (sparse models emit 1-4, the

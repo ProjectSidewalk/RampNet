@@ -6,9 +6,9 @@ arm's cells added 2026-10-19 (see [Revision](#revision)).
 
 **Result.** `rampnet/eval.py` scores a prediction file against a committed benchmark bundle
 through the same functions every committed benchmark number came from, and
-`scripts/analysis/eval_protocol_150.py --check` proves it: all **187** cells of
-`analysis_out/scoreboard.json` (21 model legs, 14 splits) and all **30** (arm, split) cells of
-`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 1,870 and 480
+`scripts/analysis/eval_protocol_150.py --check` proves it: all **224** cells of
+`analysis_out/scoreboard.json` (23 model legs, 14 splits) and all **30** (arm, split) cells of
+`scripts/model_comparison/yolo_baseline/benchmark_eval/` re-derive **equal**, 2,240 and 480
 field comparisons respectively, with **0** differing and **0** unchecked. The split files are
 pinned by content hash in `benchmark/split_pins.json`. No number changed, and the four
 fingerprinted scorer files are byte-identical to `main` (fingerprint `f4aef67aba03`).
