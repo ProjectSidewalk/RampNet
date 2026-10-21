@@ -456,8 +456,12 @@ still costs time. Pulled by job id on 2026-10-21 into
 `e5d961270dc4d8436f0a73727f5c8bbb288ca357b69d840e2a62e04199f8d9cf`):
 
 ```bash
-sacct -X -D -P -n -j 42083469,42090420     --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode     > sacct_klone_2026-10-21_restage263.txt
-python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli     --from-file docs/data/compute/sacct_klone_2026-10-21_restage263.txt     --out analysis_out/compute_log.jsonl --by-name
+sacct -X -D -P -n -j 42083469,42090420 \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    > sacct_klone_2026-10-21_restage263.txt
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-10-21_restage263.txt \
+    --out analysis_out/compute_log.jsonl --by-name
 ```
 
 | job | what | CPUs | wall-clock | GPU-h |
