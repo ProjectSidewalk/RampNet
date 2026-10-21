@@ -443,3 +443,29 @@ repro and extract) are in `analysis_out/usage_log.jsonl`, marked abandoned.
   makelab2, recorded there and quoted, with the per-stage breakdown, in the cost paragraph of
   [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md). At $0 it changes no total,
   but a reader who starts here should not conclude the time went unrecorded.
+
+## klone, 2026-10-21: re-staging the Stage 2 dataset (#263), 0 GPU-hours, $0
+
+Two CPU-only jobs on the `ckpt` partition that rebuilt the purged scrubbed copy of the Stage 2
+dataset (`docs/restage_263.md`). `42083469` ran `download_dataset.py` and died after 2 h 02 m
+at the Arrow-conversion step on a disk quota; `42090420` ran `scripts/restage_from_parquet.py`
+for 4 h 14 m until the partition preempted it, then 37 m after the requeue. No GPU was
+allocated, so the ledger rows carry 0 GPU-hours; the time is recorded because free compute
+still costs time. Pulled by job id on 2026-10-21 into
+`docs/data/compute/sacct_klone_2026-10-21_restage263.txt` (474 bytes, sha256
+`e5d961270dc4d8436f0a73727f5c8bbb288ca357b69d840e2a62e04199f8d9cf`):
+
+```bash
+sacct -X -D -P -n -j 42083469,42090420 \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    > sacct_klone_2026-10-21_restage263.txt
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-10-21_restage263.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+| job | what | CPUs | wall-clock | GPU-h |
+| :--- | :--- | ---: | ---: | ---: |
+| 42083469 | `download_dataset.py`, failed at the Arrow step (`Errno 122`) | 16 | 2 h 02 m | 0 |
+| 42090420, incarnation 1 | `restage_from_parquet.py`, preempted after writing most of `train/` | 12 | 4 h 14 m | 0 |
+| 42090420, incarnation 2 | resume; exit 1 is the count check seeing the nine placeholder rows | 12 | 37 m | 0 |
