@@ -1290,3 +1290,17 @@ def test_the_vistas_parity_arm_is_pooled(board):
                            (ap, cell["ap"])):
             assert float(want) == pytest.approx(have, abs=0.0006), s
         assert float(d.replace("−", "-")) == pytest.approx(cell["f1"] - rn["f1"], abs=0.0011), s
+
+
+def test_partial_footer_counts_the_board():
+    """fig_headline's footer clause is counted off the board, never typed (#267 review)."""
+    from scoreboard_figures import _partial_footer
+
+    board = {"pooled_splits": list("abcdefghi"), "models": [
+        {"complete": True, "pooled_splits": 9},
+        {"complete": False, "pooled_splits": 1},
+        {"complete": False, "pooled_splits": 8}]}
+    assert _partial_footer(board).startswith("2 legs that cover 1–8 of the nine pooled splits")
+    one = dict(board, models=board["models"][:2])
+    assert _partial_footer(one).startswith("1 leg that covers 1 of the nine pooled splits")
+    assert _partial_footer(dict(board, models=board["models"][:1])) == ""

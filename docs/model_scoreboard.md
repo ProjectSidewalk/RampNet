@@ -242,10 +242,11 @@ numbers are directly above them in `model_comparison.md`:
   highest pooled recall of any model apart from the two open detectors. That pooled number mixes
   two environments: five of the nine cities ran on makelab2 (A40, torch 2.13.0+cu130) and four
   on klone (L40S, torch 2.6.0+cu126), with the same detection signature and transformers 5.15.0.
-  The #163 same-checkpoint environment control put that kind of difference within one detection
-  out of 523 ([`vistas_transfer_126.md`](vistas_transfer_126.md), "All fourteen splits"). Its
-  closest approaches to RampNet are the two splits RampNet does worst on, `laurens_mapillary` (0.535 against 0.543) and
-  `bayonne` (0.497 against 0.517), and on `budapest_district5` it is the strongest
+  No split ran in both, so the mix has no direct control. The nearest one is #163's on
+  richmond, where a different environment change (RTX 3070 to A40, transformers 4.x to 5.15)
+  moved the 384 arm by one detection in 523 ([`vistas_transfer_126.md`](vistas_transfer_126.md),
+  "All fourteen splits"). The arm's closest approaches to RampNet are the two splits RampNet
+  does worst on, `laurens_mapillary` (0.535 against 0.543) and `bayonne` (0.497 against 0.517), and on `budapest_district5` it is the strongest
   challenger on the board (0.527 against RampNet's 0.644, Claude Opus 5.5's 0.451 and the
   YOLO arms' 0.221–0.277). The 384 arm and the union arm stay richmond-only. The union arm (`+curb`) is a committed negative result: adding Vistas' `Curb` class
   *loses* recall while precision collapses, because `Curb` fuses adjacent ramps into one

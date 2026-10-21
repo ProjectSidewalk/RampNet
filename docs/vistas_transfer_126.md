@@ -828,10 +828,11 @@ ran on makelab2 (A40, torch 2.13.0+cu130). bend, paterson, gainesville and annap
 (L40S, torch 2.6.0+cu126). Both used the same detection signature and transformers 5.15.0. The
 two runs that record a checkpoint snapshot, klone's (`docs/data/cascade_transfer_35/env.txt`) and
 the 2026-10-20 one (`docs/data/vistas1024_all_splits/env.txt`), both loaded `4772b6bf…`. richmond's
-2026-09-20 record does not name one. The expected size of the effect is the #163 same-checkpoint
-environment control above: the 384 arm, re-run in a different environment, landed within one
-detection out of 523 of the published run. No split was run in both environments for the 1024
-arm, so that control is the only measurement of it.
+2026-09-20 record does not name one. No split was run in both environments for the 1024 arm, so
+the mix has no direct control. The nearest measurement is the #163 control above, which tested a
+different change (RTX 3070 to A40, transformers 4.x to 5.15): the 384 arm landed within one
+detection out of 523 of the published run. It suggests environment effects on this checkpoint
+are small; it does not measure this mix of GPU and torch versions.
 
 What the eight new pooled-or-held-out cities show, against the richmond reading above:
 
