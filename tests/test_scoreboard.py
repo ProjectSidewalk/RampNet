@@ -527,11 +527,13 @@ def test_the_provenance_table_does_not_claim_an_untruncated_bundle_it_has_not_go
 
     The table had a binary: substituted means "op_cache, was truncated", anything else
     means "bundle, already at 0.05, flip-TTA export". That held while manual_gold was
-    the only unsubstituted row. `laurens_gsv` is the third case — a held-out split that
-    never went through the #54 re-extraction, so there is no cache to swap in and its
+    the only unsubstituted row. `laurens_gsv` was the third case — a held-out split that
+    had not been through the #54 re-extraction, so there was no cache to swap in and its
     bundle is truncated at the deployed 0.55 like every other city's. The old table
     printed "already at 0.05" against it, which is a false provenance claim on the one
-    page whose job is provenance, and no test would have caught it.
+    page whose job is provenance, and no test would have caught it. Since 2026-10-20 it
+    has an op_cache (#263), so it is now an ordinary substituted row; the assertions below
+    pin that, and that its truncated bundle is still not called low-floor.
     """
     table = sr.ap_provenance_table(board)
 
@@ -539,13 +541,17 @@ def test_the_provenance_table_does_not_claim_an_untruncated_bundle_it_has_not_go
     assert "already at 0.05" in gold
     assert _cell(board, "rampnet", "manual_gold")["bundle_floor"] < 0.4
 
+    # laurens_gsv got its op_cache on 2026-10-20 (#263, a parity exception), so its AP now
+    # reads from the cache like every other city's. Its bundle is still truncated at 0.55, and
+    # its P/R/F1 stay records-based.
     gsv = next(l for l in table.splitlines() if l.startswith("| `laurens_gsv` |"))
-    assert "already at 0.05" not in gsv,         "laurens_gsv has no op_cache and a 0.55 bundle; it is truncated, not low-floor"
-    assert "truncated" in gsv and "no `op_cache`" in gsv
+    assert "already at 0.05" not in gsv,         "laurens_gsv's bundle is 0.55-truncated, not low-floor"
+    assert "`op_cache` (0.05 floor)" in gsv and "truncated at the deployed 0.55" in gsv
     cell = _cell(board, "rampnet", "laurens_gsv")
-    assert cell["ap_source"] == "bundle"
+    assert cell["ap_source"] == "op_cache (0.05 floor)"
     assert cell["bundle_floor"] >= 0.4,         "a city bundle is exported at the deployed 0.55, so its floor cannot be low"
-    assert cell["ap"] == cell["ap_bundle"]
+    assert cell["ap"] != cell["ap_bundle"]
+    assert (cell["tp"], cell["fp"]) == (112, 8), "P/R/F1 must stay records-based"
 
 
 def test_scores_every_registered_leg(board):
@@ -553,11 +559,14 @@ def test_scores_every_registered_leg(board):
 
     Hardcoding a roster here is how gemini-3.7-flash sat published-but-unscored for a
     while. Reading rampnet.roster instead means a new leg reaches this page by being
-    registered, which is the same act that publishes its detections.
+    registered, which is the same act that publishes its detections. Seed legs are the
+    one deliberate exception, and test_seed_legs_are_named_but_not_scored pins it.
     """
     scored = {m["model"] for m in board["models"]}
-    registered = {roster.published_name(c) for c in roster.ROSTER}
+    registered = {roster.published_name(c) for c in roster.ROSTER if not c.seed_of}
     assert scored == registered, f"registered but not scored: {registered - scored}"
+    assert set(board["off_scoreboard"]) == {
+        roster.published_name(c) for c in roster.ROSTER if c.seed_of}
 
 
 def test_no_published_file_is_left_unscored(board):
@@ -707,8 +716,12 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
 
 
 def test_single_split_legs_stay_out_of_the_pooled_tables(board):
-    """Two Vistas arms ran richmond only and the 1024 arm five of the nine pooled splits
-    (#163, #35); the other Claude legs ran annapolis only.
+    """Two Vistas arms ran richmond only; the other Claude legs ran annapolis only.
+
+    The 1024 Vistas arm left this set on 2026-10-20: it was 5/9 (richmond for #163, then
+    bend/paterson/gainesville/annapolis for the #35 transfer read) until it ran the other
+    four pooled cities and every held-out split (docs/vistas_transfer_126.md, "All
+    fourteen splits"). test_the_vistas_parity_arm_is_pooled pins it in the headline.
 
     claude-opus-5-effort-low is back in this set. #139 took it to nine splits and #151 to
     both Laurens arms, which made it complete on the eight-city pool; juneau joined the
@@ -728,8 +741,6 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
     want_coverage = {
         "mask2former-vistas-curb-cut": "1/9",
         "mask2former-vistas-curb-cut+curb": "1/9",
-        # #163 richmond, then bend/paterson/gainesville/annapolis for the #35 transfer read
-        "mask2former-vistas-curb-cut-1024x1024": "5/9",
         "claude-opus-5-effort-high": "1/9",
         "claude-sonnet-5-effort-low": "1/9",
         "claude-sonnet-5-effort-high": "1/9",
@@ -739,6 +750,9 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         "claude-fable-5-effort-low-anthropic": "1/9",
         # every pooled city but juneau (added 2026-10-19, not yet run for this leg)
         "claude-opus-5-effort-low": "8/9",
+        # #258: the YOLO tiles arm, published from the cache that scored it under #51.
+        # Never run on laurens_mapillary or juneau. Its #135 seed legs are off the board.
+        "y11x_tiles": "7/9",
     }
     single = [m for m in board["models"] if not m["complete"]]
     assert {m["model"] for m in single} == set(want_coverage)
@@ -794,11 +808,12 @@ def test_the_newest_ids_legs_are_pooled(board):
     assert max(challengers, key=lambda m: m["f1"])["model"] == opus["model"]
     rampnet = _summary(board, "rampnet")
     assert rampnet["f1"] - opus["f1"] == pytest.approx(0.081, abs=0.0006)
-    # The one model with full pooled coverage, other than the open-vocabulary detectors at
-    # their 0.05 floor, whose pooled recall is above RampNet's.
+    # The models with full pooled coverage, other than the open-vocabulary detectors at
+    # their 0.05 floor, whose pooled recall is above RampNet's. Opus 5.5 was the only one
+    # until the Vistas parity arm completed the pool on 2026-10-20 (finding 3).
     above = {m["model"] for m in challengers
              if m["recall"] > rampnet["recall"] and m["class"] != "open-vocab"}
-    assert above == {opus["model"]}
+    assert above == {opus["model"], "mask2former-vistas-curb-cut-1024x1024"}
     # Finding 4's test, met: Opus 5.5 leads gemini-3.1-pro on every pooled city.
     gem = {s: _cell(board, opus["model"], s)["f1"] - _cell(board, "gemini-3.1-pro-preview", s)["f1"]
            for s in board["pooled_splits"]}
@@ -839,7 +854,8 @@ def test_partial_table_names_the_split_every_number_came_from(board):
 
 
 _WORDS = {2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight",
-          9: "Nine", 10: "Ten", 11: "Eleven", 12: "Twelve"}
+          9: "Nine", 10: "Ten", 11: "Eleven", 12: "Twelve", 13: "Thirteen",
+          14: "Fourteen", 15: "Fifteen", 16: "Sixteen"}
 
 
 def test_the_prose_beside_the_partial_table_agrees_with_it(board):
@@ -1175,8 +1191,8 @@ def test_check_fails_on_stale_prose(tmp_path):
     """The tables can be current while a sentence beside them is not (#171)."""
     with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
         doc = fh.read()
-    assert doc.count("Twenty-two model legs") == 1, "the mutation target is gone"
-    doc = doc.replace("Twenty-two model legs", "Eighteen model legs", 1)
+    assert doc.count("Twenty-three model legs") == 1, "the mutation target is gone"
+    doc = doc.replace("Twenty-three model legs", "Eighteen model legs", 1)
     stale = tmp_path / "model_scoreboard.md"
     stale.write_text(doc, encoding="utf-8", newline="")
     done = _run_scoreboard("--check", "--doc", str(stale))
@@ -1233,3 +1249,221 @@ def test_a_figure_helper_survives_a_board_without_rampnet(board, tmp_path):
     out = str(tmp_path / "fig.png")
     fig_headline(trimmed, out, plt)
     fig_by_split(trimmed, out, plt)
+
+
+_VISTAS_1024 = "mask2former-vistas-curb-cut-1024x1024"
+
+
+def _vistas_all_splits_rows():
+    """The per-split rows of docs/vistas_transfer_126.md, "All fourteen splits"."""
+    with open(os.path.join(REPO, "docs", "vistas_transfer_126.md"), encoding="utf-8") as fh:
+        text = fh.read()
+    section = text[text.index("## All fourteen splits"):]
+    rows = {}
+    for line in section.split("\n"):
+        m = re.match(r"^\| `(\w+)`(?: †)? \| ([\d.]+) / ([\d.]+) / ([\d.]+) \| "
+                     r"([\d.]+) / ([\d.]+) / \*\*([\d.]+)\*\* \| ([\d.]+) \| (\d+)/(\d+)/(\d+) \| "
+                     r"([−+-][\d.]+) \|", line)
+        if m:
+            rows[m.group(1)] = m.groups()[1:]
+    return rows
+
+
+def test_the_vistas_parity_arm_is_pooled(board):
+    """The 1024 Vistas arm ran the nine remaining splits on 2026-10-20 (makelab2, A40) and
+    joined the headline: 9/9 pooled, all fourteen splits run. Every row of the doc's
+    "All fourteen splits" table is checked against the scorer here, so the table cannot
+    drift from the committed detections.
+    """
+    v = _summary(board, _VISTAS_1024)
+    n = len(lfs.US_SPLITS)
+    assert v["coverage"] == f"{n}/{n}" and v["complete"] is True
+    assert v["n_splits_run"] == 14
+    assert v["class"] == "supervised-transfer"
+    assert v["display"] in sr.headline_table(board)
+    assert v["precision"] == pytest.approx(0.380, abs=0.0006)
+    assert v["recall"] == pytest.approx(0.836, abs=0.0006)
+    assert v["f1"] == pytest.approx(0.519, abs=0.0006)
+    assert v["ap"] == pytest.approx(0.488, abs=0.0006)
+    # Finding 3 / the doc: it out-recalls RampNet (at its shipped 0.55) on every pooled
+    # city, and RampNet still leads it in F1 on every split.
+    for s in board["all_splits"]:
+        cell, rn = _cell(board, _VISTAS_1024, s), _cell(board, "rampnet", s)
+        assert cell["f1"] < rn["f1"], s
+        if s in board["pooled_splits"]:
+            assert cell["recall"] > rn["recall"], s
+
+    rows = _vistas_all_splits_rows()
+    assert set(rows) == set(lfs.ALL_SPLITS), sorted(rows)
+    for s, (rp, rr, rf, vp, vr, vf, ap, tp, fp, fn, d) in rows.items():
+        cell, rn = _cell(board, _VISTAS_1024, s), _cell(board, "rampnet", s)
+        assert (int(tp), int(fp), int(fn)) == (cell["tp"], cell["fp"], cell["fn"]), s
+        for want, have in ((rp, rn["precision"]), (rr, rn["recall"]), (rf, rn["f1"]),
+                           (vp, cell["precision"]), (vr, cell["recall"]), (vf, cell["f1"]),
+                           (ap, cell["ap"])):
+            assert float(want) == pytest.approx(have, abs=0.0006), s
+        assert float(d.replace("−", "-")) == pytest.approx(cell["f1"] - rn["f1"], abs=0.0011), s
+
+
+def test_partial_footer_counts_the_board():
+    """fig_headline's footer clause is counted off the board, never typed (#267 review)."""
+    from scoreboard_figures import _partial_footer
+
+    board = {"pooled_splits": list("abcdefghi"), "models": [
+        {"complete": True, "pooled_splits": 9},
+        {"complete": False, "pooled_splits": 1},
+        {"complete": False, "pooled_splits": 8}]}
+    assert _partial_footer(board).startswith("2 legs that cover 1–8 of the nine pooled splits")
+    one = dict(board, models=board["models"][:2])
+    assert _partial_footer(one).startswith("1 leg that covers 1 of the nine pooled splits")
+    assert _partial_footer(dict(board, models=board["models"][:1])) == ""
+
+
+def test_by_split_heatmap_rows_sort_by_pooled_mean_in_two_groups():
+    """The by-split figure's row order, read from the committed scoreboard.json.
+
+    Full-coverage legs sort by the headline pooled F1, descending; partial-coverage legs
+    form a separate group below, so a one-city mean never outranks a nine-city one. The
+    aggregate is the board's own pooled F1, not a second computation (by_split_rows
+    asserts it equals the mean of the row's cells).
+    """
+    from scoreboard_figures import by_split_rows
+
+    with open(sb.DEFAULT_JSON, encoding="utf-8") as fh:
+        committed = json.load(fh)
+    full, partial = by_split_rows(committed)
+    n_pool = len(committed["pooled_splits"])
+
+    # Every leg lands in exactly one group, in the right one.
+    names = [m["model"] for m, _, _ in full + partial]
+    assert sorted(names) == sorted(m["model"] for m in committed["models"])
+    assert all(m["complete"] and n == n_pool for m, _, n in full)
+    assert all(not m["complete"] and n < n_pool for m, _, n in partial)
+
+    # The full group is sorted by its pooled mean.
+    means = [v for _, v, _ in full]
+    assert means == sorted(means, reverse=True)
+    # The partial group sorts by coverage first, then by its mean within a coverage level.
+    keys = [(n, v) for _, v, n in partial if v is not None]
+    assert keys == sorted(keys, key=lambda k: (-k[0], -k[1]))
+
+    # RampNet leads by sorting, not by being pinned there: its mean is the board's best.
+    assert full[0][0]["model"] == "rampnet"
+    assert full[0][1] == max(m["f1"] for m in committed["models"] if m["complete"])
+
+
+def _synthetic_board():
+    """A three-city board, one held-out split, built to exercise every ordering rule.
+
+    * ``partial-high``: one city at 0.90 -- a higher mean than ``partial-wide`` but lower
+      coverage, so it must sort below it; ``partial-low`` has the same coverage and a lower
+      mean, so it sorts below ``partial-high``.
+    * ``none``: ran no pooled city (its only cell is held out), so its F1 is None and it
+      sorts last.
+    * ``tie-a`` / ``tie-b``: equal pooled means in the full group; the board's order holds.
+
+    The board lists ``tie-a`` / ``tie-b`` before ``best`` and ``partial-low`` before
+    ``partial-high``, so the expected order can only come from sorting.
+    """
+    pooled = ["a", "b", "c"]
+
+    def cell(f1):
+        return {"f1": f1}
+
+    per_split = {
+        "tie-a": {"a": cell(0.5), "b": cell(0.5), "c": cell(0.5)},
+        "tie-b": {"a": cell(0.4), "b": cell(0.5), "c": cell(0.6)},
+        "best": {"a": cell(0.9), "b": cell(0.8), "c": cell(0.7), "h": cell(0.6)},
+        "partial-low": {"b": cell(0.2)},
+        "partial-high": {"a": cell(0.9)},
+        "partial-wide": {"a": cell(0.3), "b": cell(0.4)},
+        "none": {"h": cell(0.2)},
+    }
+    models = []
+    for name, cells in per_split.items():
+        f1s = [cells[s]["f1"] for s in pooled if s in cells]
+        models.append({
+            "model": name, "display": name,
+            "coverage": f"{len(f1s)}/{len(pooled)}",
+            "complete": len(f1s) == len(pooled),
+            "pooled_splits": [s for s in pooled if s in cells],
+            "f1": sum(f1s) / len(f1s) if f1s else None,
+            "f1_min": min(f1s) if f1s else None,
+            "f1_max": max(f1s) if f1s else None,
+        })
+    return {
+        "pooled_splits": pooled,
+        "all_splits": pooled + ["h"],
+        "held_out": {"h": "a held-out split, for a reason (with detail)"},
+        "models": models,
+        "per_split": per_split,
+    }
+
+
+def test_by_split_rows_orders_a_synthetic_board_and_the_figure_renders_it(tmp_path):
+    """Coverage beats mean in the partial group, None sorts last, ties keep board order."""
+    from scoreboard_figures import by_split_rows, fig_by_split, held_out_footer
+    plt = pytest.importorskip("matplotlib.pyplot")
+    import matplotlib
+    matplotlib.use("Agg")
+
+    synthetic = _synthetic_board()
+    full, partial = by_split_rows(synthetic)
+    assert [m["model"] for m, _, _ in full] == ["best", "tie-a", "tie-b"]
+    assert [m["model"] for m, _, _ in partial] == [
+        "partial-wide", "partial-high", "partial-low", "none"]
+    assert [(n, v) for _, v, n in partial][-1] == (0, None)
+    assert held_out_footer(synthetic, ["h"]) == \
+        "† held out of the pooled headline: h (a held-out split)."
+
+    out = tmp_path / "by_split.png"
+    fig_by_split(synthetic, str(out), plt)
+    assert out.stat().st_size > 0
+
+    # A board with no full-coverage rows still renders (the caption drops "rows above").
+    partial_only = dict(synthetic)
+    partial_only["models"] = [m for m in synthetic["models"] if not m["complete"]]
+    fig_by_split(partial_only, str(out), plt)
+
+
+def test_held_out_footer_names_the_boards_own_splits():
+    """The footnote follows result["held_out"], so a renamed split cannot go stale."""
+    from scoreboard_figures import held_out_footer
+
+    with open(sb.DEFAULT_JSON, encoding="utf-8") as fh:
+        committed = json.load(fh)
+    held = [s for s in committed["all_splits"] if s not in committed["pooled_splits"]]
+    text = held_out_footer(committed, held)
+    for split in held:
+        assert split in text
+
+
+def test_by_split_rows_rejects_an_aggregate_that_disagrees_with_its_cells():
+    """A pooled F1 that no longer matches the cells beside it must not be drawn."""
+    from scoreboard_figures import by_split_rows
+
+    with open(sb.DEFAULT_JSON, encoding="utf-8") as fh:
+        committed = json.load(fh)
+    committed["models"][0]["f1"] += 0.01
+    with pytest.raises(AssertionError, match="mean of its cells"):
+        by_split_rows(committed)
+
+
+def test_seed_legs_are_named_but_not_scored(board):
+    """Seed legs stay off the board, and the JSON and the page both say so (#258).
+
+    The scoreboard's rule is that a registered leg is never omitted silently. Seed legs
+    are the one deliberate omission, so the test pins all three sides of it: none is a
+    row, each is listed under ``off_scoreboard`` with the leg it replicates, and the page
+    names every one.
+    """
+    seeds = {roster.published_name(leg): leg.seed_of for leg in roster.SEED_LEGS}
+    assert len(seeds) == 6
+    assert set(seeds.values()) == {"y11x_tiles"}
+    assert not seeds.keys() & {m["model"] for m in board["models"]}
+    assert not seeds.keys() & set(board["per_split"])
+    assert board["off_scoreboard"] == seeds
+    with open(sb.DEFAULT_DOC, encoding="utf-8") as fh:
+        doc = fh.read()
+    for name in seeds:
+        assert f"`{name}`" in doc, name

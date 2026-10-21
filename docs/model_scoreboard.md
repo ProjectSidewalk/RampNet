@@ -1,6 +1,6 @@
 # Scoreboard: every model, one table
 
-Twenty-two model legs, fourteen splits (nine of them pooled), one page. This is the summary
+Twenty-three model legs, fourteen splits (nine of them pooled), one page. This is the summary
 view of the curb-ramp benchmark — **rows are models, columns are metrics** — for the
 question "which model is best, and by how much".
 
@@ -56,6 +56,7 @@ model, and the reasons are in "How to read this" below.
 | YOLO11l (pano) | supervised baseline | 0.25 | 0.943 | 0.428 | 0.583 | -0.209 | 0.706 | 0.1 | 0.46–0.71 |
 | YOLO11x (pano) | supervised baseline | 0.25 | **0.968** | 0.393 | 0.551 | -0.241 | 0.707 | 0.0 | 0.40–0.71 |
 | YOLO26 (pano) | supervised baseline | 0.25 | 0.769 | 0.434 | 0.547 | -0.246 | 0.609 | 0.3 | 0.45–0.68 |
+| Mask2Former Vistas (curb cut, 1024) | supervised transfer | export floor | 0.380 | 0.836 | 0.519 | -0.274 | 0.488 | 3.3 | 0.37–0.59 |
 | Claude Opus 5.5 (low, anthropic) | chat VLM | no score | 0.696 | 0.735 | 0.712 | -0.081 | – | 0.8 | 0.61–0.78 |
 | Claude Fable 5.1 (low, anthropic) | chat VLM | no score | 0.645 | 0.582 | 0.607 | -0.186 | – | 0.8 | 0.49–0.67 |
 | Gemini 3.1 Pro | chat VLM | no score | 0.632 | 0.531 | 0.571 | -0.222 | – | 0.7 | 0.34–0.68 |
@@ -79,7 +80,10 @@ joined the board on 2026-10-19 and ran `juneau`, the ninth pooled city, on 2026-
 ([`claude_newest_ids.md`](claude_newest_ids.md)). Its numbers are a single run, no seed
 variance, effort low only, first-party serving path, so the 0.081 carries no seed interval.
 Over the eight cities before juneau was pooled the lead was 0.082. Before it, the best
-challenger with full pooled coverage was YOLO11l, 0.209 behind RampNet. RampNet also leads in F1 on ground truth that never saw a
+challenger with full pooled coverage was YOLO11l, 0.209 behind RampNet. (YOLO11x at
+perspective tiles reaches 0.667 macro F1, but over seven of the nine pooled splits, without
+`laurens_mapillary` and `juneau`, so it is in the partial table below and is not comparable
+to a full-coverage mean.) RampNet also leads in F1 on ground truth that never saw a
 RampNet review (`manual_gold`, 0.908 against YOLO11x's 0.851), but only in F1 and only at
 these operating points: YOLO11x has the higher `manual_gold` AP (see "In-distribution vs
 deployed" below), and at matched operating points `y11x_tiles` leads RampNet there
@@ -117,10 +121,17 @@ the splits are pooled:
    the board (0.968, above RampNet's 0.953) at **0.393 recall against RampNet's 0.686**. Every
    model here can be made precise. Finding the ramps is the hard part, which is why the
    project's operating-point work optimizes recall-first
-   ([`operating_point.md`](operating_point.md)). Claude Opus 5.5 at low effort is the one
-   model with full pooled coverage, apart from the two open-vocabulary detectors at their
-   0.05 floor, whose recall is above RampNet's: **0.735 against 0.686**, at precision 0.696
-   against 0.953.
+   ([`operating_point.md`](operating_point.md)). Apart from the two open-vocabulary
+   detectors at their 0.05 floor, two models with full pooled coverage have recall above
+   RampNet's at these operating points: Mask2Former Vistas (curb cut, 1024), **0.836**, at
+   precision 0.380, and Claude Opus 5.5 at low effort, **0.735**, at precision 0.696, against
+   RampNet's 0.686 at 0.953. The Vistas arm out-recalls RampNet on all nine pooled cities
+   (it joined the pool on 2026-10-20,
+   [`vistas_transfer_126.md`](vistas_transfer_126.md) § "All fourteen splits"), and it does
+   so without ever having seen one of our labels. That comparison is RampNet at its shipped
+   0.55. Read down RampNet's own curve to its 0.05 floor (the PR figure below), RampNet
+   reaches micro recall 0.862 against the Vistas arm's 0.830, at higher precision at every
+   recall the Vistas arm reaches.
 4. **A one-split lead of this size is indistinguishable from split noise.** `claude-opus-5`
    at low effort beat `gemini-3.1-pro` on annapolis by **+0.021 F1** — then the only case of
    any model displacing the top challenger (superseded 2026-10-19: Claude Opus 5.5 displaced
@@ -181,11 +192,16 @@ column exists to prevent. They are reported per split instead, at the split they
 
 | model | class | split | P | R | F1 | AP | FP/pano | tp/fp/fn |
 |---|---|---|--:|--:|--:|--:|--:|--:|
-| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `richmond` | 0.383 | 0.884 | 0.534 | 0.649 | 3.6 | 274/442/36 |
-| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `bend` | 0.367 | 0.832 | 0.509 | 0.425 | 4.3 | 272/469/55 |
-| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `annapolis` | 0.436 | 0.898 | 0.587 | 0.526 | 2.7 | 264/342/30 |
-| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `paterson` | 0.401 | 0.701 | 0.510 | 0.430 | 3.3 | 277/414/118 |
-| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `gainesville` | 0.383 | 0.846 | 0.527 | 0.521 | 3.0 | 230/371/42 |
+| YOLO11x (tiles) | supervised baseline | `richmond` | 0.920 | 0.523 | 0.667 | 0.773 | 0.1 | 162/14/148 |
+| YOLO11x (tiles) | supervised baseline | `bend` | 0.975 | 0.609 | 0.750 | 0.844 | 0.0 | 199/5/128 |
+| YOLO11x (tiles) | supervised baseline | `clovis` | 0.885 | 0.595 | 0.712 | 0.769 | 0.1 | 116/15/79 |
+| YOLO11x (tiles) | supervised baseline | `morgantown` | 0.975 | 0.581 | 0.728 | 0.824 | 0.0 | 155/4/112 |
+| YOLO11x (tiles) | supervised baseline | `annapolis` | 0.923 | 0.490 | 0.640 | 0.738 | 0.1 | 144/12/150 |
+| YOLO11x (tiles) | supervised baseline | `paterson` | 0.977 | 0.428 | 0.595 | 0.715 | 0.0 | 169/4/226 |
+| YOLO11x (tiles) | supervised baseline | `gainesville` | 0.957 | 0.412 | 0.576 | 0.751 | 0.0 | 112/5/160 |
+| YOLO11x (tiles) | supervised baseline | `budapest_district5` | 0.843 | 0.197 | 0.319 | 0.458 | 0.1 | 59/11/241 |
+| YOLO11x (tiles) | supervised baseline | `sao_paulo` | 0.894 | 0.480 | 0.625 | 0.751 | 0.1 | 135/16/146 |
+| YOLO11x (tiles) | supervised baseline | `manual_gold` | 0.970 | 0.711 | 0.820 | 0.909 | 0.1 | 2786/86/1133 |
 | Mask2Former Vistas (curb cut) | supervised transfer | `richmond` | 0.411 | 0.697 | 0.517 | 0.513 | 2.5 | 216/309/94 |
 | Mask2Former Vistas (+curb) | supervised transfer | `richmond` | 0.126 | 0.648 | 0.210 | 0.089 | 11.3 | 201/1399/109 |
 | Claude Fable 5 (low, anthropic) | chat VLM | `annapolis` | 0.579 | 0.646 | 0.611 | – | 1.1 | 190/138/104 |
@@ -217,7 +233,9 @@ numbers are directly above them in `model_comparison.md`:
   path is pinned in each published file and the caveat travels with the numbers in
   `claude_legs_122.md` (#156) and `claude_newest_ids.md`. Opus 5.5 and Fable 5.1 have since
   run every split (2026-10-19/20), `juneau` included, and are in the headline table; Fable 5
-  stays annapolis-only.
+  stays annapolis-only. Among the supervised baselines, YOLO11x at perspective tiles leads
+  there (F1 0.640 for the published arm; its six seed legs, which are not on this board, span
+  0.636–0.655; published under #258).
 - **More thinking makes it worse.** Claude Opus 5 drops from 0.588 at low effort to 0.520 at
   high on annapolis, and the same direction holds for Sonnet 5 (0.463 → 0.456). Effort moves
   the operating point; it does not raise the ceiling (#122) — and the Fable version is the
@@ -233,7 +251,19 @@ numbers are directly above them in `model_comparison.md`:
   precision** and no training at all — but RampNet's 0.855 on that split is 0.337 clear of
   it. Giving it the full 1024×1024 view instead of the checkpoint's 384×384 resize (the
   `1024` row) buys recall, 0.697 → 0.884, and AP, 0.513 → 0.649, and only 0.018 of F1,
-  because precision gets slightly worse; the gap to RampNet is 0.321 at parity. The union arm (`+curb`) is a committed negative result: adding Vistas' `Curb` class
+  because precision gets slightly worse; the gap to RampNet is 0.321 at parity. The `1024`
+  arm has since run all fourteen splits (2026-10-20) and left this table for the headline
+  one: **0.519 pooled, 0.274 behind RampNet**, with precision 0.380 and recall 0.836, the
+  highest pooled recall of any model apart from the two open detectors. That pooled number mixes
+  two environments: five of the nine cities ran on makelab2 (A40, torch 2.13.0+cu130) and four
+  on klone (L40S, torch 2.6.0+cu126), with the same detection signature and transformers 5.15.0.
+  No split ran in both, so the mix has no direct control. The nearest one is #163's on
+  richmond, where a different environment change (RTX 3070 to A40, transformers 4.x to 5.15)
+  moved the 384 arm by one detection in 523 ([`vistas_transfer_126.md`](vistas_transfer_126.md),
+  "All fourteen splits"). The arm's closest approaches to RampNet are the two splits RampNet
+  does worst on, `laurens_mapillary` (0.535 against 0.543) and `bayonne` (0.497 against 0.517), and on `budapest_district5` it is the strongest
+  challenger on the board (0.527 against RampNet's 0.644, Claude Opus 5.5's 0.451 and the
+  four YOLO arms' 0.221–0.319, YOLO11x at perspective tiles the highest). The 384 arm and the union arm stay richmond-only. The union arm (`+curb`) is a committed negative result: adding Vistas' `Curb` class
   *loses* recall while precision collapses, because `Curb` fuses adjacent ramps into one
   component (#126).
 
@@ -249,6 +279,7 @@ numbers are directly above them in `model_comparison.md`:
 | YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.563 | 0.462 | 0.583 | 0.587 | 0.247 | 0.662 | 0.249 | 0.839 |
 | YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.529 | 0.410 | 0.551 | 0.568 | 0.221 | 0.659 | 0.296 | 0.851 |
 | YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | 0.574 | 0.496 | 0.547 | 0.538 | 0.277 | 0.605 | 0.261 | 0.739 |
+| Mask2Former Vistas (curb cut, 1024) | 0.534 | 0.509 | 0.368 | 0.521 | 0.587 | 0.510 | 0.527 | 0.535 | 0.577 | 0.519 | 0.516 | 0.527 | 0.483 | 0.497 | 0.649 |
 | Claude Opus 5.5 (low, anthropic) | 0.738 | 0.720 | 0.610 | 0.785 | 0.720 | 0.742 | 0.684 | **0.679** | 0.727 | 0.712 | **0.701** | 0.451 | 0.646 | **0.619** | 0.722 |
 | Claude Fable 5.1 (low, anthropic) | 0.628 | 0.626 | 0.552 | 0.661 | 0.610 | 0.666 | 0.553 | 0.493 | 0.673 | 0.607 | 0.415 | 0.393 | 0.503 | 0.540 | 0.638 |
 | Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.542 | 0.571 | 0.279 | 0.381 | 0.454 | 0.431 | – |
@@ -259,7 +290,7 @@ numbers are directly above them in `model_comparison.md`:
 | Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.448 | 0.422 | 0.307 | 0.274 | 0.326 | – | 0.422 |
 | OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.066 | 0.065 | 0.055 | 0.062 | 0.052 | 0.065 | 0.088 |
 | Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.050 | 0.053 | 0.054 | 0.042 | 0.049 | 0.048 | 0.082 |
-| Mask2Former Vistas (curb cut, 1024) | 0.534 | 0.509 | – | – | 0.587 | 0.510 | 0.527 | – | – | – | – | – | – | – | – |
+| YOLO11x (tiles) | 0.667 | 0.750 | 0.712 | 0.728 | 0.640 | 0.595 | 0.576 | – | – | – | – | 0.319 | 0.625 | – | 0.820 |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – | – | – |
 | Claude Fable 5 (low, anthropic) | – | – | – | – | 0.611 | – | – | – | – | – | – | – | – | – | – |
@@ -274,6 +305,15 @@ numbers are directly above them in `model_comparison.md`:
 shown because omitting them would be worse, not because they belong in the headline.
 
 ![F1 by model and split](figures/scoreboard_by_split.png)
+
+The figure orders its rows differently from the table above, which groups by model class.
+Its **Pooled mean** column, framed and set right of the pooled cities, is the same pooled
+F1 the headline quotes (read from the board, and checked against the mean of the cells
+beside it), and the rows are sorted by it. Legs that have not run every pooled city sit in
+a separate group below a labelled rule, sorted by how many pooled cities they ran and then by
+the mean over those cities, and that mean carries its coverage, e.g. `0.568 (8/9)`. So a
+one-city leg is never ranked against a full-pool mean, or above a leg that ran eight cities,
+even when its single city puts it numerically above one.
 
 Three things this matrix settles that no single-number ranking can:
 
@@ -298,12 +338,13 @@ Three things this matrix settles that no single-number ranking can:
   confidence, so it has no AP to compare, and neither does Fable 5.1. Every other split has
   RampNet on top.
 - **No single city is hardest for everyone.** `laurens_mapillary` is the worst pooled city
-  for 7 of the 14 models with full pooled coverage, annapolis for 2 (YOLO11x and YOLO26),
-  clovis (2018 GoPro Fusion) for 3 (the two open-vocabulary detectors and Claude Opus 5.5),
+  for 7 of the 15 models with full pooled coverage, annapolis for 2 (YOLO11x and YOLO26),
+  clovis (2018 GoPro Fusion) for 4 (the two open-vocabulary detectors, Claude Opus 5.5 and
+  Mask2Former Vistas (curb cut, 1024)),
   juneau for 1 (YOLO11l) and gainesville for 1 (Molmo2-8B). "Difficulty" here is not a property of the imagery alone — it is an
   interaction between imagery and model.
 - **budapest separates the US-trained models from the zero-shot ones, in the wrong direction.**
-  The three YOLO arms fall to 0.221–0.277, *below all three Gemini legs* (0.336–0.381). A
+  The four YOLO arms that ran it fall to 0.221–0.319, *below all three Gemini legs* (0.336–0.381). A
   detector trained on US curb-ramp data loses to an off-the-shelf chat model the moment the
   design vocabulary changes. RampNet drops too (0.793 pooled → 0.644) but keeps the lead.
   Read this split with `benchmark/README.md`'s budapest caveat in hand — its GT is
@@ -333,6 +374,19 @@ that a single F1 confuses:
 - **A model trained on the RampNet dataset starts above the line and falls.** How far it falls
   is the generalization penalty, and it is the whole #51 ablation in one distance: RampNet
   **−0.12**, YOLO26 **−0.19**, YOLO11l **−0.26**, YOLO11x **−0.30**.
+- **The supervised-transfer arm is neither, and it is off the zero-shot scatter.** Mask2Former
+  Vistas (curb cut, 1024) was trained on Mapillary Vistas labels, not on the RampNet dataset,
+  so `manual_gold` is not its training distribution either. It still lands well *above* its
+  pooled F1 there: 0.649 against 0.519 pooled, a pooled-minus-`manual_gold` of **−0.13**,
+  outside the zero-shot models' ±0.08. The gain is all precision: 0.534 on `manual_gold`
+  against 0.380 pooled, at nearly the same recall (0.825 against 0.836). Two readings fit
+  that, and neither has been measured. `manual_gold` has 3.92 GT ramps per panorama
+  against 1.56–3.16 on the pooled cities, so a detector that fires about three times per
+  panorama has more true targets to land on. Or some of its city-split false positives are
+  real ramps the RampNet-anchored GT never recorded, which #55 measured for RampNet's own
+  sub-threshold detections (13–35% per tagged US split). This row is why the zero-shot sentence
+  above says *zero-shot*: the ±0.08 scatter is a check on those eight models, and this row
+  is not one of them.
 
 The uncomfortable corollary, stated because it is real: **in-distribution, YOLO11x is not
 behind.** Its `manual_gold` AP is **0.931** against RampNet's **0.917**, at the same 0.05
@@ -357,14 +411,16 @@ choice, and the choice is RampNet's to make — it is the subject of
 
 The figure says three things a table of F1 cannot:
 
-1. **A calibrated score is a dial; a chat VLM is a dot.** RampNet, the three YOLO arms and
-   the two open detectors can be moved anywhere along their curves for free — no retraining,
+1. **A calibrated score is a dial; a chat VLM is a dot.** RampNet, the three YOLO arms, the
+   Vistas arm and the two open detectors can be moved anywhere along their curves for free — no retraining,
    no second inference pass. The Gemini/Qwen/Molmo rows are single points because those
    models emit no confidence to threshold on. Comparing a tuned model against an untunable
    one at one threshold flatters whichever happened to land well.
-2. **RampNet's curve dominates over the whole range**, not just at 0.55. At every recall the
-   YOLO arms reach, RampNet is above them, and the AP ordering (0.829 vs 0.710 for YOLO11x) is
-   the integral of that.
+2. **RampNet's curve is on top over the whole range**, not just at 0.55. At every recall the
+   YOLO arms and the Vistas arm reach (at most 0.794 and 0.830), RampNet is at or above them,
+   with one exception too small to see: at recall 0.087–0.090 YOLO11x is still at precision
+   1.000 and RampNet is at 0.998, a margin of −0.0016. The AP ordering (0.829 vs 0.710 for
+   YOLO11x) is the integral of that.
 3. **The deployed point is not the F1 optimum.** RampNet sits at 0.55 (hollow marker) where
    the curve is nearly flat; #54's recommended 0.30 (filled) buys recall at a shallow
    precision cost.
@@ -464,7 +520,7 @@ apart without failing CI:
 | `gainesville` | 0.691 | **0.846** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `laurens_mapillary` | 0.377 | **0.691** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `juneau` | 0.680 | **0.833** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
-| `laurens_gsv` | 0.494 | 0.494 | bundle — 0.55 floor, no `op_cache` | **truncated**; not comparable with the rows above |
+| `laurens_gsv` | 0.494 | **0.768** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `budapest_district5` | 0.478 | **0.648** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `sao_paulo` | 0.666 | **0.812** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `bayonne` | 0.344 | **0.587** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
@@ -502,14 +558,25 @@ log.
 Omissions are content, so they are named rather than left as blanks:
 
 - **`gemini-3.1-pro-preview` and `gemini-3.6-flash` have no `manual_gold` row here.** Their
-  city detections are published; their `manual_gold` detections are not, and are absent from
-  this workstation's `.model_cache` (probed by reconstructing the cache keys — the same probe
-  returns 124/124 for richmond, so the method is sound and the split is genuinely not here).
-  `model_comparison.md` quotes F1 0.568 and 0.540 for them from the original run. **Those two
-  numbers are currently the only ones in this comparison that cannot be re-derived from a
-  clean clone.** Fixing it means locating the machine that holds that cache and running
-  `export_model_cache.py --models gemini:gemini-3.6-flash,gemini:gemini-3.1-pro-preview`, or
-  re-paying for the run. It is also why both are absent from the generalization figure.
+  city detections are published; their `manual_gold` detections are not. The run did happen:
+  the 2026-07-25 challenger sweep (commit b148f71) scored both on all 1,000 panoramas, and
+  `model_comparison.md` keeps its counts (F1 0.568, tp/fp/fn 1972/1047/1947; F1 0.540,
+  1899/1221/2020). It predates the usage ledger, so it has no cost row. **The detections are
+  lost.** On 2026-10-20 the cache keys were reconstructed (the same probe finds the richmond
+  entries, so the method is sound) and searched for in every model cache on the Windows
+  workstation, on makelab2 (`/homes/gws/jonf`), on klone (home, `/gscratch/makelab`,
+  `/gscratch/scrubbed`) and on Jon's Mac; none holds a single entry. The cache was
+  desktop-local: `model_comparison.md`'s `manual_gold` "Cost and runtime" section (from
+  b148f71) says "Gemini needs no GPU at all — both models ran from a desktop against Vertex";
+  only the GPU legs used klone's `ckpt` queue. Both desktops, the Windows workstation and
+  Jon's Mac, are among the machines searched. `compare.py` keeps its cache inside the checkout
+  it runs from (`--cache-dir` defaults to `<repo>/.model_cache`), so a run from a checkout or
+  worktree that was later removed leaves nothing on either desktop to find.
+  **0.568 and 0.540 are therefore historical: they cannot be re-derived from a clean clone**,
+  the only numbers in this comparison with that status. Not re-run, by decision (Jon,
+  2026-10-20): Opus 5.5 and Gemini 3.7 Flash now cover `manual_gold`, a re-run of a preview id
+  might not reproduce the original, and new VLM baselines are deferred to RampNet 2.0. It is
+  also why both are absent from the generalization figure.
 - **`gemini-3.7-flash`, the YOLO arms, the Vistas arms and the Claude legs are all on this
   board but `standing=False` in the roster**, so `model_comparison.md`'s roster tables keep
   a consistent 8-model set pending each write-up. Every one of those legs has its
@@ -518,22 +585,35 @@ Omissions are content, so they are named rather than left as blanks:
   Including them here is deliberate: this page's job is to show everything that has been
   measured, and `standing` governs which roster tables a leg appears in, not whether its
   numbers are real.
-- **The YOLO tiles arms are absent from this board**, but they are no longer unmeasured:
-  `y11x_tiles` (ep44) was scored on 2026-08-30 on the ten splits registered then (every
-  split here except the two Laurens arms, `bayonne` and `juneau`; two reports per split in
-  `docs/data/yolo_geometry_51/`, `<split>_pano.txt` and `<split>_tiles.txt`), and it is the
-  best YOLO cell in that grid. See [`yolo_geometry_51.md`](yolo_geometry_51.md). It is
-  absent here because its detections are not published and it is not in
-  `rampnet/roster.py`, not because it is untested.
+- **The YOLO tiles arms are in the partial table, not the headline.** `y11x_tiles` (ep44)
+  was scored on 2026-08-30 on the ten splits registered then (every split here except the
+  two Laurens arms, `bayonne` and `juneau`; two reports per split in `docs/data/yolo_geometry_51/`,
+  `<split>_pano.txt` and `<split>_tiles.txt`), and it is the best YOLO cell in that grid.
+  See [`yolo_geometry_51.md`](yolo_geometry_51.md). Its detections were published and
+  registered in `rampnet/roster.py` on 2026-10-19
+  ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258)). It never ran
+  `laurens_mapillary` or `juneau`, so it has no pooled mean.
+- **Six seed legs of `y11x_tiles` are not on this board**: `y11x_tiles_s1_ep44`,
+  `y11x_tiles_s2_ep44`, `y11x_tiles_s3_ep42`, `y11x_tiles_s1_best`, `y11x_tiles_s2_best` and
+  `y11x_tiles_s3_best` (#135). They are the same recipe retrained from other seeds, so they
+  measure how much one model varies between training runs, not which model is best.
+  RampNet's nine seed replicates are not on the board either, so showing YOLO's six would
+  give one model several rows here where every other has one. Both sets are analysed in
+  [`seed_variance_51_135.md`](seed_variance_51_135.md) (RampNet +0.016 F1 over
+  `y11x_tiles`, CI [0.008, 0.024]). Their detections are published and registered under
+  #258 like any leg (`seed_of` in `rampnet/roster.py`), and `analysis_out/scoreboard.json`
+  lists them under `off_scoreboard`.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
 - **Eight legs have not run every pooled split — six of them only one**, so they are in the partial table rather than the
-  headline: the three Vistas arms (the 1024 row is the curb-cut arm at resolution parity,
-  #126/#163, on richmond and, since the #35 transfer run, bend, paterson, gainesville and
-  annapolis — five of the nine pooled splits; the other two on richmond only), four Claude legs on annapolis — Claude Opus 5
+  headline: two Vistas arms on richmond only (the 384 curb-cut arm and the `+curb` union; the
+  1024 curb-cut arm at resolution parity, #126/#163, ran the full pool and every held-out
+  split on 2026-10-20 and is in the headline table), four Claude legs on annapolis — Claude Opus 5
   (high), both Sonnet 5 legs, and Claude Fable 5 — and Claude Opus 5 (low), on eight of the
-  nine pooled splits plus three held-out ones, missing only `juneau`. Extending any of them
-  to the full pool is a run, not a code change.
+  nine pooled splits plus three held-out ones, missing only `juneau` — and YOLO11x at
+  perspective tiles (#51; published under #258), which ran seven of the nine pooled splits —
+  every one but `laurens_mapillary` and `juneau` — plus `budapest_district5`, `sao_paulo` and
+  `manual_gold`. Extending any of them to the full pool is a run, not a code change.
 - **`claude-opus-5-effort-low` is scored here but is not a standing roster entry.** It has
   8/9 pooled coverage (no `juneau` run yet), so it appears in the partial table and the
   per-split matrix but not the headline; `standing` stays `False` because
@@ -551,7 +631,7 @@ Omissions are content, so they are named rather than left as blanks:
   [`claude_newest_ids.md`](claude_newest_ids.md)).
 - **Nothing else in the registry is missing.** The board is driven by `rampnet/roster.py`,
   and `unregistered_exports` is empty — every published detections file is claimed by a
-  roster entry and scored here.
+  roster entry, and every entry is scored here except the six seed legs named above.
 
 ---
 

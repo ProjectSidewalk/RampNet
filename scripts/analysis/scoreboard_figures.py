@@ -15,7 +15,7 @@ documented remedy is to cut series or facet rather than to add a legend and hope
 class is therefore carried by **position** (bar order, group headers) and **marker
 shape** — channels with no CVD failure mode — and colour is freed to carry emphasis.
 
-The PR-curve figure is the exception and gets four hues, because overlapping *lines* are
+The PR-curve figure is the exception and gets five hues, because overlapping *lines* are
 scored on the **adjacent** pairlist, which that set passes outright (worst adjacent CVD
 ΔE 9.1); see ``CURVE_COLOR``. Marker shape cannot separate curves, so there is no
 position-or-shape substitute to fall back on there.
@@ -25,6 +25,7 @@ discharged the way ``plot_operating_point.py`` discharges it: every plotted numb
 also in a table, in ``docs/model_scoreboard.md`` and ``analysis_out/scoreboard.json``.
 """
 import os
+import re
 
 # Palette: validated categorical slot 1, the sequential blue ramp, and the neutral inks
 # (references/palette.md). Same values plot_operating_point.py uses, so the two figures
@@ -64,6 +65,18 @@ PR_NUDGE = {
     "y11l_pano": (11, -8, "left"),
     "google/owlv2-large-patch14-ensemble": (-9, 11, "right"),
     "IDEA-Research/grounding-dino-base": (-9, -2, "right"),
+    # Left: running right put this label past the right spine.
+    "mask2former-vistas-curb-cut-1024x1024": (-11, -3.5, "right"),
+    # Raised: at the default height it printed over Gemini 3.1 Pro's label, 0.05 to its left.
+    "claude-fable-5-1-effort-low-anthropic": (11, 6, "left"),
+}
+# The scoreless dots on the PR-curve figure; the default is right of the dot.
+CURVE_DOT_NUDGE = {
+    # These two dots sit 0.05 recall apart at the same precision, so running both labels
+    # right printed one over the other. Gemini's goes left; Fable's stays right, raised so
+    # it clears the Gemini dot and still starts at its own.
+    "gemini-3.1-pro-preview": (-9, -3.5, "right"),
+    "claude-fable-5-1-effort-low-anthropic": (9, 5, "left"),
 }
 GEN_NUDGE = {
     # RampNet sits close to the diagonal in the top-right, so its label crosses that line
@@ -71,8 +84,14 @@ GEN_NUDGE = {
     "rampnet": (-14, -13, "right"),
     "y11l_pano": (11, 6, "left"),
     "y11x_pano_h200": (11, -7, "left"),
-    "y26_pano": (-11, -10, "right"),
-    "gemini-3.7-flash": (11, 3, "left"),
+    # Below-right, not left: running left put this label over the Vistas marker 0.09 away.
+    "y26_pano": (6, -18, "left"),
+    # Left, under the diagonal: right of it is the YOLO26 / YOLO11x label stack.
+    "mask2former-vistas-curb-cut-1024x1024": (-11, -10, "right"),
+    # Left: running right put this label across YOLO11l's at the same height.
+    "claude-fable-5-1-effort-low-anthropic": (-11, 4, "right"),
+    # Left: running right put this label's number on YOLO26's marker.
+    "gemini-3.7-flash": (-11, 6, "right"),
     # Left, not right: running right puts this label across Qwen-8B's marker 0.10 away,
     # and a reader then attaches it to the wrong point.
     "Qwen/Qwen3-VL-32B-Instruct": (-11, 4, "right"),
@@ -130,6 +149,32 @@ def _seq_color(value, vmax):
     return SEQ[max(0, min(len(SEQ) - 1, idx))]
 
 
+def _partial_footer(result):
+    """The footer clause for the legs left off the pooled figures, or "" if there are none.
+
+    Counted off the board rather than typed: the partial legs are not all single-split (one
+    covers eight of the nine pooled cities), so "single-split legs" was wrong as soon as one
+    of them grew. ``pooled_splits`` on a model row names (or, in the JSON, counts) the
+    pooled cities it covers.
+
+    >>> _partial_footer({"pooled_splits": list("abcdefghi"), "models": [
+    ...     {"complete": False, "pooled_splits": 1},
+    ...     {"complete": False, "pooled_splits": 8}]})
+    '2 legs that cover 1–8 of the nine pooled splits are reported per split instead — '
+    """
+    partial = [m for m in result["models"] if not m["complete"]]
+    if not partial:
+        return ""
+    # A list of split names in build()'s result, a count once json_payload has written it.
+    counts = [len(v) if isinstance(v, (list, tuple)) else v
+              for v in (m["pooled_splits"] for m in partial)]
+    lo, hi = min(counts), max(counts)
+    span = f"{lo}" if lo == hi else f"{lo}–{hi}"
+    noun = "leg that covers" if len(partial) == 1 else "legs that cover"
+    return (f"{len(partial)} {noun} {span} of the {_n_pooled(result)} pooled splits "
+            f"{'is' if len(partial) == 1 else 'are'} reported per split instead — ")
+
+
 def fig_headline(result, path, plt):
     """Pooled F1 per model, sorted — the board, and the size of the lead.
 
@@ -151,7 +196,10 @@ def fig_headline(result, path, plt):
     values = [m["f1"] for m in models]
     is_ref = [m["model"] == "rampnet" for m in models]
 
-    fig, ax = plt.subplots(figsize=(9.6, 6.0))
+    # 10.8 wide, not 9.6: the title starts at the axes' left edge, and the longest tick
+    # label (the Vistas arm, pooled since 2026-10-20) pushed that edge far enough right at
+    # 9.6 that the title ran off the figure.
+    fig, ax = plt.subplots(figsize=(10.8, 6.0))
     fig.patch.set_facecolor(SURFACE)
     _style(ax)
     ax.grid(True, axis="x", color=GRID, lw=0.8, zorder=0)
@@ -193,14 +241,11 @@ def fig_headline(result, path, plt):
     _titles(ax, "RampNet leads every off-the-shelf and supervised baseline tested",
             subtitle)
     # Two lines: at 7.4pt one line of this runs past the right edge and gets clipped.
-    n_partial = len([m for m in result["models"] if not m["complete"]])
     fig.text(0.008, 0.030,
              "Operating points differ by model class: RampNet 0.55, YOLO 0.25, "
              "open-vocab 0.05 floor, chat VLMs emit no score.",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
-    fig.text(0.008, 0.008,
-             (f"{n_partial} single-split legs are reported per split instead — "
-              if n_partial else "") + "see docs/model_scoreboard.md.",
+    fig.text(0.008, 0.008, _partial_footer(result) + "see docs/model_scoreboard.md.",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     fig.tight_layout(rect=(0, 0.052, 1, 1))
     fig.savefig(path, dpi=170, facecolor=fig.get_facecolor())
@@ -282,56 +327,198 @@ def fig_precision_recall(result, path, plt):
     return path
 
 
+# How far a pooled mean recomputed from the per-split cells may sit from the board's own.
+# scoreboard.json rounds every float to six places (scoreboard_render.JSON_PRECISION), so
+# a mean of rounded cells and the rounded mean can differ by up to ~1e-6; the in-memory
+# board agrees to float precision.
+POOLED_MEAN_TOL = 2e-6
+
+
+def by_split_rows(result):
+    """Row order for the by-split heatmap, as ``(full, partial)``.
+
+    Each list holds ``(summary, pooled_mean, n_pooled_run)`` tuples. ``pooled_mean`` is the
+    board's own pooled F1 (``summary["f1"]``, the number the headline quotes) -- read, not
+    recomputed -- and it is cross-checked here against the mean of the row's per-split
+    cells, so the aggregate column can never disagree with the cells printed beside it.
+
+    * ``full``: legs that ran every pooled city, sorted by pooled mean, descending.
+    * ``partial``: every other leg, in its own group, sorted by how many pooled cities it
+      ran (most first), then by the mean over those cities (a leg with none sorts last).
+      Kept apart so a one-city leg is never ranked against a nine-city mean, and ordered by
+      coverage first so a one-city mean never sits above an eight-city one either.
+
+    Works on the in-memory board and on ``analysis_out/scoreboard.json`` alike. Ties keep
+    the board's order (complete, then class, then F1), because ``sort`` is stable.
+
+    Example::
+
+        full, partial = by_split_rows(json.load(open("analysis_out/scoreboard.json")))
+        [m["model"] for m, _, _ in full][:2]   # ['rampnet', 'claude-opus-5-5-effort-low-anthropic']
+    """
+    pooled = list(result["pooled_splits"])
+    per = result["per_split"]
+    full, partial = [], []
+    for m in result["models"]:
+        cells = per[m["model"]]
+        f1s = [cells[s]["f1"] for s in pooled if cells.get(s)]
+        n_run = len(f1s)
+        assert len(m["pooled_splits"]) == n_run, (m["model"], m["pooled_splits"], n_run)
+        assert m["complete"] == (n_run == len(pooled)), m["model"]
+        if f1s:
+            recomputed = sum(f1s) / n_run
+            assert m["f1"] is not None and abs(recomputed - m["f1"]) <= POOLED_MEAN_TOL, (
+                f"{m['model']}: pooled F1 {m['f1']} != mean of its cells {recomputed}")
+        else:
+            assert m["f1"] is None, m["model"]
+        (full if m["complete"] else partial).append((m, m["f1"], n_run))
+    full.sort(key=lambda r: -r[1])
+    partial.sort(key=lambda r: (r[1] is None, -r[2], -(r[1] or 0.0)))
+    return full, partial
+
+
+def held_out_footer(result, held):
+    """The by-split figure's dagger footnote, built from ``result["held_out"]``.
+
+    Each reason is cut to its first clause (up to the first comma, parenthesis or dash),
+    and splits that share a short reason are named together, so the footnote follows the
+    board's own split names and reasons rather than a hand-typed copy of them.
+
+    Example::
+
+        held_out_footer({"held_out": {"sao_paulo": "non-US city -- ...",
+                                      "bayonne": "non-US city -- ..."}},
+                        ["sao_paulo", "bayonne"])
+        # '† held out of the pooled headline: sao_paulo and bayonne (non-US city).'
+    """
+    groups = {}
+    for split in held:
+        reason = result["held_out"].get(split, "")
+        short = re.split(r",| \(| — | -- ", reason, maxsplit=1)[0].strip()
+        groups.setdefault(short, []).append(split)
+    def names(splits):
+        return splits[0] if len(splits) == 1 else \
+            ", ".join(splits[:-1]) + " and " + splits[-1]
+
+    parts = [names(splits) + (f" ({short})" if short else "")
+             for short, splits in groups.items()]
+    return "† held out of the pooled headline: " + ", ".join(parts) + "."
+
+
 def fig_by_split(result, path, plt):
     """F1 for every (model, split) cell — consistency across cities, at a glance.
 
     Sequential single-hue ramp (magnitude), values printed in every cell so the figure is
-    also its own table, and the three held-out splits pushed to the right of a gap so
-    they are never read as part of the pooled headline.
+    also its own table. Left to right: the pooled cities, the **pooled mean** (the headline
+    number, which the rows are sorted by), a gutter, then the held-out splits, so those are
+    never read as part of the pooled headline. Top to bottom: the legs that ran every
+    pooled city, a labelled rule, then the partial-coverage legs (``by_split_rows``).
     """
-    from scoreboard import US_SPLITS
-
-    splits = list(result["all_splits"])
-    held = [s for s in splits if s not in US_SPLITS]
-    ordered = list(US_SPLITS) + held
-    models = result["models"]
+    pooled = list(result["pooled_splits"])
+    held = [s for s in result["all_splits"] if s not in pooled]
     per = result["per_split"]
+    full, partial = by_split_rows(result)
+    n_pool = len(pooled)
 
-    # A one-column gutter between the pooled splits and the held-out ones.
-    gap_at = len(US_SPLITS)
-    ncols = len(ordered) + 1
+    # Columns, in data units: cities, a narrow gap, the wider aggregate column (it has to
+    # hold e.g. "0.568 (8/9)"), the gutter, then the held-out splits.
+    agg_gap, agg_w, gutter = 0.3, 1.6, 1.0
+    col_x = {s: float(i) for i, s in enumerate(pooled)}
+    agg_x = n_pool + agg_gap
+    held_x0 = agg_x + agg_w + gutter
+    col_x.update({s: held_x0 + i for i, s in enumerate(held)})
+    width = held_x0 + len(held)
 
-    # Height tracks the row count so adding a leg does not silently squash the cells.
-    fig, ax = plt.subplots(figsize=(11.6, 1.5 + 0.42 * len(models)))
+    # Rows: the full-coverage group, a separator band, the partial group. head is the band
+    # above the grid that carries the column-group labels.
+    sep, head = 0.9, 0.95
+    placed = [(r, float(i)) for i, r in enumerate(full)]
+    sep_y = float(len(full))
+    placed += [(r, sep_y + sep + i) for i, r in enumerate(partial)]
+    height = len(full) + (sep + len(partial) if partial else 0.0)
+
+    # Height tracks the row count and width the column count, so adding a leg or a split
+    # does not silently squash the cells. The constant terms hold the row labels, titles
+    # and footer; at fourteen splits this is the 13-inch width the figure was drawn at.
+    fig_h = 1.9 + 0.42 * (height + head)
+    fig_w = 3.0 + 0.59 * width
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
     fig.patch.set_facecolor(SURFACE)
     ax.set_facecolor(SURFACE)
 
-    vmax = 1.0
-    for row, m in enumerate(models):
-        for i, split in enumerate(ordered):
-            col = i if i < gap_at else i + 1
-            cell = per[m["model"]].get(split)
-            value = cell["f1"] if cell else None
-            color = _seq_color(value, vmax) if value is not None else "#f4f3f0"
-            ax.add_patch(plt.Rectangle((col + 0.03, row + 0.03), 0.94, 0.94,
-                                       facecolor=color, edgecolor="none", zorder=2))
-            text = "—" if value is None else f"{value:.2f}"
-            # White ink only where the fill is dark enough to carry it.
-            ink = "#ffffff" if (value is not None and value >= 0.62) else INK
-            ax.text(col + 0.5, row + 0.5, text, ha="center", va="center",
-                    fontsize=8.2, color=ink if value is not None else INK_MUTED,
-                    zorder=3)
+    def cell(x, y, w, value, text, bold=False):
+        color = _seq_color(value, 1.0) if value is not None else "#f4f3f0"
+        ax.add_patch(plt.Rectangle((x + 0.03, y + 0.03), w - 0.06, 0.94,
+                                   facecolor=color, edgecolor="none", zorder=2))
+        # White ink only where the fill is dark enough to carry it.
+        ink = "#ffffff" if (value is not None and value >= 0.62) else INK
+        ax.text(x + w / 2, y + 0.5, text, ha="center", va="center", fontsize=8.2,
+                color=ink if value is not None else INK_MUTED,
+                fontweight="bold" if bold else "normal", zorder=3)
 
-    ax.set_xlim(0, ncols)
-    ax.set_ylim(0, len(models))
-    ax.invert_yaxis()
-    ax.set_xticks([(i if i < gap_at else i + 1) + 0.5 for i in range(len(ordered))])
-    ax.set_xticklabels([s if s in US_SPLITS else f"{s} †" for s in ordered],
+    for (m, mean_f1, n_run), y in placed:
+        cells = per[m["model"]]
+        for split, x in col_x.items():
+            c = cells.get(split)
+            value = c["f1"] if c else None
+            cell(x, y, 1.0, value, "—" if value is None else f"{value:.2f}")
+        # Three places, like the headline it repeats; partial rows carry their coverage.
+        if mean_f1 is None:
+            text = "—"
+        elif m["complete"]:
+            text = f"{mean_f1:.3f}"
+        else:
+            text = f"{mean_f1:.3f} ({n_run}/{n_pool})"
+        cell(agg_x, y, agg_w, mean_f1, text, bold=True)
+
+    # One frame per row group around the aggregate column: it is a summary of the cells to
+    # its left, not another city, and the frame says so without spending a colour.
+    for y0, n in ((0.0, len(full)), (sep_y + sep, len(partial))):
+        if n:
+            ax.add_patch(plt.Rectangle((agg_x - 0.02, y0 - 0.02), agg_w + 0.04, n + 0.04,
+                                       facecolor="none", edgecolor=INK, lw=1.1, zorder=4))
+
+    # Column-group labels, with a hairline under each, so the gutter reads as a boundary
+    # between two groups rather than as a missing column.
+    def group(x0, x1, label, **kw):
+        ax.plot([x0 + 0.05, x1 - 0.05], [-0.14, -0.14], color=BASELINE, lw=1.0,
+                solid_capstyle="butt", clip_on=False, zorder=3)
+        ax.text((x0 + x1) / 2, -0.30, label, ha="center", va="bottom", fontsize=9,
+                clip_on=False, **kw)
+
+    group(0.0, float(n_pool), f"Pooled US cities ({_n_pooled(result)})",
+          color=INK_SECONDARY)
+    group(agg_x, agg_x + agg_w, "Pooled mean ▼", color=INK, fontweight="bold")
+    if held:
+        group(held_x0, width, "Held out †", color=INK_SECONDARY)
+
+    if partial:
+        ax.plot([0.0, width], [sep_y + 0.16, sep_y + 0.16], color=BASELINE, lw=1.0,
+                zorder=3)
+        # The "rows above" clause only makes sense when there are rows above.
+        not_ranked = (", and these rows are not ranked against the rows above."
+                      if full else ".")
+        ax.text(0.04, sep_y + sep / 2 + 0.1,
+                "Partial pooled coverage: the mean is over the pooled cities each leg ran "
+                f"(n/{n_pool}){not_ranked}",
+                ha="left", va="center", fontsize=8.4, color=INK_SECONDARY,
+                fontstyle="italic", zorder=3)
+
+    ax.set_xlim(0, width)
+    # A hair past the last row, or the bottom edge of the aggregate frame is clipped.
+    ax.set_ylim(height + 0.06, -head)
+    xt = [col_x[s] + 0.5 for s in pooled] + [agg_x + agg_w / 2] + \
+         [col_x[s] + 0.5 for s in held]
+    ax.set_xticks(xt)
+    ax.set_xticklabels(pooled + ["pooled mean"] + [f"{s} †" for s in held],
                        rotation=38, ha="right", fontsize=8.2, color=INK_SECONDARY)
-    ax.set_yticks([r + 0.5 for r in range(len(models))])
-    ax.set_yticklabels([m["display"] for m in models], fontsize=8.8,
+    agg_tick = ax.get_xticklabels()[n_pool]
+    agg_tick.set_color(INK)
+    agg_tick.set_fontweight("bold")
+    ax.set_yticks([y + 0.5 for _, y in placed])
+    ax.set_yticklabels([m["display"] for (m, _, _), _ in placed], fontsize=8.8,
                        color=INK_SECONDARY)
-    for tick, m in zip(ax.get_yticklabels(), models):
+    for tick, ((m, _, _), _) in zip(ax.get_yticklabels(), placed):
         if m["model"] == "rampnet":
             tick.set_color(INK)
             tick.set_fontweight("bold")
@@ -339,14 +526,12 @@ def fig_by_split(result, path, plt):
         ax.spines[side].set_visible(False)
     ax.tick_params(length=0)
 
-    # No gutter caption: the gap plus the daggered column headers already carry it, and a
-    # rotated label there runs into the title band.
-    #
     # The claim is bounded on purpose. RampNet does NOT have the flattest row outright --
     # OWLv2 (0.028) and Grounding DINO (0.039) are flatter, by being pinned near zero in
     # every city. Consistency only means something above the floor, so the comparison is
     # drawn against the models that clear it, and the threshold is stated rather than
     # implied.
+    models = result["models"]
     working = [m for m in models
                if m["complete"] and m["f1"] is not None and m["f1"] >= 0.1]
     spreads = [m["f1_max"] - m["f1_min"] for m in working if m["model"] != "rampnet"]
@@ -358,12 +543,18 @@ def fig_by_split(result, path, plt):
     else:
         subtitle = "F1 per (model, split). Held-out splits sit right of the gutter."
     _titles(ax, "F1 by model and split", subtitle)
-    fig.text(0.008, 0.012,
-             "† held out of the pooled headline: laurens_gsv (second imagery arm of pooled "
-             "laurens), budapest (single-rater GT at low reviewer confidence), sao_paulo "
-             "and bayonne (non-US), manual_gold (in-distribution reference).",
+
+    # Two footer lines, spaced in points so they stay apart however tall the figure is.
+    line = 11.0 / (fig_h * 72.0)
+    fig.text(0.008, 0.008 + line,
+             f"Pooled mean: macro-mean F1 over the {_n_pooled(result)} pooled US cities, the "
+             "headline number (docs/model_scoreboard.md); full-coverage rows are sorted by it, "
+             "partial rows by coverage, then by it.",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
-    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    if held:
+        fig.text(0.008, 0.008, held_out_footer(result, held),
+                 fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
+    fig.tight_layout(rect=(0, 0.008 + 2.4 * line, 1, 1))
     fig.savefig(path, dpi=170, facecolor=fig.get_facecolor())
     plt.close(fig)
     return path
@@ -441,15 +632,24 @@ def fig_generalization(result, path, plt):
     return path
 
 
-# Four validated categorical hues for the curve families (validate_palette.js, adjacent
+# Five validated categorical hues for the curve families (validate_palette.js, adjacent
 # pairlist -- the documented one for lines: ALL PASS, worst adjacent CVD dE 9.1). The three
 # YOLO arms share one hue and separate by dash: they are one family, and spending three
 # slots on them would push the set past what the all-pairs floors allow.
+#
+# The Vistas arm takes slot 7 (violet). Its curve crosses the YOLO, OWLv2 and Grounding DINO
+# curves, and violet passes against each of those (worst CVD dE 27.1, aqua). It fails
+# against RampNet's blue (CVD dE 4.5, normal 10.5), but the two curves meet only at the
+# (0, 1) anchor: at every recall above 0 that the Vistas arm reaches, RampNet's curve is at
+# least 0.37 precision above it. Magenta (slot 5) was the other candidate and fails normal
+# vision against the YOLO orange (dE 12.9), which the Vistas curve does cross. Before
+# 2026-10-20 the arm had no entry and drew in INK_MUTED, the grey of the scoreless dots.
 CURVE_COLOR = {
     "rampnet": "#2a78d6",
     "y11l_pano": "#eb6834",
     "y11x_pano_h200": "#eb6834",
     "y26_pano": "#eb6834",
+    "mask2former-vistas-curb-cut-1024x1024": "#6250d6",
     "google/owlv2-large-patch14-ensemble": "#1baf7a",
     "IDEA-Research/grounding-dino-base": "#eda100",
 }
@@ -507,9 +707,12 @@ def fig_pr_curves(result, path, plt):
         precision, recall = pr
         ax.plot(recall, precision, "o", ms=7, color=INK_MUTED,
                 mec=SURFACE, mew=1.6, zorder=4)
+        # Labels draw ABOVE the curves (zorder 5-6), so where one crosses a curve its halo
+        # clears the line instead of the line striking through the text.
+        dx, dy, ha = CURVE_DOT_NUDGE.get(m["model"], (9, -3.5, "left"))
         ax.annotate(m["display"], (recall, precision),
-                    textcoords="offset points", xytext=(9, -3.5), fontsize=8,
-                    color=INK_MUTED, zorder=5, path_effects=_halo())
+                    textcoords="offset points", xytext=(dx, dy), ha=ha, fontsize=8,
+                    color=INK_MUTED, zorder=7, path_effects=_halo())
 
     handles = []
     for name, curve in sorted(curves.items(),

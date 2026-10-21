@@ -123,6 +123,15 @@ benchmark/*/depth_labeler_compare.json text eol=lf
 # The #113 crop-tilt outputs are byte-compared by scripts/analysis/crop_tilt_113.py --check.
 analysis_out/crop_tilt_113/** text eol=lf
 
+# #263 Track 1 open-rig miss report: open_rig_misses_258.py --check compares the JSON and the
+# doc's generated tables (a CRLF doc matches no block) byte for byte, so an autocrlf=true
+# clone must not rewrite either file's line endings.
+analysis_out/open_rig_misses_258.json text eol=lf
+docs/open_rig_misses_258.md text eol=lf
+
+# #263 Track 1 laurens_gsv GPU run logs: byte-exact as fetched from makelab2.
+analysis_out/open_rig_258/** -text
+
 # The Lyon label audit (#159, #263): the sha256 of audit_plan.json and records.jsonl is posted
 # on #159 and `lyon_review_159.py score` refuses a plan whose bytes differ, and the never-train
 # lists are read as LF. Keep git from rewriting their line endings on any checkout.
