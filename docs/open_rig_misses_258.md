@@ -3,7 +3,8 @@
 Issue: [#263](https://github.com/ProjectSidewalk/RampNet/issues/263) (Track 1), background in
 [#258](https://github.com/ProjectSidewalk/RampNet/issues/258) and
 [#46](https://github.com/ProjectSidewalk/RampNet/issues/46). Run 2026-10-20, revised the same day
-after review. CPU only, no paid model, no GPU. The one GPU step, laurens_gsv, was not run (see
+after review. Every number in it is CPU only, with no paid model. The one GPU step, the
+laurens_gsv extract, ran but failed its parity gate, so laurens_gsv is not in the tables (see
 [Gaps](#gaps)).
 
 RampNet loses about a third of its recall on the open rigs Project Sidewalk deployments are
@@ -383,32 +384,56 @@ two on budapest (judged unsure), which are exactly the 1 and 2 ramps of differen
 
 ## Gaps
 
-- **laurens_gsv is not bucketed.** It has no op_cache. Filling it needs a GPU extract of 86 panos
-  with the repo's own extractor, scripted in `scripts/analysis/open_rig_misses_258_gpu.sh`. The
-  script's header lists each step and its gate.
-  - A first launch on makelab2 on 2026-10-20 was never confirmed. The launching call timed out
-    client-side, and by the standing rule nobody contacted the host again, so nothing from it is
-    committed.
-  - The panos are not on Hugging Face yet. The copies of record are in makelab2's
-    `~/RampNet/benchmark/{laurens_gsv,laurens_mapillary}/panos/`, and their bytes are pinned by
-    each split's committed `imagery_manifest.json`.
+- **laurens_gsv is not bucketed: its extract ran and failed the parity gate.** The extract ran
+  on makelab2 (A40) on 2026-10-20 at 9f4b7ce, using `scripts/analysis/open_rig_misses_258_gpu.sh`.
+  The script header lists each step and its gate.
 
-  ```bash
-  # on a GPU host, after placing benchmark/laurens_gsv/panos and benchmark/laurens_mapillary/panos
-  LEDGER=<main checkout>/analysis_out/usage_log.jsonl \
-    bash scripts/analysis/open_rig_misses_258_gpu.sh 2>&1 | tee open_rig_258_gpu.log
-  # steps: manifest verify -> laurens_mapillary repro (exit 1 unless identical)
-  #   -> extract laurens_gsv -> low_floor_sweep.py parity -> tp/fp/fn at 0.55 against
-  #   analysis_out/scoreboard.json (exit 1 on any difference, which must then be explained)
-  #   -> one paid:false usage row appended to $LEDGER via rampnet.ledger.append_rows
-  # then commit analysis_out/op_cache/laurens_gsv.json, copy the usage row into the
-  # branch's ledger by its ts, and re-run:
-  python scripts/analysis/open_rig_misses_258.py
-  ```
+  **Panos.** The laurens_gsv panos are not on Hugging Face yet. The copies of record are in
+  makelab2's `~/RampNet/benchmark/{laurens_gsv,laurens_mapillary}/panos/`, and each split's
+  committed `imagery_manifest.json` pins their bytes. The run's `manifest` step verified them (86
+  and 94 panos, `OK`).
 
-  Adding the cache also changes `miss_taxonomy.py`'s default output (laurens_gsv stops printing
-  "no cache") and the scoreboard's AP-provenance row for laurens_gsv. Those committed outputs
-  need regenerating in the same change.
+  **What the run did, step by step** (log: `analysis_out/open_rig_258/gpu_run.log`):
+  - **repro passed within tolerance.** laurens_mapillary re-extracted with all 374 peaks at their
+    committed positions. Scores differed by at most 5.4e-5, and no peak crossed 0.30 or 0.55.
+  - **extract ran.** 86 panos in 164.6 s.
+  - **The usage rows were written before the gate**, so they are in `analysis_out/usage_log.jsonl`.
+  - **parity FAILED.** The script stopped there, so the score report did not run.
+    - At 0.55 the records hold 121 detections and the cache 111.
+    - 74.8% land in the identical heatmap cell and 92.8% within 0.5 R. Every displacement is under
+      0.44 R, so the position arm passes and the count arm fails.
+
+  **Why the count arm fails.** The cache sees the same peaks at the same places as the deployed
+  run, but scores many of them lower. Of the 18 records detections at or above 0.55 with no
+  cache peak at or above 0.55 within 0.5 R, all 18 have a cache peak within 0.44 R (14 in the
+  same cell) scoring 0.38 to 0.54. Scored against verdict GT at 0.55 with `wrap_x=True`, the cache gives tp 101 /
+  fp 7, against the scoreboard's records-based 112 / 8.
+
+  This is the same gap #151 observed and left uninvestigated: the deployed GSV run beats a
+  re-extraction from the native-resolution bundle (`docs/laurens_paired_151.md`, "The deployed
+  GSV run and the r2048 re-extraction differ on `laurens_gsv`"). The other GSV caches show it
+  only faintly (bend 2, paterson 2 and gainesville 7 TPs short). sao_paulo failed the same count
+  arm and was admitted as a ratified exception (`low_floor_sweep.PARITY_EXCEPTIONS`).
+
+  **The candidate cache is kept, not used.** It is committed as
+  `analysis_out/open_rig_258/laurens_gsv_candidate_op_cache.json` (sha256 `af95b501…`), and no
+  analysis reads it. Whether to admit it as a parity exception is an open decision. The case
+  for and against:
+  - Its lower scores would push some laurens_gsv misses into sub_threshold that the deployed
+    run hit.
+  - On the other side, the bundle downsample is the same preprocessing the other open-split
+    caches use.
+
+  If it is admitted: copy it to `analysis_out/op_cache/laurens_gsv.json`, add a
+  `PARITY_EXCEPTIONS` entry with this diagnosis, and re-run `open_rig_misses_258.py`. That also
+  changes `miss_taxonomy.py`'s default output (laurens_gsv stops printing "no cache") and the
+  scoreboard's AP-provenance row for laurens_gsv. Those committed outputs then need
+  regenerating in the same change.
+
+  **The first launch.** A first launch at d74d680, earlier the same day, also ran to completion,
+  but nobody confirmed it at the time. Its outputs were discarded and its log is kept as
+  `analysis_out/open_rig_258/gpu_run_d74d680_superseded.log`. Its GPU time (91 s repro and 167 s
+  extract, from the log stamps) is recorded as two `SUPERSEDED` rows.
 - **The silent-activation breakdown** on the open splits (see Caveats), also GPU.
 - **No second rater** on any open split.
 
@@ -446,5 +471,8 @@ That includes the title "seven US splits", which is stale: laurens_mapillary and
 joined `US_SPLITS`, so the default pool is nine splits and 2,606 GT. The label is kept so the
 default output does not move. `--cities` runs print the real count.
 
-**Cost.** No GPU and no paid model were used for any number in this doc, so there is no usage
-row.
+**Cost.** No GPU and no paid model were used for any number in this doc. The laurens_gsv extract
+(see Gaps) is not used by any number either, but it spent A40 time. That time is recorded as four
+`paid: false` rows in `analysis_out/usage_log.jsonl`:
+- this run: `open-rig-258:repro`, 89.5 s, and `open-rig-258:extract`, 164.6 s;
+- the superseded d74d680 launch: 91 s and 167 s.

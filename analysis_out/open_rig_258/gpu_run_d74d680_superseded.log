@@ -1,0 +1,16 @@
+python 3.12.13 torch 2.13.0+cu130 cuda True
+NVIDIA A40, 9195 MiB, 46068 MiB
+d74d6801d92be94f0075c4988ca3c00f5356efdd
+=== repro laurens_mapillary 2026-10-20T12:41:44-07:00
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+device=cuda model=projectsidewalk/rampnet-model score_floor=0.05 min_distance=10 tta=False
+  laurens_mapillary: 50/94
+laurens_mapillary: 94 panos -> analysis_out/open_rig_258_repro_op_cache/laurens_mapillary.json
+repro: 6/94 panos with identical peak lists; peaks committed 374 vs repro 374
+=== repro done 2026-10-20T12:43:15-07:00
+=== extract laurens_gsv 2026-10-20T12:43:15-07:00
+device=cuda model=projectsidewalk/rampnet-model score_floor=0.05 min_distance=10 tta=False
+  laurens_gsv: 50/86
+laurens_gsv: 86 panos -> /homes/gws/jonf/wt-openrig258/analysis_out/op_cache/laurens_gsv.json
+=== extract done 2026-10-20T12:46:02-07:00
+ALL_STEPS_DONE
