@@ -109,7 +109,11 @@ def test_committed_artifact_is_lf_rounded_and_hashed(committed):
     assert lp.rows_sha256(committed) == committed["rows_sha256"]
     # Moved from 034e84cd... on 2026-10-19, when the newest-ids campaign added the
     # claude-opus-5-5 and claude-fable-5-1 legs to both arms; no earlier row changed.
-    assert committed["rows_sha256"] == "89e7ead4da8e9f8a0fd46fad04eee28b1d02684ec333cc483cc0982307bcdc5c"
+    # Moved from 89e7ead4... on 2026-10-20, when the Vistas 1024 parity arm ran both
+    # Laurens arms (one new leg, 180 new score rows). No earlier row changed; the curb
+    # probe's values are identical, but its labeler_commit is now the checkout it was
+    # regenerated from (39afcd4, was 29dc605) and that field is inside the hash.
+    assert committed["rows_sha256"] == "0a46ce73ddab6950371e1871c47c4017dc31182fb27144c78a35df79d3399776"
     for row in committed["gt"]:
         for key, v in row.items():
             if isinstance(v, float) and key not in ("x", "y"):

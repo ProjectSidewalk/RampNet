@@ -15,7 +15,7 @@ documented remedy is to cut series or facet rather than to add a legend and hope
 class is therefore carried by **position** (bar order, group headers) and **marker
 shape** — channels with no CVD failure mode — and colour is freed to carry emphasis.
 
-The PR-curve figure is the exception and gets four hues, because overlapping *lines* are
+The PR-curve figure is the exception and gets five hues, because overlapping *lines* are
 scored on the **adjacent** pairlist, which that set passes outright (worst adjacent CVD
 ΔE 9.1); see ``CURVE_COLOR``. Marker shape cannot separate curves, so there is no
 position-or-shape substitute to fall back on there.
@@ -65,6 +65,18 @@ PR_NUDGE = {
     "y11l_pano": (11, -8, "left"),
     "google/owlv2-large-patch14-ensemble": (-9, 11, "right"),
     "IDEA-Research/grounding-dino-base": (-9, -2, "right"),
+    # Left: running right put this label past the right spine.
+    "mask2former-vistas-curb-cut-1024x1024": (-11, -3.5, "right"),
+    # Raised: at the default height it printed over Gemini 3.1 Pro's label, 0.05 to its left.
+    "claude-fable-5-1-effort-low-anthropic": (11, 6, "left"),
+}
+# The scoreless dots on the PR-curve figure; the default is right of the dot.
+CURVE_DOT_NUDGE = {
+    # These two dots sit 0.05 recall apart at the same precision, so running both labels
+    # right printed one over the other. Gemini's goes left; Fable's stays right, raised so
+    # it clears the Gemini dot and still starts at its own.
+    "gemini-3.1-pro-preview": (-9, -3.5, "right"),
+    "claude-fable-5-1-effort-low-anthropic": (9, 5, "left"),
 }
 GEN_NUDGE = {
     # RampNet sits close to the diagonal in the top-right, so its label crosses that line
@@ -72,8 +84,14 @@ GEN_NUDGE = {
     "rampnet": (-14, -13, "right"),
     "y11l_pano": (11, 6, "left"),
     "y11x_pano_h200": (11, -7, "left"),
-    "y26_pano": (-11, -10, "right"),
-    "gemini-3.7-flash": (11, 3, "left"),
+    # Below-right, not left: running left put this label over the Vistas marker 0.09 away.
+    "y26_pano": (6, -18, "left"),
+    # Left, under the diagonal: right of it is the YOLO26 / YOLO11x label stack.
+    "mask2former-vistas-curb-cut-1024x1024": (-11, -10, "right"),
+    # Left: running right put this label across YOLO11l's at the same height.
+    "claude-fable-5-1-effort-low-anthropic": (-11, 4, "right"),
+    # Left: running right put this label's number on YOLO26's marker.
+    "gemini-3.7-flash": (-11, 6, "right"),
     # Left, not right: running right puts this label across Qwen-8B's marker 0.10 away,
     # and a reader then attaches it to the wrong point.
     "Qwen/Qwen3-VL-32B-Instruct": (-11, 4, "right"),
@@ -131,6 +149,32 @@ def _seq_color(value, vmax):
     return SEQ[max(0, min(len(SEQ) - 1, idx))]
 
 
+def _partial_footer(result):
+    """The footer clause for the legs left off the pooled figures, or "" if there are none.
+
+    Counted off the board rather than typed: the partial legs are not all single-split (one
+    covers eight of the nine pooled cities), so "single-split legs" was wrong as soon as one
+    of them grew. ``pooled_splits`` on a model row names (or, in the JSON, counts) the
+    pooled cities it covers.
+
+    >>> _partial_footer({"pooled_splits": list("abcdefghi"), "models": [
+    ...     {"complete": False, "pooled_splits": 1},
+    ...     {"complete": False, "pooled_splits": 8}]})
+    '2 legs that cover 1–8 of the nine pooled splits are reported per split instead — '
+    """
+    partial = [m for m in result["models"] if not m["complete"]]
+    if not partial:
+        return ""
+    # A list of split names in build()'s result, a count once json_payload has written it.
+    counts = [len(v) if isinstance(v, (list, tuple)) else v
+              for v in (m["pooled_splits"] for m in partial)]
+    lo, hi = min(counts), max(counts)
+    span = f"{lo}" if lo == hi else f"{lo}–{hi}"
+    noun = "leg that covers" if len(partial) == 1 else "legs that cover"
+    return (f"{len(partial)} {noun} {span} of the {_n_pooled(result)} pooled splits "
+            f"{'is' if len(partial) == 1 else 'are'} reported per split instead — ")
+
+
 def fig_headline(result, path, plt):
     """Pooled F1 per model, sorted — the board, and the size of the lead.
 
@@ -152,7 +196,10 @@ def fig_headline(result, path, plt):
     values = [m["f1"] for m in models]
     is_ref = [m["model"] == "rampnet" for m in models]
 
-    fig, ax = plt.subplots(figsize=(9.6, 6.0))
+    # 10.8 wide, not 9.6: the title starts at the axes' left edge, and the longest tick
+    # label (the Vistas arm, pooled since 2026-10-20) pushed that edge far enough right at
+    # 9.6 that the title ran off the figure.
+    fig, ax = plt.subplots(figsize=(10.8, 6.0))
     fig.patch.set_facecolor(SURFACE)
     _style(ax)
     ax.grid(True, axis="x", color=GRID, lw=0.8, zorder=0)
@@ -194,14 +241,11 @@ def fig_headline(result, path, plt):
     _titles(ax, "RampNet leads every off-the-shelf and supervised baseline tested",
             subtitle)
     # Two lines: at 7.4pt one line of this runs past the right edge and gets clipped.
-    n_partial = len([m for m in result["models"] if not m["complete"]])
     fig.text(0.008, 0.030,
              "Operating points differ by model class: RampNet 0.55, YOLO 0.25, "
              "open-vocab 0.05 floor, chat VLMs emit no score.",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
-    fig.text(0.008, 0.008,
-             (f"{n_partial} single-split legs are reported per split instead — "
-              if n_partial else "") + "see docs/model_scoreboard.md.",
+    fig.text(0.008, 0.008, _partial_footer(result) + "see docs/model_scoreboard.md.",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     fig.tight_layout(rect=(0, 0.052, 1, 1))
     fig.savefig(path, dpi=170, facecolor=fig.get_facecolor())
@@ -588,15 +632,24 @@ def fig_generalization(result, path, plt):
     return path
 
 
-# Four validated categorical hues for the curve families (validate_palette.js, adjacent
+# Five validated categorical hues for the curve families (validate_palette.js, adjacent
 # pairlist -- the documented one for lines: ALL PASS, worst adjacent CVD dE 9.1). The three
 # YOLO arms share one hue and separate by dash: they are one family, and spending three
 # slots on them would push the set past what the all-pairs floors allow.
+#
+# The Vistas arm takes slot 7 (violet). Its curve crosses the YOLO, OWLv2 and Grounding DINO
+# curves, and violet passes against each of those (worst CVD dE 27.1, aqua). It fails
+# against RampNet's blue (CVD dE 4.5, normal 10.5), but the two curves meet only at the
+# (0, 1) anchor: at every recall above 0 that the Vistas arm reaches, RampNet's curve is at
+# least 0.37 precision above it. Magenta (slot 5) was the other candidate and fails normal
+# vision against the YOLO orange (dE 12.9), which the Vistas curve does cross. Before
+# 2026-10-20 the arm had no entry and drew in INK_MUTED, the grey of the scoreless dots.
 CURVE_COLOR = {
     "rampnet": "#2a78d6",
     "y11l_pano": "#eb6834",
     "y11x_pano_h200": "#eb6834",
     "y26_pano": "#eb6834",
+    "mask2former-vistas-curb-cut-1024x1024": "#6250d6",
     "google/owlv2-large-patch14-ensemble": "#1baf7a",
     "IDEA-Research/grounding-dino-base": "#eda100",
 }
@@ -654,9 +707,12 @@ def fig_pr_curves(result, path, plt):
         precision, recall = pr
         ax.plot(recall, precision, "o", ms=7, color=INK_MUTED,
                 mec=SURFACE, mew=1.6, zorder=4)
+        # Labels draw ABOVE the curves (zorder 5-6), so where one crosses a curve its halo
+        # clears the line instead of the line striking through the text.
+        dx, dy, ha = CURVE_DOT_NUDGE.get(m["model"], (9, -3.5, "left"))
         ax.annotate(m["display"], (recall, precision),
-                    textcoords="offset points", xytext=(9, -3.5), fontsize=8,
-                    color=INK_MUTED, zorder=5, path_effects=_halo())
+                    textcoords="offset points", xytext=(dx, dy), ha=ha, fontsize=8,
+                    color=INK_MUTED, zorder=7, path_effects=_halo())
 
     handles = []
     for name, curve in sorted(curves.items(),
