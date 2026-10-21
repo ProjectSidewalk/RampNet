@@ -559,12 +559,13 @@
    "status": "equal"
   },
   {
-   "ap_source": "bundle",
+   "ap_predictions": "analysis_out/op_cache/laurens_gsv.json",
+   "ap_source": "op_cache (0.05 floor)",
    "fields": {
     "ap": {
-     "committed": 0.493735,
+     "committed": 0.768499,
      "equal": true,
-     "rederived": 0.493735
+     "rederived": 0.768499
     },
     "ap_bundle": {
      "committed": 0.493735,

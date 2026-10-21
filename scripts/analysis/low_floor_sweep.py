@@ -477,6 +477,17 @@ PARITY_EXCEPTIONS = {
         "NMS pair-merges. Rows at <= 0.38 (including the recommended 0.30) are "
         "unaffected; rows at >= 0.55 understate production recall. Full decomposition "
         "in docs/operating_point.md.",
+    "laurens_gsv":
+        "count arm only: 111 cache vs 121 records detections at 0.55 (74.8% identical "
+        "cells, 92.8% within 0.5 R); displacement arm passes (every displacement under "
+        "0.44 R). All 18 records-only detections have a cache peak within 0.44 R (14 in "
+        "the same cell) scoring 0.38-0.54: the cache, extracted from the native-res "
+        "bundle, scores the same peaks lower than the deployed GSV run did -- the "
+        "deployed-vs-re-extraction gap #151 observed (docs/laurens_paired_151.md). "
+        "Admitted 2026-10-20 on the sao_paulo precedent for #263 Track 1 "
+        "(docs/open_rig_misses_258.md, Gaps): rows at >= 0.55 understate production "
+        "recall, and the cache's sub_threshold/silent split is conservative on the "
+        "sub_threshold side. Scoreboard P/R/F1 stay records-based (tp 112 / fp 8).",
 }
 
 

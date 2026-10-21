@@ -193,7 +193,7 @@ within 2 R of a detected ramp refers to `2549721381871423`, the one Jon judged s
 - **A second rater**: none. The review is single-rater at medium confidence.
 - **`docs/figures/operating_point_pr.png` and `docs/figures/storage_floor_ceiling.png`**: not
   regenerated. Both plotters read every split in `ALL_SPLITS` and take no split list, and
-  `laurens_gsv` has no op_cache, so they exit on it (the same blocker Bayonne hit; the
+  `laurens_gsv` had no op_cache then (it has one since 2026-10-20, #263), so they exited on it (the same blocker Bayonne hit; the
   storage-floor figure was last regenerated at sao_paulo). For `operating_point_pr.png`, juneau
   would also be a ninth pooled series past the palette's eight categorical slots, which needs a
   design decision first. The CSVs behind both are current.

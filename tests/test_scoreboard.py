@@ -527,11 +527,13 @@ def test_the_provenance_table_does_not_claim_an_untruncated_bundle_it_has_not_go
 
     The table had a binary: substituted means "op_cache, was truncated", anything else
     means "bundle, already at 0.05, flip-TTA export". That held while manual_gold was
-    the only unsubstituted row. `laurens_gsv` is the third case — a held-out split that
-    never went through the #54 re-extraction, so there is no cache to swap in and its
+    the only unsubstituted row. `laurens_gsv` was the third case — a held-out split that
+    had not been through the #54 re-extraction, so there was no cache to swap in and its
     bundle is truncated at the deployed 0.55 like every other city's. The old table
     printed "already at 0.05" against it, which is a false provenance claim on the one
-    page whose job is provenance, and no test would have caught it.
+    page whose job is provenance, and no test would have caught it. Since 2026-10-20 it
+    has an op_cache (#263), so it is now an ordinary substituted row; the assertions below
+    pin that, and that its truncated bundle is still not called low-floor.
     """
     table = sr.ap_provenance_table(board)
 
@@ -539,13 +541,17 @@ def test_the_provenance_table_does_not_claim_an_untruncated_bundle_it_has_not_go
     assert "already at 0.05" in gold
     assert _cell(board, "rampnet", "manual_gold")["bundle_floor"] < 0.4
 
+    # laurens_gsv got its op_cache on 2026-10-20 (#263, a parity exception), so its AP now
+    # reads from the cache like every other city's. Its bundle is still truncated at 0.55, and
+    # its P/R/F1 stay records-based.
     gsv = next(l for l in table.splitlines() if l.startswith("| `laurens_gsv` |"))
-    assert "already at 0.05" not in gsv,         "laurens_gsv has no op_cache and a 0.55 bundle; it is truncated, not low-floor"
-    assert "truncated" in gsv and "no `op_cache`" in gsv
+    assert "already at 0.05" not in gsv,         "laurens_gsv's bundle is 0.55-truncated, not low-floor"
+    assert "`op_cache` (0.05 floor)" in gsv and "truncated at the deployed 0.55" in gsv
     cell = _cell(board, "rampnet", "laurens_gsv")
-    assert cell["ap_source"] == "bundle"
+    assert cell["ap_source"] == "op_cache (0.05 floor)"
     assert cell["bundle_floor"] >= 0.4,         "a city bundle is exported at the deployed 0.55, so its floor cannot be low"
-    assert cell["ap"] == cell["ap_bundle"]
+    assert cell["ap"] != cell["ap_bundle"]
+    assert (cell["tp"], cell["fp"]) == (112, 8), "P/R/F1 must stay records-based"
 
 
 def test_scores_every_registered_leg(board):

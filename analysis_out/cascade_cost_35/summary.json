@@ -343,7 +343,78 @@
    "split": "juneau"
   },
   {
-   "reason": "no analysis_out/op_cache/<split>.json",
+   "challenger": "gemini-3.6-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-3.1-pro-preview",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "Qwen/Qwen3-VL-8B-Instruct",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "Qwen/Qwen3-VL-32B-Instruct",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "allenai/Molmo2-8B",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "google/owlv2-large-patch14-ensemble",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "IDEA-Research/grounding-dino-base",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-3.7-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "y11l_pano",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "y11x_pano_h200",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "y26_pano",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "claude-opus-5-effort-low",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
    "split": "laurens_gsv"
   },
   {
