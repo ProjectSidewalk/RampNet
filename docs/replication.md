@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 27.5 MB (200 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 30.6 MB (264 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -60,7 +60,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-10-20 that is **200 files, 27.5 MB**, and every one of
+signature recorded inside. As of 2026-10-20 (with the tiles arms, #258) that is **264 files, 30.6 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -68,6 +68,7 @@ them belongs to a registered leg:
 | the standing zero-shot roster, fourteen splits each (two Gemini legs are absent on `manual_gold`; Molmo2-8B and Qwen3-VL-32B are absent on `bayonne`, #159) | 94 | the roster tables in [`model_comparison.md`](model_comparison.md) |
 | `gemini-3.7-flash`, fourteen splits, published ahead of its write-up (#120) | 14 | §below |
 | the supervised YOLO pano trio, fourteen splits each (#51) | 42 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
+| the supervised YOLO perspective-tiles arms (#51, #135; published under #258 on 2026-10-19): `y11x_tiles` on ten splits, and the six seed-variance legs `y11x_tiles_s1_ep44`, `y11x_tiles_s2_ep44`, `y11x_tiles_s3_ep42`, `y11x_tiles_s1_best`, `y11x_tiles_s2_best`, `y11x_tiles_s3_best` on nine (no `budapest_district5`) | 64 | [`yolo_geometry_51.md`](yolo_geometry_51.md), [`seed_variance_51_135.md`](seed_variance_51_135.md); export commands §below |
 | `claude-opus-5` at `low` effort, eleven splits (#122; the pool by #139, both Laurens arms by #151) | 11 | [`claude_legs_122.md`](claude_legs_122.md) |
 | the other three Vertex Claude legs, annapolis only (#122) | 3 | [`claude_legs_122.md`](claude_legs_122.md) |
 | `claude-fable-5` at `low` effort, annapolis only, served on Anthropic's first-party API (#156) | 1 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
@@ -200,6 +201,43 @@ python scripts/analysis/export_model_cache.py --splits laurens_mapillary \
     --tiling none --yolo-imgsz 1280
 # ...then the same three with --verify; all reported 0 uncached and IDENTICAL scores.
 ```
+
+### The YOLO perspective-tiles arms (#258)
+
+These 64 files were exported on 2026-10-19 from makelab2's `/homes/gws/jonf/RampNet/.model_cache`,
+the cache that scored them: `y11x_tiles` in the 2026-08-30 geometry run
+(`docs/data/yolo_geometry_51/env.txt`) and the six seed legs in the 2026-09-17 re-score
+(`docs/data/seed_variance_51_135/env.txt`), both on an A40 with ultralytics 8.4.120. Until
+then they existed only in that cache. They are an export, not a re-inference: the cache key
+includes a SHA-1 of the weights file, so each file holds the detections of the exact
+checkpoint the published numbers were scored on. Run from a checkout of `main` (4156847)
+with the checkpoints at the paths `rampnet/roster.py` names:
+
+```bash
+M=yolo:yolo_ckpts/y11x_tiles.pt
+for s in s1_ep44 s2_ep44 s3_ep42 s1_best s2_best s3_best; do
+  M=$M,yolo:seedvar_ckpts/y11x_tiles_$s.pt
+done
+python scripts/analysis/export_model_cache.py --cache-dir .model_cache --models "$M" \
+    --tiling perspective --yolo-imgsz 1024
+python scripts/analysis/export_model_cache.py --cache-dir .model_cache --models "$M" \
+    --tiling perspective --yolo-imgsz 1024 --verify
+# -> 64 pair(s): published detections score IDENTICALLY to the cache; 0 uncached
+```
+
+As a further check, `compare.py benchmark/bend` re-scored from the same cache reproduced
+every row of `docs/data/seed_variance_51_135/yolo/bend_tiles.txt` exactly (e.g.
+`y11x_tiles_s1_ep44` 202/4/125/3 at conf 0.25).
+
+**Checkpoints.** The seven weights files are not in this repo or on HF. Copies whose sha256
+matches the scored files are on klone at `/gscratch/makelab/jonf/rampnet_yolo_baseline_51/`
+(`y11x_tiles/weights/best.pt`; `seedvar/y11x_tiles_s{1,2,3}/weights/best.pt`, and
+`epoch43.pt` / `epoch43.pt` / `epoch41.pt` for the `_ep44` / `_ep44` / `_ep42` legs, which
+are Ultralytics' 0-based names) and on makelab2 under `yolo_ckpts/` and `seedvar_ckpts/`.
+makelab2's `seedvar_ckpts/SHA256SUMS` is stale for the three `_ep` files: it still lists
+the mislabelled checkpoints moved to `seedvar_ckpts/mislabelled/` on 2026-09-17. The
+hashes to check against are the ones in `env.txt`. Re-scoring from these detections needs
+none of the checkpoints.
 
 **The `--tiling none --yolo-imgsz 1280` flags are load-bearing on the export, not just the
 run.** The exporter defaults to `--tiling perspective --yolo-imgsz 1024`, and those settings
@@ -501,7 +539,7 @@ data are skipped unless `--allow local-cache` is given.
 | `input_res_sweep_25` | `input_res_sweep_25.py sums`, then `input_res_sweep_25.py check --out {tmp}/instrument_check.json`, then `input_res_sweep_25.py report --out {tmp}/results.json`, then `input_res_sweep_25.py sums --root {tmp} --partial` | the committed outputs and caches match `SHA256SUMS`, and r2048 reproduces `analysis_out/op_cache` (the instrument check). `check` and `report`, regenerated into scratch, hash to the pinned values (#25) | committed only | 54.0 |
 | `yolo_rescore_benchmark_eval` | `scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py --check` | `benchmark_eval/` matches the current scorer over the committed detections | committed only | 2.1 |
 | `cascade_transfer_35` | `cascade_transfer_35.py --check` | the transfer table regenerates byte-identical (#35) | committed only | 1.8 |
-| `scoreboard` | `scoreboard.py --check` | the scoreboard doc's tables, the counts its prose quotes, the log tables and `scoreboard.json` match a fresh scoring of every leg | committed only | 4.4 |
+| `scoreboard` | `scoreboard.py --check` | the scoreboard doc's tables, the counts its prose quotes, the log tables and `scoreboard.json` match a fresh scoring of every leg except the seed legs (`seed_of`, kept off the board) | committed only | 4.4 |
 | `cascade_cost_35` | `cascade_cost_35.py --check` | all 142 per-pair cascade files regenerate byte-identical from their recorded args (#35) | committed only | 341.7 |
 | `benchmark_power_135` | `benchmark_power_135.py --check` | the default command (the ten pinned #135 splits) regenerates `docs/data/benchmark_power_135.json` byte-identical (#135, #236). **Slow: `--all` only.** Its seconds are from the standalone `--check` run in #237 (2026-10-03, same desktop), not from `latest.json` | committed only | 676 |
 | `export_model_cache_verify` | `export_model_cache.py --verify --cache-dir {local_root}/.model_cache` | the published `benchmark/model_detections/` score identically to the local `.model_cache` | **local-cache** (`{local_root}/.model_cache` must exist) | 12.4 |
