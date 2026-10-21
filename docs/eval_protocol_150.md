@@ -288,3 +288,10 @@ the 10 new ones are all `y11x_tiles`, which has no Juneau detections; 2,240 fiel
 23 model legs) and the
 same **30** YOLO `benchmark_eval/` cells all re-derive equal, 0 differing, 0 unchecked. The
 RampNet op_cache cells are unchanged (12), the split pins are byte-unchanged, and the scorer fingerprint is still `f4aef67aba03`.
+
+**2026-10-20: Vistas 1024 on all fourteen splits** (#267). The Mask2Former Vistas parity arm
+(`mask2former-vistas-curb-cut-1024x1024`) ran the nine splits it had not run, so it moved from
+partial to full pooled coverage. The scoreboard gained 9 cells: **233** scoreboard cells (was
+224; 2,330 field comparisons, still 23 model legs), all equal, 0 differing, 0 unchecked; the 30
+YOLO `benchmark_eval/` cells, the 12 RampNet op_cache cells, the split pins and the scorer
+fingerprint `f4aef67aba03` are unchanged.

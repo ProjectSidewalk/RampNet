@@ -1311,6 +1311,8 @@ def test_partial_footer_counts_the_board():
     one = dict(board, models=board["models"][:2])
     assert _partial_footer(one).startswith("1 leg that covers 1 of the nine pooled splits")
     assert _partial_footer(dict(board, models=board["models"][:1])) == ""
+
+
 def test_by_split_heatmap_rows_sort_by_pooled_mean_in_two_groups():
     """The by-split figure's row order, read from the committed scoreboard.json.
 
