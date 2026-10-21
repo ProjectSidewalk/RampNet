@@ -1242,6 +1242,136 @@ def test_a_figure_helper_survives_a_board_without_rampnet(board, tmp_path):
     fig_by_split(trimmed, out, plt)
 
 
+def test_by_split_heatmap_rows_sort_by_pooled_mean_in_two_groups():
+    """The by-split figure's row order, read from the committed scoreboard.json.
+
+    Full-coverage legs sort by the headline pooled F1, descending; partial-coverage legs
+    form a separate group below, so a one-city mean never outranks a nine-city one. The
+    aggregate is the board's own pooled F1, not a second computation (by_split_rows
+    asserts it equals the mean of the row's cells).
+    """
+    from scoreboard_figures import by_split_rows
+
+    with open(sb.DEFAULT_JSON, encoding="utf-8") as fh:
+        committed = json.load(fh)
+    full, partial = by_split_rows(committed)
+    n_pool = len(committed["pooled_splits"])
+
+    # Every leg lands in exactly one group, in the right one.
+    names = [m["model"] for m, _, _ in full + partial]
+    assert sorted(names) == sorted(m["model"] for m in committed["models"])
+    assert all(m["complete"] and n == n_pool for m, _, n in full)
+    assert all(not m["complete"] and n < n_pool for m, _, n in partial)
+
+    # The full group is sorted by its pooled mean.
+    means = [v for _, v, _ in full]
+    assert means == sorted(means, reverse=True)
+    # The partial group sorts by coverage first, then by its mean within a coverage level.
+    keys = [(n, v) for _, v, n in partial if v is not None]
+    assert keys == sorted(keys, key=lambda k: (-k[0], -k[1]))
+
+    # RampNet leads by sorting, not by being pinned there: its mean is the board's best.
+    assert full[0][0]["model"] == "rampnet"
+    assert full[0][1] == max(m["f1"] for m in committed["models"] if m["complete"])
+
+
+def _synthetic_board():
+    """A three-city board, one held-out split, built to exercise every ordering rule.
+
+    * ``partial-high``: one city at 0.90 -- a higher mean than ``partial-wide`` but lower
+      coverage, so it must sort below it; ``partial-low`` has the same coverage and a lower
+      mean, so it sorts below ``partial-high``.
+    * ``none``: ran no pooled city (its only cell is held out), so its F1 is None and it
+      sorts last.
+    * ``tie-a`` / ``tie-b``: equal pooled means in the full group; the board's order holds.
+
+    The board lists ``tie-a`` / ``tie-b`` before ``best`` and ``partial-low`` before
+    ``partial-high``, so the expected order can only come from sorting.
+    """
+    pooled = ["a", "b", "c"]
+
+    def cell(f1):
+        return {"f1": f1}
+
+    per_split = {
+        "tie-a": {"a": cell(0.5), "b": cell(0.5), "c": cell(0.5)},
+        "tie-b": {"a": cell(0.4), "b": cell(0.5), "c": cell(0.6)},
+        "best": {"a": cell(0.9), "b": cell(0.8), "c": cell(0.7), "h": cell(0.6)},
+        "partial-low": {"b": cell(0.2)},
+        "partial-high": {"a": cell(0.9)},
+        "partial-wide": {"a": cell(0.3), "b": cell(0.4)},
+        "none": {"h": cell(0.2)},
+    }
+    models = []
+    for name, cells in per_split.items():
+        f1s = [cells[s]["f1"] for s in pooled if s in cells]
+        models.append({
+            "model": name, "display": name,
+            "coverage": f"{len(f1s)}/{len(pooled)}",
+            "complete": len(f1s) == len(pooled),
+            "pooled_splits": [s for s in pooled if s in cells],
+            "f1": sum(f1s) / len(f1s) if f1s else None,
+            "f1_min": min(f1s) if f1s else None,
+            "f1_max": max(f1s) if f1s else None,
+        })
+    return {
+        "pooled_splits": pooled,
+        "all_splits": pooled + ["h"],
+        "held_out": {"h": "a held-out split, for a reason (with detail)"},
+        "models": models,
+        "per_split": per_split,
+    }
+
+
+def test_by_split_rows_orders_a_synthetic_board_and_the_figure_renders_it(tmp_path):
+    """Coverage beats mean in the partial group, None sorts last, ties keep board order."""
+    from scoreboard_figures import by_split_rows, fig_by_split, held_out_footer
+    plt = pytest.importorskip("matplotlib.pyplot")
+    import matplotlib
+    matplotlib.use("Agg")
+
+    synthetic = _synthetic_board()
+    full, partial = by_split_rows(synthetic)
+    assert [m["model"] for m, _, _ in full] == ["best", "tie-a", "tie-b"]
+    assert [m["model"] for m, _, _ in partial] == [
+        "partial-wide", "partial-high", "partial-low", "none"]
+    assert [(n, v) for _, v, n in partial][-1] == (0, None)
+    assert held_out_footer(synthetic, ["h"]) == \
+        "† held out of the pooled headline: h (a held-out split)."
+
+    out = tmp_path / "by_split.png"
+    fig_by_split(synthetic, str(out), plt)
+    assert out.stat().st_size > 0
+
+    # A board with no full-coverage rows still renders (the caption drops "rows above").
+    partial_only = dict(synthetic)
+    partial_only["models"] = [m for m in synthetic["models"] if not m["complete"]]
+    fig_by_split(partial_only, str(out), plt)
+
+
+def test_held_out_footer_names_the_boards_own_splits():
+    """The footnote follows result["held_out"], so a renamed split cannot go stale."""
+    from scoreboard_figures import held_out_footer
+
+    with open(sb.DEFAULT_JSON, encoding="utf-8") as fh:
+        committed = json.load(fh)
+    held = [s for s in committed["all_splits"] if s not in committed["pooled_splits"]]
+    text = held_out_footer(committed, held)
+    for split in held:
+        assert split in text
+
+
+def test_by_split_rows_rejects_an_aggregate_that_disagrees_with_its_cells():
+    """A pooled F1 that no longer matches the cells beside it must not be drawn."""
+    from scoreboard_figures import by_split_rows
+
+    with open(sb.DEFAULT_JSON, encoding="utf-8") as fh:
+        committed = json.load(fh)
+    committed["models"][0]["f1"] += 0.01
+    with pytest.raises(AssertionError, match="mean of its cells"):
+        by_split_rows(committed)
+
+
 def test_seed_legs_are_named_but_not_scored(board):
     """Seed legs stay off the board, and the JSON and the page both say so (#258).
 
