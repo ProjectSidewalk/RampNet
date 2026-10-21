@@ -368,3 +368,20 @@ def test_gallery_hide_credit_drops_the_producer_and_the_link():
     assert shown["credit"] == "ecartip / etalab-2.0" and shown["url"]
     assert "credit" not in hidden and hidden["url"] == ""
     assert "ecartip" not in json.dumps(hidden)
+
+
+def test_logo_band_top_finds_the_first_sustained_blue_row():
+    frac = [0.0] * 430 + [0.05] * 2 + [1.0] * 80
+    assert L.logo_band_top(frac) == 432 / 512
+    assert L.logo_band_top([0.0] * 400 + [0.5] * 3 + [0.0] * 109) is None   # a blip
+
+
+def test_committed_band_file_names_every_overlay():
+    with open(os.path.join(BUNDLE, L.NADIR_BAND_NAME), encoding="utf-8") as f:
+        band = json.load(f)
+    kinds = collections.Counter(e.get("kind") for e in band["panos"].values())
+    assert kinds == {"black": 76, "logo": 10, None: 114}
+    assert set(L.LOGO_BANDS) == {p for p, e in band["panos"].items() if e.get("kind") == "logo"}
+    gl = [e for e in band["panos"].values() if e["group"] == "grand_lyon_ladybug"]
+    assert len(gl) == 75 and all(e.get("kind") == "black" for e in gl)
+    assert all(0.81 <= e["band_top_y"] <= 0.83 for e in gl)

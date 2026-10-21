@@ -1,10 +1,11 @@
 # Lyon label audit (#159, #263): are Lyon's self-labels good enough to train on?
 
-**Status (2026-10-20): staged, not reviewed.** The sample is drawn and committed, the plan and
-the pass bar are written down (`benchmark/lyon/audit_plan.json`), the never-train lists are
-committed, and the known-artifact counts are in. The panos are not local yet, so the overlay
-measurement, the imagery pin and the gallery check are still to do (section 7). Nobody has
-judged a detection. The plan, the pass bar and the group list are a **working draft**; Jon can
+**Status (2026-10-20): ready for review, not reviewed.** The sample is drawn and committed, the
+plan and the pass bar are written down (`benchmark/lyon/audit_plan.json`), the never-train lists
+are committed, and the known-artifact counts are in. The 200 panos are staged and pinned
+(`imagery_manifest.json`, digest `c4ae4b576b27eaba`), the overlays are measured
+(`nadir_band.json`), and the gallery is built and checked (section 7). Nobody has judged a
+detection. The plan, the pass bar and the group list are a **working draft**; Jon can
 amend them until the review opens. They were first posted on #159 on 2026-10-20
 ([comment](https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301107391)), and the
 bar was simplified the same day after a re-review of PR 264 (section 3; the
@@ -178,11 +179,20 @@ the camera.
   the reviewer marked as missed counts as a true positive at 0.30. Showing the 0.30 crops instead
   is an option Jon can switch on: re-export with `--record-confidence 0.30` (same seed, same 200
   panos; the draw does not depend on the record tier), about 1.6x the detections to judge.
-- **Nadir overlays are named.** The Grand Lyon panos are solid black below about y 0.81 (no
-  downward camera). `nadir_band.json` will carry each pano's measured edge and a label, and the
-  gallery hatches the region, labels it ("black nadir (no camera)") and asks before a missed-ramp
-  mark lands inside it. ecartip's roof rack is real imagery, not an overlay: it is not hatched, and
-  ramps hidden by it cannot be marked.
+- **Nadir overlays are named.** `nadir_band.json` carries each pano's measured edge and a label;
+  the gallery hatches the region, labels it, and asks before a missed-ramp mark lands inside it.
+  86 of the 200 panos carry one:
+  - **black nadir (no camera)**, 76: all 75 Grand Lyon panos (top edge y 0.818-0.820; the rig has
+    no downward camera) and one IGN GoPro Max pano with a thin black strip at y 0.967;
+  - **nadir logo band**, 10: the "La Voie Bleue" bike-route logo on the 6 make-less 10560x5280
+    panos (y 0.873) and a navy "la ville a velo" logo on 4 GoPro Max panos from two accounts
+    (y 0.840-0.842).
+
+  The black nadirs are found by the rule in `band`. The two logos were found by eye on a contact
+  sheet of the bottom 31% of all 200 panos (claude-opus-5-5, 2026-10-20), and their edges are
+  measured by `logo_band_top`. An overlay of the measured lines on sample panos sat on each edge.
+  ecartip's roof rack and the car bodies on other rigs are real imagery, not overlays: they are
+  not hatched, and ramps hidden by them cannot be marked.
 - **Resolution.** #263 asks for the gallery "at native resolution". The protocol renders every
   pano and crop at the **model's input resolution** (4096x2048, crops 512x512 cut from it), never
   at native (5376 to 11904 wide here), so the reviewer sees what the model saw
@@ -244,27 +254,45 @@ all strata, so `top` is included):
 - **Mount and district are confounded with producer.** A group that fails says its labels are not
   good enough to train on; it does not say why.
 
-## 7. Start the review (blocked on the imagery)
+## 7. Start the review
 
-The 200 native panos are in the makelab2 archive (`/projects/makeabilitylab/sidewalk-auto-labeler/
-runs/lyon/panos/`, sha256 per file in its `index.csv`). They have not been copied yet: makelab2 was
-put on hold on 2026-10-20, before the fetch. Steps, in order, once it is clear:
+The review runs from the PR #264 worktree, where the panos are staged (they are git-ignored, so
+another checkout has to copy `benchmark/lyon/panos/` and `index.csv` from it, or redo step 1):
 
 ```bash
-# 1. on makelab2: tar only the panos in benchmark/lyon/ids.txt and their index.csv rows;
-#    copy the tar here and unpack into benchmark/lyon/panos/ (git-ignored), with the
-#    sampled rows of the archive's index.csv as benchmark/lyon/index.csv (git-ignored)
+cd D:/Git/RampNet-wt/lyon159
+python scripts/gt_gallery.py benchmark/lyon --hide-credit     # already built; re-running is safe
+# open benchmark/lyon/gallery/index.html, review, "Export verdicts",
+# save the download (lyon_verdicts.json) as benchmark/lyon/verdicts.json
+# after the review:
+python scripts/analysis/lyon_review_159.py score --write
+```
+
+**How the imagery was staged** (2026-10-20):
+
+```bash
+# 1. on makelab2, from /projects/makeabilitylab/sidewalk-auto-labeler/runs/lyon/: a tar of only
+#    the 200 panos in benchmark/lyon/ids.txt plus their rows of the archive's index.csv
+#    (950,138,880 bytes); copied here and unpacked into benchmark/lyon/panos/; the rows saved
+#    as benchmark/lyon/index.csv (both git-ignored). All 200 match the archive's sha256.
 # 2. pin the imagery and measure the overlays
 python scripts/analysis/imagery_manifest.py --write --cities lyon --panos-root .
 python scripts/analysis/lyon_review_159.py band --write
-python scripts/analysis/lyon_review_159.py verify             # exits 0 only with imagery staged
-# 3. build and open the gallery, producer hidden
-python scripts/gt_gallery.py benchmark/lyon --hide-credit
-# open benchmark/lyon/gallery/index.html, review, "Export verdicts",
-# save the download (lyon_verdicts.json) over benchmark/lyon/verdicts.json
-# 4. after the review
-python scripts/analysis/lyon_review_159.py score --write
+python scripts/analysis/lyon_review_159.py verify             # verify: OK
 ```
+
+**What was checked on the instrument before handing it over:**
+
+- **Resolution.** All 200 full panos render at 4096x2048 and all 338 crops at 512x512 cut from
+  that image. That is model resolution, as for every split, and nothing is downsampled further.
+- **Heading and seam.** The gallery does not rotate panos and draws each detection at the record's
+  normalized x, y. On a contact sheet of 16 crops (two at the seam, x 0.980 and 0.987) the marker
+  sits on a kerb, crossing or footway corner in each. Crops at the seam are clamped to the image
+  edge, as in every split.
+- **Blinding.** No entry carries a producer credit or a pano link, and no producer name or
+  Panoramax URL appears in `index.html`.
+- **Overlays.** 86 entries carry a hatched band: 76 "black nadir (no camera)" and 10 "nadir logo
+  band".
 
 ## 8. Reproduce
 
@@ -290,8 +318,6 @@ was replaced on 2026-10-20 after review, before anyone reviewed it.
 
 ## 9. Not done, and decisions for Jon
 
-- **The imagery, the overlay file, the manifest and the gallery check** (section 7): waiting on
-  makelab2.
 - **The review itself.** Nothing is judged; there is no `verdicts.json`.
 - **Review load.** 200 panos and 338 detections, against Bayonne's 125 and 147. Showing the 0.30
   crops too would be about 1.6x that.

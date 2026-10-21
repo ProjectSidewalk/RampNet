@@ -538,7 +538,52 @@ def measure_band(path):
     return ("white", y) if y is not None else (None, None)
 
 
-#: Overlays the automatic method cannot see, read by eye; empty until a pano needs one.
+#: Burned-in logo bands the black/white method cannot see, found by eye on a contact sheet
+#: of the bottom 31% of all 200 panos (2026-10-20, claude-opus-5-5; the sheet is not
+#: committed, it regenerates from the panos). Two graphics, each identical across its
+#: panos: the "La Voie Bleue" bike-route band (white with cyan waves, account
+#: veloroutelavoiebleue) and a navy "la ville a velo" band (accounts hverlin and
+#: trucbidule; three other trucbidule panos have none). Their top edge is measured per
+#: pano by ``logo_band_top``.
+LOGO_BANDS = {
+    "1e003752-8f9f-4265-9bfa-d65e4f477c3c": "La Voie Bleue bike-route logo",
+    "1fa0c0f1-7964-431b-b599-9103459b89e8": "La Voie Bleue bike-route logo",
+    "3a17f053-ff4a-4178-923f-e42ab2c5ea60": "La Voie Bleue bike-route logo",
+    "41e43f3b-5a3c-4633-b445-c5d976e13356": "La Voie Bleue bike-route logo",
+    "6bbf88af-ed13-4bba-8905-cc7031d7a279": "La Voie Bleue bike-route logo",
+    "9c6dfd07-8e0a-432d-b485-5d994fcc4905": "La Voie Bleue bike-route logo",
+    "637f5103-6333-4ddf-bab9-3309ce52b33a": "navy 'la ville a velo' logo",
+    "0c90b917-a4ff-4489-aceb-58440e3fed58": "navy 'la ville a velo' logo",
+    "2b8c9798-08e1-4010-b9cd-cdceb655a7e3": "navy 'la ville a velo' logo",
+    "a3a03099-0daf-471f-9095-4a2be694a727": "navy 'la ville a velo' logo",
+}
+LOGO_ROW_FRAC = 0.10     # share of a row in the logo's blue for the row to be in the band
+LOGO_SCAN_FROM = 380     # rows above this (y < 0.742) are never band
+
+
+def logo_band_top(frac, start=LOGO_SCAN_FROM, need=LOGO_ROW_FRAC, run=8, h=HEAT_H):
+    """Normalized y of a logo band's top edge from per-row blue fractions, or None. Pure.
+
+    The first row at or below ``start`` where the blue share reaches ``need`` and stays
+    there for the next ``run`` rows: the crest of the Voie Bleue waves, the straight top
+    of the navy band."""
+    for r in range(start, h - run):
+        if all(frac[r + i] >= need for i in range(run + 1)):
+            return r / h
+    return None
+
+
+def measure_logo_band(path):
+    import numpy as np
+    from PIL import Image
+    Image.MAX_IMAGE_PIXELS = None
+    with Image.open(path) as im:
+        a = np.asarray(im.convert("RGB").resize((HEAT_W, HEAT_H), Image.BILINEAR)).astype(int)
+    blue = ((a[..., 2] > a[..., 0] + 40) & (a[..., 0] < 90)).mean(axis=1)
+    return logo_band_top(list(blue))
+
+
+#: Overlays read entirely by hand; empty, since every overlay found has a rule.
 MANUAL_BANDS = {}
 
 
@@ -551,6 +596,11 @@ def build_band(bundle=BUNDLE):
         entry = {"band_top_y": _r(y), "kind": kind, "label": LABELS.get(kind),
                  "group": r["benchmark_stratum"], "rig": rig_of(r["pano"]),
                  "method": "auto"}
+        if pid in LOGO_BANDS:
+            entry.update(band_top_y=_r(measure_logo_band(
+                os.path.join(bundle, "panos", f"{pid}.jpg"))), kind="logo",
+                label="nadir logo band", overlay=LOGO_BANDS[pid],
+                method="found by eye on a contact sheet; edge by logo_band_top")
         if pid in MANUAL_BANDS:
             entry.update(MANUAL_BANDS[pid], method="manual")
         panos[pid] = {k: v for k, v in entry.items() if v is not None}
@@ -570,7 +620,13 @@ def build_band(bundle=BUNDLE):
                 "white = a burned-in logo band. Absent band_top_y = none found. "
                 "gt_gallery.py hatches it, labels it, and asks before a missed-ramp mark "
                 "lands inside it.",
+        "found_by_eye": "all 200 panos' bottom 31% were looked at on a contact sheet "
+                        "(2026-10-20, claude-opus-5-5); the black nadirs are found by the "
+                        "rule, the two logo graphics by eye (LOGO_BANDS); rig parts such as "
+                        "roof racks and car bodies are imagery and not marked",
         "method": {"downsample": f"{HEAT_W}x{HEAT_H} bilinear", "columns": "all",
+                   "logo": f"rows >= {LOGO_SCAN_FROM}: first row whose share of logo blue "
+                           f"(b > r + 40, r < 90) is >= {LOGO_ROW_FRAC} for 9 rows running",
                    "black": f"every channel <= {BLACK_MAX}",
                    "white": f"every channel > {WHITE_MIN}",
                    "row_is_band": f">= {BAND_ROW_FRAC} of the row qualifies",
