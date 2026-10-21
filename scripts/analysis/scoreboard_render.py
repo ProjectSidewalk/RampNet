@@ -436,6 +436,7 @@ def prose_facts(result):
 
     facts = {
         "legs": len(result["models"]),
+        "seed_legs": len(result.get("off_scoreboard") or {}),
         "splits": len(result["all_splits"]),
         "pooled": len(pooled),
         "pooled_minus_one": len(pooled) - 1,
@@ -507,6 +508,8 @@ PROSE_RULES = (
      r"\boutnumber all " + _NUM + r" city splits combined \(([\d,]+)\), so a count-pooled "
      r"headline over all " + _NUM + r" would be (\d+)% one split\b",
      ["city_splits", "city_gt", "splits", "manual_gold_share"], True),
+    ("missing: seed legs", _NUM + r" seed legs of `y11x_tiles` are not on this board\b",
+     ["seed_legs"], True),
     ("missing: y11x_tiles scope",
      r"\bscored on 2026-08-30 on the " + _NUM + r" splits registered then\b",
      ["yolo_tiles_splits"], True),

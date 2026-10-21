@@ -631,7 +631,9 @@ Things this report states as caveats rather than resolves:
   [#70](https://github.com/ProjectSidewalk/RampNet/issues/70) were closed won't-do).
 - **Several inputs live only on cluster storage**: the YOLO checkpoints and the tiles arm's
   detections, Run A's and the cosine rung's eight checkpoints each, and the 13 GB evaluation
-  heatmap caches. Publishing them is a storage decision, not a technical one.
+  heatmap caches. Publishing them is a storage decision, not a technical one. (Since
+  published: the tiles arm's detections, 2026-10-19,
+  [#258](https://github.com/ProjectSidewalk/RampNet/issues/258).)
 - **The distance axis is stretched by a rig-dependent factor** in `detection_recall_analysis.md`
   (~1.06–1.08× on bend's 2.4 m rig, ~1.4× on the 2025–26 GSV rig, unmeasured on Mapillary) and the
   miss taxonomy's 18 m boundary inherits it ([#112](https://github.com/ProjectSidewalk/RampNet/issues/112),
