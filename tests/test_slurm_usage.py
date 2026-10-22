@@ -41,6 +41,10 @@ KLONE_DUMP_AUG82 = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                 "sacct_klone_2026-10-03_aug82.txt")
 KLONE_DUMP_JUNEAU = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                  "sacct_klone_2026-10-19_juneau254.txt")
+KLONE_DUMP_V258 = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                               "sacct_klone_2026-10-22_validator258.txt")
+KLONE_DUMP_V258_4096 = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                                    "sacct_klone_2026-10-22_validator258_4096.txt")
 KLONE_DUMP_RESTAGE = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                   "sacct_klone_2026-10-21_restage263.txt")
 HYAKUSAGE_REPORT = os.path.join(REPO_ROOT, "docs", "data", "compute",
@@ -366,7 +370,9 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     # transfer job and the three #101 DA3 calibration jobs; then the klone pull of 2026-10-03,
     # the 43 allocations of the #82 augmentation fine-tune screen; then the klone pull of
     # 2026-10-19, the eleven jobs of the #254 Juneau GPU run; then the klone pull of
-    # 2026-10-21, the two CPU-only #263 dataset re-stage jobs (three incarnations, 0 GPU-h).
+    # 2026-10-21, the two CPU-only #263 dataset re-stage jobs (three incarnations, 0 GPU-h);
+    # then the klone pulls of 2026-10-22, the #258 validator scoring job and its richmond
+    # 4096 resolution control.
     parsed, stamps = [], []
     for dump, cluster, stamp in ((KLONE_DUMP, "klone", "2026-08-19T"),
                                  (TILLICUM_DUMP, "tillicum", "2026-09-21T"),
@@ -378,14 +384,16 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
                                  (KLONE_DUMP_DA3, "klone", "2026-09-27T"),
                                  (KLONE_DUMP_AUG82, "klone", "2026-10-03T"),
                                  (KLONE_DUMP_JUNEAU, "klone", "2026-10-19T"),
-                                 (KLONE_DUMP_RESTAGE, "klone", "2026-10-21T")):
+                                 (KLONE_DUMP_RESTAGE, "klone", "2026-10-21T"),
+                                 (KLONE_DUMP_V258, "klone", "2026-10-22T"),
+                                 (KLONE_DUMP_V258_4096, "klone", "2026-10-22T")):
         with open(dump, encoding="utf-8") as fh:
             rows = parse_sacct(fh.read(), cluster=cluster, user="jfroehli")
         parsed += rows
         stamps += [stamp] * len(rows)
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
-    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 10 + 1 + 3 + 43 + 11 + 3
+    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 10 + 1 + 3 + 43 + 11 + 3 + 1 + 1
     # The #254 Juneau run (docs/compute_cost.md, klone 2026-10-19): 11 records, 2.75 GPU-hours,
     # all free; five cancelled before starting.
     jun = [r for r in committed if r["cluster"] == "klone"

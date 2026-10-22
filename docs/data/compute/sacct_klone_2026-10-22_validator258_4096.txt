@@ -1,0 +1,1 @@
+42153716|validator_258_4096|klone|ckpt-g2|ckpt-gpu|COMPLETED|2026-10-22T08:54:20|2026-10-22T08:55:28|2026-10-22T09:02:51|443|billing=8,cpu=8,gres/gpu:l40=1,gres/gpu=1,mem=64G,node=1|1|0:0

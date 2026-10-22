@@ -259,7 +259,7 @@ def read_partial(path):
     return done
 
 
-def score_split(split, scorer, panos_root, run_meta):
+def score_split(split, scorer, panos_root, run_meta, out_dir=OUT_DIR):
     import cv2
     payload = load_candidates(split)
     cands = payload["candidates"]
@@ -267,8 +267,8 @@ def score_split(split, scorer, panos_root, run_meta):
     for i, c in enumerate(cands):
         by_pano.setdefault(c["pano"], []).append(i)
 
-    os.makedirs(OUT_DIR, exist_ok=True)
-    partial = os.path.join(OUT_DIR, f"{split}.partial.jsonl")
+    os.makedirs(out_dir, exist_ok=True)
+    partial = os.path.join(out_dir, f"{split}.partial.jsonl")
     done = read_partial(partial)
     rows = [None] * len(cands)
     for pid, prow in done.items():
@@ -303,7 +303,7 @@ def score_split(split, scorer, panos_root, run_meta):
     result = {"split": split, "n_candidates": len(cands),
               "candidates_sha256": sha256_file(os.path.join(CAND_DIR, f"{split}.json")),
               "run": run_meta, "rows": rows}
-    with open(os.path.join(OUT_DIR, f"{split}.json"), "w", encoding="utf-8", newline="") as f:
+    with open(os.path.join(out_dir, f"{split}.json"), "w", encoding="utf-8", newline="") as f:
         head = {k: v for k, v in result.items() if k != "rows"}
         body = json.dumps(head, indent=1, sort_keys=True)[:-2]
         lines = [json.dumps(r, sort_keys=True, separators=(",", ":")) for r in rows]
@@ -321,6 +321,12 @@ def main(argv=None):
                     help=f"Depth-Anything-V2 checkout (serving pins {DAV2_COMMIT[:7]})")
     ap.add_argument("--dav2-ckpt", required=True,
                     help="depth_anything_v2_metric_vkitti_vitb.pth")
+    ap.add_argument("--out-dir", default=OUT_DIR,
+                    help="where <split>.json is written (default: the committed scores); "
+                         "the #258 richmond 4096 control writes validator_scores_4096/")
+    ap.add_argument("--panos-note", default=None,
+                    help="free text recorded in the run metadata, e.g. how the panos "
+                         "were derived when they are not the reviewed bytes")
     ap.add_argument("--redo", action="store_true",
                     help="re-score splits whose output already exists")
     args = ap.parse_args(argv)
@@ -352,15 +358,17 @@ def main(argv=None):
                      "pillow": PIL.__version__},
         "date": datetime.date.today().isoformat(),
     }
+    if args.panos_note:
+        run_meta["panos_note"] = args.panos_note
     print(json.dumps(run_meta, indent=1), flush=True)
     scorer = Scorer(args.dav2_dir, args.dav2_ckpt)
     print(f"id2label {scorer.id2label}", flush=True)
 
     for split in args.splits:
-        if os.path.exists(os.path.join(OUT_DIR, f"{split}.json")) and not args.redo:
+        if os.path.exists(os.path.join(args.out_dir, f"{split}.json")) and not args.redo:
             print(f"{split}: done, skipping", flush=True)
             continue
-        secs = score_split(split, scorer, args.panos_root, run_meta)
+        secs = score_split(split, scorer, args.panos_root, run_meta, args.out_dir)
         print(f"{split}: wrote in {secs:.0f}s", flush=True)
     return 0
 

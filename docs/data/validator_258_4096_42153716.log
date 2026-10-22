@@ -1,0 +1,41 @@
+HOST: g3092  job 42153716  restart 0
+NVIDIA L40, 46068 MiB
+               split  panos             digest  status
+            richmond    124   ec8ef3678aa9bf84  OK
+
+Every reviewed panorama matches the bytes recorded at review time.
+124 panos -> /gscratch/makelab/jonf/verifier258_4096/richmond/panos; manifest /gscratch/makelab/jonf/verifier258_4096/richmond/downsample_manifest.json
+{
+ "script": "scripts/analysis/validator_score_258.py",
+ "serving": "https://github.com/ProjectSidewalk/sidewalk-ai-api@745e0c5",
+ "validator": "projectsidewalk/sidewalk-validator-ai-curbramp@969ad5a33079db7885c9e9a4eb5cd0f39d8fe57a",
+ "depth": {
+  "model": "Depth-Anything-V2 metric vkitti vitb",
+  "commit": "a561b849ebae10a6f5ef49e26c83cbbcd36c71bf",
+  "ckpt_sha256": "4dad67a7cc10b462bca48e6b8569c762b8eb3c1adada170a3851a6d3ba37bb3e",
+  "max_depth": 80
+ },
+ "host": "g3092",
+ "gpu": "NVIDIA L40",
+ "slurm_job": "42153716",
+ "versions": {
+  "torch": "2.14.1+cu126",
+  "cuda": "12.6",
+  "transformers": "5.15.1",
+  "opencv": "5.0.0",
+  "pillow": "12.3.0"
+ },
+ "date": "2026-10-22",
+ "panos_note": "richmond native panos downsampled to 4096x2048 by downsample_panos_258.py (manual_gold's transform), then resized to 8192x4096 as serving does"
+}
+xFormers not available
+xFormers not available
+Loading weights:   0%|          | 0/441 [00:00<?, ?it/s]Loading weights:   3%|▎         | 15/441 [00:00<00:05, 80.34it/s]Loading weights:   5%|▌         | 24/441 [00:00<00:05, 77.68it/s]Loading weights:  11%|█         | 48/441 [00:00<00:03, 127.70it/s]Loading weights:  14%|█▍        | 62/441 [00:00<00:05, 71.69it/s] Loading weights:  16%|█▋        | 72/441 [00:00<00:05, 65.65it/s]Loading weights:  18%|█▊        | 81/441 [00:01<00:05, 63.15it/s]Loading weights:  20%|██        | 90/441 [00:01<00:06, 54.85it/s]Loading weights:  24%|██▍       | 105/441 [00:01<00:05, 56.48it/s]Loading weights:  25%|██▌       | 112/441 [00:01<00:06, 50.33it/s]Loading weights:  27%|██▋       | 121/441 [00:02<00:07, 43.68it/s]Loading weights:  29%|██▉       | 129/441 [00:02<00:06, 47.72it/s]Loading weights:  31%|███       | 135/441 [00:02<00:07, 40.40it/s]Loading weights:  34%|███▍      | 152/441 [00:02<00:04, 61.12it/s]Loading weights:  37%|███▋      | 164/441 [00:02<00:04, 69.06it/s]Loading weights:  39%|███▉      | 173/441 [00:02<00:03, 72.01it/s]Loading weights:  43%|████▎     | 190/441 [00:02<00:02, 94.04it/s]Loading weights:  46%|████▌     | 201/441 [00:03<00:02, 93.09it/s]Loading weights:  50%|█████     | 221/441 [00:03<00:02, 109.39it/s]Loading weights:  53%|█████▎    | 233/441 [00:03<00:02, 74.52it/s] Loading weights:  55%|█████▌    | 243/441 [00:03<00:03, 62.86it/s]Loading weights:  61%|██████    | 269/441 [00:03<00:02, 85.20it/s]Loading weights:  63%|██████▎   | 279/441 [00:03<00:01, 86.76it/s]Loading weights:  66%|██████▌   | 289/441 [00:04<00:01, 82.44it/s]Loading weights:  68%|██████▊   | 300/441 [00:04<00:02, 50.72it/s]Loading weights:  72%|███████▏  | 317/441 [00:04<00:01, 67.64it/s]Loading weights:  76%|███████▋  | 337/441 [00:04<00:01, 75.63it/s]Loading weights:  79%|███████▊  | 347/441 [00:04<00:01, 79.66it/s]Loading weights:  85%|████████▍ | 374/441 [00:05<00:00, 85.63it/s]Loading weights:  87%|████████▋ | 384/441 [00:05<00:00, 84.31it/s]Loading weights:  89%|████████▉ | 394/441 [00:05<00:00, 48.33it/s]Loading weights:  93%|█████████▎| 409/441 [00:06<00:00, 60.43it/s]Loading weights:  95%|█████████▍| 418/441 [00:06<00:00, 53.15it/s]Loading weights: 100%|██████████| 441/441 [00:06<00:00, 69.71it/s]
+id2label {0: 'correct', 1: 'incorrect'}
+richmond: 537 candidates on 117 panos; 0 panos resumed, 117 to score
+  richmond 25/117 panos  56s
+  richmond 50/117 panos  80s
+  richmond 75/117 panos  100s
+  richmond 100/117 panos  118s
+  richmond 117/117 panos  125s
+richmond: wrote in 126s
