@@ -500,12 +500,14 @@ python scripts/analysis/validator_auc_258.py                 # CPU, ~80 s
 python scripts/analysis/validator_auc_258.py --check
 
 # the richmond 4096 resolution control (GPU, klone; STAGE is shared storage, never /tmp)
-PY=... PANOS_ROOT=... STAGE=... DAV2_DIR=... DAV2_CKPT=... HF_HOME=...     sbatch -A ckpt-makelab -p ckpt-g2 --export=ALL scripts/analysis/validator_score_258_4096.slurm
+PY=... PANOS_ROOT=... STAGE=... DAV2_DIR=... DAV2_CKPT=... HF_HOME=... \
+    sbatch -A ckpt-makelab -p ckpt-g2 --export=ALL scripts/analysis/validator_score_258_4096.slurm
 
 # step 3, CPU, ~40 s
 python scripts/analysis/validator_fusion_258.py
 python scripts/analysis/validator_fusion_258.py --check
-pytest -q tests/test_verifier_candidates_258.py tests/test_validator_auc_258.py     tests/test_validator_fusion_258.py
+pytest -q tests/test_verifier_candidates_258.py tests/test_validator_auc_258.py \
+    tests/test_validator_fusion_258.py
 ```
 
 The scores in `analysis_out/verifier_258/validator_scores/` are committed, so the read-out re-derives
