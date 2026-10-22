@@ -23,6 +23,13 @@
 #       RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 LABELS=$L \
 #           sbatch scripts/analysis/control263_score.slurm
 #   done
+# The #82 screen's two controls are the same recipe (2,000 steps, global batch 16, seeds 1
+# and 2) on the earlier copy of the dataset, and were scored on 12 splits before bayonne and
+# juneau existed. Their two missing splits, into their own OUT so nothing of #82's moves:
+#   RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 LABELS="control_s1 control_s2" \
+#       CKPTS=/gscratch/makelab/jonf/aug82 LABEL_PREFIX=aug82_ SPLITS=bayonne,juneau \
+#       OUT=$PWD/analysis_out/control_arm_263/caches_aug82_controls \
+#       sbatch scripts/analysis/control263_score.slurm
 #SBATCH -p ckpt-all
 #SBATCH --job-name=control263_score
 #SBATCH --nodes=1
@@ -59,6 +66,6 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 PY="$RAMPNET_ENV/bin/python" \
     CKPTS="${CKPTS:-/gscratch/makelab/jonf/control263}" \
     OUT="${OUT:-$REPO/analysis_out/control_arm_263/caches}" \
-    LABEL_PREFIX=control263_ \
+    LABEL_PREFIX="${LABEL_PREFIX:-control263_}" \
     SPLITS="${SPLITS:-annapolis,bayonne,bend,budapest_district5,clovis,gainesville,juneau,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo}" \
     bash "$REPO/scripts/analysis/aug82_score_ckpts.sh" $LABELS
