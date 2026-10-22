@@ -544,3 +544,6 @@ analysis_out/control_arm_263/caches_aug82_controls/*
 !analysis_out/control_arm_263/caches_aug82_controls/*.txt
 !analysis_out/control_arm_263/caches_aug82_controls/*/
 !analysis_out/control_arm_263/caches_aug82_controls/*/*.json
+!analysis_out/control_arm_263/trainlogs/
+analysis_out/control_arm_263/trainlogs/*
+!analysis_out/control_arm_263/trainlogs/*.txt

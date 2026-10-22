@@ -92,3 +92,42 @@ def test_every_fine_tune_is_below_released_on_laurens_mapillary_max_f1():
     """The #82 finding, now on five fine-tunes of the same recipe."""
     m = _rep()["per_split"]["all"]["laurens_mapillary"]["max_f1"]
     assert all(v < m["released"] for k, v in m.items() if k != "released")
+
+
+@pytest.mark.parametrize("split", ["bayonne", "juneau"])
+def test_the_82_controls_top_up_scored_every_pano(split):
+    """The #82 controls' bayonne/juneau top-up feeds every rerun and five-run row (#271 review N10)."""
+    want = {p["pano"] for p in _cache(REPO, "analysis_out", "op_cache", f"{split}.json")["panos"]}
+    for lab in ("control_s1", "control_s2"):
+        d = _cache(OUT, "caches_aug82_controls", lab, f"{split}.json")
+        assert {p["pano"] for p in d["panos"]} == want, (lab, split)
+        assert d["meta"]["fp16"] is False and d["meta"]["tta"] is False
+        assert d["meta"]["score_floor"] == 0.05 and d["meta"]["min_distance"] == 10
+        assert d["meta"]["model"] == f"aug82_{lab}"
+
+
+TRAIN_JOBS = {"42108716": 1, "42108717": 2, "42108718": 3}
+
+
+@pytest.mark.parametrize("job,seed", sorted(TRAIN_JOBS.items()))
+def test_committed_training_logs_back_the_provenance_claims(job, seed):
+    """Seed, commit, no restart, data root and the copied checkpoint's sha256 (#271 review M5)."""
+    with open(os.path.join(OUT, "trainlogs", f"control263_{job}.out.txt"), encoding="utf-8") as f:
+        out = f.read()
+    with open(os.path.join(OUT, "trainlogs", "ckpt_SHA256SUMS.txt"), encoding="utf-8") as f:
+        sums = {name: digest for digest, name in (line.split() for line in f if line.strip())}
+    assert "restarts: 0" in out and f"Seed:        {seed} " in out
+    assert "commit 20ea5753" in out and "rampnet_dataset_v2" in out
+    assert (f"Copied to /gscratch/makelab/jonf/control263/s{seed}: "
+            f"{sums[f'control_s{seed}.pth']}") in out
+
+
+@pytest.mark.parametrize("pool", ["open-rig 4 (laurens_mapillary+bayonne+juneau+budapest_district5)",
+                                  "US pooled basis (miss_decomposition.US_SPLITS)"])
+def test_doc_puts_each_seeds_055_contrast_beside_the_seed_mean(pool):
+    """At 0.55 the seeds disagree in sign, so the doc must show each one (#271 review M1)."""
+    ent = _rep()["pooled"]["all"][pool]["contrasts"]
+    with open(DOC, encoding="utf-8") as f:
+        doc = f.read()
+    for s in (1, 2, 3):
+        assert _cell(ent[f"control_s{s} - released"]["0.55"]["f1"]) in doc
