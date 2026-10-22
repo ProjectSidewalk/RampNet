@@ -46,6 +46,16 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from rampnet.eval import PINNED_SPLITS  # noqa: E402
 
 from open_rig_misses_258 import OPEN_SPLITS, REFERENCE_SPLITS  # noqa: E402
+
+#: The open pool for the rig-transfer question: the four non-GSV splits. laurens_gsv is
+#: GSV, so it is reported beside laurens_mapillary as the same-town control, not pooled
+#: (PR #269 review, finding 5).
+OPEN_POOL = ("laurens_mapillary", "bayonne", "budapest_district5", "juneau")
+#: The pool the first step-2 read-out used (open_rig_misses_258.OPEN_SPLITS, laurens_gsv
+#: included). Kept under its own key so the earlier numbers stay re-derivable.
+OPEN_POOL_WITH_LAURENS_GSV = tuple(OPEN_SPLITS)
+#: #265's GoPro Max pool (open_rig_misses_258.GROUPS["gopro_max"]).
+GOPRO_MAX_POOL = ("laurens_mapillary", "bayonne")
 from operating_point_curve import read_cache  # noqa: E402
 from verifier_candidates_258 import pano_groups  # noqa: E402
 
@@ -56,6 +66,9 @@ DEFAULT_OUT = os.path.join(OUT, "verifier_258", "validator_auc.json")
 B = 2000
 SEED = 258
 OPERATING_POINT = 0.30
+#: The candidate band of the posted design (#258 comment 6316627866, step 1):
+#: RampNet peaks with score in [0.05, 0.55), 0.55 being the shipped threshold.
+PREREG_BAND = (0.05, 0.55)
 TWO_PASS_FLOORS = (0.05, 0.30)
 ROUND = 4
 
@@ -144,6 +157,20 @@ def below_op(rows):
     return [r for r in rows if r["score"] < OPERATING_POINT]
 
 
+def prereg_band(rows):
+    """The posted design's candidate set: RampNet score in [0.05, 0.55)."""
+    lo, hi = PREREG_BAND
+    return [r for r in rows if lo <= r["score"] < hi]
+
+
+def strata(rows):
+    """Every AUC stratum, in the order the doc reads them."""
+    return {"prereg_band": auc_block(prereg_band(rows), False),
+            "below_op": auc_block(below_op(rows), False),
+            "with_redundant": auc_block(rows, False),
+            "without_redundant": auc_block(rows, True)}
+
+
 def auc_block(rows, drop_redundant):
     """AUCs of RampNet score and validator P(correct), their difference, and intervals."""
     rows = [r for r in rows if r["label"] != "ignored"
@@ -193,20 +220,23 @@ def two_pass_block(rows, n_gt):
 def build(splits):
     data = {s: load_split(s) for s in splits}
     result = {"script": "scripts/analysis/validator_auc_258.py", "bootstrap": {"B": B, "seed": SEED},
-              "open_splits": [s for s in OPEN_SPLITS if s in data],
+              "open_splits": [s for s in OPEN_POOL if s in data],
+              "open_splits_with_laurens_gsv": [s for s in OPEN_POOL_WITH_LAURENS_GSV if s in data],
+              "gopro_max_splits": [s for s in GOPRO_MAX_POOL if s in data],
               "reference_splits": [s for s in REFERENCE_SPLITS if s in data],
+              "prereg_band": list(PREREG_BAND), "operating_point": OPERATING_POINT,
               "splits": {}, "pooled": {}}
     for s, (rows, n_gt) in data.items():
         block = {}
         for sub in ("all", "unbiased"):
             r, g = subset(s, rows, n_gt, sub == "unbiased")
-            block[sub] = {"auc": {"with_redundant": auc_block(r, False),
-                                  "without_redundant": auc_block(r, True),
-                                  "below_op": auc_block(below_op(r), False)},
-                          "two_pass": two_pass_block(r, g)}
+            block[sub] = {"auc": strata(r), "two_pass": two_pass_block(r, g)}
         result["splits"][s] = block
     # Pooled AUCs, panos keyed by split so the bootstrap resamples (split, pano) clusters.
-    pools = {"open": result["open_splits"], "reference": result["reference_splits"]}
+    pools = {"open": result["open_splits"],
+             "open_with_laurens_gsv": result["open_splits_with_laurens_gsv"],
+             "gopro_max": result["gopro_max_splits"],
+             "reference": result["reference_splits"]}
     for name, members in pools.items():
         if not members:
             continue
@@ -216,9 +246,7 @@ def build(splits):
             for s in members:
                 r, _ = subset(s, *data[s], sub == "unbiased")
                 pooled += [{**x, "pano": f"{s}:{x['pano']}"} for x in r]
-            block[sub] = {"with_redundant": auc_block(pooled, False),
-                          "without_redundant": auc_block(pooled, True),
-                          "below_op": auc_block(below_op(pooled), False)}
+            block[sub] = strata(pooled)
         result["pooled"][name] = block
     return result
 
@@ -283,7 +311,7 @@ def main(argv=None):
     with open(args.out, "w", encoding="utf-8", newline="") as f:
         f.write(text)
     for sub in ("all", "unbiased"):
-        for red in ("with_redundant", "without_redundant", "below_op"):
+        for red in ("prereg_band", "below_op", "with_redundant", "without_redundant"):
             print_tables(result, sub, red)
     for sub in ("all", "unbiased"):
         print_two_pass(result, sub)
