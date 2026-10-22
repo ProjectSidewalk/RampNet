@@ -65,18 +65,10 @@ ROUND = 4
 # --------------------------------------------------------------------------- #
 def average_ranks(v):
     """1-based ranks of ``v``, ties given their average rank."""
-    v = np.asarray(v, dtype=float)
-    order = np.argsort(v, kind="mergesort")
-    sv = v[order]
-    ranks = np.empty(len(v))
-    i = 0
-    while i < len(v):
-        j = i
-        while j + 1 < len(v) and sv[j + 1] == sv[i]:
-            j += 1
-        ranks[order[i:j + 1]] = (i + j) / 2.0 + 1
-        i = j + 1
-    return ranks
+    _, inverse, counts = np.unique(np.asarray(v, dtype=float), return_inverse=True,
+                                   return_counts=True)
+    last = np.cumsum(counts)               # 1-based rank of each tie group's last member
+    return (last - (counts - 1) / 2.0)[inverse]
 
 
 def auc(score, positive):

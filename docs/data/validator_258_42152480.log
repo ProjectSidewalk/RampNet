@@ -1,0 +1,170 @@
+HOST: g3135  job 42152480  restart 0
+NVIDIA L40S, 46068 MiB
+               split  panos             digest  status
+            richmond    124   ec8ef3678aa9bf84  OK
+                bend    110   8707660bd884c6df  OK
+              clovis    125   e218ae3a9afc9ae0  OK
+          morgantown    125   6550b61787e6f8e6  OK
+           annapolis    125   f00c825a10afa4a8  OK
+            paterson    125   18fb224f05242c89  OK
+         gainesville    125   a0d857c892a41c2a  OK
+   laurens_mapillary     94   7485886ea08f671b  OK
+              juneau    125   f37ab52d9d1165cf  OK
+         laurens_gsv     86   2f079d63d4af4063  OK
+  budapest_district5    125   b4aae79a4edbdd46  OK
+           sao_paulo    125   650bd9ba2498b156  OK
+             bayonne    125   eb844c2e67625ea0  OK
+         manual_gold   1000   91550b3040b95a95  OK
+
+Every reviewed panorama matches the bytes recorded at review time.
+{
+ "script": "scripts/analysis/validator_score_258.py",
+ "serving": "https://github.com/ProjectSidewalk/sidewalk-ai-api@745e0c5",
+ "validator": "projectsidewalk/sidewalk-validator-ai-curbramp@969ad5a33079db7885c9e9a4eb5cd0f39d8fe57a",
+ "depth": {
+  "model": "Depth-Anything-V2 metric vkitti vitb",
+  "commit": "a561b849ebae10a6f5ef49e26c83cbbcd36c71bf",
+  "ckpt_sha256": "4dad67a7cc10b462bca48e6b8569c762b8eb3c1adada170a3851a6d3ba37bb3e",
+  "max_depth": 80
+ },
+ "host": "g3135",
+ "gpu": "NVIDIA L40S",
+ "slurm_job": "42152480",
+ "versions": {
+  "torch": "2.14.1+cu126",
+  "cuda": "12.6",
+  "transformers": "5.15.1",
+  "opencv": "5.0.0",
+  "pillow": "12.3.0"
+ },
+ "date": "2026-10-22"
+}
+xFormers not available
+xFormers not available
+Loading weights:   0%|          | 0/441 [00:00<?, ?it/s]Loading weights:   1%|          | 5/441 [00:00<00:14, 30.25it/s]Loading weights:   3%|▎         | 13/441 [00:00<00:14, 29.28it/s]Loading weights:   9%|▊         | 38/441 [00:00<00:04, 81.96it/s]Loading weights:  11%|█         | 49/441 [00:00<00:04, 87.53it/s]Loading weights:  14%|█▎        | 60/441 [00:01<00:07, 52.19it/s]Loading weights:  16%|█▋        | 72/441 [00:01<00:06, 58.68it/s]Loading weights:  21%|██        | 92/441 [00:01<00:04, 80.36it/s]Loading weights:  23%|██▎       | 103/441 [00:01<00:03, 85.45it/s]Loading weights:  26%|██▌       | 114/441 [00:01<00:04, 81.18it/s]Loading weights:  31%|███       | 137/441 [00:01<00:03, 95.49it/s]Loading weights:  34%|███▍      | 152/441 [00:01<00:03, 94.18it/s]Loading weights:  38%|███▊      | 167/441 [00:02<00:02, 97.05it/s]Loading weights:  41%|████      | 181/441 [00:02<00:02, 102.33it/s]Loading weights:  44%|████▍     | 195/441 [00:02<00:02, 108.76it/s]Loading weights:  48%|████▊     | 211/441 [00:02<00:02, 95.40it/s] Loading weights:  51%|█████     | 224/441 [00:02<00:02, 100.93it/s]Loading weights:  54%|█████▎    | 236/441 [00:02<00:02, 99.79it/s] Loading weights:  58%|█████▊    | 255/441 [00:02<00:01, 116.26it/s]Loading weights:  61%|██████▏   | 271/441 [00:03<00:01, 111.53it/s]Loading weights:  66%|██████▋   | 293/441 [00:03<00:01, 131.15it/s]Loading weights:  70%|██████▉   | 307/441 [00:03<00:01, 128.49it/s]Loading weights:  73%|███████▎  | 321/441 [00:03<00:00, 127.31it/s]Loading weights:  76%|███████▌  | 336/441 [00:03<00:00, 105.61it/s]Loading weights:  84%|████████▍ | 371/441 [00:03<00:00, 147.31it/s]Loading weights:  88%|████████▊ | 387/441 [00:03<00:00, 132.08it/s]Loading weights:  91%|█████████ | 401/441 [00:04<00:00, 115.80it/s]Loading weights:  94%|█████████▍| 415/441 [00:04<00:00, 104.88it/s]Loading weights: 100%|██████████| 441/441 [00:04<00:00, 103.39it/s]
+id2label {0: 'correct', 1: 'incorrect'}
+richmond: 537 candidates on 117 panos; 0 panos resumed, 117 to score
+  richmond 25/117 panos  28s
+  richmond 50/117 panos  46s
+  richmond 75/117 panos  60s
+  richmond 100/117 panos  74s
+  richmond 117/117 panos  79s
+richmond: wrote in 80s
+bend: 416 candidates on 105 panos; 0 panos resumed, 105 to score
+  bend 25/105 panos  29s
+  bend 50/105 panos  51s
+  bend 75/105 panos  71s
+  bend 100/105 panos  88s
+  bend 105/105 panos  91s
+bend: wrote in 91s
+clovis: 392 candidates on 119 panos; 0 panos resumed, 119 to score
+  clovis 25/119 panos  20s
+  clovis 50/119 panos  35s
+  clovis 75/119 panos  48s
+  clovis 100/119 panos  63s
+  clovis 119/119 panos  70s
+clovis: wrote in 70s
+morgantown: 480 candidates on 117 panos; 0 panos resumed, 117 to score
+  morgantown 25/117 panos  12s
+  morgantown 50/117 panos  23s
+  morgantown 75/117 panos  37s
+  morgantown 100/117 panos  49s
+  morgantown 117/117 panos  59s
+morgantown: wrote in 59s
+annapolis: 419 candidates on 116 panos; 0 panos resumed, 116 to score
+  annapolis 25/116 panos  15s
+  annapolis 50/116 panos  29s
+  annapolis 75/116 panos  43s
+  annapolis 100/116 panos  54s
+  annapolis 116/116 panos  63s
+annapolis: wrote in 63s
+paterson: 389 candidates on 109 panos; 0 panos resumed, 109 to score
+  paterson 25/109 panos  21s
+  paterson 50/109 panos  41s
+  paterson 75/109 panos  61s
+  paterson 100/109 panos  83s
+  paterson 109/109 panos  90s
+paterson: wrote in 90s
+gainesville: 430 candidates on 105 panos; 0 panos resumed, 105 to score
+  gainesville 25/105 panos  23s
+  gainesville 50/105 panos  46s
+  gainesville 75/105 panos  67s
+  gainesville 100/105 panos  91s
+  gainesville 105/105 panos  96s
+gainesville: wrote in 96s
+laurens_mapillary: 374 candidates on 88 panos; 0 panos resumed, 88 to score
+  laurens_mapillary 25/88 panos  16s
+  laurens_mapillary 50/88 panos  29s
+  laurens_mapillary 75/88 panos  44s
+  laurens_mapillary 88/88 panos  50s
+laurens_mapillary: wrote in 50s
+juneau: 434 candidates on 109 panos; 0 panos resumed, 109 to score
+  juneau 25/109 panos  15s
+  juneau 50/109 panos  30s
+  juneau 75/109 panos  43s
+  juneau 100/109 panos  57s
+  juneau 109/109 panos  62s
+juneau: wrote in 62s
+laurens_gsv: 261 candidates on 72 panos; 0 panos resumed, 72 to score
+  laurens_gsv 25/72 panos  25s
+  laurens_gsv 50/72 panos  47s
+  laurens_gsv 72/72 panos  64s
+laurens_gsv: wrote in 64s
+budapest_district5: 586 candidates on 123 panos; 0 panos resumed, 123 to score
+  budapest_district5 25/123 panos  14s
+  budapest_district5 50/123 panos  31s
+  budapest_district5 75/123 panos  45s
+  budapest_district5 100/123 panos  59s
+  budapest_district5 123/123 panos  75s
+budapest_district5: wrote in 75s
+sao_paulo: 512 candidates on 113 panos; 0 panos resumed, 113 to score
+  sao_paulo 25/113 panos  21s
+  sao_paulo 50/113 panos  46s
+  sao_paulo 75/113 panos  69s
+  sao_paulo 100/113 panos  94s
+  sao_paulo 113/113 panos  106s
+sao_paulo: wrote in 107s
+bayonne: 565 candidates on 115 panos; 0 panos resumed, 115 to score
+  bayonne 25/115 panos  17s
+  bayonne 50/115 panos  35s
+  bayonne 75/115 panos  47s
+  bayonne 100/115 panos  63s
+  bayonne 115/115 panos  72s
+bayonne: wrote in 72s
+manual_gold: 4709 candidates on 854 panos; 0 panos resumed, 854 to score
+  manual_gold 25/854 panos  17s
+  manual_gold 50/854 panos  33s
+  manual_gold 75/854 panos  50s
+  manual_gold 100/854 panos  71s
+  manual_gold 125/854 panos  87s
+  manual_gold 150/854 panos  103s
+  manual_gold 175/854 panos  119s
+  manual_gold 200/854 panos  136s
+  manual_gold 225/854 panos  154s
+  manual_gold 250/854 panos  172s
+  manual_gold 275/854 panos  188s
+  manual_gold 300/854 panos  205s
+  manual_gold 325/854 panos  221s
+  manual_gold 350/854 panos  240s
+  manual_gold 375/854 panos  257s
+  manual_gold 400/854 panos  272s
+  manual_gold 425/854 panos  290s
+  manual_gold 450/854 panos  309s
+  manual_gold 475/854 panos  328s
+  manual_gold 500/854 panos  346s
+  manual_gold 525/854 panos  363s
+  manual_gold 550/854 panos  381s
+  manual_gold 575/854 panos  399s
+  manual_gold 600/854 panos  414s
+  manual_gold 625/854 panos  430s
+  manual_gold 650/854 panos  447s
+  manual_gold 675/854 panos  461s
+  manual_gold 700/854 panos  478s
+  manual_gold 725/854 panos  494s
+  manual_gold 750/854 panos  511s
+  manual_gold 775/854 panos  527s
+  manual_gold 800/854 panos  542s
+  manual_gold 825/854 panos  559s
+  manual_gold 850/854 panos  576s
+  manual_gold 854/854 panos  580s
+manual_gold: wrote in 580s

@@ -535,3 +535,8 @@ analysis_out/verifier_258/*
 !analysis_out/verifier_258/candidates/
 analysis_out/verifier_258/candidates/*
 !analysis_out/verifier_258/candidates/*.json
+# Step 2's validator scores (GPU output, scripts/analysis/validator_score_258.py); the
+# per-pano resume files are scratch.
+!analysis_out/verifier_258/validator_scores/
+analysis_out/verifier_258/validator_scores/*
+!analysis_out/verifier_258/validator_scores/*.json
