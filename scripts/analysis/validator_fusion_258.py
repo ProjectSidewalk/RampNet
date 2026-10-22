@@ -303,6 +303,17 @@ def validator_seconds(path=JOB_LOG):
     return out
 
 
+def add_cost(blk):
+    """Validator wall-clock per ramp the deployed rule adds over RampNet@0.30 (net TP
+    gain over every pano). The validator scored every candidate >= 0.05, so this is the
+    whole second-pass cost; RampNet's own pass is common to both arms."""
+    gain = blk["deployed"]["tp"] - blk["rampnet@0.30"]["tp"]
+    blk["deployed"]["net_tp_gain"] = gain
+    sec = blk.get("validator_seconds")
+    blk["deployed"]["validator_seconds_per_added_tp"] = (
+        round(sec / gain, 1) if sec is not None and gain > 0 else None)
+
+
 def stack(tables):
     """Concatenate per-split tables along the pano axis (pooled rows)."""
     return {"thr": np.concatenate([t["thr"] for t in tables], 1),
@@ -357,6 +368,7 @@ def build(splits):
         blk = matched_block(t, W, tau)
         blk["held_out"] = s != DEV_SPLIT
         blk["validator_seconds"] = secs.get(s)
+        add_cost(blk)
         result["splits"][s] = blk
     pools = {"open": OPEN_POOL, "gopro_max": GOPRO_MAX_POOL, "reference": REFERENCE_SPLITS,
              "held_out_all": tuple(s for s in splits if s != DEV_SPLIT)}
@@ -368,6 +380,9 @@ def build(splits):
         W = bootstrap_weights(t["base"].shape[0])
         blk = matched_block(t, W, tau)
         blk["members"] = members
+        blk["validator_seconds"] = (sum(secs[m] for m in members)
+                                    if all(m in secs for m in members) else None)
+        add_cost(blk)
         result["pooled"][name] = blk
     return result
 

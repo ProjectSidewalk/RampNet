@@ -58,12 +58,14 @@
     ],
     "f1": 0.6803,
     "fp": 61,
+    "net_tp_gain": 34,
     "precision": 0.8378,
     "recall": 0.5727,
     "recall_n_gt": 550,
     "recall_tp": 315,
     "threshold": 0.285,
-    "tp": 315
+    "tp": 315,
+    "validator_seconds_per_added_tp": 3.6
    },
    "fused": {
     "f1": 0.6966,
@@ -136,7 +138,8 @@
    "threshold_only_recall_ci": [
     0.4675,
     0.5684
-   ]
+   ],
+   "validator_seconds": 122
   },
   "held_out_all": {
    "delta_recall": 0.0075,
@@ -162,12 +165,14 @@
     ],
     "f1": 0.8549,
     "fp": 858,
+    "net_tp_gain": 152,
     "precision": 0.8771,
     "recall": 0.8338,
     "recall_n_gt": 7346,
     "recall_tp": 6125,
     "threshold": 0.285,
-    "tp": 6125
+    "tp": 6125,
+    "validator_seconds_per_added_tp": 9.6
    },
    "fused": {
     "f1": 0.8563,
@@ -251,7 +256,8 @@
    "threshold_only_recall_ci": [
     0.8012,
     0.8239
-   ]
+   ],
+   "validator_seconds": 1452
   },
   "open": {
    "delta_recall": 0.0244,
@@ -277,12 +283,14 @@
     ],
     "f1": 0.7145,
     "fp": 188,
+    "net_tp_gain": 42,
     "precision": 0.7978,
     "recall": 0.6469,
     "recall_n_gt": 1147,
     "recall_tp": 742,
     "threshold": 0.285,
-    "tp": 742
+    "tp": 742,
+    "validator_seconds_per_added_tp": 6.2
    },
    "fused": {
     "f1": 0.7109,
@@ -357,7 +365,8 @@
    "threshold_only_recall_ci": [
     0.5749,
     0.6465
-   ]
+   ],
+   "validator_seconds": 259
   },
   "reference": {
    "delta_recall": 0.0121,
@@ -383,12 +392,14 @@
     ],
     "f1": 0.8475,
     "fp": 241,
+    "net_tp_gain": 59,
     "precision": 0.8753,
     "recall": 0.8214,
     "recall_n_gt": 2060,
     "recall_tp": 1692,
     "threshold": 0.285,
-    "tp": 1692
+    "tp": 1692,
+    "validator_seconds_per_added_tp": 9.3
    },
    "fused": {
     "f1": 0.8503,
@@ -466,7 +477,8 @@
    "threshold_only_recall_ci": [
     0.7718,
     0.8121
-   ]
+   ],
+   "validator_seconds": 549
   }
  },
  "script": "scripts/analysis/validator_fusion_258.py",
@@ -495,12 +507,14 @@
     ],
     "f1": 0.8815,
     "fp": 27,
+    "net_tp_gain": 15,
     "precision": 0.9036,
     "recall": 0.8605,
     "recall_n_gt": 294,
     "recall_tp": 253,
     "threshold": 0.285,
-    "tp": 253
+    "tp": 253,
+    "validator_seconds_per_added_tp": 4.2
    },
    "fused": {
     "f1": 0.8831,
@@ -597,12 +611,14 @@
     ],
     "f1": 0.6471,
     "fp": 44,
+    "net_tp_gain": 15,
     "precision": 0.7895,
     "recall": 0.5482,
     "recall_n_gt": 301,
     "recall_tp": 165,
     "threshold": 0.285,
-    "tp": 165
+    "tp": 165,
+    "validator_seconds_per_added_tp": 4.8
    },
    "fused": {
     "f1": 0.6578,
@@ -699,12 +715,14 @@
     ],
     "f1": 0.8823,
     "fp": 29,
+    "net_tp_gain": 12,
     "precision": 0.9065,
     "recall": 0.8593,
     "recall_n_gt": 327,
     "recall_tp": 281,
     "threshold": 0.285,
-    "tp": 281
+    "tp": 281,
+    "validator_seconds_per_added_tp": 7.6
    },
    "fused": {
     "f1": 0.876,
@@ -801,12 +819,14 @@
     ],
     "f1": 0.6667,
     "fp": 98,
+    "net_tp_gain": 6,
     "precision": 0.67,
     "recall": 0.6633,
     "recall_n_gt": 300,
     "recall_tp": 199,
     "threshold": 0.285,
-    "tp": 199
+    "tp": 199,
+    "validator_seconds_per_added_tp": 12.5
    },
    "fused": {
     "f1": 0.676,
@@ -903,12 +923,14 @@
     ],
     "f1": 0.8203,
     "fp": 38,
+    "net_tp_gain": 2,
     "precision": 0.81,
     "recall": 0.8308,
     "recall_n_gt": 195,
     "recall_tp": 162,
     "threshold": 0.285,
-    "tp": 162
+    "tp": 162,
+    "validator_seconds_per_added_tp": 35.0
    },
    "fused": {
     "f1": 0.8421,
@@ -1005,12 +1027,14 @@
     ],
     "f1": 0.8242,
     "fp": 49,
+    "net_tp_gain": 15,
     "precision": 0.8212,
     "recall": 0.8272,
     "recall_n_gt": 272,
     "recall_tp": 225,
     "threshold": 0.285,
-    "tp": 225
+    "tp": 225,
+    "validator_seconds_per_added_tp": 6.4
    },
    "fused": {
     "f1": 0.8256,
@@ -1107,12 +1131,14 @@
     ],
     "f1": 0.8231,
     "fp": 29,
+    "net_tp_gain": 2,
     "precision": 0.8872,
     "recall": 0.7677,
     "recall_n_gt": 297,
     "recall_tp": 228,
     "threshold": 0.285,
-    "tp": 228
+    "tp": 228,
+    "validator_seconds_per_added_tp": 31.0
    },
    "fused": {
     "f1": 0.8287,
@@ -1209,12 +1235,14 @@
     ],
     "f1": 0.8071,
     "fp": 15,
+    "net_tp_gain": 15,
     "precision": 0.9138,
     "recall": 0.7227,
     "recall_n_gt": 220,
     "recall_tp": 159,
     "threshold": 0.285,
-    "tp": 159
+    "tp": 159,
+    "validator_seconds_per_added_tp": 4.3
    },
    "fused": {
     "f1": 0.7822,
@@ -1311,12 +1339,14 @@
     ],
     "f1": 0.7212,
     "fp": 17,
+    "net_tp_gain": 19,
     "precision": 0.8982,
     "recall": 0.6024,
     "recall_n_gt": 249,
     "recall_tp": 150,
     "threshold": 0.285,
-    "tp": 150
+    "tp": 150,
+    "validator_seconds_per_added_tp": 2.6
    },
    "fused": {
     "f1": 0.7575,
@@ -1413,12 +1443,14 @@
     ],
     "f1": 0.8982,
     "fp": 414,
+    "net_tp_gain": 36,
     "precision": 0.8951,
     "recall": 0.9013,
     "recall_n_gt": 3919,
     "recall_tp": 3532,
     "threshold": 0.285,
-    "tp": 3532
+    "tp": 3532,
+    "validator_seconds_per_added_tp": 16.1
    },
    "fused": {
     "f1": 0.9025,
@@ -1515,12 +1547,14 @@
     ],
     "f1": 0.8427,
     "fp": 31,
+    "net_tp_gain": 2,
     "precision": 0.875,
     "recall": 0.8127,
     "recall_n_gt": 267,
     "recall_tp": 217,
     "threshold": 0.285,
-    "tp": 217
+    "tp": 217,
+    "validator_seconds_per_added_tp": 29.5
    },
    "fused": {
     "f1": 0.8471,
@@ -1617,12 +1651,14 @@
     ],
     "f1": 0.825,
     "fp": 18,
+    "net_tp_gain": 6,
     "precision": 0.9416,
     "recall": 0.7342,
     "recall_n_gt": 395,
     "recall_tp": 290,
     "threshold": 0.285,
-    "tp": 290
+    "tp": 290,
+    "validator_seconds_per_added_tp": 15.0
    },
    "fused": {
     "f1": 0.8269,
@@ -1719,12 +1755,14 @@
     ],
     "f1": 0.8475,
     "fp": 49,
+    "net_tp_gain": 7,
     "precision": 0.8435,
     "recall": 0.8516,
     "recall_n_gt": 310,
     "recall_tp": 264,
     "threshold": 0.285,
-    "tp": 264
+    "tp": 264,
+    "validator_seconds_per_added_tp": 11.4
    },
    "fused": {
     "f1": 0.8644,
@@ -1821,12 +1859,14 @@
     ],
     "f1": 0.8127,
     "fp": 55,
+    "net_tp_gain": 6,
     "precision": 0.807,
     "recall": 0.8185,
     "recall_n_gt": 281,
     "recall_tp": 230,
     "threshold": 0.285,
-    "tp": 230
+    "tp": 230,
+    "validator_seconds_per_added_tp": 17.8
    },
    "fused": {
     "f1": 0.8127,
