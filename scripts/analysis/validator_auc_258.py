@@ -11,10 +11,13 @@ difference, per split. A verifier earns its place only if it ranks TPs above FPs
 than the detector already does. 95% intervals are a pano bootstrap (panos resampled with
 replacement, ``B`` draws, fixed seed), paired: the same draw scores both.
 
-Each AUC is reported four ways: ``all`` panos or the ``unbiased`` subset
-(``group != "top"``, every pano on manual_gold), and with or without ``redundant`` FPs
-(second hits on a ramp another peak already claimed, where a validator that says "ramp"
-is right about the image).
+Each AUC is reported on ``all`` panos or the ``unbiased`` subset (``group != "top"``,
+every pano on manual_gold), each three ways: with or without ``redundant`` FPs (second
+hits on a ramp another peak already claimed, where a validator that says "ramp" is right
+about the image), and ``below_op``, only the candidates under RampNet's 0.30 operating
+point -- the ones a lowered threshold adds, where a second pass would have to earn its
+recall. ``below_op`` was added on 2026-10-22 after richmond, the first split scored, and
+before any other split's scores were read.
 
 **Secondary: an untuned two-pass rule.** RampNet alone at 0.30 (the operating point,
 docs/operating_point_correction) against RampNet at a lowered threshold followed by the
@@ -144,6 +147,11 @@ def subset(split, rows, n_gt, unbiased):
     return [r for r in rows if r["pano"] in keep], {p: n for p, n in n_gt.items() if p in keep}
 
 
+def below_op(rows):
+    """The candidates a lowered threshold adds: RampNet score in [floor, 0.30)."""
+    return [r for r in rows if r["score"] < OPERATING_POINT]
+
+
 def auc_block(rows, drop_redundant):
     """AUCs of RampNet score and validator P(correct), their difference, and intervals."""
     rows = [r for r in rows if r["label"] != "ignored"
@@ -201,7 +209,8 @@ def build(splits):
         for sub in ("all", "unbiased"):
             r, g = subset(s, rows, n_gt, sub == "unbiased")
             block[sub] = {"auc": {"with_redundant": auc_block(r, False),
-                                  "without_redundant": auc_block(r, True)},
+                                  "without_redundant": auc_block(r, True),
+                                  "below_op": auc_block(below_op(r), False)},
                           "two_pass": two_pass_block(r, g)}
         result["splits"][s] = block
     # Pooled AUCs, panos keyed by split so the bootstrap resamples (split, pano) clusters.
@@ -216,7 +225,8 @@ def build(splits):
                 r, _ = subset(s, *data[s], sub == "unbiased")
                 pooled += [{**x, "pano": f"{s}:{x['pano']}"} for x in r]
             block[sub] = {"with_redundant": auc_block(pooled, False),
-                          "without_redundant": auc_block(pooled, True)}
+                          "without_redundant": auc_block(pooled, True),
+                          "below_op": auc_block(below_op(pooled), False)}
         result["pooled"][name] = block
     return result
 
@@ -281,7 +291,7 @@ def main(argv=None):
     with open(args.out, "w", encoding="utf-8", newline="") as f:
         f.write(text)
     for sub in ("all", "unbiased"):
-        for red in ("with_redundant", "without_redundant"):
+        for red in ("with_redundant", "without_redundant", "below_op"):
             print_tables(result, sub, red)
     for sub in ("all", "unbiased"):
         print_two_pass(result, sub)
