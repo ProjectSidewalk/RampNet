@@ -30,11 +30,16 @@
 #
 # OUTPUT: analysis_out/aug_transfer_82/finetune/<label>/<split>.json, plus
 # analysis_out/aug_transfer_82/finetune/driver.log (env, hashes, timings).
+#
+# REUSED BY #263 (scripts/analysis/control263_score.slurm) with OUT, SPLITS, CKPTS and
+# LABEL_PREFIX set. LABEL_PREFIX is what a fine-tuned checkpoint's cache records as
+# meta.model ("<prefix><label>"); it defaults to aug82_, so every #82 call is unchanged.
 set -u
 REPO="${REPO:-$(cd "$(dirname "$0")/../.." && pwd)}"
 PY="${PY:-/homes/gws/jonf/RampNet/.venv/bin/python}"
 CKPTS="${CKPTS:-/homes/gws/jonf/aug82_ckpts}"
 OUT="${OUT:-$REPO/analysis_out/aug_transfer_82/finetune}"
+LABEL_PREFIX="${LABEL_PREFIX:-aug82_}"
 SPLITS="${SPLITS:-annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo}"
 cd "$REPO" || exit 2
 mkdir -p "$OUT"
@@ -51,7 +56,7 @@ elif [ "$need_sums" = 1 ] && [ "${ALLOW_NO_SHA256SUMS:-0}" != 1 ]; then
 fi
 n_splits=$(echo "$SPLITS" | tr ',' '\n' | grep -c .)
 status=0
-log "=== aug82 scoring (job ${SLURM_JOB_ID:-none}) $(date -Is) host $(hostname) repo commit $(git rev-parse --short HEAD)"
+log "=== ${LABEL_PREFIX%_} scoring (job ${SLURM_JOB_ID:-none}) $(date -Is) host $(hostname) repo commit $(git rev-parse --short HEAD)"
 log "python: $PY ($("$PY" -c 'import torch,timm;print("torch",torch.__version__,"timm",timm.__version__)'))"
 log "gpu: $(nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader | tr '\n' ' ')"
 log "splits: $SPLITS"
@@ -63,7 +68,7 @@ for label in "$@"; do
     else
         f="$CKPTS/$label.pth"
         [ -f "$f" ] || { log "missing $f"; exit 2; }
-        ck=(--checkpoint "$f" --model-label "aug82_$label")
+        ck=(--checkpoint "$f" --model-label "${LABEL_PREFIX}$label")
         log "--- $label: $f sha256 $(sha256sum "$f" | cut -c1-16)"
     fi
     "$PY" scripts/analysis/operating_point_curve.py extract ${ck[@]+"${ck[@]}"} \
