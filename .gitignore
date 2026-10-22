@@ -525,3 +525,25 @@ analysis_out/lyon_review_159/**/*.html
 !analysis_out/open_rig_258/
 analysis_out/open_rig_258/*
 !analysis_out/open_rig_258/*.log
+# #263 control arm (docs/control_arm_263.md): per-checkpoint extract caches for the released
+# checkpoint and the three control seeds on all 14 splits, the #82 controls' bayonne/juneau
+# top-up, the scoring logs and both reports. control_arm_263.py --check re-derives the reports.
+!analysis_out/control_arm_263/
+analysis_out/control_arm_263/*
+!analysis_out/control_arm_263/*.json
+!analysis_out/control_arm_263/*.md
+!analysis_out/control_arm_263/caches/
+!analysis_out/control_arm_263/caches_aug82_controls/
+analysis_out/control_arm_263/caches/*
+analysis_out/control_arm_263/caches_aug82_controls/*
+!analysis_out/control_arm_263/caches/*.log
+!analysis_out/control_arm_263/caches/*.txt
+!analysis_out/control_arm_263/caches/*/
+!analysis_out/control_arm_263/caches/*/*.json
+!analysis_out/control_arm_263/caches_aug82_controls/*.log
+!analysis_out/control_arm_263/caches_aug82_controls/*.txt
+!analysis_out/control_arm_263/caches_aug82_controls/*/
+!analysis_out/control_arm_263/caches_aug82_controls/*/*.json
+!analysis_out/control_arm_263/trainlogs/
+analysis_out/control_arm_263/trainlogs/*
+!analysis_out/control_arm_263/trainlogs/*.txt

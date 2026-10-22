@@ -1,0 +1,7 @@
+device=cuda model=aug82_control_s1 score_floor=0.05 min_distance=10 tta=False
+  bayonne: 50/125
+  bayonne: 100/125
+bayonne: 125 panos -> /gscratch/scrubbed/jfroehli/control263/RampNet_score/analysis_out/control_arm_263/caches_aug82_controls/control_s1/bayonne.json
+  juneau: 50/125
+  juneau: 100/125
+juneau: 125 panos -> /gscratch/scrubbed/jfroehli/control263/RampNet_score/analysis_out/control_arm_263/caches_aug82_controls/control_s1/juneau.json

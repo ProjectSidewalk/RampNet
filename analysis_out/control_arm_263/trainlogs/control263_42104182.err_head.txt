@@ -1,0 +1,50 @@
+[rank3]: Traceback (most recent call last):
+[rank3]:   File "/mmfs1/gscratch/makelab/jonf/RampNet263/stage_two/train.py", line 257, in <module>
+[rank3]:     rank, local_rank, world_size = setup_distributed()
+[rank3]:   File "/mmfs1/gscratch/makelab/jonf/RampNet263/stage_two/train.py", line 250, in setup_distributed
+[rank3]:     torch.cuda.set_device(local_rank)
+[rank3]:   File "/scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/lib/python3.10/site-packages/torch/cuda/__init__.py", line 476, in set_device
+[rank3]:     torch._C._cuda_setDevice(device)
+[rank3]: RuntimeError: CUDA error: uncorrectable ECC error encountered
+[rank3]: CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+[rank3]: For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+[rank3]: Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+W1021 08:08:01.337000 3635739 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 3635753 closing signal SIGTERM
+W1021 08:08:01.338000 3635739 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 3635754 closing signal SIGTERM
+W1021 08:08:01.338000 3635739 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 3635755 closing signal SIGTERM
+E1021 08:08:01.615000 3635739 site-packages/torch/distributed/elastic/multiprocessing/api.py:869] failed (exitcode: 1) local_rank: 3 (pid: 3635756) of binary: /scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/bin/python
+Traceback (most recent call last):
+  File "/scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/run.py", line 922, in <module>
+    main()
+  File "/scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/run.py", line 918, in main
+    run(args)
+  File "/scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/run.py", line 909, in run
+    elastic_launch(
+  File "/scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 138, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/scr/jfroehli/ctrl263env_42104182_0/sidewalkcv2/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 269, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+/mmfs1/gscratch/makelab/jonf/RampNet263/stage_two/train.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-10-21_08:08:01
+  host      : g3110.hyak.local
+  rank      : 3 (local_rank: 3)
+  exitcode  : 1 (pid: 3635756)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+srun: error: g3110: task 0: Exited with exit code 1
