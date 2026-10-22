@@ -5,8 +5,8 @@ comment of 2026-10-21 (https://github.com/ProjectSidewalk/RampNet/issues/258#iss
 **Status:** steps 1, 2 and 3 are done (2026-10-21, 2026-10-22). On the pre-registered band
 (RampNet score in [0.05, 0.55)) the production CurbRamp validator does not beat RampNet's score on the
 open pool (+0.017 [−0.024, 0.059] AUC), is worse on manual_gold, and is better on laurens_mapillary.
-Fused with RampNet's score (fitted on sao_paulo only), it buys +0.024 [+0.003, +0.054] recall at
-matched precision on the open pool and +0.007 [+0.000, +0.013] over all 13 held-out splits, led by
+Fused with RampNet's score (fitted on sao_paulo only), it buys +0.024 [+0.002, +0.054] recall at
+matched precision on the open pool and +0.007 [−0.000, +0.012] over all 13 held-out splits, led by
 laurens_mapillary. See Steps 2 and 3.
 
 ## The idea
@@ -114,7 +114,8 @@ with independent labels: −0.074 [−0.117, −0.031]. It is better on laurens_
 condition is met on the open pool and on manual_gold and not met on laurens_mapillary. Below the
 0.30 operating point, a stratum added after the design, the open-pool gain is larger and its interval
 clears zero, +0.076 [0.027, 0.129], while manual_gold stays flat (−0.004). The richmond resolution
-control (below) shows manual_gold's flat row is not an artefact of its upsampled crops. Step 3 was
+control (below) shows upsampling does not explain most of manual_gold's row; resolution is a partial
+contributor at most. Step 3 was
 run as the PR #269 review asked; its result is in the next section.
 
 **All 14 splits were scored, not only the five the design named.** The design's step 2 named the
@@ -312,10 +313,12 @@ panos (`resolution_control` in `validator_auc.json`):
 | below 0.30 | 22 | 169 | 0.751 [0.637, 0.867] | 0.754 [0.636, 0.868] | +0.003 [−0.025, 0.028] |
 | every peak ≥ 0.05 | 279 | 197 | 0.860 [0.820, 0.896] | 0.855 [0.814, 0.891] | −0.005 [−0.011, 0.000] |
 
-**The downsample costs richmond almost nothing**, +0.003 below 0.30 and −0.017 on the
-pre-registered band, against the ~0.08 to 0.10 that separates manual_gold's below-0.30 difference
-(−0.004) from the pooled verdict splits (+0.076 open, +0.092 reference). So the upsampling does not
-explain manual_gold's flat row, and manual_gold stands as counter-evidence: on the one split with
+**The downsample costs richmond little**: +0.003 [−0.025, 0.028] below 0.30, against the ~0.08 to
+0.10 that separates manual_gold's below-0.30 difference (−0.004) from the pooled verdict splits (+0.076
+open, +0.092 reference), and −0.017 [−0.041, 0.004] on the pre-registered band. The band interval
+allows resolution to account for up to about half of manual_gold's −0.074 on that band. So the
+upsampling does not explain most of manual_gold's row: manual_gold stands as counter-evidence, with
+resolution a partial contributor at most: on the one split with
 independent labels, the validator adds nothing below the operating point. One split's control, and a
 GSV one; it does not cover the open rigs.
 
@@ -325,8 +328,9 @@ GSV one; it does not cover the open rigs.
   14 splits (secondary table, with its selection caveat).
 - **On the pre-registered band:** the stop condition is met on the open pool and on manual_gold, and
   not met on laurens_mapillary. bayonne is flat.
-- **manual_gold's flat sub-threshold row is not an upsampling artefact** (richmond control), so it is
-  counter-evidence, on the one split whose labels do not penalize the validator.
+- **Upsampling does not explain most of manual_gold's row** (richmond control; on the band it could
+  account for up to about half), so manual_gold is counter-evidence, with resolution a partial
+  contributor at most, on the one split whose labels do not penalize the validator.
 - **Not settled by step 2 alone:** whether the information the validator carries below 0.30 is
   worth anything once combined with RampNet's score. Step 3 measures that.
 - **Not run:** manual_gold at native resolution (#21); the other validators in the plan.
@@ -357,78 +361,78 @@ baseline as `best_recall_at_precision_ge_baseline`: among the settings whose pre
 the baseline's (RampNet at 0.30), the highest recall, ties by F1. This applies that definition
 exactly, to both arms on the same split. The threshold-only arm sweeps RampNet's threshold over
 `cascade_cost_35.THR_SWEEP` (0.05 to 0.95 by 0.01); the fused arm sweeps the fused probability from
-0.005 to 0.995 by 0.005. Both arms' thresholds are read on the scored split, so this compares the two
+0.01 to 0.99 by 0.01, the same step as the threshold-only arm, so neither arm gets a finer grid. Both arms' thresholds are read on the scored split, so this compares the two
 rankings at one operating precision; the fused weights come from sao_paulo only. The bootstrap is
 selection aware: each of the 2,000 pano draws recomputes the precision bar and re-picks both arms'
 thresholds.
 
 **Fully held out ("deployed").** The fused threshold is also fixed on sao_paulo by the same rule:
-the best recall at P ≥ P(RampNet@0.30) there, which is 0.285. The same rule applied to the
+the best recall at P ≥ P(RampNet@0.30) there, which is 0.27. The same rule applied to the
 threshold-only arm on sao_paulo picks 0.30 itself, so RampNet@0.30 is the matched threshold-only
-control. The 0.285 cut is applied unchanged to every other split.
+control. The 0.27 cut is applied unchanged to every other split.
 
 ### Recall at matched precision
 
 | split | precision bar | threshold-only R (t) | fused R (t) | fused − threshold-only |
 |---|--:|--:|--:|--:|
-| richmond | 0.902 | 0.829 (0.33) | 0.823 (0.505) | −0.006 [−0.032, +0.024] |
-| bend | 0.924 | 0.823 (0.30) | 0.832 (0.405) | +0.009 [−0.026, +0.043] |
-| clovis | 0.851 | 0.821 (0.30) | 0.821 (0.365) | +0.000 [−0.048, +0.041] |
-| morgantown | 0.888 | 0.805 (0.32) | 0.809 (0.335) | +0.004 [−0.015, +0.038] |
-| annapolis | 0.901 | 0.809 (0.30) | 0.861 (0.290) | +0.051 [+0.014, +0.075] |
-| paterson | 0.950 | 0.719 (0.30) | 0.732 (0.375) | +0.013 [−0.027, +0.028] |
-| gainesville | 0.857 | 0.772 (0.30) | 0.783 (0.460) | +0.011 [−0.025, +0.065] |
-| laurens_mapillary | 0.885 | 0.526 (0.30) | 0.659 (0.180) | +0.133 [+0.035, +0.193] |
-| laurens_gsv (same-town control) | 0.923 | 0.654 (0.30) | 0.677 (0.380) | +0.023 [−0.086, +0.095] |
-| bayonne | 0.754 | 0.498 (0.30) | 0.578 (0.225) | +0.080 [+0.003, +0.127] |
-| budapest_district5 | 0.707 | 0.643 (0.31) | 0.647 (0.350) | +0.003 [−0.033, +0.030] |
-| juneau | 0.911 | 0.761 (0.30) | 0.758 (0.360) | −0.003 [−0.051, +0.025] |
-| sao_paulo (dev, fitted here) | 0.803 | 0.797 (0.30) | 0.819 (0.285) | +0.021 [−0.017, +0.064] |
-| manual_gold | 0.912 | 0.892 (0.30) | 0.893 (0.400) | +0.001 [−0.005, +0.006] |
-| **open pooled** (4 non-GSV) | 0.806 | 0.610 (0.30) | 0.635 (0.320) | **+0.024 [+0.003, +0.054]** |
-| **GoPro Max pooled** | 0.810 | 0.511 (0.30) | 0.607 (0.220) | +0.096 [+0.043, +0.144] |
-| **reference pooled** | 0.900 | 0.793 (0.30) | 0.805 (0.375) | +0.012 [+0.001, +0.023] |
-| **all 13 held-out splits pooled** | 0.895 | 0.813 (0.30) | 0.821 (0.370) | +0.007 [+0.000, +0.013] |
+| richmond | 0.902 | 0.829 (0.33) | 0.823 (0.49) | −0.006 [−0.032, +0.024] |
+| bend | 0.924 | 0.823 (0.30) | 0.829 (0.41) | +0.006 [−0.027, +0.043] |
+| clovis | 0.851 | 0.821 (0.30) | 0.821 (0.36) | +0.000 [−0.052, +0.041] |
+| morgantown | 0.888 | 0.805 (0.32) | 0.809 (0.34) | +0.004 [−0.015, +0.033] |
+| annapolis | 0.901 | 0.809 (0.30) | 0.861 (0.29) | +0.051 [+0.013, +0.075] |
+| paterson | 0.950 | 0.719 (0.30) | 0.729 (0.38) | +0.010 [−0.027, +0.027] |
+| gainesville | 0.857 | 0.772 (0.30) | 0.783 (0.46) | +0.011 [−0.025, +0.065] |
+| laurens_mapillary | 0.885 | 0.526 (0.30) | 0.659 (0.18) | +0.133 [+0.035, +0.192] |
+| laurens_gsv (same-town control) | 0.923 | 0.654 (0.30) | 0.677 (0.38) | +0.023 [−0.090, +0.094] |
+| bayonne | 0.754 | 0.498 (0.30) | 0.578 (0.22) | +0.080 [+0.003, +0.126] |
+| budapest_district5 | 0.707 | 0.643 (0.31) | 0.647 (0.35) | +0.003 [−0.034, +0.029] |
+| juneau | 0.911 | 0.761 (0.30) | 0.758 (0.36) | −0.003 [−0.051, +0.024] |
+| sao_paulo (dev, fitted here) | 0.803 | 0.797 (0.30) | 0.819 (0.27) | +0.021 [−0.018, +0.061] |
+| manual_gold | 0.912 | 0.892 (0.30) | 0.893 (0.40) | +0.001 [−0.005, +0.006] |
+| **open pooled** (4 non-GSV) | 0.806 | 0.610 (0.30) | 0.635 (0.32) | **+0.024 [+0.002, +0.054]** |
+| **GoPro Max pooled** | 0.810 | 0.511 (0.30) | 0.607 (0.22) | +0.096 [+0.042, +0.143] |
+| **reference pooled** | 0.900 | 0.793 (0.30) | 0.803 (0.39) | +0.010 [+0.001, +0.023] |
+| **all 13 held-out splits pooled** | 0.895 | 0.813 (0.30) | 0.821 (0.37) | +0.007 [−0.000, +0.012] |
 
-### Deployed: the sao_paulo cut (0.285) applied unchanged, against RampNet@0.30
+### Deployed: the sao_paulo cut (0.27) applied unchanged, against RampNet@0.30
 
 | split | RampNet@0.30 P / R / F1 | fused P / R / F1 | ΔP | ΔR | ΔF1 |
 |---|--:|--:|--:|--:|--:|
-| richmond | 0.902 / 0.829 / 0.864 | 0.844 / 0.852 / 0.848 | −0.058 [−0.093, −0.025] | +0.023 [+0.006, +0.042] | −0.016 [−0.038, +0.004] |
-| bend | 0.924 / 0.823 / 0.871 | 0.906 / 0.859 / 0.882 | −0.018 [−0.038, +0.003] | +0.037 [+0.013, +0.063] | +0.012 [−0.003, +0.028] |
+| richmond | 0.902 / 0.829 / 0.864 | 0.838 / 0.852 / 0.845 | −0.064 [−0.099, −0.032] | +0.023 [+0.006, +0.042] | −0.019 [−0.040, +0.002] |
+| bend | 0.924 / 0.823 / 0.871 | 0.901 / 0.859 / 0.879 | −0.024 [−0.045, −0.003] | +0.037 [+0.013, +0.063] | +0.009 [−0.006, +0.025] |
 | clovis | 0.851 / 0.821 / 0.836 | 0.810 / 0.831 / 0.820 | −0.041 [−0.080, −0.002] | +0.010 [−0.025, +0.046] | −0.015 [−0.042, +0.011] |
-| morgantown | 0.888 / 0.805 / 0.845 | 0.875 / 0.813 / 0.843 | −0.013 [−0.052, +0.031] | +0.007 [−0.011, +0.027] | −0.002 [−0.023, +0.021] |
-| annapolis | 0.901 / 0.809 / 0.853 | 0.904 / 0.861 / 0.881 | +0.002 [−0.025, +0.030] | +0.051 [+0.029, +0.073] | +0.029 [+0.011, +0.048] |
+| morgantown | 0.888 / 0.805 / 0.845 | 0.872 / 0.817 / 0.843 | −0.016 [−0.056, +0.028] | +0.011 [−0.008, +0.030] | −0.002 [−0.023, +0.021] |
+| annapolis | 0.901 / 0.809 / 0.853 | 0.897 / 0.864 / 0.880 | −0.004 [−0.033, +0.025] | +0.054 [+0.032, +0.077] | +0.027 [+0.008, +0.047] |
 | paterson | 0.950 / 0.719 / 0.818 | 0.942 / 0.734 / 0.825 | −0.008 [−0.025, +0.007] | +0.015 [+0.000, +0.032] | +0.007 [−0.005, +0.019] |
-| gainesville | 0.857 / 0.772 / 0.812 | 0.821 / 0.827 / 0.824 | −0.036 [−0.070, −0.001] | +0.055 [+0.026, +0.087] | +0.012 [−0.011, +0.036] |
-| laurens_mapillary | 0.885 / 0.526 / 0.660 | 0.898 / 0.602 / 0.721 | +0.013 [−0.012, +0.040] | +0.076 [+0.039, +0.119] | +0.061 [+0.031, +0.095] |
-| laurens_gsv (same-town control) | 0.923 / 0.654 / 0.766 | 0.914 / 0.723 / 0.807 | −0.009 [−0.033, +0.019] | +0.068 [+0.031, +0.108] | +0.041 [+0.015, +0.068] |
-| bayonne | 0.754 / 0.498 / 0.600 | 0.789 / 0.548 / 0.647 | +0.036 [−0.003, +0.077] | +0.050 [+0.013, +0.086] | +0.047 [+0.015, +0.080] |
-| budapest_district5 | 0.707 / 0.643 / 0.674 | 0.670 / 0.663 / 0.667 | −0.037 [−0.072, −0.003] | +0.020 [+0.000, +0.040] | −0.007 [−0.029, +0.014] |
-| juneau | 0.911 / 0.761 / 0.829 | 0.887 / 0.768 / 0.823 | −0.024 [−0.046, −0.005] | +0.007 [−0.022, +0.035] | −0.006 [−0.027, +0.012] |
-| sao_paulo (dev, fitted here) | 0.803 / 0.797 / 0.800 | 0.807 / 0.819 / 0.813 | +0.004 [−0.022, +0.035] | +0.021 [−0.008, +0.053] | +0.013 [−0.007, +0.037] |
-| manual_gold | 0.912 / 0.892 / 0.902 | 0.895 / 0.901 / 0.898 | −0.017 [−0.023, −0.010] | +0.009 [+0.005, +0.014] | −0.004 [−0.008, +0.000] |
-| **open pooled** (4 non-GSV) | 0.806 / 0.610 / 0.695 | 0.798 / 0.647 / 0.715 | −0.009 [−0.025, +0.009] | +0.037 [+0.021, +0.053] | +0.020 [+0.007, +0.034] |
-| **GoPro Max pooled** | 0.810 / 0.511 / 0.626 | 0.838 / 0.573 / 0.680 | +0.028 [+0.000, +0.057] | +0.062 [+0.035, +0.092] | +0.054 [+0.031, +0.080] |
-| **reference pooled** | 0.900 / 0.793 / 0.843 | 0.875 / 0.821 / 0.848 | −0.025 [−0.036, −0.013] | +0.029 [+0.020, +0.038] | +0.004 [−0.003, +0.012] |
-| **all 13 held-out splits pooled** | 0.895 / 0.813 / 0.852 | 0.877 / 0.834 / 0.855 | −0.018 [−0.024, −0.013] | +0.021 [+0.016, +0.025] | +0.003 [−0.001, +0.006] |
+| gainesville | 0.857 / 0.772 / 0.812 | 0.819 / 0.831 / 0.825 | −0.038 [−0.073, −0.002] | +0.059 [+0.029, +0.092] | +0.012 [−0.012, +0.037] |
+| laurens_mapillary | 0.885 / 0.526 / 0.660 | 0.900 / 0.615 / 0.730 | +0.015 [−0.010, +0.042] | +0.088 [+0.048, +0.135] | +0.070 [+0.037, +0.106] |
+| laurens_gsv (same-town control) | 0.923 / 0.654 / 0.766 | 0.909 / 0.723 / 0.805 | −0.015 [−0.040, +0.015] | +0.068 [+0.031, +0.108] | +0.039 [+0.013, +0.066] |
+| bayonne | 0.754 / 0.498 / 0.600 | 0.783 / 0.551 / 0.647 | +0.029 [−0.009, +0.071] | +0.053 [+0.015, +0.089] | +0.047 [+0.014, +0.080] |
+| budapest_district5 | 0.707 / 0.643 / 0.674 | 0.661 / 0.663 / 0.662 | −0.046 [−0.084, −0.010] | +0.020 [+0.000, +0.040] | −0.011 [−0.034, +0.010] |
+| juneau | 0.911 / 0.761 / 0.829 | 0.888 / 0.771 / 0.825 | −0.024 [−0.046, −0.005] | +0.010 [−0.019, +0.041] | −0.004 [−0.025, +0.016] |
+| sao_paulo (dev, fitted here) | 0.803 / 0.797 / 0.800 | 0.804 / 0.819 / 0.811 | +0.001 [−0.025, +0.032] | +0.021 [−0.008, +0.053] | +0.011 [−0.009, +0.035] |
+| manual_gold | 0.912 / 0.892 / 0.902 | 0.891 / 0.902 / 0.896 | −0.021 [−0.027, −0.015] | +0.010 [+0.005, +0.014] | −0.005 [−0.009, −0.001] |
+| **open pooled** (4 non-GSV) | 0.806 / 0.610 / 0.695 | 0.794 / 0.651 / 0.716 | −0.013 [−0.030, +0.006] | +0.041 [+0.025, +0.057] | +0.021 [+0.007, +0.035] |
+| **GoPro Max pooled** | 0.810 / 0.511 / 0.626 | 0.835 / 0.580 / 0.684 | +0.025 [−0.001, +0.054] | +0.069 [+0.042, +0.099] | +0.058 [+0.034, +0.084] |
+| **reference pooled** | 0.900 / 0.793 / 0.843 | 0.872 / 0.823 / 0.847 | −0.028 [−0.040, −0.017] | +0.030 [+0.022, +0.040] | +0.004 [−0.004, +0.011] |
+| **all 13 held-out splits pooled** | 0.895 / 0.813 / 0.852 | 0.873 / 0.835 / 0.854 | −0.022 [−0.028, −0.017] | +0.022 [+0.018, +0.027] | +0.002 [−0.002, +0.005] |
 
 ### Reading step 3
 
-- **At matched precision the fused rule buys recall on the open pool, +0.024 [+0.003, +0.054], and
-  little elsewhere:** +0.012 [+0.001, +0.023] on the reference pool, +0.007 [+0.000, +0.013] over all
+- **At matched precision the fused rule buys recall on the open pool, +0.024 [+0.002, +0.054], and
+  little elsewhere:** +0.010 [+0.001, +0.023] on the reference pool, +0.007 [−0.000, +0.012] over all
   13 held-out splits, +0.001 [−0.005, +0.006] on manual_gold. The GoPro Max pool's +0.096 is led by
-  laurens_mapillary (+0.133), but bayonne gains too here (+0.080 [+0.003, +0.127]), unlike in the
+  laurens_mapillary (+0.133), but bayonne gains too here (+0.080 [+0.003, +0.126]), unlike in the
   AUC tables; budapest_district5 and juneau do not.
-- **Deployed with the sao_paulo cut,** the open pool gains +0.037 recall and +0.020 [+0.007, +0.034]
-  F1 at unchanged precision. On the reference pool and manual_gold the same cut trades precision for
+- **Deployed with the sao_paulo cut,** the open pool gains +0.041 recall and +0.021 [+0.007, +0.035]
+  F1, with precision −0.013 [−0.030, +0.006]. On the reference pool and manual_gold the same cut trades precision for
   recall and F1 is flat. The cut is one number fitted on one split, so where a split's precision
-  falls (richmond −0.058) it is that threshold, not the weights, that moved it.
-- **laurens_gsv gains when deployed** (+0.041 F1) but not at matched precision (+0.023
-  [−0.086, +0.095]), so on laurens_gsv the deployed gain is mostly a lower effective threshold.
+  falls (richmond −0.064) it is that threshold, not the weights, that moved it.
+- **laurens_gsv gains when deployed** (+0.039 F1) but not at matched precision (+0.023
+  [−0.090, +0.094]), so on laurens_gsv the deployed gain is mostly a lower effective threshold.
 - **Cost.** Validator wall-clock on klone (from the job log, one L40S) per ramp the deployed rule
-  adds over RampNet@0.30: 6.2 s on the open pool (259 s for +42 TP), 2.6 s on laurens_mapillary, and
-  9.6 s over all 13 held-out splits (1,452 s for +152 TP). $0, on klone's ckpt partition; the
+  adds over RampNet@0.30: 5.5 s on the open pool (259 s for +47 TP), 2.3 s on laurens_mapillary, and
+  8.9 s over all 13 held-out splits (1,452 s for +163 TP). $0, on klone's ckpt partition; the
   GPU-hours are the 42152480 ledger row.
 - **Caveats.** Every caveat of the candidate labels applies. The sub-threshold TP lower bound
   penalizes the fused rule, which admits sub-threshold peaks, and not RampNet@0.30. The fusion was

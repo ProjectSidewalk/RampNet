@@ -32,7 +32,7 @@ exactly, to both arms, on the same split:
 
 * ``threshold_only``: RampNet alone, every threshold in ``cascade_cost_35.THR_SWEEP``
   (0.05 to 0.95 by 0.01); its best recall at P >= P(RampNet@0.30).
-* ``fused``: the fused probability, thresholds 0.005 to 0.995 by 0.005; its best
+* ``fused``: the fused probability, thresholds 0.01 to 0.99 by 0.01 (the same step); its best
   recall at the same precision bar.
 
 The difference is ``fused - threshold_only`` recall at matched precision. Reading both
@@ -92,7 +92,8 @@ JOB_LOG = os.path.join(REPO, "docs", "data", "validator_258_42152480.log")
 DEFAULT_OUT = os.path.join(OUT, "verifier_258", "validator_fusion.json")
 DEV_SPLIT = "sao_paulo"
 OPERATING_POINT = 0.30
-FUSED_GRID = tuple(round(0.005 * i, 3) for i in range(1, 200))
+#: Same 0.01 step as cascade_cost_35.THR_SWEEP, so neither arm gets a finer grid.
+FUSED_GRID = tuple(round(0.01 * i, 2) for i in range(1, 100))
 PRODUCTION_FLOORS = (0.05, 0.30)
 EPS = 1e-6
 B = 2000
@@ -359,7 +360,7 @@ def build(splits):
                          "deployed_threshold": tau,
                          "deployed_threshold_rule": "best recall at P >= P(RampNet@0.30) on sao_paulo"},
               "grids": {"threshold_only": [THR_SWEEP[0], THR_SWEEP[-1], 0.01],
-                        "fused": [FUSED_GRID[0], FUSED_GRID[-1], 0.005]},
+                        "fused": [FUSED_GRID[0], FUSED_GRID[-1], 0.01]},
               "op_cache_note": OP_CACHE_NOTE,
               "validator_seconds_source": "docs/data/validator_258_42152480.log",
               "splits": {}, "pooled": {}}
