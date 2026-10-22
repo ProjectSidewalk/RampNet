@@ -1,0 +1,1904 @@
+{
+ "bootstrap": {
+  "B": 2000,
+  "matched_precision": "selection aware: bar and thresholds re-picked per draw",
+  "seed": 258,
+  "unit": "pano"
+ },
+ "dev_split": "sao_paulo",
+ "fusion": {
+  "coef": {
+   "intercept": -0.0309,
+   "logit_rampnet": 1.1829,
+   "logit_validator": 0.2004
+  },
+  "deployed_threshold": 0.285,
+  "deployed_threshold_rule": "best recall at P >= P(RampNet@0.30) on sao_paulo",
+  "fit": "unpenalized ML (IRLS) on sao_paulo tp/fp candidates, redundant kept",
+  "model": "logistic: sigmoid(b0 + b1*logit(rampnet) + b2*logit(validator))",
+  "n_fit": 462,
+  "n_fit_tp": 244
+ },
+ "grids": {
+  "fused": [
+   0.005,
+   0.995,
+   0.005
+  ],
+  "threshold_only": [
+   0.05,
+   0.95,
+   0.01
+  ]
+ },
+ "op_cache_note": "op_cache written at c7098be (2026-07-28), before the seam fix f4c71c8: pre-f4c71c8 seam strip, peaks beside the seam can be missing, so any seam-side gain is under-stated",
+ "operating_point": 0.3,
+ "pooled": {
+  "gopro_max": {
+   "delta_recall": 0.0964,
+   "delta_recall_ci": [
+    0.0425,
+    0.1436
+   ],
+   "deployed": {
+    "delta_f1": 0.0538,
+    "delta_f1_ci": [
+     0.0309,
+     0.0804
+    ],
+    "delta_precision": 0.028,
+    "delta_precision_ci": [
+     0.0004,
+     0.0567
+    ],
+    "delta_recall": 0.0618,
+    "delta_recall_ci": [
+     0.0352,
+     0.0917
+    ],
+    "f1": 0.6803,
+    "fp": 61,
+    "precision": 0.8378,
+    "recall": 0.5727,
+    "recall_n_gt": 550,
+    "recall_tp": 315,
+    "threshold": 0.285,
+    "tp": 315
+   },
+   "fused": {
+    "f1": 0.6966,
+    "fp": 75,
+    "precision": 0.8166,
+    "recall": 0.6073,
+    "recall_n_gt": 550,
+    "recall_tp": 334,
+    "threshold": 0.22,
+    "tp": 334
+   },
+   "fused_recall_ci": [
+    0.5504,
+    0.6654
+   ],
+   "members": [
+    "laurens_mapillary",
+    "bayonne"
+   ],
+   "precision_bar": 0.8098,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": 0.0282,
+     "delta_f1_ci": [
+      -0.0099,
+      0.0656
+     ],
+     "f1": 0.6548,
+     "fp": 128,
+     "precision": 0.7205,
+     "recall": 0.6,
+     "recall_n_gt": 550,
+     "recall_tp": 330,
+     "tp": 330
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0418,
+     "delta_f1_ci": [
+      -0.0648,
+      -0.0205
+     ],
+     "f1": 0.5848,
+     "fp": 26,
+     "precision": 0.9015,
+     "recall": 0.4327,
+     "recall_n_gt": 550,
+     "recall_tp": 238,
+     "tp": 238
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.6265,
+    "fp": 66,
+    "precision": 0.8098,
+    "recall": 0.5109,
+    "recall_n_gt": 550,
+    "recall_tp": 281,
+    "tp": 281
+   },
+   "threshold_only": {
+    "f1": 0.6265,
+    "fp": 66,
+    "precision": 0.8098,
+    "recall": 0.5109,
+    "recall_n_gt": 550,
+    "recall_tp": 281,
+    "threshold": 0.3,
+    "tp": 281
+   },
+   "threshold_only_recall_ci": [
+    0.4675,
+    0.5684
+   ]
+  },
+  "held_out_all": {
+   "delta_recall": 0.0075,
+   "delta_recall_ci": [
+    0.0003,
+    0.0128
+   ],
+   "deployed": {
+    "delta_f1": 0.0027,
+    "delta_f1_ci": [
+     -0.001,
+     0.0062
+    ],
+    "delta_precision": -0.0181,
+    "delta_precision_ci": [
+     -0.0237,
+     -0.0128
+    ],
+    "delta_recall": 0.0207,
+    "delta_recall_ci": [
+     0.0163,
+     0.025
+    ],
+    "f1": 0.8549,
+    "fp": 858,
+    "precision": 0.8771,
+    "recall": 0.8338,
+    "recall_n_gt": 7346,
+    "recall_tp": 6125,
+    "threshold": 0.285,
+    "tp": 6125
+   },
+   "fused": {
+    "f1": 0.8563,
+    "fp": 705,
+    "precision": 0.8953,
+    "recall": 0.8206,
+    "recall_n_gt": 7346,
+    "recall_tp": 6028,
+    "threshold": 0.37,
+    "tp": 6028
+   },
+   "fused_recall_ci": [
+    0.8072,
+    0.8316
+   ],
+   "members": [
+    "richmond",
+    "bend",
+    "clovis",
+    "morgantown",
+    "annapolis",
+    "paterson",
+    "gainesville",
+    "laurens_mapillary",
+    "juneau",
+    "laurens_gsv",
+    "budapest_district5",
+    "bayonne",
+    "manual_gold"
+   ],
+   "precision_bar": 0.8952,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0388,
+     "delta_f1_ci": [
+      -0.0447,
+      -0.0326
+     ],
+     "f1": 0.8133,
+     "fp": 1475,
+     "precision": 0.8039,
+     "recall": 0.823,
+     "recall_n_gt": 7346,
+     "recall_tp": 6046,
+     "tp": 6046
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0127,
+     "delta_f1_ci": [
+      -0.0165,
+      -0.0092
+     ],
+     "f1": 0.8395,
+     "fp": 477,
+     "precision": 0.9223,
+     "recall": 0.7704,
+     "recall_n_gt": 7346,
+     "recall_tp": 5659,
+     "tp": 5659
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8522,
+    "fp": 699,
+    "precision": 0.8952,
+    "recall": 0.8131,
+    "recall_n_gt": 7346,
+    "recall_tp": 5973,
+    "tp": 5973
+   },
+   "threshold_only": {
+    "f1": 0.8522,
+    "fp": 699,
+    "precision": 0.8952,
+    "recall": 0.8131,
+    "recall_n_gt": 7346,
+    "recall_tp": 5973,
+    "threshold": 0.3,
+    "tp": 5973
+   },
+   "threshold_only_recall_ci": [
+    0.8012,
+    0.8239
+   ]
+  },
+  "open": {
+   "delta_recall": 0.0244,
+   "delta_recall_ci": [
+    0.0027,
+    0.0545
+   ],
+   "deployed": {
+    "delta_f1": 0.0197,
+    "delta_f1_ci": [
+     0.0075,
+     0.034
+    ],
+    "delta_precision": -0.0086,
+    "delta_precision_ci": [
+     -0.0247,
+     0.0088
+    ],
+    "delta_recall": 0.0366,
+    "delta_recall_ci": [
+     0.0213,
+     0.0528
+    ],
+    "f1": 0.7145,
+    "fp": 188,
+    "precision": 0.7978,
+    "recall": 0.6469,
+    "recall_n_gt": 1147,
+    "recall_tp": 742,
+    "threshold": 0.285,
+    "tp": 742
+   },
+   "fused": {
+    "f1": 0.7109,
+    "fp": 173,
+    "precision": 0.808,
+    "recall": 0.6347,
+    "recall_n_gt": 1147,
+    "recall_tp": 728,
+    "threshold": 0.32,
+    "tp": 728
+   },
+   "fused_recall_ci": [
+    0.5997,
+    0.6759
+   ],
+   "members": [
+    "laurens_mapillary",
+    "bayonne",
+    "budapest_district5",
+    "juneau"
+   ],
+   "precision_bar": 0.8065,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0314,
+     "delta_f1_ci": [
+      -0.0545,
+      -0.0072
+     ],
+     "f1": 0.6634,
+     "fp": 346,
+     "precision": 0.6817,
+     "recall": 0.646,
+     "recall_n_gt": 1147,
+     "recall_tp": 741,
+     "tp": 741
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.04,
+     "delta_f1_ci": [
+      -0.055,
+      -0.0254
+     ],
+     "f1": 0.6547,
+     "fp": 94,
+     "precision": 0.8653,
+     "recall": 0.5266,
+     "recall_n_gt": 1147,
+     "recall_tp": 604,
+     "tp": 604
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.6948,
+    "fp": 168,
+    "precision": 0.8065,
+    "recall": 0.6103,
+    "recall_n_gt": 1147,
+    "recall_tp": 700,
+    "tp": 700
+   },
+   "threshold_only": {
+    "f1": 0.6948,
+    "fp": 168,
+    "precision": 0.8065,
+    "recall": 0.6103,
+    "recall_n_gt": 1147,
+    "recall_tp": 700,
+    "threshold": 0.3,
+    "tp": 700
+   },
+   "threshold_only_recall_ci": [
+    0.5749,
+    0.6465
+   ]
+  },
+  "reference": {
+   "delta_recall": 0.0121,
+   "delta_recall_ci": [
+    0.0009,
+    0.0227
+   ],
+   "deployed": {
+    "delta_f1": 0.0044,
+    "delta_f1_ci": [
+     -0.0027,
+     0.0123
+    ],
+    "delta_precision": -0.0249,
+    "delta_precision_ci": [
+     -0.036,
+     -0.0134
+    ],
+    "delta_recall": 0.0286,
+    "delta_recall_ci": [
+     0.0201,
+     0.038
+    ],
+    "f1": 0.8475,
+    "fp": 241,
+    "precision": 0.8753,
+    "recall": 0.8214,
+    "recall_n_gt": 2060,
+    "recall_tp": 1692,
+    "threshold": 0.285,
+    "tp": 1692
+   },
+   "fused": {
+    "f1": 0.8503,
+    "fp": 182,
+    "precision": 0.9011,
+    "recall": 0.8049,
+    "recall_n_gt": 2060,
+    "recall_tp": 1658,
+    "threshold": 0.375,
+    "tp": 1658
+   },
+   "fused_recall_ci": [
+    0.7827,
+    0.8254
+   ],
+   "members": [
+    "richmond",
+    "bend",
+    "clovis",
+    "morgantown",
+    "annapolis",
+    "paterson",
+    "gainesville"
+   ],
+   "precision_bar": 0.9002,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0438,
+     "delta_f1_ci": [
+      -0.0567,
+      -0.0309
+     ],
+     "f1": 0.7992,
+     "fp": 458,
+     "precision": 0.7854,
+     "recall": 0.8136,
+     "recall_n_gt": 2060,
+     "recall_tp": 1676,
+     "tp": 1676
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0116,
+     "delta_f1_ci": [
+      -0.0186,
+      -0.0044
+     ],
+     "f1": 0.8314,
+     "fp": 110,
+     "precision": 0.9335,
+     "recall": 0.7495,
+     "recall_n_gt": 2060,
+     "recall_tp": 1544,
+     "tp": 1544
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8431,
+    "fp": 181,
+    "precision": 0.9002,
+    "recall": 0.7927,
+    "recall_n_gt": 2060,
+    "recall_tp": 1633,
+    "tp": 1633
+   },
+   "threshold_only": {
+    "f1": 0.8431,
+    "fp": 181,
+    "precision": 0.9002,
+    "recall": 0.7927,
+    "recall_n_gt": 2060,
+    "recall_tp": 1633,
+    "threshold": 0.3,
+    "tp": 1633
+   },
+   "threshold_only_recall_ci": [
+    0.7718,
+    0.8121
+   ]
+  }
+ },
+ "script": "scripts/analysis/validator_fusion_258.py",
+ "splits": {
+  "annapolis": {
+   "delta_recall": 0.051,
+   "delta_recall_ci": [
+    0.0136,
+    0.0754
+   ],
+   "deployed": {
+    "delta_f1": 0.0285,
+    "delta_f1_ci": [
+     0.0107,
+     0.048
+    ],
+    "delta_precision": 0.0021,
+    "delta_precision_ci": [
+     -0.025,
+     0.0305
+    ],
+    "delta_recall": 0.051,
+    "delta_recall_ci": [
+     0.029,
+     0.0732
+    ],
+    "f1": 0.8815,
+    "fp": 27,
+    "precision": 0.9036,
+    "recall": 0.8605,
+    "recall_n_gt": 294,
+    "recall_tp": 253,
+    "threshold": 0.285,
+    "tp": 253
+   },
+   "fused": {
+    "f1": 0.8831,
+    "fp": 26,
+    "precision": 0.9068,
+    "recall": 0.8605,
+    "recall_n_gt": 294,
+    "recall_tp": 253,
+    "threshold": 0.29,
+    "tp": 253
+   },
+   "fused_recall_ci": [
+    0.7945,
+    0.9098
+   ],
+   "held_out": true,
+   "precision_bar": 0.9015,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0249,
+     "delta_f1_ci": [
+      -0.0595,
+      0.0099
+     ],
+     "f1": 0.8282,
+     "fp": 64,
+     "precision": 0.7981,
+     "recall": 0.8605,
+     "recall_n_gt": 294,
+     "recall_tp": 253,
+     "tp": 253
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0029,
+     "delta_f1_ci": [
+      -0.0194,
+      0.0138
+     ],
+     "f1": 0.8502,
+     "fp": 13,
+     "precision": 0.9458,
+     "recall": 0.7721,
+     "recall_n_gt": 294,
+     "recall_tp": 227,
+     "tp": 227
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.853,
+    "fp": 26,
+    "precision": 0.9015,
+    "recall": 0.8095,
+    "recall_n_gt": 294,
+    "recall_tp": 238,
+    "tp": 238
+   },
+   "threshold_only": {
+    "f1": 0.853,
+    "fp": 26,
+    "precision": 0.9015,
+    "recall": 0.8095,
+    "recall_n_gt": 294,
+    "recall_tp": 238,
+    "threshold": 0.3,
+    "tp": 238
+   },
+   "threshold_only_recall_ci": [
+    0.7532,
+    0.8644
+   ],
+   "validator_seconds": 63
+  },
+  "bayonne": {
+   "delta_recall": 0.0797,
+   "delta_recall_ci": [
+    0.0032,
+    0.127
+   ],
+   "deployed": {
+    "delta_f1": 0.0471,
+    "delta_f1_ci": [
+     0.015,
+     0.0796
+    ],
+    "delta_precision": 0.0357,
+    "delta_precision_ci": [
+     -0.0034,
+     0.0772
+    ],
+    "delta_recall": 0.0498,
+    "delta_recall_ci": [
+     0.0134,
+     0.0858
+    ],
+    "f1": 0.6471,
+    "fp": 44,
+    "precision": 0.7895,
+    "recall": 0.5482,
+    "recall_n_gt": 301,
+    "recall_tp": 165,
+    "threshold": 0.285,
+    "tp": 165
+   },
+   "fused": {
+    "f1": 0.6578,
+    "fp": 54,
+    "precision": 0.7632,
+    "recall": 0.5781,
+    "recall_n_gt": 301,
+    "recall_tp": 174,
+    "threshold": 0.225,
+    "tp": 174
+   },
+   "fused_recall_ci": [
+    0.4985,
+    0.6471
+   ],
+   "held_out": true,
+   "precision_bar": 0.7538,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0113,
+     "delta_f1_ci": [
+      -0.0636,
+      0.0382
+     ],
+     "f1": 0.5887,
+     "fp": 97,
+     "precision": 0.6312,
+     "recall": 0.5515,
+     "recall_n_gt": 301,
+     "recall_tp": 166,
+     "tp": 166
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0487,
+     "delta_f1_ci": [
+      -0.0831,
+      -0.0158
+     ],
+     "f1": 0.5513,
+     "fp": 17,
+     "precision": 0.8768,
+     "recall": 0.402,
+     "recall_n_gt": 301,
+     "recall_tp": 121,
+     "tp": 121
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.6,
+    "fp": 49,
+    "precision": 0.7538,
+    "recall": 0.4983,
+    "recall_n_gt": 301,
+    "recall_tp": 150,
+    "tp": 150
+   },
+   "threshold_only": {
+    "f1": 0.6,
+    "fp": 49,
+    "precision": 0.7538,
+    "recall": 0.4983,
+    "recall_n_gt": 301,
+    "recall_tp": 150,
+    "threshold": 0.3,
+    "tp": 150
+   },
+   "threshold_only_recall_ci": [
+    0.4369,
+    0.5882
+   ],
+   "validator_seconds": 72
+  },
+  "bend": {
+   "delta_recall": 0.0092,
+   "delta_recall_ci": [
+    -0.0262,
+    0.0431
+   ],
+   "deployed": {
+    "delta_f1": 0.0117,
+    "delta_f1_ci": [
+     -0.0034,
+     0.0283
+    ],
+    "delta_precision": -0.0179,
+    "delta_precision_ci": [
+     -0.0384,
+     0.003
+    ],
+    "delta_recall": 0.0367,
+    "delta_recall_ci": [
+     0.0128,
+     0.063
+    ],
+    "f1": 0.8823,
+    "fp": 29,
+    "precision": 0.9065,
+    "recall": 0.8593,
+    "recall_n_gt": 327,
+    "recall_tp": 281,
+    "threshold": 0.285,
+    "tp": 281
+   },
+   "fused": {
+    "f1": 0.876,
+    "fp": 22,
+    "precision": 0.9252,
+    "recall": 0.8318,
+    "recall_n_gt": 327,
+    "recall_tp": 272,
+    "threshold": 0.405,
+    "tp": 272
+   },
+   "fused_recall_ci": [
+    0.7697,
+    0.887
+   ],
+   "held_out": true,
+   "precision_bar": 0.9244,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0165,
+     "delta_f1_ci": [
+      -0.0421,
+      0.0068
+     ],
+     "f1": 0.8541,
+     "fp": 46,
+     "precision": 0.858,
+     "recall": 0.8502,
+     "recall_n_gt": 327,
+     "recall_tp": 278,
+     "tp": 278
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0082,
+     "delta_f1_ci": [
+      -0.0223,
+      0.0041
+     ],
+     "f1": 0.8624,
+     "fp": 16,
+     "precision": 0.942,
+     "recall": 0.7951,
+     "recall_n_gt": 327,
+     "recall_tp": 260,
+     "tp": 260
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8706,
+    "fp": 22,
+    "precision": 0.9244,
+    "recall": 0.8226,
+    "recall_n_gt": 327,
+    "recall_tp": 269,
+    "tp": 269
+   },
+   "threshold_only": {
+    "f1": 0.8706,
+    "fp": 22,
+    "precision": 0.9244,
+    "recall": 0.8226,
+    "recall_n_gt": 327,
+    "recall_tp": 269,
+    "threshold": 0.3,
+    "tp": 269
+   },
+   "threshold_only_recall_ci": [
+    0.7708,
+    0.8712
+   ],
+   "validator_seconds": 91
+  },
+  "budapest_district5": {
+   "delta_recall": 0.0033,
+   "delta_recall_ci": [
+    -0.0329,
+    0.03
+   ],
+   "deployed": {
+    "delta_f1": -0.007,
+    "delta_f1_ci": [
+     -0.0285,
+     0.0137
+    ],
+    "delta_precision": -0.0369,
+    "delta_precision_ci": [
+     -0.0723,
+     -0.0026
+    ],
+    "delta_recall": 0.02,
+    "delta_recall_ci": [
+     0.0,
+     0.0404
+    ],
+    "f1": 0.6667,
+    "fp": 98,
+    "precision": 0.67,
+    "recall": 0.6633,
+    "recall_n_gt": 300,
+    "recall_tp": 199,
+    "threshold": 0.285,
+    "tp": 199
+   },
+   "fused": {
+    "f1": 0.676,
+    "fp": 80,
+    "precision": 0.708,
+    "recall": 0.6467,
+    "recall_n_gt": 300,
+    "recall_tp": 194,
+    "threshold": 0.35,
+    "tp": 194
+   },
+   "fused_recall_ci": [
+    0.5714,
+    0.7174
+   ],
+   "held_out": true,
+   "precision_bar": 0.707,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.086,
+     "delta_f1_ci": [
+      -0.1311,
+      -0.0463
+     ],
+     "f1": 0.5877,
+     "fp": 159,
+     "precision": 0.5457,
+     "recall": 0.6367,
+     "recall_n_gt": 300,
+     "recall_tp": 191,
+     "tp": 191
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0326,
+     "delta_f1_ci": [
+      -0.0633,
+      -0.0046
+     ],
+     "f1": 0.6411,
+     "fp": 54,
+     "precision": 0.7557,
+     "recall": 0.5567,
+     "recall_n_gt": 300,
+     "recall_tp": 167,
+     "tp": 167
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.6736,
+    "fp": 80,
+    "precision": 0.707,
+    "recall": 0.6433,
+    "recall_n_gt": 300,
+    "recall_tp": 193,
+    "tp": 193
+   },
+   "threshold_only": {
+    "f1": 0.676,
+    "fp": 78,
+    "precision": 0.7122,
+    "recall": 0.6433,
+    "recall_n_gt": 300,
+    "recall_tp": 193,
+    "threshold": 0.31,
+    "tp": 193
+   },
+   "threshold_only_recall_ci": [
+    0.5805,
+    0.7061
+   ],
+   "validator_seconds": 75
+  },
+  "clovis": {
+   "delta_recall": 0.0,
+   "delta_recall_ci": [
+    -0.0483,
+    0.0412
+   ],
+   "deployed": {
+    "delta_f1": -0.0153,
+    "delta_f1_ci": [
+     -0.0415,
+     0.0113
+    ],
+    "delta_precision": -0.0411,
+    "delta_precision_ci": [
+     -0.0795,
+     -0.0016
+    ],
+    "delta_recall": 0.0103,
+    "delta_recall_ci": [
+     -0.0245,
+     0.0462
+    ],
+    "f1": 0.8203,
+    "fp": 38,
+    "precision": 0.81,
+    "recall": 0.8308,
+    "recall_n_gt": 195,
+    "recall_tp": 162,
+    "threshold": 0.285,
+    "tp": 162
+   },
+   "fused": {
+    "f1": 0.8421,
+    "fp": 25,
+    "precision": 0.8649,
+    "recall": 0.8205,
+    "recall_n_gt": 195,
+    "recall_tp": 160,
+    "threshold": 0.365,
+    "tp": 160
+   },
+   "fused_recall_ci": [
+    0.7488,
+    0.8841
+   ],
+   "held_out": true,
+   "precision_bar": 0.8511,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0971,
+     "delta_f1_ci": [
+      -0.1417,
+      -0.0526
+     ],
+     "f1": 0.7384,
+     "fp": 63,
+     "precision": 0.7056,
+     "recall": 0.7744,
+     "recall_n_gt": 195,
+     "recall_tp": 151,
+     "tp": 151
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0425,
+     "delta_f1_ci": [
+      -0.0807,
+      -0.0058
+     ],
+     "f1": 0.793,
+     "fp": 12,
+     "precision": 0.9189,
+     "recall": 0.6974,
+     "recall_n_gt": 195,
+     "recall_tp": 136,
+     "tp": 136
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8355,
+    "fp": 28,
+    "precision": 0.8511,
+    "recall": 0.8205,
+    "recall_n_gt": 195,
+    "recall_tp": 160,
+    "tp": 160
+   },
+   "threshold_only": {
+    "f1": 0.8355,
+    "fp": 28,
+    "precision": 0.8511,
+    "recall": 0.8205,
+    "recall_n_gt": 195,
+    "recall_tp": 160,
+    "threshold": 0.3,
+    "tp": 160
+   },
+   "threshold_only_recall_ci": [
+    0.755,
+    0.8763
+   ],
+   "validator_seconds": 70
+  },
+  "gainesville": {
+   "delta_recall": 0.011,
+   "delta_recall_ci": [
+    -0.0245,
+    0.0651
+   ],
+   "deployed": {
+    "delta_f1": 0.0118,
+    "delta_f1_ci": [
+     -0.0109,
+     0.0363
+    ],
+    "delta_precision": -0.036,
+    "delta_precision_ci": [
+     -0.0704,
+     -0.0013
+    ],
+    "delta_recall": 0.0551,
+    "delta_recall_ci": [
+     0.0262,
+     0.0873
+    ],
+    "f1": 0.8242,
+    "fp": 49,
+    "precision": 0.8212,
+    "recall": 0.8272,
+    "recall_n_gt": 272,
+    "recall_tp": 225,
+    "threshold": 0.285,
+    "tp": 225
+   },
+   "fused": {
+    "f1": 0.8256,
+    "fp": 31,
+    "precision": 0.873,
+    "recall": 0.7831,
+    "recall_n_gt": 272,
+    "recall_tp": 213,
+    "threshold": 0.46,
+    "tp": 213
+   },
+   "fused_recall_ci": [
+    0.7173,
+    0.85
+   ],
+   "held_out": true,
+   "precision_bar": 0.8571,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0356,
+     "delta_f1_ci": [
+      -0.0766,
+      0.0035
+     ],
+     "f1": 0.7768,
+     "fp": 76,
+     "precision": 0.7441,
+     "recall": 0.8125,
+     "recall_n_gt": 272,
+     "recall_tp": 221,
+     "tp": 221
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0156,
+     "delta_f1_ci": [
+      -0.0393,
+      0.0054
+     ],
+     "f1": 0.7967,
+     "fp": 24,
+     "precision": 0.8909,
+     "recall": 0.7206,
+     "recall_n_gt": 272,
+     "recall_tp": 196,
+     "tp": 196
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8124,
+    "fp": 35,
+    "precision": 0.8571,
+    "recall": 0.7721,
+    "recall_n_gt": 272,
+    "recall_tp": 210,
+    "tp": 210
+   },
+   "threshold_only": {
+    "f1": 0.8124,
+    "fp": 35,
+    "precision": 0.8571,
+    "recall": 0.7721,
+    "recall_n_gt": 272,
+    "recall_tp": 210,
+    "threshold": 0.3,
+    "tp": 210
+   },
+   "threshold_only_recall_ci": [
+    0.7132,
+    0.831
+   ],
+   "validator_seconds": 96
+  },
+  "juneau": {
+   "delta_recall": -0.0034,
+   "delta_recall_ci": [
+    -0.0505,
+    0.0245
+   ],
+   "deployed": {
+    "delta_f1": -0.0063,
+    "delta_f1_ci": [
+     -0.0271,
+     0.0124
+    ],
+    "delta_precision": -0.0241,
+    "delta_precision_ci": [
+     -0.0465,
+     -0.0052
+    ],
+    "delta_recall": 0.0067,
+    "delta_recall_ci": [
+     -0.0218,
+     0.0351
+    ],
+    "f1": 0.8231,
+    "fp": 29,
+    "precision": 0.8872,
+    "recall": 0.7677,
+    "recall_n_gt": 297,
+    "recall_tp": 228,
+    "threshold": 0.285,
+    "tp": 228
+   },
+   "fused": {
+    "f1": 0.8287,
+    "fp": 21,
+    "precision": 0.9146,
+    "recall": 0.7576,
+    "recall_n_gt": 297,
+    "recall_tp": 225,
+    "threshold": 0.36,
+    "tp": 225
+   },
+   "fused_recall_ci": [
+    0.6906,
+    0.8159
+   ],
+   "held_out": true,
+   "precision_bar": 0.9113,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0655,
+     "delta_f1_ci": [
+      -0.1062,
+      -0.0294
+     ],
+     "f1": 0.7639,
+     "fp": 59,
+     "precision": 0.7885,
+     "recall": 0.7407,
+     "recall_n_gt": 297,
+     "recall_tp": 220,
+     "tp": 220
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.049,
+     "delta_f1_ci": [
+      -0.077,
+      -0.0235
+     ],
+     "f1": 0.7804,
+     "fp": 14,
+     "precision": 0.9343,
+     "recall": 0.67,
+     "recall_n_gt": 297,
+     "recall_tp": 199,
+     "tp": 199
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8294,
+    "fp": 22,
+    "precision": 0.9113,
+    "recall": 0.7609,
+    "recall_n_gt": 297,
+    "recall_tp": 226,
+    "tp": 226
+   },
+   "threshold_only": {
+    "f1": 0.8294,
+    "fp": 22,
+    "precision": 0.9113,
+    "recall": 0.7609,
+    "recall_n_gt": 297,
+    "recall_tp": 226,
+    "threshold": 0.3,
+    "tp": 226
+   },
+   "threshold_only_recall_ci": [
+    0.7022,
+    0.8241
+   ],
+   "validator_seconds": 62
+  },
+  "laurens_gsv": {
+   "delta_recall": 0.0227,
+   "delta_recall_ci": [
+    -0.0857,
+    0.0946
+   ],
+   "deployed": {
+    "delta_f1": 0.0411,
+    "delta_f1_ci": [
+     0.0155,
+     0.0682
+    ],
+    "delta_precision": -0.0093,
+    "delta_precision_ci": [
+     -0.0334,
+     0.0186
+    ],
+    "delta_recall": 0.0682,
+    "delta_recall_ci": [
+     0.031,
+     0.1076
+    ],
+    "f1": 0.8071,
+    "fp": 15,
+    "precision": 0.9138,
+    "recall": 0.7227,
+    "recall_n_gt": 220,
+    "recall_tp": 159,
+    "threshold": 0.285,
+    "tp": 159
+   },
+   "fused": {
+    "f1": 0.7822,
+    "fp": 12,
+    "precision": 0.9255,
+    "recall": 0.6773,
+    "recall_n_gt": 220,
+    "recall_tp": 149,
+    "threshold": 0.38,
+    "tp": 149
+   },
+   "fused_recall_ci": [
+    0.5419,
+    0.7945
+   ],
+   "held_out": true,
+   "precision_bar": 0.9231,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": 0.0037,
+     "delta_f1_ci": [
+      -0.042,
+      0.0485
+     ],
+     "f1": 0.7696,
+     "fp": 31,
+     "precision": 0.8351,
+     "recall": 0.7136,
+     "recall_n_gt": 220,
+     "recall_tp": 157,
+     "tp": 157
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0397,
+     "delta_f1_ci": [
+      -0.0715,
+      -0.0149
+     ],
+     "f1": 0.7263,
+     "fp": 8,
+     "precision": 0.942,
+     "recall": 0.5909,
+     "recall_n_gt": 220,
+     "recall_tp": 130,
+     "tp": 130
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.766,
+    "fp": 12,
+    "precision": 0.9231,
+    "recall": 0.6545,
+    "recall_n_gt": 220,
+    "recall_tp": 144,
+    "tp": 144
+   },
+   "threshold_only": {
+    "f1": 0.766,
+    "fp": 12,
+    "precision": 0.9231,
+    "recall": 0.6545,
+    "recall_n_gt": 220,
+    "recall_tp": 144,
+    "threshold": 0.3,
+    "tp": 144
+   },
+   "threshold_only_recall_ci": [
+    0.5721,
+    0.7487
+   ],
+   "validator_seconds": 64
+  },
+  "laurens_mapillary": {
+   "delta_recall": 0.1325,
+   "delta_recall_ci": [
+    0.0354,
+    0.1933
+   ],
+   "deployed": {
+    "delta_f1": 0.0612,
+    "delta_f1_ci": [
+     0.0309,
+     0.0947
+    ],
+    "delta_precision": 0.0131,
+    "delta_precision_ci": [
+     -0.0117,
+     0.0395
+    ],
+    "delta_recall": 0.0763,
+    "delta_recall_ci": [
+     0.0386,
+     0.119
+    ],
+    "f1": 0.7212,
+    "fp": 17,
+    "precision": 0.8982,
+    "recall": 0.6024,
+    "recall_n_gt": 249,
+    "recall_tp": 150,
+    "threshold": 0.285,
+    "tp": 150
+   },
+   "fused": {
+    "f1": 0.7575,
+    "fp": 20,
+    "precision": 0.8913,
+    "recall": 0.6586,
+    "recall_n_gt": 249,
+    "recall_tp": 164,
+    "threshold": 0.18,
+    "tp": 164
+   },
+   "fused_recall_ci": [
+    0.5593,
+    0.74
+   ],
+   "held_out": true,
+   "precision_bar": 0.8851,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": 0.0788,
+     "delta_f1_ci": [
+      0.0272,
+      0.1301
+     ],
+     "f1": 0.7387,
+     "fp": 31,
+     "precision": 0.841,
+     "recall": 0.6586,
+     "recall_n_gt": 249,
+     "recall_tp": 164,
+     "tp": 164
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0359,
+     "delta_f1_ci": [
+      -0.0656,
+      -0.0085
+     ],
+     "f1": 0.624,
+     "fp": 9,
+     "precision": 0.9286,
+     "recall": 0.4699,
+     "recall_n_gt": 249,
+     "recall_tp": 117,
+     "tp": 117
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.6599,
+    "fp": 17,
+    "precision": 0.8851,
+    "recall": 0.5261,
+    "recall_n_gt": 249,
+    "recall_tp": 131,
+    "tp": 131
+   },
+   "threshold_only": {
+    "f1": 0.6599,
+    "fp": 17,
+    "precision": 0.8851,
+    "recall": 0.5261,
+    "recall_n_gt": 249,
+    "recall_tp": 131,
+    "threshold": 0.3,
+    "tp": 131
+   },
+   "threshold_only_recall_ci": [
+    0.4659,
+    0.6189
+   ],
+   "validator_seconds": 50
+  },
+  "manual_gold": {
+   "delta_recall": 0.0005,
+   "delta_recall_ci": [
+    -0.0046,
+    0.0065
+   ],
+   "deployed": {
+    "delta_f1": -0.0037,
+    "delta_f1_ci": [
+     -0.0077,
+     0.0003
+    ],
+    "delta_precision": -0.0168,
+    "delta_precision_ci": [
+     -0.023,
+     -0.0104
+    ],
+    "delta_recall": 0.0092,
+    "delta_recall_ci": [
+     0.0048,
+     0.0136
+    ],
+    "f1": 0.8982,
+    "fp": 414,
+    "precision": 0.8951,
+    "recall": 0.9013,
+    "recall_n_gt": 3919,
+    "recall_tp": 3532,
+    "threshold": 0.285,
+    "tp": 3532
+   },
+   "fused": {
+    "f1": 0.9025,
+    "fp": 335,
+    "precision": 0.9126,
+    "recall": 0.8926,
+    "recall_n_gt": 3919,
+    "recall_tp": 3498,
+    "threshold": 0.4,
+    "tp": 3498
+   },
+   "fused_recall_ci": [
+    0.8814,
+    0.9042
+   ],
+   "held_out": true,
+   "precision_bar": 0.9118,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0372,
+     "delta_f1_ci": [
+      -0.0444,
+      -0.0304
+     ],
+     "f1": 0.8646,
+     "fp": 640,
+     "precision": 0.8444,
+     "recall": 0.8859,
+     "recall_n_gt": 3919,
+     "recall_tp": 3472,
+     "tp": 3472
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.008,
+     "delta_f1_ci": [
+      -0.012,
+      -0.0039
+     ],
+     "f1": 0.8939,
+     "fp": 265,
+     "precision": 0.9273,
+     "recall": 0.8627,
+     "recall_n_gt": 3919,
+     "recall_tp": 3381,
+     "tp": 3381
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.9018,
+    "fp": 338,
+    "precision": 0.9118,
+    "recall": 0.8921,
+    "recall_n_gt": 3919,
+    "recall_tp": 3496,
+    "tp": 3496
+   },
+   "threshold_only": {
+    "f1": 0.9018,
+    "fp": 338,
+    "precision": 0.9118,
+    "recall": 0.8921,
+    "recall_n_gt": 3919,
+    "recall_tp": 3496,
+    "threshold": 0.3,
+    "tp": 3496
+   },
+   "threshold_only_recall_ci": [
+    0.8808,
+    0.9035
+   ],
+   "validator_seconds": 580
+  },
+  "morgantown": {
+   "delta_recall": 0.0037,
+   "delta_recall_ci": [
+    -0.0155,
+    0.038
+   ],
+   "deployed": {
+    "delta_f1": -0.0021,
+    "delta_f1_ci": [
+     -0.023,
+     0.0207
+    ],
+    "delta_precision": -0.0134,
+    "delta_precision_ci": [
+     -0.0524,
+     0.0313
+    ],
+    "delta_recall": 0.0075,
+    "delta_recall_ci": [
+     -0.0113,
+     0.0266
+    ],
+    "f1": 0.8427,
+    "fp": 31,
+    "precision": 0.875,
+    "recall": 0.8127,
+    "recall_n_gt": 267,
+    "recall_tp": 217,
+    "threshold": 0.285,
+    "tp": 217
+   },
+   "fused": {
+    "f1": 0.8471,
+    "fp": 27,
+    "precision": 0.8889,
+    "recall": 0.809,
+    "recall_n_gt": 267,
+    "recall_tp": 216,
+    "threshold": 0.335,
+    "tp": 216
+   },
+   "fused_recall_ci": [
+    0.7557,
+    0.8645
+   ],
+   "held_out": true,
+   "precision_bar": 0.8884,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0441,
+     "delta_f1_ci": [
+      -0.0791,
+      -0.0081
+     ],
+     "f1": 0.8007,
+     "fp": 61,
+     "precision": 0.7821,
+     "recall": 0.8202,
+     "recall_n_gt": 267,
+     "recall_tp": 219,
+     "tp": 219
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0049,
+     "delta_f1_ci": [
+      -0.0287,
+      0.0165
+     ],
+     "f1": 0.8399,
+     "fp": 12,
+     "precision": 0.9439,
+     "recall": 0.7566,
+     "recall_n_gt": 267,
+     "recall_tp": 202,
+     "tp": 202
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8448,
+    "fp": 27,
+    "precision": 0.8884,
+    "recall": 0.8052,
+    "recall_n_gt": 267,
+    "recall_tp": 215,
+    "tp": 215
+   },
+   "threshold_only": {
+    "f1": 0.8515,
+    "fp": 23,
+    "precision": 0.9034,
+    "recall": 0.8052,
+    "recall_n_gt": 267,
+    "recall_tp": 215,
+    "threshold": 0.32,
+    "tp": 215
+   },
+   "threshold_only_recall_ci": [
+    0.75,
+    0.8588
+   ],
+   "validator_seconds": 59
+  },
+  "paterson": {
+   "delta_recall": 0.0127,
+   "delta_recall_ci": [
+    -0.0267,
+    0.0276
+   ],
+   "deployed": {
+    "delta_f1": 0.0066,
+    "delta_f1_ci": [
+     -0.0053,
+     0.0192
+    ],
+    "delta_precision": -0.0083,
+    "delta_precision_ci": [
+     -0.0254,
+     0.0072
+    ],
+    "delta_recall": 0.0152,
+    "delta_recall_ci": [
+     0.0,
+     0.0317
+    ],
+    "f1": 0.825,
+    "fp": 18,
+    "precision": 0.9416,
+    "recall": 0.7342,
+    "recall_n_gt": 395,
+    "recall_tp": 290,
+    "threshold": 0.285,
+    "tp": 290
+   },
+   "fused": {
+    "f1": 0.8269,
+    "fp": 15,
+    "precision": 0.9507,
+    "recall": 0.7316,
+    "recall_n_gt": 395,
+    "recall_tp": 289,
+    "threshold": 0.375,
+    "tp": 289
+   },
+   "fused_recall_ci": [
+    0.6772,
+    0.772
+   ],
+   "held_out": true,
+   "precision_bar": 0.9498,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0101,
+     "delta_f1_ci": [
+      -0.0332,
+      0.0104
+     ],
+     "f1": 0.8083,
+     "fp": 34,
+     "precision": 0.8954,
+     "recall": 0.7367,
+     "recall_n_gt": 395,
+     "recall_tp": 291,
+     "tp": 291
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0038,
+     "delta_f1_ci": [
+      -0.0152,
+      0.0062
+     ],
+     "f1": 0.8146,
+     "fp": 11,
+     "precision": 0.9621,
+     "recall": 0.7063,
+     "recall_n_gt": 395,
+     "recall_tp": 279,
+     "tp": 279
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8184,
+    "fp": 15,
+    "precision": 0.9498,
+    "recall": 0.719,
+    "recall_n_gt": 395,
+    "recall_tp": 284,
+    "tp": 284
+   },
+   "threshold_only": {
+    "f1": 0.8184,
+    "fp": 15,
+    "precision": 0.9498,
+    "recall": 0.719,
+    "recall_n_gt": 395,
+    "recall_tp": 284,
+    "threshold": 0.3,
+    "tp": 284
+   },
+   "threshold_only_recall_ci": [
+    0.6753,
+    0.7626
+   ],
+   "validator_seconds": 90
+  },
+  "richmond": {
+   "delta_recall": -0.0065,
+   "delta_recall_ci": [
+    -0.0315,
+    0.0243
+   ],
+   "deployed": {
+    "delta_f1": -0.0164,
+    "delta_f1_ci": [
+     -0.0376,
+     0.0044
+    ],
+    "delta_precision": -0.0583,
+    "delta_precision_ci": [
+     -0.0931,
+     -0.0251
+    ],
+    "delta_recall": 0.0226,
+    "delta_recall_ci": [
+     0.0057,
+     0.042
+    ],
+    "f1": 0.8475,
+    "fp": 49,
+    "precision": 0.8435,
+    "recall": 0.8516,
+    "recall_n_gt": 310,
+    "recall_tp": 264,
+    "threshold": 0.285,
+    "tp": 264
+   },
+   "fused": {
+    "f1": 0.8644,
+    "fp": 25,
+    "precision": 0.9107,
+    "recall": 0.8226,
+    "recall_n_gt": 310,
+    "recall_tp": 255,
+    "threshold": 0.505,
+    "tp": 255
+   },
+   "fused_recall_ci": [
+    0.7701,
+    0.8746
+   ],
+   "held_out": true,
+   "precision_bar": 0.9018,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0982,
+     "delta_f1_ci": [
+      -0.1383,
+      -0.0624
+     ],
+     "f1": 0.7656,
+     "fp": 114,
+     "precision": 0.6976,
+     "recall": 0.8484,
+     "recall_n_gt": 310,
+     "recall_tp": 263,
+     "tp": 263
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0166,
+     "delta_f1_ci": [
+      -0.0359,
+      0.0014
+     ],
+     "f1": 0.8472,
+     "fp": 22,
+     "precision": 0.9173,
+     "recall": 0.7871,
+     "recall_n_gt": 310,
+     "recall_tp": 244,
+     "tp": 244
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8639,
+    "fp": 28,
+    "precision": 0.9018,
+    "recall": 0.829,
+    "recall_n_gt": 310,
+    "recall_tp": 257,
+    "tp": 257
+   },
+   "threshold_only": {
+    "f1": 0.8712,
+    "fp": 23,
+    "precision": 0.9179,
+    "recall": 0.829,
+    "recall_n_gt": 310,
+    "recall_tp": 257,
+    "threshold": 0.33,
+    "tp": 257
+   },
+   "threshold_only_recall_ci": [
+    0.7805,
+    0.8721
+   ],
+   "validator_seconds": 80
+  },
+  "sao_paulo": {
+   "delta_recall": 0.0214,
+   "delta_recall_ci": [
+    -0.0168,
+    0.064
+   ],
+   "deployed": {
+    "delta_f1": 0.0127,
+    "delta_f1_ci": [
+     -0.0072,
+     0.0366
+    ],
+    "delta_precision": 0.0042,
+    "delta_precision_ci": [
+     -0.0221,
+     0.0349
+    ],
+    "delta_recall": 0.0214,
+    "delta_recall_ci": [
+     -0.0082,
+     0.0528
+    ],
+    "f1": 0.8127,
+    "fp": 55,
+    "precision": 0.807,
+    "recall": 0.8185,
+    "recall_n_gt": 281,
+    "recall_tp": 230,
+    "threshold": 0.285,
+    "tp": 230
+   },
+   "fused": {
+    "f1": 0.8127,
+    "fp": 55,
+    "precision": 0.807,
+    "recall": 0.8185,
+    "recall_n_gt": 281,
+    "recall_tp": 230,
+    "threshold": 0.285,
+    "tp": 230
+   },
+   "fused_recall_ci": [
+    0.7534,
+    0.8795
+   ],
+   "held_out": false,
+   "precision_bar": 0.8029,
+   "production_cut": {
+    "rampnet@0.05+validator": {
+     "delta_f1": -0.0461,
+     "delta_f1_ci": [
+      -0.0823,
+      -0.0102
+     ],
+     "f1": 0.7539,
+     "fp": 81,
+     "precision": 0.73,
+     "recall": 0.7794,
+     "recall_n_gt": 281,
+     "recall_tp": 219,
+     "tp": 219
+    },
+    "rampnet@0.30+validator": {
+     "delta_f1": -0.0117,
+     "delta_f1_ci": [
+      -0.0335,
+      0.0111
+     ],
+     "f1": 0.7883,
+     "fp": 31,
+     "precision": 0.8675,
+     "recall": 0.7224,
+     "recall_n_gt": 281,
+     "recall_tp": 203,
+     "tp": 203
+    }
+   },
+   "rampnet@0.30": {
+    "f1": 0.8,
+    "fp": 55,
+    "precision": 0.8029,
+    "recall": 0.7972,
+    "recall_n_gt": 281,
+    "recall_tp": 224,
+    "tp": 224
+   },
+   "threshold_only": {
+    "f1": 0.8,
+    "fp": 55,
+    "precision": 0.8029,
+    "recall": 0.7972,
+    "recall_n_gt": 281,
+    "recall_tp": 224,
+    "threshold": 0.3,
+    "tp": 224
+   },
+   "threshold_only_recall_ci": [
+    0.7338,
+    0.8571
+   ],
+   "validator_seconds": 107
+  }
+ },
+ "validator_seconds_source": "docs/data/validator_258_42152480.log"
+}
