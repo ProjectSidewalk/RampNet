@@ -525,3 +525,10 @@ analysis_out/lyon_review_159/**/*.html
 !analysis_out/open_rig_258/
 analysis_out/open_rig_258/*
 !analysis_out/open_rig_258/*.log
+
+# #159: image-based pano tilt (docs/pano_tilt_estimate.md). The id list, per-pano rows and
+# summaries; `pano_tilt_estimate.py check` re-derives the id list and summaries.
+!analysis_out/pano_tilt/
+analysis_out/pano_tilt/*
+!analysis_out/pano_tilt/*.json
+!analysis_out/pano_tilt/*.tsv
