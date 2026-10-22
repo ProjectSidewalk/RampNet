@@ -525,3 +525,18 @@ analysis_out/lyon_review_159/**/*.html
 !analysis_out/open_rig_258/
 analysis_out/open_rig_258/*
 !analysis_out/open_rig_258/*.log
+
+# #258: the second-pass verifier's candidate set (re-derived byte for byte by
+# scripts/analysis/verifier_candidates_258.py --check) and the validator leakage bound
+# (scripts/analysis/validator_leakage_258.py). The rawLabels CSV cache stays ignored.
+!analysis_out/verifier_258/
+analysis_out/verifier_258/*
+!analysis_out/verifier_258/*.json
+!analysis_out/verifier_258/candidates/
+analysis_out/verifier_258/candidates/*
+!analysis_out/verifier_258/candidates/*.json
+# Step 2's validator scores (GPU output, scripts/analysis/validator_score_258.py); the
+# per-pano resume files are scratch.
+!analysis_out/verifier_258/validator_scores/
+analysis_out/verifier_258/validator_scores/*
+!analysis_out/verifier_258/validator_scores/*.json

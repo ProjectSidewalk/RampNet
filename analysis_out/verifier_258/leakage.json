@@ -1,0 +1,228 @@
+{
+ "limits": [
+  "labels deleted since the 2025-08 data pull are not in the live API",
+  "the 2025-08-16 run's city list is not recorded; this is the code's list"
+ ],
+ "method": "every current public rawLabels CurbRamp label in the validator's training cities is treated as possibly trained on (superset of any agree/disagree selection); exact pano_id membership plus haversine distance to the nearest such label",
+ "splits": {
+  "annapolis": {
+   "min_distance_m": 293781.3,
+   "n_panos": 125,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "bayonne": {
+   "min_distance_m": 1085516.7,
+   "n_panos": 125,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "bend": {
+   "min_distance_m": 183538.4,
+   "n_panos": 110,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "budapest_district5": {
+   "min_distance_m": 1136285.4,
+   "n_panos": 125,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "clovis": {
+   "min_distance_m": 1002442.6,
+   "n_panos": 125,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "gainesville": {
+   "min_distance_m": 1146242.9,
+   "n_panos": 125,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "juneau": {
+   "min_distance_m": 1419797.5,
+   "n_panos": 125,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "laurens_gsv": {
+   "min_distance_m": 363420.2,
+   "n_panos": 86,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "laurens_mapillary": {
+   "min_distance_m": 363441.1,
+   "n_panos": 94,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "manual_gold": {
+   "min_distance_m": 2275.2,
+   "n_panos": 1000,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "morgantown": {
+   "min_distance_m": 79059.6,
+   "n_panos": 125,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "paterson": {
+   "min_distance_m": 7876.4,
+   "n_panos": 125,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "richmond": {
+   "min_distance_m": 381495.8,
+   "n_panos": 124,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  },
+  "sao_paulo": {
+   "min_distance_m": 7423786.5,
+   "n_panos": 125,
+   "pano_id_overlap": [],
+   "within_500m": 0,
+   "within_50m": 0
+  }
+ },
+ "training_cities": {
+  "amsterdam": {
+   "curbramp_labels": 12258,
+   "fetched_at": "2026-10-21T13:13:38Z",
+   "panos": 4865,
+   "sha256": "21edcf4e98769ea929111d95c1b7c0fe132f33862815cb070e524c02478145d4"
+  },
+  "blackhawk-hills": {
+   "curbramp_labels": 65,
+   "fetched_at": "2026-10-21T13:13:39Z",
+   "panos": 35,
+   "sha256": "67466c5e719104a7e8b6bcc5bffdcfda618e77169a98fd7c016e566f94c7bdea"
+  },
+  "cdmx": {
+   "curbramp_labels": 13084,
+   "fetched_at": "2026-10-21T13:13:33Z",
+   "panos": 6980,
+   "sha256": "8812d49e34aaf1418c4734365e7eb0359ea41afd46afe024f4e78a462932c3b8"
+  },
+  "chicago": {
+   "curbramp_labels": 79530,
+   "fetched_at": "2026-10-21T13:13:47Z",
+   "panos": 28161,
+   "sha256": "4bf022f9de84cf94062809d4f0687a47c8a71dc1e89375f59e9d06f12e99768b"
+  },
+  "cliffside-park": {
+   "curbramp_labels": 358,
+   "fetched_at": "2026-10-21T13:13:49Z",
+   "panos": 147,
+   "sha256": "f102cd8bb8874fb23ec2fb22eeda60fba9fbe3b0348d72078e125191063e54a8"
+  },
+  "columbus": {
+   "curbramp_labels": 18041,
+   "fetched_at": "2026-10-21T13:13:52Z",
+   "panos": 5837,
+   "sha256": "af96645e3d15406dfd305f9b5f20be8872928b736f75e7ca5ee9b659ac5dde08"
+  },
+  "keelung": {
+   "curbramp_labels": 723,
+   "fetched_at": "2026-10-21T13:14:15Z",
+   "panos": 299,
+   "sha256": "8099d9ae5e399a400110ee9454f4313b19ac3c688c7d81eef1d0b6b66980bd20"
+  },
+  "knox": {
+   "curbramp_labels": 1198,
+   "fetched_at": "2026-10-21T13:13:53Z",
+   "panos": 508,
+   "sha256": "426fd588657332124456414ebcabbf6d39bcbc0b20fb52e091582d88e4842ef8"
+  },
+  "la-piedad": {
+   "curbramp_labels": 45,
+   "fetched_at": "2026-10-21T13:13:33Z",
+   "panos": 33,
+   "sha256": "72b1b7c67456e85479e511b6aeedff56d1b4fb6d2540d391587b8c4eedc0723f"
+  },
+  "mendota": {
+   "curbramp_labels": 1976,
+   "fetched_at": "2026-10-21T13:13:55Z",
+   "panos": 697,
+   "sha256": "037739a86f3c9b478eb7dc408af09beb9b25f09e942f000d9d1c5daabf3bfd7c"
+  },
+  "new-taipei": {
+   "curbramp_labels": 2139,
+   "fetched_at": "2026-10-21T13:14:16Z",
+   "panos": 680,
+   "sha256": "effac8adfc6bee79883d82f12e33dd3d25b025e0f5067dfbe0d4d8fcb43bcdb3"
+  },
+  "newberg": {
+   "curbramp_labels": 4613,
+   "fetched_at": "2026-10-21T13:13:55Z",
+   "panos": 1842,
+   "sha256": "d8df4728090817633a367968896f13a4422283700317000a04dde55b7ddfc4a4"
+  },
+  "oradell": {
+   "curbramp_labels": 1893,
+   "fetched_at": "2026-10-21T13:13:56Z",
+   "panos": 778,
+   "sha256": "64c89c8f0f2cf29d607a063d679cdb1f3fa0cb8bcf30bdc6a027de87b7da5660"
+  },
+  "pittsburgh": {
+   "curbramp_labels": 9511,
+   "fetched_at": "2026-10-21T13:13:58Z",
+   "panos": 4252,
+   "sha256": "41fa36ad8a6629af60064a9105273461eb00e0a4953f076fb51c510b6f2e7411"
+  },
+  "sea": {
+   "curbramp_labels": 100933,
+   "fetched_at": "2026-10-21T13:14:08Z",
+   "panos": 37446,
+   "sha256": "1c38dbe4a04e2b8b55a3aea871155e77ac2842bd647e8ef4eabff1ef598f1a10"
+  },
+  "spgg": {
+   "curbramp_labels": 4185,
+   "fetched_at": "2026-10-21T13:13:36Z",
+   "panos": 2646,
+   "sha256": "a1deff2d35de984194cb2080dec924de2e18be88efc40a7121c8f8efc22a6e70"
+  },
+  "st-louis": {
+   "curbramp_labels": 17058,
+   "fetched_at": "2026-10-21T13:14:12Z",
+   "panos": 7959,
+   "sha256": "fce3f86740a5f1698e4850d9ff2c8642f7de55c4581e0e535dd0a3e80b16d668"
+  },
+  "taipei": {
+   "curbramp_labels": 9610,
+   "fetched_at": "2026-10-21T13:14:18Z",
+   "panos": 3564,
+   "sha256": "ef90288ac9044c9e4a3046908277cf5ce362f9d0a3e7b1c86a521af83e34e5f9"
+  },
+  "teaneck": {
+   "curbramp_labels": 7274,
+   "fetched_at": "2026-10-21T13:14:14Z",
+   "panos": 2642,
+   "sha256": "b1c86d0d4d0bdbe9c034c1b6612248c32b64a1e21cf3831e389e93399ed5ef11"
+  }
+ },
+ "validator": {
+  "model": "projectsidewalk/sidewalk-validator-ai-curbramp",
+  "repo": "ProjectSidewalk/sidewalk-validator-ai",
+  "selection_code_commit": "eb9bc65"
+ }
+}
