@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seattle crosswalk aerial spot-check</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: image left, verdict card right; one column under 900px. Keys do everything. */
+:root{
+  --bg:#f3f4f2; --panel:#ffffff; --fg:#1b1f1e; --muted:#5d6663; --line:#d6dbd8;
+  --accent:#0f6e74; --accent-ink:#ffffff; --soft:#e3eeee;
+  --node:#1f5fff; --label:#e8322b; --flag:#b7791f;
+  --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161918; --panel:#1f2321; --fg:#e8ebe9; --muted:#9aa49f; --line:#353b38;
+  --accent:#4fb3b8; --accent-ink:#0f1413; --soft:#223332; --node:#6a93ff; --label:#ff6b63; --flag:#e0a94a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161918; --panel:#1f2321; --fg:#e8ebe9; --muted:#9aa49f; --line:#353b38;
+  --accent:#4fb3b8; --accent-ink:#0f1413; --soft:#223332; --node:#6a93ff; --label:#ff6b63; --flag:#e0a94a; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 32px}
+h1{font-size:17px;font-weight:600;margin:0}
+.top{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;margin-bottom:10px}
+.top .sub{color:var(--muted)}
+.prog{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{display:grid;grid-template-columns:minmax(0,720px) minmax(300px,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:1fr}}
+.imgbox{position:relative;width:100%;max-width:720px;aspect-ratio:1/1;background:#778;border:1px solid var(--line);overflow:hidden}
+.imgbox img{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:1;transition:opacity .15s}
+.imgbox img.loading{opacity:.35}
+.imgbox svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.imgtag{position:absolute;left:0;top:0;background:rgba(0,0,0,.72);color:#fff;font-family:var(--mono);font-size:12px;padding:3px 8px}
+.imgtag2{position:absolute;right:0;bottom:0;background:rgba(0,0,0,.72);color:#fff;font-family:var(--mono);font-size:11px;padding:3px 8px}
+.card{background:var(--panel);border:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px;margin:0}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;font-family:var(--mono);font-size:12.5px;overflow-wrap:anywhere}
+.q{border-top:1px solid var(--line);padding-top:10px}
+.q h2{font-size:13px;font-weight:600;margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line);background:transparent;color:var(--fg);padding:6px 10px;font:inherit;font-size:13px;cursor:pointer;border-radius:3px;display:inline-flex;gap:6px;align-items:center}
+.opt kbd{font-family:var(--mono);font-size:11px;background:var(--soft);padding:0 5px;border-radius:2px;color:var(--fg)}
+.opt.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt.sel kbd{background:rgba(255,255,255,.25);color:inherit}
+.opt.ai{box-shadow:inset 0 0 0 2px var(--flag)}
+.opt:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ai-line{font-size:13px;color:var(--muted);margin-top:6px}
+.ai-line b{color:var(--fg);font-weight:500}
+.note{width:100%;box-sizing:border-box;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:3px}
+.actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.btn{font:inherit;font-size:13px;padding:7px 12px;border-radius:3px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+.btn kbd{font-family:var(--mono);font-size:11px;opacity:.8}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.status{font-size:12px;color:var(--muted);min-height:1.2em}
+.keys{font-size:12px;color:var(--muted);columns:2;column-gap:16px}
+.keys div{break-inside:avoid}
+.keys kbd{font-family:var(--mono);background:var(--soft);padding:0 4px;border-radius:2px;color:var(--fg)}
+.tally{background:var(--panel);border:1px solid var(--line);padding:12px 16px;margin-top:16px;overflow-x:auto}
+.tally h2{font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+table{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:3px 12px 3px 0;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500}
+td.n{font-family:var(--mono)}
+.chip{display:inline-block;padding:0 6px;border-radius:2px;font-family:var(--mono);font-size:11px;background:var(--soft)}
+.chip.flag{background:var(--flag);color:#111}
+.dis{font-family:var(--mono);font-size:12px;margin:10px 0 0}
+.dis a{color:var(--accent);cursor:pointer;text-decoration:underline}
+.sel-order{font:inherit;font-size:12px;background:var(--panel);color:var(--fg);border:1px solid var(--line);padding:3px 6px}
+a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){.imgbox img{transition:none}}
+</style></head><body>
+
+<div class="top">
+  <h1>Seattle crosswalk spot-check</h1>
+  <span class="sub">King County ortho, 3 in/px · OSM node <span style="color:var(--node)">●</span> · crowd label <span style="color:var(--label)">●</span> · dashed rings 2 m and 5 m</span>
+  <span class="prog" id="prog">0 / 120 rated</span>
+  <label class="sub">order <select id="order" class="sel-order"><option value="priority">AI non-default first, then shuffled</option><option value="sheet">sheet order (#0…#119)</option><option value="unrated">unrated only</option></select></label>
+</div>
+
+<div class="wrap">
+  <div>
+    <div class="imgbox" id="imgbox">
+      <img id="img" alt="aerial crop centred on the OSM crossing node">
+      <svg id="ov" viewBox="0 0 720 720" aria-hidden="true"></svg>
+      <div class="imgtag" id="imgtag">#— · 36 m · 2023</div>
+      <div class="imgtag2">N ↑ &nbsp; King County GIS, view only</div>
+    </div>
+    <div class="status" id="imgstatus" style="margin-top:4px">Loading imagery…</div>
+  </div>
+
+  <div class="card">
+    <dl class="facts" id="facts"></dl>
+
+    <div class="q">
+      <h2>Painted crossing at the node?</h2>
+      <div class="opts" id="optP">
+        <button class="opt" data-f="p" data-v="yes"><kbd>Y</kbd> yes</button>
+        <button class="opt" data-f="p" data-v="no"><kbd>N</kbd> no</button>
+        <button class="opt" data-f="p" data-v="unclear"><kbd>U</kbd> unclear</button>
+      </div>
+      <div class="ai-line" id="aiP"></div>
+    </div>
+
+    <div class="q">
+      <h2>Where does the crowd label sit?</h2>
+      <div class="opts" id="optL">
+        <button class="opt" data-f="l" data-v="yes"><kbd>1</kbd> centre (≤2 m)</button>
+        <button class="opt" data-f="l" data-v="near"><kbd>2</kbd> on crossing, 2–5 m</button>
+        <button class="opt" data-f="l" data-v="end"><kbd>3</kbd> at an end (&gt;5 m)</button>
+        <button class="opt" data-f="l" data-v="off"><kbd>4</kbd> off the crossing</button>
+        <button class="opt" data-f="l" data-v="na"><kbd>0</kbd> n/a</button>
+      </div>
+      <div class="ai-line" id="aiL"></div>
+    </div>
+
+    <div class="q">
+      <input class="note" id="note" placeholder="note (press / to type, Esc to leave)">
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="save">Save &amp; next <kbd>Enter</kbd></button>
+      <button class="btn" id="flag">Flag for discussion <kbd>F</kbd></button>
+      <button class="btn" id="skip">Skip <kbd>S</kbd></button>
+      <button class="btn" id="clear" title="delete this row's verdict">Clear</button>
+      <button class="btn" id="export">Export verdicts</button>
+      <label class="btn" for="import" style="cursor:pointer">Import verdicts<input id="import" type="file" accept=".json" hidden></label>
+    </div>
+    <div class="status" id="status"></div>
+
+    <div class="keys">
+      <div><kbd>Enter</kbd> save what is selected (the AI's call, outlined, unless you changed it) and advance</div>
+      <div><kbd>←</kbd> <kbd>→</kbd> move without saving</div>
+      <div><kbd>Z</kbd> zoom 36 m ↔ 18 m</div>
+      <div><kbd>T</kbd> imagery 2023 ↔ 2025</div>
+      <div><kbd>G</kbd> hide / show markers</div>
+      <div><kbd>F</kbd> toggle flag · <kbd>S</kbd> skip · <kbd>/</kbd> note</div>
+    </div>
+  </div>
+</div>
+
+<div class="tally" id="tally">
+  <h2>Your verdicts vs the AI pass</h2>
+  <div id="tallyBody">No verdicts yet. The AI's call is pre-selected on each row; press Enter to accept it or change it first.</div>
+</div>
+
+<script>
+const ROWS = __ROWS__;
+const SVC = y => `https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps/KingCo_Aerial_${y}/MapServer/export`;
+const PX = 720, R = 6378137;  // 720 px over 36 m = 5 cm/px (service is 7.6 cm/px)
+const merc = (lat,lng) => [R*lng*Math.PI/180, R*Math.log(Math.tan(Math.PI/4 + lat*Math.PI/360))];
+const LABELS = {yes:"centre (≤2 m)", near:"on crossing, 2–5 m", end:"at an end (>5 m)", off:"off the crossing", na:"n/a"};
+const PAINT = {yes:"yes", no:"no", unclear:"unclear"};
+
+let state = {half:18, year:2023, markers:true};
+let verdicts = {};
+const KEY = 'aerial_spotcheck.__SHEET__';
+function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ return {}; } }
+function persist(){ try { localStorage.setItem(KEY, JSON.stringify(verdicts)); } catch(e){ $('status').textContent = 'Could not write localStorage; export often.'; } }
+let order = [], pos = 0;
+let cur = {p:null, l:null, flag:false};
+
+const $ = id => document.getElementById(id);
+const docId = i => "r" + String(i).padStart(3,"0");
+
+function priorityOrder(){
+  const nondef = r => !(r.ai_p==="yes" && (r.ai_l==="yes" || r.ai_l==="near"));
+  const a = ROWS.filter(nondef).map(r=>r.i);
+  const b = ROWS.filter(r=>!nondef(r)).map(r=>r.i);
+  let s = 274; const rnd = () => (s = (s*1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  for (let k=b.length-1;k>0;k--){ const j=Math.floor(rnd()*(k+1)); [b[k],b[j]]=[b[j],b[k]]; }
+  return a.concat(b);
+}
+function buildOrder(){
+  const mode = $("order").value;
+  if (mode==="sheet") order = ROWS.map(r=>r.i);
+  else if (mode==="unrated") order = priorityOrder().filter(i=>!verdicts[docId(i)]);
+  else order = priorityOrder();
+  if (!order.length) order = [0];
+  pos = Math.min(pos, order.length-1);
+}
+function row(){ return ROWS[order[pos]]; }
+
+function imgUrl(r, half, year){
+  const [cx,cy] = merc(r.nlat, r.nlng);
+  return `${SVC(year)}?bbox=${cx-half},${cy-half},${cx+half},${cy+half}&bboxSR=3857&imageSR=3857&size=${PX},${PX}&format=png&f=image`;
+}
+function toPx(r, lat, lng){
+  const [cx,cy] = merc(r.nlat, r.nlng), [x,y] = merc(lat,lng), h = state.half;
+  return [(x-(cx-h))/(2*h)*PX, ((cy+h)-y)/(2*h)*PX];
+}
+function drawOverlay(r){
+  const ov = $("ov"); ov.innerHTML = "";
+  if (!state.markers) return;
+  const ns = "http://www.w3.org/2000/svg";
+  const [nx,ny] = toPx(r, r.nlat, r.nlng), [lx,ly] = toPx(r, r.llat, r.llng);
+  const mk = (tag, attrs) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); ov.appendChild(e); return e; };
+  mk("line", {x1:nx,y1:ny,x2:lx,y2:ly,stroke:"#ffe14d","stroke-width":2});
+  mk("circle", {cx:nx,cy:ny,r:9,fill:"none",stroke:"#1f5fff","stroke-width":3});
+  mk("circle", {cx:lx,cy:ly,r:9,fill:"none",stroke:"#e8322b","stroke-width":3});
+  mk("circle", {cx:nx,cy:ny,r:2/(2*state.half)*PX,fill:"none",stroke:"#1f5fff","stroke-width":1,"stroke-dasharray":"4 4",opacity:.8});
+  mk("circle", {cx:nx,cy:ny,r:5/(2*state.half)*PX,fill:"none",stroke:"#1f5fff","stroke-width":1,"stroke-dasharray":"2 6",opacity:.7});
+  const bar = 5/(2*state.half)*PX;
+  mk("rect", {x:14,y:PX-26,width:bar,height:6,fill:"#fff",stroke:"#000","stroke-width":1});
+  const t = mk("text", {x:14,y:PX-32,fill:"#fff",stroke:"#000","stroke-width":.6,"font-size":"14","font-family":"IBM Plex Mono, monospace"}); t.textContent = "5 m";
+}
+let loadTok = 0;
+function loadImage(r){
+  const img = $("img"); const tok = ++loadTok;
+  img.classList.add("loading"); $("imgstatus").textContent = "Loading imagery…";
+  img.onload = () => { if (tok!==loadTok) return; img.classList.remove("loading"); $("imgstatus").textContent = ""; };
+  img.onerror = () => { if (tok!==loadTok) return; $("imgstatus").textContent = "Imagery failed to load from the King County service. Press T for the other year, or reload."; };
+  img.src = imgUrl(r, state.half, state.year);
+  const nxt = ROWS[order[(pos+1)%order.length]]; if (nxt){ const p = new Image(); p.src = imgUrl(nxt, state.half, state.year); }
+}
+
+function paintSel(){
+  for (const b of document.querySelectorAll(".opt")){
+    const f = b.dataset.f, val = b.dataset.v;
+    b.classList.toggle("sel", (f==="p" ? cur.p : cur.l) === val);
+  }
+  $("flag").classList.toggle("primary", cur.flag);
+}
+
+function render(){
+  const r = row(); const v = verdicts[docId(r.i)];
+  cur = v ? {p:v.painted, l:v.label, flag:!!v.flag} : {p:r.ai_p, l:r.ai_l, flag:false};
+  $("note").value = v ? (v.note||"") : "";
+  $("imgtag").textContent = `#${r.i} · ${2*state.half} m · ${state.year}`;
+  $("facts").innerHTML = `
+    <dt>row</dt><dd>#${r.i} · ${r.uid}${v ? ' · <span class="chip">rated</span>' : ''}${cur.flag ? ' <span class="chip flag">flagged</span>' : ''}</dd>
+    <dt>OSM node</dt><dd><a href="https://www.openstreetmap.org/node/${r.node}" target="_blank" rel="noopener">${r.node}</a> · class <b>${r.cls}</b> · crossing=${r.ct||"—"} · crossing:markings=${r.cm||"—"}</dd>
+    <dt>label</dt><dd>${r.dist.toFixed(1)} m from node${r.axis && r.axis!=="none" ? " · axis from "+r.axis : ""} · <a href="https://www.openstreetmap.org/?mlat=${r.llat}&mlon=${r.llng}#map=20/${r.llat}/${r.llng}" target="_blank" rel="noopener">osm map</a></dd>`;
+  for (const b of document.querySelectorAll(".opt")){
+    const f = b.dataset.f, val = b.dataset.v;
+    b.classList.toggle("ai", (f==="p" ? r.ai_p : r.ai_l) === val);
+  }
+  paintSel();
+  $("aiP").innerHTML = `AI said <b>${PAINT[r.ai_p]||r.ai_p}</b>${r.note ? ` · “${r.note}”` : ""}`;
+  $("aiL").innerHTML = `AI said <b>${LABELS[r.ai_l]||r.ai_l}</b>`;
+  $("status").textContent = v ? `Saved: ${v.painted} / ${LABELS[v.label]||v.label}${v.agree ? " (matches the AI)" : " (differs from the AI)"}` : "";
+  drawOverlay(r); loadImage(r);
+  const n = Object.keys(verdicts).length;
+  $("prog").textContent = `${n} / ${ROWS.length} rated · ${pos+1} of ${order.length} in this order`;
+  try { localStorage.setItem("spotcheck.pos", String(order[pos])); } catch(e){}
+}
+
+function save(advance){
+  const r = row();
+  const data = {i:r.i, uid:r.uid, cls:r.cls, painted:cur.p, label:cur.l, flag:cur.flag, note:$("note").value.trim(),
+    ai_p:r.ai_p, ai_l:r.ai_l, agree:(cur.p===r.ai_p && cur.l===r.ai_l), ts:new Date().toISOString()};
+  verdicts[docId(r.i)] = data; persist();
+  if (advance) next(1); else render();
+  tally();
+}
+function next(d){ pos = (pos + d + order.length) % order.length; render(); }
+function jumpTo(i){ let k = order.indexOf(i); if (k<0){ $("order").value="sheet"; buildOrder(); k = order.indexOf(i); } pos = k; render(); window.scrollTo({top:0}); }
+
+function tally(){
+  const vs = Object.values(verdicts); const body = $("tallyBody");
+  if (!vs.length){ body.textContent = "No verdicts yet. The AI's call is pre-selected on each row; press Enter to accept it or change it first."; return; }
+  const agP = vs.filter(v=>v.painted===v.ai_p).length, agL = vs.filter(v=>v.label===v.ai_l).length;
+  const cls = ["marked","unknown","unmarked"];
+  const cnt = (c, f) => { const s = vs.filter(v=>v.cls===c); return `${s.filter(f).length}/${s.length}`; };
+  const dis = vs.filter(v=>!v.agree).sort((a,b)=>a.i-b.i);
+  const flags = vs.filter(v=>v.flag).sort((a,b)=>a.i-b.i);
+  body.innerHTML = `
+  <table><tr><th>question</th><th>agree with AI</th><th>rate</th></tr>
+  <tr><td>painted crossing at node</td><td class="n">${agP} / ${vs.length}</td><td class="n">${(agP/vs.length).toFixed(2)}</td></tr>
+  <tr><td>label position</td><td class="n">${agL} / ${vs.length}</td><td class="n">${(agL/vs.length).toFixed(2)}</td></tr></table>
+  <table style="margin-top:10px"><tr><th>OSM class</th><th>painted = yes, you</th><th>painted = yes, AI (same rows)</th><th>label centre or near, you</th><th>label centre or near, AI (same rows)</th></tr>
+  ${cls.map(c=>`<tr><td>${c}</td><td class="n">${cnt(c,v=>v.painted==="yes")}</td><td class="n">${cnt(c,v=>v.ai_p==="yes")}</td>
+    <td class="n">${cnt(c,v=>v.label==="yes"||v.label==="near")}</td><td class="n">${cnt(c,v=>v.ai_l==="yes"||v.ai_l==="near")}</td></tr>`).join("")}</table>
+  <p class="dis">disagreements (${dis.length}): ${dis.map(v=>`<a data-i="${v.i}">#${v.i}</a> ${v.ai_p}→${v.painted}, ${v.ai_l}→${v.label}`).join(" · ") || "none"}</p>
+  <p class="dis">flagged (${flags.length}): ${flags.map(v=>`<a data-i="${v.i}">#${v.i}</a>${v.note ? " "+v.note : ""}`).join(" · ") || "none"}</p>`;
+  for (const a of body.querySelectorAll("a[data-i]")) a.onclick = () => jumpTo(+a.dataset.i);
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest(".opt"); if (!b) return;
+  if (b.dataset.f==="p") cur.p = b.dataset.v; else cur.l = b.dataset.v;
+  paintSel();
+});
+$("save").onclick = () => save(true);
+$("skip").onclick = () => next(1);
+$("flag").onclick = () => { cur.flag = !cur.flag; paintSel(); };
+$("clear").onclick = () => { delete verdicts[docId(row().i)]; persist(); render(); tally(); };
+$("export").onclick = () => {
+  const out = {sheet:"__SHEET__", rater:"human", exported:new Date().toISOString(), verdicts:Object.values(verdicts).sort((a,b)=>a.i-b.i)};
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:"application/json"}));
+  a.download = "aerial_verdicts___SHEET__.json"; a.click(); URL.revokeObjectURL(a.href);
+  $("status").textContent = `Exported ${out.verdicts.length} verdicts.`;
+};
+$("import").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  f.text().then(txt => { const j = JSON.parse(txt); for (const v of (j.verdicts||[])) verdicts[docId(v.i)] = v; persist(); render(); tally();
+    $("status").textContent = `Imported ${(j.verdicts||[]).length} verdicts.`; }).catch(err => { $("status").textContent = "Import failed: " + err; });
+};
+$("order").onchange = () => { buildOrder(); pos = 0; render(); };
+$("note").addEventListener("keydown", e => { if (e.key==="Escape"){ e.target.blur(); } else if (e.key==="Enter"){ e.preventDefault(); e.target.blur(); save(true); } e.stopPropagation(); });
+
+document.addEventListener("keydown", e => {
+  if (e.target.tagName==="INPUT" || e.target.tagName==="SELECT" || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  const setP = v => { cur.p = v; paintSel(); };
+  const setL = v => { cur.l = v; paintSel(); };
+  if (k==="Enter" || k===" ") { e.preventDefault(); save(true); }
+  else if (k==="y"||k==="Y") setP("yes"); else if (k==="n"||k==="N") setP("no"); else if (k==="u"||k==="U") setP("unclear");
+  else if (k==="1") setL("yes"); else if (k==="2") setL("near"); else if (k==="3") setL("end"); else if (k==="4") setL("off"); else if (k==="0") setL("na");
+  else if (k==="ArrowRight"||k==="j") next(1); else if (k==="ArrowLeft"||k==="k") next(-1);
+  else if (k==="s"||k==="S") next(1);
+  else if (k==="f"||k==="F") { cur.flag = !cur.flag; paintSel(); }
+  else if (k==="z"||k==="Z") { state.half = state.half===18 ? 9 : 18; render(); }
+  else if (k==="t"||k==="T") { state.year = state.year===2023 ? 2025 : 2023; render(); }
+  else if (k==="g"||k==="G") { state.markers = !state.markers; drawOverlay(row()); }
+  else if (k==="/") { e.preventDefault(); $("note").focus(); }
+});
+
+(function start(){
+  verdicts = load();
+  buildOrder();
+  try { const p = +localStorage.getItem("spotcheck.pos"); const k = order.indexOf(p); if (k>=0) pos = k; } catch(e){}
+  render(); tally();
+})();
+</script>
+</body></html>

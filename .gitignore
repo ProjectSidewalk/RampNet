@@ -532,5 +532,6 @@ analysis_out/crosswalk_phase0_274/*
 !analysis_out/crosswalk_phase0_274/*.json
 !analysis_out/crosswalk_phase0_274/*.csv
 !analysis_out/crosswalk_phase0_274/*.md
+!analysis_out/crosswalk_phase0_274/aerial_spotcheck_*.html
 !analysis_out/crosswalk_phase0_274/offsets/
 !analysis_out/crosswalk_phase0_274/vistas_probe/

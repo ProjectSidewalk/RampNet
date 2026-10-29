@@ -26,6 +26,14 @@ imports the six-view rig from `scripts/model_comparison/equirect_tiling.py` and 
 
 Label ids are per city: every row carries `label_uid` = `<city>:<label_id>`.
 
+`aerial_spotcheck.py build --sheet <rated_ai.csv> --out <html>` writes a self-contained spot-check page
+(committed as `analysis_out/crosswalk_phase0_274/aerial_spotcheck_seattle-wa.html`; open it in a browser): one
+row per screen, the crop requested live from King County's 2023 or 2025 ortho service, node / label / 2 m and
+5 m rings drawn over it, the AI's call pre-selected (Enter accepts, Y/N/U and 1-4/0 override). Verdicts live
+in localStorage; "Export verdicts" downloads them as JSON, and `aerial_spotcheck.py merge --sheet ... --verdicts
+<json> --out <rated.csv>` adds the `human_*` columns and prints agreement with the AI pass, overall and per
+OSM class. Same pattern as `scripts/gt_gallery.py`.
+
 `aerial_crops.py --sheet OUT/aerial_sample_seattle-wa.csv --out CROPS` renders the rating sheet as 36 m
 crops (node blue, label red) plus 2×2 contact sheets from King County's 2023 ortho service, for a rater;
 the crops are licensed imagery and stay out of the repo. `aerial_sample_seattle-wa.rated_ai.csv` is the
