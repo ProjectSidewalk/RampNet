@@ -384,7 +384,7 @@ height, which moves the distances but not the angles.
 | **within ~14 m (≥ 10°)** | | 161 / 319 | **0.34** [0.29, 0.38] | 174 / 294 | **0.37** [0.32, 0.42] |
 | all | | 244 / 677 / 158 | 0.26 | same pool | 0.26 |
 
-Brackets are pano-bootstrap 95% intervals (the "within" rows draw from all 176 pool panos, as
+Brackets are pano-bootstrap 95% intervals (the "within" rows draw from all 195 pool panos, as
 `score` does; a band draws from the panos with a ramp in it). Per-group rows are in the JSON files.
 
 - **Far ramps are close to undetected.** Beyond about 24 m the model finds 7-17% of what Jon
