@@ -385,3 +385,50 @@ def test_committed_band_file_names_every_overlay():
     gl = [e for e in band["panos"].values() if e["group"] == "grand_lyon_ladybug"]
     assert len(gl) == 75 and all(e.get("kind") == "black" for e in gl)
     assert all(0.81 <= e["band_top_y"] <= 0.83 for e in gl)
+
+
+# --------------------------------------------------------------------------- #
+# after the review: the committed score and the recall-by-elevation split
+# --------------------------------------------------------------------------- #
+def test_committed_score_reproduces_from_the_committed_verdicts():
+    if not os.path.exists(os.path.join(BUNDLE, "verdicts.json")):
+        pytest.skip("no review yet")
+    assert L.cmd_score(_Args) == 0
+
+
+def test_below_horizon_is_level_reading_without_tilt():
+    assert L.below_horizon_deg(0.3, 0.5) == pytest.approx(0.0, abs=1e-9)
+    assert L.below_horizon_deg(0.9, 0.6) == pytest.approx(18.0)
+    assert L.below_horizon_deg(0.1, 0.45) == pytest.approx(-9.0)
+
+
+def test_below_horizon_undoes_a_tilt_exactly():
+    from rampnet import stage1_geometry as sg
+    # a point 7 deg below the gravity horizon, seen through a tilted rig, reads 7 again
+    for b in (-150.0, -40.0, 0.0, 75.0, 170.0):
+        x, y = sg.pixel_from_bearing_elevation(*sg.gravity_to_rig(b, -7.0, 12.0, -4.0), 1.0, 1.0)
+        assert L.below_horizon_deg(float(x), float(y), 12.0, -4.0) == pytest.approx(7.0, abs=1e-6)
+
+
+def test_elevation_band_edges():
+    assert L.elevation_band(-0.1) == "above"
+    assert L.elevation_band(0.0) == "0-2"
+    assert L.elevation_band(5.999) == "4-6" and L.elevation_band(6.0) == "6-10"
+    assert L.elevation_band(20.0) == ">20"
+    assert L.band_labels()[0] == "above" and L.band_labels()[-1] == ">20"
+    assert L.band_distance_m("6-10") == [14.2, 23.8]
+    assert L.band_distance_m("0-2")[1] is None
+
+
+def test_elevation_pool_is_the_score_recall_pool():
+    recs, v, peaks = _toy()
+    v["e1"]["missed"] = [{"x": 0.2, "y": 0.52, "unsure": True}]
+    v["e1"]["no_missed"] = False
+    out, _ = L.score_groups(recs, v, peaks)
+    table = L.elevation_table(L.elevation_items(recs, v))
+    for g in ("grand_lyon_ladybug", "ecartip_gopro_max", "all"):
+        tot = table[g]["total"]
+        assert (tot["tp"], tot["tp"] + tot["missed"]) == (out[g]["recall_055"]["tp"],
+                                                          out[g]["recall_055"]["n"])
+    assert table["all"]["total"]["missed_unsure"] == 1
+    assert table["all"]["bands"]["2-4"]["missed_unsure"] == 1     # y 0.52 is 3.6 deg down

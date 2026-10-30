@@ -1,5 +1,11 @@
 # Lyon label audit (#159, #263): are Lyon's self-labels good enough to train on?
 
+**Status (2026-10-30): reviewed and scored.** Jon judged all 200 panos (export of
+2026-10-27T16:34Z, `benchmark/lyon/verdicts.json`). All four groups are **eligible** at 0.55
+(precision 0.83-0.95). Grand Lyon Ladybug and other cameras are flagged "not decisive". Recall
+is low in every group (0.26), even for nearby ramps. Results are in section 10. The text below that
+status, through section 9, is the pre-review plan and is kept as it was posted.
+
 **Status (2026-10-20): ready for review, not reviewed.** The sample is drawn and committed, the
 plan and the pass bar are written down (`benchmark/lyon/audit_plan.json`), the never-train lists
 are committed, and the known-artifact counts are in. The 200 panos are staged and pinned
@@ -328,3 +334,109 @@ was replaced on 2026-10-20 after review, before anyone reviewed it.
   Not built.
 - **Per-producer caps on training** (#159 decision, point 2) are a training-side step, not part of
   this audit.
+
+## 10. Results (review exported 2026-10-27, scored 2026-10-27, elevation split 2026-10-30)
+
+Jon reviewed all 200 panos in one pass. `score` ran against the posted plan (`plan_posted: true`,
+`partial: false`). Five `top` panos are excluded as planned, so 195 are scored. Files:
+`benchmark/lyon/verdicts.json` (the export, byte for byte; the 38- and 104-pano partial exports are
+in `verdicts_backups/`) and `analysis_out/lyon_review_159/score.json`.
+
+### Precision against the bar (unbiased subset)
+
+| group | panos | P@0.55 | bootstrap 95% | Wilson 95% | reading | R@0.55 | P@0.30 | R@0.30 |
+|---|---:|---:|---|---|---|---:|---:|---:|
+| Grand Lyon Ladybug | 71 | 0.83 (84/101) | 0.75-0.90 | 0.75-0.89 | eligible, not decisive | 0.27 (84/317) | 0.75 | 0.39 |
+| ecartip GoPro Max | 56 | 0.95 (75/79) | 0.90-0.99 | 0.88-0.98 | eligible (decisive) | 0.26 (75/288) | 0.70 | 0.39 |
+| other GoPro Max | 35 | 0.94 (45/48) | 0.88-1.00 | 0.83-0.98 | eligible (decisive) | 0.27 (45/165) | 0.73 | 0.37 |
+| other cameras | 33 | 0.87 (40/46) | 0.75-0.96 | 0.74-0.94 | eligible, not decisive | 0.26 (40/151) | 0.78 | 0.39 |
+| all (no verdict) | 195 | 0.89 (244/274) | 0.85-0.93 | 0.85-0.92 | — | 0.26 (244/921) | 0.74 | 0.39 |
+
+- **Every group clears 0.80 on the point estimate**, so under the posted rule all four are
+  eligible for a Lyon training pool. None is a decisive fail.
+- **"Not decisive"** means an interval contains 0.80. `score` sizes a top-up draw that would
+  settle it. Grand Lyon needs about 364 more random panos and other cameras about 69. Neither has
+  been drawn, and whether to draw them is Jon's call.
+- **Recall is the problem, not precision.** About a quarter of the ramps Jon marked are found
+  at 0.55, and 0.39 at 0.30, the same in every group. For training this means Lyon's self-labels
+  are mostly correct where they exist, but **most ramps carry no label**. A pano used as training
+  data would teach "no ramp here" at about three of every four ramps unless the loss is masked
+  (the `--loss-mask` path of #266) or only positives are used.
+- The 158 missed marks Jon flagged "unsure" are reported and never counted against recall.
+
+### Is the low recall far-field? Recall at 0.55 by degrees below the horizon
+
+`python scripts/analysis/lyon_review_159.py elevation` splits the same 0.55 recall pool by how far
+below the horizon each true detection or missed mark sits. Distances label the bands for a level
+camera 2.5 m up; they are not measured. A GoPro on a helmet or a car roof sits at a different
+height, which moves the distances but not the angles.
+
+| below horizon | ~distance | level: TP / sure misses / unsure | level R | tilt-corrected: TP / sure / unsure | corrected R |
+|---|---|---|---:|---|---:|
+| above the horizon | — | 13 / 62 / 12 | 0.17 | 0 / 1 / 1 | — |
+| 0-2° | > 72 m | 6 / 30 / 8 | 0.17 | 1 / 1 / 0 | — |
+| 2-4° | 36-72 m | 4 / 52 / 29 | 0.07 | 1 / 37 / 31 | 0.03 |
+| 4-6° | 24-36 m | 10 / 69 / 44 | 0.13 | 12 / 115 / 62 | 0.09 |
+| 6-10° | 14-24 m | 50 / 145 / 35 | 0.26 | 56 / 229 / 48 | 0.20 |
+| 10-20° | 7-14 m | 88 / 202 / 19 | 0.30 | 113 / 209 / 12 | 0.35 |
+| > 20° | < 7 m | 73 / 117 / 11 | 0.38 | 61 / 85 / 4 | 0.42 |
+| **within ~24 m (≥ 6°)** | | 211 / 464 | **0.31** [0.28, 0.35] | 230 / 523 | **0.31** [0.27, 0.34] |
+| **within ~14 m (≥ 10°)** | | 161 / 319 | **0.34** [0.29, 0.38] | 174 / 294 | **0.37** [0.32, 0.42] |
+| all | | 244 / 677 / 158 | 0.26 | same pool | 0.26 |
+
+Brackets are pano-bootstrap 95% intervals. Per-group rows are in the JSON files.
+
+- **Far ramps are close to undetected.** Beyond about 24 m the model finds 7-17% of what Jon
+  marked on the level reading and 3-9% tilt-corrected.
+- **Dropping the far marks barely helps.** Within about 24 m recall is 0.31, and within about
+  14 m it is 0.34 (0.37 tilt-corrected). Even under about 7 m the model misses about 60%.
+- **So most of the recall deficit is near-field.** That points to what the ramps look like, not to
+  their size in the image. Jon's notes on three panos describe it: Lyon kerbs "drop slightly at the
+  crosswalks but there is still a lip", and some corners have "massive diagonal ramps" that he
+  marked as two. Neither looks like the US ramps the model was trained on. **This is a hypothesis.**
+  Three notes do not measure it, and no per-mark ramp-type tag exists to test it.
+- **The tilt correction works as a check on itself.** The level reading puts 87 marks and
+  detections above the horizon, which is impossible for a kerb. After undoing each pano's estimated
+  pitch and roll, 2 remain. The corrected bands move marks mostly from "above" and 0-4° into 4-10°,
+  which lowers far-field recall further and leaves the near-field reading about where it was.
+
+**Tilt input.** The corrected column uses `analysis_out/pano_tilt/lyon.json` from PR #273 (branch
+`analysis/pano-tilt-159`, commit 090cb4f; sha256 recorded in `recall_by_elevation_tilt.json`).
+It accepts 193 of 200 panos. The 7 declined panos are read as level. **PR #273 is not merged**,
+so on `main` the corrected file can be re-derived only with that file in hand:
+
+```bash
+git show 090cb4f:analysis_out/pano_tilt/lyon.json > /tmp/lyon_tilt.json
+python scripts/analysis/lyon_review_159.py elevation --tilt /tmp/lyon_tilt.json   # compares bytes
+```
+
+Once #273 merges, pass `--tilt analysis_out/pano_tilt/lyon.json` instead.
+
+### Reproduce the results
+
+Everything below runs from a clean clone, on CPU, with no network and no imagery:
+
+```bash
+python scripts/analysis/lyon_review_159.py score       # recomputes score.json, compares its bytes
+python scripts/analysis/lyon_review_159.py elevation   # recall_by_elevation.json, likewise
+pytest -q tests/test_lyon_review_159.py
+```
+
+`score` and `elevation` need only committed files: `records.jsonl`, `verdicts.json`, `sample.json`,
+`audit_plan.json` and `analysis_out/lyon_review_159/run_peaks.json`. **Re-doing the review** also
+needs the 200 panos, which are git-ignored. They are pinned by sha256 in `imagery_manifest.json`.
+Copies are in the makelab2 run archive (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/lyon/`,
+backed up by CSE IT) and in the local worktree `D:/Git/RampNet-wt/lyon159`. Each record also
+carries its public Panoramax `hd_url`. Panoramax may serve different bytes than the archive, so a
+re-fetch has to be checked against the manifest. The panos are not on Hugging Face.
+
+### Not done
+
+- **The top-up draws** for Grand Lyon and other cameras. Jon decides whether "not decisive" is
+  good enough.
+- **Ramp-type tagging of the missed marks** (lipped kerb vs. ramp; a diagonal ramp marked as one
+  or as two), which would test the near-field hypothesis above.
+- **A second rater.** The verdicts are single-rater. The item list and rubric are fixed, so a
+  second pass can be compared directly.
+- **No Lyon training has started.** Eligibility is necessary, not sufficient: the recall finding
+  above changes how Lyon labels should enter a training pool.

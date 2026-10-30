@@ -1,0 +1,673 @@
+{
+ "angle": "degrees below the gravity horizon of the detection or mark",
+ "camera_height_m": 2.5,
+ "distance_note": "distance_m assumes a level camera at camera_height_m over flat ground; it labels the bands and is not measured",
+ "groups": {
+  "all": {
+   "bands": {
+    "0-2": {
+     "bootstrap95": [
+      0.0571,
+      0.303
+     ],
+     "distance_m": [
+      71.6,
+      null
+     ],
+     "missed": 30,
+     "missed_unsure": 8,
+     "recall": 0.1667,
+     "tp": 6
+    },
+    "10-20": {
+     "bootstrap95": [
+      0.2458,
+      0.3658
+     ],
+     "distance_m": [
+      6.9,
+      14.2
+     ],
+     "missed": 202,
+     "missed_unsure": 19,
+     "recall": 0.3034,
+     "tp": 88
+    },
+    "2-4": {
+     "bootstrap95": [
+      0.0161,
+      0.1481
+     ],
+     "distance_m": [
+      35.8,
+      71.6
+     ],
+     "missed": 52,
+     "missed_unsure": 29,
+     "recall": 0.0714,
+     "tp": 4
+    },
+    "4-6": {
+     "bootstrap95": [
+      0.0588,
+      0.2073
+     ],
+     "distance_m": [
+      23.8,
+      35.8
+     ],
+     "missed": 69,
+     "missed_unsure": 44,
+     "recall": 0.1266,
+     "tp": 10
+    },
+    "6-10": {
+     "bootstrap95": [
+      0.1969,
+      0.32
+     ],
+     "distance_m": [
+      14.2,
+      23.8
+     ],
+     "missed": 145,
+     "missed_unsure": 35,
+     "recall": 0.2564,
+     "tp": 50
+    },
+    ">20": {
+     "bootstrap95": [
+      0.3254,
+      0.4495
+     ],
+     "distance_m": [
+      0.0,
+      6.9
+     ],
+     "missed": 117,
+     "missed_unsure": 11,
+     "recall": 0.3842,
+     "tp": 73
+    },
+    "above": {
+     "bootstrap95": [
+      0.1,
+      0.2576
+     ],
+     "distance_m": null,
+     "missed": 62,
+     "missed_unsure": 12,
+     "recall": 0.1733,
+     "tp": 13
+    }
+   },
+   "total": {
+    "bootstrap95": [
+     0.2353,
+     0.2966
+    ],
+    "missed": 677,
+    "missed_unsure": 158,
+    "recall": 0.2649,
+    "tp": 244
+   },
+   "within": {
+    ">=10deg": {
+     "bootstrap95": [
+      0.2902,
+      0.382
+     ],
+     "distance_m_max": 14.2,
+     "missed": 319,
+     "missed_unsure": 30,
+     "recall": 0.3354,
+     "tp": 161
+    },
+    ">=6deg": {
+     "bootstrap95": [
+      0.2768,
+      0.3515
+     ],
+     "distance_m_max": 23.8,
+     "missed": 464,
+     "missed_unsure": 65,
+     "recall": 0.3126,
+     "tp": 211
+    }
+   }
+  },
+  "ecartip_gopro_max": {
+   "bands": {
+    "0-2": {
+     "bootstrap95": [
+      0.0526,
+      0.4615
+     ],
+     "distance_m": [
+      71.6,
+      null
+     ],
+     "missed": 14,
+     "missed_unsure": 3,
+     "recall": 0.2222,
+     "tp": 4
+    },
+    "10-20": {
+     "bootstrap95": [
+      0.1481,
+      0.274
+     ],
+     "distance_m": [
+      6.9,
+      14.2
+     ],
+     "missed": 60,
+     "missed_unsure": 15,
+     "recall": 0.2105,
+     "tp": 16
+    },
+    "2-4": {
+     "bootstrap95": [
+      0.0,
+      0.2778
+     ],
+     "distance_m": [
+      35.8,
+      71.6
+     ],
+     "missed": 15,
+     "missed_unsure": 4,
+     "recall": 0.1176,
+     "tp": 2
+    },
+    "4-6": {
+     "bootstrap95": [
+      0.0,
+      0.5455
+     ],
+     "distance_m": [
+      23.8,
+      35.8
+     ],
+     "missed": 8,
+     "missed_unsure": 2,
+     "recall": 0.2727,
+     "tp": 3
+    },
+    "6-10": {
+     "bootstrap95": [
+      0.0714,
+      0.4545
+     ],
+     "distance_m": [
+      14.2,
+      23.8
+     ],
+     "missed": 13,
+     "missed_unsure": 2,
+     "recall": 0.2778,
+     "tp": 5
+    },
+    ">20": {
+     "bootstrap95": [
+      0.2959,
+      0.473
+     ],
+     "distance_m": [
+      0.0,
+      6.9
+     ],
+     "missed": 55,
+     "missed_unsure": 7,
+     "recall": 0.375,
+     "tp": 33
+    },
+    "above": {
+     "bootstrap95": [
+      0.1167,
+      0.2941
+     ],
+     "distance_m": null,
+     "missed": 48,
+     "missed_unsure": 5,
+     "recall": 0.2,
+     "tp": 12
+    }
+   },
+   "total": {
+    "bootstrap95": [
+     0.2204,
+     0.3038
+    ],
+    "missed": 213,
+    "missed_unsure": 38,
+    "recall": 0.2604,
+    "tp": 75
+   },
+   "within": {
+    ">=10deg": {
+     "bootstrap95": [
+      0.247,
+      0.3557
+     ],
+     "distance_m_max": 14.2,
+     "missed": 115,
+     "missed_unsure": 22,
+     "recall": 0.2988,
+     "tp": 49
+    },
+    ">=6deg": {
+     "bootstrap95": [
+      0.25,
+      0.3488
+     ],
+     "distance_m_max": 23.8,
+     "missed": 128,
+     "missed_unsure": 24,
+     "recall": 0.2967,
+     "tp": 54
+    }
+   }
+  },
+  "grand_lyon_ladybug": {
+   "bands": {
+    "0-2": {
+     "bootstrap95": [
+      0.0,
+      0.0
+     ],
+     "distance_m": [
+      71.6,
+      null
+     ],
+     "missed": 1,
+     "missed_unsure": 0,
+     "recall": 0.0,
+     "tp": 0
+    },
+    "10-20": {
+     "bootstrap95": [
+      0.2403,
+      0.4333
+     ],
+     "distance_m": [
+      6.9,
+      14.2
+     ],
+     "missed": 76,
+     "missed_unsure": 1,
+     "recall": 0.3333,
+     "tp": 38
+    },
+    "2-4": {
+     "bootstrap95": [
+      0.0,
+      0.0
+     ],
+     "distance_m": [
+      35.8,
+      71.6
+     ],
+     "missed": 12,
+     "missed_unsure": 13,
+     "recall": 0.0,
+     "tp": 0
+    },
+    "4-6": {
+     "bootstrap95": [
+      0.0,
+      0.1071
+     ],
+     "distance_m": [
+      23.8,
+      35.8
+     ],
+     "missed": 33,
+     "missed_unsure": 28,
+     "recall": 0.0294,
+     "tp": 1
+    },
+    "6-10": {
+     "bootstrap95": [
+      0.1368,
+      0.3125
+     ],
+     "distance_m": [
+      14.2,
+      23.8
+     ],
+     "missed": 74,
+     "missed_unsure": 19,
+     "recall": 0.2211,
+     "tp": 21
+    },
+    ">20": {
+     "bootstrap95": [
+      0.3051,
+      0.4912
+     ],
+     "distance_m": [
+      0.0,
+      6.9
+     ],
+     "missed": 37,
+     "missed_unsure": 2,
+     "recall": 0.3934,
+     "tp": 24
+    },
+    "above": {
+     "bootstrap95": null,
+     "distance_m": null,
+     "missed": 0,
+     "missed_unsure": 0,
+     "recall": null,
+     "tp": 0
+    }
+   },
+   "total": {
+    "bootstrap95": [
+     0.2139,
+     0.3247
+    ],
+    "missed": 233,
+    "missed_unsure": 63,
+    "recall": 0.265,
+    "tp": 84
+   },
+   "within": {
+    ">=10deg": {
+     "bootstrap95": [
+      0.2784,
+      0.4403
+     ],
+     "distance_m_max": 14.2,
+     "missed": 113,
+     "missed_unsure": 3,
+     "recall": 0.3543,
+     "tp": 62
+    },
+    ">=6deg": {
+     "bootstrap95": [
+      0.251,
+      0.372
+     ],
+     "distance_m_max": 23.8,
+     "missed": 187,
+     "missed_unsure": 22,
+     "recall": 0.3074,
+     "tp": 83
+    }
+   }
+  },
+  "other_cameras": {
+   "bands": {
+    "0-2": {
+     "bootstrap95": [
+      0.0,
+      0.0
+     ],
+     "distance_m": [
+      71.6,
+      null
+     ],
+     "missed": 2,
+     "missed_unsure": 4,
+     "recall": 0.0,
+     "tp": 0
+    },
+    "10-20": {
+     "bootstrap95": [
+      0.1594,
+      0.5345
+     ],
+     "distance_m": [
+      6.9,
+      14.2
+     ],
+     "missed": 35,
+     "missed_unsure": 3,
+     "recall": 0.3396,
+     "tp": 18
+    },
+    "2-4": {
+     "bootstrap95": [
+      0.0,
+      0.3
+     ],
+     "distance_m": [
+      35.8,
+      71.6
+     ],
+     "missed": 11,
+     "missed_unsure": 9,
+     "recall": 0.0833,
+     "tp": 1
+    },
+    "4-6": {
+     "bootstrap95": [
+      0.0,
+      0.4167
+     ],
+     "distance_m": [
+      23.8,
+      35.8
+     ],
+     "missed": 11,
+     "missed_unsure": 9,
+     "recall": 0.1538,
+     "tp": 2
+    },
+    "6-10": {
+     "bootstrap95": [
+      0.1277,
+      0.375
+     ],
+     "distance_m": [
+      14.2,
+      23.8
+     ],
+     "missed": 35,
+     "missed_unsure": 7,
+     "recall": 0.2391,
+     "tp": 11
+    },
+    ">20": {
+     "bootstrap95": [
+      0.1667,
+      0.6667
+     ],
+     "distance_m": [
+      0.0,
+      6.9
+     ],
+     "missed": 13,
+     "missed_unsure": 1,
+     "recall": 0.381,
+     "tp": 8
+    },
+    "above": {
+     "bootstrap95": [
+      0.0,
+      0.0
+     ],
+     "distance_m": null,
+     "missed": 4,
+     "missed_unsure": 4,
+     "recall": 0.0,
+     "tp": 0
+    }
+   },
+   "total": {
+    "bootstrap95": [
+     0.1818,
+     0.3684
+    ],
+    "missed": 111,
+    "missed_unsure": 37,
+    "recall": 0.2649,
+    "tp": 40
+   },
+   "within": {
+    ">=10deg": {
+     "bootstrap95": [
+      0.2048,
+      0.5256
+     ],
+     "distance_m_max": 14.2,
+     "missed": 48,
+     "missed_unsure": 4,
+     "recall": 0.3514,
+     "tp": 26
+    },
+    ">=6deg": {
+     "bootstrap95": [
+      0.2075,
+      0.4308
+     ],
+     "distance_m_max": 23.8,
+     "missed": 83,
+     "missed_unsure": 11,
+     "recall": 0.3083,
+     "tp": 37
+    }
+   }
+  },
+  "other_gopro_max": {
+   "bands": {
+    "0-2": {
+     "bootstrap95": [
+      0.0,
+      0.3333
+     ],
+     "distance_m": [
+      71.6,
+      null
+     ],
+     "missed": 13,
+     "missed_unsure": 1,
+     "recall": 0.1333,
+     "tp": 2
+    },
+    "10-20": {
+     "bootstrap95": [
+      0.2093,
+      0.4792
+     ],
+     "distance_m": [
+      6.9,
+      14.2
+     ],
+     "missed": 31,
+     "missed_unsure": 0,
+     "recall": 0.3404,
+     "tp": 16
+    },
+    "2-4": {
+     "bootstrap95": [
+      0.0,
+      0.25
+     ],
+     "distance_m": [
+      35.8,
+      71.6
+     ],
+     "missed": 14,
+     "missed_unsure": 3,
+     "recall": 0.0667,
+     "tp": 1
+    },
+    "4-6": {
+     "bootstrap95": [
+      0.0455,
+      0.375
+     ],
+     "distance_m": [
+      23.8,
+      35.8
+     ],
+     "missed": 17,
+     "missed_unsure": 5,
+     "recall": 0.1905,
+     "tp": 4
+    },
+    "6-10": {
+     "bootstrap95": [
+      0.2381,
+      0.5
+     ],
+     "distance_m": [
+      14.2,
+      23.8
+     ],
+     "missed": 23,
+     "missed_unsure": 7,
+     "recall": 0.3611,
+     "tp": 13
+    },
+    ">20": {
+     "bootstrap95": [
+      0.2,
+      0.6111
+     ],
+     "distance_m": [
+      0.0,
+      6.9
+     ],
+     "missed": 12,
+     "missed_unsure": 1,
+     "recall": 0.4,
+     "tp": 8
+    },
+    "above": {
+     "bootstrap95": [
+      0.0,
+      0.5
+     ],
+     "distance_m": null,
+     "missed": 10,
+     "missed_unsure": 3,
+     "recall": 0.0909,
+     "tp": 1
+    }
+   },
+   "total": {
+    "bootstrap95": [
+     0.2048,
+     0.3488
+    ],
+    "missed": 120,
+    "missed_unsure": 20,
+    "recall": 0.2727,
+    "tp": 45
+   },
+   "within": {
+    ">=10deg": {
+     "bootstrap95": [
+      0.2576,
+      0.4677
+     ],
+     "distance_m_max": 14.2,
+     "missed": 43,
+     "missed_unsure": 1,
+     "recall": 0.3582,
+     "tp": 24
+    },
+    ">=6deg": {
+     "bootstrap95": [
+      0.27,
+      0.4574
+     ],
+     "distance_m_max": 23.8,
+     "missed": 66,
+     "missed_unsure": 8,
+     "recall": 0.3592,
+     "tp": 37
+    }
+   }
+  }
+ },
+ "pool": "score.json recall_055: unbiased subset (random + empty), panos with confirmed misses; true detections at 0.55 vs the reviewer's missed marks",
+ "question": "how much of the low 0.55 recall is far-field ramps",
+ "tilt": "none: every pano read as a level camera",
+ "verdicts_sha256": "60e9cf5a6910f343bf817e603ce9a694722ee4f3b556050f94643a1726026cae"
+}
