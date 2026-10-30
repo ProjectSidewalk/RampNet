@@ -21,6 +21,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px
 h1{font-size:17px;font-weight:600;margin:0}
 .top{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;margin-bottom:10px}
 .top .sub{color:var(--muted)}
+.hint{color:var(--muted);font-size:13px;margin:-4px 0 8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 6px;margin-left:6px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--fg);font-size:13px;white-space:nowrap}
+.pill .dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.pill .dot.ring{background:none;border:2px dotted var(--node);box-sizing:border-box}
 .prog{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .wrap{display:grid;grid-template-columns:minmax(0,720px) minmax(300px,1fr);gap:16px;align-items:start}
 @media (max-width:900px){.wrap{grid-template-columns:1fr}}
@@ -71,7 +75,10 @@ a{color:var(--accent)}
 
 <div class="top">
   <h1>Seattle crosswalk spot-check</h1>
-  <span class="sub">King County ortho, 3 in/px · OSM node <span style="color:var(--node)">●</span> · crowd label <span style="color:var(--label)">●</span> · dashed rings 2 m and 5 m</span>
+  <span class="sub">King County ortho, 3 in/px
+    <span class="pill"><span class="dot" style="background:var(--node)"></span>OSM crossing node</span>
+    <span class="pill"><span class="dot" style="background:var(--label)"></span>Project Sidewalk crowd label</span>
+    <span class="pill"><span class="dot ring"></span>2 m and 5 m from the node</span></span>
   <span class="prog" id="prog">0 / 120 rated</span>
   <label class="sub">order <select id="order" class="sel-order"><option value="priority">AI non-default first, then shuffled</option><option value="sheet">sheet order (#0…#119)</option><option value="unrated">unrated only</option></select></label>
 </div>
@@ -102,12 +109,13 @@ a{color:var(--accent)}
 
     <div class="q">
       <h2>Where does the crowd label sit?</h2>
+      <p class="hint">Judge by position on the paint, not by the metres: the distance and the dashed rings are only hints.</p>
       <div class="opts" id="optL">
-        <button class="opt" data-f="l" data-v="yes"><kbd>1</kbd> centre (≤2 m)</button>
-        <button class="opt" data-f="l" data-v="near"><kbd>2</kbd> on crossing, 2–5 m</button>
-        <button class="opt" data-f="l" data-v="end"><kbd>3</kbd> at an end (&gt;5 m)</button>
-        <button class="opt" data-f="l" data-v="off"><kbd>4</kbd> off the crossing</button>
-        <button class="opt" data-f="l" data-v="na"><kbd>0</kbd> n/a</button>
+        <button class="opt" data-f="l" data-v="yes"><kbd>1</kbd> on the stripes, at the centre</button>
+        <button class="opt" data-f="l" data-v="near"><kbd>2</kbd> on the stripes, off-centre</button>
+        <button class="opt" data-f="l" data-v="end"><kbd>3</kbd> at the curb end of this crossing</button>
+        <button class="opt" data-f="l" data-v="off"><kbd>4</kbd> not on this crossing</button>
+        <button class="opt" data-f="l" data-v="na"><kbd>0</kbd> n/a (no crossing to judge)</button>
       </div>
       <div class="ai-line" id="aiL"></div>
     </div>
@@ -147,7 +155,7 @@ const ROWS = [{"i":0,"uid":"seattle-wa:211432","node":"7527818853","cls":"marked
 const SVC = y => `https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps/KingCo_Aerial_${y}/MapServer/export`;
 const PX = 720, R = 6378137;  // 720 px over 36 m = 5 cm/px (service is 7.6 cm/px)
 const merc = (lat,lng) => [R*lng*Math.PI/180, R*Math.log(Math.tan(Math.PI/4 + lat*Math.PI/360))];
-const LABELS = {yes:"centre (≤2 m)", near:"on crossing, 2–5 m", end:"at an end (>5 m)", off:"off the crossing", na:"n/a"};
+const LABELS = {yes:"on the stripes, at the centre", near:"on the stripes, off-centre", end:"at the curb end", off:"not on this crossing", na:"n/a"};
 const PAINT = {yes:"yes", no:"no", unclear:"unclear"};
 
 let state = {half:18, year:2023, markers:true};
@@ -266,7 +274,7 @@ function tally(){
   <table><tr><th>question</th><th>agree with AI</th><th>rate</th></tr>
   <tr><td>painted crossing at node</td><td class="n">${agP} / ${vs.length}</td><td class="n">${(agP/vs.length).toFixed(2)}</td></tr>
   <tr><td>label position</td><td class="n">${agL} / ${vs.length}</td><td class="n">${(agL/vs.length).toFixed(2)}</td></tr></table>
-  <table style="margin-top:10px"><tr><th>OSM class</th><th>painted = yes, you</th><th>painted = yes, AI (same rows)</th><th>label centre or near, you</th><th>label centre or near, AI (same rows)</th></tr>
+  <table style="margin-top:10px"><tr><th>OSM class</th><th>painted = yes, you</th><th>painted = yes, AI (same rows)</th><th>label on the stripes, you</th><th>label on the stripes, AI (same rows)</th></tr>
   ${cls.map(c=>`<tr><td>${c}</td><td class="n">${cnt(c,v=>v.painted==="yes")}</td><td class="n">${cnt(c,v=>v.ai_p==="yes")}</td>
     <td class="n">${cnt(c,v=>v.label==="yes"||v.label==="near")}</td><td class="n">${cnt(c,v=>v.ai_l==="yes"||v.ai_l==="near")}</td></tr>`).join("")}</table>
   <p class="dis">disagreements (${dis.length}): ${dis.map(v=>`<a data-i="${v.i}">#${v.i}</a> ${v.ai_p}→${v.painted}, ${v.ai_l}→${v.label}`).join(" · ") || "none"}</p>
