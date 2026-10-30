@@ -384,14 +384,17 @@ height, which moves the distances but not the angles.
 | **within ~14 m (≥ 10°)** | | 161 / 319 | **0.34** [0.29, 0.38] | 174 / 294 | **0.37** [0.32, 0.42] |
 | all | | 244 / 677 / 158 | 0.26 | same pool | 0.26 |
 
-Brackets are pano-bootstrap 95% intervals. Per-group rows are in the JSON files.
+Brackets are pano-bootstrap 95% intervals (the "within" rows draw from all 176 pool panos, as
+`score` does; a band draws from the panos with a ramp in it). Per-group rows are in the JSON files.
 
 - **Far ramps are close to undetected.** Beyond about 24 m the model finds 7-17% of what Jon
   marked on the level reading and 3-9% tilt-corrected.
 - **Dropping the far marks barely helps.** Within about 24 m recall is 0.31, and within about
   14 m it is 0.34 (0.37 tilt-corrected). Even under about 7 m the model misses about 60%.
-- **So most of the recall deficit is near-field.** That points to what the ramps look like, not to
-  their size in the image. Jon's notes on three panos describe it: Lyon kerbs "drop slightly at the
+- **So most of the recall deficit is near-field.** 464 of the 677 sure misses (69%) are within
+  about 24 m on the level reading, and 523 (77%) tilt-corrected. Recall still rises with angle
+  inside the near field (0.26, 0.30, 0.38 level), so image size matters too, but even the closest
+  band misses most ramps, which points at what the ramps look like as well. Jon's notes on three panos describe it: Lyon kerbs "drop slightly at the
   crosswalks but there is still a lip", and some corners have "massive diagonal ramps" that he
   marked as two. Neither looks like the US ramps the model was trained on. **This is a hypothesis.**
   Three notes do not measure it, and no per-mark ramp-type tag exists to test it.
@@ -410,7 +413,10 @@ git show 090cb4f:analysis_out/pano_tilt/lyon.json > /tmp/lyon_tilt.json
 python scripts/analysis/lyon_review_159.py elevation --tilt /tmp/lyon_tilt.json   # compares bytes
 ```
 
-Once #273 merges, pass `--tilt analysis_out/pano_tilt/lyon.json` instead.
+Once #273 merges, pass `--tilt analysis_out/pano_tilt/lyon.json` instead. If #273 is squash-merged
+and its branch deleted, 090cb4f may no longer be fetchable, and if #273 regenerates `lyon.json`
+before merging, the byte check fails. The recorded sha256 makes either case detectable; re-run
+`elevation --tilt ... --write` on the merged file and update this section.
 
 ### Reproduce the results
 
@@ -423,7 +429,8 @@ pytest -q tests/test_lyon_review_159.py
 ```
 
 `score` and `elevation` need only committed files: `records.jsonl`, `verdicts.json`, `sample.json`,
-`audit_plan.json` and `analysis_out/lyon_review_159/run_peaks.json`. **Re-doing the review** also
+`audit_plan.json`, `bundle_provenance.json`, `analysis_out/lyon_review_159/run_peaks.json`, and (for
+`elevation`'s pool check) `analysis_out/lyon_review_159/score.json`. **Re-doing the review** also
 needs the 200 panos, which are git-ignored. They are pinned by sha256 in `imagery_manifest.json`.
 Copies are in the makelab2 run archive (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/lyon/`,
 backed up by CSE IT) and in the local worktree `D:/Git/RampNet-wt/lyon159`. Each record also

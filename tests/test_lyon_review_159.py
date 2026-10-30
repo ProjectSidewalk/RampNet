@@ -425,10 +425,10 @@ def test_elevation_pool_is_the_score_recall_pool():
     v["e1"]["missed"] = [{"x": 0.2, "y": 0.52, "unsure": True}]
     v["e1"]["no_missed"] = False
     out, _ = L.score_groups(recs, v, peaks)
-    table = L.elevation_table(L.elevation_items(recs, v))
+    table = L.elevation_table(*L.elevation_items(recs, v))
     for g in ("grand_lyon_ladybug", "ecartip_gopro_max", "all"):
-        tot = table[g]["total"]
-        assert (tot["tp"], tot["tp"] + tot["missed"]) == (out[g]["recall_055"]["tp"],
-                                                          out[g]["recall_055"]["n"])
+        tot, r = table[g]["total"], out[g]["recall_055"]
+        assert (tot["tp"], tot["tp"] + tot["missed"], tot["bootstrap95"]) == \
+            (r["tp"], r["n"], r["bootstrap95"])
     assert table["all"]["total"]["missed_unsure"] == 1
     assert table["all"]["bands"]["2-4"]["missed_unsure"] == 1     # y 0.52 is 3.6 deg down

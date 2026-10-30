@@ -1065,9 +1065,11 @@ def band_distance_m(label, h=CAMERA_HEIGHT_M):
 def elevation_items(recs, verdict_panos, tilt=None):
     """One row per judged ramp in the 0.55 recall pool: the true detections and the missed
     marks (sure and unsure) on unbiased-subset panos whose misses were confirmed, the same
-    pool as ``score_groups``' ``recall_055``. ``tilt`` maps pano id -> (pitch, roll)."""
+    pool as ``score_groups``' ``recall_055``. ``tilt`` maps pano id -> (pitch, roll).
+    Returns (items, pool), ``pool`` mapping every pool pano (with or without items) to its
+    group, so pool-wide intervals keep the zero-ramp panos as ``score`` does."""
     tilt = tilt or {}
-    out = []
+    out, pool = [], {}
     for r in recs:
         pid, grp = r["pano"]["panorama_id"], r["benchmark_group"]
         e = verdict_panos.get(pid)
@@ -1076,6 +1078,7 @@ def elevation_items(recs, verdict_panos, tilt=None):
             continue
         if not ((e["no_missed"] or e["missed"]) if "no_missed" in e else True):
             continue
+        pool[pid] = r["benchmark_stratum"]
         pitch, roll = tilt.get(pid, (0.0, 0.0))
         pts = [("tp", d["x_normalized"], d["y_normalized"])
                for d, v in zip(r["detections"], e["dets"]) if v is True]
@@ -1084,19 +1087,25 @@ def elevation_items(recs, verdict_panos, tilt=None):
         for kind, x, y in pts:
             out.append({"pano": pid, "group": r["benchmark_stratum"], "kind": kind,
                         "below_horizon_deg": below_horizon_deg(x, y, pitch, roll)})
-    return out
+    return out, pool
 
 
-def elevation_table(items, bands=ELEVATION_BANDS, near=NEAR_LIMITS):
+def elevation_table(items, pool, bands=ELEVATION_BANDS, near=NEAR_LIMITS):
     """Per group (+ ``all``): counts and recall per band, plus recall within each near
     limit; recall = tp / (tp + missed), unsure marks reported but never in the pool.
-    Intervals are pano bootstraps, as in ``score``."""
+    Intervals are pano bootstraps. The total and ``within`` rows draw from every pool pano
+    (zero-ramp panos included, as ``score`` does, so the total interval equals score.json's
+    ``recall_055``); a band draws only from the panos with a ramp in that band."""
     out = {}
     for g in [g for g in GROUPS if any(i["group"] == g for i in items)] + ["all"]:
         rows = [i for i in items if g == "all" or i["group"] == g]
+        g_panos = [p for p, pg in pool.items() if g == "all" or pg == g]
 
-        def summarize(sel):
+        def summarize(sel, all_panos=False):
             per = collections.defaultdict(lambda: [0, 0])
+            if all_panos:
+                for p in g_panos:
+                    per[p]
             c = collections.Counter(i["kind"] for i in sel)
             for i in sel:
                 if i["kind"] != "missed_unsure":
@@ -1115,9 +1124,10 @@ def elevation_table(items, bands=ELEVATION_BANDS, near=NEAR_LIMITS):
                                          if elevation_band(i["below_horizon_deg"], bands) == lab])}
         within = {f">={lim:g}deg": {"distance_m_max": _r(CAMERA_HEIGHT_M / math.tan(
                       math.radians(lim)), 1),
-                      **summarize([i for i in rows if i["below_horizon_deg"] >= lim])}
+                      **summarize([i for i in rows if i["below_horizon_deg"] >= lim],
+                                  all_panos=True)}
                   for lim in near}
-        out[g] = {"bands": by_band, "within": within, "total": summarize(rows)}
+        out[g] = {"bands": by_band, "within": within, "total": summarize(rows, all_panos=True)}
     return out
 
 
@@ -1142,13 +1152,14 @@ def cmd_elevation(args):
         verdicts = json.load(f)
     recs = load_records(args.bundle)
     tilt, tilt_prov = load_tilt(args.tilt) if args.tilt else (None, None)
-    items = elevation_items(recs, verdicts.get("panos", {}), tilt)
-    table = elevation_table(items)
+    items, pool = elevation_items(recs, verdicts.get("panos", {}), tilt)
+    table = elevation_table(items, pool)
     # the pool must be score's recall_055 pool, or the two files disagree
     with open(SCORE, encoding="utf-8") as f:
         r55 = json.load(f)["groups"]["all"]["recall_055"]
     tot = table["all"]["total"]
-    assert (tot["tp"], tot["tp"] + tot["missed"]) == (r55["tp"], r55["n"]), \
+    assert (tot["tp"], tot["tp"] + tot["missed"], tot["bootstrap95"]) == \
+        (r55["tp"], r55["n"], r55["bootstrap95"]), \
         f"pool {tot} disagrees with score.json recall_055 {r55}"
     res = {"question": "how much of the low 0.55 recall is far-field ramps",
            "pool": "score.json recall_055: unbiased subset (random + empty), panos with "
