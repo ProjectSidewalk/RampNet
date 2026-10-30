@@ -432,3 +432,10 @@ def test_elevation_pool_is_the_score_recall_pool():
             (r["tp"], r["n"], r["bootstrap95"])
     assert table["all"]["total"]["missed_unsure"] == 1
     assert table["all"]["bands"]["2-4"]["missed_unsure"] == 1     # y 0.52 is 3.6 deg down
+
+
+def test_the_audit_is_never_discovered_as_a_benchmark_split():
+    # verdicts.json makes a bundle look scored; audit_plan.json marks it a label audit
+    from rampnet.bundles import is_scored_split, scored_splits
+    assert not is_scored_split(BUNDLE)
+    assert "lyon" not in scored_splits(os.path.dirname(BUNDLE))
