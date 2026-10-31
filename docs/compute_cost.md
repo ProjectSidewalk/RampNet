@@ -469,3 +469,39 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 | 42083469 | `download_dataset.py`, failed at the Arrow step (`Errno 122`) | 16 | 2 h 02 m | 0 |
 | 42090420, incarnation 1 | `restage_from_parquet.py`, preempted after writing most of `train/` | 12 | 4 h 14 m | 0 |
 | 42090420, incarnation 2 | resume; exit 1 is the count check seeing the nine placeholder rows | 12 | 37 m | 0 |
+
+## klone, 2026-10-22: the #263 control arm, 37.29 GPU-hours, $0
+
+Six training allocations and five scoring jobs, all on `ckpt-all` and free
+([`control_arm_263.md`](control_arm_263.md)). None was preempted, so `-D` adds no incarnation
+here, but the pull uses it anyway. The first submission (`42104181`-`83`) landed on node `g3110`
+and failed at `torch.cuda.set_device` with an uncorrectable ECC error on one GPU. Seed 1 had
+first spent 50 min building the env tarball that every later job unpacked, which is why its
+failed row is 3,051 s and the other two are 40 s and 43 s. The resubmission excluded `g3110`.
+Pulled by job id on 2026-10-22 into `docs/data/compute/sacct_klone_2026-10-22_control263.txt`
+(2,067 bytes, sha256 `43350cebb44d436cd9f97a4f92ac7fb38cba83cf50a5603b318bc56c8cfa6acb`):
+
+```bash
+sacct -X -D -P -n -j 42104181,42104182,42104183,42108716,42108717,42108718,42152649,42152650,42152651,42152652,42152687 \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    > sacct_klone_2026-10-22_control263.txt
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-10-22_control263.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+| job | what | GPUs | wall-clock | GPU-h |
+| :--- | :--- | ---: | ---: | ---: |
+| 42104181 | seed 1, FAILED on g3110 (ECC) after building the env tarball | 4 L40S | 50 m 51 s | 3.39 |
+| 42104182 | seed 2, FAILED on g3110 (ECC) | 4 L40S | 40 s | 0.04 |
+| 42104183 | seed 3, FAILED on g3110 (ECC) | 4 L40S | 43 s | 0.05 |
+| 42108716 | seed 1, 2,000 steps | 4 L40S | 2 h 20 m 56 s | 9.40 |
+| 42108717 | seed 2, 2,000 steps | 4 L40S | 2 h 20 m 38 s | 9.38 |
+| 42108718 | seed 3, 2,000 steps | 4 A40 | 2 h 59 m 08 s | 11.94 |
+| 42152649 | score released, 14 splits | 1 A40 | 47 m 27 s | 0.79 |
+| 42152650 | score control_s1, 14 splits | 1 A40 | 48 m 47 s | 0.81 |
+| 42152651 | score control_s2, 14 splits | 1 A40 | 48 m 47 s | 0.81 |
+| 42152652 | score control_s3, 14 splits | 1 L40S | 31 m 41 s | 0.53 |
+| 42152687 | score the #82 controls on bayonne and juneau | 1 A40 | 9 m 04 s | 0.15 |
+
+Training 34.20 GPU-h, 3.48 of it in the three failed runs; scoring 3.10 GPU-h.
