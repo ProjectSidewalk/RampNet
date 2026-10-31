@@ -141,3 +141,6 @@ benchmark/lyon/*  -text
 # tests/test_pano_tilt.py compare the summaries byte for byte with a re-derivation from the
 # committed rows, and `ids` compares the id list. All are written LF on every platform.
 analysis_out/pano_tilt/** text eol=lf
+
+# Lyon audit results (#159): written LF and checked byte for byte by lyon_review_159.py.
+analysis_out/lyon_review_159/** text eol=lf
