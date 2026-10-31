@@ -166,6 +166,13 @@ let verdicts = {};
 const KEY = 'aerial_spotcheck.__SHEET__';
 function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ return {}; } }
 function persist(){ try { localStorage.setItem(KEY, JSON.stringify(verdicts)); } catch(e){ $('status').textContent = 'Could not write localStorage; export often.'; } }
+// Unsaved edits (buttons, flag, note) per row, so a reload or a detour with the arrows loses nothing. Cleared by Save and Clear.
+let drafts = {};
+function loadDrafts(){ try { return JSON.parse(localStorage.getItem(KEY + '.drafts') || '{}'); } catch(e){ return {}; } }
+function persistDrafts(){ try { localStorage.setItem(KEY + '.drafts', JSON.stringify(drafts)); } catch(e){} }
+function saveDraft(){ drafts[docId(row().i)] = {p:cur.p, l:cur.l, flag:cur.flag, note:$('note').value}; persistDrafts(); }
+function dropDraft(i){ delete drafts[docId(i)]; persistDrafts(); }
+function edit(){ paintSel(); saveDraft(); }
 let order = [], pos = 0;
 let cur = {p:null, l:null, flag:false};
 
@@ -235,6 +242,8 @@ function render(){
   const r = row(); const v = verdicts[docId(r.i)];
   cur = v ? {p:v.painted, l:v.label, flag:!!v.flag} : {p:r.ai_p, l:r.ai_l, flag:false};
   $("note").value = v ? (v.note||"") : "";
+  const d = drafts[docId(r.i)];
+  if (d){ cur = {p:d.p, l:d.l, flag:!!d.flag}; $("note").value = d.note||""; }
   $("imgtag").textContent = `#${r.i} · ${2*state.half} m · ${state.year}`;
   $("facts").innerHTML = `
     <dt>row</dt><dd>#${r.i} · ${r.uid}${v ? ' · <span class="chip">rated</span>' : ''}${cur.flag ? ' <span class="chip flag">flagged</span>' : ''}</dd>
@@ -247,7 +256,7 @@ function render(){
   paintSel();
   $("aiP").innerHTML = `AI said <b>${PAINT[r.ai_p]||r.ai_p}</b>${r.note ? ` · “${r.note}”` : ""}`;
   $("aiL").innerHTML = `AI said <b>${LABELS[r.ai_l]||r.ai_l}</b>`;
-  $("status").textContent = v ? `Saved: ${v.painted} / ${LABELS[v.label]||v.label}${v.agree ? " (matches the AI)" : " (differs from the AI)"}` : "";
+  $("status").textContent = d ? "Unsaved edits on this row restored. Press Enter to save them." : v ? `Saved: ${v.painted} / ${LABELS[v.label]||v.label}${v.agree ? " (matches the AI)" : " (differs from the AI)"}` : "";
   drawOverlay(r); loadImage(r);
   const n = Object.keys(verdicts).length;
   $("prog").textContent = `${n} / ${ROWS.length} rated · ${pos+1} of ${order.length} in this order`;
@@ -258,7 +267,7 @@ function save(advance){
   const r = row();
   const data = {i:r.i, uid:r.uid, cls:r.cls, painted:cur.p, label:cur.l, flag:cur.flag, note:$("note").value.trim(),
     ai_p:r.ai_p, ai_l:r.ai_l, agree:(cur.p===r.ai_p && cur.l===r.ai_l), ts:new Date().toISOString()};
-  verdicts[docId(r.i)] = data; persist();
+  verdicts[docId(r.i)] = data; persist(); dropDraft(r.i);
   if (advance) nextUnrated(); else render();
   tally();
 }
@@ -293,13 +302,13 @@ function tally(){
 document.addEventListener("click", e => {
   const b = e.target.closest(".opt"); if (!b) return;
   if (b.dataset.f==="p") cur.p = b.dataset.v; else cur.l = b.dataset.v;
-  paintSel();
+  edit();
 });
 $("save").onclick = () => save(true);
 $("skip").onclick = () => next(1);
 $("nextUnrated").onclick = () => nextUnrated();
-$("flag").onclick = () => { cur.flag = !cur.flag; paintSel(); };
-$("clear").onclick = () => { delete verdicts[docId(row().i)]; persist(); render(); tally(); };
+$("flag").onclick = () => { cur.flag = !cur.flag; edit(); };
+$("clear").onclick = () => { delete verdicts[docId(row().i)]; persist(); dropDraft(row().i); render(); tally(); };
 $("export").onclick = () => {
   const out = {sheet:"__SHEET__", rater:"human", exported:new Date().toISOString(), verdicts:Object.values(verdicts).sort((a,b)=>a.i-b.i)};
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:"application/json"}));
@@ -312,20 +321,21 @@ $("import").onchange = e => {
     $("status").textContent = `Imported ${(j.verdicts||[]).length} verdicts.`; }).catch(err => { $("status").textContent = "Import failed: " + err; });
 };
 $("order").onchange = () => { buildOrder(); pos = 0; render(); };
+$("note").addEventListener("input", saveDraft);
 $("note").addEventListener("keydown", e => { if (e.key==="Escape"){ e.target.blur(); } else if (e.key==="Enter"){ e.preventDefault(); e.target.blur(); save(true); } e.stopPropagation(); });
 
 document.addEventListener("keydown", e => {
   if (e.target.tagName==="INPUT" || e.target.tagName==="SELECT" || e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key;
-  const setP = v => { cur.p = v; paintSel(); };
-  const setL = v => { cur.l = v; paintSel(); };
+  const setP = v => { cur.p = v; edit(); };
+  const setL = v => { cur.l = v; edit(); };
   if (k==="Enter" || k===" ") { e.preventDefault(); save(true); }
   else if (k==="y"||k==="Y") setP("yes"); else if (k==="n"||k==="N") setP("no"); else if (k==="u"||k==="U") setP("unclear");
   else if (k==="1") setL("yes"); else if (k==="2") setL("near"); else if (k==="3") setL("end"); else if (k==="4") setL("off"); else if (k==="0") setL("na");
   else if (k==="ArrowRight"||k==="j") next(1); else if (k==="ArrowLeft"||k==="k") next(-1);
   else if (k==="s"||k==="S") next(1);
   else if (k===".") nextUnrated();
-  else if (k==="f"||k==="F") { cur.flag = !cur.flag; paintSel(); }
+  else if (k==="f"||k==="F") { cur.flag = !cur.flag; edit(); }
   else if (k==="z"||k==="Z") { state.half = state.half===18 ? 9 : 18; render(); }
   else if (k==="t"||k==="T") { state.year = state.year===2023 ? 2025 : 2023; render(); }
   else if (k==="g"||k==="G") { state.markers = !state.markers; drawOverlay(row()); }
@@ -333,7 +343,7 @@ document.addEventListener("keydown", e => {
 });
 
 (function start(){
-  verdicts = load();
+  verdicts = load(); drafts = loadDrafts();
   buildOrder();
   try { const p = +localStorage.getItem("spotcheck.pos"); const k = order.indexOf(p); if (k>=0) pos = k; } catch(e){}
   render(); tally();
