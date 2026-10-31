@@ -17,16 +17,23 @@ Subcommands, in order:
     # estimate every listed pano and compare with Google's pose (needs benchmark/<split>/panos/)
     python scripts/analysis/pano_tilt_estimate.py validate --panos-root benchmark --workers 12
 
-    # the Lyon review bundle's 200 panos, read-only from wherever they are staged
-    python scripts/analysis/pano_tilt_estimate.py lyon --panos-dir <dir with the 200 jpgs>
+    # fetch the Lyon review bundle's 200 panos from Panoramax (each record's hd_url) and check
+    # every file against benchmark/lyon/imagery_manifest.json; exits 1 on any mismatch
+    python scripts/analysis/pano_tilt_estimate.py fetch-lyon --out <dir>
 
-    # re-derive both summaries from the committed per-pano rows (no images needed)
+    # the Lyon review bundle's 200 panos, read-only from wherever they are staged
+    python scripts/analysis/pano_tilt_estimate.py lyon --panos-dir <dir>
+
+    # re-derive both summaries and the gate sensitivity table from the committed per-pano rows
+    # (no images needed)
     python scripts/analysis/pano_tilt_estimate.py summarize           # compare, exit 1 on drift
     python scripts/analysis/pano_tilt_estimate.py summarize --write
 
     # visual check: one view unlevelled, levelled by the record's pose (Google's on GSV) and
     # levelled by the estimate, plumb lines every 40 px (writes a JPEG wherever --out says;
-    # nothing is committed). --panos-root holds <split>/panos/<pano_id>.jpg
+    # nothing is committed). --panos-root holds <split>/panos/<pano_id>.jpg. For --split lyon
+    # the record's pose is panoflat's with its pitch sign flipped (doc section 4.3), and a
+    # 0 / 0 or absent pose as served
     python scripts/analysis/pano_tilt_estimate.py inspect --split gainesville \\
         --pano-id DSID5BsZ19qz5BuvC_ZDNA --view 6 --out inspect.jpg
 
@@ -57,6 +64,7 @@ VAL_ROWS = os.path.join(OUT_DIR, "validation_gsv.json")
 VAL_SUMMARY = os.path.join(OUT_DIR, "validation_summary.json")
 LYON_ROWS = os.path.join(OUT_DIR, "lyon.json")
 LYON_SUMMARY = os.path.join(OUT_DIR, "lyon_summary.json")
+GATE_SENSITIVITY = os.path.join(OUT_DIR, "gate_sensitivity.json")
 LYON_BUNDLE = os.path.join(REPO, "benchmark", "lyon")
 
 #: The GSV benchmark splits whose records carry Google's measured camera_pitch / camera_roll for
@@ -373,6 +381,9 @@ def cmd_lyon(args):
         row.update(est)
         rows.append(row)
     rows.sort(key=lambda r: r["pano_id"])
+    # The note is stale since the review was scored (docs/lyon_review_159.md now reads tilt from
+    # these rows), but it is part of lyon.json's bytes, which that doc pins by sha256; it is left
+    # as it was so a re-run on the same machine still reproduces the pinned file.
     obj = dict(params_block(), rows=rows,
                note="Tilt is a covariate for after Jon's review of #159. These rows are not joined "
                     "to any verdict; precision and recall by tilt wait until the review is final.")
@@ -440,16 +451,138 @@ def lyon_summary(obj):
 
 
 # --------------------------------------------------------------------------------------------
+# gate: re-apply it to stored rows, and its sensitivity to the ambiguity threshold
+# --------------------------------------------------------------------------------------------
+
+def regate_row(row, params=pt.TiltParams()):
+    """(status, reason) the decline gate gives a stored row under ``params``.
+
+    Uses only the stored (rounded) fields. A row with no estimate (too few segments, no
+    consensus) keeps its stored status, since there is nothing to gate. With the default
+    parameters this reproduces every committed row's status and failed tests (tested); a value
+    printed in the reason can differ in its last digit, since the stored value is rounded.
+    """
+    if row["pitch_deg"] is None:
+        return row["status"], row["reason"]
+    reasons = pt.gate_reasons(row["n_inliers"], row["sector_inliers"], row["se_pitch_deg"],
+                              row["se_roll_deg"], row["ambiguity"], params)
+    return ("declined" if reasons else "ok"), "; ".join(reasons)
+
+
+#: Ambiguity thresholds for the sensitivity table. 0.80 is the one in use (TiltParams); the
+#: others are for reading how much the held-out result depends on it, not for choosing a new one.
+AMBIGUITY_GRID = (0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00)
+
+
+def _worst_err(r):
+    return max(abs(r["pitch_deg"] - r["google_pitch_deg"]), abs(r["roll_deg"] - r["google_roll_deg"]))
+
+
+def gate_sensitivity(val_obj, lyon_obj=None):
+    """How the GSV accuracy and the decline rate move with the ambiguity threshold.
+
+    Every other gate term stays at its ``TiltParams`` default. Also records how far the formal-SE
+    term is from ever firing, and every gross (> 3 degree) failure with its ambiguity, so the
+    margin behind "no accepted test pano is more than 3 degrees off" is on file.
+    """
+    base = pt.TiltParams()
+    rows = val_obj["rows"]
+    out = {"method_version": val_obj["method_version"], "varied": "max_ambiguity",
+           "fixed": {k: v for k, v in base.__dict__.items()
+                     if k in ("min_inliers", "sector_min_inliers", "min_sectors", "max_se_deg")},
+           "in_use": base.max_ambiguity, "by_threshold": {}}
+    for thr in AMBIGUITY_GRID:
+        params = pt.TiltParams(max_ambiguity=thr)
+        block = {}
+        for role in ("dev", "test"):
+            sub = [r for r in rows if r["role"] == role]
+            ok = [r for r in sub if regate_row(r, params)[0] == "ok"]
+            worst = [_worst_err(r) for r in ok]
+            block[role] = {"n": len(sub), "n_ok": len(ok), "decline_share": rnd(1 - len(ok) / len(sub)),
+                           "mae_pitch_deg": rnd(np.mean([abs(r["pitch_deg"] - r["google_pitch_deg"]) for r in ok])),
+                           "mae_roll_deg": rnd(np.mean([abs(r["roll_deg"] - r["google_roll_deg"]) for r in ok])),
+                           "n_worst_above_1deg": int(sum(w > 1 for w in worst)),
+                           "n_worst_above_3deg": int(sum(w > 3 for w in worst)),
+                           "max_worst_deg": rnd(max(worst))}
+        if lyon_obj is not None:
+            lr = lyon_obj["rows"]
+            block["lyon"] = {"n": len(lr), "n_ok": sum(regate_row(r, params)[0] == "ok" for r in lr)}
+        out["by_threshold"][f"{thr:.2f}"] = block
+    gross = sorted((r for r in rows if r["pitch_deg"] is not None and _worst_err(r) > 3),
+                   key=lambda r: r["ambiguity"])
+    out["gross_failures_by_ambiguity"] = [
+        {"split": r["split"], "pano_id": r["pano_id"], "role": r["role"], "ambiguity": r["ambiguity"],
+         "worst_err_deg": rnd(_worst_err(r)), "n_inliers": r["n_inliers"], "n_sectors": r["n_sectors"]}
+        for r in gross]
+    se = {"gsv": [max(r["se_pitch_deg"], r["se_roll_deg"]) for r in rows if r["se_pitch_deg"] is not None]}
+    if lyon_obj is not None:
+        se["lyon"] = [max(r["se_pitch_deg"], r["se_roll_deg"]) for r in lyon_obj["rows"]
+                      if r["se_pitch_deg"] is not None]
+    out["se_term"] = {"max_se_deg": base.max_se_deg}
+    for k, v in se.items():
+        out["se_term"][f"largest_se_{k}_deg"] = rnd(max(v))
+        out["se_term"][f"n_above_max_se_{k}"] = int(sum(x > base.max_se_deg for x in v))
+    return out
+
+
+# --------------------------------------------------------------------------------------------
 # summarize / inspect
 # --------------------------------------------------------------------------------------------
 
 def cmd_summarize(args):
     rc = 0
-    if os.path.exists(VAL_ROWS):
-        rc |= check_or_write(validation_summary(load_json(VAL_ROWS)), VAL_SUMMARY, args.write)
-    if os.path.exists(LYON_ROWS):
-        rc |= check_or_write(lyon_summary(load_json(LYON_ROWS)), LYON_SUMMARY, args.write)
+    val = load_json(VAL_ROWS) if os.path.exists(VAL_ROWS) else None
+    lyon = load_json(LYON_ROWS) if os.path.exists(LYON_ROWS) else None
+    if val is not None:
+        rc |= check_or_write(validation_summary(val), VAL_SUMMARY, args.write)
+    if lyon is not None:
+        rc |= check_or_write(lyon_summary(lyon), LYON_SUMMARY, args.write)
+    if val is not None:
+        rc |= check_or_write(gate_sensitivity(val, lyon), GATE_SENSITIVITY, args.write)
     return rc
+
+
+def cmd_fetch_lyon(args):
+    """Download the 200 Lyon panos from Panoramax by each record's hd_url; verify by sha256.
+
+    Files already present with the manifest's sha256 are skipped. Panoramax may serve different
+    bytes than it did when the bundle was staged (re-encoding, a blurred re-upload), so every file
+    is checked against benchmark/lyon/imagery_manifest.json; a mismatch is kept as
+    ``<file>.mismatch``, reported, and fails the command, so it is never silently used.
+    """
+    import time
+    import urllib.request
+    recs = load_records(os.path.join(LYON_BUNDLE, "records.jsonl"))
+    manifest = load_json(os.path.join(LYON_BUNDLE, "imagery_manifest.json"))["panos"]
+    os.makedirs(args.out, exist_ok=True)
+    bad, fetched = [], 0
+    for i, rec in enumerate(recs):
+        p = rec["pano"]
+        m = manifest[p["panorama_id"]]
+        dest = os.path.join(args.out, m["file"])
+        if os.path.exists(dest) and sha256_file(dest) == m["sha256"]:
+            continue
+        url = p["source_metadata"]["hd_url"]
+        tmp = dest + ".part"
+        req = urllib.request.Request(url, headers={"User-Agent": "RampNet pano_tilt_estimate.py fetch-lyon"})
+        with urllib.request.urlopen(req, timeout=120) as resp, open(tmp, "wb") as f:
+            while True:
+                chunk = resp.read(1 << 20)
+                if not chunk:
+                    break
+                f.write(chunk)
+        fetched += 1
+        if sha256_file(tmp) == m["sha256"]:
+            os.replace(tmp, dest)
+        else:
+            os.replace(tmp, dest + ".mismatch")
+            bad.append(p["panorama_id"])
+        if fetched % 25 == 0:
+            print(f"  {i + 1}/{len(recs)}", flush=True)
+        time.sleep(args.delay)
+    print(f"fetched {fetched}; {len(recs) - len(bad)} of {len(recs)} match the manifest"
+          + (f"; MISMATCH: {', '.join(bad)}" if bad else ""))
+    return 1 if bad else 0
 
 
 def cmd_inspect(args):
@@ -462,8 +595,17 @@ def cmd_inspect(args):
     est = pt.estimate_tilt(gray, params)
     view = pt.make_views(params, gray.shape[1])[args.view]
     panels = []
-    poses = [("none", 0.0, 0.0), ("record pose", rec.get("camera_pitch") or 0.0, float(sg.wrap_deg(rec.get("camera_roll") or 0.0))),
-             ("estimate", est.pitch_deg, est.roll_deg)]
+    rec_p = rec.get("camera_pitch") or 0.0
+    rec_r = float(sg.wrap_deg(rec.get("camera_roll") or 0.0))
+    rec_name = "record pose"
+    if rec.get("source") == "panoramax":
+        src = metadata_pose(rec)[0]
+        if src == "panoflat":
+            # Panoramax's pers:pitch is positive nose up, the opposite of #113 (doc section 4.3).
+            rec_p, rec_name = -rec_p, "record pose (panoflat, pitch sign flipped)"
+        else:
+            rec_name = f"record pose ({src}, as served)"
+    poses = [("none", 0.0, 0.0), (rec_name, rec_p, rec_r), ("estimate", est.pitch_deg, est.roll_deg)]
     for name, p, r in poses:
         if p is None:
             continue
@@ -494,6 +636,9 @@ def main(argv=None):
                    help="directory holding <split>/panos/<pano_id>.jpg")
     a.add_argument("--workers", type=int, default=1)
     a.add_argument("--limit", type=int, default=0, help="first N ids only (smoke test; overwrites the outputs)")
+    a = sub.add_parser("fetch-lyon", help="download the 200 Lyon panos from Panoramax, checked by sha256")
+    a.add_argument("--out", required=True, help="directory to write the manifest's file names into")
+    a.add_argument("--delay", type=float, default=0.5, help="seconds between downloads")
     a = sub.add_parser("lyon", help="estimate the 200 Lyon review panos")
     a.add_argument("--panos-dir", required=True, help="directory holding the 200 bundle jpgs (read-only)")
     a.add_argument("--workers", type=int, default=1)
@@ -505,13 +650,14 @@ def main(argv=None):
     a.add_argument("--view", type=int, default=0, help="which of the 8 views (0 = bearing 0, 45 deg steps)")
     a.add_argument("--panos-root", default=os.path.join(REPO, "benchmark"))
     a.add_argument("--out", required=True)
-    sub.add_parser("check", help="compare the id list and both summaries with a re-derivation (no images)")
+    sub.add_parser("check", help="compare the id list, both summaries and the gate sensitivity table "
+                                 "with a re-derivation (no images)")
     args = ap.parse_args(argv)
     if args.cmd == "check":
         args.write = False
         return cmd_ids(args) | cmd_summarize(args)
     return {"ids": cmd_ids, "validate": cmd_validate, "lyon": cmd_lyon, "summarize": cmd_summarize,
-            "inspect": cmd_inspect}[args.cmd](args)
+            "inspect": cmd_inspect, "fetch-lyon": cmd_fetch_lyon}[args.cmd](args)
 
 
 if __name__ == "__main__":

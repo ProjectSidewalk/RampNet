@@ -42,7 +42,8 @@ Usage::
 
 Pure CPU (numpy, OpenCV, Pillow). Deterministic for a given image, parameter set and OpenCV build:
 RANSAC uses a fixed seed. LSD output can differ slightly between OpenCV builds, so a re-run on
-another machine reproduces the estimates to within a small fraction of a degree, not bit for bit.
+another machine reproduces the estimates closely but not bit for bit; how closely was not
+measured (only one machine was used, docs/pano_tilt_estimate.md section 6).
 """
 from __future__ import annotations
 
@@ -75,10 +76,15 @@ class TiltParams:
     max_tilt_deg: float = 40.0      # u must be within this of the rig's up axis
     weight_cap_deg: float = 15.0    # segment weight = min(length_deg, cap)
     seed: int = 0
-    # decline gate (see docs/pano_tilt_estimate.md section 3 for how these were set)
+    # decline gate (docs/pano_tilt_estimate.md section 2; chosen on the GSV development quarter,
+    # section 3.1, by a sweep that was not committed). `gate_reasons` applies it; the script's
+    # `gate_sensitivity` re-applies it to the committed rows at other thresholds.
     min_inliers: int = 12
     sector_min_inliers: int = 3     # a sector "counts" when it holds at least this many inliers
     min_sectors: int = 3            # how many sectors must count
+    # A backstop, not a working filter: no committed row comes near it (largest formal SE 0.165
+    # deg on the 571 GSV panos, 0.195 deg on the 200 Lyon panos), so it declines nothing there.
+    # Kept so a degenerate fit (e.g. a singular one, SE = inf) is always declined.
     max_se_deg: float = 0.25        # largest formal SE of pitch or roll that is accepted
     ambiguity_sep_deg: float = 3.0  # rival hypotheses are those at least this far from the fit
     max_ambiguity: float = 0.8      # best rival's score / the fit's score; above this, decline
@@ -309,10 +315,12 @@ def fit_up(normals: np.ndarray, weights: np.ndarray, sectors: np.ndarray, params
     A hypothesis is scored by ``sum over sectors of sqrt(inlier weight in that sector)``, not by
     the plain inlier weight: a cluster of parallel segments in one direction (a fence, a facade
     seen obliquely, a tree) converges somewhere too, and the square root makes support from
-    many directions worth more than the same total from one. On the development quarter of the
-    GSV validation set, at the final parameters and before the decline gate, it cut fits more
-    than 3 degrees off Google's pose from 3 to 1 of 144, and more than 1 degree from 18 to 15
-    (docs/pano_tilt_estimate.md section 3).
+    many directions worth more than the same total from one. The rule was picked by comparing it
+    with the plain inlier weight (docs/pano_tilt_estimate.md section 3.1); that comparison was
+    not committed, so its numbers cannot be re-derived. What the committed rows do show, for this
+    rule on the 144-pano development quarter before the decline gate: 1 fit more than 3 degrees
+    off Google's pose and 17 more than 1 degree off (``validation_summary.json``,
+    ``by_role.dev.all_estimates_ungated``).
     """
     n = len(normals)
     if n < 2:
@@ -379,7 +387,7 @@ def pitch_roll_se(normals, weights, u, eps_deg=1e-3):
     try:
         cov = s2 * np.linalg.inv(A)
     except np.linalg.LinAlgError:
-        return float("inf"), float("inf"), math.degrees(math.sqrt(s2))
+        return float("inf"), float("inf"), math.degrees(math.asin(min(1.0, math.sqrt(s2))))
     se = np.sqrt(np.clip(np.diag(cov), 0.0, None))
     return float(se[0]), float(se[1]), math.degrees(math.asin(min(1.0, math.sqrt(s2))))
 
@@ -409,18 +417,43 @@ def estimate_from_constraints(cons: dict, params: TiltParams = TiltParams()) -> 
     se_p, se_r, rms = pitch_roll_se(normals[inl], weights[inl], u)
     counts = np.bincount(sectors[inl], minlength=params.n_views).tolist()
     n_inl = int(inl.sum())
+    reasons = gate_reasons(n_inl, counts, se_p, se_r, amb, params)
     n_sec = int(sum(c >= params.sector_min_inliers for c in counts))
-    reasons = []
-    if n_inl < params.min_inliers:
-        reasons.append(f"inliers {n_inl} < {params.min_inliers}")
-    if n_sec < params.min_sectors:
-        reasons.append(f"sectors {n_sec} < {params.min_sectors}")
-    if not (max(se_p, se_r) <= params.max_se_deg):
-        reasons.append(f"se {max(se_p, se_r):.3f} > {params.max_se_deg}")
-    if not (amb <= params.max_ambiguity):
-        reasons.append(f"ambiguity {amb:.2f} > {params.max_ambiguity}")
     return TiltEstimate("declined" if reasons else "ok", "; ".join(reasons), pitch, roll, se_p, se_r,
                         n_seg, n_inl, n_sec, rms, amb, counts)
+
+
+def gate_reasons(n_inliers, sector_inliers, se_pitch, se_roll, ambiguity,
+                 params: TiltParams = TiltParams()) -> list:
+    """The decline gate: the list of failed tests (empty means accept).
+
+    Takes only fields a stored row keeps (inlier count, per-sector inlier counts, formal SEs,
+    ambiguity), so the gate can be re-applied to committed rows under other thresholds without
+    the images; ``scripts/analysis/pano_tilt_estimate.py`` does that and the tests check it
+    reproduces every committed row's status. A missing or non-finite SE or ambiguity fails its
+    test.
+
+    Example::
+
+        gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], 0.05, 0.06, 0.92)
+        # -> ['ambiguity 0.92 > 0.8']
+    """
+    def bad(v, limit):
+        return v is None or not (v <= limit)            # also catches nan
+
+    n_sec = int(sum(c >= params.sector_min_inliers for c in sector_inliers))
+    reasons = []
+    if n_inliers < params.min_inliers:
+        reasons.append(f"inliers {n_inliers} < {params.min_inliers}")
+    if n_sec < params.min_sectors:
+        reasons.append(f"sectors {n_sec} < {params.min_sectors}")
+    se = None if se_pitch is None or se_roll is None else max(se_pitch, se_roll)
+    if bad(se, params.max_se_deg):
+        reasons.append(f"se {se:.3f} > {params.max_se_deg}" if se is not None else "se missing")
+    if bad(ambiguity, params.max_ambiguity):
+        reasons.append(f"ambiguity {ambiguity:.2f} > {params.max_ambiguity}" if ambiguity is not None
+                       else "ambiguity missing")
+    return reasons
 
 
 def collect_constraints(gray: np.ndarray, params: TiltParams = TiltParams()) -> dict:

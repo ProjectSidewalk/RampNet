@@ -83,6 +83,27 @@ class TestConventions:
             # to first order the horizon sits T(b) above the middle row (pitch > 0 = nose down)
             assert rel == pytest.approx(float(sg.tilt_term_deg(b, p, r)), abs=0.02)
 
+    @pytest.mark.parametrize("p, r", [(5.0, 0.0), (0.0, 5.0), (10.0, -4.0), (-3.0, 2.0)])
+    def test_horizon_pixels_follow_the_documented_convention(self, p, r):
+        """Read the horizon off the pixels of a tilted pano; it must sit at T(b) = p cos b + r sin b.
+
+        Independent of ``rig_from_gravity`` on the reading side: a level pano with a sharp
+        gravity horizon (bright sky, dark ground) is tilted with ``tilt_equirect``, and the
+        horizon row is found in pixels at several bearings. T(b) is first order in the tilt; at
+        10 degrees its error is under 0.1 degree, half a pixel at 2048 wide is 0.09 degree.
+        """
+        w, h = 2048, 1024
+        el = 90.0 - (np.arange(h) + 0.5) / h * 180.0
+        g = np.where(el > 0, 0.9, 0.1).astype(np.float32)[:, None].repeat(w, axis=1)
+        t = pt.tilt_equirect(g, p, r)
+        for b in (-135.0, -90.0, -45.0, 0.0, 45.0, 90.0, 135.0):
+            x = int(round((b + 180.0) / 360.0 * w - 0.5))
+            col = t[:, x].astype(float)
+            i = int(np.argmax((col[:-1] >= 0.5) & (col[1:] < 0.5)))       # first sky->ground step
+            y = i + 0.5 + (col[i] - 0.5) / (col[i] - col[i + 1])
+            b_px = (x + 0.5) / w * 360.0 - 180.0
+            assert 90.0 - y / h * 180.0 == pytest.approx(float(sg.tilt_term_deg(b_px, p, r)), abs=0.25)
+
     def test_level_inverts_tilt(self):
         g = synthetic_street(512)
         back = pt.level_equirect(pt.tilt_equirect(g, 3.0, -2.0), 3.0, -2.0)
@@ -157,6 +178,26 @@ class TestFromConstraints:
         assert est.status == "declined"
         assert "sectors" in est.reason
 
+    def test_two_competing_up_directions_are_declined_as_ambiguous(self):
+        """Two equally supported verticals 5 degrees apart: only the ambiguity test can catch it.
+
+        This is the decline path that does the work on real panos (it is among the reasons for
+        134 of 137 GSV declines and all 7 Lyon declines): every other test passes here.
+        """
+        rng = np.random.default_rng(0)
+        b = rng.uniform(-180, 180, 60)
+        a = _vertical_constraints(0.0, 0.0, b, rng, noise_deg=0.05)
+        c = _vertical_constraints(5.0, 0.0, b, rng, noise_deg=0.05)
+        est = pt.estimate_from_constraints({k: np.concatenate([a[k], c[k]]) for k in a})
+        assert est.status == "declined"
+        assert est.reason.startswith("ambiguity") and ";" not in est.reason
+        assert est.ambiguity > pt.TiltParams().max_ambiguity
+
+    def test_gate_reasons_example(self):
+        """The docstring example of gate_reasons."""
+        assert pt.gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], 0.05, 0.06, 0.92) == ["ambiguity 0.92 > 0.8"]
+        assert pt.gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], float("nan"), 0.06, 0.5) != []
+
     def test_too_few_segments(self):
         rng = np.random.default_rng(0)
         est = pt.estimate_from_constraints(_vertical_constraints(0, 0, [10.0], rng))
@@ -198,6 +239,35 @@ class TestScript:
     def test_summaries_rederive_from_committed_rows(self, rows, summary, fn):
         obj = json.loads((OUT / rows).read_text(encoding="utf-8"))
         assert (OUT / summary).read_bytes() == te.dumps(getattr(te, fn)(obj)).encode("utf-8")
+
+    @pytest.mark.parametrize("rows", ["validation_gsv.json", "lyon.json"])
+    def test_gate_reproduces_every_committed_status(self, rows):
+        """Re-applying the gate (TiltParams defaults) to the stored fields gives every row's
+        stored status and the same failed tests, so the gate in the code is the gate that produced
+        the rows. The reason's printed values can differ in the last digit (the stored ambiguity is
+        rounded to 4 places before it is re-printed to 2), so the tests' names are compared."""
+        def keys(reason):
+            return [part.split(" ")[0] for part in reason.split("; ")] if reason else []
+
+        obj = json.loads((OUT / rows).read_text(encoding="utf-8"))
+        assert obj["params"] == pt.TiltParams().__dict__
+        got = [(s, keys(why)) for s, why in map(te.regate_row, obj["rows"])]
+        assert got == [(r["status"], keys(r["reason"])) for r in obj["rows"]]
+
+    def test_gate_sensitivity_rederives_and_matches_the_summary(self):
+        val = json.loads((OUT / "validation_gsv.json").read_text(encoding="utf-8"))
+        lyon = json.loads((OUT / "lyon.json").read_text(encoding="utf-8"))
+        sens = te.gate_sensitivity(val, lyon)
+        assert (OUT / "gate_sensitivity.json").read_bytes() == te.dumps(sens).encode("utf-8")
+        summ = te.validation_summary(val)
+        at = sens["by_threshold"][f"{pt.TiltParams().max_ambiguity:.2f}"]
+        for role in ("dev", "test"):
+            acc = summ["by_role"][role]["accepted"]
+            assert at[role]["n_ok"] == summ["by_role"][role]["n_ok"]
+            assert at[role]["mae_pitch_deg"] == acc["mae_pitch_deg"]
+            assert at[role]["n_worst_above_3deg"] == 0
+        assert at["lyon"]["n_ok"] == 193
+        assert sens["se_term"]["n_above_max_se_gsv"] == 0 and sens["se_term"]["n_above_max_se_lyon"] == 0
 
     def test_committed_rows_are_lf_and_carry_the_method(self):
         for name in ("validation_gsv.json", "lyon.json"):
