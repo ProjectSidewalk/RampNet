@@ -17,8 +17,9 @@ city) adds the pano capture month, the label date, human agree/disagree counts a
 to each row's facts; without it those lines are simply absent. The AI's two ratings are pre-selected; Enter accepts them,
 Y/N/U and 1-4/0 override them. Verdicts persist in localStorage and "Export verdicts" downloads them as
 JSON, in the gt_gallery.py pattern. `merge` adds `human_painted`, `human_label`, `human_flag`, `human_note`
-columns to the sheet, prints agreement with the AI pass overall and per OSM class, and is the only step
-that touches the repo's tables.
+columns to the sheet (plus `human_bike`: the B tag, or a note mentioning "bike" from before the tag
+existed -- the crowd labeled a green bike crossing, which a paint detector would fire on too), prints
+agreement with the AI pass overall and per OSM class, and is the only step that touches the repo's tables.
 """
 import argparse
 import collections
@@ -79,20 +80,26 @@ def build(a):
     print(f"wrote {a.out}: {len(out)} rows; open it in a browser")
 
 
+def is_bike(v):
+    """The B tag, or (for verdicts saved before the tag existed) a note that mentions a bike crossing."""
+    return bool(v.get("bike")) or "bike" in (v.get("note") or "").lower()
+
+
 def merge(a):
     rows = read_sheet(a.sheet)
     vj = json.load(open(a.verdicts, encoding="utf-8"))
     by_i = {int(v["i"]): v for v in vj["verdicts"]}
     for i, r in enumerate(rows):
         assert by_i.get(i, {}).get("uid", r["label_uid"]) == r["label_uid"], f"row {i} uid mismatch"
-    fields = list(rows[0].keys()) + ["human_painted", "human_label", "human_flag", "human_note"]
+    fields = list(rows[0].keys()) + ["human_painted", "human_label", "human_flag", "human_bike", "human_note"]
     with open(a.out, "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
         for i, r in enumerate(rows):
             v = by_i.get(i, {})
             w.writerow({**r, "human_painted": v.get("painted", ""), "human_label": v.get("label", ""),
-                        "human_flag": "yes" if v.get("flag") else "", "human_note": v.get("note", "")})
+                        "human_flag": "yes" if v.get("flag") else "", "human_bike": "yes" if v and is_bike(v) else "",
+                        "human_note": v.get("note", "")})
     rated = [(r, by_i[i]) for i, r in enumerate(rows) if i in by_i]
     n = len(rated)
     print(f"{n} of {len(rows)} rows have a human verdict -> {a.out}")
@@ -103,8 +110,8 @@ def merge(a):
     ag_lc = sum((v["label"] in ON_CROSSING) == (r["rating_label_at_centre"] in ON_CROSSING) for r, v in rated)
     print(f"agree with AI: painted {ag_p}/{n} = {ag_p / n:.2f}; label (5 classes) {ag_l}/{n} = {ag_l / n:.2f}; "
           f"label (on-crossing vs not) {ag_lc}/{n} = {ag_lc / n:.2f}")
-    print("| class | rated | painted=yes human | painted=yes AI | on-crossing human | on-crossing AI | flagged |")
-    print("|---|---|---|---|---|---|---|")
+    print("| class | rated | painted=yes human | painted=yes AI | on-crossing human | on-crossing AI | bike crossing | flagged |")
+    print("|---|---|---|---|---|---|---|---|")
     for cls in ("marked", "unknown", "unmarked"):
         s = [(r, v) for r, v in rated if r["osm_marking_class"] == cls]
         if not s:
@@ -112,7 +119,8 @@ def merge(a):
         print(f"| {cls} | {len(s)} | {sum(v['painted'] == 'yes' for _, v in s)} | "
               f"{sum(r['rating_painted_crossing_at_node'] == 'yes' for r, _ in s)} | "
               f"{sum(v['label'] in ON_CROSSING for _, v in s)} | "
-              f"{sum(r['rating_label_at_centre'] in ON_CROSSING for r, _ in s)} | {sum(bool(v.get('flag')) for _, v in s)} |")
+              f"{sum(r['rating_label_at_centre'] in ON_CROSSING for r, _ in s)} | {sum(is_bike(v) for _, v in s)} | "
+              f"{sum(bool(v.get('flag')) for _, v in s)} |")
     dis = [(i, r, by_i[i]) for i, r in enumerate(rows) if i in by_i and not by_i[i].get("agree")]
     if dis:
         print("disagreements:")
