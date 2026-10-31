@@ -97,7 +97,8 @@ def build(a):
         archived = " · ARCHIVED COPY"
     tpl = open(os.path.join(HERE, "aerial_spotcheck_template.html"), encoding="utf-8").read()
     html = (tpl.replace("__ROWS__", json.dumps(out, separators=(",", ":"))).replace("__SHEET__", sheet)
-            .replace("__SERVER__", a.server.rstrip("/")).replace("__ARCHIVE__", archive).replace("__ARCHIVED__", archived))
+            .replace("__SERVER__", a.server.rstrip("/")).replace("__ARCHIVE__", archive).replace("__ARCHIVED__", archived)
+            .replace("__REVIEW__", json.dumps(json.load(open(a.review, encoding="utf-8"))["rows"] if a.review else {})))
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w", encoding="utf-8") as f:
         f.write(html)
@@ -161,6 +162,7 @@ def main():
     b = sub.add_parser("build")
     b.add_argument("--sheet", required=True)
     b.add_argument("--out", required=True)
+    b.add_argument("--review", help="json {rows: {row index: reason}} of verdicts to re-examine after a rule change; shown on the row and listed by the 're-examine' order")
     b.add_argument("--archive", help="render from an archive_spotcheck.py directory instead of the live services (write --out inside it)")
     b.add_argument("--rawlabels", help="the census's cached v3 rawLabels CSV for the city (pano date, label date, votes, Street View link)")
     b.add_argument("--server", default="https://sidewalk-sea.cs.washington.edu",

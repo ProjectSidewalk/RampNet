@@ -88,7 +88,7 @@ a{color:var(--accent)}
     <span class="pill"><span class="dot" style="background:var(--label)"></span>Project Sidewalk crowd label</span>
     <span class="pill"><span class="dot ring"></span>2 m and 5 m from the node</span></span>
   <span class="prog" id="prog">0 / 120 rated</span>
-  <label class="sub">order <select id="order" class="sel-order"><option value="priority">AI non-default first, then shuffled</option><option value="sheet">sheet order (#0…#119)</option><option value="unrated">unrated only</option><option value="noun">rows I rated no / unclear (sheet order)</option><option value="revisit">no / unclear saved before the 2025 + crop panels (sheet order)</option></select></label>
+  <label class="sub">order <select id="order" class="sel-order"><option value="priority">AI non-default first, then shuffled</option><option value="sheet">sheet order (#0…#119)</option><option value="unrated">unrated only</option><option value="noun">rows I rated no / unclear (sheet order)</option><option value="revisit">re-examine: rule changes + no / unclear saved before the 2025 + crop panels (sheet order)</option></select></label>
 </div>
 
 <div class="wrap">
@@ -186,7 +186,8 @@ a{color:var(--accent)}
 <script>
 const ROWS = __ROWS__;
 const SERVER = "__SERVER__";
-const ARCHIVE = __ARCHIVE__;  // null = live services; else {root, crops:{label_id: metadata}} with files relative to this page
+const ARCHIVE = __ARCHIVE__;
+const REVIEW = __REVIEW__;  // {row index: why it needs another look}, from build --review  // null = live services; else {root, crops:{label_id: metadata}} with files relative to this page
 const YEARS = [2023, 2025];
 const SVC = y => `https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps/KingCo_Aerial_${y}/MapServer/export`;
 const PX = 720, R = 6378137;  // 720 px over 36 m = 5 cm/px (service is 7.6 cm/px)
@@ -225,7 +226,7 @@ function buildOrder(){
   if (mode==="sheet") order = ROWS.map(r=>r.i);
   else if (mode==="unrated") order = priorityOrder().filter(i=>!verdicts[docId(i)]);
   else if (mode==="noun") order = ROWS.filter(r=>{ const v = verdicts[docId(r.i)]; return v && v.painted!=="yes"; }).map(r=>r.i);
-  else if (mode==="revisit") order = ROWS.filter(r=>{ const v = verdicts[docId(r.i)]; return v && v.painted!=="yes" && v.imagery!=="2023+2025+crop"; }).map(r=>r.i);
+  else if (mode==="revisit") order = ROWS.filter(r=>{ const v = verdicts[docId(r.i)]; return REVIEW[r.i] || (v && v.painted!=="yes" && v.imagery!=="2023+2025+crop"); }).map(r=>r.i);
   else order = priorityOrder();
   if (!order.length) order = [0];
   pos = Math.min(pos, order.length-1);
@@ -323,6 +324,7 @@ function render(){
     <dt>row</dt><dd>#${r.i} · ${r.uid}${v ? ' · <span class="chip">rated</span>' : ''}${cur.flag ? ' <span class="chip flag">flagged</span>' : ''}${cur.bike ? ' <span class="chip">bike crossing</span>' : ''}</dd>
     <dt>OSM node</dt><dd><a href="https://www.openstreetmap.org/node/${r.node}" target="_blank" rel="noopener">${r.node}</a> · class <b>${r.cls}</b> · crossing=${r.ct||"—"} · crossing:markings=${r.cm||"—"}</dd>
     <dt>label</dt><dd>${r.dist.toFixed(1)} m from node${r.axis && r.axis!=="none" ? " · axis from "+r.axis : ""} · <a href="https://www.openstreetmap.org/?mlat=${r.llat}&mlon=${r.llng}#map=20/${r.llat}/${r.llng}" target="_blank" rel="noopener">osm map</a>${r.purl ? ` · <a href="${r.purl}" target="_blank" rel="noopener">street view</a>` : ""}</dd>
+    ${REVIEW[r.i] ? `<dt><span class="chip flag">re-examine</span></dt><dd style="font-family:var(--sans);color:var(--flag)">${REVIEW[r.i]}</dd>` : ""}
     ${r.pdate !== undefined ? `<dt>pano</dt><dd>GSV captured ${r.pdate || "?"} · labeled ${r.ldate || "?"} · validations ${r.agree} agree / ${r.dis} disagree (human)</dd>` : ""}`;
   for (const b of document.querySelectorAll(".opt")){
     const f = b.dataset.f, val = b.dataset.v;

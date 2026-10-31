@@ -1,0 +1,27 @@
+{
+ "made": "2026-10-31",
+ "why": "rows whose first-pass verdict predates a rule settled later in the session, or was judged on the 2023 ortho alone; the order 're-examine' in the page walks them",
+ "rows": {
+  "20": "coded 4; note says ~1 m west of the paint. Under the final wording that is 2 (near the center). Confirm or change.",
+  "114": "coded 4; note says ~1 m north of the paint. Under the final wording that is 2 (near the center). Confirm or change.",
+  "1": "coded 2 with 'just east of the crosswalk' -- consistent with the final rule; quick confirm only.",
+  "58": "coded 2 with '< 1 m outside the paint' -- consistent with the final rule; quick confirm only.",
+  "106": "coded 2 with '< 1 m east of the paint' -- consistent with the final rule; quick confirm only.",
+  "48": "bike crossing: agreed code is N + 4 + B (press B). Currently N + 1.",
+  "49": "bike crossing: agreed code is N + 4 + B (press B). Currently N + 2.",
+  "72": "bike crossing: agreed code is N + 4 + B (press B). Currently N + 1.",
+  "79": "bike crossing: agreed code is N + 4 + B (press B). Currently N + 4, tag missing.",
+  "68": "note says the crosswalk shows in 2025 and in the crop, but the saved answer is N. Under the rule that is Y; then place the label (2 / 3 / 4).",
+  "47": "'extremely faded crosswalk' coded N; rows 74/77 coded the same wording Y. Pick one rule (suggest Y when visible at all, note the fade).",
+  "74": "'extremely faded' coded Y -- confirm against the rule you pick for row 47.",
+  "77": "'very faded' coded Y -- confirm against the rule you pick for row 47.",
+  "38": "unclear + position 1: if the faded paint is visible in 2025 or the crop, Y; if not, U + 0.",
+  "40": "unclear, judged on 2023 only -- check 2025 and the crop.",
+  "41": "no paint, judged on 2023 only -- check 2025 and the crop.",
+  "43": "no paint, judged on 2023 only -- check 2025 and the crop.",
+  "50": "unclear, judged on 2023 only -- check 2025 and the crop.",
+  "59": "no paint, judged on 2023 only -- check 2025 and the crop.",
+  "63": "no paint, judged on 2023 only -- check 2025 and the crop.",
+  "65": "no paint, judged on 2023 only -- check 2025 and the crop; note says node and label sit on different legs."
+ }
+}
