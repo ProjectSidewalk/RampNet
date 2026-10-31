@@ -24,6 +24,7 @@ h1{font-size:17px;font-weight:600;margin:0}
 .hint{color:var(--muted);font-size:13px;margin:-4px 0 8px}
 .pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 6px;margin-left:6px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--fg);font-size:13px;white-space:nowrap}
 .pill .dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.q h2 .dot{width:14px;height:14px;border-radius:50%;display:inline-block;vertical-align:-2px;margin-right:8px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
 .pill .dot.ring{background:none;border:2px dotted var(--node);box-sizing:border-box}
 .prog{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .wrap{display:grid;grid-template-columns:minmax(0,720px) minmax(300px,1fr);gap:16px;align-items:start}
@@ -98,7 +99,7 @@ a{color:var(--accent)}
     <dl class="facts" id="facts"></dl>
 
     <div class="q">
-      <h2>Painted crossing at the node?</h2>
+      <h2><span class="dot" style="background:var(--node)" aria-hidden="true"></span>Painted crossing at the blue node?</h2>
       <p class="hint">Decides whether OSM's crossing tags can be trusted as a source: is there a marked crossing on the ground at the blue node?</p>
       <div class="opts" id="optP">
         <button class="opt" data-f="p" data-v="yes"><kbd>Y</kbd> yes</button>
@@ -109,7 +110,7 @@ a{color:var(--accent)}
     </div>
 
     <div class="q">
-      <h2>Where does the crowd label (red) sit along the crossing?</h2>
+      <h2><span class="dot" style="background:var(--label)" aria-hidden="true"></span>Where does the red crowd label sit along the crossing?</h2>
       <p class="hint">Decides which point the crowd labels: the middle of the crossing, or a curb end. Judge only the position ALONG the crossing (toward one curb or the other). Offset up or down the street is placement error, so a label a few meters off the paint but in line with the middle is still "near the center". The distance and the dashed rings are only hints.</p>
       <div class="opts" id="optL">
         <button class="opt" data-f="l" data-v="yes"><kbd>1</kbd> at the center, on the paint</button>
