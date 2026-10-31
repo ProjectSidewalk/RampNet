@@ -136,3 +136,6 @@ analysis_out/open_rig_258/** -text
 # on #159 and `lyon_review_159.py score` refuses a plan whose bytes differ, and the never-train
 # lists are read as LF. Keep git from rewriting their line endings on any checkout.
 benchmark/lyon/*  -text
+
+# Lyon audit results (#159): written LF and checked byte for byte by lyon_review_159.py.
+analysis_out/lyon_review_159/** text eol=lf
