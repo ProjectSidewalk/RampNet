@@ -14,7 +14,13 @@ crossing painted or removed between the flights is seen), with the OSM node, the
 the crowd label (`/cropImage/Crosswalk/<label_id>/metadata` hands out a short-lived signed URL, CORS
 open), which is what the labeler actually saw. --rawlabels (the census's cached v3 rawLabels CSV for the
 city) adds the pano capture month, the label date, human agree/disagree counts and a Street View link
-to each row's facts; without it those lines are simply absent. The AI's two ratings are pre-selected; Enter accepts them,
+to each row's facts; without it those lines are simply absent.
+
+`build --archive <dir>` renders the same page from an ARCHIVE of those fetches instead of the live
+services (the layout `scripts/analysis/crosswalk_phase0_274/archive_spotcheck.py` writes: ortho/<label_id>_<year>_<36|18>m.png,
+crops/<label_id>.png + .metadata.json, manifest.json); --out should then be inside the archive (its
+page/ dir), since the tile paths are written relative to the page. That is the replay path for when
+the King County export service or the signed crops are gone. The AI's two ratings are pre-selected; Enter accepts them,
 Y/N/U and 1-4/0 override them. Verdicts persist in localStorage and "Export verdicts" downloads them as
 JSON, in the gt_gallery.py pattern. `merge` adds `human_painted`, `human_label`, `human_flag`, `human_note`
 columns to the sheet (plus `human_bike`: the B tag, or a note mentioning "bike" from before the tag
@@ -71,9 +77,27 @@ def build(a):
         n = sum("pdate" in o for o in out)
         print(f"rawlabels: {n} of {len(out)} rows matched a label")
         assert n == len(out), "every sheet row should be in the city's rawLabels pull"
+    archive = "null"
+    archived = ""
+    if a.archive:
+        crops = {}
+        for o in out:
+            lid = o["uid"].split(":")[-1]
+            mp = os.path.join(a.archive, "crops", f"{lid}.metadata.json")
+            if os.path.exists(mp):
+                m = json.load(open(mp, encoding="utf-8"))
+                img = next((f"{lid}{ext}" for ext in (".png", ".jpg") if os.path.exists(os.path.join(a.archive, "crops", f"{lid}{ext}"))), None)
+                if img:
+                    crops[lid] = {"crop_marker": m.get("crop_marker"), "file": img}
+        n_tiles = sum(os.path.exists(os.path.join(a.archive, "ortho", f"{o['uid'].split(':')[-1]}_{y}_{w}m.png"))
+                      for o in out for y in (2023, 2025) for w in (36, 18))
+        print(f"archive: {n_tiles} of {4 * len(out)} ortho tiles, {len(crops)} of {len(out)} crops present")
+        root = os.path.relpath(os.path.abspath(a.archive), os.path.dirname(os.path.abspath(a.out))).replace(os.sep, "/")
+        archive = json.dumps({"root": root, "crops": crops}, separators=(",", ":"))
+        archived = " · ARCHIVED COPY"
     tpl = open(os.path.join(HERE, "aerial_spotcheck_template.html"), encoding="utf-8").read()
     html = (tpl.replace("__ROWS__", json.dumps(out, separators=(",", ":"))).replace("__SHEET__", sheet)
-            .replace("__SERVER__", a.server.rstrip("/")))
+            .replace("__SERVER__", a.server.rstrip("/")).replace("__ARCHIVE__", archive).replace("__ARCHIVED__", archived))
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w", encoding="utf-8") as f:
         f.write(html)
@@ -137,6 +161,7 @@ def main():
     b = sub.add_parser("build")
     b.add_argument("--sheet", required=True)
     b.add_argument("--out", required=True)
+    b.add_argument("--archive", help="render from an archive_spotcheck.py directory instead of the live services (write --out inside it)")
     b.add_argument("--rawlabels", help="the census's cached v3 rawLabels CSV for the city (pano date, label date, votes, Street View link)")
     b.add_argument("--server", default="https://sidewalk-sea.cs.washington.edu",
                    help="the city's Project Sidewalk server, for the label crops (the canonical host, not a redirecting alias)")

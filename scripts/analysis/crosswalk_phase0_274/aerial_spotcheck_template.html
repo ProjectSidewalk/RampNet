@@ -88,7 +88,7 @@ a{color:var(--accent)}
     <span class="pill"><span class="dot" style="background:var(--label)"></span>Project Sidewalk crowd label</span>
     <span class="pill"><span class="dot ring"></span>2 m and 5 m from the node</span></span>
   <span class="prog" id="prog">0 / 120 rated</span>
-  <label class="sub">order <select id="order" class="sel-order"><option value="priority">AI non-default first, then shuffled</option><option value="sheet">sheet order (#0…#119)</option><option value="unrated">unrated only</option><option value="noun">rows I rated no / unclear (sheet order)</option></select></label>
+  <label class="sub">order <select id="order" class="sel-order"><option value="priority">AI non-default first, then shuffled</option><option value="sheet">sheet order (#0…#119)</option><option value="unrated">unrated only</option><option value="noun">rows I rated no / unclear (sheet order)</option><option value="revisit">no / unclear saved before the 2025 + crop panels (sheet order)</option></select></label>
 </div>
 
 <div class="wrap">
@@ -99,7 +99,7 @@ a{color:var(--accent)}
           <img id="img2023" alt="2023 aerial, centered on the OSM crossing node">
           <svg id="ov2023" viewBox="0 0 720 720" aria-hidden="true"></svg>
           <div class="imgtag" id="tag2023">#— · 36 m · 2023</div>
-          <div class="imgtag2">N ↑ &nbsp; King County GIS 2023, view only</div>
+          <div class="imgtag2">N ↑ &nbsp; King County GIS 2023, view only__ARCHIVED__</div>
         </div>
         <div class="status" id="st2023" style="margin-top:4px">Loading imagery…</div>
       </div>
@@ -108,7 +108,7 @@ a{color:var(--accent)}
           <img id="img2025" alt="2025 aerial, centered on the OSM crossing node">
           <svg id="ov2025" viewBox="0 0 720 720" aria-hidden="true"></svg>
           <div class="imgtag" id="tag2025">#— · 36 m · 2025</div>
-          <div class="imgtag2">N ↑ &nbsp; King County GIS 2025, view only</div>
+          <div class="imgtag2">N ↑ &nbsp; King County GIS 2025, view only__ARCHIVED__</div>
         </div>
         <div class="status" id="st2025" style="margin-top:4px">Loading imagery…</div>
       </div>
@@ -117,7 +117,7 @@ a{color:var(--accent)}
           <img id="imgcrop" alt="street-level crop around the crowd label, from Project Sidewalk">
           <svg id="ovcrop" viewBox="0 0 849 566" preserveAspectRatio="none" aria-hidden="true"></svg>
           <div class="imgtag" id="tagcrop">crowd label · street view</div>
-          <div class="imgtag2" id="tagcrop2">Project Sidewalk label crop</div>
+          <div class="imgtag2" id="tagcrop2">Project Sidewalk label crop__ARCHIVED__</div>
         </div>
         <div class="status" id="stcrop" style="margin-top:4px">Loading the label crop…</div>
       </div>
@@ -186,6 +186,7 @@ a{color:var(--accent)}
 <script>
 const ROWS = __ROWS__;
 const SERVER = "__SERVER__";
+const ARCHIVE = __ARCHIVE__;  // null = live services; else {root, crops:{label_id: metadata}} with files relative to this page
 const YEARS = [2023, 2025];
 const SVC = y => `https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps/KingCo_Aerial_${y}/MapServer/export`;
 const PX = 720, R = 6378137;  // 720 px over 36 m = 5 cm/px (service is 7.6 cm/px)
@@ -224,6 +225,7 @@ function buildOrder(){
   if (mode==="sheet") order = ROWS.map(r=>r.i);
   else if (mode==="unrated") order = priorityOrder().filter(i=>!verdicts[docId(i)]);
   else if (mode==="noun") order = ROWS.filter(r=>{ const v = verdicts[docId(r.i)]; return v && v.painted!=="yes"; }).map(r=>r.i);
+  else if (mode==="revisit") order = ROWS.filter(r=>{ const v = verdicts[docId(r.i)]; return v && v.painted!=="yes" && v.imagery!=="2023+2025+crop"; }).map(r=>r.i);
   else order = priorityOrder();
   if (!order.length) order = [0];
   pos = Math.min(pos, order.length-1);
@@ -231,6 +233,7 @@ function buildOrder(){
 function row(){ return ROWS[order[pos]]; }
 
 function imgUrl(r, half, year){
+  if (ARCHIVE) return `${ARCHIVE.root}/ortho/${labelId(r)}_${year}_${2*half}m.png`;
   const [cx,cy] = merc(r.nlat, r.nlng);
   return `${SVC(year)}?bbox=${cx-half},${cy-half},${cx+half},${cy+half}&bboxSR=3857&imageSR=3857&size=${PX},${PX}&format=png&f=image`;
 }
@@ -261,7 +264,7 @@ function loadImage(r){
     const img = $("img"+y), st = $("st"+y);
     img.classList.add("loading"); st.textContent = "Loading imagery…";
     img.onload = () => { if (tok!==loadTok) return; img.classList.remove("loading"); st.textContent = ""; };
-    img.onerror = () => { if (tok!==loadTok) return; st.textContent = `The ${y} imagery failed to load from the King County service; reload to retry.`; };
+    img.onerror = () => { if (tok!==loadTok) return; st.textContent = ARCHIVE ? `The archived ${y} tile is missing.` : `The ${y} imagery failed to load from the King County service; reload to retry.`; };
     img.src = imgUrl(r, state.half, y);
   }
   const nxt = ROWS[order[(pos+1)%order.length]];
@@ -274,11 +277,13 @@ const cropMeta = {};
 const labelId = r => r.uid.split(":").pop();
 function fetchCropMeta(r){
   const id = labelId(r);
+  if (ARCHIVE) return ARCHIVE.crops[id] ? Promise.resolve(ARCHIVE.crops[id]) : Promise.reject(new Error("not in the archive"));
   if (!cropMeta[id]) cropMeta[id] = fetch(`${SERVER}/cropImage/Crosswalk/${id}/metadata`).then(x => { if (!x.ok) throw new Error("HTTP " + x.status); return x.json(); })
     .catch(err => { delete cropMeta[id]; throw err; });
   return cropMeta[id];
 }
-function prefetchCrop(r){ fetchCropMeta(r).then(m => { const p = new Image(); p.src = SERVER + m.image_url; }).catch(()=>{}); }
+const cropSrc = (r, m) => ARCHIVE ? `${ARCHIVE.root}/crops/${m.file}` : SERVER + m.image_url;
+function prefetchCrop(r){ fetchCropMeta(r).then(m => { const p = new Image(); p.src = cropSrc(r, m); }).catch(()=>{}); }
 function loadCrop(r, tok){
   const img = $("imgcrop"), st = $("stcrop"), ov = $("ovcrop");
   img.classList.add("loading"); img.removeAttribute("src"); ov.innerHTML = ""; st.textContent = "Loading the label crop…";
@@ -293,8 +298,8 @@ function loadCrop(r, tok){
       c.setAttribute("fill", "none"); c.setAttribute("stroke", "#e8322b"); c.setAttribute("stroke-width", 4); ov.appendChild(c);
     }
     img.onload = () => { if (tok!==loadTok) return; img.classList.remove("loading"); st.textContent = ""; };
-    img.onerror = () => { if (tok!==loadTok) return; delete cropMeta[labelId(r)]; st.textContent = "The crop failed to load (its signed link may have expired); move away and back to retry."; };
-    img.src = SERVER + m.image_url;
+    img.onerror = () => { if (tok!==loadTok) return; delete cropMeta[labelId(r)]; st.textContent = ARCHIVE ? "The archived crop file is missing." : "The crop failed to load (its signed link may have expired); move away and back to retry."; };
+    img.src = cropSrc(r, m);
   }).catch(err => { if (tok!==loadTok) return; st.textContent = "No crop from the server for this label (" + err.message + "). The Street View link above opens the pano."; });
 }
 
