@@ -2,13 +2,19 @@
 verdicts back into the sheet.
 
   python aerial_spotcheck.py build --sheet analysis_out/crosswalk_phase0_274/aerial_sample_seattle-wa.rated_ai.csv \
+      --rawlabels <census cache>/out/rawlabels/seattle-wa_Crosswalk.csv \
       --out analysis_out/crosswalk_phase0_274/aerial_spotcheck_seattle-wa.html
   python aerial_spotcheck.py merge --sheet <the same csv> --verdicts ~/Downloads/aerial_verdicts_seattle-wa.json \
       --out analysis_out/crosswalk_phase0_274/aerial_sample_seattle-wa.rated.csv
 
-`build` writes one self-contained page (no imagery inside it): each row's 36 m crop is requested live
-from King County's 2023 or 2025 ortho export service when the row is shown, with the OSM node, the crowd
-label and the 2 m / 5 m rings drawn over it. The AI's two ratings are pre-selected; Enter accepts them,
+`build` writes one self-contained page (no imagery inside it): each row's 36 m crops are requested live
+from King County's 2023 AND 2025 ortho export services when the row is shown (side by side, so a
+crossing painted or removed between the flights is seen), with the OSM node, the crowd label and the
+2 m / 5 m rings drawn over both; a third panel shows the street-level crop Project Sidewalk serves for
+the crowd label (`/cropImage/Crosswalk/<label_id>/metadata` hands out a short-lived signed URL, CORS
+open), which is what the labeler actually saw. --rawlabels (the census's cached v3 rawLabels CSV for the
+city) adds the pano capture month, the label date, human agree/disagree counts and a Street View link
+to each row's facts; without it those lines are simply absent. The AI's two ratings are pre-selected; Enter accepts them,
 Y/N/U and 1-4/0 override them. Verdicts persist in localStorage and "Export verdicts" downloads them as
 JSON, in the gt_gallery.py pattern. `merge` adds `human_painted`, `human_label`, `human_flag`, `human_note`
 columns to the sheet, prints agreement with the AI pass overall and per OSM class, and is the only step
@@ -29,8 +35,21 @@ def read_sheet(path):
         return list(csv.DictReader(f))
 
 
+def human_votes(validations_json):
+    """(agree, disagree) counted over HUMAN validators only, from the rawLabels `validations` column."""
+    try:
+        vs = json.loads(validations_json or "[]")
+    except json.JSONDecodeError:
+        return 0, 0
+    hs = [v for v in vs if v.get("validator_type") == "Human"]
+    return sum(v.get("validation") == "Agree" for v in hs), sum(v.get("validation") == "Disagree" for v in hs)
+
+
 def build(a):
     rows = read_sheet(a.sheet)
+    raw = {}
+    if a.rawlabels:
+        raw = {r["label_id"]: r for r in read_sheet(a.rawlabels)}
     sheet = os.path.basename(a.sheet).split(".")[0].replace("aerial_sample_", "")
     out = []
     for i, r in enumerate(rows):
@@ -42,8 +61,18 @@ def build(a):
             "dist": float(r["dist_m"]), "axis": r["axis"],
             "ai_p": r["rating_painted_crossing_at_node"], "ai_l": r["rating_label_at_centre"], "note": r["notes"],
         })
+        lab = raw.get(r["label_uid"].split(":")[-1])
+        if lab:
+            agree, dis = human_votes(lab.get("validations"))
+            out[-1].update({"pdate": lab.get("image_capture_date") or "", "ldate": (lab.get("time_created") or "")[:10],
+                            "agree": agree, "dis": dis, "purl": lab.get("pano_url") or ""})
+    if a.rawlabels:
+        n = sum("pdate" in o for o in out)
+        print(f"rawlabels: {n} of {len(out)} rows matched a label")
+        assert n == len(out), "every sheet row should be in the city's rawLabels pull"
     tpl = open(os.path.join(HERE, "aerial_spotcheck_template.html"), encoding="utf-8").read()
-    html = tpl.replace("__ROWS__", json.dumps(out, separators=(",", ":"))).replace("__SHEET__", sheet)
+    html = (tpl.replace("__ROWS__", json.dumps(out, separators=(",", ":"))).replace("__SHEET__", sheet)
+            .replace("__SERVER__", a.server.rstrip("/")))
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w", encoding="utf-8") as f:
         f.write(html)
@@ -100,6 +129,9 @@ def main():
     b = sub.add_parser("build")
     b.add_argument("--sheet", required=True)
     b.add_argument("--out", required=True)
+    b.add_argument("--rawlabels", help="the census's cached v3 rawLabels CSV for the city (pano date, label date, votes, Street View link)")
+    b.add_argument("--server", default="https://sidewalk-sea.cs.washington.edu",
+                   help="the city's Project Sidewalk server, for the label crops (the canonical host, not a redirecting alias)")
     m = sub.add_parser("merge")
     m.add_argument("--sheet", required=True)
     m.add_argument("--verdicts", required=True)

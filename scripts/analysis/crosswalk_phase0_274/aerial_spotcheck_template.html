@@ -3,7 +3,7 @@
 <title>Seattle crosswalk aerial spot-check</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: image left, verdict card right; one column under 900px. Keys do everything. */
+/* Layout: 2023 ortho | 2025 ortho | crowd label crop across the top, verdict card below. Keys do everything. */
 :root{
   --bg:#f3f4f2; --panel:#ffffff; --fg:#1b1f1e; --muted:#5d6663; --line:#d6dbd8;
   --accent:#0f6e74; --accent-ink:#ffffff; --soft:#e3eeee;
@@ -27,9 +27,13 @@ h1{font-size:17px;font-weight:600;margin:0}
 .q h2 .dot{width:14px;height:14px;border-radius:50%;display:inline-block;vertical-align:-2px;margin-right:8px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
 .pill .dot.ring{background:none;border:2px dotted var(--node);box-sizing:border-box}
 .prog{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.wrap{display:grid;grid-template-columns:minmax(0,720px) minmax(300px,1fr);gap:16px;align-items:start}
-@media (max-width:900px){.wrap{grid-template-columns:1fr}}
-.imgbox{position:relative;width:100%;max-width:720px;aspect-ratio:1/1;background:#778;border:1px solid var(--line);overflow:hidden}
+.wrap{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+.imgs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}
+@media (max-width:1100px){.imgs{grid-template-columns:1fr 1fr}}
+@media (max-width:700px){.imgs{grid-template-columns:1fr}}
+.imgbox{position:relative;width:100%;aspect-ratio:1/1;background:#778;border:1px solid var(--line);overflow:hidden}
+.imgbox.crop{aspect-ratio:3/2;background:#222}
+.imgbox.crop img{object-fit:contain}
 .imgbox img{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:1;transition:opacity .15s}
 .imgbox img.loading{opacity:.35}
 .imgbox svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -81,18 +85,40 @@ a{color:var(--accent)}
     <span class="pill"><span class="dot" style="background:var(--label)"></span>Project Sidewalk crowd label</span>
     <span class="pill"><span class="dot ring"></span>2 m and 5 m from the node</span></span>
   <span class="prog" id="prog">0 / 120 rated</span>
-  <label class="sub">order <select id="order" class="sel-order"><option value="priority">AI non-default first, then shuffled</option><option value="sheet">sheet order (#0…#119)</option><option value="unrated">unrated only</option></select></label>
+  <label class="sub">order <select id="order" class="sel-order"><option value="priority">AI non-default first, then shuffled</option><option value="sheet">sheet order (#0…#119)</option><option value="unrated">unrated only</option><option value="noun">rows I rated no / unclear (sheet order)</option></select></label>
 </div>
 
 <div class="wrap">
   <div>
-    <div class="imgbox" id="imgbox">
-      <img id="img" alt="aerial crop centered on the OSM crossing node">
-      <svg id="ov" viewBox="0 0 720 720" aria-hidden="true"></svg>
-      <div class="imgtag" id="imgtag">#— · 36 m · 2023</div>
-      <div class="imgtag2">N ↑ &nbsp; King County GIS, view only</div>
+    <div class="imgs">
+      <div>
+        <div class="imgbox">
+          <img id="img2023" alt="2023 aerial, centered on the OSM crossing node">
+          <svg id="ov2023" viewBox="0 0 720 720" aria-hidden="true"></svg>
+          <div class="imgtag" id="tag2023">#— · 36 m · 2023</div>
+          <div class="imgtag2">N ↑ &nbsp; King County GIS 2023, view only</div>
+        </div>
+        <div class="status" id="st2023" style="margin-top:4px">Loading imagery…</div>
+      </div>
+      <div>
+        <div class="imgbox">
+          <img id="img2025" alt="2025 aerial, centered on the OSM crossing node">
+          <svg id="ov2025" viewBox="0 0 720 720" aria-hidden="true"></svg>
+          <div class="imgtag" id="tag2025">#— · 36 m · 2025</div>
+          <div class="imgtag2">N ↑ &nbsp; King County GIS 2025, view only</div>
+        </div>
+        <div class="status" id="st2025" style="margin-top:4px">Loading imagery…</div>
+      </div>
+      <div>
+        <div class="imgbox crop" id="cropbox">
+          <img id="imgcrop" alt="street-level crop around the crowd label, from Project Sidewalk">
+          <svg id="ovcrop" viewBox="0 0 849 566" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="imgtag" id="tagcrop">crowd label · street view</div>
+          <div class="imgtag2" id="tagcrop2">Project Sidewalk label crop</div>
+        </div>
+        <div class="status" id="stcrop" style="margin-top:4px">Loading the label crop…</div>
+      </div>
     </div>
-    <div class="status" id="imgstatus" style="margin-top:4px">Loading imagery…</div>
   </div>
 
   <div class="card">
@@ -140,8 +166,8 @@ a{color:var(--accent)}
     <div class="keys">
       <div><kbd>Enter</kbd> save what is selected (the AI's call, outlined, unless you changed it) and go to the next unrated row</div>
       <div><kbd>←</kbd> <kbd>→</kbd> move without saving · <kbd>.</kbd> next unrated</div>
-      <div><kbd>Z</kbd> zoom 36 m ↔ 18 m</div>
-      <div><kbd>T</kbd> imagery 2023 ↔ 2025</div>
+      <div><kbd>Z</kbd> zoom 36 m ↔ 18 m (both years)</div>
+      <div>2023 and 2025 orthos are both shown; the third panel is the crop the crowd saw (red ring = the label)</div>
       <div><kbd>G</kbd> hide / show markers</div>
       <div><kbd>F</kbd> toggle flag · <kbd>S</kbd> skip · <kbd>/</kbd> note</div>
     </div>
@@ -155,13 +181,15 @@ a{color:var(--accent)}
 
 <script>
 const ROWS = __ROWS__;
+const SERVER = "__SERVER__";
+const YEARS = [2023, 2025];
 const SVC = y => `https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps/KingCo_Aerial_${y}/MapServer/export`;
 const PX = 720, R = 6378137;  // 720 px over 36 m = 5 cm/px (service is 7.6 cm/px)
 const merc = (lat,lng) => [R*lng*Math.PI/180, R*Math.log(Math.tan(Math.PI/4 + lat*Math.PI/360))];
 const LABELS = {yes:"at the center, on the paint", near:"near the center", end:"at a curb end", off:"not on this crossing", na:"n/a"};
 const PAINT = {yes:"yes", no:"no", unclear:"unclear"};
 
-let state = {half:18, year:2023, markers:true};
+let state = {half:18, markers:true};
 let verdicts = {};
 const KEY = 'aerial_spotcheck.__SHEET__';
 function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ return {}; } }
@@ -191,6 +219,7 @@ function buildOrder(){
   const mode = $("order").value;
   if (mode==="sheet") order = ROWS.map(r=>r.i);
   else if (mode==="unrated") order = priorityOrder().filter(i=>!verdicts[docId(i)]);
+  else if (mode==="noun") order = ROWS.filter(r=>{ const v = verdicts[docId(r.i)]; return v && v.painted!=="yes"; }).map(r=>r.i);
   else order = priorityOrder();
   if (!order.length) order = [0];
   pos = Math.min(pos, order.length-1);
@@ -205,8 +234,9 @@ function toPx(r, lat, lng){
   const [cx,cy] = merc(r.nlat, r.nlng), [x,y] = merc(lat,lng), h = state.half;
   return [(x-(cx-h))/(2*h)*PX, ((cy+h)-y)/(2*h)*PX];
 }
-function drawOverlay(r){
-  const ov = $("ov"); ov.innerHTML = "";
+function drawOverlay(r){ for (const y of YEARS) drawOverlayIn($("ov"+y), r); }
+function drawOverlayIn(ov, r){
+  ov.innerHTML = "";
   if (!state.markers) return;
   const ns = "http://www.w3.org/2000/svg";
   const [nx,ny] = toPx(r, r.nlat, r.nlng), [lx,ly] = toPx(r, r.llat, r.llng);
@@ -222,12 +252,46 @@ function drawOverlay(r){
 }
 let loadTok = 0;
 function loadImage(r){
-  const img = $("img"); const tok = ++loadTok;
-  img.classList.add("loading"); $("imgstatus").textContent = "Loading imagery…";
-  img.onload = () => { if (tok!==loadTok) return; img.classList.remove("loading"); $("imgstatus").textContent = ""; };
-  img.onerror = () => { if (tok!==loadTok) return; $("imgstatus").textContent = "Imagery failed to load from the King County service. Press T for the other year, or reload."; };
-  img.src = imgUrl(r, state.half, state.year);
-  const nxt = ROWS[order[(pos+1)%order.length]]; if (nxt){ const p = new Image(); p.src = imgUrl(nxt, state.half, state.year); }
+  const tok = ++loadTok;
+  for (const y of YEARS){
+    const img = $("img"+y), st = $("st"+y);
+    img.classList.add("loading"); st.textContent = "Loading imagery…";
+    img.onload = () => { if (tok!==loadTok) return; img.classList.remove("loading"); st.textContent = ""; };
+    img.onerror = () => { if (tok!==loadTok) return; st.textContent = `The ${y} imagery failed to load from the King County service; reload to retry.`; };
+    img.src = imgUrl(r, state.half, y);
+  }
+  const nxt = ROWS[order[(pos+1)%order.length]];
+  if (nxt){ for (const y of YEARS){ const p = new Image(); p.src = imgUrl(nxt, state.half, y); } prefetchCrop(nxt); }
+  loadCrop(r, tok);
+}
+// The crowd label's crop: Project Sidewalk serves it behind a short-lived signed URL that its metadata endpoint
+// hands out (CORS open), so the page asks for the metadata when the row is shown and caches it per label.
+const cropMeta = {};
+const labelId = r => r.uid.split(":").pop();
+function fetchCropMeta(r){
+  const id = labelId(r);
+  if (!cropMeta[id]) cropMeta[id] = fetch(`${SERVER}/cropImage/Crosswalk/${id}/metadata`).then(x => { if (!x.ok) throw new Error("HTTP " + x.status); return x.json(); })
+    .catch(err => { delete cropMeta[id]; throw err; });
+  return cropMeta[id];
+}
+function prefetchCrop(r){ fetchCropMeta(r).then(m => { const p = new Image(); p.src = SERVER + m.image_url; }).catch(()=>{}); }
+function loadCrop(r, tok){
+  const img = $("imgcrop"), st = $("stcrop"), ov = $("ovcrop");
+  img.classList.add("loading"); img.removeAttribute("src"); ov.innerHTML = ""; st.textContent = "Loading the label crop…";
+  $("tagcrop").textContent = `${r.uid} · street view the crowd labeled`;
+  fetchCropMeta(r).then(m => {
+    if (tok!==loadTok) return;
+    const w = m.crop_marker && m.crop_marker.width || 849, h = m.crop_marker && m.crop_marker.height || 566;
+    $("cropbox").style.aspectRatio = `${w} / ${h}`; ov.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    if (m.crop_marker && state.markers){
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", m.crop_marker.x * w); c.setAttribute("cy", m.crop_marker.y * h); c.setAttribute("r", Math.round(w/40));
+      c.setAttribute("fill", "none"); c.setAttribute("stroke", "#e8322b"); c.setAttribute("stroke-width", 4); ov.appendChild(c);
+    }
+    img.onload = () => { if (tok!==loadTok) return; img.classList.remove("loading"); st.textContent = ""; };
+    img.onerror = () => { if (tok!==loadTok) return; delete cropMeta[labelId(r)]; st.textContent = "The crop failed to load (its signed link may have expired); move away and back to retry."; };
+    img.src = SERVER + m.image_url;
+  }).catch(err => { if (tok!==loadTok) return; st.textContent = "No crop from the server for this label (" + err.message + "). The Street View link above opens the pano."; });
 }
 
 function paintSel(){
@@ -244,11 +308,12 @@ function render(){
   $("note").value = v ? (v.note||"") : "";
   const d = drafts[docId(r.i)];
   if (d){ cur = {p:d.p, l:d.l, flag:!!d.flag}; $("note").value = d.note||""; }
-  $("imgtag").textContent = `#${r.i} · ${2*state.half} m · ${state.year}`;
+  for (const y of YEARS) $("tag"+y).textContent = `#${r.i} · ${2*state.half} m · ${y}`;
   $("facts").innerHTML = `
     <dt>row</dt><dd>#${r.i} · ${r.uid}${v ? ' · <span class="chip">rated</span>' : ''}${cur.flag ? ' <span class="chip flag">flagged</span>' : ''}</dd>
     <dt>OSM node</dt><dd><a href="https://www.openstreetmap.org/node/${r.node}" target="_blank" rel="noopener">${r.node}</a> · class <b>${r.cls}</b> · crossing=${r.ct||"—"} · crossing:markings=${r.cm||"—"}</dd>
-    <dt>label</dt><dd>${r.dist.toFixed(1)} m from node${r.axis && r.axis!=="none" ? " · axis from "+r.axis : ""} · <a href="https://www.openstreetmap.org/?mlat=${r.llat}&mlon=${r.llng}#map=20/${r.llat}/${r.llng}" target="_blank" rel="noopener">osm map</a></dd>`;
+    <dt>label</dt><dd>${r.dist.toFixed(1)} m from node${r.axis && r.axis!=="none" ? " · axis from "+r.axis : ""} · <a href="https://www.openstreetmap.org/?mlat=${r.llat}&mlon=${r.llng}#map=20/${r.llat}/${r.llng}" target="_blank" rel="noopener">osm map</a>${r.purl ? ` · <a href="${r.purl}" target="_blank" rel="noopener">street view</a>` : ""}</dd>
+    ${r.pdate !== undefined ? `<dt>pano</dt><dd>GSV captured ${r.pdate || "?"} · labeled ${r.ldate || "?"} · validations ${r.agree} agree / ${r.dis} disagree (human)</dd>` : ""}`;
   for (const b of document.querySelectorAll(".opt")){
     const f = b.dataset.f, val = b.dataset.v;
     b.classList.toggle("ai", (f==="p" ? r.ai_p : r.ai_l) === val);
@@ -266,7 +331,7 @@ function render(){
 function save(advance){
   const r = row();
   const data = {i:r.i, uid:r.uid, cls:r.cls, painted:cur.p, label:cur.l, flag:cur.flag, note:$("note").value.trim(),
-    ai_p:r.ai_p, ai_l:r.ai_l, agree:(cur.p===r.ai_p && cur.l===r.ai_l), ts:new Date().toISOString()};
+    ai_p:r.ai_p, ai_l:r.ai_l, agree:(cur.p===r.ai_p && cur.l===r.ai_l), ts:new Date().toISOString(), imagery:"2023+2025+crop"};
   verdicts[docId(r.i)] = data; persist(); dropDraft(r.i);
   if (advance) nextUnrated(); else render();
   tally();
@@ -337,8 +402,7 @@ document.addEventListener("keydown", e => {
   else if (k===".") nextUnrated();
   else if (k==="f"||k==="F") { cur.flag = !cur.flag; edit(); }
   else if (k==="z"||k==="Z") { state.half = state.half===18 ? 9 : 18; render(); }
-  else if (k==="t"||k==="T") { state.year = state.year===2023 ? 2025 : 2023; render(); }
-  else if (k==="g"||k==="G") { state.markers = !state.markers; drawOverlay(row()); }
+  else if (k==="g"||k==="G") { state.markers = !state.markers; render(); }
   else if (k==="/") { e.preventDefault(); $("note").focus(); }
 });
 
