@@ -525,3 +525,13 @@ analysis_out/lyon_review_159/**/*.html
 !analysis_out/open_rig_258/
 analysis_out/open_rig_258/*
 !analysis_out/open_rig_258/*.log
+# Crosswalk Phase 0 (#274): census, offset read and Vistas probe tables (small, image-free); the
+# raw rawLabels/OSM/way pulls (200 MB) stay out and re-pull from the cached-by-default scripts.
+!analysis_out/crosswalk_phase0_274/
+analysis_out/crosswalk_phase0_274/*
+!analysis_out/crosswalk_phase0_274/*.json
+!analysis_out/crosswalk_phase0_274/*.csv
+!analysis_out/crosswalk_phase0_274/*.md
+!analysis_out/crosswalk_phase0_274/aerial_spotcheck_*.html
+!analysis_out/crosswalk_phase0_274/offsets/
+!analysis_out/crosswalk_phase0_274/vistas_probe/

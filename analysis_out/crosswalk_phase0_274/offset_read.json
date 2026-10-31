@@ -1,0 +1,325 @@
+{
+ "waltham-ma": {
+  "labels": 281,
+  "matched": 251,
+  "sample": 251,
+  "with_axis": 251,
+  "axis_footway": 241,
+  "abs_along": {
+   "n": 251,
+   "median": 0.99,
+   "p90": 3.61
+  },
+  "abs_across": {
+   "n": 251,
+   "median": 0.76,
+   "p90": 2.19
+  },
+  "share_along_gt3": 0.147,
+  "share_across_gt3": 0.052
+ },
+ "amsterdam": {
+  "labels": 2976,
+  "matched": 2571,
+  "sample": 1500,
+  "with_axis": 1126,
+  "axis_footway": 189,
+  "abs_along": {
+   "n": 1126,
+   "median": 0.94,
+   "p90": 3.39
+  },
+  "abs_across": {
+   "n": 1126,
+   "median": 1.12,
+   "p90": 3.05
+  },
+  "share_along_gt3": 0.131,
+  "share_across_gt3": 0.102
+ },
+ "auckland": {
+  "labels": 273,
+  "matched": 254,
+  "sample": 254,
+  "with_axis": 252,
+  "axis_footway": 244,
+  "abs_along": {
+   "n": 252,
+   "median": 1.61,
+   "p90": 4.61
+  },
+  "abs_across": {
+   "n": 252,
+   "median": 1.11,
+   "p90": 3.71
+  },
+  "share_along_gt3": 0.238,
+  "share_across_gt3": 0.127
+ },
+ "burnaby": {
+  "labels": 1728,
+  "matched": 1693,
+  "sample": 1500,
+  "with_axis": 1496,
+  "axis_footway": 1495,
+  "abs_along": {
+   "n": 1496,
+   "median": 1.34,
+   "p90": 4.92
+  },
+  "abs_across": {
+   "n": 1496,
+   "median": 0.96,
+   "p90": 3.12
+  },
+  "share_along_gt3": 0.267,
+  "share_across_gt3": 0.108
+ },
+ "chicago-il": {
+  "labels": 28091,
+  "matched": 25938,
+  "sample": 1500,
+  "with_axis": 1500,
+  "axis_footway": 1474,
+  "abs_along": {
+   "n": 1500,
+   "median": 0.87,
+   "p90": 3.07
+  },
+  "abs_across": {
+   "n": 1500,
+   "median": 0.69,
+   "p90": 2.19
+  },
+  "share_along_gt3": 0.103,
+  "share_across_gt3": 0.057
+ },
+ "columbus-oh": {
+  "labels": 889,
+  "matched": 739,
+  "sample": 739,
+  "with_axis": 739,
+  "axis_footway": 525,
+  "abs_along": {
+   "n": 739,
+   "median": 1.05,
+   "p90": 3.56
+  },
+  "abs_across": {
+   "n": 739,
+   "median": 1.27,
+   "p90": 3.41
+  },
+  "share_along_gt3": 0.124,
+  "share_across_gt3": 0.143
+ },
+ "danville-il": {
+  "labels": 488,
+  "matched": 419,
+  "sample": 419,
+  "with_axis": 419,
+  "axis_footway": 415,
+  "abs_along": {
+   "n": 419,
+   "median": 1.45,
+   "p90": 5.34
+  },
+  "abs_across": {
+   "n": 419,
+   "median": 1.41,
+   "p90": 3.24
+  },
+  "share_along_gt3": 0.263,
+  "share_across_gt3": 0.126
+ },
+ "detroit-mi": {
+  "labels": 283,
+  "matched": 212,
+  "sample": 212,
+  "with_axis": 212,
+  "axis_footway": 70,
+  "abs_along": {
+   "n": 212,
+   "median": 0.9,
+   "p90": 2.84
+  },
+  "abs_across": {
+   "n": 212,
+   "median": 0.71,
+   "p90": 2.24
+  },
+  "share_along_gt3": 0.085,
+  "share_across_gt3": 0.066
+ },
+ "gainesville-fl": {
+  "labels": 2420,
+  "matched": 2227,
+  "sample": 1500,
+  "with_axis": 1497,
+  "axis_footway": 1381,
+  "abs_along": {
+   "n": 1497,
+   "median": 0.95,
+   "p90": 4.14
+  },
+  "abs_across": {
+   "n": 1497,
+   "median": 0.83,
+   "p90": 2.21
+  },
+  "share_along_gt3": 0.179,
+  "share_across_gt3": 0.038
+ },
+ "madison-wi": {
+  "labels": 137,
+  "matched": 107,
+  "sample": 107,
+  "with_axis": 107,
+  "axis_footway": 106,
+  "abs_along": {
+   "n": 107,
+   "median": 1.6,
+   "p90": 5.06
+  },
+  "abs_across": {
+   "n": 107,
+   "median": 0.89,
+   "p90": 2.95
+  },
+  "share_along_gt3": 0.252,
+  "share_across_gt3": 0.075
+ },
+ "pittsburgh-pa": {
+  "labels": 1018,
+  "matched": 819,
+  "sample": 819,
+  "with_axis": 819,
+  "axis_footway": 792,
+  "abs_along": {
+   "n": 819,
+   "median": 1.08,
+   "p90": 3.99
+  },
+  "abs_across": {
+   "n": 819,
+   "median": 0.9,
+   "p90": 3.11
+  },
+  "share_along_gt3": 0.173,
+  "share_across_gt3": 0.105
+ },
+ "rancagua-chile": {
+  "labels": 148,
+  "matched": 112,
+  "sample": 112,
+  "with_axis": 111,
+  "axis_footway": 13,
+  "abs_along": {
+   "n": 111,
+   "median": 1.37,
+   "p90": 5.3
+  },
+  "abs_across": {
+   "n": 111,
+   "median": 2.58,
+   "p90": 5.69
+  },
+  "share_along_gt3": 0.216,
+  "share_across_gt3": 0.423
+ },
+ "santiago-chile": {
+  "labels": 128,
+  "matched": 109,
+  "sample": 109,
+  "with_axis": 109,
+  "axis_footway": 20,
+  "abs_along": {
+   "n": 109,
+   "median": 1.53,
+   "p90": 5.38
+  },
+  "abs_across": {
+   "n": 109,
+   "median": 2.49,
+   "p90": 5.84
+  },
+  "share_along_gt3": 0.321,
+  "share_across_gt3": 0.404
+ },
+ "sao-paulo-brazil": {
+  "labels": 105,
+  "matched": 80,
+  "sample": 80,
+  "with_axis": 80,
+  "axis_footway": 45,
+  "abs_along": {
+   "n": 80,
+   "median": 0.94,
+   "p90": 3.3
+  },
+  "abs_across": {
+   "n": 80,
+   "median": 2.5,
+   "p90": 6.72
+  },
+  "share_along_gt3": 0.15,
+  "share_across_gt3": 0.412
+ },
+ "st-louis-mo": {
+  "labels": 2890,
+  "matched": 2018,
+  "sample": 1500,
+  "with_axis": 1500,
+  "axis_footway": 1472,
+  "abs_along": {
+   "n": 1500,
+   "median": 1.47,
+   "p90": 4.75
+  },
+  "abs_across": {
+   "n": 1500,
+   "median": 1.28,
+   "p90": 4.06
+  },
+  "share_along_gt3": 0.228,
+  "share_across_gt3": 0.167
+ },
+ "tucson-az": {
+  "labels": 691,
+  "matched": 510,
+  "sample": 510,
+  "with_axis": 510,
+  "axis_footway": 505,
+  "abs_along": {
+   "n": 510,
+   "median": 1.18,
+   "p90": 4.23
+  },
+  "abs_across": {
+   "n": 510,
+   "median": 1.21,
+   "p90": 3.88
+  },
+  "share_along_gt3": 0.171,
+  "share_across_gt3": 0.155
+ },
+ "seattle-wa": {
+  "labels": 6283,
+  "matched": 6034,
+  "sample": 6034,
+  "with_axis": 6034,
+  "axis_footway": 5974,
+  "abs_along": {
+   "n": 6034,
+   "median": 1.3,
+   "p90": 4.3
+  },
+  "abs_across": {
+   "n": 6034,
+   "median": 1.04,
+   "p90": 3.3
+  },
+  "share_along_gt3": 0.21,
+  "share_across_gt3": 0.122
+ }
+}
