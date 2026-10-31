@@ -1,0 +1,312 @@
+{
+ "audit_plan_sha256": "0585f79940dd40ba47faa9d4bfafc16a9e2619fca1c259fa42e82d137cdb7f68",
+ "groups": {
+  "all": {
+   "bar": "reported, no verdict (the groups are not sampled in proportion)",
+   "duplicate_detections": 8,
+   "missed_marks": 677,
+   "missed_unsure": 158,
+   "panos_reviewed": 195,
+   "precision_030": {
+    "bootstrap95": [
+     0.6949,
+     0.777
+    ],
+    "n": 484,
+    "p": 0.7355,
+    "tp": 356,
+    "wilson95": [
+     0.6945,
+     0.7729
+    ]
+   },
+   "precision_055": {
+    "bootstrap95": [
+     0.8527,
+     0.9253
+    ],
+    "n": 274,
+    "p": 0.8905,
+    "tp": 244,
+    "wilson95": [
+     0.848,
+     0.9222
+    ]
+   },
+   "recall_030": {
+    "bootstrap95": [
+     0.3542,
+     0.4206
+    ],
+    "n": 921,
+    "r": 0.3865,
+    "tp": 356
+   },
+   "recall_055": {
+    "bootstrap95": [
+     0.236,
+     0.2966
+    ],
+    "n": 921,
+    "r": 0.2649,
+    "tp": 244
+   },
+   "recall_pool_panos": 195,
+   "unsure_detections": 19
+  },
+  "ecartip_gopro_max": {
+   "bar": "eligible (decisive)",
+   "decisive": true,
+   "duplicate_detections": 2,
+   "eligible": true,
+   "missed_marks": 213,
+   "missed_unsure": 38,
+   "panos_reviewed": 56,
+   "precision_030": {
+    "bootstrap95": [
+     0.65,
+     0.7566
+    ],
+    "n": 160,
+    "p": 0.7,
+    "tp": 112,
+    "wilson95": [
+     0.625,
+     0.7656
+    ]
+   },
+   "precision_055": {
+    "bootstrap95": [
+     0.9024,
+     0.9877
+    ],
+    "n": 79,
+    "p": 0.9494,
+    "tp": 75,
+    "wilson95": [
+     0.8769,
+     0.9801
+    ]
+   },
+   "recall_030": {
+    "bootstrap95": [
+     0.3432,
+     0.4384
+    ],
+    "n": 288,
+    "r": 0.3889,
+    "tp": 112
+   },
+   "recall_055": {
+    "bootstrap95": [
+     0.2203,
+     0.304
+    ],
+    "n": 288,
+    "r": 0.2604,
+    "tp": 75
+   },
+   "recall_pool_panos": 56,
+   "unsure_detections": 8
+  },
+  "grand_lyon_ladybug": {
+   "bar": "eligible, not decisive: an interval contains 0.80",
+   "decisive": false,
+   "duplicate_detections": 4,
+   "eligible": true,
+   "missed_marks": 233,
+   "missed_unsure": 63,
+   "panos_reviewed": 71,
+   "precision_030": {
+    "bootstrap95": [
+     0.6708,
+     0.8333
+    ],
+    "n": 165,
+    "p": 0.7515,
+    "tp": 124,
+    "wilson95": [
+     0.6804,
+     0.8112
+    ]
+   },
+   "precision_055": {
+    "bootstrap95": [
+     0.75,
+     0.9009
+    ],
+    "n": 101,
+    "p": 0.8317,
+    "tp": 84,
+    "wilson95": [
+     0.7469,
+     0.8922
+    ]
+   },
+   "recall_030": {
+    "bootstrap95": [
+     0.3377,
+     0.4513
+    ],
+    "n": 317,
+    "r": 0.3912,
+    "tp": 124
+   },
+   "recall_055": {
+    "bootstrap95": [
+     0.2138,
+     0.3254
+    ],
+    "n": 317,
+    "r": 0.265,
+    "tp": 84
+   },
+   "recall_pool_panos": 71,
+   "top_up": {
+    "extra_detections_at_current_rate": 623,
+    "extra_random_panos": 364
+   },
+   "unsure_detections": 6
+  },
+  "other_cameras": {
+   "bar": "eligible, not decisive: an interval contains 0.80",
+   "decisive": false,
+   "duplicate_detections": 1,
+   "eligible": true,
+   "missed_marks": 111,
+   "missed_unsure": 37,
+   "panos_reviewed": 33,
+   "precision_030": {
+    "bootstrap95": [
+     0.6719,
+     0.8696
+    ],
+    "n": 76,
+    "p": 0.7763,
+    "tp": 59,
+    "wilson95": [
+     0.6707,
+     0.8554
+    ]
+   },
+   "precision_055": {
+    "bootstrap95": [
+     0.75,
+     0.9565
+    ],
+    "n": 46,
+    "p": 0.8696,
+    "tp": 40,
+    "wilson95": [
+     0.7433,
+     0.9388
+    ]
+   },
+   "recall_030": {
+    "bootstrap95": [
+     0.3107,
+     0.4874
+    ],
+    "n": 151,
+    "r": 0.3907,
+    "tp": 59
+   },
+   "recall_055": {
+    "bootstrap95": [
+     0.1813,
+     0.366
+    ],
+    "n": 151,
+    "r": 0.2649,
+    "tp": 40
+   },
+   "recall_pool_panos": 33,
+   "top_up": {
+    "extra_detections_at_current_rate": 106,
+    "extra_random_panos": 69
+   },
+   "unsure_detections": 3
+  },
+  "other_gopro_max": {
+   "bar": "eligible (decisive)",
+   "decisive": true,
+   "duplicate_detections": 1,
+   "eligible": true,
+   "missed_marks": 120,
+   "missed_unsure": 20,
+   "panos_reviewed": 35,
+   "precision_030": {
+    "bootstrap95": [
+     0.6333,
+     0.8356
+    ],
+    "n": 83,
+    "p": 0.7349,
+    "tp": 61,
+    "wilson95": [
+     0.6311,
+     0.818
+    ]
+   },
+   "precision_055": {
+    "bootstrap95": [
+     0.875,
+     1.0
+    ],
+    "n": 48,
+    "p": 0.9375,
+    "tp": 45,
+    "wilson95": [
+     0.8316,
+     0.9785
+    ]
+   },
+   "recall_030": {
+    "bootstrap95": [
+     0.2747,
+     0.4778
+    ],
+    "n": 165,
+    "r": 0.3697,
+    "tp": 61
+   },
+   "recall_055": {
+    "bootstrap95": [
+     0.2036,
+     0.349
+    ],
+    "n": 165,
+    "r": 0.2727,
+    "tp": 45
+   },
+   "recall_pool_panos": 35,
+   "unsure_detections": 2
+  }
+ },
+ "lenient_duplicates": false,
+ "partial": false,
+ "pass_bar": {
+  "all_row": "reported, no verdict: the floors over-sample the small groups, so the pool is not a city rate",
+  "decisive": "information for Jon, not a separate outcome: a reading is decisive when both intervals sit on the same side of 0.80 as the point estimate, and 'not decisive' when either contains 0.80. score then prints the random panos a top-up draw would need, capped at the group's remaining pool",
+  "decisive_fail": "both upper bounds < 0.80: the group is excluded from any Lyon training pool",
+  "duplicates": "of two detections on one ramp, the lower-confidence one is the duplicate; scored as a false positive (rampnet.validation default)",
+  "intervals": [
+   "95% percentile interval of a pano bootstrap (10000 resamples of the group's random panos with replacement, seed 159)",
+   "95% Wilson interval over detections"
+  ],
+  "metric": "precision of the detections at confidence >= 0.55 (the records the reviewer judges)",
+  "read_on": "each audit group's unbiased subset: the random and empty strata, the top stratum excluded as for every split",
+  "reported_alongside": [
+   "recall at 0.55",
+   "precision and recall at 0.30, read the standard way (the run's stored peaks matched to the GT, so a sub-threshold peak on a ramp the reviewer marked missed is a TP)",
+   "unsure and duplicate counts",
+   "per-rig rows inside each group (descriptive, no bar)"
+  ],
+  "rule": "a group is eligible for a Lyon training pool when its point estimate is >= 0.80; below 0.80 it is not eligible",
+  "source": "the #158 build line (>= 0.80 build, 0.50-0.80 visibility, < 0.50 drop)",
+  "threshold": 0.8
+ },
+ "plan_posted": true,
+ "review_notes": {},
+ "unscored_panos": []
+}
