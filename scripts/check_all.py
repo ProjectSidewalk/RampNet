@@ -189,6 +189,21 @@ REGISTRY: list = [
     E("crop_tilt_113", (AN + "crop_tilt_113.py", "--check"),
       "crop-tilt summaries, samples, response fits and overlap re-derive from the committed CSVs (#113)",
       pins=("analysis_out/crop_tilt_113/",)),
+    E("pano_tilt_159", (AN + "pano_tilt_estimate.py", "check"),
+      "pano tilt id list, both summaries and the gate sensitivity table re-derive byte-identical "
+      "from the committed per-pano rows and records (#159, #273)",
+      pins=("analysis_out/pano_tilt/", "benchmark/bend/records.jsonl",
+            "benchmark/gainesville/records.jsonl", "benchmark/laurens_gsv/records.jsonl",
+            "benchmark/paterson/records.jsonl", "benchmark/sao_paulo/records.jsonl")),
+    E("lyon_elevation_tilt_159", (AN + "lyon_review_159.py", "elevation", "--tilt",
+                                  "analysis_out/pano_tilt/lyon.json"),
+      "Lyon tilt-corrected recall by elevation re-derives byte-identical from the committed "
+      "verdicts, records, score.json and the pano tilt rows; its output pins lyon.json's sha256 "
+      "(#159, #273)",
+      pins=("analysis_out/pano_tilt/lyon.json",
+            "analysis_out/lyon_review_159/recall_by_elevation_tilt.json",
+            "analysis_out/lyon_review_159/score.json", "benchmark/lyon/records.jsonl",
+            "benchmark/lyon/verdicts.json")),
     E("per_ramp_recall_38", (AN + "per_ramp_recall_38.py", "check"),
       "per-ramp recall results.json + ramps_other_views.csv re-derive byte-identical from #48 captures (#38)",
       pins=("analysis_out/per_ramp_recall_38/", "analysis_out/multiview_48/captures_R25.csv")),
