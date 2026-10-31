@@ -86,7 +86,7 @@ a{color:var(--accent)}
 <div class="wrap">
   <div>
     <div class="imgbox" id="imgbox">
-      <img id="img" alt="aerial crop centred on the OSM crossing node">
+      <img id="img" alt="aerial crop centered on the OSM crossing node">
       <svg id="ov" viewBox="0 0 720 720" aria-hidden="true"></svg>
       <div class="imgtag" id="imgtag">#— · 36 m · 2023</div>
       <div class="imgtag2">N ↑ &nbsp; King County GIS, view only</div>
@@ -99,6 +99,7 @@ a{color:var(--accent)}
 
     <div class="q">
       <h2>Painted crossing at the node?</h2>
+      <p class="hint">Decides whether OSM's crossing tags can be trusted as a source: is there a marked crossing on the ground at the blue node?</p>
       <div class="opts" id="optP">
         <button class="opt" data-f="p" data-v="yes"><kbd>Y</kbd> yes</button>
         <button class="opt" data-f="p" data-v="no"><kbd>N</kbd> no</button>
@@ -108,13 +109,13 @@ a{color:var(--accent)}
     </div>
 
     <div class="q">
-      <h2>Where does the crowd label sit?</h2>
-      <p class="hint">Judge by position on the paint, not by the metres: the distance and the dashed rings are only hints.</p>
+      <h2>Where does the crowd label (red) sit along the crossing?</h2>
+      <p class="hint">Decides which point the crowd labels: the middle of the crossing, or a curb end. Judge only the position ALONG the crossing (toward one curb or the other). Offset up or down the street is placement error, so a label a few meters off the paint but in line with the middle is still "near the center". The distance and the dashed rings are only hints.</p>
       <div class="opts" id="optL">
-        <button class="opt" data-f="l" data-v="yes"><kbd>1</kbd> on the stripes, at the centre</button>
-        <button class="opt" data-f="l" data-v="near"><kbd>2</kbd> on the stripes, off-centre</button>
-        <button class="opt" data-f="l" data-v="end"><kbd>3</kbd> at the curb end of this crossing</button>
-        <button class="opt" data-f="l" data-v="off"><kbd>4</kbd> not on this crossing</button>
+        <button class="opt" data-f="l" data-v="yes"><kbd>1</kbd> at the center, on the paint</button>
+        <button class="opt" data-f="l" data-v="near"><kbd>2</kbd> near the center (on or just off the paint, not toward an end)</button>
+        <button class="opt" data-f="l" data-v="end"><kbd>3</kbd> at a curb end of this crossing</button>
+        <button class="opt" data-f="l" data-v="off"><kbd>4</kbd> not on this crossing (another crossing, or far from any)</button>
         <button class="opt" data-f="l" data-v="na"><kbd>0</kbd> n/a (no crossing to judge)</button>
       </div>
       <div class="ai-line" id="aiL"></div>
@@ -156,7 +157,7 @@ const ROWS = [{"i":0,"uid":"seattle-wa:211432","node":"7527818853","cls":"marked
 const SVC = y => `https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps/KingCo_Aerial_${y}/MapServer/export`;
 const PX = 720, R = 6378137;  // 720 px over 36 m = 5 cm/px (service is 7.6 cm/px)
 const merc = (lat,lng) => [R*lng*Math.PI/180, R*Math.log(Math.tan(Math.PI/4 + lat*Math.PI/360))];
-const LABELS = {yes:"on the stripes, at the centre", near:"on the stripes, off-centre", end:"at the curb end", off:"not on this crossing", na:"n/a"};
+const LABELS = {yes:"at the center, on the paint", near:"near the center", end:"at a curb end", off:"not on this crossing", na:"n/a"};
 const PAINT = {yes:"yes", no:"no", unclear:"unclear"};
 
 let state = {half:18, year:2023, markers:true};
