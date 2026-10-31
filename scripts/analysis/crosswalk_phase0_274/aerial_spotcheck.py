@@ -77,6 +77,7 @@ def build(a):
         n = sum("pdate" in o for o in out)
         print(f"rawlabels: {n} of {len(out)} rows matched a label")
         assert n == len(out), "every sheet row should be in the city's rawLabels pull"
+    rev = json.load(open(a.review, encoding="utf-8")) if a.review else {}
     archive = "null"
     archived = ""
     if a.archive:
@@ -98,7 +99,7 @@ def build(a):
     tpl = open(os.path.join(HERE, "aerial_spotcheck_template.html"), encoding="utf-8").read()
     html = (tpl.replace("__ROWS__", json.dumps(out, separators=(",", ":"))).replace("__SHEET__", sheet)
             .replace("__SERVER__", a.server.rstrip("/")).replace("__ARCHIVE__", archive).replace("__ARCHIVED__", archived)
-            .replace("__REVIEW__", json.dumps(json.load(open(a.review, encoding="utf-8"))["rows"] if a.review else {})))
+            .replace("__REVIEW__", json.dumps(rev.get("rows", {}))).replace("__REVIEW_MADE__", rev.get("made_utc", "")))
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w", encoding="utf-8") as f:
         f.write(html)

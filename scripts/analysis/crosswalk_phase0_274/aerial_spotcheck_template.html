@@ -187,7 +187,8 @@ a{color:var(--accent)}
 const ROWS = __ROWS__;
 const SERVER = "__SERVER__";
 const ARCHIVE = __ARCHIVE__;
-const REVIEW = __REVIEW__;  // {row index: why it needs another look}, from build --review  // null = live services; else {root, crops:{label_id: metadata}} with files relative to this page
+const REVIEW = __REVIEW__;  // {row index: why it needs another look}, from build --review
+const REVIEW_MADE = "__REVIEW_MADE__";  // a verdict saved after this leaves the re-examine list  // null = live services; else {root, crops:{label_id: metadata}} with files relative to this page
 const YEARS = [2023, 2025];
 const SVC = y => `https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps/KingCo_Aerial_${y}/MapServer/export`;
 const PX = 720, R = 6378137;  // 720 px over 36 m = 5 cm/px (service is 7.6 cm/px)
@@ -226,12 +227,19 @@ function buildOrder(){
   if (mode==="sheet") order = ROWS.map(r=>r.i);
   else if (mode==="unrated") order = priorityOrder().filter(i=>!verdicts[docId(i)]);
   else if (mode==="noun") order = ROWS.filter(r=>{ const v = verdicts[docId(r.i)]; return v && v.painted!=="yes"; }).map(r=>r.i);
-  else if (mode==="revisit") order = ROWS.filter(r=>{ const v = verdicts[docId(r.i)]; return REVIEW[r.i] || (v && v.painted!=="yes" && v.imagery!=="2023+2025+crop"); }).map(r=>r.i);
+  else if (mode==="revisit") order = pendingReview();
   else order = priorityOrder();
   if (!order.length) order = [0];
   pos = Math.min(pos, order.length-1);
 }
 function row(){ return ROWS[order[pos]]; }
+// Rows still to re-examine: listed in REVIEW and not re-saved since the list was made, or a no/unclear
+// verdict saved before the 2025 + crop panels existed.
+function pendingReview(){
+  return ROWS.filter(r => { const v = verdicts[docId(r.i)];
+    if (REVIEW[r.i] && !(v && v.ts > REVIEW_MADE)) return true;
+    return v && v.painted!=="yes" && v.imagery!=="2023+2025+crop"; }).map(r=>r.i);
+}
 
 function imgUrl(r, half, year){
   if (ARCHIVE) return `${ARCHIVE.root}/ortho/${labelId(r)}_${year}_${2*half}m.png`;
@@ -345,6 +353,13 @@ function save(advance){
   const data = {i:r.i, uid:r.uid, cls:r.cls, painted:cur.p, label:cur.l, flag:cur.flag, bike:cur.bike, note:$("note").value.trim(),
     ai_p:r.ai_p, ai_l:r.ai_l, agree:(cur.p===r.ai_p && cur.l===r.ai_l), ts:new Date().toISOString(), imagery:"2023+2025+crop"};
   verdicts[docId(r.i)] = data; persist(); dropDraft(r.i);
+  if ($("order").value==="revisit"){
+    const left = pendingReview();
+    if (!left.length){ $("order").value = "sheet"; buildOrder(); pos = order.indexOf(r.i); render(); tally();
+      $("status").textContent = "Re-examination done: every listed row has been re-saved. Export verdicts."; return; }
+    buildOrder(); pos = Math.min(pos, order.length-1); render(); tally();
+    $("status").textContent = `Saved. ${left.length} row${left.length===1 ? "" : "s"} left to re-examine.`; return;
+  }
   if (advance) nextUnrated(); else render();
   tally();
 }
@@ -422,9 +437,11 @@ document.addEventListener("keydown", e => {
 
 (function start(){
   verdicts = load(); drafts = loadDrafts();
+  if (pendingReview().length){ $("order").value = "revisit"; }
   buildOrder();
   try { const p = +localStorage.getItem("spotcheck.pos"); const k = order.indexOf(p); if (k>=0) pos = k; } catch(e){}
   render(); tally();
+  if ($("order").value==="revisit") $("status").textContent = `${order.length} rows to re-examine (the reason is on each row); Enter saves and moves to the next one.`;
 })();
 </script>
 </body></html>
