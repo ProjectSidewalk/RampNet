@@ -28,7 +28,10 @@ h1{font-size:17px;font-weight:600;margin:0}
 .pill .dot.ring{background:none;border:2px dotted var(--node);box-sizing:border-box}
 .prog{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .wrap{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
-.imgs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}
+.imgs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start;justify-items:center}
+/* Panels are capped by viewport height so the verdict card stays above the fold on a laptop. */
+.imgs > div{width:100%;max-width:min(100%,52vh)}
+.imgs > div:last-child{max-width:min(100%,78vh)}
 @media (max-width:1100px){.imgs{grid-template-columns:1fr 1fr}}
 @media (max-width:700px){.imgs{grid-template-columns:1fr}}
 .imgbox{position:relative;width:100%;aspect-ratio:1/1;background:#778;border:1px solid var(--line);overflow:hidden}
