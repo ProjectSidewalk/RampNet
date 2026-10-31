@@ -146,7 +146,7 @@ a{color:var(--accent)}
         <button class="opt" data-f="l" data-v="near"><kbd>2</kbd> near the center (on or just off the paint, not toward an end)</button>
         <button class="opt" data-f="l" data-v="end"><kbd>3</kbd> at a curb end of this crossing</button>
         <button class="opt" data-f="l" data-v="off"><kbd>4</kbd> not on this crossing (another crossing, or far from any)</button>
-        <button class="opt" data-f="l" data-v="na"><kbd>0</kbd> n/a (no crossing to judge)</button>
+        <button class="opt" data-f="l" data-v="na"><kbd>0</kbd> no paint to judge against (unmarked crossing, or no crossing)</button>
       </div>
       <div class="ai-line" id="aiL"></div>
     </div>
@@ -190,7 +190,7 @@ const YEARS = [2023, 2025];
 const SVC = y => `https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps/KingCo_Aerial_${y}/MapServer/export`;
 const PX = 720, R = 6378137;  // 720 px over 36 m = 5 cm/px (service is 7.6 cm/px)
 const merc = (lat,lng) => [R*lng*Math.PI/180, R*Math.log(Math.tan(Math.PI/4 + lat*Math.PI/360))];
-const LABELS = {yes:"at the center, on the paint", near:"near the center", end:"at a curb end", off:"not on this crossing", na:"n/a"};
+const LABELS = {yes:"at the center, on the paint", near:"near the center", end:"at a curb end", off:"not on this crossing", na:"no paint to judge against"};
 const PAINT = {yes:"yes", no:"no", unclear:"unclear"};
 
 let state = {half:18, markers:true};
