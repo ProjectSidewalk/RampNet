@@ -1,6 +1,7 @@
-"""Build the markdown census table from out/census.json."""
-import json, sys
-r = json.load(open("out/census.json"))
+"""Build the markdown census table from OUT/census.json (`make_table.py OUT`; OUT defaults to ./out)."""
+import json, os, sys
+OUT = sys.argv[1] if len(sys.argv) > 1 else "out"
+r = json.load(open(os.path.join(OUT, "census.json")))
 cities = sorted({k.split("/")[0] for k in r})
 def f(x, d=0):
     return "" if x is None else (f"{x:.{d}f}" if isinstance(x, float) else str(x))

@@ -534,6 +534,7 @@ analysis_out/crosswalk_phase0_274/*
 !analysis_out/crosswalk_phase0_274/*.md
 !analysis_out/crosswalk_phase0_274/aerial_spotcheck_*.html
 !analysis_out/crosswalk_phase0_274/offsets/
+!analysis_out/crosswalk_phase0_274/per_label/
 !analysis_out/crosswalk_phase0_274/vistas_probe/
 
 # #159: image-based pano tilt (docs/pano_tilt_estimate.md). The id list, per-pano rows and

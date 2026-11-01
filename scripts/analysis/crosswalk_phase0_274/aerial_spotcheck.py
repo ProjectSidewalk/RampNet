@@ -27,9 +27,11 @@ the King County export service or the signed crops are gone. The Seattle archive
 (backed up), on makelab1/makelab2 at /projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/
 (its README.md has the replay command); see archive_spotcheck.py's docstring. The AI's two ratings are pre-selected; Enter accepts them,
 Y/N/U and 1-4/0 override them. Verdicts persist in localStorage and "Export verdicts" downloads them as
-JSON, in the gt_gallery.py pattern. `merge` adds `human_painted`, `human_label`, `human_flag`, `human_note`
-columns to the sheet (plus `human_bike`: the B tag, or a note mentioning "bike" from before the tag
-existed -- the crowd labeled a green bike crossing, which a paint detector would fire on too), prints
+JSON, in the gt_gallery.py pattern. `merge` adds `human_painted`, `human_label`, `human_flag`, `human_bike`
+(the B tag: the crowd labeled a green bike crossing beside the node, which a paint detector would fire on
+too; the position code then describes the label against that bike crossing, so the counts set those rows
+aside), `human_note`, `human_imagery` (what the rater saw when the row was saved: `2023` for a verdict from
+before the 2025 and crop panels existed, else `2023+2025+crop`) and `human_ts` columns to the sheet, prints
 agreement with the AI pass overall and per OSM class, and is the only step that touches the repo's tables.
 """
 import argparse
@@ -86,7 +88,7 @@ def build(a):
     seed = "null"
     if a.verdicts:
         vj = json.load(open(a.verdicts, encoding="utf-8"))
-        vs = vj["verdicts"] if isinstance(vj["verdicts"], list) else list(vj["verdicts"].values())
+        vs = verdict_list(vj)
         seed = json.dumps(vs, separators=(",", ":"), ensure_ascii=False)
         print(f"seed: {len(vs)} verdicts embedded from {a.verdicts}")
     archive = "null"
@@ -118,17 +120,26 @@ def build(a):
 
 
 def is_bike(v):
-    """The B tag, or (for verdicts saved before the tag existed) a note that mentions a bike crossing."""
-    return bool(v.get("bike")) or "bike" in (v.get("note") or "").lower()
+    """The B tag. (A note-text fallback was used before the tag existed; every bike row in the final export carries the tag.)"""
+    return bool(v.get("bike"))
+
+
+def verdict_list(vj):
+    """The export's verdicts as a list (the page exports a list; a hand-edited file may hold a dict by row)."""
+    vs = vj["verdicts"]
+    return vs if isinstance(vs, list) else list(vs.values())
 
 
 def merge(a):
     rows = read_sheet(a.sheet)
     vj = json.load(open(a.verdicts, encoding="utf-8"))
-    by_i = {int(v["i"]): v for v in vj["verdicts"]}
+    vl = verdict_list(vj)
+    by_i = {int(v["i"]): v for v in vl}
+    assert len(by_i) == len(vl), "duplicate row index in the verdicts export"
+    assert all(0 <= i < len(rows) for i in by_i), "verdict row index outside the sheet"
     for i, r in enumerate(rows):
         assert by_i.get(i, {}).get("uid", r["label_uid"]) == r["label_uid"], f"row {i} uid mismatch"
-    fields = list(rows[0].keys()) + ["human_painted", "human_label", "human_flag", "human_bike", "human_note"]
+    fields = list(rows[0].keys()) + ["human_painted", "human_label", "human_flag", "human_bike", "human_note", "human_imagery", "human_ts"]
     with open(a.out, "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
@@ -136,7 +147,8 @@ def merge(a):
             v = by_i.get(i, {})
             w.writerow({**r, "human_painted": v.get("painted", ""), "human_label": v.get("label", ""),
                         "human_flag": "yes" if v.get("flag") else "", "human_bike": "yes" if v and is_bike(v) else "",
-                        "human_note": v.get("note", "")})
+                        "human_note": v.get("note", ""), "human_imagery": (v.get("imagery") or ("2023" if v else "")),
+                        "human_ts": v.get("ts", "")})
     rated = [(r, by_i[i]) for i, r in enumerate(rows) if i in by_i]
     n = len(rated)
     print(f"{n} of {len(rows)} rows have a human verdict -> {a.out}")
@@ -146,19 +158,27 @@ def merge(a):
     ag_l = sum(v["label"] == r["rating_label_at_centre"] for r, v in rated)
     ag_lc = sum((v["label"] in ON_CROSSING) == (r["rating_label_at_centre"] in ON_CROSSING) for r, v in rated)
     print(f"agree with AI: painted {ag_p}/{n} = {ag_p / n:.2f}; label (5 classes) {ag_l}/{n} = {ag_l / n:.2f}; "
-          f"label (on-crossing vs not) {ag_lc}/{n} = {ag_lc / n:.2f}")
-    print("| class | rated | painted=yes human | painted=yes AI | on-crossing human | on-crossing AI | bike crossing | flagged |")
+          f"label (within 5 m vs not) {ag_lc}/{n} = {ag_lc / n:.2f}")
+    ped = lambda v: v["label"] in ON_CROSSING and not is_bike(v)   # within 5 m of the node on a PEDESTRIAN crossing
+    rat = [v for _, v in rated if v["label"] != "na"]
+    print(f"human placement: {sum(ped(v) for v in rat)} of {len(rat)} ratable within 5 m on a pedestrian crossing, "
+          f"{sum(v['label'] == 'end' for v in rat)} at an end, {sum(v['label'] == 'off' for v in rat)} off, "
+          f"{sum(v['label'] in ON_CROSSING and is_bike(v) for v in rat)} on a bike crossing; {n - len(rat)} n/a")
+    im = collections.Counter((v.get("imagery") or "2023") for _, v in rated)
+    print("imagery the human verdicts were saved on:", dict(im))
+    print("| class | rated | painted=yes human | painted=yes AI | <= 5 m on a pedestrian crossing, human | <= 5 m AI | bike crossing | flagged |")
     print("|---|---|---|---|---|---|---|---|")
-    for cls in ("marked", "unknown", "unmarked"):
+    for cls, name in (("marked", "marked"), ("unknown", "untagged"), ("unmarked", "unmarked")):
         s = [(r, v) for r, v in rated if r["osm_marking_class"] == cls]
         if not s:
             continue
-        print(f"| {cls} | {len(s)} | {sum(v['painted'] == 'yes' for _, v in s)} | "
+        print(f"| {name} | {len(s)} | {sum(v['painted'] == 'yes' for _, v in s)} | "
               f"{sum(r['rating_painted_crossing_at_node'] == 'yes' for r, _ in s)} | "
-              f"{sum(v['label'] in ON_CROSSING for _, v in s)} | "
+              f"{sum(ped(v) for _, v in s)} | "
               f"{sum(r['rating_label_at_centre'] in ON_CROSSING for r, _ in s)} | {sum(is_bike(v) for _, v in s)} | "
               f"{sum(bool(v.get('flag')) for _, v in s)} |")
-    dis = [(i, r, by_i[i]) for i, r in enumerate(rows) if i in by_i and not by_i[i].get("agree")]
+    dis = [(i, r, by_i[i]) for i, r in enumerate(rows) if i in by_i
+           and not (by_i[i]["painted"] == r["rating_painted_crossing_at_node"] and by_i[i]["label"] == r["rating_label_at_centre"])]
     if dis:
         print("disagreements:")
         for i, r, v in dis:

@@ -10,11 +10,11 @@ Layout under --out:
   page/<html>                   the built page at archive time
   ortho/<label_id>_<year>_<36|18>m.png   King County ortho export, 720 px, bbox centred on the OSM node
   crops/<label_id>.png + <label_id>.metadata.json   Project Sidewalk label crop + its metadata
-  SHA256SUMS                    one line per manifest entry, for `sha256sum -c SHA256SUMS` (written by hand from
-                                manifest.json after the run; regenerate it whenever the manifest changes)
+  SHA256SUMS                    one line per file in the directory except manifest.json and itself, for
+                                `sha256sum -c SHA256SUMS`; written at the end of every run (`--sums-only` rewrites it)
 
-WHERE THE ARCHIVE IS. The Seattle archive (made 2026-10-31: 724 files, 346 MB) is NOT in this repo -- the
-King County tiles are served "view only" and the crops are Google Street View pixels. The canonical copy is
+WHERE THE ARCHIVE IS. The Seattle archive (made 2026-10-31: 724 files, 346 MB) is NOT in this repo; the
+imagery stays on the lab share. The canonical copy is
 on the lab share, backed up by CSE IT (ZFS snapshots + nightly off-host sync), readable from makelab1 and
 makelab2 at
   /projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/
@@ -88,9 +88,13 @@ def main():
     ap.add_argument("--page", required=True)
     ap.add_argument("--server", default="https://sidewalk-sea.cs.washington.edu")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--sums-only", action="store_true", help="only rewrite SHA256SUMS over the directory as it is")
     a = ap.parse_args()
 
     out = a.out
+    if a.sums_only:
+        print(f"SHA256SUMS: {write_sums(out)} files")
+        return
     for d in ("sheet", "rawlabels", "verdicts", "page", "ortho", "crops"):
         os.makedirs(os.path.join(out, d), exist_ok=True)
     mpath = os.path.join(out, "manifest.json")
@@ -112,9 +116,16 @@ def main():
     # ---- the inputs, copied
     vj = json.load(open(a.verdicts, encoding="utf-8"))
     vname = f"aerial_verdicts_seattle-wa_{vj['exported'].replace(':', '').replace('-', '')[:15]}.json"
+    stamp = vname[len("aerial_verdicts_seattle-wa_"):-len(".json")]
     for src, rel in ((a.sheet, "sheet/" + os.path.basename(a.sheet)), (a.rawlabels, "rawlabels/" + os.path.basename(a.rawlabels)),
                      (a.verdicts, "verdicts/" + vname), (a.page, "page/" + os.path.basename(a.page))):
-        shutil.copyfile(src, os.path.join(out, rel))
+        dst = os.path.join(out, rel)
+        if rel.startswith("page/") and os.path.exists(dst) and sha256(dst) != sha256(src):
+            # keep the page as it was at each archive time: a changed page goes beside the old one, stamped
+            stem, ext = os.path.splitext(rel)
+            rel = f"{stem}.{stamp}{ext}"
+            dst = os.path.join(out, rel)
+        shutil.copyfile(src, dst)
         record(rel, "file://" + os.path.abspath(src).replace("\\", "/"), None, None)
     save()
 
@@ -144,13 +155,15 @@ def main():
                 time.sleep(SPACING_S)
                 if st != 200 or not ct.startswith("image/"):
                     n_bad += 1
+                    files.pop(rel, None)   # never leave a manifest entry for a file that is not there
                     print(f"  row {i} {rel}: HTTP {st} {ct} ({len(body)} B) -- not saved", file=sys.stderr)
                     continue
                 open(os.path.join(out, rel), "wb").write(body)
                 record(rel, url, st, ct)
                 n_new += 1
         rel_m, rel_p = f"crops/{lid}.metadata.json", f"crops/{lid}.png"
-        if rel_p in files and os.path.exists(os.path.join(out, rel_p)):
+        have = next((p for p in (rel_p, f"crops/{lid}.jpg") if p in files and os.path.exists(os.path.join(out, p))), None)
+        if have:
             n_skip += 1
         else:
             murl = f"{a.server}/cropImage/Crosswalk/{lid}/metadata"
@@ -158,6 +171,8 @@ def main():
             time.sleep(SPACING_S)
             if st != 200:
                 n_bad += 1
+                for p in (rel_m, rel_p, f"crops/{lid}.jpg"):
+                    files.pop(p, None)
                 print(f"  row {i} {rel_m}: HTTP {st} -- no crop metadata", file=sys.stderr)
             else:
                 open(os.path.join(out, rel_m), "wb").write(body)
@@ -168,6 +183,8 @@ def main():
                 time.sleep(SPACING_S)
                 if st != 200 or not ct.startswith("image/"):
                     n_bad += 1
+                    for p in (rel_p, f"crops/{lid}.jpg"):
+                        files.pop(p, None)
                     print(f"  row {i} {rel_p}: HTTP {st} {ct} -- crop not saved", file=sys.stderr)
                 else:
                     ext = ".png" if "png" in ct else ".jpg"
@@ -181,6 +198,23 @@ def main():
             print(f"row {i + 1}/{len(rows)}: {n_new} fetched, {n_skip} already there, {n_bad} failed, {time.time() - t0:.0f}s")
     save()
     print(f"done: {n_new} fetched, {n_skip} already there, {n_bad} failed; {len(files)} files in manifest")
+    print(f"SHA256SUMS: {write_sums(out)} files")
+
+
+def write_sums(out):
+    """SHA256SUMS over every file under `out` except manifest.json (it changes every run) and the sums file."""
+    lines = []
+    for dp, _, fns in os.walk(out):
+        for fn in fns:
+            p = os.path.join(dp, fn)
+            rel = os.path.relpath(p, out).replace(os.sep, "/")
+            if rel in ("SHA256SUMS", "manifest.json", "manifest.json.tmp"):
+                continue
+            lines.append((rel, sha256(p)))
+    lines.sort()
+    with open(os.path.join(out, "SHA256SUMS"), "w", encoding="utf-8", newline="\n") as f:
+        f.writelines(f"{h}  {rel}\n" for rel, h in lines)
+    return len(lines)
 
 
 if __name__ == "__main__":

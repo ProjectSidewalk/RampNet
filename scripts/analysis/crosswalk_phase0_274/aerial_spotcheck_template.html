@@ -206,7 +206,20 @@ function persist(){ try { localStorage.setItem(KEY, JSON.stringify(verdicts)); }
 let drafts = {};
 function loadDrafts(){ try { return JSON.parse(localStorage.getItem(KEY + '.drafts') || '{}'); } catch(e){ return {}; } }
 function persistDrafts(){ try { localStorage.setItem(KEY + '.drafts', JSON.stringify(drafts)); } catch(e){} }
-function saveDraft(){ drafts[docId(row().i)] = {p:cur.p, l:cur.l, flag:cur.flag, bike:cur.bike, note:$('note').value}; persistDrafts(); }
+function saveDraft(){ drafts[docId(row().i)] = {p:cur.p, l:cur.l, flag:cur.flag, bike:cur.bike, note:$('note').value, ts:new Date().toISOString()}; persistDrafts(); }
+// A Clear leaves a tombstone, so the verdicts embedded at build time do not put the row straight back on reload.
+let cleared = {};
+function loadCleared(){ try { return JSON.parse(localStorage.getItem(KEY + '.cleared') || '{}'); } catch(e){ return {}; } }
+function persistCleared(){ try { localStorage.setItem(KEY + '.cleared', JSON.stringify(cleared)); } catch(e){} }
+// Adopt an incoming verdict (from the build's seed or an Import) only if it is newer than what this browser holds.
+function adopt(v){
+  const k = docId(v.i), ts = v.ts || "";
+  if (cleared[k] && cleared[k] > ts) return false;
+  if (verdicts[k] && (verdicts[k].ts || "") >= ts) return false;
+  verdicts[k] = v;
+  if (drafts[k] && (!drafts[k].ts || drafts[k].ts < ts)) delete drafts[k];
+  return true;
+}
 function dropDraft(i){ delete drafts[docId(i)]; persistDrafts(); }
 function edit(){ paintSel(); saveDraft(); }
 let order = [], pos = 0;
@@ -316,7 +329,7 @@ function loadCrop(r, tok){
 function paintSel(){
   for (const b of document.querySelectorAll(".opt")){
     const f = b.dataset.f, val = b.dataset.v;
-    b.classList.toggle("sel", (f==="p" ? cur.p : cur.l) === val);
+    const on = (f==="p" ? cur.p : cur.l) === val; b.classList.toggle("sel", on); b.setAttribute("aria-pressed", String(on));
   }
   $("flag").classList.toggle("primary", cur.flag);
   $("bike").classList.toggle("primary", cur.bike);
@@ -353,7 +366,7 @@ function save(advance){
   const r = row();
   const data = {i:r.i, uid:r.uid, cls:r.cls, painted:cur.p, label:cur.l, flag:cur.flag, bike:cur.bike, note:$("note").value.trim(),
     ai_p:r.ai_p, ai_l:r.ai_l, agree:(cur.p===r.ai_p && cur.l===r.ai_l), ts:new Date().toISOString(), imagery:"2023+2025+crop"};
-  verdicts[docId(r.i)] = data; persist(); dropDraft(r.i);
+  verdicts[docId(r.i)] = data; persist(); dropDraft(r.i); if (cleared[docId(r.i)]){ delete cleared[docId(r.i)]; persistCleared(); }
   if ($("order").value==="revisit"){
     const left = pendingReview();
     if (!left.length){ $("order").value = "sheet"; buildOrder(); pos = order.indexOf(r.i); render(); tally();
@@ -402,7 +415,7 @@ $("skip").onclick = () => next(1);
 $("nextUnrated").onclick = () => nextUnrated();
 $("flag").onclick = () => { cur.flag = !cur.flag; edit(); };
 $("bike").onclick = () => { cur.bike = !cur.bike; edit(); };
-$("clear").onclick = () => { delete verdicts[docId(row().i)]; persist(); dropDraft(row().i); render(); tally(); };
+$("clear").onclick = () => { const k = docId(row().i); delete verdicts[k]; persist(); dropDraft(row().i); cleared[k] = new Date().toISOString(); persistCleared(); render(); tally(); };
 $("export").onclick = () => {
   const out = {sheet:"__SHEET__", rater:"human", exported:new Date().toISOString(), verdicts:Object.values(verdicts).sort((a,b)=>a.i-b.i)};
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:"application/json"}));
@@ -411,8 +424,10 @@ $("export").onclick = () => {
 };
 $("import").onchange = e => {
   const f = e.target.files[0]; if (!f) return;
-  f.text().then(txt => { const j = JSON.parse(txt); for (const v of (j.verdicts||[])) verdicts[docId(v.i)] = v; persist(); render(); tally();
-    $("status").textContent = `Imported ${(j.verdicts||[]).length} verdicts.`; }).catch(err => { $("status").textContent = "Import failed: " + err; });
+  f.text().then(txt => { const j = JSON.parse(txt); const vs = Array.isArray(j.verdicts) ? j.verdicts : Object.values(j.verdicts||{});
+    let n = 0; for (const v of vs) if (adopt(v)) n++;
+    persist(); persistDrafts(); render(); tally();
+    $("status").textContent = `Imported ${n} of ${vs.length} verdicts (the rest were older than this browser's copy, or cleared here more recently).`; }).catch(err => { $("status").textContent = "Import failed: " + err; });
 };
 $("order").onchange = () => { $("order").blur(); buildOrder(); pos = 0; render(); };
 $("note").addEventListener("input", saveDraft);
@@ -425,7 +440,8 @@ $("note").addEventListener("keydown", e => { if (e.key==="Escape"){ e.target.blu
 for (const b of document.querySelectorAll("button")) b.addEventListener("click", () => b.blur());
 document.addEventListener("keydown", e => {
   if (e.target.tagName==="INPUT" || e.target.tagName==="SELECT" || e.metaKey || e.ctrlKey || e.altKey) return;
-  if (e.target.tagName==="BUTTON") { e.preventDefault(); e.target.blur(); }
+  if (e.target.tagName==="BUTTON") { if (e.key==="Enter" || e.key===" ") return; e.preventDefault(); e.target.blur(); }   // Tab + Enter works the button, not the row
+  if (e.repeat && (e.key==="Enter" || e.key===" ")) { e.preventDefault(); return; }   // a held key must not save successive rows
   const k = e.key;
   const setP = v => { cur.p = v; edit(); };
   const setL = v => { cur.l = v; edit(); };
@@ -443,13 +459,14 @@ document.addEventListener("keydown", e => {
 });
 
 (function start(){
-  verdicts = load(); drafts = loadDrafts();
+  verdicts = load(); drafts = loadDrafts(); cleared = loadCleared();
   // Seed from the export embedded at build time, so the state does not depend on which browser profile
-  // opens the file (localStorage is per profile): newest timestamp wins, row by row, and a seeded row's
-  // stale draft is dropped.
+  // opens the file (localStorage is per profile): newest timestamp wins, row by row (ISO UTC strings, so
+  // the comparison is lexical; a row cleared here after the export stays cleared), and only a draft older
+  // than the seeded verdict is dropped.
   if (SEED){
     let n = 0;
-    for (const s of SEED){ const k = docId(s.i); if (!verdicts[k] || (verdicts[k].ts||"") < (s.ts||"")){ verdicts[k] = s; delete drafts[k]; n++; } }
+    for (const s of SEED) if (adopt(s)) n++;
     if (n){ persist(); persistDrafts(); console.log(`seeded ${n} verdicts from the build`); }
   }
   if (pendingReview().length){ $("order").value = "revisit"; }
