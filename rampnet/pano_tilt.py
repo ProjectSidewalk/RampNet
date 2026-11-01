@@ -447,7 +447,8 @@ def gate_reasons(n_inliers, sector_inliers, se_pitch, se_roll, ambiguity,
         reasons.append(f"inliers {n_inliers} < {params.min_inliers}")
     if n_sec < params.min_sectors:
         reasons.append(f"sectors {n_sec} < {params.min_sectors}")
-    se = None if se_pitch is None or se_roll is None else max(se_pitch, se_roll)
+    # np.maximum, not max: max(0.06, nan) is 0.06, which would pass a NaN roll SE.
+    se = None if se_pitch is None or se_roll is None else float(np.maximum(se_pitch, se_roll))
     if bad(se, params.max_se_deg):
         reasons.append(f"se {se:.3f} > {params.max_se_deg}" if se is not None else "se missing")
     if bad(ambiguity, params.max_ambiguity):

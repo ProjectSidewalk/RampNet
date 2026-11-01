@@ -198,6 +198,18 @@ class TestFromConstraints:
         assert pt.gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], 0.05, 0.06, 0.92) == ["ambiguity 0.92 > 0.8"]
         assert pt.gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], float("nan"), 0.06, 0.5) != []
 
+    @pytest.mark.parametrize("se_pitch, se_roll, expected", [
+        (float("nan"), 0.06, "se nan > 0.25"),
+        (0.06, float("nan"), "se nan > 0.25"),
+        (float("inf"), 0.06, "se inf > 0.25"),
+        (0.06, float("inf"), "se inf > 0.25"),
+        (None, 0.06, "se missing"),
+        (0.06, None, "se missing"),
+    ])
+    def test_gate_fails_on_either_bad_se(self, se_pitch, se_roll, expected):
+        """A missing or non-finite SE fails the gate whichever axis it is on (#273 N14)."""
+        assert pt.gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], se_pitch, se_roll, 0.5) == [expected]
+
     def test_too_few_segments(self):
         rng = np.random.default_rng(0)
         est = pt.estimate_from_constraints(_vertical_constraints(0, 0, [10.0], rng))
