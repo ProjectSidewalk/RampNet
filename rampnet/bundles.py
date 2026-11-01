@@ -9,6 +9,8 @@ Three kinds of directory carry a ``records.jsonl``:
 * a **staged bundle**: imagery and detections exported ahead of the ground-truth
   review. Nothing about it can be scored yet. (Bayonne was one until its verdicts
   landed in #239; it is now a scored split.)
+* a **label audit** (``audit_plan.json``; Lyon, #159): a review of a training-only
+  city's self-labels. It has a ``verdicts.json`` but is never a benchmark split.
 
 Only the first is a split. A script that lists ``benchmark/*/`` and keeps the first
 kind only stays reproducible when a city is staged before its review; one that keeps
@@ -38,7 +40,7 @@ from rampnet.detection_eval import build_ground_truth, load_yolo_ground_truths
 def is_scored_split(bundle_dir):
     """True for a ``benchmark/<split>/`` directory that can be scored (see module doc)."""
     has = lambda name: os.path.exists(os.path.join(bundle_dir, name))  # noqa: E731
-    return (has("records.jsonl") and not has("bundle.json")
+    return (has("records.jsonl") and not has("bundle.json") and not has("audit_plan.json")
             and (has("verdicts.json") or has("gt_source.json")))
 
 

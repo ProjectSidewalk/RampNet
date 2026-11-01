@@ -35,6 +35,12 @@ Subcommands, in the order the doc runs them:
     # after the review only: per-group precision / recall at 0.55 and 0.30 against the bar
     python scripts/analysis/lyon_review_159.py score --write
 
+    # after score: the 0.55 recall pool split by degrees below the horizon
+    # -> analysis_out/lyon_review_159/recall_by_elevation.json; with --tilt (PR #273's
+    # per-pano pitch/roll) -> recall_by_elevation_tilt.json
+    python scripts/analysis/lyon_review_159.py elevation --write
+    python scripts/analysis/lyon_review_159.py elevation --tilt analysis_out/pano_tilt/lyon.json --write
+
 Every ``--write`` output is LF, sorted, with floats rounded, so a re-run on any OS is
 byte-identical; without ``--write`` the command recomputes and compares the committed
 file's **bytes**. ``tests/test_lyon_review_159.py`` covers the CPU logic.
@@ -1004,6 +1010,175 @@ def cmd_score(args):
 
 
 # --------------------------------------------------------------------------- #
+# recall by elevation (asked after the review, 2026-10-27): is the low recall far field?
+# --------------------------------------------------------------------------- #
+CAMERA_HEIGHT_M = 2.5    # assumed for the distance labels only; the bands are in degrees
+ELEVATION_BANDS = (0.0, 2.0, 4.0, 6.0, 10.0, 20.0)   # degrees below the horizon
+NEAR_LIMITS = (6.0, 10.0)   # "within ~24 m" and "within ~14 m" at CAMERA_HEIGHT_M
+ELEVATION = os.path.join(OUT_DIR, "recall_by_elevation.json")
+ELEVATION_TILT = os.path.join(OUT_DIR, "recall_by_elevation_tilt.json")
+
+
+def below_horizon_deg(x, y, pitch_deg=0.0, roll_deg=0.0):
+    """Degrees below the gravity horizon of a normalized pano point (negative = above it).
+
+    With pitch = roll = 0 this is the level-camera reading ``(y - 0.5) * 180``. A tilt in
+    the #113 convention (``rampnet.stage1_geometry``; pitch > 0 nose down, roll > 0 left
+    side up, bearing ``b = x * 360 - 180``) is undone exactly before reading the angle.
+
+    >>> round(below_horizon_deg(0.5, 0.6), 6)
+    18.0
+    """
+    from rampnet import stage1_geometry as sg
+    b, el = sg.bearing_elevation_from_pixel(x, y, 1.0, 1.0)
+    if pitch_deg or roll_deg:
+        rig = sg.direction_rfu(b, el)
+        b, el = sg.bearing_elevation(sg.rig_from_gravity(pitch_deg, roll_deg).T @ rig)
+    return -float(el)
+
+
+def elevation_band(deg, bands=ELEVATION_BANDS):
+    """The band label for an angle below the horizon: 'above', '0-2', ..., '>20'."""
+    if deg < bands[0]:
+        return "above"
+    for lo, hi in zip(bands, bands[1:]):
+        if deg < hi:
+            return f"{lo:g}-{hi:g}"
+    return f">{bands[-1]:g}"
+
+
+def band_labels(bands=ELEVATION_BANDS):
+    return ["above"] + [f"{lo:g}-{hi:g}" for lo, hi in zip(bands, bands[1:])] + [f">{bands[-1]:g}"]
+
+
+def band_distance_m(label, h=CAMERA_HEIGHT_M):
+    """[near, far] ground distance in metres for a band, for a level camera ``h`` m up."""
+    if label == "above":
+        return None
+    if label.startswith(">"):
+        return [0.0, _r(h / math.tan(math.radians(float(label[1:]))), 1)]
+    lo, hi = (float(v) for v in label.split("-"))
+    far = None if lo == 0 else _r(h / math.tan(math.radians(lo)), 1)
+    return [_r(h / math.tan(math.radians(hi)), 1), far]
+
+
+def elevation_items(recs, verdict_panos, tilt=None):
+    """One row per judged ramp in the 0.55 recall pool: the true detections and the missed
+    marks (sure and unsure) on unbiased-subset panos whose misses were confirmed, the same
+    pool as ``score_groups``' ``recall_055``. ``tilt`` maps pano id -> (pitch, roll).
+    Returns (items, pool), ``pool`` mapping every pool pano (with or without items) to its
+    group, so pool-wide intervals keep the zero-ramp panos as ``score`` does."""
+    tilt = tilt or {}
+    out, pool = [], {}
+    for r in recs:
+        pid, grp = r["pano"]["panorama_id"], r["benchmark_group"]
+        e = verdict_panos.get(pid)
+        if grp == "top" or e is None or any(d is None for d in e["dets"]) \
+                or len(e["dets"]) != len(r["detections"]):
+            continue
+        if not ((e["no_missed"] or e["missed"]) if "no_missed" in e else True):
+            continue
+        pool[pid] = r["benchmark_stratum"]
+        pitch, roll = tilt.get(pid, (0.0, 0.0))
+        pts = [("tp", d["x_normalized"], d["y_normalized"])
+               for d, v in zip(r["detections"], e["dets"]) if v is True]
+        pts += [("missed_unsure" if m.get("unsure") else "missed", m["x"], m["y"])
+                for m in e["missed"]]
+        for kind, x, y in pts:
+            out.append({"pano": pid, "group": r["benchmark_stratum"], "kind": kind,
+                        "below_horizon_deg": below_horizon_deg(x, y, pitch, roll)})
+    return out, pool
+
+
+def elevation_table(items, pool, bands=ELEVATION_BANDS, near=NEAR_LIMITS):
+    """Per group (+ ``all``): counts and recall per band, plus recall within each near
+    limit; recall = tp / (tp + missed), unsure marks reported but never in the pool.
+    Intervals are pano bootstraps. The total and ``within`` rows draw from every pool pano
+    (zero-ramp panos included, as ``score`` does, so the total interval equals score.json's
+    ``recall_055``); a band draws only from the panos with a ramp in that band."""
+    out = {}
+    for g in [g for g in GROUPS if any(i["group"] == g for i in items)] + ["all"]:
+        rows = [i for i in items if g == "all" or i["group"] == g]
+        g_panos = [p for p, pg in pool.items() if g == "all" or pg == g]
+
+        def summarize(sel, all_panos=False):
+            per = collections.defaultdict(lambda: [0, 0])
+            if all_panos:
+                for p in g_panos:
+                    per[p]
+            c = collections.Counter(i["kind"] for i in sel)
+            for i in sel:
+                if i["kind"] != "missed_unsure":
+                    per[i["pano"]][0] += i["kind"] == "tp"
+                    per[i["pano"]][1] += 1
+            n = c["tp"] + c["missed"]
+            lo, hi = bootstrap_ci([tuple(v) for _, v in sorted(per.items())])
+            return {"tp": c["tp"], "missed": c["missed"], "missed_unsure": c["missed_unsure"],
+                    "recall": _r(c["tp"] / n) if n else None,
+                    "bootstrap95": [_r(lo), _r(hi)] if n else None}
+
+        by_band = {}
+        for lab in band_labels(bands):
+            by_band[lab] = {"distance_m": band_distance_m(lab),
+                            **summarize([i for i in rows
+                                         if elevation_band(i["below_horizon_deg"], bands) == lab])}
+        within = {f">={lim:g}deg": {"distance_m_max": _r(CAMERA_HEIGHT_M / math.tan(
+                      math.radians(lim)), 1),
+                      **summarize([i for i in rows if i["below_horizon_deg"] >= lim],
+                                  all_panos=True)}
+                  for lim in near}
+        out[g] = {"bands": by_band, "within": within, "total": summarize(rows, all_panos=True)}
+    return out
+
+
+def load_tilt(path):
+    """(pitch/roll by pano for accepted estimates, provenance dict) from #273's lyon.json."""
+    with open(path, encoding="utf-8") as f:
+        d = json.load(f)
+    ok = {row["pano_id"]: (row["pitch_deg"], row["roll_deg"])
+          for row in d["rows"] if row["status"] == "ok"}
+    prov = {"file_sha256": _sha256(path), "method_version": d.get("method_version"),
+            "accepted": len(ok), "declined_left_level": len(d["rows"]) - len(ok),
+            "source": "analysis_out/pano_tilt/lyon.json from PR #273 (pano tilt estimator)"}
+    return ok, prov
+
+
+def cmd_elevation(args):
+    vpath = os.path.join(args.bundle, "verdicts.json")
+    if not os.path.exists(vpath):
+        print("no verdicts.json: nothing to split")
+        return 1
+    with open(vpath, encoding="utf-8") as f:
+        verdicts = json.load(f)
+    recs = load_records(args.bundle)
+    tilt, tilt_prov = load_tilt(args.tilt) if args.tilt else (None, None)
+    items, pool = elevation_items(recs, verdicts.get("panos", {}), tilt)
+    table = elevation_table(items, pool)
+    # the pool must be score's recall_055 pool, or the two files disagree
+    with open(SCORE, encoding="utf-8") as f:
+        r55 = json.load(f)["groups"]["all"]["recall_055"]
+    tot = table["all"]["total"]
+    assert (tot["tp"], tot["tp"] + tot["missed"], tot["bootstrap95"]) == \
+        (r55["tp"], r55["n"], r55["bootstrap95"]), \
+        f"pool {tot} disagrees with score.json recall_055 {r55}"
+    res = {"question": "how much of the low 0.55 recall is far-field ramps",
+           "pool": "score.json recall_055: unbiased subset (random + empty), panos with "
+                   "confirmed misses; true detections at 0.55 vs the reviewer's missed marks",
+           "angle": "degrees below the gravity horizon of the detection or mark",
+           "camera_height_m": CAMERA_HEIGHT_M,
+           "distance_note": "distance_m assumes a level camera at camera_height_m over flat "
+                            "ground; it labels the bands and is not measured",
+           "tilt": tilt_prov or "none: every pano read as a level camera",
+           "verdicts_sha256": _sha256(vpath), "groups": table}
+    for g, row in table.items():
+        cells = "  ".join(f"{lab} {v['tp']}/{v['tp'] + v['missed']}"
+                          for lab, v in row["bands"].items())
+        print(f"{g:>20}  {cells}  | within " + "  ".join(
+            f"{k} {v['recall']}" for k, v in row["within"].items()))
+    return _check_or_write(res, ELEVATION_TILT if args.tilt else ELEVATION, args.write)
+
+
+# --------------------------------------------------------------------------- #
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--bundle", default=BUNDLE)
@@ -1037,6 +1212,11 @@ def main(argv=None):
     s.add_argument("--allow-unposted-plan", action="store_true",
                    help="score although audit_plan.json differs from the posted plan")
     s.set_defaults(fn=cmd_score)
+    s = sub.add_parser("elevation")
+    s.add_argument("--write", action="store_true")
+    s.add_argument("--tilt", help="#273's analysis_out/pano_tilt/lyon.json: undo each "
+                                  "accepted per-pano tilt (writes the _tilt file)")
+    s.set_defaults(fn=cmd_elevation)
     args = ap.parse_args(argv)
     return args.fn(args)
 
