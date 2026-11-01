@@ -329,7 +329,7 @@ function render(){
   if (d){ cur = {p:d.p, l:d.l, flag:!!d.flag, bike:!!d.bike}; $("note").value = d.note||""; }
   for (const y of YEARS) $("tag"+y).textContent = `#${r.i} · ${2*state.half} m · ${y}`;
   $("facts").innerHTML = `
-    <dt>row</dt><dd>#${r.i} · ${r.uid}${v ? ' · <span class="chip">rated</span>' : ''}${cur.flag ? ' <span class="chip flag">flagged</span>' : ''}${cur.bike ? ' <span class="chip">bike crossing</span>' : ''}</dd>
+    <dt>row</dt><dd>#${r.i} · ${r.uid}${v ? ' · <span class="chip">rated</span>' : ''}${cur.flag ? ' <span class="chip flag">flagged</span>' : ''}${cur.bike ? ' <span class="chip">bike crossing</span>' : ''}${d ? ' <span class="chip flag" title="these choices are unsaved edits; Save keeps them, Clear drops them">unsaved edits</span>' : ''}</dd>
     <dt>OSM node</dt><dd><a href="https://www.openstreetmap.org/node/${r.node}" target="_blank" rel="noopener">${r.node}</a> · class <b>${r.cls}</b> · crossing=${r.ct||"—"} · crossing:markings=${r.cm||"—"}</dd>
     <dt>label</dt><dd>${r.dist.toFixed(1)} m from node${r.axis && r.axis!=="none" ? " · axis from "+r.axis : ""} · <a href="https://www.openstreetmap.org/?mlat=${r.llat}&mlon=${r.llng}#map=20/${r.llat}/${r.llng}" target="_blank" rel="noopener">osm map</a>${r.purl ? ` · <a href="${r.purl}" target="_blank" rel="noopener">street view</a>` : ""}</dd>
     ${REVIEW[r.i] ? `<dt><span class="chip flag">re-examine</span></dt><dd style="font-family:var(--sans);color:var(--flag)">${REVIEW[r.i]}</dd>` : ""}
@@ -413,12 +413,18 @@ $("import").onchange = e => {
   f.text().then(txt => { const j = JSON.parse(txt); for (const v of (j.verdicts||[])) verdicts[docId(v.i)] = v; persist(); render(); tally();
     $("status").textContent = `Imported ${(j.verdicts||[]).length} verdicts.`; }).catch(err => { $("status").textContent = "Import failed: " + err; });
 };
-$("order").onchange = () => { buildOrder(); pos = 0; render(); };
+$("order").onchange = () => { $("order").blur(); buildOrder(); pos = 0; render(); };
 $("note").addEventListener("input", saveDraft);
 $("note").addEventListener("keydown", e => { if (e.key==="Escape"){ e.target.blur(); } else if (e.key==="Enter"){ e.preventDefault(); e.target.blur(); save(true); } e.stopPropagation(); });
 
+// A button clicked with the mouse keeps keyboard focus, so the browser would fire its click AGAIN on
+// Enter/Space -- after save() has already moved to the next row, i.e. the previous row's choice (B, F,
+// Y/N/U, 1-4) would leak onto the next row as a draft. Drop focus right after every click, and again on
+// any key, so the only Enter/Space behaviour is ours.
+for (const b of document.querySelectorAll("button")) b.addEventListener("click", () => b.blur());
 document.addEventListener("keydown", e => {
   if (e.target.tagName==="INPUT" || e.target.tagName==="SELECT" || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.tagName==="BUTTON") { e.preventDefault(); e.target.blur(); }
   const k = e.key;
   const setP = v => { cur.p = v; edit(); };
   const setL = v => { cur.l = v; edit(); };
