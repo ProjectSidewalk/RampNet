@@ -34,6 +34,7 @@ tables: [`analysis_out/crosswalk_phase0_274/`](../analysis_out/crosswalk_phase0_
 | aerial crops | `python scripts/analysis/crosswalk_phase0_274/aerial_crops.py --sheet OUT/aerial_sample_seattle-wa.csv --out CROPS` | King County 2023 ortho map service (view only) |
 | item 3 | `python scripts/analysis/crosswalk_phase0_274/vistas_crosswalk_probe.py --rampnet . --rawlabels OUT/rawlabels --split paterson=paterson-nj --split gainesville=gainesville-fl --out P` then `score_extra.py`; the components-per-pano line over every pano of the five splits needs `--split gainesville=gainesville-fl --split laurens_gsv=laurens-ia --split laurens_mapillary=laurens-ia --split paterson=paterson-nj --split richmond=richmond-va --all` | benchmark `panos/` for the splits, the Vistas checkpoint, a GPU |
 | aerial spot-check page | `python scripts/analysis/crosswalk_phase0_274/aerial_spotcheck.py build --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --rawlabels <census rawLabels csv> --review OUT/aerial_spotcheck_review_rows.json --verdicts OUT/aerial_verdicts_seattle-wa.json --out OUT/aerial_spotcheck_seattle-wa.html` (byte-identical to the committed page), then `merge --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --verdicts OUT/aerial_verdicts_seattle-wa.json --out OUT/aerial_sample_seattle-wa.rated.csv`, which also prints the human counts and the agreement table | King County 2023 + 2025 export services and the Seattle PS crop route, live; or `--archive <dir>` on the replay archive below |
+| aerial blind re-rate | `python scripts/analysis/crosswalk_phase0_274/aerial_rerate.py sheets --archive <replay archive> --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --out SHEETS` (the images the re-rater saw), then `aerial_rerate.py score --rerate OUT/aerial_rerate_seattle-wa.csv --rated OUT/aerial_sample_seattle-wa.rated.csv` (the agreement numbers in the aerial section) | the replay archive below; `score` needs only the committed CSVs |
 | aerial replay archive | every tile and crop the page fetched while it was rated, plus the sheet, rawLabels pull, verdict exports and an offline page: `archive_spotcheck.py` writes it; the copy is on the lab share at `/projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/` (makelab1/makelab2; CSE-backed-up; `sha256sum -c SHA256SUMS` to verify; README inside) | not in the repo: the imagery stays on the lab share |
 | figures | `python scripts/analysis/crosswalk_phase0_274/figures.py` | the committed tables only |
 
@@ -41,7 +42,8 @@ Where each number lives: the per-city census table and readings 1–4 come from 
 (`confirmed_table.py OUT` prints readings 2–4); the offset tables and pooled cuts from `offsets/<city>.csv` and `offset_read.json`; the probe
 table from `vistas_probe/summary.json` (pinned cuts), `summary_extra.json` (chance floor, sensitivity,
 server-flag cuts) and `labels_scored.csv` (one row per label); the aerial table from
-`aerial_sample_seattle-wa.rated_ai.csv`; the components-per-pano line from
+`aerial_sample_seattle-wa.rated_ai.csv` (AI) and `.rated.csv` (human), the re-rate agreement from
+`aerial_rerate_seattle-wa.csv` via `aerial_rerate.py score`; the components-per-pano line from
 `vistas_probe/panos.csv`. Label ids are per city (`label_uid` = `<city>:<label_id>`).
 
 ## Item 1: census of crowd Crosswalk / Signal labels vs OSM crossing and signal nodes (all 46 public cities)
@@ -318,9 +320,32 @@ label 6–7 m from its paint (55, 68) and 1 is the fourth bike row. The centre c
 as it did in the offsets.
 
 **Agreement with the AI first pass** (printed by `merge`): painted 106 of 120 (0.88), five-class label 97
-of 120 (0.81), within 5 m vs not 112 of 120 (0.93). Provisional: the first pass saw the 2023 ortho only,
-and its 24 no / unclear rows are being re-rated on the 2025 ortho and the crop; this paragraph is replaced
-when that is done.
+of 120 (0.81), within 5 m vs not 112 of 120 (0.93). That first pass saw the 2023 ortho only, so its 24
+no / unclear rows were then **re-rated blind on the same three images the human saw** (2023, 2025, the PS
+crop) by a fresh session that had not seen the human verdicts (Claude, claude-opus-5-5, 2026-11-01;
+`aerial_rerate.py`, verdicts in `aerial_rerate_seattle-wa.csv`). The 96 rows the first pass called yes
+were left as they were: more imagery cannot remove a crossing that is visible. With the re-rate,
+agreement is **painted 118 of 120 (0.98)**, five-class 100 of 120 (0.83), within 5 m vs not 113 of 120
+(0.94); with the four bike rows set aside, 115 / 99 / 111 of 116. On the 24 re-rated rows alone, painted
+went from 11 to 23, five-class from 15 to 18, and within 5 m from 19 to 20. So the paint disagreements were
+almost all imagery the first pass never saw, not misreadings. The two painted misses left are row 63 (a
+bus-island cut-through with yellow edge paint: AI unclear, human no) and one row outside the re-rate that
+the human marked as just off the paint. The position disagreements are about conventions, not about what
+is visible. Rows 59 and 82, where the label belongs to another crossing, were coded off by the AI and n/a
+by the human. Bike rows 48 and 49 were coded off by the AI while the human kept a position code plus the B
+tag. Row 40 is end against near at about 4 m from the centre, on the near / end boundary. Row 63 is near
+against n/a, following from its paint call. **Reading for Phase 1:** given the same imagery, an AI first
+pass matches the human on paint in 0.98 of rows, and its remaining misses are boundary cases. Position
+agreement (0.83 five-class) is limited by conventions the human settled during the pass (n/a vs off for
+another leg, the 5 m near / off boundary, the bike tag), so those conventions have to be in the rubric
+before an AI pre-rates a new round. Caveats: one AI rater and one human, a single city, and the human pass
+was anchored on the first pass (see Protocol). The re-rater also had the session memory notes, which name
+rows 43, 59, 65 and 69 as other-leg cases and 48, 49, 72 and 79 as bike rows, so those position calls are
+not fully blind. Row 59 still disagrees with the human. **Imagery note:** the King County 2025 export
+service returns a blank image below a ~30 m extent at 720 px (all 120 archived `*_2025_18m.png` are
+uniform; re-probed live 2026-11-01: 18 and 24 m blank, 30 and 36 m fine). The page's 18 m view therefore
+never showed 2025, so the human's 2025 look was the 36 m tile, and the re-rate used the 36 m tile and a 2x
+enlargement of it.
 
 ## Item 3: Vistas probe, classes 8 + 23 against crowd Crosswalk labels on benchmark panos
 

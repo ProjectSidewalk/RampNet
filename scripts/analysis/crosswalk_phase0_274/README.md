@@ -38,6 +38,12 @@ page carries its state (newest timestamp wins per row); "Export verdicts" downlo
 AI pass, overall and per OSM class. `build --archive <dir>` renders the page from `archive_spotcheck.py`'s
 replay archive instead of the live services. Same pattern as `scripts/gt_gallery.py`.
 
+`aerial_rerate.py sheets --archive <dir> --sheet <rated_ai.csv> --out <dir>` draws the images for a blind
+re-rate of the AI first pass's no / unclear rows (2023, 2025, label crop), and `aerial_rerate.py score
+--rerate OUT/aerial_rerate_seattle-wa.csv --rated OUT/aerial_sample_seattle-wa.rated.csv` prints agreement
+with the human verdicts before and after it. The King County 2025 service is blank below a ~30 m extent, so
+the 2025 panel is the 36 m tile and a 2x enlargement of it.
+
 `aerial_crops.py --sheet OUT/aerial_sample_seattle-wa.csv --out CROPS` renders the rating sheet as 36 m
 crops (node blue, label red) plus 2×2 contact sheets from King County's 2023 ortho service, for a rater;
 the crops are licensed imagery and stay out of the repo. `aerial_sample_seattle-wa.rated_ai.csv` is the
