@@ -404,19 +404,18 @@ Brackets are pano-bootstrap 95% intervals (the "within" rows draw from all 195 p
   which lowers far-field recall further and leaves the near-field reading about where it was.
 
 **Tilt input.** The corrected column uses `analysis_out/pano_tilt/lyon.json` from PR #273 (branch
-`analysis/pano-tilt-159`, commit 090cb4f; sha256 recorded in `recall_by_elevation_tilt.json`).
-It accepts 193 of 200 panos. The 7 declined panos are read as level. **PR #273 is not merged**,
-so on `main` the corrected file can be re-derived only with that file in hand:
+`analysis/pano-tilt-159`, written at commit 090cb4f and unchanged by that PR's review fixes;
+sha256 recorded in `recall_by_elevation_tilt.json`). It accepts 193 of 200 panos. The 7 declined
+panos are read as level. With #273 merged the file is in the tree, and this re-derives the
+corrected file and compares its bytes (`check_all.py` entry `lyon_elevation_tilt_159`):
 
 ```bash
-git show 090cb4f:analysis_out/pano_tilt/lyon.json > /tmp/lyon_tilt.json
-python scripts/analysis/lyon_review_159.py elevation --tilt /tmp/lyon_tilt.json   # compares bytes
+python scripts/analysis/lyon_review_159.py elevation --tilt analysis_out/pano_tilt/lyon.json
 ```
 
-Once #273 merges, pass `--tilt analysis_out/pano_tilt/lyon.json` instead. If #273 is squash-merged
-and its branch deleted, 090cb4f may no longer be fetchable, and if #273 regenerates `lyon.json`
-before merging, the byte check fails. The recorded sha256 makes either case detectable; re-run
-`elevation --tilt ... --write` on the merged file and update this section.
+If `lyon.json` is ever regenerated, the recorded sha256 no longer matches and the check fails;
+re-run `elevation --tilt ... --write` on the new file and update this section. How the tilt was
+estimated and validated, and its caveats, are in [`pano_tilt_estimate.md`](pano_tilt_estimate.md).
 
 ### Reproduce the results
 
@@ -432,10 +431,12 @@ pytest -q tests/test_lyon_review_159.py
 `audit_plan.json`, `bundle_provenance.json`, `analysis_out/lyon_review_159/run_peaks.json`, and (for
 `elevation`'s pool check) `analysis_out/lyon_review_159/score.json`. **Re-doing the review** also
 needs the 200 panos, which are git-ignored. They are pinned by sha256 in `imagery_manifest.json`.
-Copies are in the makelab2 run archive (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/lyon/`,
-backed up by CSE IT) and in the local worktree `D:/Git/RampNet-wt/lyon159`. Each record also
-carries its public Panoramax `hd_url`. Panoramax may serve different bytes than the archive, so a
-re-fetch has to be checked against the manifest. The panos are not on Hugging Face.
+A copy is in the makelab2 run archive (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/lyon/`,
+backed up by CSE IT). Each record also carries its public Panoramax `hd_url`, and
+`python scripts/analysis/pano_tilt_estimate.py fetch-lyon --out <dir>` downloads all 200 from
+those URLs and checks every file against the manifest (on 2026-10-31 all 200 matched). Panoramax
+may serve different bytes later, in which case the fetch fails instead of using them. The panos
+are not on Hugging Face.
 
 ### Not done
 
