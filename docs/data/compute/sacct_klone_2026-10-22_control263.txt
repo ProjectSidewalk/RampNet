@@ -1,0 +1,11 @@
+42104181|rampnet_ctrl263|klone|ckpt-all|ckpt-gpu|FAILED|2026-10-21T04:26:16|2026-10-21T07:15:33|2026-10-21T08:06:24|3051|billing=24,cpu=24,gres/gpu:l40s=4,gres/gpu=4,mem=96G,node=1|1|1:0
+42104182|rampnet_ctrl263|klone|ckpt-all|ckpt-gpu|FAILED|2026-10-21T04:26:16|2026-10-21T08:07:25|2026-10-21T08:08:05|40|billing=24,cpu=24,gres/gpu:l40s=4,gres/gpu=4,mem=96G,node=1|1|1:0
+42104183|rampnet_ctrl263|klone|ckpt-all|ckpt-gpu|FAILED|2026-10-21T04:26:16|2026-10-21T08:09:06|2026-10-21T08:09:49|43|billing=24,cpu=24,gres/gpu:l40s=4,gres/gpu=4,mem=96G,node=1|1|1:0
+42108716|rampnet_ctrl263|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-21T08:57:55|2026-10-21T09:31:38|2026-10-21T11:52:34|8456|billing=24,cpu=24,gres/gpu:l40s=4,gres/gpu=4,mem=96G,node=1|1|0:0
+42108717|rampnet_ctrl263|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-21T08:57:55|2026-10-21T09:31:38|2026-10-21T11:52:16|8438|billing=24,cpu=24,gres/gpu:l40s=4,gres/gpu=4,mem=96G,node=1|1|0:0
+42108718|rampnet_ctrl263|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-21T08:57:55|2026-10-21T11:41:40|2026-10-21T14:40:48|10748|billing=24,cpu=24,gres/gpu:a40=4,gres/gpu=4,mem=96G,node=1|1|0:0
+42152649|control263_score|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-22T07:46:25|2026-10-22T07:48:10|2026-10-22T08:35:37|2847|billing=6,cpu=6,gres/gpu:a40=1,gres/gpu=1,mem=48G,node=1|1|0:0
+42152650|control263_score|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-22T07:46:26|2026-10-22T07:48:10|2026-10-22T08:36:57|2927|billing=6,cpu=6,gres/gpu:a40=1,gres/gpu=1,mem=48G,node=1|1|0:0
+42152651|control263_score|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-22T07:46:26|2026-10-22T07:48:10|2026-10-22T08:36:57|2927|billing=6,cpu=6,gres/gpu:a40=1,gres/gpu=1,mem=48G,node=1|1|0:0
+42152652|control263_score|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-22T07:46:26|2026-10-22T07:48:10|2026-10-22T08:19:51|1901|billing=6,cpu=6,gres/gpu:l40s=1,gres/gpu=1,mem=48G,node=1|1|0:0
+42152687|control263_score|klone|ckpt-all|ckpt-gpu|COMPLETED|2026-10-22T07:52:31|2026-10-22T07:53:12|2026-10-22T08:02:16|544|billing=6,cpu=6,gres/gpu:a40=1,gres/gpu=1,mem=48G,node=1|1|0:0
