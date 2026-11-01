@@ -198,6 +198,7 @@ const PAINT = {yes:"yes", no:"no", unclear:"unclear"};
 
 let state = {half:18, markers:true};
 let verdicts = {};
+const SEED = __SEED__;  // verdicts embedded by build --verdicts; on load, a seeded row newer than the browser's copy replaces it
 const KEY = 'aerial_spotcheck.__SHEET__';
 function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ return {}; } }
 function persist(){ try { localStorage.setItem(KEY, JSON.stringify(verdicts)); } catch(e){ $('status').textContent = 'Could not write localStorage; export often.'; } }
@@ -443,6 +444,14 @@ document.addEventListener("keydown", e => {
 
 (function start(){
   verdicts = load(); drafts = loadDrafts();
+  // Seed from the export embedded at build time, so the state does not depend on which browser profile
+  // opens the file (localStorage is per profile): newest timestamp wins, row by row, and a seeded row's
+  // stale draft is dropped.
+  if (SEED){
+    let n = 0;
+    for (const s of SEED){ const k = docId(s.i); if (!verdicts[k] || (verdicts[k].ts||"") < (s.ts||"")){ verdicts[k] = s; delete drafts[k]; n++; } }
+    if (n){ persist(); persistDrafts(); console.log(`seeded ${n} verdicts from the build`); }
+  }
   if (pendingReview().length){ $("order").value = "revisit"; }
   buildOrder();
   try { const p = +localStorage.getItem("spotcheck.pos"); const k = order.indexOf(p); if (k>=0) pos = k; } catch(e){}

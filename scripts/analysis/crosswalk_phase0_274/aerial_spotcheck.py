@@ -14,7 +14,10 @@ crossing painted or removed between the flights is seen), with the OSM node, the
 the crowd label (`/cropImage/Crosswalk/<label_id>/metadata` hands out a short-lived signed URL, CORS
 open), which is what the labeler actually saw. --rawlabels (the census's cached v3 rawLabels CSV for the
 city) adds the pano capture month, the label date, human agree/disagree counts and a Street View link
-to each row's facts; without it those lines are simply absent.
+to each row's facts; without it those lines are simply absent. --verdicts <export.json> embeds a verdict
+export: on load the page adopts every embedded row newer than the browser's copy (localStorage is per
+browser profile, which once split Jon's ratings across two Chrome profiles), so a rebuilt page carries
+its state with it.
 
 `build --archive <dir>` renders the same page from an ARCHIVE of those fetches instead of the live
 services (the layout `scripts/analysis/crosswalk_phase0_274/archive_spotcheck.py` writes: ortho/<label_id>_<year>_<36|18>m.png,
@@ -80,6 +83,12 @@ def build(a):
         print(f"rawlabels: {n} of {len(out)} rows matched a label")
         assert n == len(out), "every sheet row should be in the city's rawLabels pull"
     rev = json.load(open(a.review, encoding="utf-8")) if a.review else {}
+    seed = "null"
+    if a.verdicts:
+        vj = json.load(open(a.verdicts, encoding="utf-8"))
+        vs = vj["verdicts"] if isinstance(vj["verdicts"], list) else list(vj["verdicts"].values())
+        seed = json.dumps(vs, separators=(",", ":"), ensure_ascii=False)
+        print(f"seed: {len(vs)} verdicts embedded from {a.verdicts}")
     archive = "null"
     archived = ""
     if a.archive:
@@ -101,7 +110,7 @@ def build(a):
     tpl = open(os.path.join(HERE, "aerial_spotcheck_template.html"), encoding="utf-8").read()
     html = (tpl.replace("__ROWS__", json.dumps(out, separators=(",", ":"))).replace("__SHEET__", sheet)
             .replace("__SERVER__", a.server.rstrip("/")).replace("__ARCHIVE__", archive).replace("__ARCHIVED__", archived)
-            .replace("__REVIEW__", json.dumps(rev.get("rows", {}))).replace("__REVIEW_MADE__", rev.get("made_utc", "")))
+            .replace("__REVIEW__", json.dumps(rev.get("rows", {}))).replace("__REVIEW_MADE__", rev.get("made_utc", "")).replace("__SEED__", seed))
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w", encoding="utf-8") as f:
         f.write(html)
@@ -165,6 +174,7 @@ def main():
     b = sub.add_parser("build")
     b.add_argument("--sheet", required=True)
     b.add_argument("--out", required=True)
+    b.add_argument("--verdicts", help="a verdicts export to embed: on load the page adopts any embedded row newer than the browser's own copy, so the state no longer depends on which browser profile opens the file")
     b.add_argument("--review", help="json {rows: {row index: reason}} of verdicts to re-examine after a rule change; shown on the row and listed by the 're-examine' order")
     b.add_argument("--archive", help="render from an archive_spotcheck.py directory instead of the live services (write --out inside it)")
     b.add_argument("--rawlabels", help="the census's cached v3 rawLabels CSV for the city (pano date, label date, votes, Street View link)")

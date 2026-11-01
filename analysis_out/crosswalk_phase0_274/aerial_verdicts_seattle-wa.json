@@ -1,7 +1,7 @@
 {
  "sheet": "seattle-wa",
  "rater": "human",
- "exported": "2026-10-31T14:19:00.508Z",
+ "exported": "2026-11-01T14:58:20.887Z",
  "verdicts": [
   {
    "i": 0,
@@ -23,11 +23,13 @@
    "painted": "yes",
    "label": "near",
    "flag": false,
+   "bike": false,
    "note": "Red circle is just east of the crosswalk",
    "ai_p": "yes",
    "ai_l": "yes",
    "agree": false,
-   "ts": "2026-10-31T13:23:56.504Z"
+   "ts": "2026-11-01T14:46:51.722Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 2,
@@ -272,13 +274,15 @@
    "uid": "seattle-wa:236465",
    "cls": "marked",
    "painted": "yes",
-   "label": "off",
+   "label": "near",
    "flag": false,
+   "bike": false,
    "note": "Red ring is just west of the crosswalk, maybe ~1m off or so",
    "ai_p": "yes",
    "ai_l": "near",
-   "agree": false,
-   "ts": "2026-10-30T23:41:30.306Z"
+   "agree": true,
+   "ts": "2026-11-01T14:46:47.114Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 21,
@@ -511,14 +515,16 @@
    "i": 38,
    "uid": "seattle-wa:241843",
    "cls": "marked",
-   "painted": "unclear",
+   "painted": "yes",
    "label": "yes",
    "flag": false,
-   "note": "A very faded crosswalk here on the aerial image (if there is one at all)",
+   "bike": false,
+   "note": "The 2023 aerial image has a very faded crosswalk (same with street view) but 2025 was clearly repainted. Both blue and red circles are right on the crosswalk roughly in the center of its extent.",
    "ai_p": "unclear",
    "ai_l": "na",
    "agree": false,
-   "ts": "2026-10-31T13:34:17.177Z"
+   "ts": "2026-11-01T14:51:59.122Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 39,
@@ -537,14 +543,16 @@
    "i": 40,
    "uid": "seattle-wa:240807",
    "cls": "unmarked",
-   "painted": "unclear",
+   "painted": "yes",
    "label": "near",
    "flag": false,
-   "note": "",
+   "bike": false,
+   "note": "It's a very faded crosswalk in 2023 aerial and the street view, less so in 2025",
    "ai_p": "unclear",
    "ai_l": "near",
-   "agree": true,
-   "ts": "2026-10-31T13:34:19.401Z"
+   "agree": false,
+   "ts": "2026-11-01T14:42:26.668Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 41,
@@ -553,11 +561,13 @@
    "painted": "no",
    "label": "na",
    "flag": false,
-   "note": "There might be a crossing here but I don't really see any paint to evaluate",
+   "bike": false,
+   "note": "This is a stop line for cars and not a painted crosswalk",
    "ai_p": "no",
    "ai_l": "off",
    "agree": false,
-   "ts": "2026-10-31T13:34:43.136Z"
+   "ts": "2026-11-01T14:43:10.388Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 42,
@@ -579,11 +589,13 @@
    "painted": "no",
    "label": "off",
    "flag": false,
-   "note": "There is no painted crosswalk here (there is going north south but not east-west where these labels are)",
+   "bike": false,
+   "note": "I think this is another example where the user was attempting to label the painted crosswalk (in this case, the north-south crosswalk on the east side of the aerial image) but the lat,lng projection of that street view label didn't work well and so the OSM blue node showing is the east-west pedestrian crossing on the north side, which has no painted crosswalk.",
    "ai_p": "no",
    "ai_l": "off",
    "agree": true,
-   "ts": "2026-10-31T13:36:48.201Z"
+   "ts": "2026-11-01T14:45:10.332Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 44,
@@ -628,14 +640,16 @@
    "i": 47,
    "uid": "seattle-wa:208275",
    "cls": "unmarked",
-   "painted": "no",
+   "painted": "yes",
    "label": "near",
    "flag": false,
-   "note": "There is an extremely faded crosswalk here",
+   "bike": false,
+   "note": "There is an extremely faded crosswalk here. I put \"U\" for the blue node as a result but there is definitely a very faded crosswalk visible in both aerial imags and the street view image",
    "ai_p": "no",
    "ai_l": "off",
    "agree": false,
-   "ts": "2026-10-31T13:37:01.741Z"
+   "ts": "2026-11-01T14:52:21.361Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 48,
@@ -644,11 +658,13 @@
    "painted": "no",
    "label": "yes",
    "flag": false,
+   "bike": true,
    "note": "There is a painted crosswalk here but maybe it's for bikers? It's in green. The red label is right on it.",
    "ai_p": "no",
    "ai_l": "off",
    "agree": false,
-   "ts": "2026-10-31T13:37:40.942Z"
+   "ts": "2026-11-01T14:35:47.356Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 49,
@@ -657,11 +673,13 @@
    "painted": "no",
    "label": "near",
    "flag": false,
+   "bike": true,
    "note": "Ah, so, again, I think this is likely a green zebra stripe for the bike lane, which clearly has a crowd label and is well positioned. But the blue is closer to the pedestrian crossing but that has no painted crosswalk",
    "ai_p": "no",
    "ai_l": "off",
    "agree": false,
-   "ts": "2026-10-31T13:40:26.468Z"
+   "ts": "2026-11-01T14:28:54.711Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 50,
@@ -670,11 +688,13 @@
    "painted": "unclear",
    "label": "na",
    "flag": false,
-   "note": "",
+   "bike": false,
+   "note": "There is a crosswalk shown (solid white stripe and a dotted stripe) at this interesection--though in the distance (and it's an atypical looking crosswalk as is). And it seems like the user's label was intended for that but is, unfortunatley, misplaced in the street view window (it's like 10 meters in the air rather than directly on the crosswalk). Both the aerial images are blocked by significant tree coverage.",
    "ai_p": "unclear",
    "ai_l": "na",
    "agree": true,
-   "ts": "2026-10-31T13:40:30.232Z"
+   "ts": "2026-11-01T14:30:52.792Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 51,
@@ -776,11 +796,13 @@
    "painted": "yes",
    "label": "near",
    "flag": false,
-   "note": "Red circle almost perfectly in center of street but just outside (west) of the painted crosswalk by maybe < 1 m",
+   "bike": false,
+   "note": "Red circle almost perfectly in center of street but just outside (west) of the painted crosswalk by maybe < 1 m. Crosswalk is quite faded in 2023 aerial photo and street view photo, less faded in 2025 aerial",
    "ai_p": "unclear",
    "ai_l": "near",
    "agree": false,
-   "ts": "2026-10-31T13:42:12.685Z"
+   "ts": "2026-11-01T14:31:29.118Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 59,
@@ -789,11 +811,13 @@
    "painted": "no",
    "label": "na",
    "flag": false,
-   "note": "",
+   "bike": false,
+   "note": "OK, I think the street view label here is intended for one of the other crosswalks in this intersection. The intersection has two north-south crosswalks, both with a median in the middle (with marked tactile surface indicators). It looks like the user labeled one of those crosswalks from the street view image but the lat,lng projection was so bad, that it's showing up on a tree. And the closest OSM node (the blue label) is on an east-west pedestrian crossing with no crosswalk",
    "ai_p": "unclear",
    "ai_l": "na",
    "agree": false,
-   "ts": "2026-10-31T13:42:19.934Z"
+   "ts": "2026-11-01T14:58:02.059Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 60,
@@ -841,11 +865,13 @@
    "painted": "no",
    "label": "na",
    "flag": false,
+   "bike": false,
    "note": "There is a crossing here but no painted crosswalk",
    "ai_p": "no",
    "ai_l": "off",
    "agree": false,
-   "ts": "2026-10-31T13:42:41.670Z"
+   "ts": "2026-11-01T14:33:24.454Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 64,
@@ -867,11 +893,13 @@
    "painted": "no",
    "label": "off",
    "flag": false,
-   "note": "The blue circle is perfectly positioned in the center of a crossing but no painted crosswalk here (north south). The red circle is ambiguously placed but is closer to the east-west crossing.",
+   "bike": false,
+   "note": "OK, so, this is another case, I believe, of the OSM blue node showing on a different crossing than what the red circle was intended for. On the street view image, we can clearly see that the user labeled what I believe is the east-west southern crosswalk. The red circle is also closest to this in the aerial images. However, the blue node is directly over the north-south pedestrian crossing on the west side of the intersection that has no painted crosswalk. So, we'd have to verify this against a different OSM node (redo it imo).",
    "ai_p": "no",
    "ai_l": "off",
    "agree": true,
-   "ts": "2026-10-31T13:43:26.150Z"
+   "ts": "2026-11-01T14:35:06.180Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 66,
@@ -903,14 +931,15 @@
    "i": 68,
    "uid": "seattle-wa:238491",
    "cls": "unmarked",
-   "painted": "no",
+   "painted": "yes",
    "label": "off",
    "flag": false,
+   "bike": false,
    "note": "Painted crosswalk shows in 2025 imagery but not in 2023 aerial imagery. The crosswalk also clearly shows in Project Sidewalk (though the label itself is a bit above it, which is probably why the red label on the aerial isn't very close). So, the red circle on the 2025 aerial imagery is about 10 meters maybe to the west",
    "ai_p": "no",
    "ai_l": "off",
-   "agree": true,
-   "ts": "2026-10-31T13:58:31.175Z",
+   "agree": false,
+   "ts": "2026-11-01T14:35:28.862Z",
    "imagery": "2023+2025+crop"
   },
   {
@@ -962,12 +991,12 @@
    "painted": "no",
    "label": "yes",
    "flag": false,
-   "bike": false,
+   "bike": true,
    "note": "The blue circle is about 0.5 meters east of the painted crosswalk. Update: this is, in fact, a painted bike lane (green zebras stripe), which the PS crowd labeler got perfect. The OSM circle is closer to where the pedestrians would cross but there is no painted crosswalk here for pedestrians.",
    "ai_p": "yes",
    "ai_l": "near",
    "agree": false,
-   "ts": "2026-10-31T14:18:37.880Z",
+   "ts": "2026-11-01T14:35:38.017Z",
    "imagery": "2023+2025+crop"
   },
   {
@@ -990,11 +1019,12 @@
    "painted": "yes",
    "label": "near",
    "flag": false,
+   "bike": false,
    "note": "An extremely faded crosswalk showing in all aerial images and the crop. I could have marked either \"near the center\" or \"at a curb end of this crossing\" but I think it's closer to near the center.",
    "ai_p": "no",
    "ai_l": "off",
    "agree": false,
-   "ts": "2026-10-31T14:00:21.562Z",
+   "ts": "2026-11-01T14:46:05.744Z",
    "imagery": "2023+2025+crop"
   },
   {
@@ -1030,11 +1060,12 @@
    "painted": "yes",
    "label": "near",
    "flag": false,
+   "bike": false,
    "note": "Very faded crosswalk",
    "ai_p": "unclear",
    "ai_l": "near",
    "agree": false,
-   "ts": "2026-10-31T14:00:42.886Z",
+   "ts": "2026-11-01T14:46:12.930Z",
    "imagery": "2023+2025+crop"
   },
   {
@@ -1058,11 +1089,12 @@
    "painted": "no",
    "label": "off",
    "flag": false,
+   "bike": true,
    "note": "Aha, so the Project Sidewalk user has marked the bike lane (which is a green zebra stripe) as the crosswalk while the OSM circle is postioned more over the center of the pedestrian crossing area; however, the pedestrian crossing area has no painted crosswalk.",
    "ai_p": "no",
    "ai_l": "off",
    "agree": true,
-   "ts": "2026-10-31T14:04:20.474Z",
+   "ts": "2026-11-01T14:46:19.216Z",
    "imagery": "2023+2025+crop"
   },
   {
@@ -1427,11 +1459,13 @@
    "painted": "yes",
    "label": "near",
    "flag": false,
+   "bike": false,
    "note": "Red circle is just east (less than 1 meter) of the crosswalk paint",
    "ai_p": "yes",
    "ai_l": "near",
    "agree": true,
-   "ts": "2026-10-31T13:25:07.717Z"
+   "ts": "2026-11-01T14:46:23.007Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 107,
@@ -1533,13 +1567,15 @@
    "uid": "seattle-wa:245305",
    "cls": "unknown",
    "painted": "yes",
-   "label": "off",
+   "label": "near",
    "flag": false,
+   "bike": false,
    "note": "Red ring is just outside the crosswalk to the north (just barely like maybe 1 m off or less)",
    "ai_p": "yes",
    "ai_l": "yes",
    "agree": false,
-   "ts": "2026-10-30T23:40:48.708Z"
+   "ts": "2026-11-01T14:52:51.227Z",
+   "imagery": "2023+2025+crop"
   },
   {
    "i": 115,
