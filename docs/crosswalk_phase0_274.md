@@ -12,10 +12,14 @@ tables: [`analysis_out/crosswalk_phase0_274/`](../analysis_out/crosswalk_phase0_
    Crosswalk label sits a median 1.2 m along / 1.0 m across the crossing from the OSM node, symmetric about
    zero, so **the crowd labels the centre and the OSM crossing node is that centre** (the umbrella's
    target convention stands). Three Latin American cities tag the junction node instead and give bearing only.
-2. On 2023 Seattle orthoimagery (AI first pass, 120 labels, to be spot-checked) a node OSM tags marked is
-   painted 39 of 40 times and an untagged node with a confirmed crowd label 37 of 40, but a node tagged
-   `unmarked` is painted 20 of 40: **marked ∪ untagged is a usable positive set; `unmarked` is not a
-   negative set.** 85% of labels sit within 5 m of the node on the crossing; the end cases are 7%.
+2. On King County orthoimagery of Seattle (2023 and 2025, 7.5 cm) plus the crowd's own street-level crop,
+   Jon rated all 120 rows of the sheet (40 per OSM class, nodes that already carry a human-confirmed crowd
+   label) after an AI first pass: a node OSM tags marked is painted 40 of 40 times, an untagged node 39 of
+   40, and a node tagged `unmarked` 28 of 40 (11 not, 1 unclear). **In Seattle, on crossings the crowd
+   found, marked ∪ untagged is a usable positive set and `unmarked` is not a negative set.** 95 of the
+   114 ratable labels (83%) sit within 5 m of the node on a pedestrian crossing, 7 at an end, 9 off it and
+   3 on a green bike crossing beside the node. One city, crowd-found nodes only: it says nothing about
+   nodes the crowd never labeled.
 3. The Vistas crosswalk classes find a merged component within 0.05 of the pano width for 0.82 of crowd
    Crosswalk labels on labeled benchmark panos (chance 0.28), clearing the pinned 0.8 bar by one label:
    **a usable Stage 1 extent filter, not a source and not a placer** (0.58 at the ramp radius).
@@ -24,17 +28,17 @@ tables: [`analysis_out/crosswalk_phase0_274/`](../analysis_out/crosswalk_phase0_
 
 | what | command | needs |
 |---|---|---|
-| item 1 tables | `python scripts/analysis/crosswalk_phase0_274/crossing_census.py --out OUT` then `make_table.py OUT` | PS API + Overpass (cached under OUT) |
+| item 1 tables | `python scripts/analysis/crosswalk_phase0_274/crossing_census.py --out OUT`, then `make_table.py OUT` (per-city table), `footprint.py OUT` (Reading 1) and `confirmed_table.py OUT` (Readings 2–4, from `per_label/`) | PS API + Overpass (cached under OUT); `per_label/` is committed |
 | item 2 tables | `python scripts/analysis/crosswalk_phase0_274/offset_read.py --out OUT` then `offset_table.py OUT` | Overpass (cached) |
 | aerial sheet | `python scripts/analysis/crosswalk_phase0_274/aerial_sample.py --out OUT --city seattle-wa` | item 2 outputs |
 | aerial crops | `python scripts/analysis/crosswalk_phase0_274/aerial_crops.py --sheet OUT/aerial_sample_seattle-wa.csv --out CROPS` | King County 2023 ortho map service (view only) |
-| item 3 | `python scripts/analysis/crosswalk_phase0_274/vistas_crosswalk_probe.py --rampnet . --rawlabels OUT/rawlabels --split paterson=paterson-nj --split gainesville=gainesville-fl --out P` then `score_extra.py` | benchmark `panos/` for both splits, the Vistas checkpoint, a GPU |
-| aerial spot-check page | `python scripts/analysis/crosswalk_phase0_274/aerial_spotcheck.py build --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --rawlabels <census rawLabels csv> --review OUT/aerial_spotcheck_review_rows.json --out OUT/aerial_spotcheck_seattle-wa.html`, then `merge --verdicts <export>` | King County 2023 + 2025 export services and the Seattle PS crop route, live; or `--archive <dir>` on the replay archive below |
-| aerial replay archive | every tile and crop the page fetched while it was rated, plus the sheet, rawLabels pull, verdict exports and an offline page: `archive_spotcheck.py` writes it; the copy is on the lab share at `/projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/` (makelab1/makelab2; CSE-backed-up; `sha256sum -c SHA256SUMS` to verify; README inside) | not in the repo: county tiles are view-only and crops are Street View pixels |
+| item 3 | `python scripts/analysis/crosswalk_phase0_274/vistas_crosswalk_probe.py --rampnet . --rawlabels OUT/rawlabels --split paterson=paterson-nj --split gainesville=gainesville-fl --out P` then `score_extra.py`; the components-per-pano line over every pano of the five splits needs `--split gainesville=gainesville-fl --split laurens_gsv=laurens-ia --split laurens_mapillary=laurens-ia --split paterson=paterson-nj --split richmond=richmond-va --all` | benchmark `panos/` for the splits, the Vistas checkpoint, a GPU |
+| aerial spot-check page | `python scripts/analysis/crosswalk_phase0_274/aerial_spotcheck.py build --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --rawlabels <census rawLabels csv> --review OUT/aerial_spotcheck_review_rows.json --verdicts OUT/aerial_verdicts_seattle-wa.json --out OUT/aerial_spotcheck_seattle-wa.html` (byte-identical to the committed page), then `merge --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --verdicts OUT/aerial_verdicts_seattle-wa.json --out OUT/aerial_sample_seattle-wa.rated.csv`, which also prints the human counts and the agreement table | King County 2023 + 2025 export services and the Seattle PS crop route, live; or `--archive <dir>` on the replay archive below |
+| aerial replay archive | every tile and crop the page fetched while it was rated, plus the sheet, rawLabels pull, verdict exports and an offline page: `archive_spotcheck.py` writes it; the copy is on the lab share at `/projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/` (makelab1/makelab2; CSE-backed-up; `sha256sum -c SHA256SUMS` to verify; README inside) | not in the repo: the imagery stays on the lab share |
 | figures | `python scripts/analysis/crosswalk_phase0_274/figures.py` | the committed tables only |
 
-Where each number lives: the per-city census table and readings 1–4 come from `census.json` (+ `per_label/`,
-not committed); the offset tables and pooled cuts from `offsets/<city>.csv` and `offset_read.json`; the probe
+Where each number lives: the per-city census table and readings 1–4 come from `census.json` and `per_label/`
+(`confirmed_table.py OUT` prints readings 2–4); the offset tables and pooled cuts from `offsets/<city>.csv` and `offset_read.json`; the probe
 table from `vistas_probe/summary.json` (pinned cuts), `summary_extra.json` (chance floor, sensitivity,
 server-flag cuts) and `labels_scored.csv` (one row per label); the aerial table from
 `aerial_sample_seattle-wa.rated_ai.csv`; the components-per-pano line from
@@ -158,7 +162,7 @@ The median label-to-node distance is either 2–5 m or 100–500 m, with almost 
 
 #### Reading 2: where a node exists, it is where the crowd puts the label, which supports the midpoint convention
 
-In the 17 cities with ≥ 100 labels and a median ≤ 5 m, the median is 1.5–4.5 m, which is inside the server's own placement error for a label raycast from a pano. Restricted to **human-confirmed** labels in those cities (8,086 labels, Chicago 3,907 of them):
+In the 17 cities with ≥ 100 labels and a median ≤ 5 m, the median is 1.5–4.5 m, which is inside the server's own placement error for a label raycast from a pano. Restricted to **human-confirmed** labels, in the 12 of those cities with at least 40 of them (8,086 labels, Chicago 3,907 of them; all 17 pool to 8,126 and read the same, 92% / 59%):
 
 | city | confirmed labels | ≤ 10 m any node | ≤ 10 m marked node |
 |---|---|---|---|
@@ -180,16 +184,16 @@ So the OSM crossing node is a usable Stage 1 bearing source (the ±18° toleranc
 
 #### Reading 3: the `crossing:markings` tag disagrees with the crowd often enough that it cannot be the positive set on its own
 
-Pooled over confirmed labels with a node within 10 m, 36% sit on a node OSM tags unmarked or leaves untagged. Chicago drives that (56% of its 248k crossing nodes carry no markings tag at all; only 37% of its labels are within 10 m of a marked node); without Chicago it is 1 in 9, but in Columbus, Pittsburgh, Waltham and Detroit it is 1 in 2 or worse, and Richmond's 69 labels are all within 10 m of a node but only 19% within 10 m of a *marked* one. Either the tags are stale (a crossing painted since the node was tagged) or the crowd labels unmarked crossings as `Crosswalk`. That is exactly what the one-city aerial reference in item 2 has to settle before any OSM-marked node is used as a training positive; until then, positives come from crowd-confirmed labels, and OSM nodes supply bearing and candidate crossings only.
+Pooled over confirmed labels with a node within 10 m, 36% sit on a node OSM tags unmarked or leaves untagged. Chicago drives that (56% of its 248k crossing nodes carry no markings tag at all; only 37% of its labels are within 10 m of a marked node); without Chicago it is 1 in 9, but in Columbus, Waltham and Detroit it is 1 in 2 or worse (Pittsburgh 43%), and Richmond's 69 labels are all within 10 m of a node but only 19% within 10 m of a *marked* one. Either the tags are stale (a crossing painted since the node was tagged) or the crowd labels unmarked crossings as `Crosswalk`. The one-city aerial reference in item 2 is the first check of that; it cannot settle it for every city, so positives come from crowd-confirmed labels and from the OSM classes an aerial check has vouched for in that city, and OSM nodes otherwise supply bearing and candidate crossings only.
 
 #### Reading 4: Signal labels sit ~9–12 m from OSM signal nodes
 
-Across the cities with ≥ 100 Signal labels the median is 7–15 m and only 27–64% are within 10 m, against 2–4 m for crossings. An OSM signal node is tagged on the intersection node (or the stop line), while the PS label is on the pole at the corner, so a signal bearing rule needs a corner offset rather than the node itself. Parked until crosswalks are done; recorded here so the number is not re-derived.
+Across the dense-group cities with ≥ 100 Signal labels the median is 7–15 m and 20–84% are within 10 m (Tucson 20%, Auckland 84%; the sparse group runs to a 30 m median), against 2–4 m for crossings. An OSM signal node is tagged on the intersection node (or the stop line), while the PS label is on the pole at the corner, so a signal bearing rule needs a corner offset rather than the node itself. Parked until crosswalks are done; recorded here so the number is not re-derived.
 
 #### What this settles for Phase 0
 
 - **Item 2 (offset read)** runs on the 17 dense-group cities; the aerial reference city should be one with many confirmed labels, dense OSM nodes and a marking inventory to compare against. Seattle fits all three; Burnaby and Amsterdam are the non-US checks.
-- **Item 3 (Vistas probe)** stays on `richmond` and the `laurens` splits as pinned, with the caveat that both are small (69 and 20 crowd labels).
+- **Item 3 (Vistas probe)** stays on `richmond` and the `laurens` splits as pinned, with the caveat that both are small (69 and 20 crowd labels). (Amended before the run, see item 3: no benchmark pano of those splits carries a crowd Crosswalk label, so the probe ran on `paterson` and `gainesville`.)
 - The far group (Paterson, Teaneck, CDMX, Mendota, …) is where the crowd labels are the *only* supervision; they are also where a crosswalk detector adds the most, since no open data covers them.
 
 ## Item 2: crowd-vs-OSM offset read, 17 dense cities
@@ -249,22 +253,20 @@ Pooled over 16,762 sampled labels the median offset is 1.17 m along the crossing
 
 - **Matcher radius for the Vistas probe:** the pooled p90 is 4.3 m along / 3.2 m across the crossing. At the 10–25 m ranges a crossing is seen from in a pano, 4–5 m of ground offset is ~10–25° of bearing, well inside Stage 1's ±18.37° tolerance at the near end and the reason the probe's reading rule uses a radius of 0.05 of the pano width (~18°) rather than the ramp radius.
 - **Stage 1 bearing source:** an OSM crossing node is usable as the bearing anchor in the dense group without any midpoint correction; in the junction-tagged cities it needs the footway way or a road-normal offset, which the crop model is there to absorb.
-- **Aerial reference (Seattle):** a seeded rating sheet is ready, 120 human-confirmed labels on nodes tagged marked / unmarked / untagged with both positions, the offset and map links, for a person to rate on a basemap: is there a painted crossing at the node, and is the label at its centre. It is the step that decides whether `crossing:markings` can be a positive source at all. It needs a rater and an imagery source, so it is the one item in Phase 0 that waits on a person.
+- **Aerial reference (Seattle):** a seeded rating sheet is ready, 120 human-confirmed labels on nodes tagged marked / unmarked / untagged with both positions, the offset and map links, for a person to rate on a basemap: is there a painted crossing at the node, and is the label at its centre. It is the first check of whether `crossing:markings` can be a positive source; one city cannot decide that for all. It needs a rater and an imagery source, so it is the one item in Phase 0 that waits on a person.
 
-#### Aerial reference, Seattle: an AI first-pass rating of the 120-label sheet
+#### Aerial reference, Seattle: AI first pass and the human rating of the 120-label sheet
 
 The sheet (`aerial_sample_seattle-wa.csv`: 120 human-confirmed Seattle Crosswalk labels, 40 each on OSM
-nodes tagged marked / unmarked / untagged) was rated by Claude (claude-fable-5-1) on 2023 King County
-3-inch orthoimagery (36 m crops centred on the node, from the county's public map service; the imagery is
-licensed to the county and is not committed), as a first pass for a person to spot-check:
-`aerial_sample_seattle-wa.rated_ai.csv`, with a note per row where the call needed one (the human spot-check of
-all 120 rows, `aerial_sample_seattle-wa.rated.csv` and `aerial_verdicts_seattle-wa.json`, is described with its
-replay archive in the Replication table; the imagery it was judged on is kept at
-`/projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/` on the lab share). Two questions per
-row: is there a painted crossing at the OSM node (yes / unclear / no), and where is the label relative to
-that crossing (≤ 2 m of the node; 2–5 m but on the crossing; at an end, > 5 m but on the crossing; off the
-crossing; n/a). The population is nodes that already have a confirmed crowd label within 10 m, so this reads
-the tag's precision on crossings the crowd has found, not OSM's recall.
+nodes tagged marked / unmarked / untagged) was rated twice. Two questions per row: is there a painted
+crossing at the OSM node (yes / unclear / no), and where is the label relative to that crossing (≤ 2 m of
+the node; 2–5 m but on the crossing; at an end, > 5 m but on the crossing; off the crossing; n/a). The
+population is nodes that already have a confirmed crowd label within 10 m, so this reads the tag's
+precision on crossings the crowd has found, in one city, not OSM's recall, and it says nothing about nodes
+the crowd never labeled.
+
+**AI first pass** (Claude, claude-fable-5-1, on 36 m crops of the 2023 King County 3-inch ortho only;
+`aerial_sample_seattle-wa.rated_ai.csv`, with a note per row where the call needed one):
 
 | OSM class | n | painted at node: yes | unclear | no | label ≤ 2 m | 2–5 m on crossing | at an end | off the crossing | n/a |
 |---|---|---|---|---|---|---|---|---|---|
@@ -272,21 +274,57 @@ the tag's precision on crossings the crowd has found, not OSM's recall.
 | unmarked (`crossing=unmarked` + `crossing:markings=no`, all 40) | 40 | 20 | 7 | 13 | 9 | 15 | 1 | 13 | 2 |
 | untagged | 40 | 37 | 2 | 1 | 16 | 17 | 3 | 4 | 0 |
 
-Readings: (a) a node OSM tags **marked** is painted in 39 of 40, and an **untagged** node with a confirmed
-crowd label is painted in 37 of 40, so on this population both are positives; (b) a node OSM tags
-**unmarked** is painted in 20 of 40 and not in 13, so the tag is wrong or stale about half the time and
-excluding those nodes would cost recall; `crossing:markings=no` is not a clean negative either. Reading 3 of
-item 1 now reads: **marked ∪ untagged-with-crowd-label is a usable positive set in Seattle; `unmarked` is
-not a negative set.** (c) Of the 13 unmarked-class nodes with no paint, in 4 the crowd label 5–9 m away sits
-on a painted crossing (a green bike crossing or a zebra) that OSM has not tagged as such: the node, not the
-crowd, is off. (d) Label placement: 92 of the 117 ratable labels are within 5 m of the node on the crossing,
-8 more are on the crossing at an end, and 17 are off the crossing, 13 of them in the unmarked class (the
-no-paint cases above) and 3 untagged ones 6–9 m away that look like placement error. The centre convention
-holds on the imagery as it did in the offsets, with the end cases at 7% (8 of 117).
+**Human rating** (Jon, all 120 rows, on the spot-check page: the 2023 and 2025 orthos side by side at 36 m
+and 18 m, the street-level crop Project Sidewalk serves for the label, the pano and label dates and the
+human votes; `aerial_verdicts_seattle-wa.json`, merged into `aerial_sample_seattle-wa.rated.csv`; the
+imagery is kept with the replay archive on the lab share, see Replication). "On a bike crossing" is the
+page's B tag: the crowd labeled a green bike crossing beside an unpainted pedestrian node, and the
+position code then describes the label against that bike crossing, so those rows are set aside here:
+
+| OSM class | n | painted at node: yes | unclear | no | label ≤ 2 m | 2–5 m on crossing | at an end | off the crossing | on a bike crossing | n/a |
+|---|---|---|---|---|---|---|---|---|---|---|
+| marked | 40 | 40 | 0 | 0 | 21 | 14 | 5 | 0 | 0 | 0 |
+| unmarked | 40 | 28 | 1 | 11 | 7 | 18 | 1 | 6 | 3 | 5 |
+| untagged | 40 | 39 | 0 | 1 | 18 | 17 | 1 | 3 | 0 | 1 |
+
+**Protocol, stated because it shapes the numbers.** The page pre-selects the AI's two calls and Enter
+accepts them, so the human pass is a check anchored on the first pass, not an independent rating, and the
+agreement figures below read accordingly. 77 of the 120 verdicts, all painted = yes, were saved on the
+2023 ortho alone (before the 2025 and crop panels were added on 2026-10-31); every no / unclear row and
+the rows on a review list (21 rows whose rule changed during the pass, then two short rounds) were
+re-examined with all three images, and the bike rows were given the B tag. Re-examination could move a
+row from no to yes (paint faded in 2023, visible in 2025 or in the crop) but a yes row outside the review
+list was not re-checked for paint removed by 2025, so "painted" means painted at any of the three dates,
+and the unmarked-class rate is an upper bound against an undated tag. `rated.csv` carries
+`human_imagery` (`2023` or `2023+2025+crop`) and `human_ts` per row. Conventions that emerged from the
+notes rather than the buttons: faded but recognisable paint is yes; the near / off boundary fell in
+practice at about 5 m (rows at 3–5 m coded near, 6–8 m off); a label meant for another leg of the same
+intersection was coded off (rows 43, 65, 69) or n/a (row 59).
+
+Readings. (a) A node OSM tags **marked** is painted in 40 of 40 and an **untagged** node with a confirmed
+crowd label in 39 of 40, so on this population both are positives. (b) A node tagged **unmarked** is
+painted in 28 of 40 and not in 11: on crowd-labeled nodes in Seattle the tag disagrees with the paint more
+often than not, and excluding those nodes would cost recall; `crossing:markings=no` is not a clean
+negative either. Reading 3 of item 1 now reads: **in Seattle, on crossings the crowd found,
+marked ∪ untagged-with-crowd-label is a usable positive set and `unmarked` is not a negative set.** (c) Of
+the 11 unmarked-class nodes with no paint, in 4 the crowd labeled a green bike crossing beside the node
+(48, 49, 72, 79; the pedestrian node may be correctly tagged), in 4 the node sits on an unpainted leg of
+an intersection whose painted leg carries the label (43, 59, 65, 69), and in 3 there is no painted
+crosswalk near either point (two stop lines, 41 and 78, and a bus-island crossing, 63). (d) Placement: 95
+of the 114 ratable labels (83%) are within 5 m of the node on a pedestrian crossing, 7 more at an end
+(6%), 3 on a bike crossing, and 9 off the crossing: the 3 untagged ones (96, 101, 105; 6–9 m) are clicks
+on a fence or gate beside the crossing, visible in the crop, 3 are the different-leg cases above, 2 are a
+label 6–7 m from its paint (55, 68) and 1 is the fourth bike row. The centre convention holds in Seattle
+as it did in the offsets.
+
+**Agreement with the AI first pass** (printed by `merge`): painted 106 of 120 (0.88), five-class label 97
+of 120 (0.81), within 5 m vs not 112 of 120 (0.93). Provisional: the first pass saw the 2023 ortho only,
+and its 24 no / unclear rows are being re-rated on the 2025 ortho and the crop; this paragraph is replaced
+when that is done.
 
 ## Item 3: Vistas probe, classes 8 + 23 against crowd Crosswalk labels on benchmark panos
 
-**Amendment, stated before the numbers.** The issue pinned the `richmond` and `laurens_mapillary` / `laurens_gsv` splits. Their denominator is empty: no benchmark pano in any of the three carries a crowd Crosswalk label (Richmond has 70 Crosswalk labels city-wide and none on its 124 benchmark panos; the Laurens PS city has none on its 180). The two benchmark splits whose panos do carry crowd Crosswalk labels are **paterson** (16 of 125 panos, 44 labels) and **gainesville** (18 of 125, 23 labels), both GSV, so the probe ran there with the component rule and the reading rule exactly as pinned. The crowd positions are the server's `pano_x / pano_width`, `pano_y / pano_height`; the label's recorded pano size matches the benchmark record's on every row.
+**Amendment, stated before the numbers.** The issue pinned the `richmond` and `laurens_mapillary` / `laurens_gsv` splits. Their denominator is empty: no benchmark pano in any of the three carries a crowd Crosswalk label (Richmond has 69 Crosswalk labels city-wide and none on its 124 benchmark panos; the Laurens PS city has none on its 180). The two benchmark splits whose panos do carry crowd Crosswalk labels are **paterson** (16 of 125 panos, 44 labels) and **gainesville** (18 of 125, 23 labels), both GSV, so the probe ran there with the component rule and the reading rule exactly as pinned. The crowd positions are the server's `pano_x / pano_width`, `pano_y / pano_height`; the label's recorded pano size matches the benchmark record's on every row.
 
 **Method.** `facebook/mask2former-swin-large-mapillary-vistas-semantic` (the #126 checkpoint; class 8 = `Crosswalk - Plain`, 23 = `Lane Marking - Crosswalk`, checked against the loaded `id2label`) on the 1024 parity rig (`equirect_tiling.default_views()`: 6 yaws, 90°×90°, pitch −30°, 1024×1024 views, source capped at 4096, processor size forced to 1024×1024), fp16 on an RTX 3070. Per view: union of the two classes, 8-connected components, min area 16 px (the #126 cache floor), each component's centroid mapped to pano-normalized coordinates. Across views: components whose pano centroids are within 0.03 of the pano width (RampNet's matcher metric, x wrapped at the seam and scaled by 1024, y by 512) are merged into one point, area-weighted. A label is matched when a merged component lies within 0.05 of the pano width in that metric. One departure from `VistasDetector._raw_detect`: the class/mask reduction runs at the logits' 256×256 and the argmax map is upsampled, the memory-light order the #126 note recommends; it differs only at boundary pixels.
 
@@ -301,7 +339,7 @@ holds on the imagery as it did in the offsets, with the end cases at 7% (8 of 11
 
 The census's human-only margin rule confirms none of the 67 (they carry AI-validator votes only), so the server's `correct` flag is the only validation cut available, and it is AI-validator dominated.
 
-**What the mask produces.** 6.2 merged components per labeled pano (211 on the 34 panos), of which 65 lie within 0.05 of a crowd label; crowd labels are positives only, so that is not a precision. 24 of the 55 matches merged components from two adjacent views, so the merge step is doing real work on crossings that straddle a view seam. Sensitivity (exploratory, never the rule): dropping components with mean class probability < 0.4 gives 0.81 at 5.4 per pano; < 0.5 gives 0.75 at 4.1; dropping components larger than 5% of a view (the road-surface blobs) gives 0.75. The exploratory pass over every pano of the five splits (labeled or not) reports components per pano by source: Paterson 3.8 per pano (median 2; 27 of 109 panos with none), Gainesville 2.3 (median 2; 35 of 107 with none), downtown Richmond (Mapillary) 5.2 (median 4; 16 of 124 with none), and the two Laurens splits 0.3 (GSV) and 0.2 (Mapillary) with 75 of 86 and 85 of 94 panos carrying no component at all. The rate tracks where painted crossings are (a small SC town paints few; the issue already notes Bend paints few), so the union mask is not firing on every road surface; the labeled-pano rate of 6.2 is the dense-intersection end of that range. 554 panos in all, 2 s each on the 3070.
+**What the mask produces.** 6.2 merged components per labeled pano (211 on the 34 panos), of which 65 lie within 0.05 of a crowd label; crowd labels are positives only, so that is not a precision. 24 of the 55 matches merged components from two adjacent views, so the merge step is doing real work on crossings that straddle a view seam. Sensitivity (exploratory, never the rule): dropping components with mean class probability < 0.4 gives 0.81 at 5.4 per pano; < 0.5 gives 0.75 at 4.1; dropping components larger than 5% of a view (the road-surface blobs) gives 0.75. The exploratory pass over every pano of the five splits (labeled or not) reports components per pano by source: Paterson 4.0 per pano (median 2; 27 of 125 panos with none), Gainesville 3.0 (median 2; 37 of 125 with none), downtown Richmond (Mapillary) 5.2 (median 4; 16 of 124 with none), and the two Laurens splits 0.3 (GSV) and 0.2 (Mapillary) with 75 of 86 and 85 of 94 panos carrying no component at all. The rate tracks where painted crossings are (a small SC town paints few; the issue already notes Bend paints few), so the union mask is not firing on every road surface; the labeled-pano rate of 6.2 is the dense-intersection end of that range. 554 panos in all, 2 s each on the 3070.
 
 **Reading, under the rule pinned on the issue.** 0.82 ≥ 0.8: the mask is a usable Stage 1 **extent filter**. The bar is cleared by one label in 67 and the interval spans it; Gainesville alone is under it; and at the ramp radius (0.022) recall is 0.58, so the mask locates a crossing to within a few degrees of bearing, not to the label point. That is the role the issue gave it: an extent read on crop-model candidates, not a positive source and not a placer. A confidence or area cut buys fewer components per pano at a recall cost that would fail the rule, so the filter runs on the raw union.
 
