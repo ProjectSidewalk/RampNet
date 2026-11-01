@@ -347,29 +347,51 @@ The census's human-only margin rule confirms none of the 67 (they carry AI-valid
 
 ## Aerial imagery per city (umbrella Phase 0 item 3: name the source and GSD before any GT plan)
 
-Web lookup on 2026-10-28 of the newest public orthoimagery found per PS city with Crosswalk labels, for the
-Phase 1 GT plan (top-down marking of crossings needs ≤ 10 cm; coarser imagery means per-pano review). These
-are catalogue readings, not opened services: a "?" is a lookup that found nothing definite, and every row
-should be confirmed against the service before a city is scheduled.
+A first web lookup on 2026-10-28 (catalogue readings, not opened services) was replaced on 2026-11-01 by a
+desk survey of the 17 dense-group cities of item 2 in which every ArcGIS endpoint was read (`?f=pjson`) and
+every claim carries its URL: [`crosswalk_orthoimagery_survey.md`](crosswalk_orthoimagery_survey.md)
+(anything not read on a primary page is marked UNVERIFIED there). No imagery was fetched. Top-down marking
+of crossings wants ≤ 10 cm; coarser imagery means per-pano review, or a test of whether 15 cm is enough
+for "is there paint at the node" (a zebra bar is 30–60 cm wide, so it may be).
 
-| city | newest public ortho found | GSD | access | ≤ 10 cm? |
-|---|---|---|---|---|
-| Seattle | King County 2023 (EagleView); Seattle `SP_Aerial_2023`; 2025 also 3 in urban | 3 in (7.6 cm) urban, 9 in rural | ArcGIS map services; licensed to the county, redistribution limits | yes (view/rate only) |
-| Madison | Fly Dane 2024 | 3 in countywide | Dane County LIO | yes |
-| Tucson | Pictometry 2024 (Pima County composite); PAG 2023 | 3 in / 6 in | Pima County service | yes (service) |
-| Pittsburgh | Allegheny 2017 (PASDA); PEMA SW 2022 | 3 in (2017) / 6 in (2022) | PASDA download | 2017 only |
-| Chicago | Cook County 2024 (2025 cached basemap exists) | 6 in | ImageServer; bulk download discouraged | no |
-| Laurens (SC) | SC statewide 2023 | 6 in | `SC_2023_RGB` tile service | no |
-| Waltham | MassGIS 2023 | 15 cm | GeoTIFF tiles | no |
-| Detroit | SEMCOG Nearmap 2025/2026 | 6 in free to members; sub-3 in by subscription | SEMCOG | no (free tier) |
-| St Louis | MSDIS 2024 county mosaics; 2012 regional | 6 in | MSDIS | no |
-| Vancouver (WA) | Clark County 2020/2021 | 6 in | county GIS | no |
-| Paterson | NJ statewide 2020 | 1 ft | `maps.nj.gov` service | no |
-| Richmond | VBMP 2023 (eastern VA) | 1 ft; some urban areas 6 in / 3 in, Richmond unconfirmed | VDEM service | ? |
-| Gainesville | FDOT/FDEP 2017 statewide (only product found) | ? (2011 was 1 ft) | FDEP service | ? (check Alachua County) |
-| Columbus | 2025 City of Columbus orthos (cited by the county's contour metadata) | ? | ? | ? |
+| city | best public source | GSD | years | access | terms | ≤ 10 cm |
+|---|---|---|---|---|---|---|
+| Seattle | King County `KingCo_Aerial_2023` / `_2025` (EagleView) | 7.5 cm | 2023, 2025 | cached MapServer, `export`, 4096 px | county licence, view only | yes |
+| Amsterdam | PDOK Luchtfoto `*_orthoHR` | 8 cm | 2021–2026 | WMTS + WMS, no key | CC BY 4.0 | yes |
+| Auckland | LINZ "Auckland 0.075m Urban Aerial Photos (2024-2025)" | 7.5 cm | 2024–25 (2017, 2015–16) | public S3 COGs + STAC, no key; Basemaps XYZ with an auto key | CC BY 4.0 | yes |
+| São Paulo | GeoSampa Ortofotos 2020 | 10 cm (urban core) | 2020 (2017 at 12 cm) | GeoServer WMS, no key; bulk behind a CAPTCHA | CC BY-SA 4.0 | yes |
+| Tucson | City of Tucson `ORTHO_2022_New` | 5.1 cm | 2022 (2020 at 7.6) | ArcGIS ImageServer, no key | no terms stated (unverified) | yes |
+| Columbus | OSIP `osip_most_current` (`COLUMBUS_2025`) | 7.6 cm | 2025 | ArcGIS ImageServer, no key | disclaimer only | yes |
+| Madison | Dane County `ColorOrtho3Inch2024Web` / `2026Web` | 7.6 / 7.25 cm | 2024, 2026 | ArcGIS ImageServer, no key; S3 GeoTIFF | disclaimer only (unverified) | yes |
+| Burnaby | Metro Vancouver "Burnaby Area Ortho Imagery 2025" | 7.5 cm | 2025 (2020 city product) | bulk MrSID (~4 GB), no streaming | Open Government Licence (BC family) | yes, bulk only |
+| Rancagua | SECTRA RPAS ortomosaic | ~7 cm | 2020 | ECW blocks, no OGC service, broken TLS | none stated | yes, in principle |
+| Pittsburgh | PASDA Allegheny 2017 3-inch (partial county); PEMA 2022 | 7.6 (2017) / 15 cm | 2017; 2022 | MapServer export + WMS + bulk | 2017 "informational"; PEMA no restrictions | 2017 only |
+| Chicago | Cook County `CookOrtho2024` / `2025` | 15 cm | 2020–2025 annual | ArcGIS ImageServer, no key | disclaimer only | no |
+| St. Louis | MSDIS Missouri 6-inch 2023–24 | 15 cm | 2024 | ArcGIS ImageServer + S3 GeoTIFF | CC BY 4.0 | no |
+| Gainesville | FDEP mirror of FDOT Alachua 2020 | 15 cm | 2020 (2023 download only) | ArcGIS ImageServer | public record, no licence text | no |
+| Danville | Illinois 2025 statewide `IL_Blk2_East_2025` | 15 cm | 2025 | ArcGIS ImageServer | public domain | no |
+| Detroit | MiSAIL `Michigan_imagery_2024` (Wayne) | 15 cm | 2024 | ArcGIS ImageServer + S3 | fields empty (unverified) | no |
+| Waltham | MassGIS 2025 (also 2021, 2023) | 15 cm | 2021–2025 | tiles only (max LOD ≈ 15 cm); free JP2 bulk | no restrictions | no |
+| Santiago | SECTRA Gran Santiago | 16 cm | 2012 | ECW blocks, no OGC service | none stated | no |
 
-So the aerial GT route is open today in Seattle, Madison and Tucson (plus 2017 Pittsburgh), and the Seattle
-rating sheet from item 2 can be rated on the city's own 2023 service. Chicago, Paterson, Gainesville,
-Richmond and Laurens, the cities with benchmark splits or the most labels, are per-pano-review cities
-unless a finer product turns up.
+**Reading for the Phase 1 GT round** (several hundred rows, more than one city, the aerial + crop page):
+
+- **Open and streamable at ≤ 10 cm, so the Seattle page works unchanged:** Amsterdam, Auckland, São Paulo
+  (open licences), Tucson, Columbus, Madison (open ImageServers, disclaimer-only terms). Burnaby is open-licensed
+  but a 4 GB bulk download; Pittsburgh's open product is 2017 and partial.
+- **Shortlist, chosen on what each adds beyond Seattle:** **Amsterdam** (2,976 labels, 890 confirmed; CC BY;
+  the non-US check, and the city where OSM and crowd agree most, 97% of confirmed labels within 10 m of a
+  marked node); **Columbus** (889 labels; 7.6 cm 2025; the city where half the confirmed labels sit on
+  untagged or `unmarked` nodes, i.e. the reading the Seattle check was about, in a second city); **Tucson**
+  or **Madison** as the second US city if the terms are confirmed by the city GIS office. **São Paulo** is
+  the junction-tagged case from item 2 (nodes give bearing, not the midpoint) and is worth a 40-row probe.
+- **Chicago is the label mass (28k labels, 3,907 confirmed) and has no sub-10 cm source.** Before deciding
+  it is a per-pano-review city, rate a 40-row Chicago sample on the 15 cm Cook County service with the same
+  page: if "painted at the node" is as readable at 15 cm as at 7.5 cm, the 10 cm bar is for marking extents,
+  not for presence, and St. Louis, Detroit, Waltham and Danville open up too.
+- **Per-pano review only:** Santiago (2012, 16 cm), Rancagua (no service), Gainesville and Paterson (and any
+  far-group city, where the crowd labels are the only supervision).
+
+Seattle's SDOT curb ramp inventory (`Curb_Ramps_CDL/FeatureServer/0`, 46,715 points, 1,703 of them
+`CATEGORY = NORAMP`, with condition and ADA-compliance fields) is recorded in the survey for the NoCurbRamp
+strain (labeler #169); it is not used here.
