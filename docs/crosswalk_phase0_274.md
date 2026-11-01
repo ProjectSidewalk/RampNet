@@ -29,6 +29,8 @@ tables: [`analysis_out/crosswalk_phase0_274/`](../analysis_out/crosswalk_phase0_
 | aerial sheet | `python scripts/analysis/crosswalk_phase0_274/aerial_sample.py --out OUT --city seattle-wa` | item 2 outputs |
 | aerial crops | `python scripts/analysis/crosswalk_phase0_274/aerial_crops.py --sheet OUT/aerial_sample_seattle-wa.csv --out CROPS` | King County 2023 ortho map service (view only) |
 | item 3 | `python scripts/analysis/crosswalk_phase0_274/vistas_crosswalk_probe.py --rampnet . --rawlabels OUT/rawlabels --split paterson=paterson-nj --split gainesville=gainesville-fl --out P` then `score_extra.py` | benchmark `panos/` for both splits, the Vistas checkpoint, a GPU |
+| aerial spot-check page | `python scripts/analysis/crosswalk_phase0_274/aerial_spotcheck.py build --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --rawlabels <census rawLabels csv> --review OUT/aerial_spotcheck_review_rows.json --out OUT/aerial_spotcheck_seattle-wa.html`, then `merge --verdicts <export>` | King County 2023 + 2025 export services and the Seattle PS crop route, live; or `--archive <dir>` on the replay archive below |
+| aerial replay archive | every tile and crop the page fetched while it was rated, plus the sheet, rawLabels pull, verdict exports and an offline page: `archive_spotcheck.py` writes it; the copy is on the lab share at `/projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/` (makelab1/makelab2; CSE-backed-up; `sha256sum -c SHA256SUMS` to verify; README inside) | not in the repo: county tiles are view-only and crops are Street View pixels |
 | figures | `python scripts/analysis/crosswalk_phase0_274/figures.py` | the committed tables only |
 
 Where each number lives: the per-city census table and readings 1–4 come from `census.json` (+ `per_label/`,
@@ -255,7 +257,10 @@ The sheet (`aerial_sample_seattle-wa.csv`: 120 human-confirmed Seattle Crosswalk
 nodes tagged marked / unmarked / untagged) was rated by Claude (claude-fable-5-1) on 2023 King County
 3-inch orthoimagery (36 m crops centred on the node, from the county's public map service; the imagery is
 licensed to the county and is not committed), as a first pass for a person to spot-check:
-`aerial_sample_seattle-wa.rated_ai.csv`, with a note per row where the call needed one. Two questions per
+`aerial_sample_seattle-wa.rated_ai.csv`, with a note per row where the call needed one (the human spot-check of
+all 120 rows, `aerial_sample_seattle-wa.rated.csv` and `aerial_verdicts_seattle-wa.json`, is described with its
+replay archive in the Replication table; the imagery it was judged on is kept at
+`/projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/` on the lab share). Two questions per
 row: is there a painted crossing at the OSM node (yes / unclear / no), and where is the label relative to
 that crossing (≤ 2 m of the node; 2–5 m but on the crossing; at an end, > 5 m but on the crossing; off the
 crossing; n/a). The population is nodes that already have a confirmed crowd label within 10 m, so this reads

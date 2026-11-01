@@ -20,7 +20,9 @@ to each row's facts; without it those lines are simply absent.
 services (the layout `scripts/analysis/crosswalk_phase0_274/archive_spotcheck.py` writes: ortho/<label_id>_<year>_<36|18>m.png,
 crops/<label_id>.png + .metadata.json, manifest.json); --out should then be inside the archive (its
 page/ dir), since the tile paths are written relative to the page. That is the replay path for when
-the King County export service or the signed crops are gone. The AI's two ratings are pre-selected; Enter accepts them,
+the King County export service or the signed crops are gone. The Seattle archive lives on the lab share
+(backed up), on makelab1/makelab2 at /projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/
+(its README.md has the replay command); see archive_spotcheck.py's docstring. The AI's two ratings are pre-selected; Enter accepts them,
 Y/N/U and 1-4/0 override them. Verdicts persist in localStorage and "Export verdicts" downloads them as
 JSON, in the gt_gallery.py pattern. `merge` adds `human_painted`, `human_label`, `human_flag`, `human_note`
 columns to the sheet (plus `human_bike`: the B tag, or a note mentioning "bike" from before the tag

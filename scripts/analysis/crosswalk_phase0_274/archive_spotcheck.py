@@ -10,6 +10,17 @@ Layout under --out:
   page/<html>                   the built page at archive time
   ortho/<label_id>_<year>_<36|18>m.png   King County ortho export, 720 px, bbox centred on the OSM node
   crops/<label_id>.png + <label_id>.metadata.json   Project Sidewalk label crop + its metadata
+  SHA256SUMS                    one line per manifest entry, for `sha256sum -c SHA256SUMS` (written by hand from
+                                manifest.json after the run; regenerate it whenever the manifest changes)
+
+WHERE THE ARCHIVE IS. The Seattle archive (made 2026-10-31: 724 files, 346 MB) is NOT in this repo -- the
+King County tiles are served "view only" and the crops are Google Street View pixels. The canonical copy is
+on the lab share, backed up by CSE IT (ZFS snapshots + nightly off-host sync), readable from makelab1 and
+makelab2 at
+  /projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/
+with a README.md that explains the layout, the replay command and how to add a later verdict export.
+Verify a copy with `sha256sum -c SHA256SUMS` before trusting it. Rendering from it:
+  python aerial_spotcheck.py build --archive <that dir> --sheet <that dir>/sheet/... --rawlabels <that dir>/rawlabels/... --out <that dir>/page/<name>.offline.html
 """
 import argparse
 import csv
