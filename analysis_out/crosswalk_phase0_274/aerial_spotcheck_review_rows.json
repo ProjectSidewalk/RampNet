@@ -1,0 +1,51 @@
+{
+ "made": "2026-11-01T14:57:11Z",
+ "made_utc": "2026-11-01T14:57:11+00:00",
+ "why": "All rounds complete 2026-11-01 (final export 2026-11-01T14:58:20Z). Round 3 (2026-11-01): row 59 only. Round 2 (2026-11-01), after Claude read every note of the 2026-11-01T14:46 export against its codes. Round 1 (21 rows, made 2026-10-31T14:25:38+00:00) is complete; its list is in git history of this file.",
+ "round1": {
+  "made": "2026-10-31",
+  "why": "rows whose first-pass verdict predates a rule settled later in the session, or was judged on the 2023 ortho alone; the order 're-examine' in the page walks them; a row leaves the list once its verdict is re-saved after made_utc",
+  "rows": {
+   "20": "coded 4; note says ~1 m west of the paint. Under the final wording that is 2 (near the center). Confirm or change.",
+   "114": "coded 4; note says ~1 m north of the paint. Under the final wording that is 2 (near the center). Confirm or change.",
+   "1": "coded 2 with 'just east of the crosswalk' -- consistent with the final rule; quick confirm only.",
+   "58": "coded 2 with '< 1 m outside the paint' -- consistent with the final rule; quick confirm only.",
+   "106": "coded 2 with '< 1 m east of the paint' -- consistent with the final rule; quick confirm only.",
+   "48": "bike crossing: agreed code is N + 4 + B (press B). Currently N + 1.",
+   "49": "bike crossing: agreed code is N + 4 + B (press B). Currently N + 2.",
+   "72": "bike crossing: agreed code is N + 4 + B (press B). Currently N + 1.",
+   "79": "bike crossing: agreed code is N + 4 + B (press B). Currently N + 4, tag missing.",
+   "68": "note says the crosswalk shows in 2025 and in the crop, but the saved answer is N. Under the rule that is Y; then place the label (2 / 3 / 4).",
+   "47": "'extremely faded crosswalk' coded N; rows 74/77 coded the same wording Y. Pick one rule (suggest Y when visible at all, note the fade).",
+   "74": "'extremely faded' coded Y -- confirm against the rule you pick for row 47.",
+   "77": "'very faded' coded Y -- confirm against the rule you pick for row 47.",
+   "38": "unclear + position 1: if the faded paint is visible in 2025 or the crop, Y; if not, U + 0.",
+   "40": "unclear, judged on 2023 only -- check 2025 and the crop.",
+   "41": "no paint, judged on 2023 only -- check 2025 and the crop.",
+   "43": "no paint, judged on 2023 only -- check 2025 and the crop.",
+   "50": "unclear, judged on 2023 only -- check 2025 and the crop.",
+   "59": "no paint, judged on 2023 only -- check 2025 and the crop.",
+   "63": "no paint, judged on 2023 only -- check 2025 and the crop.",
+   "65": "no paint, judged on 2023 only -- check 2025 and the crop; note says node and label sit on different legs."
+  },
+  "made_utc": "2026-10-31T14:25:38+00:00"
+ },
+ "rows": {},
+ "round2": {
+  "made_utc": "2026-11-01T14:50:14+00:00",
+  "rows": {
+   "114": "Note says ~1 m off the paint, coded 1 (at the centre). Rows 1, 20, 58, 106 code the same distance as 2 (near). Confirm: 2?",
+   "47": "Note says a very faded crosswalk is visible in both orthos and the crop, coded U. Rows 38, 40, 58, 74, 77 code faded-but-visible as Y. Confirm: Y?",
+   "38": "Note hedges ('if there is one at all') but coded Y / 1. Does the crop (street view) show the paint? If only a guess, U.",
+   "59": "Same mechanism as 43, 65, 69 (label meant for another crossing; node's crossing unpainted) but coded 0 where those are 4. Pick one; 4 matches the others."
+  },
+  "outcome": "38 note rewritten (2025 repaint), 47 -> yes, 114 -> near; 59 deferred to round 3"
+ },
+ "round3": {
+  "made_utc": "2026-11-01T14:57:11+00:00",
+  "rows": {
+   "59": "Your note says the crowd label was meant for one of the OTHER (painted) crosswalks at this intersection, and the blue node's own crossing has no paint. Two codes fit the red label: 4 = 'not on this crossing' (how you coded 43, 65 and 69, the same situation) or 0 = 'no paint to judge against'. Pick one and Save; 4 keeps the four alike. Q1 stays as you see it (no paint at the blue node)."
+  },
+  "outcome": "59 re-saved as no / 0 (Jon's choice; 43, 65, 69 stay 4)"
+ }
+}
