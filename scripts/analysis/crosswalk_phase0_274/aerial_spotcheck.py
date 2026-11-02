@@ -7,10 +7,12 @@ verdicts back into the sheet.
   python aerial_spotcheck.py merge --sheet <the same csv> --verdicts ~/Downloads/aerial_verdicts_seattle-wa.json \
       --out analysis_out/crosswalk_phase0_274/aerial_sample_seattle-wa.rated.csv
 
-`build` writes one self-contained page (no imagery inside it): each row's 36 m crops are requested live
+`build` writes one self-contained page (no imagery inside it): each row's 36 m crops (Web Mercator metres; about 24 m on the ground at
+Seattle) are requested live
 from King County's 2023 AND 2025 ortho export services when the row is shown (side by side, so a
 crossing painted or removed between the flights is seen), with the OSM node, the crowd label and the
-2 m / 5 m rings drawn over both; a third panel shows the street-level crop Project Sidewalk serves for
+2 m / 5 m rings drawn over both (ground metres since 2026-11-02; Mercator, so about 1.48x too small at
+Seattle, when the 120 human verdicts were saved); a third panel shows the street-level crop Project Sidewalk serves for
 the crowd label (`/cropImage/Crosswalk/<label_id>/metadata` hands out a short-lived signed URL, CORS
 open), which is what the labeler actually saw. --rawlabels (the census's cached v3 rawLabels CSV for the
 city) adds the pano capture month, the label date, human agree/disagree counts and a Street View link
@@ -177,6 +179,24 @@ def merge(a):
               f"{sum(ped(v) for _, v in s)} | "
               f"{sum(r['rating_label_at_centre'] in ON_CROSSING for r, _ in s)} | {sum(is_bike(v) for _, v in s)} | "
               f"{sum(bool(v.get('flag')) for _, v in s)} |")
+    # The doc's two per-class tables (AI first pass, human rating), category by category.
+    cats_p, cats_l = ("yes", "unclear", "no"), ("yes", "near", "end", "off", "na")
+    for who in ("AI", "human"):
+        print(f"{who} per class: painted {'/'.join(cats_p)} | label {'/'.join(cats_l)}"
+              + (" | on a bike crossing (within 5 m, B tag)" if who == "human" else ""))
+        for cls, name in (("marked", "marked"), ("unmarked", "unmarked"), ("unknown", "untagged")):
+            s = [(r, v) for r, v in rated if r["osm_marking_class"] == cls]
+            if who == "AI":
+                p = collections.Counter(r["rating_painted_crossing_at_node"] for r, _ in s)
+                lab = collections.Counter(r["rating_label_at_centre"] for r, _ in s)
+                tail = ""
+            else:
+                p = collections.Counter(v["painted"] for _, v in s)
+                bike = lambda v: v["label"] in ON_CROSSING and is_bike(v)  # merge's placement line's rule
+                lab = collections.Counter(v["label"] for _, v in s if not bike(v))
+                tail = f" | {sum(bike(v) for _, v in s)}"
+            print(f"  {name:9s} n={len(s)}  {'/'.join(str(p[c]) for c in cats_p)} | "
+                  f"{'/'.join(str(lab[c]) for c in cats_l)}{tail}")
     dis = [(i, r, by_i[i]) for i, r in enumerate(rows) if i in by_i
            and not (by_i[i]["painted"] == r["rating_painted_crossing_at_node"] and by_i[i]["label"] == r["rating_label_at_centre"])]
     if dis:

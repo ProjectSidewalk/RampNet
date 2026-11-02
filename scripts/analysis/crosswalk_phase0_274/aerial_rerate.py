@@ -11,7 +11,9 @@ claude-opus-5-5) from the sheets this script draws, and its verdicts are committ
 
   python aerial_rerate.py sheets --archive <replay archive> --sheet <rated_ai.csv> --out <dir>
       one JPEG per row: 2023 at 18 m, 2025 at 18 m (2x the 36 m tile: the archive's 2025 18 m tiles
-      are blank, every row), 2025 at 36 m, the label crop. Blue = OSM node with 2 m / 5 m rings,
+      are blank, every row), 2025 at 36 m, the label crop. Extents are Web Mercator metres (18 / 36 m
+      = about 12 / 24 m on the ground at Seattle); the rings are GROUND metres (scaled by 1/cos(lat)),
+      unlike the human page before 2026-11-02, whose rings were Mercator. Blue = OSM node with 2 m / 5 m rings,
       red = crowd label, yellow line between them; red circle on the crop = the label.
   python aerial_rerate.py score --rerate <aerial_rerate_seattle-wa.csv> --rated <rated.csv>
       agreement before and after the re-rate, painted / five-class position / within-5-m-on-crossing,
@@ -64,7 +66,8 @@ def cmd_sheets(a):
         return tile.resize((512, 512))
 
     for i, r in rerate_rows(sheet):
-        lid = r["label_uid"].split(":")[1]
+        city, lid = r["label_uid"].split(":")
+        assert city == "seattle-wa", r["label_uid"]  # label_id is per city; the archive is Seattle's alone
         k = 1 / math.cos(math.radians(float(r["node_lat"])))  # Mercator metres per ground metre
         o = lambda y, e: Image.open(arch / "ortho" / f"{lid}_{y}_{e}m.png").convert("RGB")
         lx18, ly18 = to_px(r, 18)
@@ -74,7 +77,8 @@ def cmd_sheets(a):
         z25 = t25.crop((PX // 4, PX // 4, 3 * PX // 4, 3 * PX // 4)).resize((PX, PX), Image.LANCZOS)
         b25 = mark(z25, (lx36 - PX / 4) * 2, (ly36 - PX / 4) * 2, 18, k, "2025, 18 m (2x zoom)")
         c25 = mark(t25, lx36, ly36, 36, k, "2025, 36 m wide")
-        crop = Image.open(arch / "crops" / f"{lid}.png").convert("RGB")
+        crop_path = next(p for p in (arch / "crops" / f"{lid}.{ext}" for ext in ("png", "jpg")) if p.exists())
+        crop = Image.open(crop_path).convert("RGB")
         d, rr = ImageDraw.Draw(crop), crop.width / 40
         x, y = crop.width / 2, crop.height / 2  # the crop is centred on the label (crop_marker 0.5, 0.5)
         d.ellipse([x - rr, y - rr, x + rr, y + rr], outline=(232, 50, 43), width=4)

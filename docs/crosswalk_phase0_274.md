@@ -14,7 +14,8 @@ tables: [`analysis_out/crosswalk_phase0_274/`](../analysis_out/crosswalk_phase0_
    target convention stands). Three Latin American cities tag the junction node instead and give bearing only.
 2. On King County orthoimagery of Seattle (2023 and 2025, 7.5 cm) plus the crowd's own street-level crop,
    Jon rated all 120 rows of the sheet (40 per OSM class, nodes that already carry a human-confirmed crowd
-   label) after an AI first pass: a node OSM tags marked is painted 40 of 40 times, an untagged node 39 of
+   label) after an AI first pass; 77 rows, all painted, were saved on the 2023 ortho alone, every other row
+   on all three images: a node OSM tags marked is painted 40 of 40 times, an untagged node 39 of
    40, and a node tagged `unmarked` 28 of 40 (11 not, 1 unclear). **In Seattle, on crossings the crowd
    found, marked ∪ untagged is a usable positive set and `unmarked` is not a negative set.** 95 of the
    114 ratable labels (83%) sit within 5 m of the node on a pedestrian crossing, 7 at an end, 9 off it and
@@ -33,7 +34,7 @@ tables: [`analysis_out/crosswalk_phase0_274/`](../analysis_out/crosswalk_phase0_
 | aerial sheet | `python scripts/analysis/crosswalk_phase0_274/aerial_sample.py --out OUT --city seattle-wa` | item 2 outputs |
 | aerial crops | `python scripts/analysis/crosswalk_phase0_274/aerial_crops.py --sheet OUT/aerial_sample_seattle-wa.csv --out CROPS` | King County 2023 ortho map service (view only) |
 | item 3 | `python scripts/analysis/crosswalk_phase0_274/vistas_crosswalk_probe.py --rampnet . --rawlabels OUT/rawlabels --split paterson=paterson-nj --split gainesville=gainesville-fl --out P` then `score_extra.py`; the components-per-pano line over every pano of the five splits needs `--split gainesville=gainesville-fl --split laurens_gsv=laurens-ia --split laurens_mapillary=laurens-ia --split paterson=paterson-nj --split richmond=richmond-va --all` | benchmark `panos/` for the splits, the Vistas checkpoint, a GPU |
-| aerial spot-check page | `python scripts/analysis/crosswalk_phase0_274/aerial_spotcheck.py build --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --rawlabels <census rawLabels csv> --review OUT/aerial_spotcheck_review_rows.json --verdicts OUT/aerial_verdicts_seattle-wa.json --out OUT/aerial_spotcheck_seattle-wa.html` (byte-identical to the committed page), then `merge --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --verdicts OUT/aerial_verdicts_seattle-wa.json --out OUT/aerial_sample_seattle-wa.rated.csv`, which also prints the human counts and the agreement table | King County 2023 + 2025 export services and the Seattle PS crop route, live; or `--archive <dir>` on the replay archive below |
+| aerial spot-check page | `python scripts/analysis/crosswalk_phase0_274/aerial_spotcheck.py build --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --rawlabels <census rawLabels csv> --review OUT/aerial_spotcheck_review_rows.json --verdicts OUT/aerial_verdicts_seattle-wa.json --out OUT/aerial_spotcheck_seattle-wa.html` (byte-identical to the committed page), then `merge --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --verdicts OUT/aerial_verdicts_seattle-wa.json --out OUT/aerial_sample_seattle-wa.rated.csv`, which also prints the human counts, the agreement table and both per-class tables (AI first pass, human rating) | King County 2023 + 2025 export services and the Seattle PS crop route, live; or `--archive <dir>` on the replay archive below |
 | aerial blind re-rate | `python scripts/analysis/crosswalk_phase0_274/aerial_rerate.py sheets --archive <replay archive> --sheet OUT/aerial_sample_seattle-wa.rated_ai.csv --out SHEETS` (the images the re-rater saw), then `aerial_rerate.py score --rerate OUT/aerial_rerate_seattle-wa.csv --rated OUT/aerial_sample_seattle-wa.rated.csv` (the agreement numbers in the aerial section) | the replay archive below; `score` needs only the committed CSVs |
 | aerial replay archive | every tile and crop the page fetched while it was rated, plus the sheet, rawLabels pull, verdict exports and an offline page: `archive_spotcheck.py` writes it; the copy is on the lab share at `/projects/makeabilitylab/RampNet/archives/crosswalk_phase0_274/aerial_spotcheck_seattle-wa/` (makelab1/makelab2; CSE-backed-up; `sha256sum -c SHA256SUMS` to verify; README inside) | not in the repo: the imagery stays on the lab share |
 | figures | `python scripts/analysis/crosswalk_phase0_274/figures.py` | the committed tables only |
@@ -186,9 +187,9 @@ So the OSM crossing node is a usable Stage 1 bearing source (the ±18° toleranc
 
 #### Reading 3: the `crossing:markings` tag disagrees with the crowd often enough that it cannot be the positive set on its own
 
-Pooled over confirmed labels with a node within 10 m, 36% sit on a node OSM tags unmarked or leaves untagged. Chicago drives that (56% of its 248k crossing nodes carry no markings tag at all; only 37% of its labels are within 10 m of a marked node); without Chicago it is 1 in 9, but in Columbus, Waltham and Detroit it is 1 in 2 or worse (Pittsburgh 43%), and Richmond's 69 labels are all within 10 m of a node but only 19% within 10 m of a *marked* one. Either the tags are stale (a crossing painted since the node was tagged) or the crowd labels unmarked crossings as `Crosswalk`. The one-city aerial reference in item 2 is the first check of that; it cannot settle it for every city, so positives come from crowd-confirmed labels and from the OSM classes an aerial check has vouched for in that city, and OSM nodes otherwise supply bearing and candidate crossings only.
+Pooled over confirmed labels with a node within 10 m, 36% have no *marked* node within 10 m (every crossing node that close is tagged unmarked or untagged). Chicago drives that (56% of its 248k crossing nodes carry no markings tag at all; only 37% of its labels are within 10 m of a marked node); without Chicago it is 1 in 9, but in Columbus it is 49%, in Waltham 54% and in Detroit 79% (Pittsburgh 43%), and Richmond's 69 labels are all within 10 m of a node but only 19% within 10 m of a *marked* one. Either the tags are stale (a crossing painted since the node was tagged) or the crowd labels unmarked crossings as `Crosswalk`. The one-city aerial reference in item 2 is the first check of that; it cannot settle it for every city, so positives come from crowd-confirmed labels and from the OSM classes an aerial check has vouched for in that city, and OSM nodes otherwise supply bearing and candidate crossings only.
 
-#### Reading 4: Signal labels sit ~9–12 m from OSM signal nodes
+#### Reading 4: Signal labels sit a median 7–15 m from OSM signal nodes
 
 Across the dense-group cities with ≥ 100 Signal labels the median is 7–15 m and 20–84% are within 10 m (Tucson 20%, Auckland 84%; the sparse group runs to a 30 m median), against 2–4 m for crossings. An OSM signal node is tagged on the intersection node (or the stop line), while the PS label is on the pole at the corner, so a signal bearing rule needs a corner offset rather than the node itself. Parked until crosswalks are done; recorded here so the number is not re-derived.
 
@@ -268,6 +269,7 @@ precision on crossings the crowd has found, in one city, not OSM's recall, and i
 the crowd never labeled.
 
 **AI first pass** (Claude, claude-fable-5-1, on 36 m crops of the 2023 King County 3-inch ortho only;
+36 Web Mercator metres, about 24 m on the ground at Seattle's latitude, as are all extents below;
 `aerial_sample_seattle-wa.rated_ai.csv`, with a note per row where the call needed one):
 
 | OSM class | n | painted at node: yes | unclear | no | label ≤ 2 m | 2–5 m on crossing | at an end | off the crossing | n/a |
@@ -277,7 +279,7 @@ the crowd never labeled.
 | untagged | 40 | 37 | 2 | 1 | 16 | 17 | 3 | 4 | 0 |
 
 **Human rating** (Jon, all 120 rows, on the spot-check page: the 2023 and 2025 orthos side by side at 36 m
-and 18 m, the street-level crop Project Sidewalk serves for the label, the pano and label dates and the
+and 18 m (about 24 m and 12 m on the ground), the street-level crop Project Sidewalk serves for the label, the pano and label dates and the
 human votes; `aerial_verdicts_seattle-wa.json`, merged into `aerial_sample_seattle-wa.rated.csv`; the
 imagery is kept with the replay archive on the lab share, see Replication). "On a bike crossing" is the
 page's B tag: the crowd labeled a green bike crossing beside an unpainted pedestrian node, and the
@@ -298,10 +300,17 @@ re-examined with all three images, and the bike rows were given the B tag. Re-ex
 row from no to yes (paint faded in 2023, visible in 2025 or in the crop) but a yes row outside the review
 list was not re-checked for paint removed by 2025, so "painted" means painted at any of the three dates,
 and the unmarked-class rate is an upper bound against an undated tag. `rated.csv` carries
-`human_imagery` (`2023` or `2023+2025+crop`) and `human_ts` per row. Conventions that emerged from the
-notes rather than the buttons: faded but recognisable paint is yes; the near / off boundary fell in
-practice at about 5 m (rows at 3–5 m coded near, 6–8 m off); a label meant for another leg of the same
-intersection was coded off (rows 43, 65, 69) or n/a (row 59).
+`human_imagery` (`2023` or `2023+2025+crop`) and `human_ts` per row. **The page's distance rings were
+mis-scaled while the 120 verdicts were saved** (found in review, 2026-11-02): it drew the "2 m" and "5 m"
+rings and the 5 m scale bar in Web Mercator metres, which at Seattle are 1/cos(47.6°) ≈ 1.48 times
+smaller than ground metres, so the "5 m" ring was about 3.4 m on the ground. The notes' distance estimates
+run long accordingly (row 96 "about 15 m" is 7.1 m; row 68 "about 10 m", 7.4 m). The page also printed each
+label's true ground distance to the node, and the codes follow that number rather than the rings, so the
+distance-based statements below are re-derived from `dist_m` (ground metres, label to node), not from the
+notes. The page now draws ground metres. Conventions that emerged from the notes rather than the buttons:
+faded but recognisable paint is yes; by `dist_m` the near / off boundary fell at about 5.5–6 m (near rows
+run to 5.7 m; off rows, the other-leg cases aside, start at 5.9 m); a label meant for another leg of the
+same intersection was coded off (rows 43, 65, 69) or n/a (row 59).
 
 Readings. (a) A node OSM tags **marked** is painted in 40 of 40 and an **untagged** node with a confirmed
 crowd label in 39 of 40, so on this population both are positives. (b) A node tagged **unmarked** is
@@ -314,38 +323,43 @@ the 11 unmarked-class nodes with no paint, in 4 the crowd labeled a green bike c
 an intersection whose painted leg carries the label (43, 59, 65, 69), and in 3 there is no painted
 crosswalk near either point (two stop lines, 41 and 78, and a bus-island crossing, 63). (d) Placement: 95
 of the 114 ratable labels (83%) are within 5 m of the node on a pedestrian crossing, 7 more at an end
-(6%), 3 on a bike crossing, and 9 off the crossing: the 3 untagged ones (96, 101, 105; 6–9 m) are clicks
-on a fence or gate beside the crossing, visible in the crop, 3 are the different-leg cases above, 2 are a
-label 6–7 m from its paint (55, 68) and 1 is the fourth bike row. The centre convention holds in Seattle
+(6%), 3 on a bike crossing, and 9 off the crossing: the 3 untagged ones (96, 101, 105; 7.1, 8.7 and 6.4 m
+from the node) are placement misses on a crossing the crowd did see (101 and 105 a fence or gate clicked
+beside the crossing, visible in the crop; in 96 the label is on the crossing in the crop and the error is
+in the projection to lat/lng), 3 are the different-leg cases above, 2 are labels 5.9 and 7.4 m from the
+node (55, 68) and 1 is the fourth bike row. Two of the 95 rows coded near sit just past 5 m by `dist_m`
+(80 at 5.05 m, 86 at 5.67 m). The centre convention holds in Seattle
 as it did in the offsets.
 
 **Agreement with the AI first pass** (printed by `merge`): painted 106 of 120 (0.88), five-class label 97
 of 120 (0.81), within 5 m vs not 112 of 120 (0.93). That first pass saw the 2023 ortho only, so its 24
-no / unclear rows were then **re-rated blind on the same three images the human saw** (2023, 2025, the PS
-crop) by a fresh session that had not seen the human verdicts (Claude, claude-opus-5-5, 2026-11-01;
+no / unclear rows were then **re-rated blind on all three images** (2023, 2025, the PS crop; the human
+had seen all three on 21 of those 24 rows, and only the 2023 ortho on rows 55, 61 and 67) by a fresh session that had not seen the human verdicts (Claude, claude-opus-5-5, 2026-11-01;
 `aerial_rerate.py`, verdicts in `aerial_rerate_seattle-wa.csv`). The 96 rows the first pass called yes
 were left as they were: more imagery cannot remove a crossing that is visible. With the re-rate,
 agreement is **painted 118 of 120 (0.98)**, five-class 100 of 120 (0.83), within 5 m vs not 113 of 120
 (0.94); with the four bike rows set aside, 115 / 99 / 111 of 116. On the 24 re-rated rows alone, painted
 went from 11 to 23, five-class from 15 to 18, and within 5 m from 19 to 20. So the paint disagreements were
 almost all imagery the first pass never saw, not misreadings. The two painted misses left are row 63 (a
-bus-island cut-through with yellow edge paint: AI unclear, human no) and one row outside the re-rate that
-the human marked as just off the paint. The position disagreements are about conventions, not about what
+bus-island cut-through with yellow edge paint: AI unclear, human no) and row 72, outside the re-rate,
+which the first pass called painted and the human did not: its paint is a green bike crossing (B tag), with
+no pedestrian paint at the node. The position disagreements are about conventions, not about what
 is visible. Rows 59 and 82, where the label belongs to another crossing, were coded off by the AI and n/a
 by the human. Bike rows 48 and 49 were coded off by the AI while the human kept a position code plus the B
-tag. Row 40 is end against near at about 4 m from the centre, on the near / end boundary. Row 63 is near
+tag. Row 40 is end against near, 3.1 m from the node and 2.1 m along the crossing, on the near / end boundary. Row 63 is near
 against n/a, following from its paint call. **Reading for Phase 1:** given the same imagery, an AI first
 pass matches the human on paint in 0.98 of rows, and its remaining misses are boundary cases. Position
 agreement (0.83 five-class) is limited by conventions the human settled during the pass (n/a vs off for
-another leg, the 5 m near / off boundary, the bike tag), so those conventions have to be in the rubric
+another leg, the 5.5–6 m near / off boundary, the bike tag), so those conventions have to be in the rubric
 before an AI pre-rates a new round. Caveats: one AI rater and one human, a single city, and the human pass
 was anchored on the first pass (see Protocol). The re-rater also had the session memory notes, which name
 rows 43, 59, 65 and 69 as other-leg cases and 48, 49, 72 and 79 as bike rows, so those position calls are
 not fully blind. Row 59 still disagrees with the human. **Imagery note:** the King County 2025 export
-service returns a blank image below a ~30 m extent at 720 px (all 120 archived `*_2025_18m.png` are
-uniform; re-probed live 2026-11-01: 18 and 24 m blank, 30 and 36 m fine). The page's 18 m view therefore
-never showed 2025, so the human's 2025 look was the 36 m tile, and the re-rate used the 36 m tile and a 2x
-enlargement of it.
+service returns a blank image at 24 Mercator m or less at 720 px (all 120 archived `*_2025_18m.png` are
+uniform; re-probed live 2026-11-02: 12, 18 and 24 m blank, 28 m and wider fine). The page's 18 m view
+therefore never showed 2025, so the human's 2025 look was the 36 m tile, and the re-rate used the 36 m tile
+and a 2x enlargement of it. The page now does the same in its zoomed view (`MIN_TILE_M`), and the
+re-rate's rings were in ground metres from the start (`aerial_rerate.py`), unlike the page's at the time.
 
 ## Item 3: Vistas probe, classes 8 + 23 against crowd Crosswalk labels on benchmark panos
 
@@ -406,8 +420,8 @@ for "is there paint at the node" (a zebra bar is 30–60 cm wide, so it may be).
   but a 4 GB bulk download; Pittsburgh's open product is 2017 and partial.
 - **Shortlist, chosen on what each adds beyond Seattle:** **Amsterdam** (2,976 labels, 890 confirmed; CC BY;
   the non-US check, and the city where OSM and crowd agree most, 97% of confirmed labels within 10 m of a
-  marked node); **Columbus** (889 labels; 7.6 cm 2025; the city where half the confirmed labels sit on
-  untagged or `unmarked` nodes, i.e. the reading the Seattle check was about, in a second city); **Tucson**
+  marked node); **Columbus** (889 labels; 7.6 cm 2025; the city where 49% of the confirmed labels with a crossing
+  node within 10 m have no marked node that close (69 of 140; 39% of all 177 confirmed), i.e. the reading the Seattle check was about, in a second city); **Tucson**
   or **Madison** as the second US city if the terms are confirmed by the city GIS office. **São Paulo** is
   the junction-tagged case from item 2 (nodes give bearing, not the midpoint) and is worth a 40-row probe.
 - **Chicago is the label mass (28k labels, 3,907 confirmed) and has no sub-10 cm source.** Before deciding

@@ -3,7 +3,7 @@
 Reading 2: in the dense group (>= 100 Crosswalk labels and a median <= 5 m to the nearest OSM crossing
 node), human-confirmed labels (the census's margin rule) within 10 m of any node and of a marked node, per
 city for the cities with >= 40 confirmed labels, and pooled over them and over the whole group.
-Reading 3: the share of confirmed labels within 10 m of a node whose nearest node within 10 m is not marked,
+Reading 3: the share of confirmed labels within 10 m of a node that have no marked node within 10 m,
 pooled, without Chicago, and per city.
 Reading 4: Signal labels, median distance and share within 10 m, over the dense-group cities with >= 100
 Signal labels and over every city with >= 100.
@@ -48,7 +48,7 @@ print(f"| **pooled, {len(table)} cities with >= {MIN_CONFIRMED_IN_TABLE} confirm
 n17, a17, m17 = (sum(rows[c][i] for c in dense) for i in range(3))
 print(f"| pooled, all {len(dense)} | {n17} | {a17 / n17:.0%} | {m17 / n17:.0%} |\n")
 
-print("Reading 3: of confirmed labels within 10 m of a node, the share whose node is unmarked or untagged")
+print("Reading 3: of confirmed labels within 10 m of a node, the share with no marked node within 10 m")
 print(f"  pooled over the {len(dense)}: {(a17 - m17) / a17:.1%}  ({a17 - m17} of {a17})")
 nc = [c for c in dense if c != "chicago-il"]
 anc, mnc = sum(rows[c][1] for c in nc), sum(rows[c][2] for c in nc)

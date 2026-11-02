@@ -28,8 +28,10 @@ Label ids are per city: every row carries `label_uid` = `<city>:<label_id>`.
 
 `aerial_spotcheck.py build --sheet <rated_ai.csv> --rawlabels <csv> --review <json> --verdicts <export> --out <html>`
 writes a self-contained spot-check page (committed as `analysis_out/crosswalk_phase0_274/aerial_spotcheck_seattle-wa.html`;
-open it in a browser): one row per screen, the 2023 and 2025 King County orthos side by side (36 m / 18 m) with
-node / label / 2 m and 5 m rings, the street-level crop Project Sidewalk serves for the label, the pano and
+open it in a browser): one row per screen, the 2023 and 2025 King County orthos side by side (36 m / 18 m Web Mercator, about 24 m / 12 m on
+the ground at Seattle) with
+node / label / 2 m and 5 m rings (ground metres since 2026-11-02; before that they were Mercator metres,
+about 1.48x too small at Seattle, and the 120 human verdicts were saved against those), the street-level crop Project Sidewalk serves for the label, the pano and
 label dates and the human votes, and the AI's call pre-selected (Enter accepts, Y/N/U and 1-4/0 override; B
 tags a label on a bike crossing). Verdicts live in localStorage; `--verdicts` embeds an export so a rebuilt
 page carries its state (newest timestamp wins per row); "Export verdicts" downloads them as JSON, and
@@ -41,10 +43,11 @@ replay archive instead of the live services. Same pattern as `scripts/gt_gallery
 `aerial_rerate.py sheets --archive <dir> --sheet <rated_ai.csv> --out <dir>` draws the images for a blind
 re-rate of the AI first pass's no / unclear rows (2023, 2025, label crop), and `aerial_rerate.py score
 --rerate OUT/aerial_rerate_seattle-wa.csv --rated OUT/aerial_sample_seattle-wa.rated.csv` prints agreement
-with the human verdicts before and after it. The King County 2025 service is blank below a ~30 m extent, so
-the 2025 panel is the 36 m tile and a 2x enlargement of it.
+with the human verdicts before and after it. The King County 2025 service returns a blank tile at 24 Mercator m or less (720 px; imagery from 28 m,
+probed 2026-11-02), so the 2025 panel is the 36 m tile and a 2x enlargement of it; the spot-check page
+does the same for its zoomed view (`MIN_TILE_M`).
 
 `aerial_crops.py --sheet OUT/aerial_sample_seattle-wa.csv --out CROPS` renders the rating sheet as 36 m
-crops (node blue, label red) plus 2×2 contact sheets from King County's 2023 ortho service, for a rater;
+(Mercator) crops (node blue, label red) plus 2×2 contact sheets from King County's 2023 ortho service, for a rater;
 the crops are licensed imagery and stay out of the repo. `aerial_sample_seattle-wa.rated_ai.csv` is the
 AI first-pass rating of that sheet (rater column says so); the unrated original is beside it for a person.
