@@ -188,8 +188,8 @@ A second rater repeats the round from the same sheet: open the page in a fresh b
 different initials, export; `merge` takes one export at a time and writes a per-rater CSV, so the two can be
 compared row by row on `gt_id`.
 
-**Replay archive** (`ARCHIVE`): local, `D:/Git/sal-scratch-keep/phase1-crosswalk-gt/` on JONFHOME (1,028
-files in `SHA256SUMS`; `manifest.json` gives url, status, content type, sha256, bytes and fetch time per file;
+**Replay archive** (`ARCHIVE`): local, `D:/Git/sal-scratch-keep/phase1-crosswalk-gt/` on JONFHOME (964 MB; 1,356
+files in `SHA256SUMS` with the pre-rate composites; `manifest.json` gives url, status, content type, sha256, bytes and fetch time per file;
 `README.md` inside). Not in the repo: the tiles are licensed or share-alike imagery and the crops are
 street-level imagery. It should join the Phase 0 archive on the lab share
 (`/projects/makeabilitylab/RampNet/archives/crosswalk_phase1_274/`) once copied there; until then it lives
