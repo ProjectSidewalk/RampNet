@@ -1,0 +1,241 @@
+{
+ "audited_max_m": 100.0,
+ "cities": {
+  "amsterdam": {
+   "candidates_sha256": "8c13f7580d7ae1452d03e9416c0960b0af29bc25bade3d47106015d56bb66a74",
+   "inputs_sha256": {
+    "osm/amsterdam/Crosswalk/tile_522_49.json": "a70997e9b6a6b79e8b1948842d8a7127bc399da88de98f31250a18303743b2be",
+    "osm/amsterdam/Crosswalk/tile_523_47.json": "9a6a60879c1e5f20f5b036e9b0a4fbc45dbab289c18ea00f0378e18021ddfc3f",
+    "osm/amsterdam/Crosswalk/tile_523_48.json": "76a070ae8b42393753841ce9241a76a067dfae55c4cfeeecbbefdabc6ff225e0",
+    "osm/amsterdam/Crosswalk/tile_523_49.json": "d8ef48f18d9f6034b3fcae72655e2b3d057d0cd86b5582c8b37759d74ff78709",
+    "osm/amsterdam/Crosswalk/tile_523_50.json": "22737b83b622451dee35d4396e4effcb6d846d6485d822784ed8a482027a478c",
+    "osm/amsterdam/Crosswalk/tile_524_49.json": "9cf39acbce8d3f6d0226cb4f07bedbad51ea0a1bf1ecc9fd1c035e1bfadb619d",
+    "rawlabels/amsterdam_Crosswalk.csv": "bdbe9c6d6fe21c36c6ee647f3a07557e7c3871daf0f93684b4d0f3ac93607cdf"
+   },
+   "labels_by_verdict": {
+    "correct": 890,
+    "incorrect": 112,
+    "undecided": 1974
+   },
+   "labels_in_pull": 2976,
+   "n": 120,
+   "osm_nodes": 8769,
+   "pool_sizes": {
+    "marked": 896,
+    "osm_only": 359,
+    "unmarked": 12,
+    "untagged": 11
+   },
+   "pool_tiers": {
+    "marked": {
+     "confirmed": 545,
+     "undecided": 351
+    },
+    "unmarked": {
+     "confirmed": 3,
+     "undecided": 9
+    },
+    "untagged": {
+     "confirmed": 4,
+     "undecided": 7
+    }
+   },
+   "quota": {
+    "marked": 49,
+    "osm_only": 48,
+    "unmarked": 12,
+    "untagged": 11
+   },
+   "reserve": 10
+  },
+  "chicago-il": {
+   "candidates_sha256": "d87c414c9aacee44e3f0d9d2d6dd0c51eaf9565d8e7399a9c4ef27de0bd614b6",
+   "inputs_sha256": {
+    "osm/chicago-il/Crosswalk/tile_414_-877.json": "d6d6ea90530b84126dba71ec2356bd42078a141be963fa00128552376b630956",
+    "osm/chicago-il/Crosswalk/tile_414_-878.json": "84f8c32de010ef06ad4eb74e7733d5d9221379bea20855a85dec08813e83b918",
+    "osm/chicago-il/Crosswalk/tile_414_-882.json": "fc5fc3ac9c22200e95906343509ba6fb16091e3ff07f843bf535d2cba35fc0fc",
+    "osm/chicago-il/Crosswalk/tile_415_-876.json": "017324918176885809dbdece869ab3253ebb5330b8d07586833fc2719ec9c3a0",
+    "osm/chicago-il/Crosswalk/tile_415_-877.json": "64a97df55d173b0998bfa69bad77cd874dd71774a3c4f538bfdbbfca5be06965",
+    "osm/chicago-il/Crosswalk/tile_415_-878.json": "51b3ae14d511e84f9e54ef52b8ec524f614b405a125e50527350847b62904376",
+    "osm/chicago-il/Crosswalk/tile_415_-879.json": "2f582b15342ee1942af1e72befe335ced4adff4ad3bdbb863d195ae33207ddec",
+    "osm/chicago-il/Crosswalk/tile_415_-880.json": "56378bf002402d3b0768273b6e200a20b7249aff39fe0308c4edfab1f18ac4af",
+    "osm/chicago-il/Crosswalk/tile_415_-881.json": "a053d418806082ec65bf1635ad766cfba5e26f438dbc531d3e10caedec1f1078",
+    "osm/chicago-il/Crosswalk/tile_415_-882.json": "4ab384c5398718c6939da5982d63d30aa98d5cc10de05c3d46e2b7621cded467",
+    "osm/chicago-il/Crosswalk/tile_415_-883.json": "4b443c99c5b50edcc4de6701cfe2a96e4d4904ee76095e1126e872d36479ca5a",
+    "osm/chicago-il/Crosswalk/tile_416_-876.json": "197051b4f569498f77fc7cc34a8b3acf784343c58bcd9d5b97b1c1f2c88b1ae5",
+    "osm/chicago-il/Crosswalk/tile_416_-877.json": "88fd34d672f3f23fcb2177eaab333202f3fbb6dabda32260d0b0cfca9e2e75e5",
+    "osm/chicago-il/Crosswalk/tile_416_-878.json": "eaf26a8bd59781e5b6376e90595b2f95e9057b590297abc1862c6379dd8cb681",
+    "osm/chicago-il/Crosswalk/tile_416_-879.json": "351e6f729f836b77c7f65f0c487f7a45fb7eb8d0797441016dac9304e9be1922",
+    "osm/chicago-il/Crosswalk/tile_416_-880.json": "0922952c02de804a4c38dcaa373c28c610de1ea02091f3a18ae01d481e5e0ce1",
+    "osm/chicago-il/Crosswalk/tile_416_-882.json": "5e0492c7bb6f268e5a09d001ac9058f3523e8bbaa4074f16d36ce869d7147a7e",
+    "osm/chicago-il/Crosswalk/tile_416_-883.json": "7e164ca9d5ca88ed2dfd06bf0b2bb3a1e89baff0e01180f7f1435bb0f4355b3e",
+    "osm/chicago-il/Crosswalk/tile_417_-876.json": "5cd77e29a1728f6864dc85523d280aeea8923b9edfa8e36f649ae7d24d6a1e86",
+    "osm/chicago-il/Crosswalk/tile_417_-877.json": "198597bcb01d48cbc8a2280ac45b502ff6d58591882582b205a7c62d70fac33d",
+    "osm/chicago-il/Crosswalk/tile_417_-878.json": "53e178c047bc23ea6d3b7e89e557d8dbbd01ef984ebbc646943fd162f3368018",
+    "osm/chicago-il/Crosswalk/tile_417_-881.json": "4d0771728242802ea0311e8cdad3758ebd461ec4c62690570b6bee2799205a05",
+    "osm/chicago-il/Crosswalk/tile_417_-882.json": "a841fb868eaed46747836d0e93461dc0b78a1be34a78f5237a4ccab9d664f036",
+    "osm/chicago-il/Crosswalk/tile_417_-883.json": "447879eef70d86c0246afa566107772c284aa4b4e6868df42a7429156504ebe5",
+    "osm/chicago-il/Crosswalk/tile_418_-876.json": "e77646cd829d530f9b4f0f90fdb5f02d84681493ee75eb50056bd0695c320c38",
+    "osm/chicago-il/Crosswalk/tile_418_-877.json": "8bf5f409ac8b4881cd9b69d2edaf1c8c536b78c7d2043ee631b95327715b6af6",
+    "osm/chicago-il/Crosswalk/tile_418_-878.json": "86ec324e6adc24c60638ae78298d1c869af831b6e7556c9ffb058bdc95836d6b",
+    "osm/chicago-il/Crosswalk/tile_418_-879.json": "fcc72627bc9ad105b1fa6fd2a969cfa14864570ad165fa96927d07226efae3b0",
+    "osm/chicago-il/Crosswalk/tile_418_-880.json": "e0ac5a61cf25f1478ec11f8c323937f3053a8b59d76ca715dfafbe0ae1b6df15",
+    "osm/chicago-il/Crosswalk/tile_418_-881.json": "a1d86217916728851ebc975f89f4d315a11e6a4d3811450ad6d8d6bbbfb5bf82",
+    "osm/chicago-il/Crosswalk/tile_418_-882.json": "61832834e186a958988b4e0fbacd0a0c32cdd559f6af386156661f4ab80d6075",
+    "osm/chicago-il/Crosswalk/tile_418_-883.json": "89c941b267b41792a1eb9e7daa4fc002ff034bda98490c6f87ed718d4c57a298",
+    "osm/chicago-il/Crosswalk/tile_419_-877.json": "746ed5ba6e1eb74cd0e41d75a75fc84fa71e240e42fbdc5a74e81ec14c033a97",
+    "osm/chicago-il/Crosswalk/tile_419_-878.json": "363210885719118340ff5601a08952ff1bdff6c28af1f06a518dfd31a27cc993",
+    "osm/chicago-il/Crosswalk/tile_419_-879.json": "3f5fdd68a79aa031474c53bbb6e7fda0c4621c6430d2be1703344958560cf571",
+    "osm/chicago-il/Crosswalk/tile_419_-880.json": "32f55c6b073f38f7ce7c324a1fd67eb6bee3dc1e93a3c33c8358e45c39af5aa8",
+    "osm/chicago-il/Crosswalk/tile_419_-881.json": "905c10c76d5f0fe888955e339506df535ccd0bb1eec356489d50d019a8865104",
+    "osm/chicago-il/Crosswalk/tile_419_-882.json": "ede8e277860a8acec9884b8b3d4132c19f7f0501fb662782ec014ebd38d85d10",
+    "osm/chicago-il/Crosswalk/tile_419_-883.json": "54f70b65c81a8acd0cf4ce0e63ca87e3409fabdbc3c5048784cfe59e102acdfc",
+    "osm/chicago-il/Crosswalk/tile_420_-877.json": "efa4fd35e42b89b9ec07a67e83731ccf6634e6835c73b40d76e5e9708f70e9ec",
+    "osm/chicago-il/Crosswalk/tile_420_-878.json": "9a189d3ab94729eb7a234887beac5a84cbbb5fed8532b345e995dcc9c8db526a",
+    "osm/chicago-il/Crosswalk/tile_420_-879.json": "a3b573643a46e0ecc5de195ac7932910701fd872fc6faee3ac4f75ea01459a56",
+    "osm/chicago-il/Crosswalk/tile_420_-880.json": "e0eb805bae57a713fec5ec375b5ce4c032dc2d154ff274990c6b2cbb68df7c03",
+    "osm/chicago-il/Crosswalk/tile_420_-883.json": "3c085a7afb45d22a3ab936409d4d0906aac2b04159c218ddbf125153e85c5193",
+    "osm/chicago-il/Crosswalk/tile_421_-878.json": "b22e585388274e4eaaede756732d39cd875b22c19d4d84c8487a5face67e3dd7",
+    "osm/chicago-il/Crosswalk/tile_421_-879.json": "cded343a00ad1ab8fe6b99381a620d621e61aaca7d8eabe2e0c9b3978f9f4ae9",
+    "osm/chicago-il/Crosswalk/tile_421_-880.json": "edfb24b3030dfa6e651510a677c8295b7ce27871734f8b7ba2b4cd433b873034",
+    "osm/chicago-il/Crosswalk/tile_421_-881.json": "44b839ad6300f7f20512e8017a1fb629cdc3f5c468e502b0e79948c83e15dc11",
+    "osm/chicago-il/Crosswalk/tile_422_-878.json": "d75fe48b3223cfe045d249b693c077cd9e8088429771d37f1a5bff7feeae939f",
+    "osm/chicago-il/Crosswalk/tile_422_-879.json": "a49500c1710996282a0d3fd6aa13f9f7839a3626a20915b9fc6ebbbf7eb31f5f",
+    "osm/chicago-il/Crosswalk/tile_422_-880.json": "6194d1a8bec1f1f5035003ab85cb6b9781c7a61e6c6588819a213d2c9872adb4",
+    "osm/chicago-il/Crosswalk/tile_423_-885.json": "649ae6b2f0c77f840f39a33ec82f7f757c542ac8bacbe64e61d9c192dcf28f1d",
+    "rawlabels/chicago-il_Crosswalk.csv": "c81d7aa75bb651bec1a81a432effc7764d973e8bfc90b65bca6999dc96040975"
+   },
+   "labels_by_verdict": {
+    "correct": 3907,
+    "incorrect": 163,
+    "undecided": 24021
+   },
+   "labels_in_pull": 28091,
+   "n": 40,
+   "osm_nodes": 247831,
+   "pool_sizes": {
+    "marked": 7641,
+    "osm_only": 30805,
+    "unmarked": 354,
+    "untagged": 11036
+   },
+   "pool_tiers": {
+    "marked": {
+     "confirmed": 1130,
+     "undecided": 6511
+    },
+    "unmarked": {
+     "confirmed": 30,
+     "undecided": 324
+    },
+    "untagged": {
+     "confirmed": 1967,
+     "undecided": 9069
+    }
+   },
+   "quota": {
+    "marked": 10,
+    "osm_only": 10,
+    "unmarked": 10,
+    "untagged": 10
+   },
+   "reserve": 10
+  },
+  "columbus-oh": {
+   "candidates_sha256": "1ce644a269838b0b1ca5fb45df33d4999dcbb2d376f1abe20cc42cac92a8e3ef",
+   "inputs_sha256": {
+    "osm/columbus-oh/Crosswalk/tile_399_-830.json": "74b54b86ae800deb42f98266412dc99735268617100c5b4810abd2eede71575b",
+    "osm/columbus-oh/Crosswalk/tile_399_-831.json": "5582d400f218c7f3a27ddef46d7ddfcf7461cf9247be355f7161ed2bc0c6a3a0",
+    "osm/columbus-oh/Crosswalk/tile_400_-830.json": "b91b592d623d85a418d3092957c0b885a0db3caaae1e41becb55246f018650ad",
+    "osm/columbus-oh/Crosswalk/tile_400_-831.json": "d1732a528141b0c143f160cbef52d09d29c1a06f893375ad22fa631946d48cc6",
+    "rawlabels/columbus-oh_Crosswalk.csv": "abbd20f8386c757ff2583ffa52bc9f072367588a310b8d8c6802248f3c7b11d9"
+   },
+   "labels_by_verdict": {
+    "correct": 177,
+    "incorrect": 7,
+    "undecided": 705
+   },
+   "labels_in_pull": 889,
+   "n": 120,
+   "osm_nodes": 12925,
+   "pool_sizes": {
+    "marked": 169,
+    "osm_only": 493,
+    "unmarked": 27,
+    "untagged": 323
+   },
+   "pool_tiers": {
+    "marked": {
+     "confirmed": 58,
+     "undecided": 111
+    },
+    "unmarked": {
+     "confirmed": 3,
+     "undecided": 24
+    },
+    "untagged": {
+     "confirmed": 64,
+     "undecided": 259
+    }
+   },
+   "quota": {
+    "marked": 31,
+    "osm_only": 31,
+    "unmarked": 27,
+    "untagged": 31
+   },
+   "reserve": 10
+  },
+  "sao-paulo-brazil": {
+   "candidates_sha256": "82a8df7bd6e40dbf7994af2c7693386728db4c2c7f61e1d34b38d634b7882a4a",
+   "inputs_sha256": {
+    "osm/sao-paulo-brazil/Crosswalk/tile_-236_-467.json": "0936148c69e1d732b3873f1feb4278f7c5c2f2475380300f123471f29f2d8ba4",
+    "rawlabels/sao-paulo-brazil_Crosswalk.csv": "908c95b646f02449f9a55c704980ab6100a61ada2a4076bd53c35d53efcb2bf5"
+   },
+   "labels_by_verdict": {
+    "correct": 0,
+    "incorrect": 0,
+    "undecided": 105
+   },
+   "labels_in_pull": 105,
+   "n": 40,
+   "osm_nodes": 15105,
+   "pool_sizes": {
+    "marked": 56,
+    "osm_only": 73,
+    "unmarked": 6,
+    "untagged": 11
+   },
+   "pool_tiers": {
+    "marked": {
+     "confirmed": 0,
+     "undecided": 56
+    },
+    "unmarked": {
+     "confirmed": 0,
+     "undecided": 6
+    },
+    "untagged": {
+     "confirmed": 0,
+     "undecided": 11
+    }
+   },
+   "quota": {
+    "marked": 12,
+    "osm_only": 11,
+    "unmarked": 6,
+    "untagged": 11
+   },
+   "reserve": 10
+  }
+ },
+ "match_m": 10.0,
+ "nolabel_min_m": 15.0,
+ "seed": "crosswalk-gt-phase1-274",
+ "strata": [
+  "marked",
+  "untagged",
+  "unmarked",
+  "osm_only"
+ ]
+}

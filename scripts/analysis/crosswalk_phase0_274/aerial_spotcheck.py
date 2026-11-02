@@ -62,6 +62,16 @@ def human_votes(validations_json):
 
 
 def build(a):
+    html = render(a)
+    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
+    with open(a.out, "w", encoding="utf-8") as f:
+        f.write(html)
+    print(f"wrote {a.out}; open it in a browser")
+
+
+def render(a, tpl=None):
+    """The page as a string. `tpl` overrides the template text (crosswalk_gt_phase1_274/gt_page.py build-phase0
+    passes the city-generic template rendered for a city; for Seattle it is this directory's template, byte for byte)."""
     rows = read_sheet(a.sheet)
     raw = {}
     if a.rawlabels:
@@ -111,14 +121,11 @@ def build(a):
         root = os.path.relpath(os.path.abspath(a.archive), os.path.dirname(os.path.abspath(a.out))).replace(os.sep, "/")
         archive = json.dumps({"root": root, "crops": crops}, separators=(",", ":"))
         archived = " · ARCHIVED COPY"
-    tpl = open(os.path.join(HERE, "aerial_spotcheck_template.html"), encoding="utf-8").read()
-    html = (tpl.replace("__ROWS__", json.dumps(out, separators=(",", ":"))).replace("__SHEET__", sheet)
+    if tpl is None:
+        tpl = open(os.path.join(HERE, "aerial_spotcheck_template.html"), encoding="utf-8").read()
+    return (tpl.replace("__ROWS__", json.dumps(out, separators=(",", ":"))).replace("__SHEET__", sheet)
             .replace("__SERVER__", a.server.rstrip("/")).replace("__ARCHIVE__", archive).replace("__ARCHIVED__", archived)
             .replace("__REVIEW__", json.dumps(rev.get("rows", {}))).replace("__REVIEW_MADE__", rev.get("made_utc", "")).replace("__SEED__", seed))
-    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
-    with open(a.out, "w", encoding="utf-8") as f:
-        f.write(html)
-    print(f"wrote {a.out}: {len(out)} rows; open it in a browser")
 
 
 def is_bike(v):

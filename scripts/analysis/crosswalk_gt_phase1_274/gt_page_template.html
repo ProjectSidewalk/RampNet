@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Crosswalk GT round</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Blind multi-city crosswalk GT page (RampNet#274 Phase 1). Orthos (one per year) + the crowd's crop across the
+   top, verdict card below. Nothing on the page shows the OSM stratum or any AI rating. Keys do everything. */
+:root{
+  --bg:#f3f4f2; --panel:#ffffff; --fg:#1b1f1e; --muted:#5d6663; --line:#d6dbd8;
+  --accent:#0f6e74; --accent-ink:#ffffff; --soft:#e3eeee;
+  --node:#1f5fff; --label:#e8322b; --flag:#b7791f;
+  --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161918; --panel:#1f2321; --fg:#e8ebe9; --muted:#9aa49f; --line:#353b38;
+  --accent:#4fb3b8; --accent-ink:#0f1413; --soft:#223332; --node:#6a93ff; --label:#ff6b63; --flag:#e0a94a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161918; --panel:#1f2321; --fg:#e8ebe9; --muted:#9aa49f; --line:#353b38;
+  --accent:#4fb3b8; --accent-ink:#0f1413; --soft:#223332; --node:#6a93ff; --label:#ff6b63; --flag:#e0a94a; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.45;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 32px}
+h1{font-size:17px;font-weight:600;margin:0}
+.top{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;margin-bottom:10px}
+.sub{color:var(--muted)}
+.hint{color:var(--muted);font-size:13px;margin:-4px 0 8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 6px;margin-left:6px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--fg);font-size:13px;white-space:nowrap}
+.pill .dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.pill .dot.ring{background:none;border:2px dotted var(--node);box-sizing:border-box}
+.q h2 .dot{width:14px;height:14px;border-radius:50%;display:inline-block;vertical-align:-2px;margin-right:8px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.prog{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+.imgs{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:10px;align-items:start;justify-items:center}
+.imgs > div{width:100%;max-width:min(100%,52vh)}
+.imgs > div.cropcol{max-width:min(100%,78vh)}
+@media (max-width:1100px){.imgs{grid-template-columns:1fr 1fr}}
+@media (max-width:700px){.imgs{grid-template-columns:1fr}}
+.imgbox{position:relative;width:100%;aspect-ratio:1/1;background:#778;border:1px solid var(--line);overflow:hidden}
+.imgbox.crop{aspect-ratio:3/2;background:#222}
+.zoomer{position:absolute;inset:0;transform-origin:50% 50%}
+.zoomer img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.imgbox.crop img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.imgbox svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.imgtag{position:absolute;left:0;top:0;background:rgba(0,0,0,.72);color:#fff;font-family:var(--mono);font-size:12px;padding:3px 8px}
+.imgtag2{position:absolute;right:0;bottom:0;background:rgba(0,0,0,.72);color:#fff;font-family:var(--mono);font-size:11px;padding:3px 8px;max-width:90%}
+.blank{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;padding:12px;text-align:center}
+.card{background:var(--panel);border:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px;margin:0}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;font-family:var(--mono);font-size:12.5px;overflow-wrap:anywhere}
+.q{border-top:1px solid var(--line);padding-top:10px}
+.q h2{font-size:13px;font-weight:600;margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line);background:transparent;color:var(--fg);padding:6px 10px;font:inherit;font-size:13px;cursor:pointer;border-radius:3px;display:inline-flex;gap:6px;align-items:center}
+.opt kbd{font-family:var(--mono);font-size:11px;background:var(--soft);padding:0 5px;border-radius:2px;color:var(--fg)}
+.opt.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt.sel kbd{background:rgba(255,255,255,.25);color:inherit}
+.opt:focus-visible,.btn:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.note,.rater{box-sizing:border-box;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:3px}
+.note{width:100%}
+.rater{width:9em}
+.actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.btn{font:inherit;font-size:13px;padding:7px 12px;border-radius:3px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+.btn kbd{font-family:var(--mono);font-size:11px;opacity:.8}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.status{font-size:12px;color:var(--muted);min-height:1.2em}
+.keys{font-size:12px;color:var(--muted);columns:2;column-gap:16px}
+.keys div{break-inside:avoid}
+.keys kbd{font-family:var(--mono);background:var(--soft);padding:0 4px;border-radius:2px;color:var(--fg)}
+.rubric{background:var(--panel);border:1px solid var(--line);padding:8px 16px;margin-bottom:10px;font-size:13px}
+.rubric summary{cursor:pointer;font-weight:600}
+.rubric li{margin:3px 0}
+.tally{background:var(--panel);border:1px solid var(--line);padding:12px 16px;margin-top:16px;overflow-x:auto}
+.tally h2{font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+table{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:3px 12px 3px 0;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500}
+td.n{font-family:var(--mono)}
+.chip{display:inline-block;padding:0 6px;border-radius:2px;font-family:var(--mono);font-size:11px;background:var(--soft)}
+.chip.flag{background:var(--flag);color:#111}
+.dis{font-family:var(--mono);font-size:12px;margin:10px 0 0}
+.dis a{color:var(--accent);cursor:pointer;text-decoration:underline}
+select{font:inherit;font-size:12px;background:var(--panel);color:var(--fg);border:1px solid var(--line);padding:3px 6px}
+a{color:var(--accent)}
+.hidden{display:none !important}
+</style></head><body>
+
+<div class="top">
+  <h1>Crosswalk GT round · __N__ rows · __CITY_LIST__</h1>
+  <span class="sub">
+    <span class="pill"><span class="dot" style="background:var(--node)"></span>OSM crossing node</span>
+    <span class="pill"><span class="dot" style="background:var(--label)"></span>Project Sidewalk crowd label</span>
+    <span class="pill"><span class="dot ring"></span>2 m and 5 m from the node</span></span>
+  <span class="prog" id="prog">0 / __N__ rated</span>
+  <label class="sub">city <select id="city"><option value="">all</option>__CITY_OPTIONS__</select></label>
+  <label class="sub">order <select id="order"><option value="sheet">sheet order (shuffled)</option><option value="unrated">unrated only</option><option value="flagged">flagged</option></select></label>
+  <label class="sub">rater <input id="rater" class="rater" placeholder="your initials" aria-label="rater name, saved with every verdict"></label>
+</div>
+
+<details class="rubric" id="rubric">
+  <summary>Rubric (version __RUBRIC_VERSION__): the Phase 0 conventions, written down</summary>
+  <ul>
+    <li><b>Q1, painted crossing at the blue node.</b> <b>Y</b> = a painted pedestrian crossing (zebra, ladder, two
+      transverse lines, a coloured surface) passes through the node or within about 2 m of it (the inner ring), in
+      <i>either</i> ortho year <i>or</i> the crowd's street-level crop. Faded but still visible paint is yes. <b>R</b> =
+      painted crossing within the 5 m ring but clearly not at the node (the node sits beside it, or at the junction
+      centre). <b>N</b> = no paint within 5 m in any image. <b>U</b> = the images cannot tell (trees, shadow, a vehicle
+      or an imagery seam over the spot). An unmarked crossing (kerb cuts, no paint) is <b>N</b>, not U.</li>
+    <li><b>Q2, where the red crowd label sits</b> (rows with a crowd label only). Judge the position ALONG the
+      crossing; offset up or down the street is placement error. <b>1</b> on the paint at the centre. <b>2</b> near the
+      centre: on or just off the paint, in line with the middle, not toward an end (in Seattle labels 3–5 m off were
+      judged near; about 6 m off was off). <b>3</b> at a curb end of this crossing. <b>4</b> not on this crossing (meant
+      for another crossing or leg, or far from any). <b>0</b> no paint to judge against (unmarked crossing, or no
+      crossing).</li>
+    <li><b>B</b>: the crowd label sits on a green <b>bike</b> crossing, not a pedestrian one (keep the position code
+      against that bike crossing; the counts set these rows aside).</li>
+    <li>Rows with no red label are OSM crossing nodes in a block the crowd audited but did not label there: answer
+      Q1 only.</li>
+    <li>Each panel's tag gives its width in ground metres. <b>Z</b> zooms 2x; <b>G</b> hides the markers.</li>
+  </ul>
+</details>
+
+<div class="wrap">
+  <div><div class="imgs" id="imgs"></div></div>
+
+  <div class="card">
+    <dl class="facts" id="facts"></dl>
+
+    <div class="q">
+      <h2><span class="dot" style="background:var(--node)" aria-hidden="true"></span>Painted crossing at the blue node?</h2>
+      <div class="opts" id="optP" role="group" aria-label="painted crossing at the node">
+        <button class="opt" data-f="p" data-v="yes"><kbd>Y</kbd> yes, at the node</button>
+        <button class="opt" data-f="p" data-v="ring"><kbd>R</kbd> paint within 5 m, not at the node</button>
+        <button class="opt" data-f="p" data-v="no"><kbd>N</kbd> no paint</button>
+        <button class="opt" data-f="p" data-v="unclear"><kbd>U</kbd> cannot tell</button>
+      </div>
+    </div>
+
+    <div class="q" id="q2">
+      <h2><span class="dot" style="background:var(--label)" aria-hidden="true"></span>Where does the red crowd label sit along the crossing?</h2>
+      <div class="opts" id="optL" role="group" aria-label="crowd label position">
+        <button class="opt" data-f="l" data-v="yes"><kbd>1</kbd> at the center, on the paint</button>
+        <button class="opt" data-f="l" data-v="near"><kbd>2</kbd> near the center (not toward an end)</button>
+        <button class="opt" data-f="l" data-v="end"><kbd>3</kbd> at a curb end</button>
+        <button class="opt" data-f="l" data-v="off"><kbd>4</kbd> not on this crossing</button>
+        <button class="opt" data-f="l" data-v="na"><kbd>0</kbd> no paint to judge against</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <input class="note" id="note" placeholder="note (press / to type, Esc to leave)" aria-label="note">
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="save">Save &amp; next <kbd>Enter</kbd></button>
+      <button class="btn" id="flag">Flag for discussion <kbd>F</kbd></button>
+      <button class="btn" id="bike" title="the crowd label sits on a green bike crossing, not a pedestrian crosswalk">Label is on a bike crossing <kbd>B</kbd></button>
+      <button class="btn" id="skip">Skip <kbd>S</kbd></button>
+      <button class="btn" id="nextUnrated">Next unrated <kbd>.</kbd></button>
+      <button class="btn" id="clear" title="delete this row's verdict">Clear</button>
+      <button class="btn" id="export">Export verdicts</button>
+      <label class="btn" for="import" style="cursor:pointer">Import verdicts<input id="import" type="file" accept=".json" hidden></label>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+
+    <div class="keys">
+      <div><kbd>Y</kbd> <kbd>R</kbd> <kbd>N</kbd> <kbd>U</kbd> Q1 · <kbd>1</kbd>–<kbd>4</kbd> <kbd>0</kbd> Q2</div>
+      <div><kbd>Enter</kbd> save (needs Q1, and Q2 when there is a red label) and go to the next unrated row</div>
+      <div><kbd>←</kbd> <kbd>→</kbd> move without saving · <kbd>.</kbd> next unrated · <kbd>S</kbd> skip</div>
+      <div><kbd>Z</kbd> zoom 2x · <kbd>G</kbd> hide / show markers</div>
+      <div><kbd>F</kbd> flag · <kbd>B</kbd> bike crossing · <kbd>/</kbd> note</div>
+    </div>
+  </div>
+</div>
+
+<div class="tally" id="tally"><h2>Progress</h2><div id="tallyBody"></div></div>
+
+<script>
+const ROWS = __ROWS__;
+const CITIES = __CITIES__;   // {city_id: {name, provider, terms}}
+const SHEET = "__SHEET__", SHEET_SHA256 = "__SHEET_SHA256__", RUBRIC = "__RUBRIC_VERSION__";
+const SEED = __SEED__;       // verdicts embedded by build --verdicts; a seeded row newer than the browser's copy replaces it
+const PX = __PX__;           // tile size in px; every tile is TILE ground metres wide, centred on the node
+const R = 6378137;
+const merc = (lat,lng) => [R*lng*Math.PI/180, R*Math.log(Math.tan(Math.PI/4 + lat*Math.PI/360))];
+const KEY = "crosswalk_gt." + SHEET;
+const PAINT = {yes:"yes, at the node", ring:"within 5 m, not at the node", no:"no", unclear:"cannot tell"};
+const LABELS = {yes:"at the center", near:"near the center", end:"at a curb end", off:"not on this crossing", na:"no paint to judge against", nolabel:"(no crowd label)"};
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(KEY + k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(KEY + k, JSON.stringify(v)); return true; } catch(e){ return false; } },
+};
+let verdicts = {}, drafts = {}, cleared = {};
+let order = [], pos = 0, zoom = 1, markers = true;
+let cur = {p:null, l:null, flag:false, bike:false};
+const row = () => ROWS[order[pos]];
+
+function persist(){ if (!store.set("", verdicts)) $("status").textContent = "Could not write localStorage; export often."; }
+function saveDraft(){ const r = row(); drafts[r.id] = {p:cur.p, l:cur.l, flag:cur.flag, bike:cur.bike, note:$("note").value, ts:new Date().toISOString()}; store.set(".drafts", drafts); }
+function edit(){ paintSel(); saveDraft(); }
+function adopt(v){
+  const ts = v.ts || "";
+  if (!ROWS.some(r => r.id === v.id)) return false;
+  if (cleared[v.id] && cleared[v.id] > ts) return false;
+  if (verdicts[v.id] && (verdicts[v.id].ts || "") >= ts) return false;
+  verdicts[v.id] = v;
+  if (drafts[v.id] && (!drafts[v.id].ts || drafts[v.id].ts < ts)) delete drafts[v.id];
+  return true;
+}
+
+function buildOrder(){
+  const c = $("city").value, mode = $("order").value;
+  let ids = ROWS.map((r,k) => k).filter(k => !c || ROWS[k].city === c);
+  if (mode === "unrated") ids = ids.filter(k => !verdicts[ROWS[k].id]);
+  else if (mode === "flagged") ids = ids.filter(k => verdicts[ROWS[k].id] && verdicts[ROWS[k].id].flag);
+  order = ids.length ? ids : [ROWS.findIndex(r => !c || r.city === c)];
+  pos = Math.min(pos, order.length - 1);
+}
+
+function px(r, lat, lng){
+  const [cx,cy] = merc(r.nlat, r.nlng), [x,y] = merc(lat, lng);
+  return [(x-cx)/r.ext*PX + PX/2, (cy-y)/r.ext*PX + PX/2];
+}
+function overlay(svg, r){
+  svg.innerHTML = "";
+  if (!markers) return;
+  const ns = "http://www.w3.org/2000/svg";
+  const mk = (tag, a) => { const e = document.createElementNS(ns, tag); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
+  const [nx,ny] = px(r, r.nlat, r.nlng), ppm = PX / r.ground;   // px per ground metre
+  if (r.llat !== null){ const [lx,ly] = px(r, r.llat, r.llng);
+    mk("line", {x1:nx,y1:ny,x2:lx,y2:ly,stroke:"#ffe14d","stroke-width":2/zoom});
+    mk("circle", {cx:lx,cy:ly,r:9/zoom,fill:"none",stroke:"#e8322b","stroke-width":3/zoom}); }
+  mk("circle", {cx:nx,cy:ny,r:9/zoom,fill:"none",stroke:"#1f5fff","stroke-width":3/zoom});
+  mk("circle", {cx:nx,cy:ny,r:2*ppm,fill:"none",stroke:"#1f5fff","stroke-width":1/zoom,"stroke-dasharray":`${4/zoom} ${4/zoom}`,opacity:.85});
+  mk("circle", {cx:nx,cy:ny,r:5*ppm,fill:"none",stroke:"#1f5fff","stroke-width":1/zoom,"stroke-dasharray":`${2/zoom} ${6/zoom}`,opacity:.75});
+}
+
+function renderImages(r){
+  const box = $("imgs"); box.innerHTML = "";
+  box.style.setProperty("--n", r.panels.length + 1);
+  const city = CITIES[r.city];
+  for (const p of r.panels){
+    const col = document.createElement("div");
+    col.innerHTML = `<div class="imgbox"><div class="zoomer" style="transform:scale(${zoom})">
+        ${p.f ? `<img alt="${p.y} aerial of ${city.name}, centered on the OSM crossing node" src="${p.f}">` : ""}
+        <svg viewBox="0 0 ${PX} ${PX}" aria-hidden="true"></svg></div>
+      ${p.f ? "" : `<div class="blank">No ${p.y} imagery here (${p.why || "blank tile"}).</div>`}
+      <div class="imgtag">${r.id} · ${Math.round(r.ground/zoom)} m wide · ${p.y}</div>
+      <div class="imgtag2">N ↑ &nbsp; ${p.credit}</div></div>`;
+    box.appendChild(col);
+    overlay(col.querySelector("svg"), r);
+  }
+  const cc = document.createElement("div"); cc.className = "cropcol";
+  if (r.crop){
+    cc.innerHTML = `<div class="imgbox crop" style="aspect-ratio:${r.crop.w} / ${r.crop.h}">
+        <img alt="street-level crop around the crowd label, from Project Sidewalk" src="${r.crop.f}">
+        <svg viewBox="0 0 ${r.crop.w} ${r.crop.h}" preserveAspectRatio="none" aria-hidden="true">${markers ? `<circle cx="${r.crop.x*r.crop.w}" cy="${r.crop.y*r.crop.h}" r="${Math.round(r.crop.w/40)}" fill="none" stroke="#e8322b" stroke-width="4"/>` : ""}</svg>
+        <div class="imgtag">crowd label · street view</div><div class="imgtag2">Project Sidewalk label crop</div></div>`;
+  } else {
+    cc.innerHTML = `<div class="imgbox crop"><div class="blank">${r.llat === null ? "No crowd label at this node, so no street-level crop. The Street View link in the facts opens the spot." : "The crop for this label could not be fetched."}</div></div>`;
+  }
+  box.appendChild(cc);
+}
+
+function paintSel(){
+  for (const b of document.querySelectorAll(".opt")){
+    const on = (b.dataset.f === "p" ? cur.p : cur.l) === b.dataset.v;
+    b.classList.toggle("sel", on); b.setAttribute("aria-pressed", String(on));
+  }
+  $("flag").classList.toggle("primary", cur.flag); $("bike").classList.toggle("primary", cur.bike);
+}
+
+function render(){
+  const r = row(), v = verdicts[r.id], d = drafts[r.id];
+  cur = v ? {p:v.painted, l:v.label, flag:!!v.flag, bike:!!v.bike} : {p:null, l:null, flag:false, bike:false};
+  $("note").value = v ? (v.note || "") : "";
+  if (d){ cur = {p:d.p, l:d.l, flag:!!d.flag, bike:!!d.bike}; $("note").value = d.note || ""; }
+  const hasLabel = r.llat !== null;
+  $("q2").classList.toggle("hidden", !hasLabel); $("bike").classList.toggle("hidden", !hasLabel);
+  const sv = r.purl || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${r.nlat},${r.nlng}`;
+  const city = CITIES[r.city];
+  $("facts").innerHTML = `
+    <dt>row</dt><dd>${r.id} · ${city.name}${v ? ' · <span class="chip">rated</span>' : ''}${cur.flag ? ' <span class="chip flag">flagged</span>' : ''}${d ? ' <span class="chip flag" title="unsaved edits; Save keeps them">unsaved edits</span>' : ''}</dd>
+    <dt>OSM node</dt><dd><a href="https://www.openstreetmap.org/node/${r.node}" target="_blank" rel="noopener">${r.node}</a> (the link shows its tags; rate before you look)</dd>
+    ${hasLabel ? `<dt>crowd label</dt><dd>${r.uid} · ${r.dist.toFixed(1)} m from the node · labeled ${r.ldate || "?"} on a pano captured ${r.pdate || "?"}</dd>` : `<dt>crowd label</dt><dd>none within 15 m</dd>`}
+    <dt>links</dt><dd><a href="${sv}" target="_blank" rel="noopener">street view</a> · <a href="https://www.openstreetmap.org/?mlat=${r.nlat}&mlon=${r.nlng}#map=20/${r.nlat}/${r.nlng}" target="_blank" rel="noopener">osm map</a></dd>
+    <dt>imagery</dt><dd style="font-family:var(--sans)">${city.provider}</dd>`;
+  renderImages(r); paintSel();
+  $("status").textContent = d ? "Unsaved edits on this row restored. Press Enter to save them." : v ? `Saved: ${PAINT[v.painted]} / ${LABELS[v.label]}` : "";
+  $("prog").textContent = `${Object.keys(verdicts).length} / ${ROWS.length} rated · ${pos+1} of ${order.length} in this view`;
+  store.set(".pos", r.id);
+}
+
+function save(){
+  const r = row(), hasLabel = r.llat !== null;
+  if (!cur.p){ $("status").textContent = "Answer Q1 (Y / R / N / U) first."; return; }
+  if (hasLabel && !cur.l){ $("status").textContent = "Answer Q2 (1–4 or 0) first."; return; }
+  const rater = $("rater").value.trim();
+  if (!rater){ $("status").textContent = "Type your initials in the rater box first (they are saved with each verdict)."; $("rater").focus(); return; }
+  verdicts[r.id] = {id:r.id, city:r.city, uid:r.uid || "", node:r.node, painted:cur.p, label:hasLabel ? cur.l : "nolabel",
+    flag:cur.flag, bike:hasLabel && cur.bike, note:$("note").value.trim(), rater, rubric:RUBRIC, ts:new Date().toISOString()};
+  persist(); delete drafts[r.id]; store.set(".drafts", drafts);
+  if (cleared[r.id]){ delete cleared[r.id]; store.set(".cleared", cleared); }
+  nextUnrated(); tally();
+}
+function next(dlt){ pos = (pos + dlt + order.length) % order.length; render(); }
+function nextUnrated(){
+  for (let s=1; s<=order.length; s++){ const k = (pos+s) % order.length; if (!verdicts[ROWS[order[k]].id]){ pos = k; render(); return; } }
+  render(); $("status").textContent = "Every row in this view is rated. Export verdicts when you are done.";
+}
+function jumpTo(id){ $("city").value = ""; $("order").value = "sheet"; buildOrder(); pos = order.indexOf(ROWS.findIndex(r => r.id === id)); render(); window.scrollTo({top:0}); }
+
+function tally(){
+  const vs = Object.values(verdicts), body = $("tallyBody");
+  const cities = Object.keys(CITIES);
+  const cnt = (c, f) => vs.filter(v => v.city === c && f(v)).length;
+  body.innerHTML = `<table><tr><th>city</th><th>rows</th><th>rated</th><th>Q1 yes</th><th>R</th><th>no</th><th>cannot tell</th><th>flagged</th></tr>
+    ${cities.map(c => `<tr><td>${CITIES[c].name}</td><td class="n">${ROWS.filter(r => r.city === c).length}</td><td class="n">${cnt(c, () => true)}</td>
+      <td class="n">${cnt(c, v => v.painted==="yes")}</td><td class="n">${cnt(c, v => v.painted==="ring")}</td><td class="n">${cnt(c, v => v.painted==="no")}</td>
+      <td class="n">${cnt(c, v => v.painted==="unclear")}</td><td class="n">${cnt(c, v => v.flag)}</td></tr>`).join("")}</table>
+    <p class="dis">flagged: ${vs.filter(v => v.flag).sort((a,b) => a.id < b.id ? -1 : 1).map(v => `<a data-id="${v.id}">${v.id}</a>${v.note ? " " + v.note.replace(/</g,"&lt;") : ""}`).join(" · ") || "none"}</p>`;
+  for (const a of body.querySelectorAll("a[data-id]")) a.onclick = () => jumpTo(a.dataset.id);
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest(".opt"); if (!b) return;
+  if (b.dataset.f === "p") cur.p = b.dataset.v; else cur.l = b.dataset.v;
+  edit();
+});
+$("save").onclick = save;
+$("skip").onclick = () => next(1);
+$("nextUnrated").onclick = nextUnrated;
+$("flag").onclick = () => { cur.flag = !cur.flag; edit(); };
+$("bike").onclick = () => { cur.bike = !cur.bike; edit(); };
+$("clear").onclick = () => { const id = row().id; delete verdicts[id]; persist(); delete drafts[id]; store.set(".drafts", drafts); cleared[id] = new Date().toISOString(); store.set(".cleared", cleared); render(); tally(); };
+$("export").onclick = () => {
+  const rater = $("rater").value.trim() || "unnamed";
+  const out = {sheet:SHEET, sheet_sha256:SHEET_SHA256, rubric:RUBRIC, rater, exported:new Date().toISOString(),
+               verdicts:Object.values(verdicts).sort((a,b) => a.id < b.id ? -1 : 1)};
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1)], {type:"application/json"}));
+  a.download = `crosswalk_gt_verdicts_${rater.replace(/[^A-Za-z0-9_-]/g, "")}.json`; a.click(); URL.revokeObjectURL(a.href);
+  $("status").textContent = `Exported ${out.verdicts.length} verdicts.`;
+};
+$("import").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  f.text().then(t => { const j = JSON.parse(t); let n = 0; for (const v of (j.verdicts || [])) if (adopt(v)) n++;
+    persist(); store.set(".drafts", drafts); buildOrder(); render(); tally();
+    $("status").textContent = `Imported ${n} of ${(j.verdicts || []).length} verdicts (the rest were older than this browser's copy).`; })
+   .catch(err => { $("status").textContent = "Import failed: " + err; });
+};
+$("rater").addEventListener("change", () => store.set(".rater", $("rater").value.trim()));
+$("rubric").addEventListener("toggle", () => store.set(".rubricOpen", $("rubric").open));
+for (const id of ["city", "order"]) $(id).onchange = () => { $(id).blur(); pos = 0; buildOrder(); render(); };
+$("note").addEventListener("input", saveDraft);
+$("note").addEventListener("keydown", e => { if (e.key === "Escape") e.target.blur(); else if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); save(); } e.stopPropagation(); });
+$("rater").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === "Escape") e.target.blur(); e.stopPropagation(); });
+// A clicked button keeps focus, so Enter/Space would fire it again after save() moved on; drop focus after every click.
+for (const b of document.querySelectorAll("button")) b.addEventListener("click", () => b.blur());
+document.addEventListener("keydown", e => {
+  if (["INPUT","SELECT","SUMMARY"].includes(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.tagName === "BUTTON"){ if (e.key === "Enter" || e.key === " ") return; e.preventDefault(); e.target.blur(); }
+  if (e.repeat && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); return; }
+  const k = e.key.toLowerCase(), r = row(), hasLabel = r.llat !== null;
+  const P = {y:"yes", r:"ring", n:"no", u:"unclear"}, L = {"1":"yes","2":"near","3":"end","4":"off","0":"na"};
+  if (k === "enter" || k === " "){ e.preventDefault(); save(); }
+  else if (P[k]){ cur.p = P[k]; edit(); }
+  else if (L[k] && hasLabel){ cur.l = L[k]; edit(); }
+  else if (k === "arrowright" || k === "j" || k === "s") next(1);
+  else if (k === "arrowleft" || k === "k") next(-1);
+  else if (k === ".") nextUnrated();
+  else if (k === "f"){ cur.flag = !cur.flag; edit(); }
+  else if (k === "b" && hasLabel){ cur.bike = !cur.bike; edit(); }
+  else if (k === "z"){ zoom = zoom === 1 ? 2 : 1; renderImages(r); }
+  else if (k === "g"){ markers = !markers; renderImages(r); }
+  else if (k === "/"){ e.preventDefault(); $("note").focus(); }
+});
+
+(function start(){
+  verdicts = store.get("", {}); drafts = store.get(".drafts", {}); cleared = store.get(".cleared", {});
+  if (SEED){ let n = 0; for (const s of SEED) if (adopt(s)) n++; if (n){ persist(); store.set(".drafts", drafts); } }
+  $("rater").value = store.get(".rater", "");
+  $("rubric").open = store.get(".rubricOpen", true);
+  buildOrder();
+  const last = store.get(".pos", null), k = order.indexOf(ROWS.findIndex(r => r.id === last));
+  if (k >= 0) pos = k;
+  render(); tally();
+})();
+</script>
+</body></html>

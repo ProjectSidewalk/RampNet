@@ -537,6 +537,15 @@ analysis_out/crosswalk_phase0_274/*
 !analysis_out/crosswalk_phase0_274/per_label/
 !analysis_out/crosswalk_phase0_274/vistas_probe/
 
+# Crosswalk Phase 1 GT round (#274): the seeded candidate lists, the draw and archive logs (tile/crop sha256s,
+# skips), the rating sheet, the blind AI pre-rate and the verdict exports. Never imagery: the tiles and the
+# label crops stay in the local replay archive (docs/crosswalk_gt_phase1_274.md, Replication).
+!analysis_out/crosswalk_gt_phase1_274/
+analysis_out/crosswalk_gt_phase1_274/*
+!analysis_out/crosswalk_gt_phase1_274/*.json
+!analysis_out/crosswalk_gt_phase1_274/*.csv
+!analysis_out/crosswalk_gt_phase1_274/*.md
+
 # #159: image-based pano tilt (docs/pano_tilt_estimate.md). The id list, per-pano rows and
 # summaries; `pano_tilt_estimate.py check` re-derives the id list and summaries.
 !analysis_out/pano_tilt/
