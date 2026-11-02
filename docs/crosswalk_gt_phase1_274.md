@@ -143,6 +143,20 @@ file: no city, stratum, tags or label tier. `prerate.py collect` checks every ro
 codes and writes `prerate_ai.csv`. It is read only by `gt_page.py merge`, never by the page builder, and its
 numbers are not quoted here before the human pass, so the human rater can read this doc without seeing them.
 
+Cost: the four raters ran in parallel on 2026-11-02 for 4–5 minutes each (229–298 s wall clock), 1,095,834
+subagent tokens in all, inside the Claude Code subscription (no API spend).
+
+**A rubric gap the raters exposed** (stated here because it changes how Q1 is coded, not what was found):
+the rubric says "painted *pedestrian* crossing" but does not say what to do when the paint at the node is a
+**bike-only crossing** (Dutch red-surface or block-and-dash cycle crossings, green bike boxes) or
+**give-way shark teeth** on a raised crossing. The raters split: the r000–r079 rater coded bike-only paint
+`no` or `ring` (r029, r038, r039, r050); the r080–r159 and r160–r239 raters counted it as painted (r082, r094,
+r099, r131, r178, r229, with `bike=yes` on r082, r178, r229); shark teeth were coded `no` or `unclear` (r171,
+r177, r186). Phase 0 had the B tag for *labels* on bike crossings but never a Q1 rule for a *node* on one,
+because Seattle's sample barely raised it. This is Jon's call before he rates. The proposal is that only
+pedestrian paint counts for Q1, with a note on the row; the AI rows above are then recoded to match before
+agreement is read, the same way Phase 0 re-rated its first pass before quoting agreement.
+
 ## Reading rule (stated before any rating)
 
 - Per city × stratum, Q1 Y and Y ∪ R counts with Wilson intervals; a stratum of ≤ 12 rows is reported as

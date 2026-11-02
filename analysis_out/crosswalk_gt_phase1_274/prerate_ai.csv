@@ -1,0 +1,321 @@
+gt_id,painted,label,bike,note,rater
+r000,yes,yes,,,claude-opus-5-5-blind
+r001,yes,yes,,,claude-opus-5-5-blind
+r002,yes,nolabel,,ladder crossing partly in shadow,claude-opus-5-5-blind
+r003,unclear,yes,,tree canopy over node; street crop shows zebra at label ~4 m from node,claude-opus-5-5-blind
+r004,no,nolabel,,alley/sidewalk junction,claude-opus-5-5-blind
+r005,unclear,nolabel,,deep shadow and tree over node in both years,claude-opus-5-5-blind
+r006,yes,end,,node at south end of zebra; within 2 m in older year only,claude-opus-5-5-blind
+r007,no,nolabel,,red cycle lanes only,claude-opus-5-5-blind
+r008,yes,yes,,,claude-opus-5-5-blind
+r009,yes,off,,label on adjacent zebra across tram tracks,claude-opus-5-5-blind
+r010,yes,yes,,,claude-opus-5-5-blind
+r011,yes,nolabel,,faded zebra in shadow,claude-opus-5-5-blind
+r012,yes,yes,,transverse lines,claude-opus-5-5-blind
+r013,yes,near,,label at median island edge,claude-opus-5-5-blind
+r014,ring,near,,node ~3.5 m west of transverse-line crossing,claude-opus-5-5-blind
+r015,yes,end,,,claude-opus-5-5-blind
+r016,yes,yes,,transverse lines,claude-opus-5-5-blind
+r017,yes,near,,paint only visible in street crop,claude-opus-5-5-blind
+r018,yes,yes,,,claude-opus-5-5-blind
+r019,yes,yes,,,claude-opus-5-5-blind
+r020,unclear,nolabel,,possible faint transverse lines; not clearly visible,claude-opus-5-5-blind
+r021,yes,near,,brick crossing with white edge lines; paint seen in street crop,claude-opus-5-5-blind
+r022,yes,yes,,coloured brick crossing,claude-opus-5-5-blind
+r023,yes,yes,,zebra across cycle path,claude-opus-5-5-blind
+r024,yes,yes,,transverse lines,claude-opus-5-5-blind
+r025,yes,nolabel,,,claude-opus-5-5-blind
+r026,yes,yes,,transverse lines,claude-opus-5-5-blind
+r027,yes,off,,label on adjacent crossing of neighbouring lane ~8 m east,claude-opus-5-5-blind
+r028,yes,yes,,,claude-opus-5-5-blind
+r029,ring,nolabel,,node on red cycle crossing; zebra ~3 m NE,claude-opus-5-5-blind
+r030,yes,nolabel,,,claude-opus-5-5-blind
+r031,yes,yes,,,claude-opus-5-5-blind
+r032,yes,yes,,transverse lines,claude-opus-5-5-blind
+r033,yes,nolabel,,,claude-opus-5-5-blind
+r034,yes,yes,,transverse lines,claude-opus-5-5-blind
+r035,yes,yes,,transverse lines,claude-opus-5-5-blind
+r036,yes,yes,,aerial places label SW of zebra; crop shows centre stripe,claude-opus-5-5-blind
+r037,yes,near,,transverse lines; label on south line,claude-opus-5-5-blind
+r038,no,nolabel,,bike crossing shark teeth only,claude-opus-5-5-blind
+r039,no,na,,label ~8 m NE at traffic island; no pedestrian paint,claude-opus-5-5-blind
+r040,no,na,,unmarked brick street,claude-opus-5-5-blind
+r041,yes,yes,,,claude-opus-5-5-blind
+r042,yes,near,,transverse lines; label ~3.5 m east of centre,claude-opus-5-5-blind
+r043,yes,end,,aerial places label mid-road; crop shows it at island curb end,claude-opus-5-5-blind
+r044,yes,yes,,transverse lines; node at west line edge,claude-opus-5-5-blind
+r045,no,nolabel,,pedestrian street; no marking,claude-opus-5-5-blind
+r046,yes,nolabel,,node on bike crossing at zebra south edge ~1.5 m,claude-opus-5-5-blind
+r047,yes,yes,,,claude-opus-5-5-blind
+r048,yes,near,,node on stop line just south of zebra; label 6 m north,claude-opus-5-5-blind
+r049,yes,yes,,,claude-opus-5-5-blind
+r050,no,na,,node on cycle path; label 9 m NE between dashed bike-crossing lines,claude-opus-5-5-blind
+r051,yes,yes,,,claude-opus-5-5-blind
+r052,no,na,,unmarked side street,claude-opus-5-5-blind
+r053,no,na,,driveway entrance; no marking,claude-opus-5-5-blind
+r054,yes,nolabel,,zebra across cycle path,claude-opus-5-5-blind
+r055,no,nolabel,,unmarked,claude-opus-5-5-blind
+r056,yes,yes,,,claude-opus-5-5-blind
+r057,yes,yes,,faded transverse lines,claude-opus-5-5-blind
+r058,yes,nolabel,,,claude-opus-5-5-blind
+r059,no,nolabel,,sidewalk/driveway; no marking,claude-opus-5-5-blind
+r060,yes,near,,aerial puts label near south curb; crop shows mid-crossing,claude-opus-5-5-blind
+r061,no,na,,node and label on corner sidewalk apron; stop bar only,claude-opus-5-5-blind
+r062,yes,yes,,,claude-opus-5-5-blind
+r063,no,nolabel,,sidewalk; no marking,claude-opus-5-5-blind
+r064,ring,yes,,node in bike box; zebra 3-4 m NE carries the label,claude-opus-5-5-blind
+r065,yes,near,,wide zebra; label 7 m SW of node,claude-opus-5-5-blind
+r066,yes,off,,label ~8.5 m SSE in the separate box crossing,claude-opus-5-5-blind
+r067,yes,yes,,transverse lines,claude-opus-5-5-blind
+r068,yes,nolabel,,,claude-opus-5-5-blind
+r069,yes,near,,crop shows label near tram-island curb of a long multi-segment zebra,claude-opus-5-5-blind
+r070,yes,yes,,,claude-opus-5-5-blind
+r071,ring,nolabel,,node on corner sidewalk; zebra ~3 m south,claude-opus-5-5-blind
+r072,yes,nolabel,,transverse lines,claude-opus-5-5-blind
+r073,yes,yes,,transverse lines,claude-opus-5-5-blind
+r074,yes,end,,label at east end on cycle-track part of the zebra,claude-opus-5-5-blind
+r075,no,nolabel,,brick median strip; no crossing paint visible,claude-opus-5-5-blind
+r076,yes,yes,,zebra across driveway,claude-opus-5-5-blind
+r077,no,na,,unmarked side-street crossing,claude-opus-5-5-blind
+r078,yes,yes,,node in gap at centre island between zebra halves,claude-opus-5-5-blind
+r079,yes,yes,,zebra across cycle path,claude-opus-5-5-blind
+r080,yes,yes,,transverse lines; label offset along street,claude-opus-5-5-blind
+r081,yes,yes,,,claude-opus-5-5-blind
+r082,ring,yes,yes,bike crossing blocks only; node on paving,claude-opus-5-5-blind
+r083,yes,yes,,transverse lines in shadow,claude-opus-5-5-blind
+r084,yes,near,,node at zebra edge; label on far zebra,claude-opus-5-5-blind
+r085,yes,near,,brick coloured crossing,claude-opus-5-5-blind
+r086,no,na,,no visible paint,claude-opus-5-5-blind
+r087,ring,near,,paver zebra ~4 m south of node,claude-opus-5-5-blind
+r088,yes,nolabel,,node between zebra and bike crossing,claude-opus-5-5-blind
+r089,no,nolabel,,cycle path no crossing paint,claude-opus-5-5-blind
+r090,no,nolabel,,driveway across sidewalk,claude-opus-5-5-blind
+r091,yes,yes,,car over node in aerial,claude-opus-5-5-blind
+r092,no,nolabel,,driveway,claude-opus-5-5-blind
+r093,yes,nolabel,,short zebra in parking lot,claude-opus-5-5-blind
+r094,yes,near,,dashed crossing lines no zebra,claude-opus-5-5-blind
+r095,no,na,,zebras over 5 m west; label on corner,claude-opus-5-5-blind
+r096,yes,yes,,,claude-opus-5-5-blind
+r097,unclear,nolabel,,deep shadow,claude-opus-5-5-blind
+r098,yes,yes,,low-res aerial; street crop zebra,claude-opus-5-5-blind
+r099,yes,nolabel,,bike crossing dashes; zebras ~6 m away,claude-opus-5-5-blind
+r100,no,nolabel,,mid-block no paint,claude-opus-5-5-blind
+r101,yes,yes,,transverse lines,claude-opus-5-5-blind
+r102,yes,yes,,,claude-opus-5-5-blind
+r103,yes,near,,node at zebra edge; label 4 m off along street,claude-opus-5-5-blind
+r104,no,nolabel,,lot entrance no paint,claude-opus-5-5-blind
+r105,yes,yes,,brick coloured crossing,claude-opus-5-5-blind
+r106,yes,end,,node at curb end; low-res aerial,claude-opus-5-5-blind
+r107,yes,yes,,transverse lines,claude-opus-5-5-blind
+r108,yes,nolabel,,zebra clearer in older year,claude-opus-5-5-blind
+r109,yes,yes,,zebra in shadow,claude-opus-5-5-blind
+r110,no,nolabel,,alley in shadow; no paint in older year,claude-opus-5-5-blind
+r111,yes,yes,,low-res aerial; street crop zebra,claude-opus-5-5-blind
+r112,yes,near,,zebra over bike path,claude-opus-5-5-blind
+r113,yes,nolabel,,,claude-opus-5-5-blind
+r114,yes,yes,,transverse lines,claude-opus-5-5-blind
+r115,yes,nolabel,,low-res; zebra edge ~1 m,claude-opus-5-5-blind
+r116,no,na,,unmarked; label 7 m away,claude-opus-5-5-blind
+r117,yes,yes,,short zebra across bike path,claude-opus-5-5-blind
+r118,no,nolabel,,unmarked residential,claude-opus-5-5-blind
+r119,ring,nolabel,,node in tram X-box between zebras ~5 m,claude-opus-5-5-blind
+r120,yes,yes,,long zebra,claude-opus-5-5-blind
+r121,ring,near,,node ~2-3 m west of zebra; low-res,claude-opus-5-5-blind
+r122,no,nolabel,,cycle path no crossing paint,claude-opus-5-5-blind
+r123,yes,yes,,,claude-opus-5-5-blind
+r124,yes,yes,,transverse lines; node ~1.7 m from line,claude-opus-5-5-blind
+r125,yes,end,,node between zebra and bike blocks; label at island end,claude-opus-5-5-blind
+r126,yes,yes,,transverse lines,claude-opus-5-5-blind
+r127,yes,end,,label ~7 m off near bike crossing at east end,claude-opus-5-5-blind
+r128,yes,yes,,zebra visible only in street crop,claude-opus-5-5-blind
+r129,yes,yes,,brick zebra; car over node,claude-opus-5-5-blind
+r130,yes,yes,,,claude-opus-5-5-blind
+r131,yes,near,,dashed edge lines only on brick,claude-opus-5-5-blind
+r132,yes,yes,,zebra visible only in street crop; low-res aerial,claude-opus-5-5-blind
+r133,no,nolabel,,driveway across sidewalk,claude-opus-5-5-blind
+r134,ring,yes,,zebra only in street crop at label ~4.5 m; node on shark teeth,claude-opus-5-5-blind
+r135,yes,end,,label 7 m off by green bike box; on crossing line in street crop,claude-opus-5-5-blind
+r136,no,na,,unmarked residential,claude-opus-5-5-blind
+r137,yes,near,,node ~2 m east of zebra edge; label 7 m along street,claude-opus-5-5-blind
+r138,yes,off,,node on bike-path crossing; label on tram-track zebra 7 m south,claude-opus-5-5-blind
+r139,yes,yes,,short zebra in shadow,claude-opus-5-5-blind
+r140,yes,yes,,,claude-opus-5-5-blind
+r141,no,na,,node in tram X-box; label 7 m off on lane markings,claude-opus-5-5-blind
+r142,no,nolabel,,sidewalk/bike path no crossing paint,claude-opus-5-5-blind
+r143,no,na,,gated driveway paving,claude-opus-5-5-blind
+r144,yes,nolabel,,,claude-opus-5-5-blind
+r145,no,nolabel,,alley at sidewalk,claude-opus-5-5-blind
+r146,unclear,nolabel,,trees over node,claude-opus-5-5-blind
+r147,yes,near,,faded zebra ends ~1.5 m from node,claude-opus-5-5-blind
+r148,no,nolabel,,alley at sidewalk,claude-opus-5-5-blind
+r149,yes,nolabel,,zebra over bike path,claude-opus-5-5-blind
+r150,ring,near,,zebra ~4-5 m NE of node; low-res,claude-opus-5-5-blind
+r151,yes,near,,dark aerial; zebra in street crop,claude-opus-5-5-blind
+r152,yes,nolabel,,temporary yellow crossing marks in older year; construction in newest,claude-opus-5-5-blind
+r153,yes,nolabel,,,claude-opus-5-5-blind
+r154,yes,yes,,,claude-opus-5-5-blind
+r155,yes,near,,faded dashed crossing lines; car in street crop,claude-opus-5-5-blind
+r156,no,nolabel,,cycle path no crossing paint,claude-opus-5-5-blind
+r157,yes,yes,,dark aerial; zebra in street crop,claude-opus-5-5-blind
+r158,yes,nolabel,,,claude-opus-5-5-blind
+r159,yes,yes,,,claude-opus-5-5-blind
+r160,yes,near,,faded transverse lines,claude-opus-5-5-blind
+r161,yes,yes,,,claude-opus-5-5-blind
+r162,no,na,,red bike path with white bar at label; no pedestrian crossing paint at node,claude-opus-5-5-blind
+r163,ring,yes,,node on sidewalk corner ~5 m from crosswalk; label centred on crosswalk,claude-opus-5-5-blind
+r164,yes,nolabel,,faded path crossing lines under tree shadow,claude-opus-5-5-blind
+r165,yes,yes,,,claude-opus-5-5-blind
+r166,yes,near,,label ~4 m from centre toward west curb,claude-opus-5-5-blind
+r167,no,nolabel,,tram tracks; only a lane line nearby,claude-opus-5-5-blind
+r168,yes,end,,street crop puts label on brick pavement at curb,claude-opus-5-5-blind
+r169,yes,nolabel,,transverse lines across curved road,claude-opus-5-5-blind
+r170,no,nolabel,,newest aerial in deep shadow; older shows bike path no paint,claude-opus-5-5-blind
+r171,unclear,nolabel,,band may be shark teeth rather than zebra,claude-opus-5-5-blind
+r172,yes,end,,node in building shadow; zebra visible in older aerial and crop; label at north end,claude-opus-5-5-blind
+r173,yes,yes,,label offset across street only,claude-opus-5-5-blind
+r174,yes,near,,label ~6 m from node along a long crossing,claude-opus-5-5-blind
+r175,yes,yes,,,claude-opus-5-5-blind
+r176,ring,yes,,zebra ~3.5 m east of node; label on zebra,claude-opus-5-5-blind
+r177,unclear,nolabel,,band near node looks like shark teeth rather than zebra,claude-opus-5-5-blind
+r178,yes,near,yes,elephant-feet bike crossing over red bike path (not green),claude-opus-5-5-blind
+r179,no,nolabel,,zebra lies beyond 5 m to the SE,claude-opus-5-5-blind
+r180,ring,na,,zebra ~4.5 m north on another leg; label on unmarked crossing,claude-opus-5-5-blind
+r181,yes,yes,,,claude-opus-5-5-blind
+r182,no,na,,short faint white line near node (likely stop bar),claude-opus-5-5-blind
+r183,no,nolabel,,alley/parking area; partial tree shadow,claude-opus-5-5-blind
+r184,yes,yes,,zebra clearer in street crop than aerial,claude-opus-5-5-blind
+r185,yes,nolabel,,,claude-opus-5-5-blind
+r186,no,na,,raised crossing with shark-teeth give-way marks only; no zebra,claude-opus-5-5-blind
+r187,no,nolabel,,mid-block road; no crossing marks,claude-opus-5-5-blind
+r188,no,nolabel,,driveway at sidewalk edge; only small utility marks,claude-opus-5-5-blind
+r189,yes,yes,,elevated rail hides aerials; paint visible in street crop,claude-opus-5-5-blind
+r190,no,na,,unmarked residential crossing,claude-opus-5-5-blind
+r191,yes,yes,,,claude-opus-5-5-blind
+r192,no,nolabel,,unmarked side-street mouth under tree shadow,claude-opus-5-5-blind
+r193,yes,yes,,truck covers node in aerial; transverse lines visible,claude-opus-5-5-blind
+r194,yes,yes,,node on refuge island gap; label centred on west half of zebra,claude-opus-5-5-blind
+r195,no,nolabel,,low-resolution aerial; node on sidewalk frontage,claude-opus-5-5-blind
+r196,yes,nolabel,,,claude-opus-5-5-blind
+r197,yes,nolabel,,cars over part of zebra,claude-opus-5-5-blind
+r198,yes,yes,,,claude-opus-5-5-blind
+r199,no,na,,brick street; unmarked,claude-opus-5-5-blind
+r200,yes,yes,,,claude-opus-5-5-blind
+r201,yes,nolabel,,,claude-opus-5-5-blind
+r202,yes,yes,,,claude-opus-5-5-blind
+r203,yes,nolabel,,faded zebra; clearer in older aerial,claude-opus-5-5-blind
+r204,yes,nolabel,,node on bike-crossing blocks; zebra edge ~1.5 m north,claude-opus-5-5-blind
+r205,yes,yes,,vehicle over node in newest; zebra clear in older and crop,claude-opus-5-5-blind
+r206,yes,yes,,low-resolution aerials; zebra visible in street crop,claude-opus-5-5-blind
+r207,no,nolabel,,node falls on a building roof/bridge structure,claude-opus-5-5-blind
+r208,yes,yes,,paint faint in aerials; clear zebra in street crop,claude-opus-5-5-blind
+r209,yes,yes,,label on the north transverse line,claude-opus-5-5-blind
+r210,yes,yes,,zebra in building shadow; clear in crop,claude-opus-5-5-blind
+r211,unclear,nolabel,,low-resolution aerial with parked cars over spot,claude-opus-5-5-blind
+r212,yes,yes,,,claude-opus-5-5-blind
+r213,unclear,nolabel,,shadow over area; faint stripes possibly ~5 m SW,claude-opus-5-5-blind
+r214,yes,nolabel,,,claude-opus-5-5-blind
+r215,no,nolabel,,alley mouth; no paint,claude-opus-5-5-blind
+r216,yes,yes,,car over node; transverse lines,claude-opus-5-5-blind
+r217,ring,nolabel,,zebra ~2-4 m NW; tree canopy over node,claude-opus-5-5-blind
+r218,no,na,,label on yellow centreline; no crossing paint,claude-opus-5-5-blind
+r219,no,na,,brick street; unmarked,claude-opus-5-5-blind
+r220,no,nolabel,,pedestrian plaza with dark decorative paving stripes; no painted crossing,claude-opus-5-5-blind
+r221,yes,yes,,label centred on the west segment of a zebra split by a median,claude-opus-5-5-blind
+r222,yes,yes,,zebra across red bike path,claude-opus-5-5-blind
+r223,yes,yes,,signal pole shadow over node,claude-opus-5-5-blind
+r224,yes,nolabel,,zebra in building shadow,claude-opus-5-5-blind
+r225,yes,yes,,label just off the bars across the street; centred along,claude-opus-5-5-blind
+r226,yes,nolabel,,,claude-opus-5-5-blind
+r227,yes,yes,,newest aerial blurred/shadowed; zebra clear in older and crop,claude-opus-5-5-blind
+r228,yes,yes,,transverse lines,claude-opus-5-5-blind
+r229,yes,near,yes,dashed bike crossing (not green); no pedestrian zebra,claude-opus-5-5-blind
+r230,yes,nolabel,,,claude-opus-5-5-blind
+r231,ring,nolabel,,low-resolution aerial; zebra ~3 m NW of node,claude-opus-5-5-blind
+r232,yes,yes,,,claude-opus-5-5-blind
+r233,yes,yes,,tree branches over zebra; clear in crop,claude-opus-5-5-blind
+r234,ring,end,,zebra ~4 m NE of node; label at the near-curb end of a long zebra,claude-opus-5-5-blind
+r235,yes,yes,,transverse lines,claude-opus-5-5-blind
+r236,yes,near,,low-resolution aerial; zebra clear in crop,claude-opus-5-5-blind
+r237,yes,yes,,faded zebra in aerial; clear in crop,claude-opus-5-5-blind
+r238,yes,yes,,red brick coloured-surface crossing,claude-opus-5-5-blind
+r239,no,nolabel,,mid-block road; no crossing marks,claude-opus-5-5-blind
+r240,yes,yes,,transverse lines,claude-opus-5-5-blind
+r241,yes,yes,,zebra,claude-opus-5-5-blind
+r242,yes,yes,,transverse lines,claude-opus-5-5-blind
+r243,unclear,nolabel,,car and building shadow over node,claude-opus-5-5-blind
+r244,yes,yes,,brick coloured surface with edge lines,claude-opus-5-5-blind
+r245,no,nolabel,,node at kerb corner; nearest zebra beyond 5 m,claude-opus-5-5-blind
+r246,yes,yes,,transverse lines,claude-opus-5-5-blind
+r247,yes,yes,,zebra clear in street crop; aerial low-res,claude-opus-5-5-blind
+r248,yes,yes,,zebra,claude-opus-5-5-blind
+r249,yes,yes,,transverse lines,claude-opus-5-5-blind
+r250,yes,yes,,zebra,claude-opus-5-5-blind
+r251,yes,yes,,label ~5 m off perpendicular to crossing (placement),claude-opus-5-5-blind
+r252,no,na,,node on bike path; label ~10 m away by dashed give-way line,claude-opus-5-5-blind
+r253,yes,yes,,ladder crossing; aerial faint under construction,claude-opus-5-5-blind
+r254,yes,yes,,ladder crossing,claude-opus-5-5-blind
+r255,yes,nolabel,,zebra with car on it,claude-opus-5-5-blind
+r256,yes,yes,,zebra,claude-opus-5-5-blind
+r257,yes,yes,,zebra; label at crossing centre west of node,claude-opus-5-5-blind
+r258,yes,near,,zebra over tram tracks visible in older aerial and crop; faded in newest,claude-opus-5-5-blind
+r259,no,na,,unmarked crossing,claude-opus-5-5-blind
+r260,yes,yes,,zebra,claude-opus-5-5-blind
+r261,no,nolabel,,only dashed guide/give-way lines at node; no pedestrian paint,claude-opus-5-5-blind
+r262,yes,yes,,ladder crossing,claude-opus-5-5-blind
+r263,yes,yes,,brick coloured surface crossing,claude-opus-5-5-blind
+r264,no,nolabel,,unmarked side-street mouth,claude-opus-5-5-blind
+r265,yes,yes,,transverse lines,claude-opus-5-5-blind
+r266,yes,yes,,rainbow zebra in pedestrian zone,claude-opus-5-5-blind
+r267,yes,yes,,transverse lines,claude-opus-5-5-blind
+r268,no,nolabel,,node on red bike path; no paint,claude-opus-5-5-blind
+r269,no,nolabel,,unmarked; driveway corner,claude-opus-5-5-blind
+r270,yes,nolabel,,transverse lines under tree shadow,claude-opus-5-5-blind
+r271,unclear,off,,crowds over node; label ~8 m away on zebra across bike path,claude-opus-5-5-blind
+r272,yes,near,,zebra split by refuge island; node on island; label on east half,claude-opus-5-5-blind
+r273,no,nolabel,,unmarked; node by driveway under tree shadow,claude-opus-5-5-blind
+r274,no,nolabel,,unmarked,claude-opus-5-5-blind
+r275,ring,nolabel,,node on bike-crossing blocks; zebra ~3-4 m west,claude-opus-5-5-blind
+r276,no,nolabel,,node on sidewalk/planter strip,claude-opus-5-5-blind
+r277,yes,yes,,zebra; aerial low-res,claude-opus-5-5-blind
+r278,unclear,nolabel,,node in deep shadow,claude-opus-5-5-blind
+r279,yes,near,,two-stage zebra; label between blocks,claude-opus-5-5-blind
+r280,yes,nolabel,,zebra edge at node; low-res aerial,claude-opus-5-5-blind
+r281,yes,end,,label at north kerb end of zebra,claude-opus-5-5-blind
+r282,no,nolabel,,shadow in newest; older shows only dotted guide lines,claude-opus-5-5-blind
+r283,unclear,yes,,aerial dark tree shadow; crop shows label on zebra,claude-opus-5-5-blind
+r284,yes,yes,,zebra,claude-opus-5-5-blind
+r285,yes,yes,,zebra,claude-opus-5-5-blind
+r286,unclear,nolabel,,deep shadow over node,claude-opus-5-5-blind
+r287,yes,near,,label ~2 m beside zebra on BUS lane marking,claude-opus-5-5-blind
+r288,yes,yes,,zebra over tram lanes,claude-opus-5-5-blind
+r289,yes,yes,,brick coloured band across alley mouth,claude-opus-5-5-blind
+r290,yes,end,,zebra across bike path; label at sidewalk end,claude-opus-5-5-blind
+r291,yes,yes,,continental zebra,claude-opus-5-5-blind
+r292,no,na,,unmarked concrete crossing,claude-opus-5-5-blind
+r293,yes,yes,,zebra clear in crop; aerial low-res,claude-opus-5-5-blind
+r294,yes,yes,,zebra on brick road,claude-opus-5-5-blind
+r295,yes,yes,,transverse lines,claude-opus-5-5-blind
+r296,no,na,,unmarked; only a stop bar,claude-opus-5-5-blind
+r297,yes,nolabel,,zebra with car on it in shadow,claude-opus-5-5-blind
+r298,yes,yes,,continental zebra,claude-opus-5-5-blind
+r299,no,nolabel,,node on driveway apron; no paint,claude-opus-5-5-blind
+r300,yes,near,,ladder crossing; node on median; label ~3.5 m west along crossing,claude-opus-5-5-blind
+r301,yes,yes,,zebra clear in crop; aerial dark and low-res,claude-opus-5-5-blind
+r302,yes,yes,,zebra,claude-opus-5-5-blind
+r303,yes,yes,,transverse lines; newest aerial under trees; older shows ladder,claude-opus-5-5-blind
+r304,no,na,,unmarked; label at kerb,claude-opus-5-5-blind
+r305,yes,yes,,transverse lines across side street; rail tracks in crossing,claude-opus-5-5-blind
+r306,yes,yes,,continental crossing with asphalt patch,claude-opus-5-5-blind
+r307,yes,near,,zebra; aerial low-res,claude-opus-5-5-blind
+r308,no,na,,brick alley mouth; only utility locate paint,claude-opus-5-5-blind
+r309,yes,nolabel,,zebra,claude-opus-5-5-blind
+r310,no,na,,unmarked,claude-opus-5-5-blind
+r311,no,nolabel,,only dashed give-way lines; zebras beyond 5 m,claude-opus-5-5-blind
+r312,no,nolabel,,unmarked side-street mouth,claude-opus-5-5-blind
+r313,yes,yes,,transverse lines; street name painted in crossing,claude-opus-5-5-blind
+r314,no,na,,unmarked,claude-opus-5-5-blind
+r315,yes,yes,,block/ladder crossing,claude-opus-5-5-blind
+r316,yes,yes,,zebra,claude-opus-5-5-blind
+r317,yes,near,,ladder crossing; label ~3 m from south kerb; crop shows it near kerb,claude-opus-5-5-blind
+r318,yes,yes,,paver crossing with white edge lines,claude-opus-5-5-blind
+r319,yes,yes,,transverse lines,claude-opus-5-5-blind
