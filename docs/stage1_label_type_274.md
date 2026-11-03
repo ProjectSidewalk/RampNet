@@ -1,5 +1,11 @@
 # Stage 1 `label_type` axis (#274 Phase 1 item 3): what exists, the design fork, what was built
 
+> **Update 2026-11-03:** fork A is decided as **A1** (run-level). Fork B is being tested, B1 against B2, on a
+> Seattle pilot that takes its locations from SDOT's inventory rather than OSM; see
+> [`stage1_crosswalk_sdot_274.md`](stage1_crosswalk_sdot_274.md). That pilot also found that Google has
+> decommissioned `GeoPhotoService.SingleImageSearch`, which `search_panos.search_panoramas` calls. Its answer is
+> "decommissioned and turned down", so `generate_dataset_meta.py` can no longer discover panos as written.
+
 Phase 1 item 3 of [#274](https://github.com/ProjectSidewalk/RampNet/issues/274): add a `label_type` axis to
 Stage 1 with an OSM crossing source, keep the bearing rule shared, produce candidate crossings per pano, and
 show with a parity test that CurbRamp output is unchanged. Written 2026-11-02. **Status: stopped at a design

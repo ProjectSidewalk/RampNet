@@ -1,0 +1,37 @@
+{
+ "inventory_inputs": {
+  "sdot": {
+   "url": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Marked_Crosswalks_CDL/FeatureServer/0",
+   "sha256": "cc06039c87a5cffc7edb2788b9fb2ef736f58ae74dc078adb75754299edeccf8",
+   "fetched_utc": "2026-11-03T13:48:49+00:00"
+  },
+  "regions": {
+   "url": "https://sidewalk-sea.cs.washington.edu/v3/api/regions?filetype=geojson",
+   "sha256": "6b3f6d1c560d35430ab79e5367242a14b50cf9bfee9c305a9e7b9f6dcc6fd437",
+   "fetched_utc": "2026-11-03T13:48:50+00:00"
+  }
+ },
+ "seed": 274,
+ "strata": [
+  [
+   "midblock",
+   20
+  ],
+  [
+   "BRICK/CUSTOM/OTHER",
+   30
+  ],
+  [
+   "PARSL",
+   60
+  ],
+  [
+   "LADER",
+   90
+  ]
+ ],
+ "pool": 5887,
+ "phase1_excluded": 0,
+ "phase1_sheet": true,
+ "sampled": 200
+}
