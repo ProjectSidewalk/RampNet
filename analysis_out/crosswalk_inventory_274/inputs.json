@@ -1,0 +1,27 @@
+{
+ "sdot": {
+  "url": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Marked_Crosswalks_CDL/FeatureServer/0",
+  "features": 6689,
+  "server_count": 6689,
+  "sha256": "cc06039c87a5cffc7edb2788b9fb2ef736f58ae74dc078adb75754299edeccf8",
+  "layer_last_edit_utc": "2026-11-02T15:21:58.107000+00:00",
+  "fetched_utc": "2026-11-03T13:48:49+00:00",
+  "file": "inputs/sdot_marked_crosswalks.geojson"
+ },
+ "regions": {
+  "url": "https://sidewalk-sea.cs.washington.edu/v3/api/regions?filetype=geojson",
+  "features": 79,
+  "sha256": "6b3f6d1c560d35430ab79e5367242a14b50cf9bfee9c305a9e7b9f6dcc6fd437",
+  "fetched_utc": "2026-11-03T13:48:50+00:00",
+  "file": "inputs/ps_regions_seattle.geojson"
+ },
+ "li2023": {
+  "url": "https://zenodo.org/api/records/6803956/files/inf_crosswalk.csv/content",
+  "zenodo_record": 6803956,
+  "license": "CC-BY-4.0",
+  "sha256": "39a6174d63d12ef99fa956a0a091c0daa1e7dba9176fcf9b24f8a40a089bf3bf",
+  "bytes": 142053986,
+  "file": "inputs/li2023_inf_crosswalk.csv",
+  "fetched_utc": "2026-11-03T13:53:03+00:00"
+ }
+}

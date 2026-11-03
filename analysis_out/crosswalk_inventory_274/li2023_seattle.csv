@@ -1,0 +1,307 @@
+intersection_id,year,li_both,li_plain,li_zebra,agency,sdot_within,osm_marked_within
+1968,2019,6.0,2.0,4.0,City of Seattle,2,3
+1969,2019,4.0,3.0,1.0,City of Seattle,0,0
+1970,2019,3.0,3.0,0.0,City of Seattle,0,0
+1971,2019,4.0,1.0,3.0,City of Seattle,3,3
+1972,2019,3.0,0.0,3.0,City of Seattle,1,2
+1973,2019,7.0,6.0,1.0,City of Seattle,3,3
+1974,2019,2.0,0.0,2.0,City of Seattle,1,2
+1975,2019,4.0,2.0,2.0,City of Seattle,0,0
+1976,2019,1.0,1.0,0.0,City of Seattle,2,2
+1977,2019,5.0,4.0,1.0,City of Seattle,2,2
+1978,2019,7.0,4.0,3.0,City of Seattle,6,6
+1979,2019,5.0,1.0,4.0,City of Seattle,4,6
+1980,2019,0.0,0.0,0.0,City of Seattle,0,0
+1981,2019,5.0,2.0,3.0,City of Seattle,2,3
+1982,2019,8.0,7.0,1.0,City of Seattle,4,4
+1983,2019,6.0,4.0,2.0,City of Seattle,4,4
+1984,2019,3.0,1.0,2.0,City of Seattle,0,0
+1985,2019,6.0,2.0,4.0,City of Seattle,2,3
+1986,2019,1.0,1.0,0.0,City of Seattle,0,1
+1987,2019,10.0,0.0,10.0,City of Seattle,4,4
+1988,2019,4.0,1.0,3.0,City of Seattle,4,4
+1989,2019,6.0,0.0,6.0,City of Seattle,4,4
+1990,2019,3.0,3.0,0.0,City of Seattle,4,4
+1991,2019,9.0,1.0,8.0,City of Seattle,4,3
+1992,2019,4.0,4.0,0.0,City of Seattle,4,4
+1993,2019,8.0,0.0,8.0,City of Seattle,4,4
+1994,2019,6.0,0.0,6.0,City of Seattle,4,4
+1995,2019,5.0,2.0,3.0,City of Seattle,2,3
+1996,2019,1.0,1.0,0.0,City of Seattle,2,2
+1997,2019,7.0,4.0,3.0,City of Seattle,6,6
+1998,2019,11.0,4.0,7.0,City of Seattle,4,6
+1999,2019,5.0,1.0,4.0,City of Seattle,4,6
+2000,2019,5.0,4.0,1.0,City of Seattle,2,2
+2001,2019,3.0,2.0,1.0,City of Seattle,1,1
+2002,2019,3.0,2.0,1.0,City of Seattle,0,0
+2003,2019,8.0,2.0,6.0,City of Seattle,3,4
+2004,2019,6.0,0.0,6.0,City of Seattle,4,4
+2005,2019,3.0,3.0,0.0,City of Seattle,4,4
+2006,2019,9.0,1.0,8.0,City of Seattle,4,3
+2007,2019,4.0,4.0,0.0,City of Seattle,4,4
+2008,2019,8.0,0.0,8.0,City of Seattle,4,4
+2009,2019,8.0,1.0,7.0,City of Seattle,4,4
+2010,2019,5.0,0.0,5.0,City of Seattle,4,4
+2011,2019,6.0,0.0,6.0,City of Seattle,4,4
+2012,2019,7.0,0.0,7.0,City of Seattle,4,4
+2013,2019,6.0,1.0,5.0,City of Seattle,4,4
+2014,2019,5.0,4.0,1.0,City of Seattle,1,0
+2015,2019,5.0,3.0,2.0,City of Seattle,0,0
+2016,2019,6.0,0.0,6.0,City of Seattle,4,4
+2017,2019,8.0,0.0,8.0,City of Seattle,4,5
+2018,2019,8.0,0.0,8.0,City of Seattle,4,6
+2019,2019,12.0,4.0,8.0,City of Seattle,4,5
+2020,2019,8.0,0.0,8.0,City of Seattle,4,6
+2021,2019,10.0,4.0,6.0,City of Seattle,4,6
+2022,2019,8.0,0.0,8.0,City of Seattle,4,4
+2023,2019,11.0,1.0,10.0,City of Seattle,5,8
+2024,2019,8.0,0.0,8.0,City of Seattle,4,4
+2025,2019,9.0,0.0,9.0,City of Seattle,4,6
+2026,2019,11.0,1.0,10.0,City of Seattle,4,4
+2027,2019,11.0,2.0,9.0,City of Seattle,3,4
+2028,2019,11.0,1.0,10.0,City of Seattle,4,4
+2029,2019,9.0,0.0,9.0,City of Seattle,4,6
+2030,2019,11.0,2.0,9.0,City of Seattle,4,4
+2031,2019,6.0,0.0,6.0,City of Seattle,4,6
+2032,2019,7.0,0.0,7.0,City of Seattle,4,4
+2033,2019,10.0,4.0,6.0,City of Seattle,4,4
+2034,2019,7.0,0.0,7.0,City of Seattle,4,4
+2035,2019,8.0,3.0,5.0,City of Seattle,4,9
+2036,2019,7.0,0.0,7.0,City of Seattle,4,4
+2037,2019,7.0,0.0,7.0,City of Seattle,4,4
+2038,2019,7.0,0.0,7.0,City of Seattle,4,4
+2039,2019,7.0,1.0,6.0,City of Seattle,4,10
+2040,2019,10.0,4.0,6.0,City of Seattle,4,4
+2041,2019,8.0,3.0,5.0,City of Seattle,4,9
+2042,2019,6.0,0.0,6.0,City of Seattle,4,6
+2043,2019,10.0,4.0,6.0,City of Seattle,4,6
+2044,2019,6.0,1.0,5.0,City of Seattle,1,2
+2045,2019,6.0,0.0,6.0,City of Seattle,3,4
+2046,2019,5.0,2.0,3.0,City of Seattle,4,7
+2047,2019,3.0,2.0,1.0,City of Seattle,1,1
+2048,2019,2.0,2.0,0.0,City of Seattle,1,3
+2049,2019,2.0,1.0,1.0,City of Seattle,1,1
+2050,2019,7.0,1.0,6.0,City of Seattle,4,4
+2051,2019,1.0,1.0,0.0,City of Seattle,0,0
+2052,2019,0.0,0.0,0.0,City of Seattle,0,1
+2053,2019,1.0,1.0,0.0,City of Seattle,0,1
+2054,2019,8.0,2.0,6.0,City of Seattle,4,4
+2055,2019,7.0,0.0,7.0,City of Seattle,4,4
+2056,2019,10.0,7.0,3.0,City of Seattle,4,7
+2057,2019,2.0,0.0,2.0,City of Seattle,1,0
+2058,2019,8.0,3.0,5.0,City of Seattle,4,3
+2059,2019,3.0,2.0,1.0,City of Seattle,1,1
+2060,2019,3.0,2.0,1.0,City of Seattle,0,0
+2061,2019,10.0,0.0,10.0,City of Seattle,4,4
+2062,2019,6.0,0.0,6.0,City of Seattle,4,4
+2063,2019,3.0,3.0,0.0,City of Seattle,4,4
+2064,2019,8.0,0.0,8.0,City of Seattle,4,4
+2065,2019,4.0,4.0,0.0,City of Seattle,4,4
+2066,2019,1.0,1.0,0.0,City of Seattle,0,0
+2067,2019,6.0,0.0,6.0,City of Seattle,4,4
+2068,2019,5.0,0.0,5.0,City of Seattle,4,4
+2069,2019,7.0,0.0,7.0,City of Seattle,4,4
+2070,2019,5.0,3.0,2.0,City of Seattle,0,0
+2071,2019,5.0,4.0,1.0,City of Seattle,1,0
+2072,2019,6.0,0.0,6.0,City of Seattle,4,4
+2073,2019,5.0,4.0,1.0,City of Seattle,4,0
+2074,2019,1.0,1.0,0.0,City of Seattle,0,0
+2075,2019,11.0,4.0,7.0,City of Seattle,4,6
+2076,2019,5.0,4.0,1.0,City of Seattle,2,2
+2077,2019,7.0,4.0,3.0,City of Seattle,6,6
+2078,2019,5.0,1.0,4.0,City of Seattle,4,6
+2079,2019,1.0,1.0,0.0,City of Seattle,0,0
+2080,2019,10.0,0.0,10.0,City of Seattle,4,4
+2081,2019,6.0,0.0,6.0,City of Seattle,4,4
+2082,2019,3.0,3.0,0.0,City of Seattle,4,4
+2083,2019,9.0,1.0,8.0,City of Seattle,4,3
+2084,2019,8.0,7.0,1.0,City of Seattle,4,4
+2085,2019,6.0,4.0,2.0,City of Seattle,4,4
+2086,2019,6.0,0.0,6.0,City of Seattle,3,4
+2087,2019,8.0,1.0,7.0,City of Seattle,4,4
+2088,2019,13.0,11.0,2.0,City of Seattle,5,0
+2089,2019,17.0,15.0,2.0,City of Seattle,4,0
+2090,2019,11.0,2.0,9.0,City of Seattle,4,4
+2091,2019,9.0,2.0,7.0,City of Seattle,4,4
+2092,2019,5.0,1.0,4.0,City of Seattle,3,3
+2093,2019,9.0,1.0,8.0,City of Seattle,5,5
+2094,2019,9.0,0.0,9.0,City of Seattle,4,4
+2095,2019,11.0,1.0,10.0,City of Seattle,4,7
+2096,2019,9.0,0.0,9.0,City of Seattle,4,4
+2097,2019,14.0,4.0,10.0,City of Seattle,6,6
+2098,2019,11.0,2.0,9.0,City of Seattle,4,4
+2099,2019,8.0,0.0,8.0,City of Seattle,4,6
+2100,2019,11.0,1.0,10.0,City of Seattle,4,4
+2101,2019,8.0,0.0,8.0,City of Seattle,4,5
+2102,2019,11.0,2.0,9.0,City of Seattle,3,4
+2103,2019,12.0,4.0,8.0,City of Seattle,4,5
+2104,2019,11.0,1.0,10.0,City of Seattle,5,8
+2105,2019,8.0,2.0,6.0,City of Seattle,4,4
+2106,2019,11.0,1.0,10.0,City of Seattle,4,4
+2107,2019,9.0,0.0,9.0,City of Seattle,4,6
+2108,2019,9.0,1.0,8.0,City of Seattle,5,5
+2109,2019,8.0,2.0,6.0,City of Seattle,4,4
+2110,2019,11.0,1.0,10.0,City of Seattle,4,4
+2111,2019,8.0,0.0,8.0,City of Seattle,4,5
+2112,2019,11.0,1.0,10.0,City of Seattle,4,4
+2113,2019,9.0,0.0,9.0,City of Seattle,4,6
+2114,2019,8.0,0.0,8.0,City of Seattle,4,6
+2115,2019,12.0,4.0,8.0,City of Seattle,4,5
+2116,2019,8.0,0.0,8.0,City of Seattle,4,4
+2117,2019,11.0,2.0,9.0,City of Seattle,3,4
+2118,2019,9.0,0.0,9.0,City of Seattle,4,6
+2119,2019,11.0,2.0,9.0,City of Seattle,4,4
+2120,2019,11.0,1.0,10.0,City of Seattle,4,7
+2121,2019,9.0,2.0,7.0,City of Seattle,4,4
+2122,2019,5.0,1.0,4.0,City of Seattle,3,3
+2123,2019,10.0,4.0,6.0,City of Seattle,4,6
+2124,2019,8.0,0.0,8.0,City of Seattle,4,6
+2125,2019,8.0,3.0,5.0,City of Seattle,4,9
+2126,2019,7.0,0.0,7.0,City of Seattle,4,4
+2127,2019,11.0,1.0,10.0,City of Seattle,5,8
+2128,2019,8.0,3.0,5.0,City of Seattle,3,6
+2129,2019,8.0,1.0,7.0,City of Seattle,4,4
+2130,2019,8.0,1.0,7.0,City of Seattle,4,5
+2131,2019,8.0,0.0,8.0,City of Seattle,4,4
+2132,2019,7.0,1.0,6.0,City of Seattle,0,1
+2133,2019,8.0,1.0,7.0,City of Seattle,4,4
+2134,2019,11.0,1.0,10.0,City of Seattle,4,4
+2135,2019,17.0,15.0,2.0,City of Seattle,4,0
+2136,2019,13.0,11.0,2.0,City of Seattle,5,0
+2137,2019,8.0,1.0,7.0,City of Seattle,4,4
+2138,2019,8.0,0.0,8.0,City of Seattle,4,4
+2139,2019,8.0,0.0,8.0,City of Seattle,4,5
+2140,2019,11.0,1.0,10.0,City of Seattle,4,7
+2141,2019,9.0,2.0,7.0,City of Seattle,4,4
+2142,2019,5.0,1.0,4.0,City of Seattle,3,3
+2143,2019,11.0,2.0,9.0,City of Seattle,4,4
+2144,2019,9.0,1.0,8.0,City of Seattle,5,5
+2145,2019,11.0,1.0,10.0,City of Seattle,4,4
+2146,2019,9.0,0.0,9.0,City of Seattle,4,4
+2147,2019,14.0,4.0,10.0,City of Seattle,6,6
+7424,2019,2.0,1.0,1.0,King County Marine Division,1,1
+7425,2019,0.0,0.0,0.0,King County Marine Division,0,0
+7426,2019,9.0,2.0,7.0,King County Marine Division,6,9
+7427,2019,0.0,0.0,0.0,King County Marine Division,2,4
+7428,2019,6.0,1.0,5.0,King County Marine Division,3,5
+7429,2019,4.0,3.0,1.0,King County Marine Division,0,0
+7430,2019,8.0,1.0,7.0,King County Marine Division,4,7
+7431,2019,6.0,3.0,3.0,King County Marine Division,2,6
+7432,2019,2.0,2.0,0.0,King County Marine Division,0,1
+7433,2014,2.0,1.0,1.0,King County Marine Division,0,0
+7434,2019,8.0,0.0,8.0,King County Marine Division,4,4
+7435,2019,10.0,2.0,8.0,King County Marine Division,4,4
+7436,2019,4.0,3.0,1.0,King County Marine Division,0,0
+7437,2019,13.0,8.0,5.0,King County Marine Division,5,8
+47534,2019,8.0,5.0,3.0,Sound Transit,1,3
+47535,2019,2.0,2.0,0.0,Sound Transit,0,0
+47536,2019,1.0,0.0,1.0,Sound Transit,0,0
+47537,2019,2.0,2.0,0.0,Sound Transit,0,0
+47538,2019,6.0,2.0,4.0,Sound Transit,2,2
+47539,2019,13.0,7.0,6.0,Sound Transit,4,4
+47540,2019,5.0,0.0,5.0,Sound Transit,4,4
+47541,2019,4.0,0.0,4.0,Sound Transit,2,2
+47542,2019,2.0,2.0,0.0,Sound Transit,0,0
+47543,2019,3.0,1.0,2.0,Sound Transit,0,1
+47544,2019,0.0,0.0,0.0,Sound Transit,0,0
+47545,2019,10.0,10.0,0.0,Sound Transit,5,6
+47546,2019,0.0,0.0,0.0,Sound Transit,0,0
+47547,2019,0.0,0.0,0.0,Sound Transit,0,0
+47548,2019,0.0,0.0,0.0,Sound Transit,0,0
+47549,2019,0.0,0.0,0.0,Sound Transit,0,0
+47550,2019,4.0,0.0,4.0,Sound Transit,2,2
+47551,2019,3.0,2.0,1.0,Sound Transit,0,0
+47552,2019,0.0,0.0,0.0,Sound Transit,0,0
+47553,2019,0.0,0.0,0.0,Sound Transit,0,0
+47554,2019,0.0,0.0,0.0,Sound Transit,0,0
+47555,2019,2.0,1.0,1.0,Sound Transit,1,2
+47556,2019,8.0,0.0,8.0,Sound Transit,4,4
+47557,2019,4.0,0.0,4.0,Sound Transit,4,4
+47558,2019,4.0,0.0,4.0,Sound Transit,2,2
+47559,2019,5.0,0.0,5.0,Sound Transit,3,3
+47560,2019,0.0,0.0,0.0,Sound Transit,0,0
+47561,2019,0.0,0.0,0.0,Sound Transit,0,0
+47562,2019,1.0,1.0,0.0,Sound Transit,0,0
+47563,2019,2.0,0.0,2.0,Sound Transit,2,2
+47564,2019,8.0,1.0,7.0,Sound Transit,5,5
+47565,2019,1.0,0.0,1.0,Sound Transit,0,1
+47566,2019,1.0,1.0,0.0,Sound Transit,0,0
+47567,2019,1.0,1.0,0.0,Sound Transit,0,0
+47568,2019,1.0,0.0,1.0,Sound Transit,0,0
+47569,2019,10.0,3.0,7.0,Sound Transit,6,6
+47570,2019,6.0,1.0,5.0,Sound Transit,2,3
+47571,2019,5.0,3.0,2.0,Sound Transit,1,1
+47572,2019,2.0,2.0,0.0,Sound Transit,0,0
+47573,2019,0.0,0.0,0.0,Sound Transit,0,0
+47574,2019,6.0,2.0,4.0,Sound Transit,2,4
+47575,2019,2.0,1.0,1.0,Sound Transit,0,0
+47576,2019,7.0,0.0,7.0,Sound Transit,3,4
+47577,2019,2.0,2.0,0.0,Sound Transit,0,0
+47578,2019,6.0,0.0,6.0,Sound Transit,4,5
+47579,2019,7.0,0.0,7.0,Sound Transit,4,4
+47580,2019,2.0,2.0,0.0,Sound Transit,1,1
+47581,2019,1.0,1.0,0.0,Sound Transit,0,0
+47582,2019,3.0,1.0,2.0,Sound Transit,1,3
+47583,2019,6.0,2.0,4.0,Sound Transit,0,0
+47584,2019,0.0,0.0,0.0,Sound Transit,0,1
+47585,2019,2.0,0.0,2.0,Sound Transit,1,1
+47586,2019,1.0,0.0,1.0,Sound Transit,0,0
+47587,2019,2.0,1.0,1.0,Sound Transit,0,0
+47588,2019,9.0,1.0,8.0,Sound Transit,6,6
+47589,2019,0.0,0.0,0.0,Sound Transit,0,0
+47590,2019,8.0,4.0,4.0,Sound Transit,0,1
+47591,2019,11.0,0.0,11.0,Sound Transit,4,1
+47592,2019,8.0,2.0,6.0,Sound Transit,7,6
+47593,2019,3.0,2.0,1.0,Sound Transit,1,0
+47594,2019,3.0,1.0,2.0,Sound Transit,2,2
+47595,2019,0.0,0.0,0.0,Sound Transit,1,1
+47596,2019,0.0,0.0,0.0,Sound Transit,0,0
+47597,2019,11.0,1.0,10.0,Sound Transit,7,6
+47598,2019,3.0,0.0,3.0,Sound Transit,1,1
+47599,2019,0.0,0.0,0.0,Sound Transit,0,0
+47600,2019,0.0,0.0,0.0,Sound Transit,0,0
+47601,2019,0.0,0.0,0.0,Sound Transit,0,0
+47602,2019,0.0,0.0,0.0,Sound Transit,0,0
+47603,2018,5.0,2.0,3.0,Sound Transit,4,2
+47604,2019,0.0,0.0,0.0,Sound Transit,0,0
+47605,2019,0.0,0.0,0.0,Sound Transit,0,0
+47606,2019,2.0,0.0,2.0,Sound Transit,1,1
+47607,2019,3.0,1.0,2.0,Sound Transit,0,0
+47608,2019,7.0,1.0,6.0,Sound Transit,4,6
+47609,2019,3.0,1.0,2.0,Sound Transit,3,2
+47614,2019,1.0,1.0,0.0,Sound Transit,0,0
+47615,2019,1.0,0.0,1.0,Sound Transit,0,0
+47616,2019,6.0,0.0,6.0,Sound Transit,3,3
+47617,2019,3.0,1.0,2.0,Sound Transit,0,3
+47618,2019,9.0,0.0,9.0,Sound Transit,4,4
+47619,2019,2.0,1.0,1.0,Sound Transit,0,0
+47620,2019,7.0,0.0,7.0,Sound Transit,4,4
+47621,2019,3.0,2.0,1.0,Sound Transit,0,0
+47622,2019,6.0,5.0,1.0,Sound Transit,0,0
+47623,2019,4.0,0.0,4.0,Sound Transit,3,5
+47624,2019,0.0,0.0,0.0,Sound Transit,4,4
+47625,2019,2.0,1.0,1.0,Sound Transit,0,0
+47626,2019,0.0,0.0,0.0,Sound Transit,1,1
+47627,2019,3.0,0.0,3.0,Sound Transit,1,2
+47628,2019,4.0,0.0,4.0,Sound Transit,1,1
+47688,2019,3.0,1.0,2.0,Sound Transit,1,2
+47689,2019,3.0,1.0,2.0,Sound Transit,0,1
+47690,2019,8.0,2.0,6.0,Sound Transit,3,4
+47691,2019,5.0,2.0,3.0,Sound Transit,1,3
+47692,2019,7.0,1.0,6.0,Sound Transit,3,3
+47693,2019,4.0,0.0,4.0,Sound Transit,2,4
+47694,2019,8.0,0.0,8.0,Sound Transit,4,4
+47695,2019,2.0,2.0,0.0,Sound Transit,0,0
+47696,2019,6.0,0.0,6.0,Sound Transit,3,3
+47697,2019,9.0,2.0,7.0,Sound Transit,4,4
+47698,2019,8.0,1.0,7.0,Sound Transit,4,4
+47699,2019,6.0,1.0,5.0,Sound Transit,3,3
+47700,2019,6.0,1.0,5.0,Sound Transit,3,3
+47701,2019,6.0,0.0,6.0,Sound Transit,4,5
+47702,2019,7.0,1.0,6.0,Sound Transit,4,8
+51482,2019,4.0,3.0,1.0,Washington State Ferries,0,0
+51483,2019,8.0,1.0,7.0,Washington State Ferries,4,7
+51484,2014,2.0,1.0,1.0,Washington State Ferries,0,0
+51485,2019,13.0,8.0,5.0,Washington State Ferries,5,8
+51486,2019,13.0,4.0,9.0,Washington State Ferries,5,7
+51487,2019,13.0,6.0,7.0,Washington State Ferries,4,4
