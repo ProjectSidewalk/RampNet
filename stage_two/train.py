@@ -311,7 +311,9 @@ def generate_heatmap_from_points(points_normalized, heatmap_shape=(512, 1024), s
 
 #: The values a pano JSON's ``supervision.mode`` may take (#263, docs/sparse_supervision.md).
 #: A JSON with no ``supervision`` block is dense, which is every published Stage 1 pano.
-SUPERVISION_MODES = ('sparse', 'verified_empty')
+#: 'dense_ignore' (#274, crosswalks): trained everywhere like a dense pano except inside its
+#: ignore discs and ignore boxes -- a label-complete pano whose unverifiable regions are known.
+SUPERVISION_MODES = ('sparse', 'verified_empty', 'dense_ignore')
 
 #: ``--mask-norm`` choices (#263). 'pixels' divides the masked sum by the pixel count, so a
 #: sparse positive is trained exactly as a dense one is; 'weight' divides by the weighted
@@ -358,6 +360,65 @@ def supervision_mode(data, points_normalized):
         raise ValueError(f"supervision.mode 'verified_empty' with {len(points_normalized)} "
                          f"positives and {len(ignore)} ignore points listed")
     return mode, ignore
+
+
+def supervision_ignore_boxes(data):
+    """``supervision.ignore_boxes`` of a 'dense_ignore' pano (#274): a list of
+    [x_left, x_right, y_top, y_bottom] in pano fractions. ``x_left > x_right`` means the box
+    wraps the 0/360 seam. Raises ValueError on anything else, so a malformed box never
+    silently trains as background.
+
+    >>> supervision_ignore_boxes({'supervision': {'mode': 'dense_ignore',
+    ...                                           'ignore_boxes': [[0.9, 0.1, 0.5, 0.7]]}})
+    [(0.9, 0.1, 0.5, 0.7)]
+    """
+    raw = (data.get('supervision') or {}).get('ignore_boxes', [])
+    if not isinstance(raw, list):
+        raise ValueError(f"supervision.ignore_boxes must be a list, got {raw!r}")
+    out = []
+    for b in raw:
+        if not (isinstance(b, (list, tuple)) and len(b) == 4
+                and all(isinstance(v, (int, float)) and 0.0 <= v <= 1.0 for v in b)
+                and b[2] <= b[3]):
+            raise ValueError(f"supervision.ignore_boxes entry must be [x_left, x_right, y_top, "
+                             f"y_bottom] in [0, 1] with y_top <= y_bottom, got {b!r}")
+        out.append(tuple(float(v) for v in b))
+    return out
+
+
+def generate_dense_ignore_weight(points_normalized, heatmap_shape=(512, 1024), sigma=10.0,
+                                 ignore_points=(), ignore_boxes=()):
+    """Loss-weight map for a 'dense_ignore' pano (#274), shape (1, H, W), float32.
+
+    1 everywhere (the pano teaches background, as a dense pano does) except:
+      * inside an ignore point's disc (radius ceil(3*sigma) heatmap px), a pixel strictly
+        nearer that ignore point than every positive gets 0 -- ``generate_weight_from_points``'
+        tie rule, so an ignore point beside a positive never erases the positive's peak;
+      * inside an ignore box, every pixel outside all positives' discs gets 0. Boxes may wrap
+        the seam (x_left > x_right); the positives' discs do not wrap, as in the target.
+    With no ignore points or boxes this is all ones, i.e. exactly a dense pano.
+    """
+    heatmap_h, heatmap_w = heatmap_shape
+    radius = int(math.ceil(3 * sigma))
+    weight = np.ones(heatmap_shape, dtype=bool)
+    d_pos = _nearest_dist_sq(points_normalized, heatmap_shape, radius)
+    if ignore_points:
+        d_ign = _nearest_dist_sq(ignore_points, heatmap_shape, radius)
+        weight &= ~((d_ign <= radius * radius) & (d_ign < d_pos))
+    if ignore_boxes:
+        boxed = np.zeros(heatmap_shape, dtype=bool)
+        for xl, xr, yt, yb in ignore_boxes:
+            r0 = max(0, int(math.floor(yt * heatmap_h)))
+            r1 = min(heatmap_h, int(math.ceil(yb * heatmap_h)) + 1)
+            c0 = max(0, int(math.floor(xl * heatmap_w)))
+            c1 = min(heatmap_w, int(math.ceil(xr * heatmap_w)) + 1)
+            if xl <= xr:
+                boxed[r0:r1, c0:c1] = True
+            else:
+                boxed[r0:r1, c0:] = True
+                boxed[r0:r1, :c1] = True
+        weight &= ~(boxed & (d_pos > radius * radius))
+    return torch.from_numpy(weight.astype(np.float32)).unsqueeze(0)
 
 
 def _nearest_dist_sq(points_normalized, heatmap_shape, radius):
@@ -550,6 +611,8 @@ class EquiHeatmapDataset(Dataset):
                 mode, ignore_points = supervision_mode(data, points_normalized)
             else:
                 mode, ignore_points = 'unknown', []
+            # #274: boxes are read only for 'dense_ignore' panos, so no other path calls this.
+            ignore_boxes = supervision_ignore_boxes(data) if mode == 'dense_ignore' else []
         elif isinstance(data, dict) and 'supervision' in data:
             raise ValueError(f"{json_path} carries a 'supervision' block (#263) but "
                              f"--loss-mask is off, so it would train as a dense pano. Pass "
@@ -564,6 +627,8 @@ class EquiHeatmapDataset(Dataset):
             if self.loss_mask:
                 # #263: the unverified detections mirror with the positives.
                 ignore_points = [(1.0 - x_norm, y_norm) for x_norm, y_norm in ignore_points]
+                # #274: a box mirrors with its edges swapped (a seam-wrapping box stays wrapping).
+                ignore_boxes = [(1.0 - xr, 1.0 - xl, yt, yb) for xl, xr, yt, yb in ignore_boxes]
 
         if self.augment is not None:
             # Pixel-wise only, so the points are untouched. Draws come from the
@@ -588,6 +653,11 @@ class EquiHeatmapDataset(Dataset):
                 weight = generate_weight_from_points(points_normalized,
                                                      heatmap_shape=self.target_heatmap_shape,
                                                      ignore_points=ignore_points)
+            elif mode == 'dense_ignore':
+                weight = generate_dense_ignore_weight(points_normalized,
+                                                      heatmap_shape=self.target_heatmap_shape,
+                                                      ignore_points=ignore_points,
+                                                      ignore_boxes=ignore_boxes)
             elif mode == 'unknown':
                 weight = torch.zeros_like(heatmap)
             else:                                           # dense, verified_empty

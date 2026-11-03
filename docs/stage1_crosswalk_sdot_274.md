@@ -67,6 +67,35 @@ rate moves less, 0.78–0.89 across years.
   crosswalk within 10 m. A person clicked paint in that exact pano, so neither the date nor the placement is
   in doubt. B2 then labels the other SDOT crosswalks in the same pano.
 
+## Draft issue for Jon to post (not posted)
+
+> **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
+>
+> `stage_one/dataset_generation/search_panos.search_panoramas` calls
+> `maps.googleapis.com/maps/api/js/GeoPhotoService.SingleImageSearch`. Since at least 2026-11-03 every call
+> returns HTTP 200 with the body
+> `[[5,"generic","GeoPhotoService.SingleImageSearch is decommissioned and turned down."]]`, which
+> `extract_panoramas` turns into an `IndexError`. `generate_dataset_meta.py` catches it per row and prints
+> "Error processing row", so a run looks like it worked while discovering nothing.
+>
+> Still working: `GetMetadata` (`get_pano_heading`, `get_date_of_panorama`) and the tile fetch in
+> `rampnet.gsv.fetch_panorama`.
+>
+> Replacement used by the crosswalk pilot (`scripts/analysis/stage1_crosswalk_sdot_274/pilot.py meta`):
+> - streetlevel 0.12.10 `get_coverage_tile` (z17) for the current panos near a point;
+> - `find_panorama_by_id` for each pano's historical captures, and for each capture's own position, heading
+>   and date.
+>
+> On 937 panos the production `get_pano_heading` equals streetlevel's heading exactly. Two side effects:
+> - Discovery then includes every historical capture, about 56 panos per point within 20 m in Seattle.
+> - streetlevel's `pyequilib` dependency pulls a newer CPU torch on Windows.
+>
+> Also worth knowing: the panos Project Sidewalk already stores (makelab2 `sidewalk_panos/`) cover the crowd's
+> labelled panos almost completely (3,292 of 3,301 in Seattle). GSV no longer serves metadata for about half of
+> them, but the PS server's `/backupImage/<id>/metadata` does.
+>
+> 🤖 Generated with [Claude Code](https://claude.com/claude-code) — Opus 5.5, claude-opus-5-5
+
 ## Replication
 
 ```bash

@@ -78,3 +78,19 @@ def test_b1_x_matches_the_production_renderer():
         persp = equirectangular_to_perspective(equi, 90, rel, -30, 64, 64)
         cols = np.where(persp[32, :, 0] > 128)[0]
         assert len(cols) and abs(cols.mean() - 31.5) <= 2.0, (rel, cols)
+
+
+def test_crowd_arm_explained_rule():
+    """A Vistas component is explained by a mark near its centroid or inside its (seam-aware) horizontal extent."""
+    pytest.importorskip("pyproj")
+    path = os.path.join(REPO, "scripts", "analysis", "stage1_crosswalk_sdot_274", "crowd_arm.py")
+    spec = importlib.util.spec_from_file_location("crowd_arm274", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    long_near = {"x": 0.50, "y": 0.80, "x_left": 0.35, "x_right": 0.65}
+    assert mod.explained(long_near, [(0.38, 0.81)])            # click at one end of a long near crosswalk
+    assert not mod.explained(long_near, [(0.38, 0.60)])        # same column, far above it
+    assert not mod.explained(long_near, [(0.10, 0.80)])        # elsewhere
+    seam = {"x": 0.99, "y": 0.6, "x_left": 0.95, "x_right": 0.03}
+    assert mod.explained(seam, [(0.02, 0.61)])                 # extent wraps the seam
+    assert mod.explained({"x": 0.2, "y": 0.6, "x_left": 0.2, "x_right": 0.2}, [(0.22, 0.6)])   # near centroid

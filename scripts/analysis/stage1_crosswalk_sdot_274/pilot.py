@@ -504,13 +504,68 @@ def cmd_fetch(a):
 
 # ---------------------------------------------------------------- place
 
-def cmd_place(a):
+def vistas_at(seg, pano, x, y):
+    """Vistas crosswalk classes in a 90-degree view centred on pano point (x, y); B2 = snapped component centroid.
+
+    Returns on_paint (the exact pixel), near_px_dist (pano-width distance to the nearest crosswalk pixel),
+    comp_found / b2_x / b2_y / shift (the component whose nearest pixel is within SNAP_R, and its centroid), plus
+    what `thumbnail` needs. Shared by `place` here and by crowd_arm.py, so both read paint the same way.
+    """
     import numpy as np
-    from PIL import Image, ImageDraw
     from scipy import ndimage
     from skimage.measure import label as cc_label
     from equirect_tiling import View, equirect_point_to_perspective, equirect_to_perspective, \
         perspective_point_to_equirect
+    import vistas_crosswalk_probe as probe
+    dip = (y - 0.5) * 180.0
+    view = View((x - 0.5) * 360.0, -dip, 90.0, 90.0, VIEW_PX, VIEW_PX)
+    img = equirect_to_perspective(pano, view)
+    sg, _ = seg.seg_prob(img)
+    sel = np.isin(sg, list(probe.CLASS_IDS))
+    uv = equirect_point_to_perspective(x, y, view)
+    pu = min(VIEW_PX - 1, int(uv[0] * VIEW_PX))
+    pv = min(VIEW_PX - 1, int(uv[1] * VIEW_PX))
+    out = {"on_paint": int(bool(sel[pv, pu])), "near_px_dist": "", "comp_found": 0, "b2_x": "", "b2_y": "",
+           "shift": "", "comp_area_px": "", "share_plain": "", "view_pitch_deg": round(-dip, 3),
+           "img": img, "sel": sel, "pu": pu, "pv": pv, "cx": None, "cy": None}
+    if sel.any():
+        lab = cc_label(sel, connectivity=2)
+        _, (ii, jj) = ndimage.distance_transform_edt(~sel, return_indices=True)
+        ni, nj = int(ii[pv, pu]), int(jj[pv, pu])
+        nx, ny = perspective_point_to_equirect((nj + 0.5) / VIEW_PX, (ni + 0.5) / VIEW_PX, view)
+        nd = pano_dist(x, y, nx, ny)
+        out["near_px_dist"] = round(nd, 5)
+        if nd <= SNAP_R:
+            comp = lab == lab[ni, nj]
+            ys, xs = np.nonzero(comp)
+            cy, cx = ys.mean(), xs.mean()
+            bx, by = perspective_point_to_equirect((cx + 0.5) / VIEW_PX, (cy + 0.5) / VIEW_PX, view)
+            out.update({"comp_found": 1, "b2_x": round(bx, 6), "b2_y": round(by, 6),
+                        "shift": round(pano_dist(x, y, bx, by), 5), "comp_area_px": int(comp.sum()),
+                        "share_plain": round(float((sg[comp] == 8).mean()), 3), "cx": cx, "cy": cy})
+    return out
+
+
+def thumbnail(v, size=512):
+    """The view with Vistas crosswalk pixels tinted, the query point as a red ring and B2 as a cyan cross."""
+    import numpy as np
+    from PIL import Image, ImageDraw
+    arr = np.asarray(v["img"]).astype(np.float32).copy()
+    sel = v["sel"]
+    arr[sel] = arr[sel] * 0.5 + np.array([255, 200, 0]) * 0.5
+    th = Image.fromarray(arr.astype(np.uint8)).resize((size, size))
+    f = size / VIEW_PX
+    dr = ImageDraw.Draw(th)
+    pu, pv = v["pu"] * f, v["pv"] * f
+    dr.ellipse([pu - 9, pv - 9, pu + 9, pv + 9], outline=(255, 0, 0), width=3)
+    if v["cx"] is not None:
+        cx, cy = v["cx"] * f, v["cy"] * f
+        dr.line([cx - 10, cy, cx + 10, cy], fill=(0, 255, 255), width=3)
+        dr.line([cx, cy - 10, cx, cy + 10], fill=(0, 255, 255), width=3)
+    return th
+
+
+def cmd_place(a):
     from detectors import load_pano_image
     import vistas_crosswalk_probe as probe
 
@@ -544,48 +599,16 @@ def cmd_place(a):
         plat, plng = r["pano_coords"]
         for (lat, lng), sid in todo:
             x, y, d, rel = project(plat, plng, heading, lat, lng)
-            dip = (y - 0.5) * 180.0
-            view = View((x - 0.5) * 360.0, -dip, 90.0, 90.0, VIEW_PX, VIEW_PX)
-            img = equirect_to_perspective(pano, view)
-            sg, _ = seg.seg_prob(img)
-            sel = np.isin(sg, list(probe.CLASS_IDS))
-            uv = equirect_point_to_perspective(x, y, view)
-            pu = min(VIEW_PX - 1, int(uv[0] * VIEW_PX))
-            pv = min(VIEW_PX - 1, int(uv[1] * VIEW_PX))
+            v = vistas_at(seg, pano, x, y)
             row = {"pano_id": r["pano_id"], "sdot_id": sid, "pano_date": r["pano_date"], "range_m": round(d, 2),
                    "rel_bearing_deg": round(rel, 3), "b1_x": round(x, 6), "b1_y": round(y, 6),
-                   "on_paint": int(bool(sel[pv, pu])), "near_px_dist": "", "comp_found": 0, "b2_x": "",
-                   "b2_y": "", "b1_b2_shift": "", "comp_area_px": "", "share_plain": "",
-                   "view_pitch_deg": round(-dip, 3), "segmenter_backend": seg.backend}
-            cx = cy = None
-            if sel.any():
-                lab = cc_label(sel, connectivity=2)
-                _, (ii, jj) = ndimage.distance_transform_edt(~sel, return_indices=True)
-                ni, nj = int(ii[pv, pu]), int(jj[pv, pu])
-                nx, ny = perspective_point_to_equirect((nj + 0.5) / VIEW_PX, (ni + 0.5) / VIEW_PX, view)
-                nd = pano_dist(x, y, nx, ny)
-                row["near_px_dist"] = round(nd, 5)
-                if nd <= SNAP_R:
-                    comp = lab == lab[ni, nj]
-                    ys, xs = np.nonzero(comp)
-                    cy, cx = ys.mean(), xs.mean()
-                    bx, by = perspective_point_to_equirect((cx + 0.5) / VIEW_PX, (cy + 0.5) / VIEW_PX, view)
-                    row.update({"comp_found": 1, "b2_x": round(bx, 6), "b2_y": round(by, 6),
-                                "b1_b2_shift": round(pano_dist(x, y, bx, by), 5), "comp_area_px": int(comp.sum()),
-                                "share_plain": round(float((sg[comp] == 8).mean()), 3)})
+                   "on_paint": v["on_paint"], "near_px_dist": v["near_px_dist"], "comp_found": v["comp_found"],
+                   "b2_x": v["b2_x"], "b2_y": v["b2_y"], "b1_b2_shift": v["shift"],
+                   "comp_area_px": v["comp_area_px"], "share_plain": v["share_plain"],
+                   "view_pitch_deg": v["view_pitch_deg"], "segmenter_backend": seg.backend}
             w.writerow(row)
             fh.flush()
-            # thumbnail: mask tint, B1 red ring, B2 cyan cross
-            th = Image.fromarray(np.asarray(img).copy())
-            arr = np.asarray(th).astype(np.float32)
-            arr[sel] = arr[sel] * 0.5 + np.array([255, 200, 0]) * 0.5
-            th = Image.fromarray(arr.astype(np.uint8)).resize((512, 512))
-            dr = ImageDraw.Draw(th)
-            dr.ellipse([pu / 2 - 9, pv / 2 - 9, pu / 2 + 9, pv / 2 + 9], outline=(255, 0, 0), width=3)
-            if cx is not None:
-                dr.line([cx / 2 - 10, cy / 2, cx / 2 + 10, cy / 2], fill=(0, 255, 255), width=3)
-                dr.line([cx / 2, cy / 2 - 10, cx / 2, cy / 2 + 10], fill=(0, 255, 255), width=3)
-            th.save(os.path.join(views, f"{r['pano_id']}__{sid.replace(':', '_')}.jpg"), quality=85)
+            thumbnail(v).save(os.path.join(views, f"{r['pano_id']}__{sid.replace(':', '_')}.jpg"), quality=85)
         if k % 25 == 0:
             log(f"  pano {k + 1}/{len(ds)}")
     fh.close()
