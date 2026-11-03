@@ -1,0 +1,241 @@
+{
+ "candidates": [
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "y11x_pano_h200",
+    "y26_pano"
+   ],
+   "n_legs": 2,
+   "pano": "2157f981-fcbb-4b0d-82a2-70eabd2cff24",
+   "rampnet_best_peak_within_radius": 0.2831,
+   "support": [],
+   "x": 0.7344,
+   "y": 0.5558
+  },
+  {
+   "group": "top",
+   "in_nadir_band": false,
+   "legs": [
+    "y11l_pano",
+    "y11x_pano_h200"
+   ],
+   "n_legs": 2,
+   "pano": "59e47e8b-7649-4d13-9d5d-f37e429dfca6",
+   "rampnet_best_peak_within_radius": 0.2798,
+   "support": [
+    "gdino"
+   ],
+   "x": 0.3532,
+   "y": 0.5626
+  },
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "qwen3-vl-8b",
+    "y11l_pano",
+    "y11x_pano_h200",
+    "y26_pano"
+   ],
+   "n_legs": 4,
+   "pano": "733095d5-b1c6-4d20-a02c-7ebab65d7bb9",
+   "rampnet_best_peak_within_radius": 0.2265,
+   "support": [
+    "gdino"
+   ],
+   "x": 0.6226,
+   "y": 0.6299
+  },
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "y11l_pano",
+    "y26_pano"
+   ],
+   "n_legs": 2,
+   "pano": "88490116-30d3-44e5-bfb8-8ba0e5422954",
+   "rampnet_best_peak_within_radius": null,
+   "support": [
+    "gdino"
+   ],
+   "x": 0.7205,
+   "y": 0.6605
+  },
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "y11x_pano_h200",
+    "y26_pano"
+   ],
+   "n_legs": 2,
+   "pano": "8ce50263-1b99-4ea4-9fb8-eaab45e80fac",
+   "rampnet_best_peak_within_radius": 0.0761,
+   "support": [],
+   "x": 0.157,
+   "y": 0.5844
+  },
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "qwen3-vl-8b",
+    "y26_pano"
+   ],
+   "n_legs": 2,
+   "pano": "ade1ccfb-e9bb-412c-a904-b71b1e5b6aee",
+   "rampnet_best_peak_within_radius": null,
+   "support": [
+    "gdino",
+    "owlv2"
+   ],
+   "x": 0.8991,
+   "y": 0.5182
+  },
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "qwen3-vl-8b",
+    "y26_pano"
+   ],
+   "n_legs": 2,
+   "pano": "b0f0b5d9-e286-4606-a2a9-b5757d5ef67b",
+   "rampnet_best_peak_within_radius": null,
+   "support": [
+    "gdino",
+    "owlv2"
+   ],
+   "x": 0.8954,
+   "y": 0.6169
+  },
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "y11l_pano",
+    "y11x_pano_h200"
+   ],
+   "n_legs": 2,
+   "pano": "b1b7ddd2-d43c-480e-9dd0-407b5cf3fd59",
+   "rampnet_best_peak_within_radius": null,
+   "support": [],
+   "x": 0.3272,
+   "y": 0.6074
+  },
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "qwen3-vl-8b",
+    "y26_pano"
+   ],
+   "n_legs": 2,
+   "pano": "cc057703-e556-4769-a99d-c32e5bcabb55",
+   "rampnet_best_peak_within_radius": 0.2154,
+   "support": [
+    "gdino"
+   ],
+   "x": 0.1185,
+   "y": 0.6624
+  },
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "y11l_pano",
+    "y11x_pano_h200"
+   ],
+   "n_legs": 2,
+   "pano": "f5af69b9-123d-4d34-b335-b48074ab8c93",
+   "rampnet_best_peak_within_radius": 0.1388,
+   "support": [],
+   "x": 0.9373,
+   "y": 0.7234
+  },
+  {
+   "group": "random",
+   "in_nadir_band": false,
+   "legs": [
+    "qwen3-vl-8b",
+    "y26_pano"
+   ],
+   "n_legs": 2,
+   "pano": "fbbe99ca-272b-44ca-bc69-b4ceb70790ab",
+   "rampnet_best_peak_within_radius": null,
+   "support": [
+    "gdino"
+   ],
+   "x": 0.7941,
+   "y": 0.6647
+  }
+ ],
+ "if_dense_legs_vote": {
+  "n_candidates": 579,
+  "n_from_dense_legs_only": 299,
+  "n_with_fewer_than_2_non_dense_legs": 568
+ },
+ "legs_not_run": [
+  "molmo2-8b"
+ ],
+ "legs_run": [
+  {
+   "family": "yolo",
+   "leg": "y11l_pano",
+   "n_panos": 125,
+   "n_uncached": 0,
+   "points_per_pano": 0.424,
+   "threshold": 0.25
+  },
+  {
+   "family": "yolo",
+   "leg": "y26_pano",
+   "n_panos": 125,
+   "n_uncached": 0,
+   "points_per_pano": 0.536,
+   "threshold": 0.25
+  },
+  {
+   "family": "yolo",
+   "leg": "y11x_pano_h200",
+   "n_panos": 125,
+   "n_uncached": 0,
+   "points_per_pano": 0.456,
+   "threshold": 0.25
+  },
+  {
+   "family": "open-vocab",
+   "leg": "owlv2",
+   "n_panos": 125,
+   "n_uncached": 0,
+   "points_per_pano": 5.536,
+   "threshold": 0.25
+  },
+  {
+   "family": "open-vocab",
+   "leg": "gdino",
+   "n_panos": 125,
+   "n_uncached": 0,
+   "points_per_pano": 27.4,
+   "threshold": 0.15
+  },
+  {
+   "family": "chat-vlm",
+   "leg": "qwen3-vl-8b",
+   "n_panos": 125,
+   "n_uncached": 0,
+   "points_per_pano": 2.84,
+   "threshold": null
+  }
+ ],
+ "n_candidates": 11,
+ "n_in_nadir_band": 0,
+ "support_only": [
+  "owlv2",
+  "gdino"
+ ],
+ "what": "Reviewer-attention list, NOT ground truth: locations where RampNet has no peak >= 0.3 within the 0.022 match radius and >= 2 challenger legs agree within it, not counting the dense open-vocabulary legs (OWLv2, Grounding DINO), which are listed as support only. Read after judging a pano, as a second sweep, so it does not steer the first look."
+}

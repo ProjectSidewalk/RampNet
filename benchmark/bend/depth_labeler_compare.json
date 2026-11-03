@@ -1,0 +1,1107 @@
+{
+ "labeler_commit_note": "labeler archive is local and unpublished; see docs/benchmark_depth_111.md",
+ "labeler_dir": "runs/bend/depth",
+ "panos": {
+  "-6wL7HzdK7t8DTC_zDPOLw": {
+   "identical": false,
+   "index_agreement": 0.9258,
+   "labeler_camera_height_m": 1.713,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:35:43+00:00",
+   "labeler_n_planes": 256,
+   "labeler_sha256": "c3e8fe6e5c50ce0f08af8ffb54e6003dba347280794172d970fbdea1f1ed4d6d",
+   "ours": "saved"
+  },
+  "0CvMs02xHlg3mCMHJdc6Xg": {
+   "identical": true,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:35:58+00:00",
+   "labeler_n_planes": 105,
+   "labeler_sha256": "f3d74c803f55a1da9a87a0c6f37982fe42ea26c879ca42b9c25ce49dc239a97b",
+   "ours": "saved"
+  },
+  "0FMaNGiSOoTGqLgh8jHfYQ": {
+   "identical": false,
+   "index_agreement": 0.9595,
+   "labeler_camera_height_m": 2.4475,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:35:59+00:00",
+   "labeler_n_planes": 158,
+   "labeler_sha256": "581811c5af6f307816af2bbad443c5001dcaa1651f66b7dde27773d16e6c56c0",
+   "ours": "saved"
+  },
+  "0SgaioiGd5Yi_5wc6m-nJg": {
+   "identical": false,
+   "index_agreement": 0.935,
+   "labeler_camera_height_m": 2.1868,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:36:02+00:00",
+   "labeler_n_planes": 161,
+   "labeler_sha256": "f39748e3e47349bbb9a4770fe0c2584fa483b2667e218aed1cde810248024e12",
+   "ours": "saved"
+  },
+  "1k8PFgEWlZnrY-j007WMAQ": {
+   "identical": false,
+   "index_agreement": 0.9828,
+   "labeler_camera_height_m": 2.4611,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:36:20+00:00",
+   "labeler_n_planes": 132,
+   "labeler_sha256": "e3220cf08dde47684e900413477b0dab378b6000d6fffde4b66e7b3036b8b925",
+   "ours": "saved"
+  },
+  "2S_Fj0bq7qkdKUBw9-g1XA": {
+   "identical": false,
+   "index_agreement": 0.9561,
+   "labeler_camera_height_m": 2.4564,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:36:31+00:00",
+   "labeler_n_planes": 158,
+   "labeler_sha256": "9110c74a33c1b5b1274e60eec293ae767ab3194c004e63315be83654215adf1f",
+   "ours": "saved"
+  },
+  "3EUb8DGIsQCcw8z9LOBnAA": {
+   "identical": false,
+   "index_agreement": 0.9413,
+   "labeler_camera_height_m": 2.3333,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:36:42+00:00",
+   "labeler_n_planes": 256,
+   "labeler_sha256": "e21db25c11a535073c67076651a83373385fe73f54acb6622a1b7366cfe09fc7",
+   "ours": "saved"
+  },
+  "4ijauQusmQIJgw4YLTkYsA": {
+   "identical": false,
+   "index_agreement": 0.9072,
+   "labeler_camera_height_m": 2.2539,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:03+00:00",
+   "labeler_n_planes": 184,
+   "labeler_sha256": "f1464d9d1eaffd9689acc65efd4787589708225d3fd1fe064a5fff9011174c16",
+   "ours": "saved"
+  },
+  "5NVgLhChZXnD_D-z3SLZyQ": {
+   "identical": false,
+   "index_agreement": 0.9384,
+   "labeler_camera_height_m": 2.3718,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:12+00:00",
+   "labeler_n_planes": 205,
+   "labeler_sha256": "29d77a8d6f403f9dbaf9db03a76ce07eb2b0bd71733840451dd86401b18a6af4",
+   "ours": "saved"
+  },
+  "5U3KS0M2Y8w3qsDGGV610g": {
+   "identical": false,
+   "index_agreement": 0.758,
+   "labeler_camera_height_m": 2.4766,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:14+00:00",
+   "labeler_n_planes": 170,
+   "labeler_sha256": "738a5a713ff0d450a4c2d7d87521fe1c71443a828ffb6b831c2e3b953f803fc7",
+   "ours": "saved"
+  },
+  "62TiKmlmxt_xn_68w1lgAw": {
+   "identical": false,
+   "index_agreement": 0.939,
+   "labeler_camera_height_m": 2.3558,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:22+00:00",
+   "labeler_n_planes": 151,
+   "labeler_sha256": "7b2a26731f71f831e83a3d4130b009db1fa1083ec8af05498766873e708d2944",
+   "ours": "saved"
+  },
+  "6WC0hdAYRsSAcluKSs5iRg": {
+   "identical": false,
+   "index_agreement": 0.9297,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:37:28+00:00",
+   "labeler_n_planes": 256,
+   "labeler_sha256": "d8b7e350896809d7cda0c5133da8bcd99fd83ceb2ca8bada117ccaca54c032ef",
+   "ours": "saved"
+  },
+  "7B5Vphda5PDmZJ5q1RQWdg": {
+   "identical": false,
+   "index_agreement": 0.9372,
+   "labeler_camera_height_m": 2.3335,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:38+00:00",
+   "labeler_n_planes": 200,
+   "labeler_sha256": "44f2a3dd3609aa87117bd07bb1fdb30b68e4070bbed749af9cd333e710db8b32",
+   "ours": "saved"
+  },
+  "87nWq0hrTZLm2_UXRgPhZQ": {
+   "identical": false,
+   "index_agreement": 0.9424,
+   "labeler_camera_height_m": 2.2519,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:50+00:00",
+   "labeler_n_planes": 158,
+   "labeler_sha256": "a07ad3c20bb851cb62cd6f07eb384967d0bafc74e517032291b216bf49ba6969",
+   "ours": "saved"
+  },
+  "8H6LgNn56hay95HiBYrhHw": {
+   "identical": false,
+   "index_agreement": 0.8414,
+   "labeler_camera_height_m": 2.3889,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:52+00:00",
+   "labeler_n_planes": 147,
+   "labeler_sha256": "6064b4fa78ec2f73c08f9bf3862ad857c9ebca96237dec04c90d73d931b9e359",
+   "ours": "saved"
+  },
+  "8KtYwvo9b34f3zm-afipNg": {
+   "identical": false,
+   "index_agreement": 0.9998,
+   "labeler_camera_height_m": 2.3669,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:53+00:00",
+   "labeler_n_planes": 27,
+   "labeler_sha256": "6f52896c097fa55fb2a98b6d0fa0c39999c9a321fe25c5f2ca745ac4c2c9a097",
+   "ours": "saved"
+  },
+  "8VPbrd8XBzDOIVoo5Xwz8g": {
+   "identical": false,
+   "index_agreement": 0.896,
+   "labeler_camera_height_m": 2.3266,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:55+00:00",
+   "labeler_n_planes": 186,
+   "labeler_sha256": "5f24c70df0a1fc42113018c62691ca86fe2d4b44148550262bfb7d200586c39c",
+   "ours": "saved"
+  },
+  "8cphEWdm85w5CwOw4rm0_A": {
+   "identical": false,
+   "index_agreement": 0.9414,
+   "labeler_camera_height_m": 1.6643,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:37:57+00:00",
+   "labeler_n_planes": 62,
+   "labeler_sha256": "7269e1dbaa7ab368dc56a6394ca5d8246406826c8d5b58394c8125baca228a1c",
+   "ours": "saved"
+  },
+  "91IlnKR3b8rCc1Zx5XGy7w": {
+   "identical": false,
+   "index_agreement": 0.7463,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:38:03+00:00",
+   "labeler_n_planes": 179,
+   "labeler_sha256": "3096e0a5d64664354eed2ff404310fe5a8a285688b010b1fe677a9c9b8c9531a",
+   "ours": "saved"
+  },
+  "9DA1aapwjQcdUP2HEfrhfg": {
+   "identical": false,
+   "index_agreement": 0.8933,
+   "labeler_camera_height_m": 2.394,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:38:05+00:00",
+   "labeler_n_planes": 141,
+   "labeler_sha256": "6779cc8d8b572e719bf0282462a86308657031331dfff23497470a5f5ae29978",
+   "ours": "saved"
+  },
+  "9kW9cxpuj7q8DMzf-ClrQQ": {
+   "identical": false,
+   "index_agreement": 0.9618,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:38:13+00:00",
+   "labeler_n_planes": 134,
+   "labeler_sha256": "be5676670ce8374c4682971821f8d8f982791d8cd40a57ea6928c0cb33532b96",
+   "ours": "saved"
+  },
+  "A5AVKFhm7unr9Rs55aQ1Tw": {
+   "identical": false,
+   "index_agreement": 0.9568,
+   "labeler_camera_height_m": 2.3748,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:38:18+00:00",
+   "labeler_n_planes": 205,
+   "labeler_sha256": "8367881d10892733b03f841854ee943afd423565e7faa07c6e1bcbb3f77da022",
+   "ours": "saved"
+  },
+  "BfLStXTTg1-0FjTrZcvYWg": {
+   "identical": false,
+   "index_agreement": 0.8962,
+   "labeler_camera_height_m": 2.0712,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:38:40+00:00",
+   "labeler_n_planes": 187,
+   "labeler_sha256": "23657804dba2349c73395f2772bb36ffd141a1d8427957e21b350c657924082c",
+   "ours": "saved"
+  },
+  "CIdYXefgwcZw4L9PqIpuHQ": {
+   "identical": false,
+   "index_agreement": 0.9186,
+   "labeler_camera_height_m": 2.3519,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:38:49+00:00",
+   "labeler_n_planes": 239,
+   "labeler_sha256": "7464b055973961c12bd03632206ef8bbfcbd25eab37d2aade12aa27eefe42bd6",
+   "ours": "saved"
+  },
+  "DFx_w62mJn4Qm4upFTXytQ": {
+   "identical": false,
+   "index_agreement": 0.9143,
+   "labeler_camera_height_m": 2.4645,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:39:01+00:00",
+   "labeler_n_planes": 146,
+   "labeler_sha256": "edf551824f0b59acd790c73a73bd3a11d16e55df07d7652a57abd6463611d465",
+   "ours": "saved"
+  },
+  "DJ8Zp111zu6KnMZz-0PHgQ": {
+   "identical": false,
+   "index_agreement": 0.9645,
+   "labeler_camera_height_m": 2.3477,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:39:02+00:00",
+   "labeler_n_planes": 190,
+   "labeler_sha256": "34e100608b73482a7b26e72594fc1097189b01cc6589ad00e33effa0f840776d",
+   "ours": "saved"
+  },
+  "DaCRMtjRrkxBB468GFSAvQ": {
+   "identical": false,
+   "index_agreement": 0.9717,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:39:06+00:00",
+   "labeler_n_planes": 81,
+   "labeler_sha256": "6bd8bd09665d602ead4aa9f576d2c4c8656e0016a0bb5555647f96a9ab92a8b6",
+   "ours": "saved"
+  },
+  "E15SCY6RTiDuNUu_trZk4Q": {
+   "identical": false,
+   "index_agreement": 0.7561,
+   "labeler_camera_height_m": 2.4037,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:39:12+00:00",
+   "labeler_n_planes": 204,
+   "labeler_sha256": "b4c2313db3f075b6c926daa6b0f51ca4657e72057b27229df1965bc1d00e0d3d",
+   "ours": "saved"
+  },
+  "E1wxX3pnvZdWrWnUkfkNkA": {
+   "identical": false,
+   "index_agreement": 0.9531,
+   "labeler_camera_height_m": 2.2754,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:39:12+00:00",
+   "labeler_n_planes": 152,
+   "labeler_sha256": "4c572964baa2a42644b3df5df09354ee637106099f69000f2a0b1a6778e3036e",
+   "ours": "saved"
+  },
+  "HraXxn_y7_j4o8_4iS_JDQ": {
+   "identical": false,
+   "index_agreement": 0.7747,
+   "labeler_camera_height_m": 2.402,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:40:04+00:00",
+   "labeler_n_planes": 130,
+   "labeler_sha256": "157e96a6672994c5ef3c0c02891205843fd6c08add8c9316d9eb8057eb6bba1f",
+   "ours": "saved"
+  },
+  "I8Y9zDjNKL1k5HUv6BSyFA": {
+   "identical": false,
+   "index_agreement": 0.9864,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:40:08+00:00",
+   "labeler_n_planes": 120,
+   "labeler_sha256": "cfd1901aa8bac1aa3174035260cacbf5ec98703256b7d6e3c20a98f6d6d1ab2b",
+   "ours": "saved"
+  },
+  "IQT-DUkA06hxOus4rPb47A": {
+   "identical": false,
+   "index_agreement": 0.9403,
+   "labeler_camera_height_m": 2.3772,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:40:13+00:00",
+   "labeler_n_planes": 182,
+   "labeler_sha256": "e25d35a9cd368006c774c5ea4c58a0f19a83947491652cab25ae4cf0aa1fa683",
+   "ours": "saved"
+  },
+  "I_t9Bp1OzV2m-ZKFHssOdg": {
+   "identical": false,
+   "index_agreement": 0.9405,
+   "labeler_camera_height_m": 2.3089,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:40:15+00:00",
+   "labeler_n_planes": 220,
+   "labeler_sha256": "e341486326297db61d7ac8a24d974e484e46c1e96f85ba73cdab7a5aac57447a",
+   "ours": "saved"
+  },
+  "JliGuAWGKCyOS1LBoywZlA": {
+   "identical": false,
+   "index_agreement": 0.9294,
+   "labeler_camera_height_m": 2.448,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:40:32+00:00",
+   "labeler_n_planes": 204,
+   "labeler_sha256": "ffe3a69526414b4a2d29b690ea6adc5cea8f4e6f8df11d1c4d0fdc999ddc2a96",
+   "ours": "saved"
+  },
+  "Jv7Zl2erbO_g10pRN-IS_Q": {
+   "identical": false,
+   "index_agreement": 0.9687,
+   "labeler_camera_height_m": 2.2836,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:40:33+00:00",
+   "labeler_n_planes": 167,
+   "labeler_sha256": "6c17bf23da116c240aff6317c2a348024a139f8e63577e346384aa09fb372a2e",
+   "ours": "saved"
+  },
+  "Kv2haiYlkJCiaO61RVWwQA": {
+   "identical": true,
+   "labeler_camera_height_m": 2.4853,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:40:47+00:00",
+   "labeler_n_planes": 225,
+   "labeler_sha256": "51277669fd84ac0199845f859627365ef5ac256b969d58cc92d1a6e51ebf6fca",
+   "ours": "saved"
+  },
+  "LMwVmdxU9opG4yzbotuw6g": {
+   "identical": false,
+   "index_agreement": 0.9774,
+   "labeler_camera_height_m": 2.4563,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:40:53+00:00",
+   "labeler_n_planes": 169,
+   "labeler_sha256": "c986302fa9e19c6a5ee9abf5fbf31a2758d6146b31bef0e85844e9d9ae94a1bf",
+   "ours": "saved"
+  },
+  "LN819vhVLLeYwzRsBh2zAg": {
+   "identical": false,
+   "index_agreement": 0.9541,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:40:53+00:00",
+   "labeler_n_planes": 174,
+   "labeler_sha256": "ff60bf8f80ee865030049664c1b775695dc26e934c16b78cc35cde200a427308",
+   "ours": "saved"
+  },
+  "LhpYKYMPIDXskyHjHW1nOQ": {
+   "identical": false,
+   "index_agreement": 0.9539,
+   "labeler_camera_height_m": 2.2213,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:40:58+00:00",
+   "labeler_n_planes": 127,
+   "labeler_sha256": "f4d7920574668bea9efde1fd94d874b36fde727a5b608a851db3c163f9ef4a8e",
+   "ours": "saved"
+  },
+  "NS7lT-itv0JiN6UHVvBxsg": {
+   "identical": false,
+   "index_agreement": 0.9728,
+   "labeler_camera_height_m": 2.378,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:41:22+00:00",
+   "labeler_n_planes": 140,
+   "labeler_sha256": "08acabe92e603b3884ff9fb53d16f27978188236c657cc2f4e91aa61af570c0d",
+   "ours": "saved"
+  },
+  "Noi7DhIT3xbCjA2Ip4QOyg": {
+   "identical": false,
+   "index_agreement": 0.8754,
+   "labeler_camera_height_m": 2.1495,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:41:28+00:00",
+   "labeler_n_planes": 230,
+   "labeler_sha256": "a453b230ac1ee6fdf1ca31180528b6eb5f05d139004e8d667bfae5b59807bdda",
+   "ours": "saved"
+  },
+  "NzRL8weHSGkfduBHnrgd5g": {
+   "identical": false,
+   "index_agreement": 0.9935,
+   "labeler_camera_height_m": 2.2214,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:41:31+00:00",
+   "labeler_n_planes": 117,
+   "labeler_sha256": "02213c53c3ef8bd5b7bdb4e8266e9b6cfc08f0bad02e47f56503e3032acf20ef",
+   "ours": "saved"
+  },
+  "OedGesfk606bGhg4OQESiQ": {
+   "identical": false,
+   "index_agreement": 0.9633,
+   "labeler_camera_height_m": 2.3763,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:41:44+00:00",
+   "labeler_n_planes": 190,
+   "labeler_sha256": "10f4ae580cb30d0c064bbcfa43c540cbc7279c77d0a09f82e77fbc9d84b3d7fb",
+   "ours": "saved"
+  },
+  "PX5zU_2KkKO0Gr4FiSe9aw": {
+   "identical": false,
+   "index_agreement": 0.931,
+   "labeler_camera_height_m": 2.3019,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:41:58+00:00",
+   "labeler_n_planes": 213,
+   "labeler_sha256": "e99c9dde50cac2d0325f7ce33d503b5bc223f1d1a98fb2b66ab0914e4b3f77f2",
+   "ours": "saved"
+  },
+  "PeJlsIXjn8VkEoryRRBBMg": {
+   "identical": false,
+   "index_agreement": 0.9739,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:42:00+00:00",
+   "labeler_n_planes": 151,
+   "labeler_sha256": "a09a73ceff243e21f4cd23e552f24f4c7857b4838c4a43d00a49685dfb09dbf4",
+   "ours": "saved"
+  },
+  "PgOXmiCTtEV4ip7AJDqf2Q": {
+   "identical": false,
+   "index_agreement": 0.949,
+   "labeler_camera_height_m": 2.3819,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:42:01+00:00",
+   "labeler_n_planes": 164,
+   "labeler_sha256": "eb09b0a73e21b5f16b4074c688345f8b2864fffc5727e146d7e974ab5c1f3a09",
+   "ours": "saved"
+  },
+  "RS0LXKWETF8PhWMbaexYlg": {
+   "identical": false,
+   "index_agreement": 0.9422,
+   "labeler_camera_height_m": 2.3535,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:42:30+00:00",
+   "labeler_n_planes": 181,
+   "labeler_sha256": "4cd7279360b219d7cf2a4be4a3b2ef5ba8911fa7c337b8b2fbc38f8b69d2357d",
+   "ours": "saved"
+  },
+  "Ro8ZmvW9hyxIS4GVq1cpMQ": {
+   "identical": false,
+   "index_agreement": 0.9046,
+   "labeler_camera_height_m": 2.3379,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:42:36+00:00",
+   "labeler_n_planes": 147,
+   "labeler_sha256": "2ffc83f8d79c47b759635e06da6f2e9fc17ff6a27d0fa382850e5ba8fad2983d",
+   "ours": "saved"
+  },
+  "SM4RUwTVtTzgSm3LWvzwqA": {
+   "identical": false,
+   "index_agreement": 0.9316,
+   "labeler_camera_height_m": 2.4304,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:42:46+00:00",
+   "labeler_n_planes": 179,
+   "labeler_sha256": "e324e0632f455ce5a835291e41b701600cb5ba4df85c0bbac202ccdf9c62bd7b",
+   "ours": "saved"
+  },
+  "ScnPNQ2cah0xzWlH28uoOw": {
+   "identical": false,
+   "index_agreement": 0.9578,
+   "labeler_camera_height_m": 2.2224,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:42:50+00:00",
+   "labeler_n_planes": 191,
+   "labeler_sha256": "b0c2caf9e51f78ff88d3daea0391d8a1c12b961807d738f1eaf55ddbcb1ec27d",
+   "ours": "saved"
+  },
+  "ShaAxuhgD3rK5__gON66zA": {
+   "identical": false,
+   "index_agreement": 0.9505,
+   "labeler_camera_height_m": 2.3472,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:42:52+00:00",
+   "labeler_n_planes": 157,
+   "labeler_sha256": "6d48ad98072170717ee7e68586530652c89e7c1b18794c2b2e4bf77a00bdf16e",
+   "ours": "saved"
+  },
+  "Tn5W3kvbdH7_Fpk29a_hrQ": {
+   "identical": false,
+   "index_agreement": 0.9772,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:43:12+00:00",
+   "labeler_n_planes": 202,
+   "labeler_sha256": "02bf76013515ab41107cfed81bb1b5a847271ba39c7a6edd66e60fb698e85f51",
+   "ours": "saved"
+  },
+  "TzKDX5ADk6lqRtZ-F8r6XQ": {
+   "identical": false,
+   "index_agreement": 0.8681,
+   "labeler_camera_height_m": 2.3532,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:43:15+00:00",
+   "labeler_n_planes": 182,
+   "labeler_sha256": "7e1cb366cd22638cf0b97c806790e892ad3d06cd204b976ea3dccd8c5f807d96",
+   "ours": "saved"
+  },
+  "UdLzRf1Yi67NOSMn6IZjHQ": {
+   "identical": false,
+   "index_agreement": 0.9822,
+   "labeler_camera_height_m": 2.4784,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:43:25+00:00",
+   "labeler_n_planes": 131,
+   "labeler_sha256": "982ffb20b379db6d695d5b5ee127430ffaa5d5041f7e84cfd354f3b5623a76b7",
+   "ours": "saved"
+  },
+  "VIMFndX_oqm7vJJD8gDyEA": {
+   "identical": false,
+   "index_agreement": 0.8925,
+   "labeler_camera_height_m": 2.2305,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:43:35+00:00",
+   "labeler_n_planes": 155,
+   "labeler_sha256": "af4d60a5717df80ae950a9c24fe9b959d2e883e7d9b11731f671f2fd7a4aa794",
+   "ours": "saved"
+  },
+  "VMjtxZNqxl9E6oUXnsdI8Q": {
+   "identical": false,
+   "index_agreement": 0.7637,
+   "labeler_camera_height_m": 2.4363,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:43:37+00:00",
+   "labeler_n_planes": 170,
+   "labeler_sha256": "5cccd5a5192ca45d0a33dc1dfc18e8f21ac61bbcb4978be2b7759f0920413c31",
+   "ours": "saved"
+  },
+  "VgWpqFkTwCIROvM0z-DkOw": {
+   "identical": false,
+   "index_agreement": 0.9613,
+   "labeler_camera_height_m": 2.3255,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:43:41+00:00",
+   "labeler_n_planes": 176,
+   "labeler_sha256": "ed7d26671a22d54331af0816a7746db0ddde4ce0a6d6cfc238ddae2c0ca629c9",
+   "ours": "saved"
+  },
+  "WGdZz7jOkmmmyQYpbw3F8w": {
+   "identical": false,
+   "index_agreement": 0.918,
+   "labeler_camera_height_m": 2.2769,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:43:50+00:00",
+   "labeler_n_planes": 112,
+   "labeler_sha256": "788829e98a5dfb8380c6c18c0ae176a84597c89ad6779465df3318c15b235b46",
+   "ours": "saved"
+  },
+  "Wnu3AyufxG1XD9JvU5K-hg": {
+   "identical": false,
+   "index_agreement": 0.8261,
+   "labeler_camera_height_m": 2.4297,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:43:58+00:00",
+   "labeler_n_planes": 164,
+   "labeler_sha256": "348fe99fd16b1d7ffcbf80731b29a90fd925c6ec6adf935eed4581aef098750d",
+   "ours": "saved"
+  },
+  "X3HUl4G0JyP3fwNYcFAXVw": {
+   "identical": false,
+   "index_agreement": 0.9288,
+   "labeler_camera_height_m": 2.425,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:44:02+00:00",
+   "labeler_n_planes": 167,
+   "labeler_sha256": "984f959c62dd873f3f3d10caf5dc28e6477ebf27f6ef6e43e71e0c8fd4ae3e0c",
+   "ours": "saved"
+  },
+  "X769L3ombUWjLtZDlE2fqg": {
+   "identical": false,
+   "index_agreement": 0.9456,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:44:03+00:00",
+   "labeler_n_planes": 186,
+   "labeler_sha256": "3ef672980ac0299381770b499fb4e114cfeafb2a98bf12da788d634904f5f8ee",
+   "ours": "saved"
+  },
+  "ZO7V6RR9LtZT8l9-SjIQUg": {
+   "identical": false,
+   "index_agreement": 0.9361,
+   "labeler_camera_height_m": 2.373,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:44:38+00:00",
+   "labeler_n_planes": 158,
+   "labeler_sha256": "f8548c108036a51ae567b9262c3bcb01b7f121d24865a4a13c12d51458881cd7",
+   "ours": "saved"
+  },
+  "ZlXmdBYkhIpp-wNfPlSIFw": {
+   "identical": false,
+   "index_agreement": 0.7289,
+   "labeler_camera_height_m": 2.3995,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:44:44+00:00",
+   "labeler_n_planes": 219,
+   "labeler_sha256": "ecea979eb957ecd350c04b6ec95c56469ee44022bb782705096837adf40398fb",
+   "ours": "saved"
+  },
+  "bCoStRGdrZB6z6QXF9w0yQ": {
+   "identical": false,
+   "index_agreement": 0.9616,
+   "labeler_camera_height_m": 2.3776,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:45:21+00:00",
+   "labeler_n_planes": 176,
+   "labeler_sha256": "123ac95ee2a4118971ecc6e15181ebec48b175c26a582dc66b9a93b199198f0f",
+   "ours": "saved"
+  },
+  "bTkyJpLDQ7HCw4yOdqdNCg": {
+   "identical": false,
+   "index_agreement": 0.9325,
+   "labeler_camera_height_m": 2.2599,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:45:25+00:00",
+   "labeler_n_planes": 247,
+   "labeler_sha256": "e8fe251dcef1161a972826370118506f81608b713b96a75d6c4c94a7996d90cf",
+   "ours": "saved"
+  },
+  "bVadNrPq_zXgbJjhhDSwDw": {
+   "identical": false,
+   "index_agreement": 0.9639,
+   "labeler_camera_height_m": 2.4248,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:45:26+00:00",
+   "labeler_n_planes": 123,
+   "labeler_sha256": "aabae1d06647563e052a94b8527a0f370d1618cbf30ca7dc43be69376dca7dd5",
+   "ours": "saved"
+  },
+  "cqb7v_2KGHMeSy8VpvkcDQ": {
+   "identical": false,
+   "index_agreement": 0.6775,
+   "labeler_camera_height_m": 2.3963,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:45:46+00:00",
+   "labeler_n_planes": 221,
+   "labeler_sha256": "6cf670070aa8f299323b11d17aeb823de53e7849beb7e9d6e374484cbeea5554",
+   "ours": "saved"
+  },
+  "dUy9p1NputrGH7SFDmbCpg": {
+   "identical": false,
+   "index_agreement": 0.9167,
+   "labeler_camera_height_m": 2.3281,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:45:54+00:00",
+   "labeler_n_planes": 190,
+   "labeler_sha256": "6770df760ed4521e1193a0d7ac6664db74443b767ca709d19f5da82cf670dece",
+   "ours": "saved"
+  },
+  "f8KWeNBZLlwJXVSj5_0RAg": {
+   "identical": false,
+   "index_agreement": 0.9398,
+   "labeler_camera_height_m": 2.4344,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:46:17+00:00",
+   "labeler_n_planes": 158,
+   "labeler_sha256": "c1fcad8fb8d83482cf72f43bc8a014cd13884e15cb5391a294d65336d067decb",
+   "ours": "saved"
+  },
+  "gTM14tSsKuUwbSxtTb4xoQ": {
+   "identical": false,
+   "index_agreement": 0.8123,
+   "labeler_camera_height_m": 2.4243,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:46:36+00:00",
+   "labeler_n_planes": 171,
+   "labeler_sha256": "29b387f40e33f9d1e886284ce269a584952567dc6a6f2033c75543a78a451e5c",
+   "ours": "saved"
+  },
+  "hKMeDFlSe7fPsZpi4kS-aA": {
+   "identical": false,
+   "index_agreement": 0.9571,
+   "labeler_camera_height_m": 2.4123,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:46:48+00:00",
+   "labeler_n_planes": 201,
+   "labeler_sha256": "1217eb173571b89a5f7537a39fabc42b2caa98e06cb75532195da479b8741985",
+   "ours": "saved"
+  },
+  "h_1bUHhTLKugR5XhzA1-nA": {
+   "identical": false,
+   "index_agreement": 0.8608,
+   "labeler_camera_height_m": 2.3949,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:46:51+00:00",
+   "labeler_n_planes": 155,
+   "labeler_sha256": "d5f1f9890f8a8b40694b41388cba8dc07ab206c532ace13b4bfea476240578e9",
+   "ours": "saved"
+  },
+  "hu3-VWXlGi42PkY38XPJzQ": {
+   "identical": false,
+   "index_agreement": 0.9573,
+   "labeler_camera_height_m": 2.3989,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:46:55+00:00",
+   "labeler_n_planes": 196,
+   "labeler_sha256": "bd894d18468f343edb2588b2f13869aba8322e2a98b79ebfb835f7b678cd9c19",
+   "ours": "saved"
+  },
+  "kJr7eKpZcJO_W6V5XlLtBw": {
+   "identical": false,
+   "index_agreement": 0.9691,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:47:29+00:00",
+   "labeler_n_planes": 196,
+   "labeler_sha256": "fe391ed49da9b44c2f20b5cb87658fbc7d83c631c5f677b72bf6fc329797fa9b",
+   "ours": "saved"
+  },
+  "kjNgQrRlUM8VkFMli6aIPQ": {
+   "identical": false,
+   "index_agreement": 0.9559,
+   "labeler_camera_height_m": 2.4586,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:47:35+00:00",
+   "labeler_n_planes": 211,
+   "labeler_sha256": "c4c7cca13684ef69b7d4fe9de9b13a8196f32de0de1f4eb25b89bb3d89883a10",
+   "ours": "saved"
+  },
+  "kkDJcaa4ZmOKSqhbnM1MvQ": {
+   "identical": false,
+   "index_agreement": 0.9101,
+   "labeler_camera_height_m": 2.3855,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:47:35+00:00",
+   "labeler_n_planes": 119,
+   "labeler_sha256": "460513db70e5a349798bdbd0639cd8a4bacab0f129ff1c3d4c7a121994d72214",
+   "ours": "saved"
+  },
+  "kmEwK3ZUn80IJAPqjc4nnA": {
+   "identical": false,
+   "index_agreement": 0.9473,
+   "labeler_camera_height_m": 2.3642,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:47:36+00:00",
+   "labeler_n_planes": 204,
+   "labeler_sha256": "7d481c527de15d5996b3e66288a764a6b82bff38293df6b86b5ef38bb1db3547",
+   "ours": "saved"
+  },
+  "lWmcJJwTxnbJ5OUloRKphA": {
+   "identical": false,
+   "index_agreement": 0.9261,
+   "labeler_camera_height_m": 2.2766,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:47:46+00:00",
+   "labeler_n_planes": 79,
+   "labeler_sha256": "a8c4f7308d3ae91c3679d38198ab33fd0e6939674859d38c4311a30b1be16064",
+   "ours": "saved"
+  },
+  "lijNEguHL6T106ODEBcylQ": {
+   "identical": false,
+   "index_agreement": 0.9714,
+   "labeler_camera_height_m": 2.372,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:47:49+00:00",
+   "labeler_n_planes": 213,
+   "labeler_sha256": "dbb5c847b08e85623bda67c5441e7610077b238c6dc6bf7a1069393ecaee0695",
+   "ours": "saved"
+  },
+  "m7R9z8VWIY94LLSiDgBdBQ": {
+   "identical": false,
+   "index_agreement": 0.9221,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:47:55+00:00",
+   "labeler_n_planes": 98,
+   "labeler_sha256": "feba82fa16b03deac1e6a25710e3c1b6be26d072ae026fa96ab4363c4c95e5b2",
+   "ours": "saved"
+  },
+  "mVwc04XB9DxuIb05ExnrdA": {
+   "identical": false,
+   "index_agreement": 0.9534,
+   "labeler_camera_height_m": 2.2858,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:48:01+00:00",
+   "labeler_n_planes": 198,
+   "labeler_sha256": "65d91b97de59dbe79f4943c8de5015822e1fbbf1b3de0b57abd10ae4fb0b3cd9",
+   "ours": "saved"
+  },
+  "mdQY8aMSdYrnHfHNXqj6GQ": {
+   "identical": false,
+   "index_agreement": 0.9222,
+   "labeler_camera_height_m": 2.3882,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:48:03+00:00",
+   "labeler_n_planes": 168,
+   "labeler_sha256": "29657b9c9a40cecee47c0bb43336a0d327ed1ebf875fe22f40793843d005b2db",
+   "ours": "saved"
+  },
+  "nd-z43_liOX80bmhO15urg": {
+   "identical": false,
+   "index_agreement": 0.9083,
+   "labeler_camera_height_m": 2.3388,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:48:17+00:00",
+   "labeler_n_planes": 82,
+   "labeler_sha256": "1e2924706ff28f020c41fa41664082bb474be56af30da297ce58d39a56c7ceb8",
+   "ours": "saved"
+  },
+  "o-cW-Lnr7Yd_VI9xiZ1DHw": {
+   "identical": false,
+   "index_agreement": 0.9959,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:48:23+00:00",
+   "labeler_n_planes": 74,
+   "labeler_sha256": "8c2eac206a1422075b2dcd92710c4794adc35ae72a78b3c7167e5058738ea542",
+   "ours": "saved"
+  },
+  "oKUCusv3jdVCLmevp-P3zw": {
+   "identical": false,
+   "index_agreement": 0.9742,
+   "labeler_camera_height_m": 2.0802,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:48:27+00:00",
+   "labeler_n_planes": 147,
+   "labeler_sha256": "6bdd2a4afce4d9c8917c0adcb4733a6e491bd28abe9dbea6821c8ee508c04ff6",
+   "ours": "saved"
+  },
+  "pIcQQrFa8_XDG7-VSRhAfQ": {
+   "identical": false,
+   "index_agreement": 0.9892,
+   "labeler_camera_height_m": 2.3522,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:48:41+00:00",
+   "labeler_n_planes": 107,
+   "labeler_sha256": "629f5b1fd5bad408e43db5f6983ffe2e180728e84d264b2a29b8207f9f92382d",
+   "ours": "saved"
+  },
+  "qNYRurrxEhqZvO8GrwE9nA": {
+   "identical": false,
+   "index_agreement": 0.9703,
+   "labeler_camera_height_m": 2.3819,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:48:57+00:00",
+   "labeler_n_planes": 179,
+   "labeler_sha256": "c3414dbcf1a62eecb09892d39e5a911e6aee6a87aa71f67a95b45ea3c97d446c",
+   "ours": "saved"
+  },
+  "rB_gP9faDRSuiKVDu8h23A": {
+   "identical": false,
+   "index_agreement": 0.9856,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:49:09+00:00",
+   "labeler_n_planes": 117,
+   "labeler_sha256": "07072e38cc23c9ff5826e734df7b8255d2243c706ed78ad080c04d3d97ed10da",
+   "ours": "saved"
+  },
+  "rQtHh0Wai-D1FvbvqBlWdw": {
+   "identical": false,
+   "index_agreement": 0.4772,
+   "labeler_camera_height_m": 2.2617,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:49:13+00:00",
+   "labeler_n_planes": 230,
+   "labeler_sha256": "6284cadafb0fa163ee7f22114bb7f870cb6e05243173215002ba8a60d49f427c",
+   "ours": "saved"
+  },
+  "rvwbAGgi-7mNlZHKSPC8WQ": {
+   "identical": false,
+   "index_agreement": 0.9774,
+   "labeler_camera_height_m": 2.2698,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:49:20+00:00",
+   "labeler_n_planes": 145,
+   "labeler_sha256": "a357b8969f077b51f00789adf9f54d30e7b513a552bfad7f2021b3935545611f",
+   "ours": "saved"
+  },
+  "rxF0qBiSbOEnMR9wwxpjEw": {
+   "identical": false,
+   "index_agreement": 0.9417,
+   "labeler_camera_height_m": 2.4797,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:49:20+00:00",
+   "labeler_n_planes": 246,
+   "labeler_sha256": "7febd760f7be14fc1c29a13332398f486fec9a0f7fef802c42fb399b9bc82c94",
+   "ours": "saved"
+  },
+  "s4e-NVzTyqcyZ6_5npv6Ow": {
+   "identical": true,
+   "labeler_camera_height_m": 2.3759,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:49:22+00:00",
+   "labeler_n_planes": 140,
+   "labeler_sha256": "7cda76bceb30d39dcc0ffed9b697e23e3b5319e398f6900128a08d53f7273b05",
+   "ours": "saved"
+  },
+  "sLysKXt4_iSuR_gUCdxe5g": {
+   "identical": false,
+   "index_agreement": 0.9408,
+   "labeler_camera_height_m": 2.4105,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:49:26+00:00",
+   "labeler_n_planes": 256,
+   "labeler_sha256": "7954b0d6feae3170613927ed1990d67892b7f4cc16b5b69438de66eb4408b1b8",
+   "ours": "saved"
+  },
+  "sUMfdZmScVLBGMjvZ0MjCA": {
+   "identical": false,
+   "index_agreement": 0.9715,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:49:27+00:00",
+   "labeler_n_planes": 178,
+   "labeler_sha256": "fe27ac4fe59619cd85645eef00921eed64e94c526a305d7b0294940c7901f553",
+   "ours": "saved"
+  },
+  "tAnrbC_F_FXbg7kTiYywVA": {
+   "identical": false,
+   "index_agreement": 0.9517,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:49:37+00:00",
+   "labeler_n_planes": 129,
+   "labeler_sha256": "c2e64f82e438d67be367d79a6d739dd6e01207b8cd81785e69fe827381e42e3e",
+   "ours": "saved"
+  },
+  "tvNqBlxdm0rdkZgBOGVfog": {
+   "identical": false,
+   "index_agreement": 0.7528,
+   "labeler_camera_height_m": 2.2999,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:49:48+00:00",
+   "labeler_n_planes": 156,
+   "labeler_sha256": "900ef74a7434ab3e3e264029daf7555dfe7ce9adb573355544eb507d1803aa5e",
+   "ours": "saved"
+  },
+  "ukV9s59lkyu-xEjUdK7CmQ": {
+   "identical": false,
+   "index_agreement": 0.9877,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:50:00+00:00",
+   "labeler_n_planes": 76,
+   "labeler_sha256": "e844e88837ad642911d1502fd18ff7b7b5e9d84bc75a21863541556c0827ed73",
+   "ours": "saved"
+  },
+  "vX7HB8heH18fb_VkIUAagA": {
+   "identical": false,
+   "index_agreement": 0.9443,
+   "labeler_camera_height_m": 2.3912,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:50:11+00:00",
+   "labeler_n_planes": 193,
+   "labeler_sha256": "f24781cfbcad95b07b71e70cbc855060039f7207cd62cb3dd54ed9efaf32c0d0",
+   "ours": "saved"
+  },
+  "vwNiakvhRASLUkJZwdRB4A": {
+   "identical": false,
+   "index_agreement": 0.9024,
+   "labeler_camera_height_m": 2.397,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:50:18+00:00",
+   "labeler_n_planes": 228,
+   "labeler_sha256": "48e03bf1ee788c5e1b0db316726a1d9153f0d05ef0e627ec7d925b90869e23f6",
+   "ours": "saved"
+  },
+  "vxefPfMvnutF5i07I8rnuw": {
+   "identical": false,
+   "index_agreement": 0.9529,
+   "labeler_camera_height_m": 2.4108,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:50:18+00:00",
+   "labeler_n_planes": 229,
+   "labeler_sha256": "cdeb38032efc01a8133ee6ee98eead9824a602b59fa987a29ba3ac24a1c15853",
+   "ours": "saved"
+  },
+  "woYJ5n0CfTGMuDWTBqcZAg": {
+   "identical": false,
+   "index_agreement": 0.9533,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:50:30+00:00",
+   "labeler_n_planes": 185,
+   "labeler_sha256": "2c5f52d00dd3c0c30d175bf5e126d171c7d63141b2128b3b024829b3d68ba0a4",
+   "ours": "saved"
+  },
+  "wuFHDmC43ImDlZMS6-opJQ": {
+   "identical": false,
+   "index_agreement": 0.9102,
+   "labeler_camera_height_m": 2.4121,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:50:31+00:00",
+   "labeler_n_planes": 169,
+   "labeler_sha256": "5d5d8c596e096fab77dbed7ccfb4a659b4e900e31a84b78d133c68f136f7a61d",
+   "ours": "saved"
+  },
+  "xKoseQiPNzFwaWfw9Rl6hg": {
+   "identical": false,
+   "index_agreement": 0.8511,
+   "labeler_camera_height_m": 2.3948,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:50:37+00:00",
+   "labeler_n_planes": 213,
+   "labeler_sha256": "f77afd6b7edbdf621eafd774baf8ea6e1e1e9d343415faf3be24d4cc9f6f1e45",
+   "ours": "saved"
+  },
+  "xU7xT5kREy_Jnq_vYaXc8w": {
+   "identical": false,
+   "index_agreement": 0.8948,
+   "labeler_camera_height_m": 2.3887,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:50:39+00:00",
+   "labeler_n_planes": 98,
+   "labeler_sha256": "7d1a469c4c212e2fc8cb9f513a3fc77991ff542fca364979b3db9bef9786fe00",
+   "ours": "saved"
+  },
+  "yDV1n1O4f0QHWG869hAzbQ": {
+   "identical": true,
+   "labeler_camera_height_m": 2.3238,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:50:50+00:00",
+   "labeler_n_planes": 64,
+   "labeler_sha256": "3c5f084a50b2a2a590ea6db0f9b404a08daf9df48598c20524ec760063d0f35e",
+   "ours": "saved"
+  },
+  "yJmMJeV6PD3UZlAmm4cmWg": {
+   "identical": false,
+   "index_agreement": 0.9721,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:50:51+00:00",
+   "labeler_n_planes": 139,
+   "labeler_sha256": "ec4dc824f342d5690dfc03068174e65226d37cdc5d4a960342f72b90971153c6",
+   "ours": "saved"
+  },
+  "yPUv9rk8acshJKXa9_jMag": {
+   "identical": false,
+   "index_agreement": 0.9979,
+   "labeler_camera_height_m": 2.3543,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:50:53+00:00",
+   "labeler_n_planes": 128,
+   "labeler_sha256": "6bf6196e70f113c6ee8c3c2a994251a43b6171860c9791cab528d2b9d03cd2ae",
+   "ours": "saved"
+  },
+  "yuwkp3XCUwSbB8q7Og99GQ": {
+   "identical": false,
+   "index_agreement": 0.9569,
+   "labeler_camera_height_m": 2.4136,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:51:01+00:00",
+   "labeler_n_planes": 209,
+   "labeler_sha256": "57d8888d9a90e6c2af3ef73fb1d20ac6179dcafa2d0d8f693933e74d12e61a43",
+   "ours": "saved"
+  },
+  "zR6d6XkSFO-UYbgkD26kkw": {
+   "identical": false,
+   "index_agreement": 0.8199,
+   "labeler_camera_height_m": 2.5,
+   "labeler_exactly_level": true,
+   "labeler_fetched_at": "2026-08-05T22:51:10+00:00",
+   "labeler_n_planes": 101,
+   "labeler_sha256": "72d3f6e2f1a25ff9be6621c5aa8e349c8bc8d187b967da60965e22fa2692fd30",
+   "ours": "saved"
+  },
+  "zcVgeJb6FkDw1z__YhM1tg": {
+   "identical": false,
+   "index_agreement": 0.7945,
+   "labeler_camera_height_m": 2.3345,
+   "labeler_exactly_level": false,
+   "labeler_fetched_at": "2026-08-05T22:51:12+00:00",
+   "labeler_n_planes": 147,
+   "labeler_sha256": "4acfe9fb3defa1037460119d62afb5e271c1b8ceaa7135d0fedc59b4c2fe16b8",
+   "ours": "saved"
+  }
+ },
+ "split": "bend",
+ "tally": {
+  "differs": 106,
+  "identical": 4
+ }
+}

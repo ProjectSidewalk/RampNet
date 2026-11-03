@@ -64,10 +64,11 @@ from rampnet.validation import wilson_interval  # noqa: E402
 from operating_point_curve import (  # noqa: E402
     DEPLOYED_THRESHOLD, classify_predictions, pr_curve_and_ap, read_cache)
 
-# The seven US city splits carry verdict-grade GT and are the recommendation's basis.
+# The nine US city splits carry verdict-grade GT and are the recommendation's basis.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
-             "gainesville", "laurens_mapillary")
-CITY_SPLITS = US_SPLITS + ("laurens_gsv", "budapest_district5", "sao_paulo")
+             "gainesville", "laurens_mapillary", "juneau")
+CITY_SPLITS = US_SPLITS + ("laurens_gsv", "budapest_district5", "sao_paulo",
+                            "bayonne")
 ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 
 # Why a split is swept but not pooled. Printed with the results so an omission can
@@ -91,6 +92,12 @@ HELD_OUT = {
     "sao_paulo": "non-US city — the pooled recommendation is a US-deployment "
                  "basis (GT is HIGH reviewer confidence; held out for "
                  "geography, not GT quality)",
+    "bayonne": "non-US city -- the pooled recommendation is a US-deployment "
+               "basis (first Panoramax split; held out for geography). Caveat, "
+               "not a second reason: GT is single-rater at MEDIUM reviewer "
+               "confidence, and French infrastructure fought the US-written "
+               "rubric (bollards as crossing cues, speed bumps vs raised "
+               "crossings, roundabouts with many ramps per junction)",
     "manual_gold": "in-distribution GSV + independently-labelled GT "
                    "(in-domain reference, not a deployment city)",
 }
@@ -381,9 +388,11 @@ def load_records(city, repo=REPO):
     return out
 
 
-def load_split(city, cache_dir=CACHE_DIR, repo=REPO):
-    """Cached low-floor panos for a split, each tagged with its imagery tier."""
-    panos, meta = read_cache(os.path.join(cache_dir, f"{city}.json"))
+def load_split(city, cache_dir=CACHE_DIR, repo=REPO, allow_unreviewed=False):
+    """Cached low-floor panos for a split, each tagged with its imagery tier.
+    ``allow_unreviewed`` is for readers that never touch GT (parity)."""
+    panos, meta = read_cache(os.path.join(cache_dir, f"{city}.json"),
+                             allow_unreviewed=allow_unreviewed)
     records = load_records(city, repo)
     fallback = SPLIT_IMAGERY_FALLBACK.get(city)
     for pd in panos:
@@ -468,6 +477,17 @@ PARITY_EXCEPTIONS = {
         "NMS pair-merges. Rows at <= 0.38 (including the recommended 0.30) are "
         "unaffected; rows at >= 0.55 understate production recall. Full decomposition "
         "in docs/operating_point.md.",
+    "laurens_gsv":
+        "count arm only: 111 cache vs 121 records detections at 0.55 (74.8% identical "
+        "cells, 92.8% within 0.5 R); displacement arm passes (every displacement under "
+        "0.44 R). All 18 records-only detections have a cache peak within 0.44 R (14 in "
+        "the same cell) scoring 0.38-0.54: the cache, extracted from the native-res "
+        "bundle, scores the same peaks lower than the deployed GSV run did -- the "
+        "deployed-vs-re-extraction gap #151 observed (docs/laurens_paired_151.md). "
+        "Admitted 2026-10-20 on the sao_paulo precedent for #263 Track 1 "
+        "(docs/open_rig_misses_258.md, Gaps): rows at >= 0.55 understate production "
+        "recall, and the cache's sub_threshold/silent split is conservative on the "
+        "sub_threshold side. Scoreboard P/R/F1 stay records-based (tp 112 / fp 8).",
 }
 
 
@@ -540,7 +560,7 @@ def cmd_parity(args):
           f"{'med R':>7} {'max R':>7}  verdict")
     print("-" * 92)
     for city in args.cities:
-        panos, meta = load_split(city, args.cache)
+        panos, meta = load_split(city, args.cache, allow_unreviewed=True)
         cache_tta = bool(meta.get("tta", False))
         res = parity_for(panos, load_records(city), args.threshold, args.tol_radii)
         rows.append((city, res, cache_tta))

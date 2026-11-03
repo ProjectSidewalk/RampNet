@@ -1,0 +1,300 @@
+{"n_registered": 12, "pair_id": "p000", "range_oth_m": 7.346153, "u": 970.833999, "v": 399.877861, "x": 0.839346, "y": 0.568448}
+{"n_registered": 12, "pair_id": "p001", "range_oth_m": 14.894034, "u": 810.87866, "v": 350.920619, "x": 0.936557, "y": 0.537802}
+{"n_registered": 56, "pair_id": "p002", "range_oth_m": 6.397524, "u": 623.681575, "v": 345.95389, "x": 0.750454, "y": 0.601118}
+{"n_registered": 56, "pair_id": "p003", "range_oth_m": 11.579823, "u": 546.176005, "v": 425.579944, "x": 0.65394, "y": 0.586694}
+{"n_registered": 52, "pair_id": "p004", "range_oth_m": 13.93484, "u": 459.528501, "v": 390.322961, "x": 0.095643, "y": 0.551855}
+{"n_registered": 52, "pair_id": "p005", "range_oth_m": 8.101304, "u": 646.583221, "v": 398.778373, "x": 0.288588, "y": 0.582841}
+{"n_registered": 68, "pair_id": "p006", "range_oth_m": 8.383018, "u": 577.600955, "v": 378.898954, "x": 0.327408, "y": 0.562959}
+{"n_registered": 68, "pair_id": "p007", "range_oth_m": 10.638991, "u": 431.654028, "v": 396.044746, "x": 0.822581, "y": 0.560304}
+{"n_registered": 61, "pair_id": "p008", "range_oth_m": 5.984744, "u": 621.810966, "v": 281.857255, "x": 0.095948, "y": 0.590426}
+{"n_registered": 61, "pair_id": "p009", "range_oth_m": 8.641884, "u": 524.667224, "v": 421.221869, "x": 0.836498, "y": 0.607718}
+{"n_registered": 37, "pair_id": "p010", "reason": "behind_other", "x": null, "y": null}
+{"n_registered": 37, "pair_id": "p011", "reason": "behind_other", "x": null, "y": null}
+{"n_registered": 23, "pair_id": "p012", "range_oth_m": 11.949865, "u": 489.234414, "v": 382.351352, "x": 0.114353, "y": 0.566174}
+{"n_registered": 23, "pair_id": "p013", "range_oth_m": 12.052268, "u": 518.216579, "v": 364.581741, "x": 0.403108, "y": 0.558937}
+{"n_registered": 62, "pair_id": "p014", "range_oth_m": 9.41292, "u": 553.726527, "v": 370.29679, "x": 0.62994, "y": 0.588985}
+{"n_registered": 62, "pair_id": "p015", "range_oth_m": 12.000129, "u": 468.433768, "v": 417.050374, "x": 0.897227, "y": 0.587862}
+{"n_registered": 56, "pair_id": "p016", "range_oth_m": 12.947143, "u": 552.895491, "v": 379.37763, "x": 0.560832, "y": 0.562277}
+{"n_registered": 56, "pair_id": "p017", "range_oth_m": 15.777126, "u": 525.260987, "v": 393.875758, "x": 0.078614, "y": 0.557399}
+{"n_registered": 48, "pair_id": "p018", "range_oth_m": 7.610947, "u": 678.030646, "v": 339.01875, "x": 0.934025, "y": 0.567105}
+{"n_registered": 48, "pair_id": "p019", "range_oth_m": 12.310642, "u": 545.832196, "v": 356.598019, "x": 0.175701, "y": 0.533692}
+{"n_registered": 39, "pair_id": "p020", "range_oth_m": 7.359157, "u": -767.277137, "v": 284.569498, "x": 0.114588, "y": 0.55242}
+{"n_registered": 39, "pair_id": "p021", "range_oth_m": 13.371231, "u": 609.162287, "v": 422.653851, "x": 0.445659, "y": 0.5764}
+{"n_registered": 44, "pair_id": "p022", "range_oth_m": 10.809487, "u": 415.610772, "v": 376.494002, "x": 0.097598, "y": 0.570179}
+{"n_registered": 44, "pair_id": "p023", "range_oth_m": 16.669078, "u": 445.471989, "v": 375.968203, "x": 0.059318, "y": 0.546039}
+{"n_registered": 52, "pair_id": "p024", "range_oth_m": 6.476609, "u": 340.916188, "v": 505.643343, "x": 0.74172, "y": 0.63874}
+{"n_registered": 52, "pair_id": "p025", "range_oth_m": 7.268462, "u": 549.759594, "v": 437.59244, "x": 0.84365, "y": 0.602043}
+{"n_registered": 63, "pair_id": "p026", "reason": "no_depth_at_click", "x": null, "y": null}
+{"n_registered": 63, "pair_id": "p027", "reason": "no_depth_at_click", "x": null, "y": null}
+{"n_registered": 24, "pair_id": "p028", "range_oth_m": 10.769758, "u": 875.640039, "v": 368.728672, "x": 0.95583, "y": 0.546417}
+{"n_registered": 24, "pair_id": "p029", "range_oth_m": 6.472944, "u": 172.681465, "v": 276.931356, "x": 0.569145, "y": 0.515508}
+{"n_registered": 50, "pair_id": "p030", "range_oth_m": 5.944326, "u": 514.193628, "v": 385.014307, "x": 0.248279, "y": 0.641183}
+{"n_registered": 50, "pair_id": "p031", "range_oth_m": 13.835327, "u": 515.378274, "v": 362.098828, "x": 0.409915, "y": 0.549255}
+{"n_registered": 24, "pair_id": "p032", "range_oth_m": 7.106576, "u": 202.169069, "v": 346.981589, "x": 0.663826, "y": 0.561028}
+{"n_registered": 24, "pair_id": "p033", "range_oth_m": 11.544952, "u": 593.834849, "v": 380.943378, "x": 0.903685, "y": 0.551949}
+{"n_registered": 63, "pair_id": "p034", "range_oth_m": 15.626471, "u": 455.047556, "v": 382.477551, "x": 0.871191, "y": 0.561447}
+{"n_registered": 63, "pair_id": "p035", "range_oth_m": 11.825936, "u": 369.277038, "v": 426.986394, "x": 0.895318, "y": 0.576715}
+{"n_registered": 36, "pair_id": "p036", "range_oth_m": 14.027857, "u": 358.096697, "v": 410.331305, "x": 0.918166, "y": 0.560937}
+{"n_registered": 36, "pair_id": "p037", "range_oth_m": 9.20323, "u": 231.434097, "v": 425.117751, "x": 0.889583, "y": 0.590043}
+{"n_registered": 67, "pair_id": "p038", "range_oth_m": 10.500985, "u": 489.345761, "v": 415.665245, "x": 0.910011, "y": 0.602633}
+{"n_registered": 67, "pair_id": "p039", "range_oth_m": 13.900706, "u": 496.992922, "v": 426.570044, "x": 0.589422, "y": 0.576861}
+{"n_registered": 63, "pair_id": "p040", "reason": "no_depth_at_click", "x": null, "y": null}
+{"n_registered": 63, "pair_id": "p041", "reason": "no_depth_at_click", "x": null, "y": null}
+{"n_registered": 39, "pair_id": "p042", "range_oth_m": 14.593951, "u": 497.07864, "v": 348.379102, "x": 0.36043, "y": 0.531016}
+{"n_registered": 49, "pair_id": "p043", "range_oth_m": 15.913778, "u": 477.876438, "v": 375.180139, "x": 0.42669, "y": 0.543935}
+{"n_registered": 49, "pair_id": "p044", "range_oth_m": 12.026616, "u": 474.775754, "v": 368.309464, "x": 0.669093, "y": 0.556028}
+{"n_registered": 84, "pair_id": "p045", "range_oth_m": 46.111237, "u": 418.209263, "v": 464.07118, "x": 0.941338, "y": 0.588733}
+{"n_registered": 84, "pair_id": "p046", "reason": "behind_other", "x": null, "y": null}
+{"n_registered": 48, "pair_id": "p047", "range_oth_m": 17.730229, "u": 509.147848, "v": 372.195525, "x": 0.539514, "y": 0.542169}
+{"n_registered": 48, "pair_id": "p048", "range_oth_m": 30.024709, "u": 33.079946, "v": 326.091694, "x": 0.809789, "y": 0.544294}
+{"n_registered": 52, "pair_id": "p049", "range_oth_m": 12.711516, "u": 537.662423, "v": 398.586874, "x": 0.15445, "y": 0.565908}
+{"n_registered": 52, "pair_id": "p050", "range_oth_m": 6.431236, "u": 400.881414, "v": 337.256266, "x": 0.239723, "y": 0.613511}
+{"n_registered": 54, "pair_id": "p051", "range_oth_m": 16.678474, "u": 518.514775, "v": 377.746741, "x": 0.968574, "y": 0.551515}
+{"n_registered": 54, "pair_id": "p052", "range_oth_m": 6.529812, "u": 560.756186, "v": 336.19017, "x": 0.288053, "y": 0.605939}
+{"n_registered": 66, "pair_id": "p053", "range_oth_m": 13.821165, "u": 669.403399, "v": 345.14841, "x": 0.954644, "y": 0.542322}
+{"n_registered": 66, "pair_id": "p054", "range_oth_m": 1.748592, "u": 602.375066, "v": 787.471764, "x": 0.80593, "y": 0.855677}
+{"n_registered": 61, "pair_id": "p055", "range_oth_m": 9.83495, "u": 569.45608, "v": 377.792484, "x": 0.271014, "y": 0.579937}
+{"n_registered": 61, "pair_id": "p056", "range_oth_m": 7.803457, "u": 484.602765, "v": 400.242488, "x": 0.110837, "y": 0.612948}
+{"n_registered": 66, "pair_id": "p057", "range_oth_m": 11.901247, "u": 653.388203, "v": 379.095331, "x": 0.609799, "y": 0.557959}
+{"n_registered": 66, "pair_id": "p058", "range_oth_m": 4.047921, "u": 926.405182, "v": 362.301426, "x": 0.476419, "y": 0.605952}
+{"n_registered": 54, "pair_id": "p059", "range_oth_m": 11.229096, "u": 288.005359, "v": 408.639271, "x": 0.572278, "y": 0.555003}
+{"pair_id": "p060", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p061", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p062", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p063", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p064", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p065", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p066", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p067", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p068", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p069", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p070", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p071", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p072", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p073", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p074", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p075", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p076", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p077", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p078", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p079", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p080", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p081", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p082", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p083", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p084", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p085", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p086", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p087", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p088", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p089", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p090", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p091", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p092", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p093", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p094", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p095", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p096", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p097", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p098", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p099", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p100", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p101", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p102", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p103", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p104", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p105", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p106", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p107", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p108", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p109", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p110", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p111", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p112", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p113", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p114", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p115", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p116", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p117", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p118", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p119", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p120", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p121", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p122", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p123", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p124", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p125", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p126", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p127", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p128", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p129", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p130", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p131", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p132", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p133", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p134", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p135", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p136", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p137", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p138", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p139", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p140", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p141", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p142", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p143", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p144", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p145", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p146", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p147", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p148", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p149", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p150", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p151", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p152", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p153", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p154", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p155", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p156", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p157", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p158", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p159", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p160", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p161", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p162", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p163", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p164", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p165", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p166", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p167", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p168", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p169", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p170", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p171", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p172", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p173", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p174", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p175", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p176", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p177", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p178", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p179", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p180", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p181", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p182", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p183", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p184", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p185", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p186", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p187", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p188", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p189", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p190", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p191", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p192", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p193", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p194", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p195", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p196", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p197", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p198", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p199", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p200", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p201", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p202", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p203", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p204", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p205", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p206", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p207", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p208", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p209", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p210", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p211", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p212", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p213", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p214", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p215", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p216", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p217", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p218", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p219", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p220", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p221", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p222", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p223", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p224", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p225", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p226", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p227", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p228", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p229", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p230", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p231", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p232", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p233", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p234", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p235", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p236", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p237", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p238", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p239", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p240", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p241", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p242", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p243", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p244", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p245", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p246", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p247", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p248", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p249", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p250", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p251", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p252", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p253", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p254", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p255", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p256", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p257", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p258", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p259", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p260", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p261", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p262", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p263", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p264", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p265", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p266", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p267", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p268", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p269", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p270", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p271", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p272", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p273", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p274", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p275", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p276", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p277", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p278", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p279", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p280", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p281", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p282", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p283", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p284", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p285", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p286", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p287", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p288", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p289", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p290", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p291", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p292", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p293", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p294", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p295", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p296", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p297", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p298", "reason": "not_mapillary", "x": null, "y": null}
+{"pair_id": "p299", "reason": "not_mapillary", "x": null, "y": null}

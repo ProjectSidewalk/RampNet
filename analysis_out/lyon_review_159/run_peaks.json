@@ -1,0 +1,4966 @@
+{
+ "panos": {
+  "0251def3-96a7-4d4b-a58f-3c78cc93cef7": [
+   {
+    "confidence": 0.671548,
+    "x_normalized": 0.2138671875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.514739,
+    "x_normalized": 0.42578125,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.279632,
+    "x_normalized": 0.5732421875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.22302,
+    "x_normalized": 0.2919921875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.191375,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.646484375
+   }
+  ],
+  "03a2955b-7c17-46ae-a4e9-8b3ee4969261": [
+   {
+    "confidence": 0.597822,
+    "x_normalized": 0.5888671875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.531893,
+    "x_normalized": 0.83984375,
+    "y_normalized": 0.755859375
+   },
+   {
+    "confidence": 0.495119,
+    "x_normalized": 0.4091796875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.386103,
+    "x_normalized": 0.38671875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.325097,
+    "x_normalized": 0.4716796875,
+    "y_normalized": 0.4765625
+   },
+   {
+    "confidence": 0.310941,
+    "x_normalized": 0.9794921875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.151951,
+    "x_normalized": 0.6435546875,
+    "y_normalized": 0.6484375
+   }
+  ],
+  "03e0fcc2-c872-409f-a587-105e32da8e84": [
+   {
+    "confidence": 0.791391,
+    "x_normalized": 0.0654296875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.585512,
+    "x_normalized": 0.0966796875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.436875,
+    "x_normalized": 0.88671875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.371857,
+    "x_normalized": 0.8544921875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.216451,
+    "x_normalized": 0.1435546875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.166291,
+    "x_normalized": 0.98828125,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.133998,
+    "x_normalized": 0.07421875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.13356,
+    "x_normalized": 0.7607421875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.111633,
+    "x_normalized": 0.1123046875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.104358,
+    "x_normalized": 0.74609375,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.103035,
+    "x_normalized": 0.5498046875,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "06d86bb6-d15d-4842-be80-882405325b86": [
+   {
+    "confidence": 0.826036,
+    "x_normalized": 0.7451171875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.778852,
+    "x_normalized": 0.6826171875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.765226,
+    "x_normalized": 0.29296875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.716828,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.705127,
+    "x_normalized": 0.27734375,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.600119,
+    "x_normalized": 0.05078125,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.593516,
+    "x_normalized": 0.94140625,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.589895,
+    "x_normalized": 0.1201171875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.551134,
+    "x_normalized": 0.87109375,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.398817,
+    "x_normalized": 0.08203125,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.383878,
+    "x_normalized": 0.3701171875,
+    "y_normalized": 0.6328125
+   }
+  ],
+  "0bb048b1-2fa2-4e8d-9702-80c173e55598": [
+   {
+    "confidence": 0.797229,
+    "x_normalized": 0.05859375,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.622849,
+    "x_normalized": 0.94140625,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.234488,
+    "x_normalized": 0.9794921875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.107798,
+    "x_normalized": 0.4482421875,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "0c90b917-a4ff-4489-aceb-58440e3fed58": [
+   {
+    "confidence": 0.922163,
+    "x_normalized": 0.15234375,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.842461,
+    "x_normalized": 0.6513671875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.660035,
+    "x_normalized": 0.94921875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.525615,
+    "x_normalized": 0.71484375,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.29894,
+    "x_normalized": 0.10546875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.158167,
+    "x_normalized": 0.2607421875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.104315,
+    "x_normalized": 0.42578125,
+    "y_normalized": 0.521484375
+   }
+  ],
+  "108b2af3-9995-4636-9b97-c26af1b22198": [
+   {
+    "confidence": 0.776378,
+    "x_normalized": 0.2216796875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.267266,
+    "x_normalized": 0.37109375,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.262732,
+    "x_normalized": 0.9248046875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.117515,
+    "x_normalized": 0.52734375,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.116258,
+    "x_normalized": 0.84765625,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.114134,
+    "x_normalized": 0.56640625,
+    "y_normalized": 0.5234375
+   }
+  ],
+  "115a7860-fa72-4f01-90d4-e4f072786610": [
+   {
+    "confidence": 0.408271,
+    "x_normalized": 0.9326171875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.147737,
+    "x_normalized": 0.03515625,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "11f700f8-c2d3-47fa-89ea-7d4464d1c64c": [],
+  "12aa94b3-8672-4aca-83b9-8af5d32774f6": [
+   {
+    "confidence": 0.649497,
+    "x_normalized": 0.28515625,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.550174,
+    "x_normalized": 0.5810546875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.517469,
+    "x_normalized": 0.7373046875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.482452,
+    "x_normalized": 0.4169921875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.302447,
+    "x_normalized": 0.72265625,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.236153,
+    "x_normalized": 0.47265625,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.231738,
+    "x_normalized": 0.2529296875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.181808,
+    "x_normalized": 0.8232421875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.10977,
+    "x_normalized": 0.1982421875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.105279,
+    "x_normalized": 0.6982421875,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "13b2b34b-c732-452d-b547-de61081923ed": [
+   {
+    "confidence": 0.910458,
+    "x_normalized": 0.42578125,
+    "y_normalized": 0.490234375
+   },
+   {
+    "confidence": 0.320154,
+    "x_normalized": 0.53515625,
+    "y_normalized": 0.4921875
+   },
+   {
+    "confidence": 0.256363,
+    "x_normalized": 0.5888671875,
+    "y_normalized": 0.521484375
+   }
+  ],
+  "15f8534c-769f-4edd-bd99-c0f91a5ed864": [
+   {
+    "confidence": 0.592316,
+    "x_normalized": 0.03515625,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.351416,
+    "x_normalized": 0.5263671875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.24822,
+    "x_normalized": 0.9560546875,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.197433,
+    "x_normalized": 0.55859375,
+    "y_normalized": 0.6171875
+   }
+  ],
+  "177893f6-c2e5-4ba5-beb2-aac2935c4219": [
+   {
+    "confidence": 0.963892,
+    "x_normalized": 0.62109375,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.883308,
+    "x_normalized": 0.8076171875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.756227,
+    "x_normalized": 0.5419921875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.288671,
+    "x_normalized": 0.79296875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.195915,
+    "x_normalized": 0.90234375,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.129544,
+    "x_normalized": 0.93359375,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.100575,
+    "x_normalized": 0.8701171875,
+    "y_normalized": 0.4921875
+   }
+  ],
+  "185cc33a-f18f-43a8-8862-2887e2e4107b": [
+   {
+    "confidence": 0.817331,
+    "x_normalized": 0.87890625,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.675636,
+    "x_normalized": 0.3623046875,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.617027,
+    "x_normalized": 0.0732421875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.494727,
+    "x_normalized": 0.9169921875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.475064,
+    "x_normalized": 0.18359375,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.463818,
+    "x_normalized": 0.60546875,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.405433,
+    "x_normalized": 0.32421875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.374822,
+    "x_normalized": 0.2529296875,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.190477,
+    "x_normalized": 0.3935546875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.190201,
+    "x_normalized": 0.68359375,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.131517,
+    "x_normalized": 0.5810546875,
+    "y_normalized": 0.6015625
+   }
+  ],
+  "18b1d7b1-4b44-4c0c-91d9-de7e6f34b471": [
+   {
+    "confidence": 0.864175,
+    "x_normalized": 0.67578125,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.727125,
+    "x_normalized": 0.1982421875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.619045,
+    "x_normalized": 0.9326171875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.426596,
+    "x_normalized": 0.8232421875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.337466,
+    "x_normalized": 0.1201171875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.247559,
+    "x_normalized": 0.87109375,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.183795,
+    "x_normalized": 0.36328125,
+    "y_normalized": 0.7578125
+   },
+   {
+    "confidence": 0.157521,
+    "x_normalized": 0.56640625,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.112193,
+    "x_normalized": 0.0576171875,
+    "y_normalized": 0.5234375
+   }
+  ],
+  "1a0e119e-e1a9-403f-ab4f-b49111a5fc0a": [
+   {
+    "confidence": 0.755719,
+    "x_normalized": 0.56640625,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.496599,
+    "x_normalized": 0.32421875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.421476,
+    "x_normalized": 0.78515625,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.235348,
+    "x_normalized": 0.8623046875,
+    "y_normalized": 0.7109375
+   }
+  ],
+  "1cd831a9-5bd6-443b-957b-3ee013a19814": [
+   {
+    "confidence": 0.655617,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.638902,
+    "x_normalized": 0.1201171875,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.537904,
+    "x_normalized": 0.15234375,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.417767,
+    "x_normalized": 0.74609375,
+    "y_normalized": 0.7890625
+   },
+   {
+    "confidence": 0.413834,
+    "x_normalized": 0.27734375,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.325989,
+    "x_normalized": 0.1826171875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.146574,
+    "x_normalized": 0.27734375,
+    "y_normalized": 0.521484375
+   }
+  ],
+  "1e003752-8f9f-4265-9bfa-d65e4f477c3c": [
+   {
+    "confidence": 0.855829,
+    "x_normalized": 0.6044921875,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.605321,
+    "x_normalized": 0.6591796875,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "1e2b8696-3c14-49d7-87f7-501d08ce7536": [
+   {
+    "confidence": 0.789867,
+    "x_normalized": 0.94921875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.591395,
+    "x_normalized": 0.22265625,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.571119,
+    "x_normalized": 0.01171875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.420472,
+    "x_normalized": 0.1826171875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.289192,
+    "x_normalized": 0.06640625,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.216301,
+    "x_normalized": 0.21484375,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "1f66c233-83c9-4a11-9000-2e560e42eb87": [],
+  "1fa0c0f1-7964-431b-b599-9103459b89e8": [
+   {
+    "confidence": 0.650305,
+    "x_normalized": 0.36328125,
+    "y_normalized": 0.693359375
+   },
+   {
+    "confidence": 0.636797,
+    "x_normalized": 0.69140625,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.457114,
+    "x_normalized": 0.58984375,
+    "y_normalized": 0.5078125
+   },
+   {
+    "confidence": 0.331884,
+    "x_normalized": 0.3935546875,
+    "y_normalized": 0.6484375
+   }
+  ],
+  "24664953-17a7-48f8-a35c-1c705dafddcf": [
+   {
+    "confidence": 0.948604,
+    "x_normalized": 0.6904296875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.908822,
+    "x_normalized": 0.9013671875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.382805,
+    "x_normalized": 0.12109375,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.314193,
+    "x_normalized": 0.1982421875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.303745,
+    "x_normalized": 0.98828125,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.218271,
+    "x_normalized": 0.5341796875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.19158,
+    "x_normalized": 0.83203125,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "25236509-31bc-40b4-8e0e-6e7fb206e0ee": [
+   {
+    "confidence": 0.779774,
+    "x_normalized": 0.9091796875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.773964,
+    "x_normalized": 0.08984375,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.283481,
+    "x_normalized": 0.96484375,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.129556,
+    "x_normalized": 0.1591796875,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.112272,
+    "x_normalized": 0.1904296875,
+    "y_normalized": 0.662109375
+   }
+  ],
+  "26d51bb9-d1f9-40e7-bf15-c7b22883cd8a": [
+   {
+    "confidence": 0.673709,
+    "x_normalized": 0.55078125,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.38154,
+    "x_normalized": 0.6748046875,
+    "y_normalized": 0.6171875
+   }
+  ],
+  "272f58bc-36eb-4184-ae3f-485cdaaa12e9": [
+   {
+    "confidence": 0.615204,
+    "x_normalized": 0.3154296875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.573997,
+    "x_normalized": 0.60546875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.319572,
+    "x_normalized": 0.4560546875,
+    "y_normalized": 0.4921875
+   },
+   {
+    "confidence": 0.119092,
+    "x_normalized": 0.6591796875,
+    "y_normalized": 0.521484375
+   }
+  ],
+  "274eac7c-4552-4933-b5bc-cf32d4cbd630": [
+   {
+    "confidence": 0.886609,
+    "x_normalized": 0.46484375,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.212781,
+    "x_normalized": 0.55859375,
+    "y_normalized": 0.6328125
+   }
+  ],
+  "28da18e2-134b-46de-86e6-e8b081e7b041": [
+   {
+    "confidence": 0.739865,
+    "x_normalized": 0.7763671875,
+    "y_normalized": 0.7734375
+   },
+   {
+    "confidence": 0.718701,
+    "x_normalized": 0.4326171875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.653795,
+    "x_normalized": 0.40234375,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.648672,
+    "x_normalized": 0.30859375,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.647002,
+    "x_normalized": 0.53515625,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.633741,
+    "x_normalized": 0.4482421875,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.622366,
+    "x_normalized": 0.22265625,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.593322,
+    "x_normalized": 0.5810546875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.560651,
+    "x_normalized": 0.66015625,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.373833,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.255637,
+    "x_normalized": 0.91796875,
+    "y_normalized": 0.6953125
+   },
+   {
+    "confidence": 0.248446,
+    "x_normalized": 0.3076171875,
+    "y_normalized": 0.6953125
+   }
+  ],
+  "29486f29-c2ed-408a-a160-eab83c1b4e6f": [
+   {
+    "confidence": 0.556877,
+    "x_normalized": 0.55078125,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.544321,
+    "x_normalized": 0.4560546875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.167187,
+    "x_normalized": 0.6826171875,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "29ea0c81-73d5-42b7-b66e-69ebf1be1f2c": [
+   {
+    "confidence": 0.70721,
+    "x_normalized": 0.61328125,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.276405,
+    "x_normalized": 0.0732421875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.1107,
+    "x_normalized": 0.01171875,
+    "y_normalized": 0.2890625
+   }
+  ],
+  "2b8c9798-08e1-4010-b9cd-cdceb655a7e3": [
+   {
+    "confidence": 0.513232,
+    "x_normalized": 0.6591796875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.146176,
+    "x_normalized": 0.05078125,
+    "y_normalized": 0.693359375
+   }
+  ],
+  "2bcc1596-a2c4-41da-b387-bf7ef581d16c": [
+   {
+    "confidence": 0.695227,
+    "x_normalized": 0.5341796875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.609563,
+    "x_normalized": 0.4951171875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.56383,
+    "x_normalized": 0.32421875,
+    "y_normalized": 0.755859375
+   }
+  ],
+  "2db1677b-3ba2-4284-9f28-164f4de8f607": [
+   {
+    "confidence": 0.952548,
+    "x_normalized": 0.8935546875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.828304,
+    "x_normalized": 0.7841796875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.556933,
+    "x_normalized": 0.1201171875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.4877,
+    "x_normalized": 0.2607421875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.319036,
+    "x_normalized": 0.55078125,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.217558,
+    "x_normalized": 0.35546875,
+    "y_normalized": 0.6015625
+   }
+  ],
+  "2f2146f0-f39c-40fd-9611-989ff37b445d": [
+   {
+    "confidence": 0.725929,
+    "x_normalized": 0.5419921875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.263349,
+    "x_normalized": 0.4482421875,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "32dc3ea7-b1c2-4a47-a02e-f164efe0c94e": [
+   {
+    "confidence": 0.753913,
+    "x_normalized": 0.08203125,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.736302,
+    "x_normalized": 0.9404296875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.264045,
+    "x_normalized": 0.97265625,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.16175,
+    "x_normalized": 0.8701171875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.153366,
+    "x_normalized": 0.84765625,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "34e1a9e0-103a-4b46-9802-3ab010a21492": [
+   {
+    "confidence": 0.704041,
+    "x_normalized": 0.9482421875,
+    "y_normalized": 0.6015625
+   }
+  ],
+  "352782c1-cd11-4f66-b1cc-f44451edc747": [
+   {
+    "confidence": 0.850179,
+    "x_normalized": 0.4404296875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.306861,
+    "x_normalized": 0.5185546875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.125641,
+    "x_normalized": 0.39453125,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "352f24f3-daa0-4d95-93c4-14ab4d345ddf": [
+   {
+    "confidence": 0.792668,
+    "x_normalized": 0.05859375,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.777547,
+    "x_normalized": 0.73828125,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.727353,
+    "x_normalized": 0.14453125,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.226616,
+    "x_normalized": 0.47265625,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.173348,
+    "x_normalized": 0.37890625,
+    "y_normalized": 0.693359375
+   }
+  ],
+  "3744af9d-456c-48a6-a4ba-f3d2917cd91b": [
+   {
+    "confidence": 0.731712,
+    "x_normalized": 0.4716796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.563242,
+    "x_normalized": 0.54296875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.42348,
+    "x_normalized": 0.5732421875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.126401,
+    "x_normalized": 0.3701171875,
+    "y_normalized": 0.755859375
+   }
+  ],
+  "389d9675-dc3d-4652-a728-7bc8a9716807": [
+   {
+    "confidence": 0.643022,
+    "x_normalized": 0.98046875,
+    "y_normalized": 0.5859375
+   }
+  ],
+  "3a17f053-ff4a-4178-923f-e42ab2c5ea60": [
+   {
+    "confidence": 0.252483,
+    "x_normalized": 0.8154296875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.237848,
+    "x_normalized": 0.92578125,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.14466,
+    "x_normalized": 0.13671875,
+    "y_normalized": 0.8359375
+   }
+  ],
+  "3c7667d4-ccac-4ed4-8b83-7a6f58c7e0ed": [
+   {
+    "confidence": 0.798548,
+    "x_normalized": 0.9716796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.136781,
+    "x_normalized": 0.5498046875,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "40183997-60c6-4d7a-b116-4aa9de46ea0f": [
+   {
+    "confidence": 0.741494,
+    "x_normalized": 0.94921875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.603005,
+    "x_normalized": 0.85546875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.584706,
+    "x_normalized": 0.98046875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.52684,
+    "x_normalized": 0.08203125,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.462019,
+    "x_normalized": 0.30078125,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.306689,
+    "x_normalized": 0.1201171875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.300273,
+    "x_normalized": 0.13671875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.130716,
+    "x_normalized": 0.86328125,
+    "y_normalized": 0.7421875
+   },
+   {
+    "confidence": 0.120556,
+    "x_normalized": 0.8779296875,
+    "y_normalized": 0.7265625
+   }
+  ],
+  "40dc9043-0da4-479b-ac14-2a443a879fee": [
+   {
+    "confidence": 0.64831,
+    "x_normalized": 0.18359375,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.553984,
+    "x_normalized": 0.9638671875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.546157,
+    "x_normalized": 0.2685546875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.532402,
+    "x_normalized": 0.82421875,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.524402,
+    "x_normalized": 0.04296875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.499994,
+    "x_normalized": 0.86328125,
+    "y_normalized": 0.6953125
+   },
+   {
+    "confidence": 0.474595,
+    "x_normalized": 0.19140625,
+    "y_normalized": 0.7265625
+   },
+   {
+    "confidence": 0.408872,
+    "x_normalized": 0.76171875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.360713,
+    "x_normalized": 0.3388671875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.310135,
+    "x_normalized": 0.0810546875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.308239,
+    "x_normalized": 0.2216796875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.243726,
+    "x_normalized": 0.1435546875,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.230673,
+    "x_normalized": 0.66796875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.161748,
+    "x_normalized": 0.7998046875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.105829,
+    "x_normalized": 0.9013671875,
+    "y_normalized": 0.6484375
+   }
+  ],
+  "41d7865c-a85e-4f74-ad91-eb7d3affc803": [
+   {
+    "confidence": 0.579622,
+    "x_normalized": 0.03515625,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.317807,
+    "x_normalized": 0.55859375,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.216781,
+    "x_normalized": 0.2685546875,
+    "y_normalized": 0.7265625
+   }
+  ],
+  "41e43f3b-5a3c-4633-b445-c5d976e13356": [
+   {
+    "confidence": 0.680956,
+    "x_normalized": 0.08203125,
+    "y_normalized": 0.6796875
+   },
+   {
+    "confidence": 0.656605,
+    "x_normalized": 0.85546875,
+    "y_normalized": 0.677734375
+   }
+  ],
+  "42b72b8b-5145-4507-a1f6-b5371f34ea9e": [
+   {
+    "confidence": 0.788164,
+    "x_normalized": 0.18359375,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.54761,
+    "x_normalized": 0.0732421875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.502512,
+    "x_normalized": 0.1123046875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.468415,
+    "x_normalized": 0.77734375,
+    "y_normalized": 0.693359375
+   },
+   {
+    "confidence": 0.306645,
+    "x_normalized": 0.2841796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.29247,
+    "x_normalized": 0.23046875,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.27029,
+    "x_normalized": 0.8154296875,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.106684,
+    "x_normalized": 0.01953125,
+    "y_normalized": 0.5859375
+   }
+  ],
+  "435fe88e-55ef-4553-8948-fffbfbb08449": [
+   {
+    "confidence": 0.918221,
+    "x_normalized": 0.37109375,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.265925,
+    "x_normalized": 0.27734375,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.236773,
+    "x_normalized": 0.42578125,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.218112,
+    "x_normalized": 0.5576171875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.215233,
+    "x_normalized": 0.5732421875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.158823,
+    "x_normalized": 0.5185546875,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "43d24c85-42d4-4304-b970-32c2d2e41c83": [
+   {
+    "confidence": 0.740981,
+    "x_normalized": 0.5966796875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.641512,
+    "x_normalized": 0.04296875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.616861,
+    "x_normalized": 0.46484375,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.324322,
+    "x_normalized": 0.8154296875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.24463,
+    "x_normalized": 0.94921875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.196377,
+    "x_normalized": 0.8466796875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.135514,
+    "x_normalized": 0.3857421875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.126386,
+    "x_normalized": 0.65234375,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "4481d780-e109-401e-a595-5015ba63284c": [
+   {
+    "confidence": 0.814176,
+    "x_normalized": 0.5810546875,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.361263,
+    "x_normalized": 0.69921875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.361197,
+    "x_normalized": 0.41796875,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.237177,
+    "x_normalized": 0.60546875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.217338,
+    "x_normalized": 0.47265625,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "45143ce9-d752-476b-9ca6-cbb8046849ca": [
+   {
+    "confidence": 0.398365,
+    "x_normalized": 0.6748046875,
+    "y_normalized": 0.6796875
+   }
+  ],
+  "45ee349d-8d94-433d-bc65-5754dd3bb5ea": [
+   {
+    "confidence": 0.862395,
+    "x_normalized": 0.2919921875,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.842805,
+    "x_normalized": 0.9248046875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.736084,
+    "x_normalized": 0.12890625,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.673889,
+    "x_normalized": 0.61328125,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.586506,
+    "x_normalized": 0.6435546875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.559313,
+    "x_normalized": 0.76171875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.550759,
+    "x_normalized": 0.23046875,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.313785,
+    "x_normalized": 0.95703125,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "474dd0c2-c601-4bf7-a3ab-ae6a51c2123b": [
+   {
+    "confidence": 0.734616,
+    "x_normalized": 0.0498046875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.356945,
+    "x_normalized": 0.91796875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.227246,
+    "x_normalized": 0.95703125,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "47983a0e-3eb9-481f-8214-4ee15c14aee2": [
+   {
+    "confidence": 0.678271,
+    "x_normalized": 0.3857421875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.581853,
+    "x_normalized": 0.36328125,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.123207,
+    "x_normalized": 0.92578125,
+    "y_normalized": 0.927734375
+   }
+  ],
+  "4a3e2dad-f3ac-4297-892b-918cd0eb5493": [
+   {
+    "confidence": 0.591707,
+    "x_normalized": 0.21484375,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.561847,
+    "x_normalized": 0.8154296875,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.54902,
+    "x_normalized": 0.7763671875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.514521,
+    "x_normalized": 0.1435546875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.436927,
+    "x_normalized": 0.04296875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.201364,
+    "x_normalized": 0.08203125,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.200313,
+    "x_normalized": 0.95703125,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.186763,
+    "x_normalized": 0.8544921875,
+    "y_normalized": 0.693359375
+   },
+   {
+    "confidence": 0.160575,
+    "x_normalized": 0.1279296875,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.143458,
+    "x_normalized": 0.1904296875,
+    "y_normalized": 0.7421875
+   },
+   {
+    "confidence": 0.140156,
+    "x_normalized": 0.33203125,
+    "y_normalized": 0.7421875
+   },
+   {
+    "confidence": 0.114046,
+    "x_normalized": 0.4169921875,
+    "y_normalized": 0.693359375
+   },
+   {
+    "confidence": 0.10868,
+    "x_normalized": 0.40234375,
+    "y_normalized": 0.6953125
+   },
+   {
+    "confidence": 0.103466,
+    "x_normalized": 0.1044921875,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "4cc98851-a96c-4229-87a5-1268ccfb65db": [
+   {
+    "confidence": 0.664322,
+    "x_normalized": 0.46484375,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.618137,
+    "x_normalized": 0.53515625,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.381666,
+    "x_normalized": 0.9716796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.172054,
+    "x_normalized": 0.79296875,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "4cd23f2f-3d09-4db6-b2dd-3b80e62f55f6": [
+   {
+    "confidence": 0.825018,
+    "x_normalized": 0.39453125,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.626935,
+    "x_normalized": 0.05078125,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.424786,
+    "x_normalized": 0.4560546875,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.393861,
+    "x_normalized": 0.2919921875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.197971,
+    "x_normalized": 0.65234375,
+    "y_normalized": 0.708984375
+   }
+  ],
+  "4f2e184e-3108-45fb-8f99-48b8509da73c": [
+   {
+    "confidence": 0.622088,
+    "x_normalized": 0.77734375,
+    "y_normalized": 0.724609375
+   },
+   {
+    "confidence": 0.392386,
+    "x_normalized": 0.83984375,
+    "y_normalized": 0.6796875
+   },
+   {
+    "confidence": 0.304909,
+    "x_normalized": 0.89453125,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.242326,
+    "x_normalized": 0.7763671875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.2083,
+    "x_normalized": 0.9482421875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.188038,
+    "x_normalized": 0.03515625,
+    "y_normalized": 0.458984375
+   },
+   {
+    "confidence": 0.155305,
+    "x_normalized": 0.08203125,
+    "y_normalized": 0.4765625
+   }
+  ],
+  "4f78e494-f18b-4882-87d1-a49b08688398": [
+   {
+    "confidence": 0.80963,
+    "x_normalized": 0.03515625,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.802083,
+    "x_normalized": 0.9638671875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.356318,
+    "x_normalized": 0.06640625,
+    "y_normalized": 0.5859375
+   }
+  ],
+  "4fd4ad01-05a7-4e3a-8795-849a7389640b": [
+   {
+    "confidence": 0.572453,
+    "x_normalized": 0.0732421875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.388249,
+    "x_normalized": 0.9091796875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.338489,
+    "x_normalized": 0.11328125,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.250153,
+    "x_normalized": 0.1748046875,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.131083,
+    "x_normalized": 0.8310546875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.101168,
+    "x_normalized": 0.12109375,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "52847a1b-e7de-43a6-9cec-183dd9a4f0fd": [
+   {
+    "confidence": 0.599807,
+    "x_normalized": 0.9638671875,
+    "y_normalized": 0.4765625
+   },
+   {
+    "confidence": 0.459264,
+    "x_normalized": 0.0576171875,
+    "y_normalized": 0.490234375
+   }
+  ],
+  "5296839b-6864-4308-842d-beb759b08d8f": [
+   {
+    "confidence": 0.920857,
+    "x_normalized": 0.5341796875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.81365,
+    "x_normalized": 0.0810546875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.805655,
+    "x_normalized": 0.37890625,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.661728,
+    "x_normalized": 0.12890625,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.648369,
+    "x_normalized": 0.68359375,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.589292,
+    "x_normalized": 0.6513671875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.293479,
+    "x_normalized": 0.9404296875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.244618,
+    "x_normalized": 0.8154296875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.125492,
+    "x_normalized": 0.4326171875,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "529a81df-f9a7-4bcc-b45f-bee44178161b": [
+   {
+    "confidence": 0.791359,
+    "x_normalized": 0.89453125,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.7102,
+    "x_normalized": 0.8623046875,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.574449,
+    "x_normalized": 0.28515625,
+    "y_normalized": 0.6796875
+   },
+   {
+    "confidence": 0.409551,
+    "x_normalized": 0.74609375,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.285612,
+    "x_normalized": 0.16015625,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.218432,
+    "x_normalized": 0.2060546875,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.154769,
+    "x_normalized": 0.3310546875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.125738,
+    "x_normalized": 0.7138671875,
+    "y_normalized": 0.7109375
+   }
+  ],
+  "52dbe027-7442-4e46-9a1c-836b11b1af56": [
+   {
+    "confidence": 0.92278,
+    "x_normalized": 0.02734375,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.330437,
+    "x_normalized": 0.95703125,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "54ebd096-4743-43b5-b991-76bba67d3af6": [
+   {
+    "confidence": 0.891582,
+    "x_normalized": 0.79296875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.802423,
+    "x_normalized": 0.6044921875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.782888,
+    "x_normalized": 0.08984375,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.587349,
+    "x_normalized": 0.69921875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.546633,
+    "x_normalized": 0.8857421875,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "5544d785-2d74-4cdd-a0b5-448c89b26dae": [
+   {
+    "confidence": 0.796666,
+    "x_normalized": 0.5810546875,
+    "y_normalized": 0.662109375
+   }
+  ],
+  "5a7ee908-7735-462c-a06f-924734c70289": [
+   {
+    "confidence": 0.45152,
+    "x_normalized": 0.4169921875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.321586,
+    "x_normalized": 0.49609375,
+    "y_normalized": 0.4921875
+   }
+  ],
+  "5b8fd55b-6200-4765-8b62-0975259339bc": [
+   {
+    "confidence": 0.256604,
+    "x_normalized": 0.9560546875,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "5cf637a8-de81-4f09-a5c8-c9cd16f3846e": [
+   {
+    "confidence": 0.694523,
+    "x_normalized": 0.94140625,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.20775,
+    "x_normalized": 0.8310546875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.186203,
+    "x_normalized": 0.43359375,
+    "y_normalized": 0.599609375
+   }
+  ],
+  "5d9e19f2-38fa-4ceb-a877-d40b9a013d2c": [
+   {
+    "confidence": 0.553819,
+    "x_normalized": 0.0263671875,
+    "y_normalized": 0.287109375
+   },
+   {
+    "confidence": 0.447046,
+    "x_normalized": 0.9873046875,
+    "y_normalized": 0.4921875
+   },
+   {
+    "confidence": 0.396122,
+    "x_normalized": 0.49609375,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.375582,
+    "x_normalized": 0.51953125,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.294752,
+    "x_normalized": 0.48046875,
+    "y_normalized": 0.6953125
+   },
+   {
+    "confidence": 0.281303,
+    "x_normalized": 0.50390625,
+    "y_normalized": 0.7578125
+   },
+   {
+    "confidence": 0.275228,
+    "x_normalized": 0.05078125,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.264209,
+    "x_normalized": 0.6123046875,
+    "y_normalized": 0.787109375
+   },
+   {
+    "confidence": 0.240012,
+    "x_normalized": 0.5029296875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.234481,
+    "x_normalized": 0.6904296875,
+    "y_normalized": 0.787109375
+   },
+   {
+    "confidence": 0.16939,
+    "x_normalized": 0.12109375,
+    "y_normalized": 0.802734375
+   },
+   {
+    "confidence": 0.160474,
+    "x_normalized": 0.9404296875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.151351,
+    "x_normalized": 0.95703125,
+    "y_normalized": 0.287109375
+   },
+   {
+    "confidence": 0.141091,
+    "x_normalized": 0.8701171875,
+    "y_normalized": 0.755859375
+   },
+   {
+    "confidence": 0.135097,
+    "x_normalized": 0.41015625,
+    "y_normalized": 0.787109375
+   },
+   {
+    "confidence": 0.11332,
+    "x_normalized": 0.0888671875,
+    "y_normalized": 0.7265625
+   }
+  ],
+  "5dcfe1ea-d787-4986-9883-9a17ddae844c": [
+   {
+    "confidence": 0.79532,
+    "x_normalized": 0.1123046875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.681569,
+    "x_normalized": 0.2060546875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.295947,
+    "x_normalized": 0.0732421875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.10576,
+    "x_normalized": 0.96484375,
+    "y_normalized": 0.5234375
+   }
+  ],
+  "5df72f9d-340d-42a8-897e-49536cecb759": [
+   {
+    "confidence": 0.901033,
+    "x_normalized": 0.44140625,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.583533,
+    "x_normalized": 0.5498046875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.543937,
+    "x_normalized": 0.5654296875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.474924,
+    "x_normalized": 0.40234375,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.425121,
+    "x_normalized": 0.86328125,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.353682,
+    "x_normalized": 0.2841796875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.321729,
+    "x_normalized": 0.98046875,
+    "y_normalized": 0.4609375
+   },
+   {
+    "confidence": 0.229314,
+    "x_normalized": 0.81640625,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.173352,
+    "x_normalized": 0.68359375,
+    "y_normalized": 0.740234375
+   }
+  ],
+  "5f0ac09a-b6b9-463e-a819-1d59ee23c62d": [
+   {
+    "confidence": 0.903882,
+    "x_normalized": 0.1669921875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.71507,
+    "x_normalized": 0.8466796875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.64496,
+    "x_normalized": 0.1201171875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.426347,
+    "x_normalized": 0.79296875,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.409982,
+    "x_normalized": 0.70703125,
+    "y_normalized": 0.6796875
+   },
+   {
+    "confidence": 0.355263,
+    "x_normalized": 0.6748046875,
+    "y_normalized": 0.615234375
+   }
+  ],
+  "5f1bd59a-d83f-4376-a7d5-5afa48586aad": [
+   {
+    "confidence": 0.875897,
+    "x_normalized": 0.3779296875,
+    "y_normalized": 0.7734375
+   },
+   {
+    "confidence": 0.706468,
+    "x_normalized": 0.4794921875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.320471,
+    "x_normalized": 0.65234375,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.132663,
+    "x_normalized": 0.2373046875,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.131348,
+    "x_normalized": 0.39453125,
+    "y_normalized": 0.7109375
+   }
+  ],
+  "6064e943-53c9-4101-ae39-69319944df63": [
+   {
+    "confidence": 0.868979,
+    "x_normalized": 0.9560546875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.503929,
+    "x_normalized": 0.3623046875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.487103,
+    "x_normalized": 0.18359375,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.404796,
+    "x_normalized": 0.44921875,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "6359cf72-cb45-439d-999e-11b402ab0ce5": [
+   {
+    "confidence": 0.655982,
+    "x_normalized": 0.83984375,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.644025,
+    "x_normalized": 0.79296875,
+    "y_normalized": 0.7265625
+   },
+   {
+    "confidence": 0.633327,
+    "x_normalized": 0.9326171875,
+    "y_normalized": 0.4453125
+   },
+   {
+    "confidence": 0.45462,
+    "x_normalized": 0.1748046875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.311719,
+    "x_normalized": 0.04296875,
+    "y_normalized": 0.4765625
+   },
+   {
+    "confidence": 0.271946,
+    "x_normalized": 0.12109375,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.252969,
+    "x_normalized": 0.23046875,
+    "y_normalized": 0.7890625
+   },
+   {
+    "confidence": 0.243086,
+    "x_normalized": 0.01171875,
+    "y_normalized": 0.4765625
+   },
+   {
+    "confidence": 0.206388,
+    "x_normalized": 0.13671875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.19019,
+    "x_normalized": 0.19921875,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.121251,
+    "x_normalized": 0.4794921875,
+    "y_normalized": 0.708984375
+   }
+  ],
+  "637f5103-6333-4ddf-bab9-3309ce52b33a": [
+   {
+    "confidence": 0.825924,
+    "x_normalized": 0.42578125,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.779699,
+    "x_normalized": 0.3779296875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.239349,
+    "x_normalized": 0.5654296875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.134861,
+    "x_normalized": 0.5107421875,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "6411d38d-5ba4-4cc2-9afd-c6d434560e58": [
+   {
+    "confidence": 0.26456,
+    "x_normalized": 0.2919921875,
+    "y_normalized": 0.5703125
+   }
+  ],
+  "64402920-9aaa-4ceb-a6ca-69e9c035e3c0": [
+   {
+    "confidence": 0.850626,
+    "x_normalized": 0.93359375,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.383223,
+    "x_normalized": 0.0341796875,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "64527dc4-b421-4ff7-b537-e9e522106533": [
+   {
+    "confidence": 0.717795,
+    "x_normalized": 0.14453125,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.645686,
+    "x_normalized": 0.8935546875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.546247,
+    "x_normalized": 0.08984375,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.307388,
+    "x_normalized": 0.9248046875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.108095,
+    "x_normalized": 0.81640625,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "6471e449-f399-4675-be1f-2b737e3cf28f": [
+   {
+    "confidence": 0.773754,
+    "x_normalized": 0.0966796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.66973,
+    "x_normalized": 0.94140625,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.297347,
+    "x_normalized": 0.22265625,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.121725,
+    "x_normalized": 0.1357421875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.106767,
+    "x_normalized": 0.55859375,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "652da0b0-737d-46dd-becb-556bad0dbc0b": [
+   {
+    "confidence": 0.816376,
+    "x_normalized": 0.46484375,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.46302,
+    "x_normalized": 0.57421875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.173944,
+    "x_normalized": 0.5263671875,
+    "y_normalized": 0.474609375
+   }
+  ],
+  "66ba1661-8f2c-4770-9748-0c11b36b8daf": [
+   {
+    "confidence": 0.684114,
+    "x_normalized": 0.69140625,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "66ccafba-7fd8-4019-88e7-65f3e60aee43": [
+   {
+    "confidence": 0.65286,
+    "x_normalized": 0.1044921875,
+    "y_normalized": 0.5078125
+   },
+   {
+    "confidence": 0.218357,
+    "x_normalized": 0.13671875,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.20991,
+    "x_normalized": 0.47265625,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "674e8a36-c43b-438f-9f72-5f2c6c6474a5": [
+   {
+    "confidence": 0.264709,
+    "x_normalized": 0.1591796875,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.145648,
+    "x_normalized": 0.9716796875,
+    "y_normalized": 0.5078125
+   },
+   {
+    "confidence": 0.130425,
+    "x_normalized": 0.98828125,
+    "y_normalized": 0.5234375
+   }
+  ],
+  "67a1066b-1904-4881-a330-bce8dda7f81a": [
+   {
+    "confidence": 0.724227,
+    "x_normalized": 0.80859375,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.480141,
+    "x_normalized": 0.0419921875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.36127,
+    "x_normalized": 0.2294921875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.334221,
+    "x_normalized": 0.17578125,
+    "y_normalized": 0.615234375
+   }
+  ],
+  "69007277-80ec-4bdc-afee-ef29cc8174d3": [
+   {
+    "confidence": 0.730678,
+    "x_normalized": 0.3779296875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.232241,
+    "x_normalized": 0.41796875,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.170497,
+    "x_normalized": 0.40234375,
+    "y_normalized": 0.9296875
+   },
+   {
+    "confidence": 0.113273,
+    "x_normalized": 0.6748046875,
+    "y_normalized": 0.5703125
+   }
+  ],
+  "6bbf88af-ed13-4bba-8905-cc7031d7a279": [
+   {
+    "confidence": 0.667424,
+    "x_normalized": 0.57421875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.432878,
+    "x_normalized": 0.4794921875,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.287835,
+    "x_normalized": 0.2451171875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.202315,
+    "x_normalized": 0.01171875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.193947,
+    "x_normalized": 0.3310546875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.125261,
+    "x_normalized": 0.5341796875,
+    "y_normalized": 0.802734375
+   }
+  ],
+  "6e6cf5e3-d6a1-4d1d-829d-932c4378eac8": [
+   {
+    "confidence": 0.879737,
+    "x_normalized": 0.80078125,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.79696,
+    "x_normalized": 0.0576171875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.573475,
+    "x_normalized": 0.9873046875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.214142,
+    "x_normalized": 0.9404296875,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "6e9ff6fc-cafe-47d6-931f-3f607cef4471": [
+   {
+    "confidence": 0.652056,
+    "x_normalized": 0.4482421875,
+    "y_normalized": 0.4765625
+   },
+   {
+    "confidence": 0.141237,
+    "x_normalized": 0.98828125,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "71836e76-342b-4679-96f5-d686d15475b1": [],
+  "72f67d3a-6b14-4ce4-b40c-4cd83db323bd": [
+   {
+    "confidence": 0.631741,
+    "x_normalized": 0.93359375,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "74f2157e-8261-40bc-8e3c-627bc5806b7a": [
+   {
+    "confidence": 0.799539,
+    "x_normalized": 0.7998046875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.702206,
+    "x_normalized": 0.5576171875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.687439,
+    "x_normalized": 0.0966796875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.647446,
+    "x_normalized": 0.20703125,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.636167,
+    "x_normalized": 0.89453125,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.628218,
+    "x_normalized": 0.23828125,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.623968,
+    "x_normalized": 0.4169921875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.613548,
+    "x_normalized": 0.05078125,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.589248,
+    "x_normalized": 0.4716796875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.533219,
+    "x_normalized": 0.6044921875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.500551,
+    "x_normalized": 0.76953125,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.32137,
+    "x_normalized": 0.6357421875,
+    "y_normalized": 0.5859375
+   }
+  ],
+  "760f27c4-9cd1-4bb5-9e93-67864bdb282d": [
+   {
+    "confidence": 0.18836,
+    "x_normalized": 0.41796875,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "781655b5-1c1c-47bd-8080-c4a17215ef6e": [
+   {
+    "confidence": 0.853089,
+    "x_normalized": 0.31640625,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.54959,
+    "x_normalized": 0.19140625,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "78577d51-2224-4feb-81c3-bc329fc8f3e3": [
+   {
+    "confidence": 0.905327,
+    "x_normalized": 0.0576171875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.438785,
+    "x_normalized": 0.14453125,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.269938,
+    "x_normalized": 0.3779296875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.237024,
+    "x_normalized": 0.17578125,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.112799,
+    "x_normalized": 0.88671875,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "7c3a6c9c-89cf-4631-b25b-ea5a934345c1": [
+   {
+    "confidence": 0.824082,
+    "x_normalized": 0.1513671875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.299525,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.6953125
+   },
+   {
+    "confidence": 0.261255,
+    "x_normalized": 0.7919921875,
+    "y_normalized": 0.724609375
+   },
+   {
+    "confidence": 0.204233,
+    "x_normalized": 0.98828125,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.145891,
+    "x_normalized": 0.11328125,
+    "y_normalized": 0.5078125
+   }
+  ],
+  "7d0e2466-ebb8-4e46-b470-a74edbd77f87": [
+   {
+    "confidence": 0.611425,
+    "x_normalized": 0.9638671875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.392918,
+    "x_normalized": 0.0888671875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.189601,
+    "x_normalized": 0.1748046875,
+    "y_normalized": 0.7109375
+   }
+  ],
+  "7eed2455-5adc-47a6-b9e3-dadcd3b9fd9c": [
+   {
+    "confidence": 0.753097,
+    "x_normalized": 0.1982421875,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.327249,
+    "x_normalized": 0.8701171875,
+    "y_normalized": 0.724609375
+   },
+   {
+    "confidence": 0.3185,
+    "x_normalized": 0.8544921875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.287021,
+    "x_normalized": 0.9404296875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.242753,
+    "x_normalized": 0.77734375,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.210466,
+    "x_normalized": 0.88671875,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.192548,
+    "x_normalized": 0.15234375,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.166861,
+    "x_normalized": 0.02734375,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.102212,
+    "x_normalized": 0.8310546875,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "83b5e91f-d0fe-4517-90fa-50d99871dfda": [
+   {
+    "confidence": 0.592624,
+    "x_normalized": 0.83984375,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.530856,
+    "x_normalized": 0.6826171875,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "84fc5151-0502-425a-a9f5-7403542fe165": [
+   {
+    "confidence": 0.61529,
+    "x_normalized": 0.87109375,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.438243,
+    "x_normalized": 0.0263671875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.268137,
+    "x_normalized": 0.9404296875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.135672,
+    "x_normalized": 0.06640625,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "852db176-5973-476f-bf92-4bdd4972b44a": [
+   {
+    "confidence": 0.799443,
+    "x_normalized": 0.2841796875,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.778718,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.765002,
+    "x_normalized": 0.6591796875,
+    "y_normalized": 0.693359375
+   },
+   {
+    "confidence": 0.481902,
+    "x_normalized": 0.44921875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.297325,
+    "x_normalized": 0.47265625,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.269086,
+    "x_normalized": 0.6044921875,
+    "y_normalized": 0.521484375
+   }
+  ],
+  "8583d99d-076d-4ca4-99e7-f53eb6eec3ee": [
+   {
+    "confidence": 0.819097,
+    "x_normalized": 0.84765625,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.403444,
+    "x_normalized": 0.09765625,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.380531,
+    "x_normalized": 0.04296875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.296059,
+    "x_normalized": 0.87890625,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.287478,
+    "x_normalized": 0.9248046875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.179647,
+    "x_normalized": 0.1279296875,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.154523,
+    "x_normalized": 0.16796875,
+    "y_normalized": 0.724609375
+   }
+  ],
+  "86e36565-21e8-457d-af67-6670a3be3168": [
+   {
+    "confidence": 0.78602,
+    "x_normalized": 0.1279296875,
+    "y_normalized": 0.5703125
+   }
+  ],
+  "871642a5-b88c-4d7c-a760-bfe0c7a319c3": [
+   {
+    "confidence": 0.56353,
+    "x_normalized": 0.3779296875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.442752,
+    "x_normalized": 0.4404296875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.218807,
+    "x_normalized": 0.61328125,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.218102,
+    "x_normalized": 0.5654296875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.196259,
+    "x_normalized": 0.9482421875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.120255,
+    "x_normalized": 0.10546875,
+    "y_normalized": 0.599609375
+   }
+  ],
+  "87819c5c-a869-45d3-adac-0236504336ae": [
+   {
+    "confidence": 0.751652,
+    "x_normalized": 0.4169921875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.514295,
+    "x_normalized": 0.0576171875,
+    "y_normalized": 0.4453125
+   },
+   {
+    "confidence": 0.356486,
+    "x_normalized": 0.5810546875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.220532,
+    "x_normalized": 0.4794921875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.162667,
+    "x_normalized": 0.1044921875,
+    "y_normalized": 0.474609375
+   },
+   {
+    "confidence": 0.128911,
+    "x_normalized": 0.6357421875,
+    "y_normalized": 0.771484375
+   }
+  ],
+  "8871890f-1373-4681-9495-ae0fad3639b1": [
+   {
+    "confidence": 0.751434,
+    "x_normalized": 0.45703125,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.679361,
+    "x_normalized": 0.5498046875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.140756,
+    "x_normalized": 0.78515625,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "888dcc5d-3135-4292-99d3-43ae4decd08b": [
+   {
+    "confidence": 0.912892,
+    "x_normalized": 0.2763671875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.6609,
+    "x_normalized": 0.13671875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.648228,
+    "x_normalized": 0.0966796875,
+    "y_normalized": 0.5859375
+   }
+  ],
+  "8b134e92-85df-402b-9577-c3bc4ac7283e": [
+   {
+    "confidence": 0.693235,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.536588,
+    "x_normalized": 0.30078125,
+    "y_normalized": 0.6796875
+   },
+   {
+    "confidence": 0.43319,
+    "x_normalized": 0.60546875,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.418338,
+    "x_normalized": 0.5732421875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.352486,
+    "x_normalized": 0.6435546875,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "8bbea93e-c013-4159-8e11-e1bb6257c4f4": [
+   {
+    "confidence": 0.853765,
+    "x_normalized": 0.04296875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.819228,
+    "x_normalized": 0.1357421875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.591115,
+    "x_normalized": 0.8466796875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.571473,
+    "x_normalized": 0.1982421875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.541452,
+    "x_normalized": 0.76171875,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.517173,
+    "x_normalized": 0.8388671875,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.510546,
+    "x_normalized": 0.7841796875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.443309,
+    "x_normalized": 0.6904296875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.404963,
+    "x_normalized": 0.97265625,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.219807,
+    "x_normalized": 0.8935546875,
+    "y_normalized": 0.708984375
+   }
+  ],
+  "8c812ccb-295b-4326-bc87-1efad71fee0b": [
+   {
+    "confidence": 0.613412,
+    "x_normalized": 0.91015625,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.59874,
+    "x_normalized": 0.21484375,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.53387,
+    "x_normalized": 0.83984375,
+    "y_normalized": 0.6796875
+   },
+   {
+    "confidence": 0.522988,
+    "x_normalized": 0.1748046875,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.391977,
+    "x_normalized": 0.8076171875,
+    "y_normalized": 0.6953125
+   },
+   {
+    "confidence": 0.332593,
+    "x_normalized": 0.07421875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.324754,
+    "x_normalized": 0.1357421875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.311696,
+    "x_normalized": 0.8701171875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.272253,
+    "x_normalized": 0.73828125,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.193485,
+    "x_normalized": 0.03515625,
+    "y_normalized": 0.5703125
+   }
+  ],
+  "8da08e12-ee2a-46d2-b533-aa1c01bd1e85": [
+   {
+    "confidence": 0.807043,
+    "x_normalized": 0.7763671875,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.669853,
+    "x_normalized": 0.80859375,
+    "y_normalized": 0.724609375
+   },
+   {
+    "confidence": 0.306877,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.7578125
+   },
+   {
+    "confidence": 0.243279,
+    "x_normalized": 0.33203125,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.229541,
+    "x_normalized": 0.3232421875,
+    "y_normalized": 0.771484375
+   },
+   {
+    "confidence": 0.172336,
+    "x_normalized": 0.9794921875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.130044,
+    "x_normalized": 0.6357421875,
+    "y_normalized": 0.599609375
+   }
+  ],
+  "9119ff94-fd99-426c-916a-7c8492b8d2f8": [
+   {
+    "confidence": 0.888767,
+    "x_normalized": 0.0888671875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.228557,
+    "x_normalized": 0.0419921875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.19297,
+    "x_normalized": 0.3623046875,
+    "y_normalized": 0.771484375
+   },
+   {
+    "confidence": 0.145985,
+    "x_normalized": 0.8388671875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.119592,
+    "x_normalized": 0.2841796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.116849,
+    "x_normalized": 0.90234375,
+    "y_normalized": 0.5234375
+   }
+  ],
+  "91b7cb2a-9912-4ff6-83b1-6cc04c2e6b4f": [],
+  "9376c3bc-4d39-4890-898e-07165249a5dc": [
+   {
+    "confidence": 0.792507,
+    "x_normalized": 0.62109375,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.269546,
+    "x_normalized": 0.4638671875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.241263,
+    "x_normalized": 0.53515625,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.230054,
+    "x_normalized": 0.41796875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.213348,
+    "x_normalized": 0.6826171875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.212553,
+    "x_normalized": 0.58203125,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.210015,
+    "x_normalized": 0.41015625,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.13432,
+    "x_normalized": 0.02734375,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "9378fa9b-2533-4fe0-b409-0edf45b3682b": [
+   {
+    "confidence": 0.690734,
+    "x_normalized": 0.23828125,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.567271,
+    "x_normalized": 0.3779296875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.345168,
+    "x_normalized": 0.0810546875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.198532,
+    "x_normalized": 0.05078125,
+    "y_normalized": 0.5859375
+   }
+  ],
+  "93cef77e-a16c-4e6c-a5e5-1d380b03243d": [
+   {
+    "confidence": 0.569424,
+    "x_normalized": 0.0263671875,
+    "y_normalized": 0.4921875
+   },
+   {
+    "confidence": 0.18964,
+    "x_normalized": 0.9560546875,
+    "y_normalized": 0.490234375
+   }
+  ],
+  "94f69dba-977b-49e8-91e5-11e7fc5b4984": [
+   {
+    "confidence": 0.655377,
+    "x_normalized": 0.66015625,
+    "y_normalized": 0.7578125
+   },
+   {
+    "confidence": 0.592279,
+    "x_normalized": 0.06640625,
+    "y_normalized": 0.458984375
+   },
+   {
+    "confidence": 0.451946,
+    "x_normalized": 0.41796875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.268513,
+    "x_normalized": 0.58203125,
+    "y_normalized": 0.693359375
+   },
+   {
+    "confidence": 0.184185,
+    "x_normalized": 0.3623046875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.120718,
+    "x_normalized": 0.55078125,
+    "y_normalized": 0.662109375
+   }
+  ],
+  "966f06a8-f832-4760-accc-d01ea9bfc15d": [
+   {
+    "confidence": 0.788249,
+    "x_normalized": 0.95703125,
+    "y_normalized": 0.443359375
+   },
+   {
+    "confidence": 0.68429,
+    "x_normalized": 0.7060546875,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.566341,
+    "x_normalized": 0.28515625,
+    "y_normalized": 0.7734375
+   },
+   {
+    "confidence": 0.399057,
+    "x_normalized": 0.3388671875,
+    "y_normalized": 0.7734375
+   },
+   {
+    "confidence": 0.231045,
+    "x_normalized": 0.66015625,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.145815,
+    "x_normalized": 0.9013671875,
+    "y_normalized": 0.443359375
+   },
+   {
+    "confidence": 0.136646,
+    "x_normalized": 0.81640625,
+    "y_normalized": 0.4921875
+   },
+   {
+    "confidence": 0.136405,
+    "x_normalized": 0.21484375,
+    "y_normalized": 0.7421875
+   },
+   {
+    "confidence": 0.133254,
+    "x_normalized": 0.8701171875,
+    "y_normalized": 0.427734375
+   },
+   {
+    "confidence": 0.12078,
+    "x_normalized": 0.57421875,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.117042,
+    "x_normalized": 0.1826171875,
+    "y_normalized": 0.662109375
+   }
+  ],
+  "9690d724-e829-44ca-8656-e0d7915c8644": [
+   {
+    "confidence": 0.88939,
+    "x_normalized": 0.0966796875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.612325,
+    "x_normalized": 0.86328125,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.489621,
+    "x_normalized": 0.97265625,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.480368,
+    "x_normalized": 0.82421875,
+    "y_normalized": 0.7265625
+   },
+   {
+    "confidence": 0.308101,
+    "x_normalized": 0.7451171875,
+    "y_normalized": 0.7421875
+   },
+   {
+    "confidence": 0.137532,
+    "x_normalized": 0.7216796875,
+    "y_normalized": 0.443359375
+   }
+  ],
+  "97848f98-bb65-4ac4-8ba1-6627c5456b8b": [
+   {
+    "confidence": 0.750486,
+    "x_normalized": 0.9716796875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.534654,
+    "x_normalized": 0.1279296875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.438461,
+    "x_normalized": 0.07421875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.428958,
+    "x_normalized": 0.3544921875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.420297,
+    "x_normalized": 0.91015625,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.142298,
+    "x_normalized": 0.52734375,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.132746,
+    "x_normalized": 0.26171875,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "97e7f15b-90a3-42e5-a074-246659be16a9": [
+   {
+    "confidence": 0.497245,
+    "x_normalized": 0.5185546875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.199528,
+    "x_normalized": 0.56640625,
+    "y_normalized": 0.708984375
+   }
+  ],
+  "9c6dfd07-8e0a-432d-b485-5d994fcc4905": [
+   {
+    "confidence": 0.808944,
+    "x_normalized": 0.35546875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.365517,
+    "x_normalized": 0.98828125,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.312319,
+    "x_normalized": 0.53515625,
+    "y_normalized": 0.4921875
+   },
+   {
+    "confidence": 0.199537,
+    "x_normalized": 0.14453125,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.176134,
+    "x_normalized": 0.0498046875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.159767,
+    "x_normalized": 0.9482421875,
+    "y_normalized": 0.6015625
+   }
+  ],
+  "9d60a85d-d29e-4b2b-a004-67119378e070": [],
+  "9e1d55b4-7ef7-4ba1-80c4-085e87b5ac02": [
+   {
+    "confidence": 0.78459,
+    "x_normalized": 0.5498046875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.499655,
+    "x_normalized": 0.4560546875,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "9e25b806-2792-4b3d-9b44-0ebe757ce5a9": [
+   {
+    "confidence": 0.691795,
+    "x_normalized": 0.6669921875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.201933,
+    "x_normalized": 0.94140625,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.197422,
+    "x_normalized": 0.5966796875,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "a17688e5-bd92-4b53-8fed-5500f143267d": [
+   {
+    "confidence": 0.587304,
+    "x_normalized": 0.94921875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.575242,
+    "x_normalized": 0.0966796875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.187376,
+    "x_normalized": 0.3623046875,
+    "y_normalized": 0.771484375
+   },
+   {
+    "confidence": 0.11961,
+    "x_normalized": 0.01171875,
+    "y_normalized": 0.5234375
+   }
+  ],
+  "a18f0da7-bb15-4a60-aff4-8ba5b084f28d": [
+   {
+    "confidence": 0.7561,
+    "x_normalized": 0.7138671875,
+    "y_normalized": 0.7421875
+   },
+   {
+    "confidence": 0.171639,
+    "x_normalized": 0.60546875,
+    "y_normalized": 0.6484375
+   }
+  ],
+  "a2cddf32-fa4c-4173-961a-0373506c0aec": [],
+  "a31f6245-29a5-4b35-97b9-bef88d6fca8b": [
+   {
+    "confidence": 0.937923,
+    "x_normalized": 0.1044921875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.778947,
+    "x_normalized": 0.16796875,
+    "y_normalized": 0.5703125
+   }
+  ],
+  "a3a03099-0daf-471f-9095-4a2be694a727": [
+   {
+    "confidence": 0.849636,
+    "x_normalized": 0.37109375,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.284119,
+    "x_normalized": 0.0498046875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.261269,
+    "x_normalized": 0.1279296875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.200381,
+    "x_normalized": 0.5029296875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.132775,
+    "x_normalized": 0.2841796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.103613,
+    "x_normalized": 0.92578125,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "a8076887-81f3-4121-82a9-ee4f04419a46": [
+   {
+    "confidence": 0.553353,
+    "x_normalized": 0.38671875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.230526,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.133871,
+    "x_normalized": 0.4716796875,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "acdf5269-e674-461b-b0f5-b7c07fa61028": [
+   {
+    "confidence": 0.641688,
+    "x_normalized": 0.05078125,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.487757,
+    "x_normalized": 0.9638671875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.201144,
+    "x_normalized": 0.0966796875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.179868,
+    "x_normalized": 0.01171875,
+    "y_normalized": 0.521484375
+   }
+  ],
+  "aeb89a00-4db4-4db0-8816-23bebd407a74": [
+   {
+    "confidence": 0.692377,
+    "x_normalized": 0.17578125,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.568179,
+    "x_normalized": 0.12890625,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.2299,
+    "x_normalized": 0.2373046875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.101684,
+    "x_normalized": 0.9482421875,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "b0b721cf-c9a5-4935-91b3-1c60479fd5bf": [
+   {
+    "confidence": 0.802038,
+    "x_normalized": 0.02734375,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.645036,
+    "x_normalized": 0.9013671875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.52866,
+    "x_normalized": 0.8701171875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.48262,
+    "x_normalized": 0.11328125,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.30881,
+    "x_normalized": 0.95703125,
+    "y_normalized": 0.5859375
+   }
+  ],
+  "b2ef9f29-b9ba-4aea-a5d8-6746f66739c2": [
+   {
+    "confidence": 0.670472,
+    "x_normalized": 0.8779296875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.32332,
+    "x_normalized": 0.60546875,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.217731,
+    "x_normalized": 0.03515625,
+    "y_normalized": 0.6015625
+   }
+  ],
+  "b3f788cb-f94a-495c-a769-4da77d13edbe": [
+   {
+    "confidence": 0.774264,
+    "x_normalized": 0.0107421875,
+    "y_normalized": 0.4296875
+   },
+   {
+    "confidence": 0.596579,
+    "x_normalized": 0.8623046875,
+    "y_normalized": 0.4453125
+   },
+   {
+    "confidence": 0.452405,
+    "x_normalized": 0.8466796875,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.413037,
+    "x_normalized": 0.8701171875,
+    "y_normalized": 0.615234375
+   }
+  ],
+  "b620da0c-33e4-4475-bcce-d3d85e155696": [
+   {
+    "confidence": 0.836448,
+    "x_normalized": 0.05859375,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.801809,
+    "x_normalized": 0.87890625,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.141671,
+    "x_normalized": 0.9091796875,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "b7002c07-7af9-4d2b-b2e2-d627d9fd32e5": [
+   {
+    "confidence": 0.956135,
+    "x_normalized": 0.36328125,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.656377,
+    "x_normalized": 0.6513671875,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.159348,
+    "x_normalized": 0.9716796875,
+    "y_normalized": 0.521484375
+   }
+  ],
+  "b780053d-ae80-4352-9a7f-df460a9084a1": [
+   {
+    "confidence": 0.740655,
+    "x_normalized": 0.4794921875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.606277,
+    "x_normalized": 0.53515625,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "b7823972-59c1-44ff-be66-ab1595688f64": [
+   {
+    "confidence": 0.730503,
+    "x_normalized": 0.6904296875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.548697,
+    "x_normalized": 0.5810546875,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.18541,
+    "x_normalized": 0.76171875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.104317,
+    "x_normalized": 0.37890625,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.100412,
+    "x_normalized": 0.47265625,
+    "y_normalized": 0.8515625
+   }
+  ],
+  "b7ba7fcc-cf9e-4598-83c8-1ff50088aed5": [],
+  "b9bd572d-69ef-4554-8d44-08e59251bb46": [
+   {
+    "confidence": 0.827947,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.267462,
+    "x_normalized": 0.80859375,
+    "y_normalized": 0.833984375
+   },
+   {
+    "confidence": 0.191772,
+    "x_normalized": 0.2998046875,
+    "y_normalized": 0.521484375
+   }
+  ],
+  "ba387f92-cdcd-4ddf-9013-d0afbf32d27e": [
+   {
+    "confidence": 0.649061,
+    "x_normalized": 0.8466796875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.213212,
+    "x_normalized": 0.1513671875,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "bccaeeb3-617c-41be-b525-ed63fc64168c": [
+   {
+    "confidence": 0.701847,
+    "x_normalized": 0.66015625,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.63031,
+    "x_normalized": 0.3232421875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.318056,
+    "x_normalized": 0.41015625,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.164669,
+    "x_normalized": 0.4404296875,
+    "y_normalized": 0.7734375
+   }
+  ],
+  "bef147b1-a80e-4437-94ba-3453d038d3fa": [],
+  "bfc80ef5-3142-428b-9e71-61858065078a": [
+   {
+    "confidence": 0.995051,
+    "x_normalized": 0.16015625,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.942442,
+    "x_normalized": 0.6591796875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.922848,
+    "x_normalized": 0.73828125,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.889995,
+    "x_normalized": 0.04296875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.881952,
+    "x_normalized": 0.82421875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.866396,
+    "x_normalized": 0.2607421875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.858127,
+    "x_normalized": 0.3623046875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.829408,
+    "x_normalized": 0.08203125,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.552972,
+    "x_normalized": 0.58203125,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.151721,
+    "x_normalized": 0.21484375,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "c0de310a-4709-4844-b329-57f801f53a34": [],
+  "c0f8529c-bf06-4c65-a389-4ee227f91852": [
+   {
+    "confidence": 0.698717,
+    "x_normalized": 0.9716796875,
+    "y_normalized": 0.490234375
+   },
+   {
+    "confidence": 0.37536,
+    "x_normalized": 0.02734375,
+    "y_normalized": 0.4765625
+   }
+  ],
+  "c2667282-a470-46e4-b80c-64ec45c49e92": [
+   {
+    "confidence": 0.87343,
+    "x_normalized": 0.5654296875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.806125,
+    "x_normalized": 0.69140625,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.51571,
+    "x_normalized": 0.3701171875,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.47084,
+    "x_normalized": 0.72265625,
+    "y_normalized": 0.7265625
+   },
+   {
+    "confidence": 0.418726,
+    "x_normalized": 0.37890625,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.301455,
+    "x_normalized": 0.3388671875,
+    "y_normalized": 0.7421875
+   },
+   {
+    "confidence": 0.282203,
+    "x_normalized": 0.48046875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.190292,
+    "x_normalized": 0.77734375,
+    "y_normalized": 0.740234375
+   }
+  ],
+  "c2bfb3bc-0218-446c-8023-1459b65db023": [
+   {
+    "confidence": 0.133835,
+    "x_normalized": 0.96484375,
+    "y_normalized": 0.5703125
+   }
+  ],
+  "c2f167ab-8469-4c5b-8b59-c3858f5602ab": [
+   {
+    "confidence": 0.126738,
+    "x_normalized": 0.85546875,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "c2f7fbde-8d08-4b0b-87b2-5ce2afb115b9": [
+   {
+    "confidence": 0.664415,
+    "x_normalized": 0.34765625,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.164486,
+    "x_normalized": 0.3779296875,
+    "y_normalized": 0.8671875
+   },
+   {
+    "confidence": 0.127848,
+    "x_normalized": 0.76953125,
+    "y_normalized": 0.5078125
+   }
+  ],
+  "c6b348dd-53b1-48a2-a6ea-e4aeb4e4a307": [
+   {
+    "confidence": 0.599846,
+    "x_normalized": 0.7685546875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.237005,
+    "x_normalized": 0.85546875,
+    "y_normalized": 0.6953125
+   },
+   {
+    "confidence": 0.216829,
+    "x_normalized": 0.3779296875,
+    "y_normalized": 0.7734375
+   },
+   {
+    "confidence": 0.169507,
+    "x_normalized": 0.9404296875,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.146115,
+    "x_normalized": 0.6904296875,
+    "y_normalized": 0.755859375
+   }
+  ],
+  "c810ee18-9117-4d7a-8d30-3ef4d390bd88": [
+   {
+    "confidence": 0.686225,
+    "x_normalized": 0.20703125,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.318611,
+    "x_normalized": 0.3310546875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.172223,
+    "x_normalized": 0.67578125,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.16158,
+    "x_normalized": 0.2529296875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.153883,
+    "x_normalized": 0.88671875,
+    "y_normalized": 0.755859375
+   },
+   {
+    "confidence": 0.150141,
+    "x_normalized": 0.6591796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.137527,
+    "x_normalized": 0.51953125,
+    "y_normalized": 0.5234375
+   }
+  ],
+  "cc1624fd-68f4-437a-a721-cdb7fe90b5c9": [
+   {
+    "confidence": 0.842309,
+    "x_normalized": 0.3935546875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.724701,
+    "x_normalized": 0.5341796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.520684,
+    "x_normalized": 0.4638671875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.512328,
+    "x_normalized": 0.61328125,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.25838,
+    "x_normalized": 0.57421875,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "cc8a7979-4aac-4859-ae5a-eb15c9808c8d": [
+   {
+    "confidence": 0.765261,
+    "x_normalized": 0.4951171875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.750954,
+    "x_normalized": 0.7138671875,
+    "y_normalized": 0.724609375
+   },
+   {
+    "confidence": 0.585425,
+    "x_normalized": 0.4326171875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.448787,
+    "x_normalized": 0.79296875,
+    "y_normalized": 0.7734375
+   },
+   {
+    "confidence": 0.145327,
+    "x_normalized": 0.8544921875,
+    "y_normalized": 0.7265625
+   },
+   {
+    "confidence": 0.122735,
+    "x_normalized": 0.8388671875,
+    "y_normalized": 0.6640625
+   }
+  ],
+  "ccd9dd72-1a99-4d0c-8539-cdf84b5d3268": [
+   {
+    "confidence": 0.867584,
+    "x_normalized": 0.24609375,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.733902,
+    "x_normalized": 0.94140625,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.691024,
+    "x_normalized": 0.7919921875,
+    "y_normalized": 0.693359375
+   },
+   {
+    "confidence": 0.489173,
+    "x_normalized": 0.19921875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.299735,
+    "x_normalized": 0.0732421875,
+    "y_normalized": 0.5859375
+   }
+  ],
+  "cd7f08d2-8cf1-42dc-9ae8-9ff0467f6f80": [
+   {
+    "confidence": 0.941155,
+    "x_normalized": 0.60546875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.667737,
+    "x_normalized": 0.08984375,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.575875,
+    "x_normalized": 0.8310546875,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.512004,
+    "x_normalized": 0.1123046875,
+    "y_normalized": 0.662109375
+   }
+  ],
+  "cdd193de-be7d-4470-812e-15ccc0c04006": [
+   {
+    "confidence": 0.556402,
+    "x_normalized": 0.2763671875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.297433,
+    "x_normalized": 0.08203125,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.270799,
+    "x_normalized": 0.2216796875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.163579,
+    "x_normalized": 0.88671875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.141041,
+    "x_normalized": 0.80078125,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.137914,
+    "x_normalized": 0.8466796875,
+    "y_normalized": 0.6171875
+   }
+  ],
+  "cdf581e6-927d-48b6-82cd-23ef70699f03": [
+   {
+    "confidence": 0.831351,
+    "x_normalized": 0.2919921875,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.587316,
+    "x_normalized": 0.75390625,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.35314,
+    "x_normalized": 0.89453125,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.325089,
+    "x_normalized": 0.7138671875,
+    "y_normalized": 0.7109375
+   },
+   {
+    "confidence": 0.285105,
+    "x_normalized": 0.38671875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.248863,
+    "x_normalized": 0.8232421875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.162532,
+    "x_normalized": 0.2373046875,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "cfac7ebd-6f22-4303-a329-75703f3e2a4d": [
+   {
+    "confidence": 0.587924,
+    "x_normalized": 0.1123046875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.302731,
+    "x_normalized": 0.9169921875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.299549,
+    "x_normalized": 0.06640625,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.222073,
+    "x_normalized": 0.8466796875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.125119,
+    "x_normalized": 0.48828125,
+    "y_normalized": 0.4609375
+   }
+  ],
+  "d08a82fc-9ce7-4378-bbba-0467f5bde04a": [
+   {
+    "confidence": 0.650821,
+    "x_normalized": 0.4482421875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.595588,
+    "x_normalized": 0.5576171875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.352417,
+    "x_normalized": 0.4013671875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.219126,
+    "x_normalized": 0.58984375,
+    "y_normalized": 0.662109375
+   }
+  ],
+  "d113e602-4bb5-418f-b9de-2e56c64f1821": [
+   {
+    "confidence": 0.75949,
+    "x_normalized": 0.84765625,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.503233,
+    "x_normalized": 0.7060546875,
+    "y_normalized": 0.5703125
+   }
+  ],
+  "d15c6a39-d187-4661-a911-a84450144c57": [],
+  "d1dc28e1-70de-4bff-b964-8e1973b06981": [
+   {
+    "confidence": 0.182285,
+    "x_normalized": 0.43359375,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "d50a199d-233e-40e5-8d6b-e6cad429e61e": [
+   {
+    "confidence": 0.870164,
+    "x_normalized": 0.63671875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.848931,
+    "x_normalized": 0.3466796875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.162727,
+    "x_normalized": 0.5810546875,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "d528e025-6fbc-4209-bd2c-2d7a47a27827": [
+   {
+    "confidence": 0.82143,
+    "x_normalized": 0.76953125,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.788082,
+    "x_normalized": 0.39453125,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.777126,
+    "x_normalized": 0.4482421875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.758846,
+    "x_normalized": 0.58203125,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.737975,
+    "x_normalized": 0.1513671875,
+    "y_normalized": 0.6953125
+   },
+   {
+    "confidence": 0.714151,
+    "x_normalized": 0.24609375,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.664369,
+    "x_normalized": 0.89453125,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.623698,
+    "x_normalized": 0.55078125,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.568133,
+    "x_normalized": 0.1044921875,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.319587,
+    "x_normalized": 0.8466796875,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.184343,
+    "x_normalized": 0.75390625,
+    "y_normalized": 0.4765625
+   },
+   {
+    "confidence": 0.177379,
+    "x_normalized": 0.2294921875,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.164689,
+    "x_normalized": 0.07421875,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.109703,
+    "x_normalized": 0.9404296875,
+    "y_normalized": 0.630859375
+   }
+  ],
+  "d708b387-403b-4467-b7b0-8da59f8ab583": [
+   {
+    "confidence": 0.3025,
+    "x_normalized": 0.61328125,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.181903,
+    "x_normalized": 0.69921875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.113667,
+    "x_normalized": 0.5498046875,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "d86d4363-e12f-4be8-b906-8a194a77fd12": [
+   {
+    "confidence": 0.885662,
+    "x_normalized": 0.0810546875,
+    "y_normalized": 0.4921875
+   },
+   {
+    "confidence": 0.512861,
+    "x_normalized": 0.15234375,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "d9cb24cf-1362-4123-9187-47ea7db1ad2a": [
+   {
+    "confidence": 0.808367,
+    "x_normalized": 0.5419921875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.114265,
+    "x_normalized": 0.12890625,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.102837,
+    "x_normalized": 0.18359375,
+    "y_normalized": 0.6484375
+   }
+  ],
+  "dabf7517-20a1-4b96-89a8-c80372bb42ec": [
+   {
+    "confidence": 0.735143,
+    "x_normalized": 0.47265625,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.518393,
+    "x_normalized": 0.41796875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.514675,
+    "x_normalized": 0.73828125,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "db1b26ae-dd49-40fb-8522-ef58fbd6e813": [
+   {
+    "confidence": 0.708076,
+    "x_normalized": 0.86328125,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.534845,
+    "x_normalized": 0.90234375,
+    "y_normalized": 0.4453125
+   },
+   {
+    "confidence": 0.240525,
+    "x_normalized": 0.79296875,
+    "y_normalized": 0.630859375
+   }
+  ],
+  "dc326ab1-eabb-44e8-b88d-9e46f03efbb1": [
+   {
+    "confidence": 0.642687,
+    "x_normalized": 0.9560546875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.503966,
+    "x_normalized": 0.0107421875,
+    "y_normalized": 0.5546875
+   }
+  ],
+  "dd064cf6-d5af-459a-8570-ff10d2c7c62c": [
+   {
+    "confidence": 0.792274,
+    "x_normalized": 0.4013671875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.68124,
+    "x_normalized": 0.4482421875,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.499763,
+    "x_normalized": 0.33984375,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.153567,
+    "x_normalized": 0.5185546875,
+    "y_normalized": 0.5078125
+   },
+   {
+    "confidence": 0.134829,
+    "x_normalized": 0.7138671875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.106072,
+    "x_normalized": 0.35546875,
+    "y_normalized": 0.646484375
+   }
+  ],
+  "de7d37d3-980f-470b-b4ec-c891c285823b": [
+   {
+    "confidence": 0.207882,
+    "x_normalized": 0.4794921875,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.168384,
+    "x_normalized": 0.01171875,
+    "y_normalized": 0.412109375
+   }
+  ],
+  "e0603d1c-a419-411c-8d3b-a3b7210e3b0b": [
+   {
+    "confidence": 0.689949,
+    "x_normalized": 0.2060546875,
+    "y_normalized": 0.5234375
+   }
+  ],
+  "e0a38610-6ddf-4397-b707-29a62d415106": [
+   {
+    "confidence": 0.731595,
+    "x_normalized": 0.85546875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.684085,
+    "x_normalized": 0.1201171875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.237755,
+    "x_normalized": 0.8232421875,
+    "y_normalized": 0.6015625
+   }
+  ],
+  "e0c7e610-ffd7-4cdd-929a-943aebf3b05c": [
+   {
+    "confidence": 0.55883,
+    "x_normalized": 0.05859375,
+    "y_normalized": 0.4765625
+   },
+   {
+    "confidence": 0.357794,
+    "x_normalized": 0.9716796875,
+    "y_normalized": 0.4921875
+   },
+   {
+    "confidence": 0.154663,
+    "x_normalized": 0.5576171875,
+    "y_normalized": 0.6484375
+   }
+  ],
+  "e12e0977-9662-4818-b901-18d76e1c9452": [
+   {
+    "confidence": 0.794403,
+    "x_normalized": 0.18359375,
+    "y_normalized": 0.552734375
+   }
+  ],
+  "e1d9a558-bad8-4037-abc4-1315441d3f5b": [
+   {
+    "confidence": 0.960857,
+    "x_normalized": 0.0576171875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.579095,
+    "x_normalized": 0.72265625,
+    "y_normalized": 0.724609375
+   },
+   {
+    "confidence": 0.506721,
+    "x_normalized": 0.24609375,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.442351,
+    "x_normalized": 0.20703125,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.427297,
+    "x_normalized": 0.65234375,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.3857,
+    "x_normalized": 0.8154296875,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.203881,
+    "x_normalized": 0.93359375,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.170494,
+    "x_normalized": 0.4091796875,
+    "y_normalized": 0.693359375
+   },
+   {
+    "confidence": 0.157952,
+    "x_normalized": 0.1591796875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.151122,
+    "x_normalized": 0.17578125,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.145775,
+    "x_normalized": 0.3466796875,
+    "y_normalized": 0.708984375
+   }
+  ],
+  "e20eb107-751a-446b-8d04-d5aa047c892b": [
+   {
+    "confidence": 0.806578,
+    "x_normalized": 0.9638671875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.734518,
+    "x_normalized": 0.93359375,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.327529,
+    "x_normalized": 0.0498046875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.265236,
+    "x_normalized": 0.69140625,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.145905,
+    "x_normalized": 0.0966796875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.133501,
+    "x_normalized": 0.74609375,
+    "y_normalized": 0.6796875
+   },
+   {
+    "confidence": 0.131426,
+    "x_normalized": 0.7607421875,
+    "y_normalized": 0.6796875
+   },
+   {
+    "confidence": 0.127487,
+    "x_normalized": 0.9013671875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.119506,
+    "x_normalized": 0.48828125,
+    "y_normalized": 0.537109375
+   }
+  ],
+  "e31db8f2-ff60-45a7-84b3-01707f8565d2": [
+   {
+    "confidence": 0.835171,
+    "x_normalized": 0.92578125,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.249879,
+    "x_normalized": 0.0888671875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.178635,
+    "x_normalized": 0.1748046875,
+    "y_normalized": 0.568359375
+   }
+  ],
+  "e4028452-3e8d-4839-889a-2ca03ccccd80": [
+   {
+    "confidence": 0.708221,
+    "x_normalized": 0.23046875,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.633383,
+    "x_normalized": 0.1669921875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.544665,
+    "x_normalized": 0.3232421875,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "e47cb87c-c612-430b-9bc5-101c96b69cbd": [
+   {
+    "confidence": 0.654353,
+    "x_normalized": 0.83203125,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.52283,
+    "x_normalized": 0.58203125,
+    "y_normalized": 0.6640625
+   },
+   {
+    "confidence": 0.480723,
+    "x_normalized": 0.74609375,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.366663,
+    "x_normalized": 0.6201171875,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "e852e956-3f90-44fa-8d23-a50bdff94feb": [
+   {
+    "confidence": 0.970777,
+    "x_normalized": 0.21484375,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.730841,
+    "x_normalized": 0.1201171875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.336552,
+    "x_normalized": 0.9404296875,
+    "y_normalized": 0.662109375
+   },
+   {
+    "confidence": 0.109215,
+    "x_normalized": 0.98828125,
+    "y_normalized": 0.5703125
+   }
+  ],
+  "e8dcfd42-97d3-47ed-81e5-8ef5d307245b": [
+   {
+    "confidence": 0.592701,
+    "x_normalized": 0.8388671875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.2746,
+    "x_normalized": 0.5341796875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.185232,
+    "x_normalized": 0.4951171875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.170044,
+    "x_normalized": 0.1904296875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.143237,
+    "x_normalized": 0.3857421875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.131859,
+    "x_normalized": 0.3076171875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.115405,
+    "x_normalized": 0.8935546875,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "eb84933a-6801-4323-968f-0c2c04bee97b": [
+   {
+    "confidence": 0.725801,
+    "x_normalized": 0.01953125,
+    "y_normalized": 0.490234375
+   },
+   {
+    "confidence": 0.520616,
+    "x_normalized": 0.08984375,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.47306,
+    "x_normalized": 0.45703125,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.34979,
+    "x_normalized": 0.94140625,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "ed7fc06f-4f38-4d0e-a9c9-85d1468de6c8": [
+   {
+    "confidence": 0.889593,
+    "x_normalized": 0.4404296875,
+    "y_normalized": 0.5078125
+   },
+   {
+    "confidence": 0.876608,
+    "x_normalized": 0.35546875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.113629,
+    "x_normalized": 0.6982421875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.101728,
+    "x_normalized": 0.74609375,
+    "y_normalized": 0.599609375
+   }
+  ],
+  "ee06646a-23cc-4fb3-a17f-4482828f472f": [
+   {
+    "confidence": 0.884968,
+    "x_normalized": 0.39453125,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.779788,
+    "x_normalized": 0.07421875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.767164,
+    "x_normalized": 0.9248046875,
+    "y_normalized": 0.5546875
+   },
+   {
+    "confidence": 0.68492,
+    "x_normalized": 0.5419921875,
+    "y_normalized": 0.6171875
+   },
+   {
+    "confidence": 0.666954,
+    "x_normalized": 0.5576171875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.61433,
+    "x_normalized": 0.2529296875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.515936,
+    "x_normalized": 0.02734375,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.472593,
+    "x_normalized": 0.64453125,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.458136,
+    "x_normalized": 0.87109375,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.208493,
+    "x_normalized": 0.5966796875,
+    "y_normalized": 0.6484375
+   }
+  ],
+  "ef0751f9-0c10-48fb-8f75-5d0e30feb5eb": [
+   {
+    "confidence": 0.836423,
+    "x_normalized": 0.9091796875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.613565,
+    "x_normalized": 0.50390625,
+    "y_normalized": 0.458984375
+   },
+   {
+    "confidence": 0.152722,
+    "x_normalized": 0.0107421875,
+    "y_normalized": 0.615234375
+   }
+  ],
+  "f0589531-17db-4f5e-80d5-e61f4d5d7ba2": [
+   {
+    "confidence": 0.694807,
+    "x_normalized": 0.88671875,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.184218,
+    "x_normalized": 0.9638671875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.128069,
+    "x_normalized": 0.04296875,
+    "y_normalized": 0.615234375
+   },
+   {
+    "confidence": 0.123529,
+    "x_normalized": 0.84765625,
+    "y_normalized": 0.6484375
+   },
+   {
+    "confidence": 0.10051,
+    "x_normalized": 0.08203125,
+    "y_normalized": 0.646484375
+   }
+  ],
+  "f0752487-a9ea-4073-96d3-3ce22bd825fc": [
+   {
+    "confidence": 0.718135,
+    "x_normalized": 0.2294921875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.460963,
+    "x_normalized": 0.1904296875,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.381354,
+    "x_normalized": 0.36328125,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.346716,
+    "x_normalized": 0.81640625,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.273,
+    "x_normalized": 0.7607421875,
+    "y_normalized": 0.505859375
+   },
+   {
+    "confidence": 0.172421,
+    "x_normalized": 0.39453125,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.148146,
+    "x_normalized": 0.33203125,
+    "y_normalized": 0.880859375
+   }
+  ],
+  "f176ca66-8dad-4b6f-aa16-e21aaf7a3602": [
+   {
+    "confidence": 0.663631,
+    "x_normalized": 0.3623046875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.329401,
+    "x_normalized": 0.2998046875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.199863,
+    "x_normalized": 0.6044921875,
+    "y_normalized": 0.5859375
+   }
+  ],
+  "f5f1843a-3be2-486d-8252-e76e1f2ff9ff": [
+   {
+    "confidence": 0.68463,
+    "x_normalized": 0.4560546875,
+    "y_normalized": 0.568359375
+   },
+   {
+    "confidence": 0.498784,
+    "x_normalized": 0.5576171875,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.117087,
+    "x_normalized": 0.60546875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.105448,
+    "x_normalized": 0.40234375,
+    "y_normalized": 0.630859375
+   }
+  ],
+  "f8d6d0b9-a40a-4bd5-83de-6318359edb98": [
+   {
+    "confidence": 0.750305,
+    "x_normalized": 0.6982421875,
+    "y_normalized": 0.537109375
+   },
+   {
+    "confidence": 0.112648,
+    "x_normalized": 0.23046875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.110537,
+    "x_normalized": 0.1357421875,
+    "y_normalized": 0.583984375
+   }
+  ],
+  "f96b8bac-6146-4d1d-abbb-1d370fe43cfd": [
+   {
+    "confidence": 0.752092,
+    "x_normalized": 0.74609375,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.633001,
+    "x_normalized": 0.94921875,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.589692,
+    "x_normalized": 0.1669921875,
+    "y_normalized": 0.740234375
+   },
+   {
+    "confidence": 0.554598,
+    "x_normalized": 0.87109375,
+    "y_normalized": 0.5703125
+   },
+   {
+    "confidence": 0.419463,
+    "x_normalized": 0.9248046875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.189415,
+    "x_normalized": 0.12890625,
+    "y_normalized": 0.677734375
+   },
+   {
+    "confidence": 0.113684,
+    "x_normalized": 0.34765625,
+    "y_normalized": 0.6328125
+   }
+  ],
+  "fbb749c6-8063-4c86-9cf4-62884019159a": [
+   {
+    "confidence": 0.766293,
+    "x_normalized": 0.13671875,
+    "y_normalized": 0.630859375
+   },
+   {
+    "confidence": 0.733458,
+    "x_normalized": 0.7607421875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.532347,
+    "x_normalized": 0.66015625,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.188658,
+    "x_normalized": 0.2529296875,
+    "y_normalized": 0.755859375
+   },
+   {
+    "confidence": 0.187148,
+    "x_normalized": 0.23828125,
+    "y_normalized": 0.7421875
+   },
+   {
+    "confidence": 0.165325,
+    "x_normalized": 0.1982421875,
+    "y_normalized": 0.6328125
+   },
+   {
+    "confidence": 0.164109,
+    "x_normalized": 0.83984375,
+    "y_normalized": 0.5390625
+   }
+  ],
+  "fbf5d296-2680-4f91-bbb0-7ee2d89877ca": [
+   {
+    "confidence": 0.873958,
+    "x_normalized": 0.55078125,
+    "y_normalized": 0.521484375
+   },
+   {
+    "confidence": 0.863326,
+    "x_normalized": 0.2216796875,
+    "y_normalized": 0.646484375
+   },
+   {
+    "confidence": 0.715635,
+    "x_normalized": 0.40234375,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.638945,
+    "x_normalized": 0.49609375,
+    "y_normalized": 0.5234375
+   },
+   {
+    "confidence": 0.547906,
+    "x_normalized": 0.31640625,
+    "y_normalized": 0.5859375
+   },
+   {
+    "confidence": 0.448741,
+    "x_normalized": 0.85546875,
+    "y_normalized": 0.7421875
+   }
+  ],
+  "feb8e9dd-5fd1-452d-9901-9212f9fe8b8a": [
+   {
+    "confidence": 0.552792,
+    "x_normalized": 0.68359375,
+    "y_normalized": 0.6015625
+   }
+  ],
+  "ff4b1d5b-c744-4c96-b0cf-29919192e56e": [
+   {
+    "confidence": 0.713346,
+    "x_normalized": 0.23828125,
+    "y_normalized": 0.708984375
+   },
+   {
+    "confidence": 0.595915,
+    "x_normalized": 0.16796875,
+    "y_normalized": 0.6015625
+   },
+   {
+    "confidence": 0.585241,
+    "x_normalized": 0.2998046875,
+    "y_normalized": 0.6953125
+   },
+   {
+    "confidence": 0.434567,
+    "x_normalized": 0.7919921875,
+    "y_normalized": 0.552734375
+   },
+   {
+    "confidence": 0.213059,
+    "x_normalized": 0.73828125,
+    "y_normalized": 0.599609375
+   },
+   {
+    "confidence": 0.176646,
+    "x_normalized": 0.8466796875,
+    "y_normalized": 0.5390625
+   },
+   {
+    "confidence": 0.133918,
+    "x_normalized": 0.0966796875,
+    "y_normalized": 0.583984375
+   },
+   {
+    "confidence": 0.109868,
+    "x_normalized": 0.1826171875,
+    "y_normalized": 0.693359375
+   }
+  ]
+ },
+ "results_jsonl_sha256": "60e688b28b62f85e71f51c603dc1b6f4ff020348220c6cc7955891dcfef061ef",
+ "what": "every peak the run stored (>= 0.10; seam ring dropped by production) for each audited pano, for the 0.30-tier read. Do not open before verdicts.json is exported."
+}

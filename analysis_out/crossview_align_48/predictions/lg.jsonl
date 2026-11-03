@@ -1,0 +1,300 @@
+{"inliers": 34, "n_ground": 99, "pair_id": "p000", "u": 556.573663, "v": 395.227415, "x": 0.751849, "y": 0.580979}
+{"pair_id": "p001", "x": null, "y": null}
+{"pair_id": "p002", "x": null, "y": null}
+{"inliers": 22, "n_ground": 68, "pair_id": "p003", "u": 550.03432, "v": 428.409219, "x": 0.654929, "y": 0.587981}
+{"pair_id": "p004", "x": null, "y": null}
+{"pair_id": "p005", "x": null, "y": null}
+{"inliers": 54, "n_ground": 175, "pair_id": "p006", "u": 570.075673, "v": 378.513029, "x": 0.325631, "y": 0.562813}
+{"inliers": 30, "n_ground": 95, "pair_id": "p007", "u": 432.979589, "v": 396.163084, "x": 0.822947, "y": 0.560374}
+{"inliers": 35, "n_ground": 81, "pair_id": "p008", "u": 386.865696, "v": 408.475825, "x": 0.036126, "y": 0.648846}
+{"inliers": 244, "n_ground": 502, "pair_id": "p009", "u": 524.207007, "v": 421.753163, "x": 0.836357, "y": 0.607993}
+{"pair_id": "p010", "x": null, "y": null}
+{"pair_id": "p011", "x": null, "y": null}
+{"inliers": 425, "n_ground": 651, "pair_id": "p012", "u": 484.585008, "v": 381.76422, "x": 0.113175, "y": 0.56587}
+{"inliers": 29, "n_ground": 103, "pair_id": "p013", "u": 544.260006, "v": 360.28429, "x": 0.409367, "y": 0.556777}
+{"inliers": 184, "n_ground": 370, "pair_id": "p014", "u": 589.905789, "v": 381.039586, "x": 0.63897, "y": 0.593605}
+{"inliers": 73, "n_ground": 106, "pair_id": "p015", "u": 423.597842, "v": 435.544212, "x": 0.886147, "y": 0.596016}
+{"pair_id": "p016", "x": null, "y": null}
+{"pair_id": "p017", "x": null, "y": null}
+{"pair_id": "p018", "x": null, "y": null}
+{"inliers": 21, "n_ground": 48, "pair_id": "p019", "u": 501.220879, "v": 382.024797, "x": 0.164959, "y": 0.54584}
+{"pair_id": "p020", "x": null, "y": null}
+{"pair_id": "p021", "x": null, "y": null}
+{"inliers": 21, "n_ground": 81, "pair_id": "p022", "u": 535.277055, "v": 399.79812, "x": 0.126705, "y": 0.581948}
+{"pair_id": "p023", "x": null, "y": null}
+{"pair_id": "p024", "x": null, "y": null}
+{"inliers": 103, "n_ground": 241, "pair_id": "p025", "u": 534.296468, "v": 436.227667, "x": 0.839765, "y": 0.601553}
+{"pair_id": "p026", "x": null, "y": null}
+{"pair_id": "p027", "x": null, "y": null}
+{"inliers": 20, "n_ground": 75, "pair_id": "p028", "u": 167.318639, "v": 416.47957, "x": 0.797814, "y": 0.567086}
+{"inliers": 179, "n_ground": 439, "pair_id": "p029", "u": 511.840711, "v": 361.500598, "x": 0.643261, "y": 0.557235}
+{"inliers": 284, "n_ground": 660, "pair_id": "p030", "u": 515.808415, "v": 386.744019, "x": 0.248688, "y": 0.642027}
+{"pair_id": "p031", "x": null, "y": null}
+{"inliers": 22, "n_ground": 88, "pair_id": "p032", "u": 665.266431, "v": 355.11041, "x": 0.771073, "y": 0.569383}
+{"inliers": 40, "n_ground": 116, "pair_id": "p033", "u": 453.331836, "v": 396.153926, "x": 0.869765, "y": 0.559383}
+{"inliers": 84, "n_ground": 231, "pair_id": "p034", "u": 424.967532, "v": 380.174647, "x": 0.863944, "y": 0.560086}
+{"pair_id": "p035", "x": null, "y": null}
+{"pair_id": "p036", "x": null, "y": null}
+{"pair_id": "p037", "x": null, "y": null}
+{"inliers": 37, "n_ground": 68, "pair_id": "p038", "u": 495.471003, "v": 458.199421, "x": 0.911504, "y": 0.622826}
+{"pair_id": "p039", "x": null, "y": null}
+{"pair_id": "p040", "x": null, "y": null}
+{"pair_id": "p041", "x": null, "y": null}
+{"inliers": 105, "n_ground": 146, "pair_id": "p042", "u": 489.896862, "v": 350.968531, "x": 0.358749, "y": 0.532268}
+{"pair_id": "p043", "x": null, "y": null}
+{"inliers": 82, "n_ground": 152, "pair_id": "p044", "u": 472.417291, "v": 368.756594, "x": 0.668562, "y": 0.556246}
+{"inliers": 79, "n_ground": 127, "pair_id": "p045", "u": 513.20083, "v": 392.323708, "x": 0.964587, "y": 0.555539}
+{"pair_id": "p046", "x": null, "y": null}
+{"inliers": 73, "n_ground": 111, "pair_id": "p047", "u": 506.550818, "v": 371.462199, "x": 0.538854, "y": 0.541787}
+{"pair_id": "p048", "x": null, "y": null}
+{"inliers": 28, "n_ground": 83, "pair_id": "p049", "u": 533.041705, "v": 397.313515, "x": 0.153368, "y": 0.56534}
+{"inliers": 43, "n_ground": 189, "pair_id": "p050", "u": 405.189237, "v": 336.464752, "x": 0.240762, "y": 0.613308}
+{"pair_id": "p051", "x": null, "y": null}
+{"inliers": 51, "n_ground": 312, "pair_id": "p052", "u": 593.813406, "v": 334.438535, "x": 0.296279, "y": 0.60459}
+{"inliers": 24, "n_ground": 67, "pair_id": "p053", "u": 571.651648, "v": 387.92803, "x": 0.932, "y": 0.563598}
+{"inliers": 51, "n_ground": 114, "pair_id": "p054", "u": 882.848555, "v": 551.309589, "x": 0.871085, "y": 0.725791}
+{"pair_id": "p055", "x": null, "y": null}
+{"inliers": 83, "n_ground": 234, "pair_id": "p056", "u": 458.923984, "v": 392.327943, "x": 0.104402, "y": 0.608938}
+{"pair_id": "p057", "x": null, "y": null}
+{"pair_id": "p058", "x": null, "y": null}
+{"inliers": 42, "n_ground": 115, "pair_id": "p059", "u": 428.064136, "v": 413.058675, "x": 0.604383, "y": 0.559671}
+{"inliers": 20, "n_ground": 92, "pair_id": "p060", "u": 503.385987, "v": 381.96204, "x": 0.813351, "y": 0.606837}
+{"pair_id": "p061", "x": null, "y": null}
+{"pair_id": "p062", "x": null, "y": null}
+{"pair_id": "p063", "x": null, "y": null}
+{"pair_id": "p064", "x": null, "y": null}
+{"pair_id": "p065", "x": null, "y": null}
+{"pair_id": "p066", "x": null, "y": null}
+{"pair_id": "p067", "x": null, "y": null}
+{"pair_id": "p068", "x": null, "y": null}
+{"inliers": 58, "n_ground": 211, "pair_id": "p069", "u": 402.798447, "v": 416.939852, "x": 0.401728, "y": 0.585651}
+{"pair_id": "p070", "x": null, "y": null}
+{"pair_id": "p071", "x": null, "y": null}
+{"pair_id": "p072", "x": null, "y": null}
+{"inliers": 16, "n_ground": 60, "pair_id": "p073", "u": 571.36097, "v": 375.324117, "x": 0.232623, "y": 0.586648}
+{"pair_id": "p074", "x": null, "y": null}
+{"inliers": 25, "n_ground": 72, "pair_id": "p075", "u": 496.186387, "v": 396.120475, "x": 0.065759, "y": 0.562709}
+{"pair_id": "p076", "x": null, "y": null}
+{"pair_id": "p077", "x": null, "y": null}
+{"pair_id": "p078", "x": null, "y": null}
+{"pair_id": "p079", "x": null, "y": null}
+{"pair_id": "p080", "x": null, "y": null}
+{"pair_id": "p081", "x": null, "y": null}
+{"pair_id": "p082", "x": null, "y": null}
+{"inliers": 27, "n_ground": 84, "pair_id": "p083", "u": 619.004319, "v": 416.362518, "x": 0.263063, "y": 0.592}
+{"inliers": 32, "n_ground": 137, "pair_id": "p084", "u": 488.549889, "v": 366.597427, "x": 0.121696, "y": 0.55536}
+{"pair_id": "p085", "x": null, "y": null}
+{"pair_id": "p086", "x": null, "y": null}
+{"inliers": 47, "n_ground": 106, "pair_id": "p087", "u": 448.02935, "v": 376.794118, "x": 0.110075, "y": 0.545391}
+{"inliers": 18, "n_ground": 90, "pair_id": "p088", "u": 652.098063, "v": 364.07485, "x": 0.190092, "y": 0.561468}
+{"pair_id": "p089", "x": null, "y": null}
+{"pair_id": "p090", "x": null, "y": null}
+{"pair_id": "p091", "x": null, "y": null}
+{"pair_id": "p092", "x": null, "y": null}
+{"pair_id": "p093", "x": null, "y": null}
+{"pair_id": "p094", "x": null, "y": null}
+{"pair_id": "p095", "x": null, "y": null}
+{"pair_id": "p096", "x": null, "y": null}
+{"pair_id": "p097", "x": null, "y": null}
+{"pair_id": "p098", "x": null, "y": null}
+{"pair_id": "p099", "x": null, "y": null}
+{"inliers": 15, "n_ground": 31, "pair_id": "p100", "u": 174.551034, "v": 459.874067, "x": 0.143913, "y": 0.607673}
+{"pair_id": "p101", "x": null, "y": null}
+{"pair_id": "p102", "x": null, "y": null}
+{"pair_id": "p103", "x": null, "y": null}
+{"pair_id": "p104", "x": null, "y": null}
+{"pair_id": "p105", "x": null, "y": null}
+{"pair_id": "p106", "x": null, "y": null}
+{"inliers": 19, "n_ground": 42, "pair_id": "p107", "u": 488.60013, "v": 372.861794, "x": 0.412373, "y": 0.544254}
+{"inliers": 34, "n_ground": 81, "pair_id": "p108", "u": 535.901322, "v": 385.780497, "x": 0.911238, "y": 0.553187}
+{"inliers": 17, "n_ground": 44, "pair_id": "p109", "u": 557.512704, "v": 393.54046, "x": 0.102043, "y": 0.569121}
+{"pair_id": "p110", "x": null, "y": null}
+{"pair_id": "p111", "x": null, "y": null}
+{"pair_id": "p112", "x": null, "y": null}
+{"inliers": 52, "n_ground": 264, "pair_id": "p113", "u": 569.848028, "v": 386.216815, "x": 0.270013, "y": 0.568084}
+{"pair_id": "p114", "x": null, "y": null}
+{"inliers": 31, "n_ground": 106, "pair_id": "p115", "u": 466.676919, "v": 381.344382, "x": 0.880663, "y": 0.564759}
+{"pair_id": "p116", "x": null, "y": null}
+{"inliers": 27, "n_ground": 68, "pair_id": "p117", "u": 466.661443, "v": 396.925793, "x": 0.377614, "y": 0.555377}
+{"pair_id": "p118", "x": null, "y": null}
+{"pair_id": "p119", "x": null, "y": null}
+{"pair_id": "p120", "x": null, "y": null}
+{"pair_id": "p121", "x": null, "y": null}
+{"pair_id": "p122", "x": null, "y": null}
+{"pair_id": "p123", "x": null, "y": null}
+{"inliers": 34, "n_ground": 89, "pair_id": "p124", "u": 451.390725, "v": 359.005123, "x": 0.555155, "y": 0.544613}
+{"inliers": 30, "n_ground": 145, "pair_id": "p125", "u": 598.785698, "v": 366.498666, "x": 0.904009, "y": 0.57917}
+{"pair_id": "p126", "x": null, "y": null}
+{"pair_id": "p127", "x": null, "y": null}
+{"pair_id": "p128", "x": null, "y": null}
+{"pair_id": "p129", "x": null, "y": null}
+{"pair_id": "p130", "x": null, "y": null}
+{"pair_id": "p131", "x": null, "y": null}
+{"pair_id": "p132", "x": null, "y": null}
+{"pair_id": "p133", "x": null, "y": null}
+{"pair_id": "p134", "x": null, "y": null}
+{"pair_id": "p135", "x": null, "y": null}
+{"inliers": 15, "n_ground": 44, "pair_id": "p136", "u": 392.199801, "v": 378.803227, "x": 0.598189, "y": 0.543937}
+{"pair_id": "p137", "x": null, "y": null}
+{"pair_id": "p138", "x": null, "y": null}
+{"pair_id": "p139", "x": null, "y": null}
+{"pair_id": "p140", "x": null, "y": null}
+{"pair_id": "p141", "x": null, "y": null}
+{"pair_id": "p142", "x": null, "y": null}
+{"pair_id": "p143", "x": null, "y": null}
+{"pair_id": "p144", "x": null, "y": null}
+{"pair_id": "p145", "x": null, "y": null}
+{"pair_id": "p146", "x": null, "y": null}
+{"pair_id": "p147", "x": null, "y": null}
+{"pair_id": "p148", "x": null, "y": null}
+{"inliers": 15, "n_ground": 41, "pair_id": "p149", "u": 494.164245, "v": 394.20275, "x": 0.118449, "y": 0.563724}
+{"inliers": 32, "n_ground": 144, "pair_id": "p150", "u": 447.727011, "v": 377.611671, "x": 0.871417, "y": 0.617003}
+{"pair_id": "p151", "x": null, "y": null}
+{"inliers": 38, "n_ground": 173, "pair_id": "p152", "u": 534.496335, "v": 390.980203, "x": 0.226232, "y": 0.567682}
+{"pair_id": "p153", "x": null, "y": null}
+{"inliers": 28, "n_ground": 139, "pair_id": "p154", "u": 406.092124, "v": 397.143062, "x": 0.278479, "y": 0.558562}
+{"pair_id": "p155", "x": null, "y": null}
+{"pair_id": "p156", "x": null, "y": null}
+{"inliers": 15, "n_ground": 76, "pair_id": "p157", "u": 538.529636, "v": 352.608901, "x": 0.756902, "y": 0.594055}
+{"pair_id": "p158", "x": null, "y": null}
+{"pair_id": "p159", "x": null, "y": null}
+{"pair_id": "p160", "x": null, "y": null}
+{"inliers": 25, "n_ground": 141, "pair_id": "p161", "u": 513.64176, "v": 390.040501, "x": 0.298649, "y": 0.580487}
+{"pair_id": "p162", "x": null, "y": null}
+{"pair_id": "p163", "x": null, "y": null}
+{"pair_id": "p164", "x": null, "y": null}
+{"pair_id": "p165", "x": null, "y": null}
+{"pair_id": "p166", "x": null, "y": null}
+{"pair_id": "p167", "x": null, "y": null}
+{"pair_id": "p168", "x": null, "y": null}
+{"pair_id": "p169", "x": null, "y": null}
+{"pair_id": "p170", "x": null, "y": null}
+{"pair_id": "p171", "x": null, "y": null}
+{"pair_id": "p172", "x": null, "y": null}
+{"pair_id": "p173", "x": null, "y": null}
+{"pair_id": "p174", "x": null, "y": null}
+{"pair_id": "p175", "x": null, "y": null}
+{"inliers": 25, "n_ground": 106, "pair_id": "p176", "u": 256.630468, "v": 367.62093, "x": 0.685525, "y": 0.562598}
+{"pair_id": "p177", "x": null, "y": null}
+{"pair_id": "p178", "x": null, "y": null}
+{"pair_id": "p179", "x": null, "y": null}
+{"pair_id": "p180", "x": null, "y": null}
+{"pair_id": "p181", "x": null, "y": null}
+{"pair_id": "p182", "x": null, "y": null}
+{"inliers": 19, "n_ground": 66, "pair_id": "p183", "u": 555.442588, "v": 366.059808, "x": 0.945716, "y": 0.56868}
+{"pair_id": "p184", "x": null, "y": null}
+{"pair_id": "p185", "x": null, "y": null}
+{"pair_id": "p186", "x": null, "y": null}
+{"pair_id": "p187", "x": null, "y": null}
+{"pair_id": "p188", "x": null, "y": null}
+{"pair_id": "p189", "x": null, "y": null}
+{"pair_id": "p190", "x": null, "y": null}
+{"inliers": 17, "n_ground": 77, "pair_id": "p191", "u": 573.582532, "v": 362.80958, "x": 0.404104, "y": 0.599578}
+{"inliers": 51, "n_ground": 87, "pair_id": "p192", "u": 505.019134, "v": 377.937273, "x": 0.546308, "y": 0.55551}
+{"inliers": 48, "n_ground": 220, "pair_id": "p193", "u": 540.595003, "v": 370.38515, "x": 0.921637, "y": 0.596807}
+{"pair_id": "p194", "x": null, "y": null}
+{"inliers": 17, "n_ground": 46, "pair_id": "p195", "u": 482.902571, "v": 368.374114, "x": 0.588593, "y": 0.556496}
+{"pair_id": "p196", "x": null, "y": null}
+{"pair_id": "p197", "x": null, "y": null}
+{"pair_id": "p198", "x": null, "y": null}
+{"pair_id": "p199", "x": null, "y": null}
+{"pair_id": "p200", "x": null, "y": null}
+{"pair_id": "p201", "x": null, "y": null}
+{"inliers": 15, "n_ground": 56, "pair_id": "p202", "u": 424.7035, "v": 379.581709, "x": 0.667312, "y": 0.569516}
+{"pair_id": "p203", "x": null, "y": null}
+{"inliers": 27, "n_ground": 121, "pair_id": "p204", "u": 425.764333, "v": 416.172371, "x": 0.271519, "y": 0.615502}
+{"inliers": 28, "n_ground": 163, "pair_id": "p205", "u": 457.795513, "v": 444.131517, "x": 0.317511, "y": 0.60765}
+{"pair_id": "p206", "x": null, "y": null}
+{"pair_id": "p207", "x": null, "y": null}
+{"pair_id": "p208", "x": null, "y": null}
+{"pair_id": "p209", "x": null, "y": null}
+{"inliers": 17, "n_ground": 45, "pair_id": "p210", "u": 469.138825, "v": 441.246302, "x": 0.660538, "y": 0.646244}
+{"pair_id": "p211", "x": null, "y": null}
+{"pair_id": "p212", "x": null, "y": null}
+{"inliers": 78, "n_ground": 249, "pair_id": "p213", "u": 395.075587, "v": 409.523693, "x": 0.25041, "y": 0.580978}
+{"pair_id": "p214", "x": null, "y": null}
+{"inliers": 108, "n_ground": 174, "pair_id": "p215", "u": 489.331119, "v": 382.055255, "x": 0.53413, "y": 0.546213}
+{"inliers": 36, "n_ground": 139, "pair_id": "p216", "u": 561.475787, "v": 379.01524, "x": 0.494533, "y": 0.543822}
+{"pair_id": "p217", "x": null, "y": null}
+{"inliers": 49, "n_ground": 157, "pair_id": "p218", "u": 532.209409, "v": 375.19432, "x": 0.429057, "y": 0.562118}
+{"pair_id": "p219", "x": null, "y": null}
+{"pair_id": "p220", "x": null, "y": null}
+{"pair_id": "p221", "x": null, "y": null}
+{"inliers": 104, "n_ground": 327, "pair_id": "p222", "u": 528.125651, "v": 391.229392, "x": 0.283801, "y": 0.596105}
+{"pair_id": "p223", "x": null, "y": null}
+{"pair_id": "p224", "x": null, "y": null}
+{"pair_id": "p225", "x": null, "y": null}
+{"pair_id": "p226", "x": null, "y": null}
+{"inliers": 91, "n_ground": 497, "pair_id": "p227", "u": 524.444287, "v": 366.689553, "x": 0.718536, "y": 0.670259}
+{"inliers": 84, "n_ground": 114, "pair_id": "p228", "u": 512.500523, "v": 379.83877, "x": 0.567223, "y": 0.545684}
+{"pair_id": "p229", "x": null, "y": null}
+{"inliers": 47, "n_ground": 147, "pair_id": "p230", "u": 535.328671, "v": 364.275721, "x": 0.416466, "y": 0.562298}
+{"pair_id": "p231", "x": null, "y": null}
+{"inliers": 27, "n_ground": 86, "pair_id": "p232", "u": 581.43187, "v": 397.227467, "x": 0.51394, "y": 0.574496}
+{"inliers": 75, "n_ground": 190, "pair_id": "p233", "u": 506.66045, "v": 403.004471, "x": 0.307034, "y": 0.573862}
+{"pair_id": "p234", "x": null, "y": null}
+{"inliers": 26, "n_ground": 57, "pair_id": "p235", "u": 522.465138, "v": 341.187413, "x": 0.953502, "y": 0.558005}
+{"pair_id": "p236", "x": null, "y": null}
+{"pair_id": "p237", "x": null, "y": null}
+{"inliers": 131, "n_ground": 412, "pair_id": "p238", "u": 516.651394, "v": 374.511143, "x": 0.379995, "y": 0.593014}
+{"inliers": 34, "n_ground": 232, "pair_id": "p239", "u": 551.242098, "v": 368.360321, "x": 0.82863, "y": 0.617579}
+{"pair_id": "p240", "x": null, "y": null}
+{"pair_id": "p241", "x": null, "y": null}
+{"pair_id": "p242", "x": null, "y": null}
+{"inliers": 92, "n_ground": 299, "pair_id": "p243", "u": 537.939384, "v": 394.014744, "x": 0.868517, "y": 0.570838}
+{"inliers": 55, "n_ground": 145, "pair_id": "p244", "u": 506.16164, "v": 382.03228, "x": 0.606532, "y": 0.551289}
+{"pair_id": "p245", "x": null, "y": null}
+{"pair_id": "p246", "x": null, "y": null}
+{"pair_id": "p247", "x": null, "y": null}
+{"inliers": 23, "n_ground": 76, "pair_id": "p248", "u": 489.071201, "v": 414.970882, "x": 0.345524, "y": 0.573235}
+{"pair_id": "p249", "x": null, "y": null}
+{"pair_id": "p250", "x": null, "y": null}
+{"pair_id": "p251", "x": null, "y": null}
+{"pair_id": "p252", "x": null, "y": null}
+{"pair_id": "p253", "x": null, "y": null}
+{"pair_id": "p254", "x": null, "y": null}
+{"inliers": 111, "n_ground": 159, "pair_id": "p255", "u": 510.659396, "v": 382.89047, "x": 0.05455, "y": 0.547216}
+{"pair_id": "p256", "x": null, "y": null}
+{"pair_id": "p257", "x": null, "y": null}
+{"pair_id": "p258", "x": null, "y": null}
+{"pair_id": "p259", "x": null, "y": null}
+{"pair_id": "p260", "x": null, "y": null}
+{"inliers": 19, "n_ground": 132, "pair_id": "p261", "u": 500.965541, "v": 378.932705, "x": 0.940533, "y": 0.588752}
+{"pair_id": "p262", "x": null, "y": null}
+{"inliers": 48, "n_ground": 120, "pair_id": "p263", "u": 509.084832, "v": 385.850479, "x": 0.439016, "y": 0.556173}
+{"pair_id": "p264", "x": null, "y": null}
+{"pair_id": "p265", "x": null, "y": null}
+{"pair_id": "p266", "x": null, "y": null}
+{"pair_id": "p267", "x": null, "y": null}
+{"pair_id": "p268", "x": null, "y": null}
+{"pair_id": "p269", "x": null, "y": null}
+{"pair_id": "p270", "x": null, "y": null}
+{"pair_id": "p271", "x": null, "y": null}
+{"pair_id": "p272", "x": null, "y": null}
+{"pair_id": "p273", "x": null, "y": null}
+{"pair_id": "p274", "x": null, "y": null}
+{"pair_id": "p275", "x": null, "y": null}
+{"pair_id": "p276", "x": null, "y": null}
+{"pair_id": "p277", "x": null, "y": null}
+{"inliers": 32, "n_ground": 164, "pair_id": "p278", "u": 401.223249, "v": 372.18401, "x": 0.102882, "y": 0.595367}
+{"pair_id": "p279", "x": null, "y": null}
+{"pair_id": "p280", "x": null, "y": null}
+{"pair_id": "p281", "x": null, "y": null}
+{"pair_id": "p282", "x": null, "y": null}
+{"pair_id": "p283", "x": null, "y": null}
+{"inliers": 25, "n_ground": 62, "pair_id": "p284", "u": 502.149242, "v": 417.029918, "x": 0.068248, "y": 0.581091}
+{"pair_id": "p285", "x": null, "y": null}
+{"inliers": 17, "n_ground": 37, "pair_id": "p286", "u": 511.04263, "v": 396.438736, "x": 0.943146, "y": 0.559615}
+{"pair_id": "p287", "x": null, "y": null}
+{"inliers": 24, "n_ground": 84, "pair_id": "p288", "u": 418.220337, "v": 381.484289, "x": 0.144496, "y": 0.607428}
+{"pair_id": "p289", "x": null, "y": null}
+{"pair_id": "p290", "x": null, "y": null}
+{"pair_id": "p291", "x": null, "y": null}
+{"pair_id": "p292", "x": null, "y": null}
+{"pair_id": "p293", "x": null, "y": null}
+{"pair_id": "p294", "x": null, "y": null}
+{"pair_id": "p295", "x": null, "y": null}
+{"inliers": 17, "n_ground": 60, "pair_id": "p296", "u": 114.054998, "v": 234.32852, "x": 0.092935, "y": 0.536273}
+{"pair_id": "p297", "x": null, "y": null}
+{"pair_id": "p298", "x": null, "y": null}
+{"pair_id": "p299", "x": null, "y": null}

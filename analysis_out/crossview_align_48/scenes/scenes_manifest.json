@@ -1,0 +1,93 @@
+{
+ "frame": "Frame: east-north-up metres (x east, y north, z up), origin on the ground below the source camera (labeler LocalFrame at the source pano); z = 0 is flat ground and each camera sits at its 'auto' height. Camera poses are camera-to-world 4x4 with OpenCV camera axes (x right, y down, z forward). Rays: origin + t * dir, t >= 0.",
+ "scenes": {
+  "bend:191": {
+   "cameras.json": {
+    "bytes": 7183,
+    "sha256": "d2cd128e118cf241f7763936d078b53823a335e92966a93158de814bbd7deb8d"
+   },
+   "points.json": {
+    "bytes": 12203,
+    "sha256": "098a2c62fb537b2e9a2a55e8ac2cbcab0813f2aa78202dbcc53b9b535db93870"
+   },
+   "scene.ply": {
+    "bytes": 6000180,
+    "sha256": "893775e7db6d615583abb4c1baadfdca64ab8dc4989a5582289aad9bf6c541c7"
+   }
+  },
+  "bend:7": {
+   "cameras.json": {
+    "bytes": 10519,
+    "sha256": "b0482115c42ca57dfb1494e0295ac3b9e5a3340364b772e36095f8ff00d8870e"
+   },
+   "points.json": {
+    "bytes": 12346,
+    "sha256": "735f1ec1f2c1685a448aa9c3e7981823d137835e04389c5e24ea0ad03f86fd45"
+   },
+   "scene.ply": {
+    "bytes": 6000180,
+    "sha256": "5c70995127067dc3d36c4ac5ccd07c838e2cdb35cb5064f40e05ee952f406248"
+   }
+  },
+  "paterson:92": {
+   "cameras.json": {
+    "bytes": 6078,
+    "sha256": "0cdc1b37faeb10106d90334d6cbd2a81eb6c6d07551f15565fc9ba498965b744"
+   },
+   "points.json": {
+    "bytes": 14178,
+    "sha256": "2f2149a8cc1c73616189c6d50f45499a702b75c0fab327cc872856ac562a2ec9"
+   },
+   "scene.ply": {
+    "bytes": 6000180,
+    "sha256": "9a3c6e4788f9f1076d09be87d5b98353175fcb7c55f3f17b505318f8589f5d16"
+   }
+  },
+  "richmond:180": {
+   "cameras.json": {
+    "bytes": 6512,
+    "sha256": "cdf46f2f5876fec419ed1bd02f9f23f0dfe1a29e465f8c558d318244373b9ce2"
+   },
+   "points.json": {
+    "bytes": 15847,
+    "sha256": "3f2a2df0d9b793f62f1a8a0ac6111c75284371fa7f2bc78dc002061560eb49bc"
+   },
+   "scene.ply": {
+    "bytes": 6000180,
+    "sha256": "03ec7479e44c105881e2a0e2556c6ea2691cbb46bfd248c17564a7f68cd2e8a4"
+   },
+   "splat.ply": {
+    "bytes": 24801531,
+    "sha256": "4029a8444ee6976c0be8aae366e06133cc072e592159d12aa947845ae4eae944"
+   }
+  },
+  "richmond:191": {
+   "cameras.json": {
+    "bytes": 12669,
+    "sha256": "dc301becc94adfb77d44c491114c09e5f3df8b61f258a4be8b1fd6466bcc81d1"
+   },
+   "points.json": {
+    "bytes": 14861,
+    "sha256": "9ea1f99a8a4586b13390ebbcf66c92dec81fb97fe2e27f2052d325e1100886cb"
+   },
+   "scene.ply": {
+    "bytes": 6000180,
+    "sha256": "955fcfbf49a76f723ced4f5db4e5cd0c3bd5db0f1e49bbfd139f328a09a48810"
+   }
+  },
+  "richmond:99": {
+   "cameras.json": {
+    "bytes": 21672,
+    "sha256": "0511b471164e6fc2a13cca1482c7d67907c44d5707166863e9c33627347b19b1"
+   },
+   "points.json": {
+    "bytes": 15514,
+    "sha256": "0756ca1a278fd8110ae514c68842384b38e53edb1f33045a738f5948f93460b8"
+   },
+   "scene.ply": {
+    "bytes": 6000180,
+    "sha256": "dcfec6ced7434d2d5d4a55f8cd7ea507e1c03f8262b4299ed17010371180f3b9"
+   }
+  }
+ }
+}

@@ -1,0 +1,42 @@
+{
+ "arm": "mapa_k_corner",
+ "config": {
+  "amp": "bf16",
+  "given": "intrinsics",
+  "input": [
+   518,
+   392
+  ],
+  "masking": "off",
+  "model": "facebook/map-anything",
+  "views": 12
+ },
+ "description": "MapAnything on up to 12 captures, given intrinsics",
+ "elapsed_s": 386.878,
+ "fallback": 17,
+ "gpu_visible": "NVIDIA A40",
+ "host": "makelab2.cs.washington.edu",
+ "manifest_sha256": "92d25502f7d8bdeed83c4ea727a2ee3250e3485a22c74435ffeb5fdd9e53e5fc",
+ "missing_inputs": 0,
+ "needs": [
+  "views"
+ ],
+ "pairs": 300,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "shared_context_with": [
+  "mapa_k_corner"
+ ],
+ "ts": "2026-09-29T01:54:37Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "dust3r": "installed",
+  "kornia": "0.8.3",
+  "mapanything": "installed",
+  "mast3r": "installed",
+  "numpy": "2.5.2",
+  "pycolmap": "4.2.0",
+  "python": "3.12.13",
+  "torch": "2.6.0+cu124",
+  "vggt": "installed"
+ }
+}

@@ -1,0 +1,66 @@
+{
+ "bayonne_parity": {
+  "cache": 150,
+  "panos_differing": [
+   {
+    "cache": 2,
+    "extra": [
+     {
+      "in_border_ring": true,
+      "score": 0.5511,
+      "x": 0.99609,
+      "y": 0.57031
+     }
+    ],
+    "group": "random",
+    "missing_from_cache": 0,
+    "pano": "135b5214-b5db-4389-90dc-ab75530597f1",
+    "records": 1
+   },
+   {
+    "cache": 2,
+    "extra": [
+     {
+      "in_border_ring": true,
+      "score": 0.562,
+      "x": 0.0,
+      "y": 0.53906
+     }
+    ],
+    "group": "random",
+    "missing_from_cache": 0,
+    "pano": "2873e2ea-389e-4b8a-beb1-9515957db8ba",
+    "records": 1
+   },
+   {
+    "cache": 1,
+    "extra": [
+     {
+      "in_border_ring": true,
+      "score": 0.5903,
+      "x": 0.0,
+      "y": 0.61523
+     }
+    ],
+    "group": "empty",
+    "missing_from_cache": 0,
+    "pano": "5eb6919e-2a54-4a65-b5bc-bf2a6fb7e219",
+    "records": 0
+   }
+  ],
+  "reading": "every extra cache peak sits in the 10-cell border ring at the 360 seam (x = 0 or ~1). The labeler's production extractor (sidewalk-auto-labeler detectors/curb_ramp.py) calls peak_local_max without exclude_border=False, so it drops peaks within 10 cells of the heatmap edge -- the extractor defect RampNet fixed in f4c71c8 (#132). Off the seam the two agree cell for cell.",
+  "records": 147,
+  "what": "Bayonne cache peaks >= 0.55 against the 147 committed records.jsonl detections (low_floor_sweep.py parity reads the same)"
+ },
+ "replication_control": {
+  "max_score_diff_same_cell": 5.4e-05,
+  "panos": 94,
+  "peaks_only_committed": 0,
+  "peaks_only_committed_in_border_ring": 0,
+  "peaks_only_new": 0,
+  "peaks_only_new_in_border_ring": 0,
+  "peaks_same_cell": 374,
+  "re_extracted_on": "cuda",
+  "what": "laurens_mapillary re-extracted on makelab2 with this branch's code (scripts/analysis/bayonne_159_gpu.sh, step repro) against its committed analysis_out/op_cache/laurens_mapillary.json"
+ }
+}

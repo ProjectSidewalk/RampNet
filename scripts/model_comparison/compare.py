@@ -24,6 +24,13 @@ The supervised YOLO baseline (--models yolo:<best.pt>) is evaluated under the
 pre-registered checkpoint-selection & eval protocol in
 scripts/model_comparison/yolo_baseline/README.md (issue #71): checkpoint and
 config chosen on val only, headline F1 at conf 0.25, test bundles touched once.
+
+Exit status: 0 when every leg ran to the end, including a leg that isolated a few
+per-pano failures (printed, excluded from the score, filled by a re-run from the
+cache). EXIT_INCOMPLETE (3) when any leg was not runnable or aborted after
+consecutive failures, so a launcher looping over splits can stop instead of
+leaving one partial leg per remaining split. Either way every leg's usage row is
+written first.
 """
 import argparse
 import hashlib
@@ -59,6 +66,17 @@ from pricing import estimate_cost, price_for  # noqa: E402
 # (op_cache/, fp_taxonomy.json, silent_witness.json), and .gitignore re-includes
 # this file by name.
 DEFAULT_USAGE_LOG_REL = os.path.join("analysis_out", "usage_log.jsonl")
+
+# The first-party orgs whose API credits can pay for a leg (--api-account). A closed
+# set because the label is the only thing that splits one org's spend from another's:
+# a typo would silently open a new bucket that no cap or reconciliation reads.
+# run_claude_legs_by_account.ps1 validates the same names; a test keeps them equal.
+API_ACCOUNTS = ("claude5", "claude20", "claude-team")
+
+# main()'s return code when any leg was not runnable or aborted early. Not 1 (an
+# uncaught exception) or 2 (argparse), so a caller can tell "a leg is incomplete"
+# from "compare.py itself failed".
+EXIT_INCOMPLETE = 3
 
 
 def canonical_repo_root(start=None):
@@ -159,149 +177,14 @@ class DetectionCache:
             json.dump({"points": [list(p) for p in points]}, f)
 
 
-#: A bundle that borrows its verdicts from another bundle instead of carrying a copy
-#: (#48). Its ``records.jsonl`` holds the judged panos of ``verdicts_from`` plus
-#: unjudged neighbours; only the judged ones are scored, and ``--detect-unjudged``
-#: runs the detector over the rest so their detections land in the cache.
-BUNDLE_SPEC = "bundle.json"
-
-
-def verdicts_from_spec(bundle_dir):
-    """The verdict panos a ``bundle.json`` bundle points at, read from that bundle.
-
-    Borrowing rather than copying keeps one verdicts.json per review, so the judged
-    panos cannot drift from the published split they came from."""
-    with open(os.path.join(bundle_dir, BUNDLE_SPEC), encoding="utf-8") as f:
-        spec = json.load(f)
-    src = spec.get("verdicts_from")
-    if not src:
-        raise SystemExit(f"{bundle_dir}/{BUNDLE_SPEC}: no 'verdicts_from'")
-    vpath = os.path.normpath(os.path.join(bundle_dir, src, "verdicts.json"))
-    if not os.path.exists(vpath):
-        raise SystemExit(f"{bundle_dir}/{BUNDLE_SPEC}: verdicts_from {src!r} has no "
-                         f"verdicts.json ({vpath})")
-    with open(vpath, encoding="utf-8") as f:
-        return json.load(f)["panos"]
-
-
-def load_bundle(bundle_dir):
-    """Return (records_by_pid, verdicts_panos, panos_dir) for a benchmark bundle.
-
-    ``verdicts_panos`` is None for a manual-GT bundle (``gt_source.json`` instead
-    of ``verdicts.json`` — see ``load_manual_ground_truths``); the city bundles
-    always carry a verdict review. A ``bundle.json`` bundle (#48) borrows the
-    verdicts of another bundle (``verdicts_from_spec``). A directory with none of
-    the three is rejected here so a mistyped path fails with one clear message
-    instead of a downstream KeyError.
-    """
-    records = {}
-    with open(os.path.join(bundle_dir, "records.jsonl"), encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                r = json.loads(line)
-                records[r["pano"]["panorama_id"]] = r
-    vpath = os.path.join(bundle_dir, "verdicts.json")
-    verdicts = None
-    if os.path.exists(vpath):
-        with open(vpath, encoding="utf-8") as f:
-            verdicts = json.load(f)["panos"]
-    elif os.path.exists(os.path.join(bundle_dir, BUNDLE_SPEC)):
-        verdicts = verdicts_from_spec(bundle_dir)
-    elif not os.path.exists(os.path.join(bundle_dir, "gt_source.json")):
-        raise SystemExit(f"{bundle_dir}: neither verdicts.json, {BUNDLE_SPEC} nor "
-                         "gt_source.json — not a benchmark bundle")
-    return records, verdicts, os.path.join(bundle_dir, "panos")
-
-
-def ground_truths_from_verdicts(records, verdicts):
-    """{pid: GroundTruth} derived from a bundle's human review (the city path)."""
-    return {pid: build_ground_truth(records[pid]["detections"], entry["dets"],
-                                    entry["missed"], entry["no_missed"])
-            for pid, entry in verdicts.items()}
-
-
-def load_manual_ground_truths(bundle_dir):
-    """{pid: GroundTruth} for a manual-GT bundle (``benchmark/manual_gold``).
-
-    The bundle's ``gt_source.json`` points at a directory of YOLO-format label
-    files that were produced by independent manual labeling — no RampNet review
-    to derive from, hence no verdicts and no RampNet anchoring. Box centers
-    become GT points, there are no ignore points, and every pano is
-    recall-confirmed (see ``rampnet.detection_eval.yolo_ground_truth``).
-    """
-    with open(os.path.join(bundle_dir, "gt_source.json"), encoding="utf-8") as f:
-        src = json.load(f)
-    if src.get("format") != "yolo_points":
-        raise SystemExit(f"{bundle_dir}/gt_source.json: unsupported format "
-                         f"{src.get('format')!r} (expected 'yolo_points')")
-    labels_dir = os.path.normpath(os.path.join(bundle_dir, src["labels_dir"]))
-    gts = load_yolo_ground_truths(labels_dir)
-    if not gts:
-        raise SystemExit(f"{labels_dir}: no .txt label files found")
-    return gts
-
-
-def validate_bundle(records, verdicts):
-    """Fail fast on a structurally broken bundle, *before* any (paid) detector call.
-
-    ``score_model`` builds each pano's ground truth from ``records[pid]`` + the
-    verdict entry outside its per-pano failure guard (that guard is for transient
-    detect() errors, not data integrity). Without this pre-flight a reviewed pano
-    missing from records.jsonl, a missing verdict field, or detections/verdicts
-    that don't line up would surface as a raw KeyError/ValueError partway through a
-    long VLM run — after spend, and aborting models already scored. Catch it here
-    with a clear message instead. Raises SystemExit listing every offending pano.
-
-    (Legacy verdicts.json without ``no_missed`` are intentionally rejected here
-    rather than silently defaulted — the current/planned bundles are new-schema;
-    see docs/model_comparison.md.)"""
-    problems = []
-    for pid, entry in verdicts.items():
-        rec = records.get(pid)
-        if rec is None:
-            problems.append(f"{pid}: reviewed in verdicts.json but absent from records.jsonl")
-            continue
-        missing = [k for k in ("dets", "missed", "no_missed") if k not in entry]
-        if missing:
-            problems.append(f"{pid}: verdict entry missing field(s) {missing}")
-            continue
-        n_det, n_ver = len(rec.get("detections", [])), len(entry["dets"])
-        if n_det != n_ver:
-            problems.append(f"{pid}: {n_det} detections vs {n_ver} verdicts (misaligned)")
-    if problems:
-        _fail_validation(problems)
-
-
-def validate_manual_bundle(records, gts, need_detections=False):
-    """Pre-flight for a manual-GT bundle, mirroring ``validate_bundle``'s job.
-
-    The label files and ``records.jsonl`` are built by different tools
-    (``manual_labels/`` is hand-curated; records come from ``fetch_manual_gold`` +
-    ``export_gold_records``), so catch any drift between them before a paid
-    detector call. ``need_detections`` is set when the rampnet baseline was
-    requested: its detections live in the records, and a bundle whose exporter
-    hasn't run yet must say so instead of scoring RampNet as all-misses.
-    """
-    problems = []
-    for pid in gts:
-        rec = records.get(pid)
-        if rec is None:
-            problems.append(f"{pid}: labeled but absent from records.jsonl "
-                            "(re-run scripts/fetch_manual_gold.py)")
-        elif need_detections and "detections" not in rec:
-            problems.append(f"{pid}: no RampNet detections in records.jsonl "
-                            "(run scripts/export_gold_records.py first)")
-    for pid in records:
-        if pid not in gts:
-            problems.append(f"{pid}: in records.jsonl but has no label file")
-    if problems:
-        _fail_validation(problems)
-
-
-def _fail_validation(problems):
-    shown = "\n  ".join(problems[:10])
-    more = f"\n  ... and {len(problems) - 10} more" if len(problems) > 10 else ""
-    raise SystemExit(f"Bundle validation failed ({len(problems)} pano(s)):\n  {shown}{more}")
+# The bundle loaders live in rampnet.bundles (#150) so the package can score a
+# bundle without importing this harness. Re-exported here so `C.load_bundle` and every
+# existing caller keep working unchanged.
+from rampnet.bundles import (  # noqa: E402,F401
+    BUNDLE_SPEC, REVIEW_FILES, _fail_validation, ground_truths_from_verdicts, load_bundle,
+    load_manual_ground_truths, refuse_unreviewed_if_reviewed, validate_bundle,
+    validate_manual_bundle, verdicts_from_spec,
+)
 
 
 # scored: [(pred_points, GroundTruth)] for every pano that was successfully
@@ -458,7 +341,8 @@ def hardware_note():
     return note
 
 
-def report_usage(detector, label, city, panos_scored, usage_log_path, timing=None):
+def report_usage(detector, label, city, panos_scored, usage_log_path, timing=None,
+                 api_account=None):
     """Print and (append-)log what one leg cost: time always, tokens and dollars
     when the provider bills for them.
 
@@ -575,6 +459,12 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
         # server-side spend for `vertex` and has no equivalent for `anthropic`.
         # None for providers that have no such notion.
         "serving_path": getattr(detector, "serving_path", None),
+        # WHICH first-party org paid, as a label (`--api-account`, e.g. claude5),
+        # never the key. Three subscription orgs each get their own monthly API
+        # credits, and `serving_path` alone cannot tell them apart, so without
+        # this a per-org Console bill cannot be reconciled against the ledger.
+        # None when not given, and on every row written before it existed.
+        "api_account": api_account,
         # How each call terminated. Empty for providers that report nothing.
         "stop_reasons": stop_reasons or None,
         **usage,
@@ -617,55 +507,11 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
         tail = (f" (of which ${recovered:,.2f} recovered, not measured)"
                 if recovered else "")
         print(f"[{label}] ledger now: {rows:,} rows, ${usd:,.2f}, {hours:,.1f} h{tail}")
-def rescore(scored, radius_sq, min_confidence=0.0):
-    """Re-aggregate a finished run with predictions below ``min_confidence`` dropped.
-
-    Detections are cached with their scores, so every operating point of a
-    confidence-carrying detector is a free re-score — no second model run. A
-    prediction with no confidence (chat VLMs) is never dropped: there is nothing to
-    threshold on."""
-    return aggregate([
-        score_pano([p for p in preds
-                    if prediction_confidence(p) is None
-                    or prediction_confidence(p) >= min_confidence],
-                   gt, radius_sq=radius_sq)
-        for preds, gt in scored])
-
-
-def operating_report(report, scored, radius_sq, op_threshold):
-    """The table row for one model: P/R/F1/counts at the operating threshold, but
-    AP and the PR curve kept from the full-range ``report``. Those two are
-    integrals over the whole confidence range — rescore()'s filtered aggregate
-    would silently truncate them at the operating point, exactly the caveat the
-    manual_gold bundle's 0.05 export floor exists to avoid."""
-    if op_threshold <= 0:
-        return report
-    return rescore(scored, radius_sq, op_threshold)._replace(
-        ap=report.ap, pr_curve=report.pr_curve)
-
-
-def has_confidences(scored):
-    """True when every prediction in the run carries a score (so AP / a sweep mean
-    something). An empty run counts as no confidences."""
-    preds = [p for ps, _ in scored for p in ps]
-    return bool(preds) and all(prediction_confidence(p) is not None for p in preds)
-
-
-SWEEP_THRESHOLDS = (0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
-
-
-def sweep_rows(scored, radius_sq, thresholds=SWEEP_THRESHOLDS, floor=None):
-    """(threshold, ScoreReport) for each threshold that still keeps a prediction.
-
-    ``floor`` is the detector's cache floor (--score-threshold): the cache holds
-    no detections below it, so a sweep row under the floor would silently repeat
-    the floor row while reading as a real measurement. Those rows are dropped
-    (with the default floor, 0.05, nothing is — it equals the lowest threshold)."""
-    top = max((prediction_confidence(p) for ps, _ in scored for p in ps
-               if prediction_confidence(p) is not None),
-              default=0.0)
-    return [(t, rescore(scored, radius_sq, t)) for t in thresholds
-            if t <= top and (floor is None or t >= floor)]
+# rescore / operating_report / sweep_rows live in rampnet.eval (#150), the benchmark
+# scoring protocol as code. Re-exported so `C.rescore` etc. keep working unchanged.
+from rampnet.eval import (  # noqa: E402,F401
+    SWEEP_THRESHOLDS, has_confidences, operating_report, rescore, sweep_rows,
+)
 
 
 def _pct(x):
@@ -797,6 +643,11 @@ def build_parser():
                          "bills for it -- but it IS recorded in --usage-log, and "
                          "a number produced on one path carries that as a caveat "
                          "when compared with numbers from the other.")
+    ap.add_argument("--api-account", default=None, choices=API_ACCOUNTS,
+                    help="A label for the account that pays, e.g. claude5 / claude20 / "
+                         "claude-team, recorded as `api_account` in --usage-log. The "
+                         "label only -- never the key. Lets each first-party org's "
+                         "Console bill be reconciled against the ledger.")
     ap.add_argument("--claude-max-tokens", type=int, default=_D["claude_max_tokens"],
                     help="Ceiling on one call's answer. Thinking bills against it, so "
                          "a call that thinks too long is CUT OFF mid-thought and the "
@@ -908,6 +759,10 @@ def build_parser():
                          "and cache their detections, unscored (#48 neighbourhood bundles, "
                          "whose bundle.json borrows another split's verdicts). With --limit, "
                          "at most N of them too.")
+    ap.add_argument("--unreviewed", action="store_true",
+                    help="The bundle has no verdicts yet (a city staged ahead of its "
+                         "review, #159): run each model over every pano and cache the "
+                         "detections, score nothing. Refused for a reviewed bundle.")
     ap.add_argument("--cache-dir", default=str(REPO_ROOT / ".model_cache"),
                     help="Where to cache per-pano detections (keyed by model + rig + pano). "
                          "Re-runs reuse hits and don't re-pay the API.")
@@ -938,16 +793,19 @@ def main():
 
     load_dotenv_for_run()
     specs = [parse_model_spec(t) for t in args.models.split(",") if t.strip()]
-    records, verdicts, panos_dir = load_bundle(args.bundle)
+    records, verdicts, panos_dir = load_bundle(args.bundle, unreviewed=args.unreviewed)
     # Fail fast on a broken bundle before any (paid) detector call, then reduce
     # both GT sources to the same {pid: GroundTruth} shape.
     judged_all = set(verdicts) if verdicts is not None else set()
+    if args.unreviewed:
+        refuse_unreviewed_if_reviewed(args.bundle)
     if verdicts is not None:
         if args.limit:
             verdicts = dict(list(verdicts.items())[:args.limit])
         validate_bundle(records, verdicts)
         gts = ground_truths_from_verdicts(records, verdicts)
-        gt_desc = "reviewer-confirmed ramps + missed marks"
+        gt_desc = ("none (unreviewed bundle)" if args.unreviewed
+                   else "reviewer-confirmed ramps + missed marks")
     else:
         gts = load_manual_ground_truths(args.bundle)
         # Validate the whole bundle (all labels <-> all records) before slicing to
@@ -983,6 +841,9 @@ def main():
     spend_needs_recording = usage_log is None and not args.allow_unrecorded_spend
 
     detect_only = []
+    if args.unreviewed:
+        # Nothing to score: every pano is detect-only, cached for the day verdicts land.
+        args.detect_unjudged = True
     if args.detect_unjudged:
         # judged panos cut by --limit are skipped, not run as if unjudged
         detect_only = [pid for pid in records if pid not in gts and pid not in judged_all]
@@ -995,6 +856,8 @@ def main():
 
     rows, runs = [], []
     seen = {}
+    # Legs that did not run to the end, as (label, why). Decides the exit status.
+    incomplete = []
     for provider, model_id in specs:
         label, detector = build_detector(provider, model_id, records, args)
         # Disambiguate if the same label appears twice (e.g. same model, two configs).
@@ -1024,6 +887,7 @@ def main():
             # validate_bundle before any of this. The type is printed so a genuine
             # bug here is still diagnosable rather than silently "not runnable".
             print(f"[{label}] not runnable: {type(e).__name__}: {e}\n")
+            incomplete.append((label, f"not runnable ({type(e).__name__})"))
         finally:
             # In a finally, not after the try: the run that dies or is Ctrl-C'd
             # partway through has ALREADY paid for the calls it made, and that is
@@ -1037,9 +901,11 @@ def main():
             timing["elapsed_s"] = round(perf_counter() - t_leg, 3)
             report_usage(detector, label, city,
                          len(run.scored) if run is not None else None, usage_log,
-                         timing=timing)
+                         timing=timing, api_account=args.api_account)
         if run is None:
             continue
+        if run.failures and run.failures[-1][0] == "<abort>":
+            incomplete.append((label, run.failures[-1][1]))
         report = operating_report(run.report, run.scored, radius_sq, args.op_threshold)
         rows.append((label, report))
         # The detector's cache floor travels with the run so the sweep can drop
@@ -1054,6 +920,14 @@ def main():
                 print(f"    ... and {len(run.failures) - 5} more")
             print()
 
+    if args.unreviewed:
+        # An unreviewed bundle has no GT, so any P/R table would be all zeros and
+        # read as a result. Report what was cached and stop.
+        print(f"Unreviewed bundle: {len(detect_only)} panos per model detected and "
+              f"cached under {args.cache_dir}; nothing scored.")
+        for label, run, _ in runs:
+            print(f"  {label}: {len(run.failures)} pano failure(s)")
+        return exit_status(incomplete)
     if rows:
         if args.op_threshold > 0:
             print(f"Operating point: predictions with confidence < {args.op_threshold} dropped "
@@ -1096,7 +970,26 @@ def main():
         # documented in docs/model_comparison.md).
         print("\nManual-GT bundle: no verdict-based cross-check (validate the rampnet row "
               "against the published gold-set numbers instead; see docs/model_comparison.md).")
+    return exit_status(incomplete)
+
+
+def exit_status(incomplete):
+    """0, or EXIT_INCOMPLETE with a closing note naming each leg that stopped short.
+
+    Isolated per-pano failures alone stay 0 on purpose: the leg ran to its end and
+    printed them, and a launcher that stopped on one transient 529 would leave every
+    later split unrun. A leg that never became runnable, or that aborted after
+    ``max_consecutive_failures`` in a row (an outage, or credits running out), is a
+    different thing -- the next split would almost certainly hit it too. The usage
+    rows were already written by main()'s per-leg ``finally``."""
+    if not incomplete:
+        return 0
+    print(f"\nINCOMPLETE: {len(incomplete)} leg(s) did not run to the end; "
+          f"exiting {EXIT_INCOMPLETE}.")
+    for label, why in incomplete:
+        print(f"    {label}: {why}")
+    return EXIT_INCOMPLETE
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

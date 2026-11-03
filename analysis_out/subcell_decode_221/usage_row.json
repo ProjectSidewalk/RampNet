@@ -1,0 +1,54 @@
+{
+ "bundle": "manual_gold,annapolis,paterson,richmond,sao_paulo",
+ "concurrent_with": [
+  "#217 sidewalk-width-217:segment-vistas on the same A40 (ts 18:53:48Z, 490 s)",
+  "#218 perspective shards on the same A40 (from 19:00:50Z)"
+ ],
+ "cpu_decode_s": 687.801,
+ "elapsed_s": 2579.126,
+ "est_cost_usd": 0.0,
+ "gpu_forward_s": 1811.795,
+ "gpu_share": 1.0,
+ "hardware": {
+  "gpus": [
+   "NVIDIA A40"
+  ],
+  "host": "makelab2.cs.washington.edu"
+ },
+ "issue": 221,
+ "label": "subcell-decode-221:extract",
+ "model_id": "projectsidewalk/rampnet-model",
+ "note": "makelab2 A40, shared for part of the run (18:35:42Z to ~19:18:41Z): #217's segment-vistas (Mask2Former, ledger ts 2026-09-30T18:53:48Z, 490 s) and #218's perspective shards (from 19:00:50Z) both ran on it inside that window. gpu_share not measured and left at 1.0, so gpu_hours is an upper bound",
+ "paid": false,
+ "panos_scored": 1499,
+ "per_split": {
+  "annapolis": {
+   "elapsed_s": 224.224,
+   "panos": 125
+  },
+  "manual_gold": {
+   "elapsed_s": 893.314,
+   "panos": 1000
+  },
+  "paterson": {
+   "elapsed_s": 413.061,
+   "panos": 125
+  },
+  "richmond": {
+   "elapsed_s": 492.936,
+   "panos": 124
+  },
+  "sao_paulo": {
+   "elapsed_s": 555.512,
+   "panos": 125
+  }
+ },
+ "pricing": null,
+ "provider": "rampnet",
+ "run_id": "subcell-decode-221:extract:2026-09-30T18:35:42Z",
+ "s_per_pano": 1.7206,
+ "script": "scripts/analysis/subcell_decode_221.py",
+ "status": "ok",
+ "ts": "2026-09-30T18:35:42Z",
+ "what": "subcell_decode_221.py extract: one fp32 forward per pano at 2048x4096, coarse map captured from the head, peaks >= 0.30; elapsed_s is the run's wall-clock after model load (JPEG decode not overlapped)"
+}

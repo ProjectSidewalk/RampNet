@@ -1,0 +1,6890 @@
+{
+ "protocol": {
+  "thresholds": [
+   0.3,
+   0.55
+  ],
+  "score_floor": 0.05,
+  "min_distance": 10,
+  "n_reps": 2000,
+  "seed": 82,
+  "bootstrap": "pano-level paired cluster bootstrap (benchmark_power_135.observed_and_se)",
+  "where": "native -> Resize 2048x4096 bilinear -> transform -> PRE"
+ },
+ "levels": {
+  "downscale": {
+   "levels": [
+    0.929,
+    0.854,
+    0.504
+   ],
+   "measured": 0.8538,
+   "note": "lap_var laurens_gsv 349 -> clovis 76 (softest GoPro split; laurens_mapillary is 370, not softer); targets 163, 76, 16; calibrated on 24 laurens_gsv panos"
+  },
+  "blur": {
+   "levels": [
+    0.51,
+    0.719,
+    1.153
+   ],
+   "measured": 0.7189,
+   "note": "lap_var laurens_gsv 349 -> clovis 76 (softest GoPro split; laurens_mapillary is 370, not softer); targets 163, 76, 16; calibrated on 24 laurens_gsv panos"
+  },
+  "brightness": {
+   "levels": [
+    0.823,
+    0.677,
+    0.557
+   ],
+   "measured": 0.6768,
+   "note": "median lum_mean ratio GoPro/GSV = 0.677"
+  },
+  "contrast": {
+   "levels": [
+    1.074,
+    1.154,
+    1.239
+   ],
+   "measured": 1.1537,
+   "note": "median lum_std ratio GoPro/GSV = 1.154"
+  },
+  "saturation": {
+   "levels": [
+    1.219,
+    1.486,
+    1.811
+   ],
+   "measured": 1.4859,
+   "note": "median sat_mean ratio GoPro/GSV = 1.486"
+  },
+  "gamma": {
+   "levels": [
+    1.396,
+    1.949,
+    2.72
+   ],
+   "measured": 1.9486,
+   "note": "exponent mapping median GSV luminance onto the GoPro one"
+  },
+  "wb": {
+   "levels": [
+    -0.168,
+    -0.337,
+    -0.505
+   ],
+   "measured": -0.3365,
+   "note": "log2(R/B) GoPro - GSV = -0.337"
+  },
+  "noise": {
+   "levels": [
+    2.0,
+    4.0,
+    8.0
+   ],
+   "measured": 0.0,
+   "note": "noise sigma GSV 1.79, GoPro 1.35; added sigma = sqrt(diff of squares); negligible, fixed fallback"
+  },
+  "jpeg": {
+   "levels": [
+    89.8,
+    74.8,
+    49.8
+   ],
+   "measured": 74.81,
+   "note": "estimated native JPEG quality of laurens_mapillary files = 74.810195"
+  }
+ },
+ "repairs": {
+  "colour_match": {
+   "levels": [
+    0.5,
+    1.0
+   ],
+   "ref_mean": [
+    164.012,
+    170.815,
+    173.513
+   ],
+   "ref_std": [
+    51.806,
+    48.501,
+    65.269
+   ]
+  },
+  "unsharp": {
+   "levels": [
+    50.0,
+    100.0
+   ],
+   "note": "fixed (radius 2 px): the paired GoPro split is not softer than GSV, so no measured level"
+  },
+  "clahe": {
+   "levels": [
+    0.01,
+    0.02
+   ]
+  }
+ },
+ "arms": {
+  "none": {
+   "splits": [
+    "laurens_gsv",
+    "laurens_mapillary",
+    "clovis",
+    "bend",
+    "richmond",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": []
+  },
+  "downscale@half": {
+   "splits": [
+    "laurens_gsv"
+   ],
+   "ops": [
+    [
+     "downscale",
+     0.929
+    ]
+   ]
+  },
+  "downscale@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "downscale",
+     0.854
+    ]
+   ]
+  },
+  "downscale@beyond": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "downscale",
+     0.504
+    ]
+   ]
+  },
+  "blur@half": {
+   "splits": [
+    "laurens_gsv"
+   ],
+   "ops": [
+    [
+     "blur",
+     0.51
+    ]
+   ]
+  },
+  "blur@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "blur",
+     0.719
+    ]
+   ]
+  },
+  "blur@beyond": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "blur",
+     1.153
+    ]
+   ]
+  },
+  "brightness@half": {
+   "splits": [
+    "laurens_gsv"
+   ],
+   "ops": [
+    [
+     "brightness",
+     0.823
+    ]
+   ]
+  },
+  "brightness@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "brightness",
+     0.677
+    ]
+   ]
+  },
+  "brightness@beyond": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "brightness",
+     0.557
+    ]
+   ]
+  },
+  "contrast@half": {
+   "splits": [
+    "laurens_gsv"
+   ],
+   "ops": [
+    [
+     "contrast",
+     1.074
+    ]
+   ]
+  },
+  "contrast@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "contrast",
+     1.154
+    ]
+   ]
+  },
+  "contrast@beyond": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "contrast",
+     1.239
+    ]
+   ]
+  },
+  "saturation@half": {
+   "splits": [
+    "laurens_gsv"
+   ],
+   "ops": [
+    [
+     "saturation",
+     1.219
+    ]
+   ]
+  },
+  "saturation@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "saturation",
+     1.486
+    ]
+   ]
+  },
+  "saturation@beyond": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "saturation",
+     1.811
+    ]
+   ]
+  },
+  "gamma@half": {
+   "splits": [
+    "laurens_gsv"
+   ],
+   "ops": [
+    [
+     "gamma",
+     1.396
+    ]
+   ]
+  },
+  "gamma@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "gamma",
+     1.949
+    ]
+   ]
+  },
+  "gamma@beyond": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "gamma",
+     2.72
+    ]
+   ]
+  },
+  "wb@half": {
+   "splits": [
+    "laurens_gsv"
+   ],
+   "ops": [
+    [
+     "wb",
+     -0.168
+    ]
+   ]
+  },
+  "wb@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "wb",
+     -0.337
+    ]
+   ]
+  },
+  "wb@beyond": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "wb",
+     -0.505
+    ]
+   ]
+  },
+  "noise@half": {
+   "splits": [
+    "laurens_gsv"
+   ],
+   "ops": [
+    [
+     "noise",
+     2.0
+    ]
+   ]
+  },
+  "noise@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "noise",
+     4.0
+    ]
+   ]
+  },
+  "noise@beyond": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "noise",
+     8.0
+    ]
+   ]
+  },
+  "jpeg@half": {
+   "splits": [
+    "laurens_gsv"
+   ],
+   "ops": [
+    [
+     "jpeg",
+     89.8
+    ]
+   ]
+  },
+  "jpeg@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "jpeg",
+     74.8
+    ]
+   ]
+  },
+  "jpeg@beyond": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "jpeg",
+     49.8
+    ]
+   ]
+  },
+  "all@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "ops": [
+    [
+     "downscale",
+     0.854
+    ],
+    [
+     "blur",
+     0.719
+    ],
+    [
+     "brightness",
+     0.677
+    ],
+    [
+     "contrast",
+     1.154
+    ],
+    [
+     "saturation",
+     1.486
+    ],
+    [
+     "gamma",
+     1.949
+    ],
+    [
+     "wb",
+     -0.337
+    ],
+    [
+     "noise",
+     4.0
+    ],
+    [
+     "jpeg",
+     74.8
+    ]
+   ]
+  },
+  "res_all@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "downscale",
+     0.854
+    ],
+    [
+     "blur",
+     0.719
+    ],
+    [
+     "jpeg",
+     74.8
+    ]
+   ]
+  },
+  "photo_brightness@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "brightness",
+     0.677
+    ],
+    [
+     "contrast",
+     1.154
+    ],
+    [
+     "saturation",
+     1.486
+    ],
+    [
+     "wb",
+     -0.337
+    ]
+   ]
+  },
+  "photo_gamma@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "gamma",
+     1.949
+    ],
+    [
+     "contrast",
+     1.154
+    ],
+    [
+     "saturation",
+     1.486
+    ],
+    [
+     "wb",
+     -0.337
+    ]
+   ]
+  },
+  "all_brightness@gopro": {
+   "splits": [
+    "laurens_gsv",
+    "bend"
+   ],
+   "ops": [
+    [
+     "downscale",
+     0.854
+    ],
+    [
+     "blur",
+     0.719
+    ],
+    [
+     "brightness",
+     0.677
+    ],
+    [
+     "contrast",
+     1.154
+    ],
+    [
+     "saturation",
+     1.486
+    ],
+    [
+     "wb",
+     -0.337
+    ],
+    [
+     "jpeg",
+     74.8
+    ]
+   ]
+  },
+  "colour_match@0.5": {
+   "splits": [
+    "laurens_mapillary",
+    "clovis",
+    "richmond"
+   ],
+   "ops": [
+    [
+     "colour_match",
+     0.5
+    ]
+   ]
+  },
+  "colour_match@1": {
+   "splits": [
+    "laurens_mapillary",
+    "clovis",
+    "richmond"
+   ],
+   "ops": [
+    [
+     "colour_match",
+     1.0
+    ]
+   ]
+  },
+  "unsharp@50": {
+   "splits": [
+    "laurens_mapillary",
+    "clovis",
+    "richmond"
+   ],
+   "ops": [
+    [
+     "unsharp",
+     50.0
+    ]
+   ]
+  },
+  "unsharp@100": {
+   "splits": [
+    "laurens_mapillary",
+    "clovis",
+    "richmond"
+   ],
+   "ops": [
+    [
+     "unsharp",
+     100.0
+    ]
+   ]
+  },
+  "clahe@0.01": {
+   "splits": [
+    "laurens_mapillary",
+    "clovis",
+    "richmond"
+   ],
+   "ops": [
+    [
+     "clahe",
+     0.01
+    ]
+   ]
+  },
+  "clahe@0.02": {
+   "splits": [
+    "laurens_mapillary",
+    "clovis",
+    "richmond"
+   ],
+   "ops": [
+    [
+     "clahe",
+     0.02
+    ]
+   ]
+  },
+  "repair_all": {
+   "splits": [
+    "laurens_mapillary",
+    "clovis",
+    "richmond"
+   ],
+   "ops": [
+    [
+     "colour_match",
+     1.0
+    ],
+    [
+     "unsharp",
+     100.0
+    ]
+   ]
+  }
+ },
+ "per_split": {
+  "laurens_gsv": {
+   "metrics": {
+    "none": {
+     "0.30": {
+      "P": 0.9231,
+      "R": 0.6545,
+      "F1": 0.766,
+      "tp": 144,
+      "fp": 12,
+      "fn": 76
+     },
+     "0.55": {
+      "P": 0.9352,
+      "R": 0.4591,
+      "F1": 0.6159,
+      "tp": 101,
+      "fp": 7,
+      "fn": 119
+     },
+     "AP": 0.7685
+    },
+    "downscale@half": {
+     "0.30": {
+      "P": 0.9085,
+      "R": 0.6773,
+      "F1": 0.776,
+      "tp": 149,
+      "fp": 15,
+      "fn": 71
+     },
+     "0.55": {
+      "P": 0.9455,
+      "R": 0.4727,
+      "F1": 0.6303,
+      "tp": 104,
+      "fp": 6,
+      "fn": 116
+     },
+     "AP": 0.7803
+    },
+    "downscale@gopro": {
+     "0.30": {
+      "P": 0.9162,
+      "R": 0.6955,
+      "F1": 0.7907,
+      "tp": 153,
+      "fp": 14,
+      "fn": 67
+     },
+     "0.55": {
+      "P": 0.9364,
+      "R": 0.4682,
+      "F1": 0.6242,
+      "tp": 103,
+      "fp": 7,
+      "fn": 117
+     },
+     "AP": 0.7727
+    },
+    "downscale@beyond": {
+     "0.30": {
+      "P": 0.9045,
+      "R": 0.6455,
+      "F1": 0.7533,
+      "tp": 142,
+      "fp": 15,
+      "fn": 78
+     },
+     "0.55": {
+      "P": 0.9231,
+      "R": 0.4364,
+      "F1": 0.5926,
+      "tp": 96,
+      "fp": 8,
+      "fn": 124
+     },
+     "AP": 0.7663
+    },
+    "blur@half": {
+     "0.30": {
+      "P": 0.9221,
+      "R": 0.6455,
+      "F1": 0.7594,
+      "tp": 142,
+      "fp": 12,
+      "fn": 78
+     },
+     "0.55": {
+      "P": 0.9314,
+      "R": 0.4318,
+      "F1": 0.5901,
+      "tp": 95,
+      "fp": 7,
+      "fn": 125
+     },
+     "AP": 0.7698
+    },
+    "blur@gopro": {
+     "0.30": {
+      "P": 0.9187,
+      "R": 0.6682,
+      "F1": 0.7737,
+      "tp": 147,
+      "fp": 13,
+      "fn": 73
+     },
+     "0.55": {
+      "P": 0.9358,
+      "R": 0.4636,
+      "F1": 0.6201,
+      "tp": 102,
+      "fp": 7,
+      "fn": 118
+     },
+     "AP": 0.7722
+    },
+    "blur@beyond": {
+     "0.30": {
+      "P": 0.9036,
+      "R": 0.6818,
+      "F1": 0.7772,
+      "tp": 150,
+      "fp": 16,
+      "fn": 70
+     },
+     "0.55": {
+      "P": 0.9364,
+      "R": 0.4682,
+      "F1": 0.6242,
+      "tp": 103,
+      "fp": 7,
+      "fn": 117
+     },
+     "AP": 0.7771
+    },
+    "brightness@half": {
+     "0.30": {
+      "P": 0.9241,
+      "R": 0.6636,
+      "F1": 0.7725,
+      "tp": 146,
+      "fp": 12,
+      "fn": 74
+     },
+     "0.55": {
+      "P": 0.9417,
+      "R": 0.4409,
+      "F1": 0.6006,
+      "tp": 97,
+      "fp": 6,
+      "fn": 123
+     },
+     "AP": 0.7802
+    },
+    "brightness@gopro": {
+     "0.30": {
+      "P": 0.9355,
+      "R": 0.6591,
+      "F1": 0.7733,
+      "tp": 145,
+      "fp": 10,
+      "fn": 75
+     },
+     "0.55": {
+      "P": 0.97,
+      "R": 0.4409,
+      "F1": 0.6062,
+      "tp": 97,
+      "fp": 3,
+      "fn": 123
+     },
+     "AP": 0.7731
+    },
+    "brightness@beyond": {
+     "0.30": {
+      "P": 0.947,
+      "R": 0.65,
+      "F1": 0.7709,
+      "tp": 143,
+      "fp": 8,
+      "fn": 77
+     },
+     "0.55": {
+      "P": 0.9691,
+      "R": 0.4273,
+      "F1": 0.5931,
+      "tp": 94,
+      "fp": 3,
+      "fn": 126
+     },
+     "AP": 0.7822
+    },
+    "contrast@half": {
+     "0.30": {
+      "P": 0.9355,
+      "R": 0.6591,
+      "F1": 0.7733,
+      "tp": 145,
+      "fp": 10,
+      "fn": 75
+     },
+     "0.55": {
+      "P": 0.945,
+      "R": 0.4682,
+      "F1": 0.6261,
+      "tp": 103,
+      "fp": 6,
+      "fn": 117
+     },
+     "AP": 0.7608
+    },
+    "contrast@gopro": {
+     "0.30": {
+      "P": 0.9419,
+      "R": 0.6636,
+      "F1": 0.7787,
+      "tp": 146,
+      "fp": 9,
+      "fn": 74
+     },
+     "0.55": {
+      "P": 0.9444,
+      "R": 0.4636,
+      "F1": 0.622,
+      "tp": 102,
+      "fp": 6,
+      "fn": 118
+     },
+     "AP": 0.7647
+    },
+    "contrast@beyond": {
+     "0.30": {
+      "P": 0.9412,
+      "R": 0.6545,
+      "F1": 0.7721,
+      "tp": 144,
+      "fp": 9,
+      "fn": 76
+     },
+     "0.55": {
+      "P": 0.9434,
+      "R": 0.4545,
+      "F1": 0.6135,
+      "tp": 100,
+      "fp": 6,
+      "fn": 120
+     },
+     "AP": 0.7645
+    },
+    "saturation@half": {
+     "0.30": {
+      "P": 0.9182,
+      "R": 0.6636,
+      "F1": 0.7704,
+      "tp": 146,
+      "fp": 13,
+      "fn": 74
+     },
+     "0.55": {
+      "P": 0.9459,
+      "R": 0.4773,
+      "F1": 0.6344,
+      "tp": 105,
+      "fp": 6,
+      "fn": 115
+     },
+     "AP": 0.7776
+    },
+    "saturation@gopro": {
+     "0.30": {
+      "P": 0.9241,
+      "R": 0.6636,
+      "F1": 0.7725,
+      "tp": 146,
+      "fp": 12,
+      "fn": 74
+     },
+     "0.55": {
+      "P": 0.9459,
+      "R": 0.4773,
+      "F1": 0.6344,
+      "tp": 105,
+      "fp": 6,
+      "fn": 115
+     },
+     "AP": 0.7738
+    },
+    "saturation@beyond": {
+     "0.30": {
+      "P": 0.9068,
+      "R": 0.6636,
+      "F1": 0.7664,
+      "tp": 146,
+      "fp": 15,
+      "fn": 74
+     },
+     "0.55": {
+      "P": 0.9369,
+      "R": 0.4727,
+      "F1": 0.6284,
+      "tp": 104,
+      "fp": 7,
+      "fn": 116
+     },
+     "AP": 0.7749
+    },
+    "gamma@half": {
+     "0.30": {
+      "P": 0.9408,
+      "R": 0.65,
+      "F1": 0.7688,
+      "tp": 143,
+      "fp": 9,
+      "fn": 77
+     },
+     "0.55": {
+      "P": 0.9429,
+      "R": 0.45,
+      "F1": 0.6092,
+      "tp": 99,
+      "fp": 6,
+      "fn": 121
+     },
+     "AP": 0.7661
+    },
+    "gamma@gopro": {
+     "0.30": {
+      "P": 0.9467,
+      "R": 0.6455,
+      "F1": 0.7676,
+      "tp": 142,
+      "fp": 8,
+      "fn": 78
+     },
+     "0.55": {
+      "P": 0.956,
+      "R": 0.3955,
+      "F1": 0.5595,
+      "tp": 87,
+      "fp": 4,
+      "fn": 133
+     },
+     "AP": 0.7642
+    },
+    "gamma@beyond": {
+     "0.30": {
+      "P": 0.9412,
+      "R": 0.5818,
+      "F1": 0.7191,
+      "tp": 128,
+      "fp": 8,
+      "fn": 92
+     },
+     "0.55": {
+      "P": 0.962,
+      "R": 0.3455,
+      "F1": 0.5084,
+      "tp": 76,
+      "fp": 3,
+      "fn": 144
+     },
+     "AP": 0.7602
+    },
+    "wb@half": {
+     "0.30": {
+      "P": 0.9231,
+      "R": 0.6545,
+      "F1": 0.766,
+      "tp": 144,
+      "fp": 12,
+      "fn": 76
+     },
+     "0.55": {
+      "P": 0.9417,
+      "R": 0.4409,
+      "F1": 0.6006,
+      "tp": 97,
+      "fp": 6,
+      "fn": 123
+     },
+     "AP": 0.7702
+    },
+    "wb@gopro": {
+     "0.30": {
+      "P": 0.9245,
+      "R": 0.6682,
+      "F1": 0.7757,
+      "tp": 147,
+      "fp": 12,
+      "fn": 73
+     },
+     "0.55": {
+      "P": 0.9505,
+      "R": 0.4364,
+      "F1": 0.5981,
+      "tp": 96,
+      "fp": 5,
+      "fn": 124
+     },
+     "AP": 0.7764
+    },
+    "wb@beyond": {
+     "0.30": {
+      "P": 0.9236,
+      "R": 0.6591,
+      "F1": 0.7692,
+      "tp": 145,
+      "fp": 12,
+      "fn": 75
+     },
+     "0.55": {
+      "P": 0.9796,
+      "R": 0.4364,
+      "F1": 0.6038,
+      "tp": 96,
+      "fp": 2,
+      "fn": 124
+     },
+     "AP": 0.7778
+    },
+    "noise@half": {
+     "0.30": {
+      "P": 0.9096,
+      "R": 0.6864,
+      "F1": 0.7824,
+      "tp": 151,
+      "fp": 15,
+      "fn": 69
+     },
+     "0.55": {
+      "P": 0.9455,
+      "R": 0.4727,
+      "F1": 0.6303,
+      "tp": 104,
+      "fp": 6,
+      "fn": 116
+     },
+     "AP": 0.7753
+    },
+    "noise@gopro": {
+     "0.30": {
+      "P": 0.9304,
+      "R": 0.6682,
+      "F1": 0.7778,
+      "tp": 147,
+      "fp": 11,
+      "fn": 73
+     },
+     "0.55": {
+      "P": 0.9346,
+      "R": 0.4545,
+      "F1": 0.6116,
+      "tp": 100,
+      "fp": 7,
+      "fn": 120
+     },
+     "AP": 0.7701
+    },
+    "noise@beyond": {
+     "0.30": {
+      "P": 0.9424,
+      "R": 0.5955,
+      "F1": 0.7298,
+      "tp": 131,
+      "fp": 8,
+      "fn": 89
+     },
+     "0.55": {
+      "P": 0.9277,
+      "R": 0.35,
+      "F1": 0.5083,
+      "tp": 77,
+      "fp": 6,
+      "fn": 143
+     },
+     "AP": 0.7706
+    },
+    "jpeg@half": {
+     "0.30": {
+      "P": 0.9198,
+      "R": 0.6773,
+      "F1": 0.7801,
+      "tp": 149,
+      "fp": 13,
+      "fn": 71
+     },
+     "0.55": {
+      "P": 0.9386,
+      "R": 0.4864,
+      "F1": 0.6407,
+      "tp": 107,
+      "fp": 7,
+      "fn": 113
+     },
+     "AP": 0.7795
+    },
+    "jpeg@gopro": {
+     "0.30": {
+      "P": 0.9045,
+      "R": 0.6455,
+      "F1": 0.7533,
+      "tp": 142,
+      "fp": 15,
+      "fn": 78
+     },
+     "0.55": {
+      "P": 0.9352,
+      "R": 0.4591,
+      "F1": 0.6159,
+      "tp": 101,
+      "fp": 7,
+      "fn": 119
+     },
+     "AP": 0.766
+    },
+    "jpeg@beyond": {
+     "0.30": {
+      "P": 0.9221,
+      "R": 0.6455,
+      "F1": 0.7594,
+      "tp": 142,
+      "fp": 12,
+      "fn": 78
+     },
+     "0.55": {
+      "P": 0.9423,
+      "R": 0.4455,
+      "F1": 0.6049,
+      "tp": 98,
+      "fp": 6,
+      "fn": 122
+     },
+     "AP": 0.7729
+    },
+    "all@gopro": {
+     "0.30": {
+      "P": 0.954,
+      "R": 0.3773,
+      "F1": 0.5407,
+      "tp": 83,
+      "fp": 4,
+      "fn": 137
+     },
+     "0.55": {
+      "P": 0.9608,
+      "R": 0.2227,
+      "F1": 0.3616,
+      "tp": 49,
+      "fp": 2,
+      "fn": 171
+     },
+     "AP": 0.6467
+    },
+    "res_all@gopro": {
+     "0.30": {
+      "P": 0.8947,
+      "R": 0.6182,
+      "F1": 0.7312,
+      "tp": 136,
+      "fp": 16,
+      "fn": 84
+     },
+     "0.55": {
+      "P": 0.9495,
+      "R": 0.4273,
+      "F1": 0.5893,
+      "tp": 94,
+      "fp": 5,
+      "fn": 126
+     },
+     "AP": 0.7496
+    },
+    "photo_brightness@gopro": {
+     "0.30": {
+      "P": 0.9161,
+      "R": 0.6455,
+      "F1": 0.7573,
+      "tp": 142,
+      "fp": 13,
+      "fn": 78
+     },
+     "0.55": {
+      "P": 0.9519,
+      "R": 0.45,
+      "F1": 0.6111,
+      "tp": 99,
+      "fp": 5,
+      "fn": 121
+     },
+     "AP": 0.7631
+    },
+    "photo_gamma@gopro": {
+     "0.30": {
+      "P": 0.9474,
+      "R": 0.5727,
+      "F1": 0.7139,
+      "tp": 126,
+      "fp": 7,
+      "fn": 94
+     },
+     "0.55": {
+      "P": 0.9583,
+      "R": 0.3136,
+      "F1": 0.4726,
+      "tp": 69,
+      "fp": 3,
+      "fn": 151
+     },
+     "AP": 0.7336
+    },
+    "all_brightness@gopro": {
+     "0.30": {
+      "P": 0.9091,
+      "R": 0.5909,
+      "F1": 0.7163,
+      "tp": 130,
+      "fp": 13,
+      "fn": 90
+     },
+     "0.55": {
+      "P": 0.9667,
+      "R": 0.3955,
+      "F1": 0.5613,
+      "tp": 87,
+      "fp": 3,
+      "fn": 133
+     },
+     "AP": 0.7566
+    }
+   },
+   "vs_none": {
+    "downscale@half": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0145,
+       "ci_lo": -0.0409,
+       "ci_hi": 0.01
+      },
+      "recall": {
+       "observed": 0.0227,
+       "ci_lo": -0.0048,
+       "ci_hi": 0.0539
+      },
+      "f1": {
+       "observed": 0.0101,
+       "ci_lo": -0.0117,
+       "ci_hi": 0.0336
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0103,
+       "ci_lo": -0.001,
+       "ci_hi": 0.0305
+      },
+      "recall": {
+       "observed": 0.0136,
+       "ci_lo": -0.0186,
+       "ci_hi": 0.0439
+      },
+      "f1": {
+       "observed": 0.0144,
+       "ci_lo": -0.015,
+       "ci_hi": 0.042
+      }
+     }
+    },
+    "downscale@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0069,
+       "ci_lo": -0.0317,
+       "ci_hi": 0.016
+      },
+      "recall": {
+       "observed": 0.0409,
+       "ci_lo": 0.0099,
+       "ci_hi": 0.0755
+      },
+      "f1": {
+       "observed": 0.0247,
+       "ci_lo": 0.0013,
+       "ci_hi": 0.0496
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0012,
+       "ci_lo": -0.0235,
+       "ci_hi": 0.026
+      },
+      "recall": {
+       "observed": 0.0091,
+       "ci_lo": -0.0205,
+       "ci_hi": 0.0359
+      },
+      "f1": {
+       "observed": 0.0084,
+       "ci_lo": -0.019,
+       "ci_hi": 0.0342
+      }
+     }
+    },
+    "downscale@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0186,
+       "ci_lo": -0.0515,
+       "ci_hi": 0.0125
+      },
+      "recall": {
+       "observed": -0.0091,
+       "ci_lo": -0.0538,
+       "ci_hi": 0.0376
+      },
+      "f1": {
+       "observed": -0.0126,
+       "ci_lo": -0.0479,
+       "ci_hi": 0.022
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0121,
+       "ci_lo": -0.0531,
+       "ci_hi": 0.0265
+      },
+      "recall": {
+       "observed": -0.0227,
+       "ci_lo": -0.0704,
+       "ci_hi": 0.0251
+      },
+      "f1": {
+       "observed": -0.0233,
+       "ci_lo": -0.0699,
+       "ci_hi": 0.0224
+      }
+     }
+    },
+    "blur@half": {
+     "0.30": {
+      "precision": {
+       "observed": -0.001,
+       "ci_lo": -0.0038,
+       "ci_hi": 0.0014
+      },
+      "recall": {
+       "observed": -0.0091,
+       "ci_lo": -0.0311,
+       "ci_hi": 0.0134
+      },
+      "f1": {
+       "observed": -0.0066,
+       "ci_lo": -0.0229,
+       "ci_hi": 0.0095
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0038,
+       "ci_lo": -0.0107,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": -0.0273,
+       "ci_lo": -0.0567,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0258,
+       "ci_lo": -0.0531,
+       "ci_hi": 0.0
+      }
+     }
+    },
+    "blur@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0043,
+       "ci_lo": -0.0302,
+       "ci_hi": 0.0213
+      },
+      "recall": {
+       "observed": 0.0136,
+       "ci_lo": -0.0128,
+       "ci_hi": 0.0415
+      },
+      "f1": {
+       "observed": 0.0077,
+       "ci_lo": -0.0132,
+       "ci_hi": 0.0285
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0006,
+       "ci_lo": -0.0241,
+       "ci_hi": 0.025
+      },
+      "recall": {
+       "observed": 0.0045,
+       "ci_lo": -0.0264,
+       "ci_hi": 0.0345
+      },
+      "f1": {
+       "observed": 0.0042,
+       "ci_lo": -0.0247,
+       "ci_hi": 0.0331
+      }
+     }
+    },
+    "blur@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0195,
+       "ci_lo": -0.0539,
+       "ci_hi": 0.0122
+      },
+      "recall": {
+       "observed": 0.0273,
+       "ci_lo": -0.0209,
+       "ci_hi": 0.0747
+      },
+      "f1": {
+       "observed": 0.0112,
+       "ci_lo": -0.0267,
+       "ci_hi": 0.0463
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0012,
+       "ci_lo": -0.0342,
+       "ci_hi": 0.0356
+      },
+      "recall": {
+       "observed": 0.0091,
+       "ci_lo": -0.0345,
+       "ci_hi": 0.0558
+      },
+      "f1": {
+       "observed": 0.0084,
+       "ci_lo": -0.0324,
+       "ci_hi": 0.0514
+      }
+     }
+    },
+    "brightness@half": {
+     "0.30": {
+      "precision": {
+       "observed": 0.001,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0028
+      },
+      "recall": {
+       "observed": 0.0091,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0238
+      },
+      "f1": {
+       "observed": 0.0065,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0171
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0066,
+       "ci_lo": -0.0055,
+       "ci_hi": 0.0265
+      },
+      "recall": {
+       "observed": -0.0182,
+       "ci_lo": -0.0462,
+       "ci_hi": 0.0046
+      },
+      "f1": {
+       "observed": -0.0152,
+       "ci_lo": -0.0414,
+       "ci_hi": 0.0065
+      }
+     }
+    },
+    "brightness@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0124,
+       "ci_lo": -0.001,
+       "ci_hi": 0.0327
+      },
+      "recall": {
+       "observed": 0.0045,
+       "ci_lo": -0.0182,
+       "ci_hi": 0.0309
+      },
+      "f1": {
+       "observed": 0.0074,
+       "ci_lo": -0.0112,
+       "ci_hi": 0.0291
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0348,
+       "ci_lo": 0.0055,
+       "ci_hi": 0.0759
+      },
+      "recall": {
+       "observed": -0.0182,
+       "ci_lo": -0.0483,
+       "ci_hi": 0.0086
+      },
+      "f1": {
+       "observed": -0.0096,
+       "ci_lo": -0.038,
+       "ci_hi": 0.0168
+      }
+     }
+    },
+    "brightness@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0239,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0557
+      },
+      "recall": {
+       "observed": -0.0045,
+       "ci_lo": -0.0364,
+       "ci_hi": 0.0252
+      },
+      "f1": {
+       "observed": 0.0049,
+       "ci_lo": -0.0155,
+       "ci_hi": 0.027
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0339,
+       "ci_lo": 0.0032,
+       "ci_hi": 0.0755
+      },
+      "recall": {
+       "observed": -0.0318,
+       "ci_lo": -0.0659,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0228,
+       "ci_lo": -0.0553,
+       "ci_hi": 0.0073
+      }
+     }
+    },
+    "contrast@half": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0124,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0306
+      },
+      "recall": {
+       "observed": 0.0045,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0152
+      },
+      "f1": {
+       "observed": 0.0074,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0165
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0098,
+       "ci_lo": -0.0005,
+       "ci_hi": 0.0303
+      },
+      "recall": {
+       "observed": 0.0091,
+       "ci_lo": -0.0083,
+       "ci_hi": 0.0277
+      },
+      "f1": {
+       "observed": 0.0103,
+       "ci_lo": -0.005,
+       "ci_hi": 0.0277
+      }
+     }
+    },
+    "contrast@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0189,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0493
+      },
+      "recall": {
+       "observed": 0.0091,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0232
+      },
+      "f1": {
+       "observed": 0.0127,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0296
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0093,
+       "ci_lo": -0.0015,
+       "ci_hi": 0.0297
+      },
+      "recall": {
+       "observed": 0.0045,
+       "ci_lo": -0.018,
+       "ci_hi": 0.0287
+      },
+      "f1": {
+       "observed": 0.0061,
+       "ci_lo": -0.0146,
+       "ci_hi": 0.0293
+      }
+     }
+    },
+    "contrast@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0181,
+       "ci_lo": -0.0005,
+       "ci_hi": 0.048
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0186,
+       "ci_hi": 0.0187
+      },
+      "f1": {
+       "observed": 0.0062,
+       "ci_lo": -0.0072,
+       "ci_hi": 0.0214
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0082,
+       "ci_lo": -0.0046,
+       "ci_hi": 0.0302
+      },
+      "recall": {
+       "observed": -0.0045,
+       "ci_lo": -0.0383,
+       "ci_hi": 0.0266
+      },
+      "f1": {
+       "observed": -0.0024,
+       "ci_lo": -0.0343,
+       "ci_hi": 0.0286
+      }
+     }
+    },
+    "saturation@half": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0048,
+       "ci_lo": -0.0267,
+       "ci_hi": 0.0151
+      },
+      "recall": {
+       "observed": 0.0091,
+       "ci_lo": -0.0093,
+       "ci_hi": 0.0284
+      },
+      "f1": {
+       "observed": 0.0045,
+       "ci_lo": -0.0115,
+       "ci_hi": 0.0211
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0108,
+       "ci_lo": 0.0002,
+       "ci_hi": 0.0323
+      },
+      "recall": {
+       "observed": 0.0182,
+       "ci_lo": 0.0041,
+       "ci_hi": 0.0369
+      },
+      "f1": {
+       "observed": 0.0186,
+       "ci_lo": 0.0038,
+       "ci_hi": 0.0386
+      }
+     }
+    },
+    "saturation@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.001,
+       "ci_lo": -0.023,
+       "ci_hi": 0.024
+      },
+      "recall": {
+       "observed": 0.0091,
+       "ci_lo": -0.0081,
+       "ci_hi": 0.028
+      },
+      "f1": {
+       "observed": 0.0065,
+       "ci_lo": -0.0096,
+       "ci_hi": 0.0247
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0108,
+       "ci_lo": 0.0002,
+       "ci_hi": 0.0323
+      },
+      "recall": {
+       "observed": 0.0182,
+       "ci_lo": 0.0041,
+       "ci_hi": 0.0369
+      },
+      "f1": {
+       "observed": 0.0186,
+       "ci_lo": 0.0038,
+       "ci_hi": 0.0386
+      }
+     }
+    },
+    "saturation@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0162,
+       "ci_lo": -0.0479,
+       "ci_hi": 0.0134
+      },
+      "recall": {
+       "observed": 0.0091,
+       "ci_lo": -0.0125,
+       "ci_hi": 0.0316
+      },
+      "f1": {
+       "observed": 0.0004,
+       "ci_lo": -0.0213,
+       "ci_hi": 0.0215
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0018,
+       "ci_lo": -0.0247,
+       "ci_hi": 0.0292
+      },
+      "recall": {
+       "observed": 0.0136,
+       "ci_lo": -0.0107,
+       "ci_hi": 0.0409
+      },
+      "f1": {
+       "observed": 0.0125,
+       "ci_lo": -0.012,
+       "ci_hi": 0.0405
+      }
+     }
+    },
+    "gamma@half": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0177,
+       "ci_lo": -0.0017,
+       "ci_hi": 0.0487
+      },
+      "recall": {
+       "observed": -0.0045,
+       "ci_lo": -0.0251,
+       "ci_hi": 0.0157
+      },
+      "f1": {
+       "observed": 0.0029,
+       "ci_lo": -0.0156,
+       "ci_hi": 0.0229
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0077,
+       "ci_lo": -0.0035,
+       "ci_hi": 0.0284
+      },
+      "recall": {
+       "observed": -0.0091,
+       "ci_lo": -0.0346,
+       "ci_hi": 0.016
+      },
+      "f1": {
+       "observed": -0.0066,
+       "ci_lo": -0.0299,
+       "ci_hi": 0.0176
+      }
+     }
+    },
+    "gamma@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0236,
+       "ci_lo": -0.0003,
+       "ci_hi": 0.0556
+      },
+      "recall": {
+       "observed": -0.0091,
+       "ci_lo": -0.0345,
+       "ci_hi": 0.0147
+      },
+      "f1": {
+       "observed": 0.0016,
+       "ci_lo": -0.0148,
+       "ci_hi": 0.019
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0209,
+       "ci_lo": -0.0064,
+       "ci_hi": 0.0585
+      },
+      "recall": {
+       "observed": -0.0636,
+       "ci_lo": -0.1053,
+       "ci_hi": -0.0263
+      },
+      "f1": {
+       "observed": -0.0564,
+       "ci_lo": -0.0961,
+       "ci_hi": -0.0202
+      }
+     }
+    },
+    "gamma@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0181,
+       "ci_lo": -0.0159,
+       "ci_hi": 0.0576
+      },
+      "recall": {
+       "observed": -0.0727,
+       "ci_lo": -0.1193,
+       "ci_hi": -0.0328
+      },
+      "f1": {
+       "observed": -0.0469,
+       "ci_lo": -0.0823,
+       "ci_hi": -0.0147
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0268,
+       "ci_lo": -0.0037,
+       "ci_hi": 0.0652
+      },
+      "recall": {
+       "observed": -0.1136,
+       "ci_lo": -0.1773,
+       "ci_hi": -0.0578
+      },
+      "f1": {
+       "observed": -0.1075,
+       "ci_lo": -0.172,
+       "ci_hi": -0.0495
+      }
+     }
+    },
+    "wb@half": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": -0.0171,
+       "ci_hi": 0.0176
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0175,
+       "ci_hi": 0.0178
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": -0.0139,
+       "ci_hi": 0.0137
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0066,
+       "ci_lo": -0.006,
+       "ci_hi": 0.0285
+      },
+      "recall": {
+       "observed": -0.0182,
+       "ci_lo": -0.0445,
+       "ci_hi": 0.0104
+      },
+      "f1": {
+       "observed": -0.0152,
+       "ci_lo": -0.0403,
+       "ci_hi": 0.0134
+      }
+     }
+    },
+    "wb@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0015,
+       "ci_lo": -0.0234,
+       "ci_hi": 0.025
+      },
+      "recall": {
+       "observed": 0.0136,
+       "ci_lo": -0.009,
+       "ci_hi": 0.0383
+      },
+      "f1": {
+       "observed": 0.0098,
+       "ci_lo": -0.0105,
+       "ci_hi": 0.0296
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0153,
+       "ci_lo": -0.0049,
+       "ci_hi": 0.0439
+      },
+      "recall": {
+       "observed": -0.0227,
+       "ci_lo": -0.0585,
+       "ci_hi": 0.01
+      },
+      "f1": {
+       "observed": -0.0177,
+       "ci_lo": -0.0513,
+       "ci_hi": 0.0165
+      }
+     }
+    },
+    "wb@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0005,
+       "ci_lo": -0.0248,
+       "ci_hi": 0.0251
+      },
+      "recall": {
+       "observed": 0.0045,
+       "ci_lo": -0.0219,
+       "ci_hi": 0.0311
+      },
+      "f1": {
+       "observed": 0.0033,
+       "ci_lo": -0.0189,
+       "ci_hi": 0.0252
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0444,
+       "ci_lo": 0.009,
+       "ci_hi": 0.0883
+      },
+      "recall": {
+       "observed": -0.0227,
+       "ci_lo": -0.0647,
+       "ci_hi": 0.018
+      },
+      "f1": {
+       "observed": -0.0121,
+       "ci_lo": -0.0536,
+       "ci_hi": 0.0291
+      }
+     }
+    },
+    "noise@half": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0134,
+       "ci_lo": -0.0469,
+       "ci_hi": 0.0171
+      },
+      "recall": {
+       "observed": 0.0318,
+       "ci_lo": 0.0085,
+       "ci_hi": 0.0593
+      },
+      "f1": {
+       "observed": 0.0164,
+       "ci_lo": -0.0068,
+       "ci_hi": 0.0411
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0103,
+       "ci_lo": -0.0016,
+       "ci_hi": 0.0331
+      },
+      "recall": {
+       "observed": 0.0136,
+       "ci_lo": -0.0147,
+       "ci_hi": 0.0446
+      },
+      "f1": {
+       "observed": 0.0144,
+       "ci_lo": -0.0134,
+       "ci_hi": 0.0455
+      }
+     }
+    },
+    "noise@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0073,
+       "ci_lo": -0.0184,
+       "ci_hi": 0.034
+      },
+      "recall": {
+       "observed": 0.0136,
+       "ci_lo": -0.0144,
+       "ci_hi": 0.0453
+      },
+      "f1": {
+       "observed": 0.0118,
+       "ci_lo": -0.011,
+       "ci_hi": 0.0367
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0006,
+       "ci_lo": -0.0271,
+       "ci_hi": 0.0256
+      },
+      "recall": {
+       "observed": -0.0045,
+       "ci_lo": -0.0455,
+       "ci_hi": 0.0352
+      },
+      "f1": {
+       "observed": -0.0042,
+       "ci_lo": -0.0441,
+       "ci_hi": 0.0342
+      }
+     }
+    },
+    "noise@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0194,
+       "ci_lo": -0.0042,
+       "ci_hi": 0.0518
+      },
+      "recall": {
+       "observed": -0.0591,
+       "ci_lo": -0.107,
+       "ci_hi": -0.0179
+      },
+      "f1": {
+       "observed": -0.0362,
+       "ci_lo": -0.074,
+       "ci_hi": -0.0048
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0075,
+       "ci_lo": -0.0459,
+       "ci_hi": 0.0236
+      },
+      "recall": {
+       "observed": -0.1091,
+       "ci_lo": -0.172,
+       "ci_hi": -0.0593
+      },
+      "f1": {
+       "observed": -0.1076,
+       "ci_lo": -0.1704,
+       "ci_hi": -0.0566
+      }
+     }
+    },
+    "jpeg@half": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0033,
+       "ci_lo": -0.0292,
+       "ci_hi": 0.0214
+      },
+      "recall": {
+       "observed": 0.0227,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0485
+      },
+      "f1": {
+       "observed": 0.0141,
+       "ci_lo": -0.0061,
+       "ci_hi": 0.0335
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0034,
+       "ci_lo": -0.0205,
+       "ci_hi": 0.027
+      },
+      "recall": {
+       "observed": 0.0273,
+       "ci_lo": -0.0054,
+       "ci_hi": 0.0649
+      },
+      "f1": {
+       "observed": 0.0249,
+       "ci_lo": -0.0061,
+       "ci_hi": 0.0583
+      }
+     }
+    },
+    "jpeg@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0186,
+       "ci_lo": -0.0479,
+       "ci_hi": 0.0064
+      },
+      "recall": {
+       "observed": -0.0091,
+       "ci_lo": -0.0417,
+       "ci_hi": 0.0251
+      },
+      "f1": {
+       "observed": -0.0126,
+       "ci_lo": -0.0384,
+       "ci_hi": 0.0139
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": -0.0259,
+       "ci_hi": 0.0248
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0412,
+       "ci_hi": 0.0383
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": -0.0388,
+       "ci_hi": 0.0352
+      }
+     }
+    },
+    "jpeg@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": -0.001,
+       "ci_lo": -0.0332,
+       "ci_hi": 0.0342
+      },
+      "recall": {
+       "observed": -0.0091,
+       "ci_lo": -0.0462,
+       "ci_hi": 0.0271
+      },
+      "f1": {
+       "observed": -0.0066,
+       "ci_lo": -0.0362,
+       "ci_hi": 0.0214
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0071,
+       "ci_lo": -0.0329,
+       "ci_hi": 0.048
+      },
+      "recall": {
+       "observed": -0.0136,
+       "ci_lo": -0.0632,
+       "ci_hi": 0.0321
+      },
+      "f1": {
+       "observed": -0.0109,
+       "ci_lo": -0.0588,
+       "ci_hi": 0.0318
+      }
+     }
+    },
+    "all@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0309,
+       "ci_lo": -0.0081,
+       "ci_hi": 0.0792
+      },
+      "recall": {
+       "observed": -0.2773,
+       "ci_lo": -0.3539,
+       "ci_hi": -0.2053
+      },
+      "f1": {
+       "observed": -0.2252,
+       "ci_lo": -0.2959,
+       "ci_hi": -0.155
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0256,
+       "ci_lo": -0.0151,
+       "ci_hi": 0.0711
+      },
+      "recall": {
+       "observed": -0.2364,
+       "ci_lo": -0.3113,
+       "ci_hi": -0.1666
+      },
+      "f1": {
+       "observed": -0.2542,
+       "ci_lo": -0.3405,
+       "ci_hi": -0.1738
+      }
+     }
+    },
+    "res_all@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0283,
+       "ci_lo": -0.0583,
+       "ci_hi": -0.0018
+      },
+      "recall": {
+       "observed": -0.0364,
+       "ci_lo": -0.0812,
+       "ci_hi": 0.0084
+      },
+      "f1": {
+       "observed": -0.0348,
+       "ci_lo": -0.0686,
+       "ci_hi": -0.0039
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0143,
+       "ci_lo": -0.0205,
+       "ci_hi": 0.0518
+      },
+      "recall": {
+       "observed": -0.0318,
+       "ci_lo": -0.0935,
+       "ci_hi": 0.0218
+      },
+      "f1": {
+       "observed": -0.0265,
+       "ci_lo": -0.0859,
+       "ci_hi": 0.0252
+      }
+     }
+    },
+    "photo_brightness@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0069,
+       "ci_lo": -0.0354,
+       "ci_hi": 0.0272
+      },
+      "recall": {
+       "observed": -0.0091,
+       "ci_lo": -0.0395,
+       "ci_hi": 0.0221
+      },
+      "f1": {
+       "observed": -0.0086,
+       "ci_lo": -0.0312,
+       "ci_hi": 0.0145
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0167,
+       "ci_lo": -0.0026,
+       "ci_hi": 0.0474
+      },
+      "recall": {
+       "observed": -0.0091,
+       "ci_lo": -0.0435,
+       "ci_hi": 0.0265
+      },
+      "f1": {
+       "observed": -0.0047,
+       "ci_lo": -0.0371,
+       "ci_hi": 0.0298
+      }
+     }
+    },
+    "photo_gamma@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0243,
+       "ci_lo": -0.0116,
+       "ci_hi": 0.069
+      },
+      "recall": {
+       "observed": -0.0818,
+       "ci_lo": -0.1397,
+       "ci_hi": -0.034
+      },
+      "f1": {
+       "observed": -0.0521,
+       "ci_lo": -0.0967,
+       "ci_hi": -0.0121
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0231,
+       "ci_lo": -0.0179,
+       "ci_hi": 0.07
+      },
+      "recall": {
+       "observed": -0.1455,
+       "ci_lo": -0.221,
+       "ci_hi": -0.0714
+      },
+      "f1": {
+       "observed": -0.1433,
+       "ci_lo": -0.224,
+       "ci_hi": -0.0673
+      }
+     }
+    },
+    "all_brightness@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.014,
+       "ci_lo": -0.0488,
+       "ci_hi": 0.0245
+      },
+      "recall": {
+       "observed": -0.0636,
+       "ci_lo": -0.1145,
+       "ci_hi": -0.014
+      },
+      "f1": {
+       "observed": -0.0497,
+       "ci_lo": -0.09,
+       "ci_hi": -0.0139
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0315,
+       "ci_lo": 0.0018,
+       "ci_hi": 0.0694
+      },
+      "recall": {
+       "observed": -0.0636,
+       "ci_lo": -0.1257,
+       "ci_hi": -0.0094
+      },
+      "f1": {
+       "observed": -0.0546,
+       "ci_lo": -0.1162,
+       "ci_hi": -0.0009
+      }
+     }
+    }
+   }
+  },
+  "laurens_mapillary": {
+   "metrics": {
+    "none": {
+     "0.30": {
+      "P": 0.8851,
+      "R": 0.5261,
+      "F1": 0.6599,
+      "tp": 131,
+      "fp": 17,
+      "fn": 118
+     },
+     "0.55": {
+      "P": 0.8981,
+      "R": 0.3896,
+      "F1": 0.5434,
+      "tp": 97,
+      "fp": 11,
+      "fn": 152
+     },
+     "AP": 0.6907
+    },
+    "colour_match@0.5": {
+     "0.30": {
+      "P": 0.8819,
+      "R": 0.51,
+      "F1": 0.6463,
+      "tp": 127,
+      "fp": 17,
+      "fn": 122
+     },
+     "0.55": {
+      "P": 0.9184,
+      "R": 0.3614,
+      "F1": 0.5187,
+      "tp": 90,
+      "fp": 8,
+      "fn": 159
+     },
+     "AP": 0.6684
+    },
+    "colour_match@1": {
+     "0.30": {
+      "P": 0.913,
+      "R": 0.506,
+      "F1": 0.6512,
+      "tp": 126,
+      "fp": 12,
+      "fn": 123
+     },
+     "0.55": {
+      "P": 0.9195,
+      "R": 0.3213,
+      "F1": 0.4762,
+      "tp": 80,
+      "fp": 7,
+      "fn": 169
+     },
+     "AP": 0.6563
+    },
+    "unsharp@50": {
+     "0.30": {
+      "P": 0.8836,
+      "R": 0.5181,
+      "F1": 0.6532,
+      "tp": 129,
+      "fp": 17,
+      "fn": 120
+     },
+     "0.55": {
+      "P": 0.8942,
+      "R": 0.3735,
+      "F1": 0.5269,
+      "tp": 93,
+      "fp": 11,
+      "fn": 156
+     },
+     "AP": 0.6866
+    },
+    "unsharp@100": {
+     "0.30": {
+      "P": 0.875,
+      "R": 0.4779,
+      "F1": 0.6182,
+      "tp": 119,
+      "fp": 17,
+      "fn": 130
+     },
+     "0.55": {
+      "P": 0.9121,
+      "R": 0.3333,
+      "F1": 0.4882,
+      "tp": 83,
+      "fp": 8,
+      "fn": 166
+     },
+     "AP": 0.677
+    },
+    "clahe@0.01": {
+     "0.30": {
+      "P": 0.8682,
+      "R": 0.4498,
+      "F1": 0.5926,
+      "tp": 112,
+      "fp": 17,
+      "fn": 137
+     },
+     "0.55": {
+      "P": 0.9296,
+      "R": 0.2651,
+      "F1": 0.4125,
+      "tp": 66,
+      "fp": 5,
+      "fn": 183
+     },
+     "AP": 0.6262
+    },
+    "clahe@0.02": {
+     "0.30": {
+      "P": 0.8655,
+      "R": 0.4137,
+      "F1": 0.5598,
+      "tp": 103,
+      "fp": 16,
+      "fn": 146
+     },
+     "0.55": {
+      "P": 0.963,
+      "R": 0.2088,
+      "F1": 0.3432,
+      "tp": 52,
+      "fp": 2,
+      "fn": 197
+     },
+     "AP": 0.5919
+    },
+    "repair_all": {
+     "0.30": {
+      "P": 0.8676,
+      "R": 0.4739,
+      "F1": 0.613,
+      "tp": 118,
+      "fp": 18,
+      "fn": 131
+     },
+     "0.55": {
+      "P": 0.9324,
+      "R": 0.2771,
+      "F1": 0.4272,
+      "tp": 69,
+      "fp": 5,
+      "fn": 180
+     },
+     "AP": 0.6396
+    }
+   },
+   "vs_none": {
+    "colour_match@0.5": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0032,
+       "ci_lo": -0.0214,
+       "ci_hi": 0.0129
+      },
+      "recall": {
+       "observed": -0.0161,
+       "ci_lo": -0.0415,
+       "ci_hi": 0.0121
+      },
+      "f1": {
+       "observed": -0.0136,
+       "ci_lo": -0.0354,
+       "ci_hi": 0.0104
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0202,
+       "ci_lo": -0.0056,
+       "ci_hi": 0.0544
+      },
+      "recall": {
+       "observed": -0.0281,
+       "ci_lo": -0.0492,
+       "ci_hi": -0.0089
+      },
+      "f1": {
+       "observed": -0.0247,
+       "ci_lo": -0.0474,
+       "ci_hi": -0.0036
+      }
+     }
+    },
+    "colour_match@1": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0279,
+       "ci_lo": 0.0036,
+       "ci_hi": 0.0553
+      },
+      "recall": {
+       "observed": -0.0201,
+       "ci_lo": -0.0549,
+       "ci_hi": 0.0157
+      },
+      "f1": {
+       "observed": -0.0088,
+       "ci_lo": -0.0398,
+       "ci_hi": 0.0226
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0214,
+       "ci_lo": -0.0104,
+       "ci_hi": 0.064
+      },
+      "recall": {
+       "observed": -0.0683,
+       "ci_lo": -0.1041,
+       "ci_hi": -0.0352
+      },
+      "f1": {
+       "observed": -0.0672,
+       "ci_lo": -0.1075,
+       "ci_hi": -0.0302
+      }
+     }
+    },
+    "unsharp@50": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0016,
+       "ci_lo": -0.0196,
+       "ci_hi": 0.0165
+      },
+      "recall": {
+       "observed": -0.008,
+       "ci_lo": -0.0266,
+       "ci_hi": 0.0107
+      },
+      "f1": {
+       "observed": -0.0068,
+       "ci_lo": -0.0236,
+       "ci_hi": 0.0099
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0039,
+       "ci_lo": -0.0109,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": -0.0161,
+       "ci_lo": -0.0347,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0165,
+       "ci_lo": -0.0365,
+       "ci_hi": 0.0
+      }
+     }
+    },
+    "unsharp@100": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0101,
+       "ci_lo": -0.0352,
+       "ci_hi": 0.016
+      },
+      "recall": {
+       "observed": -0.0482,
+       "ci_lo": -0.0751,
+       "ci_hi": -0.0221
+      },
+      "f1": {
+       "observed": -0.0418,
+       "ci_lo": -0.0663,
+       "ci_hi": -0.018
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0139,
+       "ci_lo": -0.0139,
+       "ci_hi": 0.0489
+      },
+      "recall": {
+       "observed": -0.0562,
+       "ci_lo": -0.0871,
+       "ci_hi": -0.0288
+      },
+      "f1": {
+       "observed": -0.0552,
+       "ci_lo": -0.0862,
+       "ci_hi": -0.0256
+      }
+     }
+    },
+    "clahe@0.01": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0169,
+       "ci_lo": -0.0557,
+       "ci_hi": 0.0168
+      },
+      "recall": {
+       "observed": -0.0763,
+       "ci_lo": -0.1102,
+       "ci_hi": -0.0426
+      },
+      "f1": {
+       "observed": -0.0674,
+       "ci_lo": -0.1012,
+       "ci_hi": -0.036
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0314,
+       "ci_lo": -0.0123,
+       "ci_hi": 0.0819
+      },
+      "recall": {
+       "observed": -0.1245,
+       "ci_lo": -0.1638,
+       "ci_hi": -0.0865
+      },
+      "f1": {
+       "observed": -0.1309,
+       "ci_lo": -0.1723,
+       "ci_hi": -0.0886
+      }
+     }
+    },
+    "clahe@0.02": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0196,
+       "ci_lo": -0.0697,
+       "ci_hi": 0.0241
+      },
+      "recall": {
+       "observed": -0.1124,
+       "ci_lo": -0.1626,
+       "ci_hi": -0.0667
+      },
+      "f1": {
+       "observed": -0.1002,
+       "ci_lo": -0.1485,
+       "ci_hi": -0.0561
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0648,
+       "ci_lo": 0.0088,
+       "ci_hi": 0.1281
+      },
+      "recall": {
+       "observed": -0.1807,
+       "ci_lo": -0.2296,
+       "ci_hi": -0.1346
+      },
+      "f1": {
+       "observed": -0.2002,
+       "ci_lo": -0.2512,
+       "ci_hi": -0.1453
+      }
+     }
+    },
+    "repair_all": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0175,
+       "ci_lo": -0.0525,
+       "ci_hi": 0.0164
+      },
+      "recall": {
+       "observed": -0.0522,
+       "ci_lo": -0.0853,
+       "ci_hi": -0.0174
+      },
+      "f1": {
+       "observed": -0.047,
+       "ci_lo": -0.0792,
+       "ci_hi": -0.0142
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0343,
+       "ci_lo": -0.0077,
+       "ci_hi": 0.0872
+      },
+      "recall": {
+       "observed": -0.1124,
+       "ci_lo": -0.1535,
+       "ci_hi": -0.0766
+      },
+      "f1": {
+       "observed": -0.1162,
+       "ci_lo": -0.1614,
+       "ci_hi": -0.0763
+      }
+     }
+    }
+   }
+  },
+  "clovis": {
+   "metrics": {
+    "none": {
+     "0.30": {
+      "P": 0.8377,
+      "R": 0.8205,
+      "F1": 0.829,
+      "tp": 160,
+      "fp": 31,
+      "fn": 35
+     },
+     "0.55": {
+      "P": 0.9085,
+      "R": 0.7128,
+      "F1": 0.7989,
+      "tp": 139,
+      "fp": 14,
+      "fn": 56
+     },
+     "AP": 0.8683
+    },
+    "colour_match@0.5": {
+     "0.30": {
+      "P": 0.804,
+      "R": 0.8205,
+      "F1": 0.8122,
+      "tp": 160,
+      "fp": 39,
+      "fn": 35
+     },
+     "0.55": {
+      "P": 0.9085,
+      "R": 0.7128,
+      "F1": 0.7989,
+      "tp": 139,
+      "fp": 14,
+      "fn": 56
+     },
+     "AP": 0.8684
+    },
+    "colour_match@1": {
+     "0.30": {
+      "P": 0.8263,
+      "R": 0.8051,
+      "F1": 0.8156,
+      "tp": 157,
+      "fp": 33,
+      "fn": 38
+     },
+     "0.55": {
+      "P": 0.8897,
+      "R": 0.6615,
+      "F1": 0.7588,
+      "tp": 129,
+      "fp": 16,
+      "fn": 66
+     },
+     "AP": 0.8474
+    },
+    "unsharp@50": {
+     "0.30": {
+      "P": 0.8351,
+      "R": 0.8308,
+      "F1": 0.8329,
+      "tp": 162,
+      "fp": 32,
+      "fn": 33
+     },
+     "0.55": {
+      "P": 0.9252,
+      "R": 0.6974,
+      "F1": 0.7953,
+      "tp": 136,
+      "fp": 11,
+      "fn": 59
+     },
+     "AP": 0.8701
+    },
+    "unsharp@100": {
+     "0.30": {
+      "P": 0.8387,
+      "R": 0.8,
+      "F1": 0.8189,
+      "tp": 156,
+      "fp": 30,
+      "fn": 39
+     },
+     "0.55": {
+      "P": 0.9291,
+      "R": 0.6718,
+      "F1": 0.7798,
+      "tp": 131,
+      "fp": 10,
+      "fn": 64
+     },
+     "AP": 0.8657
+    },
+    "clahe@0.01": {
+     "0.30": {
+      "P": 0.8525,
+      "R": 0.8,
+      "F1": 0.8254,
+      "tp": 156,
+      "fp": 27,
+      "fn": 39
+     },
+     "0.55": {
+      "P": 0.9247,
+      "R": 0.6923,
+      "F1": 0.7918,
+      "tp": 135,
+      "fp": 11,
+      "fn": 60
+     },
+     "AP": 0.8584
+    },
+    "clahe@0.02": {
+     "0.30": {
+      "P": 0.8475,
+      "R": 0.7692,
+      "F1": 0.8065,
+      "tp": 150,
+      "fp": 27,
+      "fn": 45
+     },
+     "0.55": {
+      "P": 0.9242,
+      "R": 0.6256,
+      "F1": 0.7462,
+      "tp": 122,
+      "fp": 10,
+      "fn": 73
+     },
+     "AP": 0.8474
+    },
+    "repair_all": {
+     "0.30": {
+      "P": 0.8424,
+      "R": 0.7949,
+      "F1": 0.8179,
+      "tp": 155,
+      "fp": 29,
+      "fn": 40
+     },
+     "0.55": {
+      "P": 0.916,
+      "R": 0.6154,
+      "F1": 0.7362,
+      "tp": 120,
+      "fp": 11,
+      "fn": 75
+     },
+     "AP": 0.8531
+    }
+   },
+   "vs_none": {
+    "colour_match@0.5": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0337,
+       "ci_lo": -0.0594,
+       "ci_hi": -0.0126
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0156,
+       "ci_hi": 0.0138
+      },
+      "f1": {
+       "observed": -0.0168,
+       "ci_lo": -0.0321,
+       "ci_hi": -0.0031
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": -0.0241,
+       "ci_hi": 0.0237
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0144,
+       "ci_hi": 0.0145
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": -0.0154,
+       "ci_hi": 0.0138
+      }
+     }
+    },
+    "colour_match@1": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0114,
+       "ci_lo": -0.038,
+       "ci_hi": 0.0142
+      },
+      "recall": {
+       "observed": -0.0154,
+       "ci_lo": -0.0391,
+       "ci_hi": 0.0052
+      },
+      "f1": {
+       "observed": -0.0134,
+       "ci_lo": -0.0326,
+       "ci_hi": 0.0046
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0188,
+       "ci_lo": -0.0572,
+       "ci_hi": 0.0137
+      },
+      "recall": {
+       "observed": -0.0513,
+       "ci_lo": -0.0964,
+       "ci_hi": -0.0057
+      },
+      "f1": {
+       "observed": -0.04,
+       "ci_lo": -0.0762,
+       "ci_hi": -0.0054
+      }
+     }
+    },
+    "unsharp@50": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0026,
+       "ci_lo": -0.0252,
+       "ci_hi": 0.0207
+      },
+      "recall": {
+       "observed": 0.0103,
+       "ci_lo": -0.0131,
+       "ci_hi": 0.0369
+      },
+      "f1": {
+       "observed": 0.0039,
+       "ci_lo": -0.0154,
+       "ci_hi": 0.0233
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0167,
+       "ci_lo": -0.0013,
+       "ci_hi": 0.0423
+      },
+      "recall": {
+       "observed": -0.0154,
+       "ci_lo": -0.0335,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0035,
+       "ci_lo": -0.0179,
+       "ci_hi": 0.01
+      }
+     }
+    },
+    "unsharp@100": {
+     "0.30": {
+      "precision": {
+       "observed": 0.001,
+       "ci_lo": -0.0317,
+       "ci_hi": 0.0347
+      },
+      "recall": {
+       "observed": -0.0205,
+       "ci_lo": -0.0558,
+       "ci_hi": 0.0129
+      },
+      "f1": {
+       "observed": -0.0101,
+       "ci_lo": -0.0393,
+       "ci_hi": 0.017
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0206,
+       "ci_lo": 0.0001,
+       "ci_hi": 0.0475
+      },
+      "recall": {
+       "observed": -0.041,
+       "ci_lo": -0.0718,
+       "ci_hi": -0.0116
+      },
+      "f1": {
+       "observed": -0.0191,
+       "ci_lo": -0.0427,
+       "ci_hi": 0.0042
+      }
+     }
+    },
+    "clahe@0.01": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0148,
+       "ci_lo": -0.0093,
+       "ci_hi": 0.0439
+      },
+      "recall": {
+       "observed": -0.0205,
+       "ci_lo": -0.0474,
+       "ci_hi": 0.0046
+      },
+      "f1": {
+       "observed": -0.0036,
+       "ci_lo": -0.0238,
+       "ci_hi": 0.0162
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0162,
+       "ci_lo": -0.0013,
+       "ci_hi": 0.0416
+      },
+      "recall": {
+       "observed": -0.0205,
+       "ci_lo": -0.0516,
+       "ci_hi": 0.0109
+      },
+      "f1": {
+       "observed": -0.0071,
+       "ci_lo": -0.03,
+       "ci_hi": 0.0159
+      }
+     }
+    },
+    "clahe@0.02": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0098,
+       "ci_lo": -0.0218,
+       "ci_hi": 0.0438
+      },
+      "recall": {
+       "observed": -0.0513,
+       "ci_lo": -0.0856,
+       "ci_hi": -0.02
+      },
+      "f1": {
+       "observed": -0.0226,
+       "ci_lo": -0.0486,
+       "ci_hi": 0.004
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0157,
+       "ci_lo": -0.0155,
+       "ci_hi": 0.049
+      },
+      "recall": {
+       "observed": -0.0872,
+       "ci_lo": -0.13,
+       "ci_hi": -0.0435
+      },
+      "f1": {
+       "observed": -0.0527,
+       "ci_lo": -0.0864,
+       "ci_hi": -0.0184
+      }
+     }
+    },
+    "repair_all": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0047,
+       "ci_lo": -0.025,
+       "ci_hi": 0.0351
+      },
+      "recall": {
+       "observed": -0.0256,
+       "ci_lo": -0.0585,
+       "ci_hi": 0.0056
+      },
+      "f1": {
+       "observed": -0.0111,
+       "ci_lo": -0.0349,
+       "ci_hi": 0.0121
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0075,
+       "ci_lo": -0.0372,
+       "ci_hi": 0.0477
+      },
+      "recall": {
+       "observed": -0.0974,
+       "ci_lo": -0.1414,
+       "ci_hi": -0.0561
+      },
+      "f1": {
+       "observed": -0.0627,
+       "ci_lo": -0.0997,
+       "ci_hi": -0.0291
+      }
+     }
+    }
+   }
+  },
+  "bend": {
+   "metrics": {
+    "none": {
+     "0.30": {
+      "P": 0.9155,
+      "R": 0.8287,
+      "F1": 0.87,
+      "tp": 271,
+      "fp": 25,
+      "fn": 56
+     },
+     "0.55": {
+      "P": 0.9727,
+      "R": 0.7615,
+      "F1": 0.8542,
+      "tp": 249,
+      "fp": 7,
+      "fn": 78
+     },
+     "AP": 0.8707
+    },
+    "downscale@gopro": {
+     "0.30": {
+      "P": 0.9069,
+      "R": 0.8043,
+      "F1": 0.8525,
+      "tp": 263,
+      "fp": 27,
+      "fn": 64
+     },
+     "0.55": {
+      "P": 0.9749,
+      "R": 0.7125,
+      "F1": 0.8233,
+      "tp": 233,
+      "fp": 6,
+      "fn": 94
+     },
+     "AP": 0.8408
+    },
+    "downscale@beyond": {
+     "0.30": {
+      "P": 0.9142,
+      "R": 0.7492,
+      "F1": 0.8235,
+      "tp": 245,
+      "fp": 23,
+      "fn": 82
+     },
+     "0.55": {
+      "P": 0.9806,
+      "R": 0.6177,
+      "F1": 0.758,
+      "tp": 202,
+      "fp": 4,
+      "fn": 125
+     },
+     "AP": 0.819
+    },
+    "blur@gopro": {
+     "0.30": {
+      "P": 0.9164,
+      "R": 0.8043,
+      "F1": 0.8567,
+      "tp": 263,
+      "fp": 24,
+      "fn": 64
+     },
+     "0.55": {
+      "P": 0.979,
+      "R": 0.7125,
+      "F1": 0.8248,
+      "tp": 233,
+      "fp": 5,
+      "fn": 94
+     },
+     "AP": 0.8486
+    },
+    "blur@beyond": {
+     "0.30": {
+      "P": 0.9158,
+      "R": 0.7645,
+      "F1": 0.8333,
+      "tp": 250,
+      "fp": 23,
+      "fn": 77
+     },
+     "0.55": {
+      "P": 0.9762,
+      "R": 0.6269,
+      "F1": 0.7635,
+      "tp": 205,
+      "fp": 5,
+      "fn": 122
+     },
+     "AP": 0.8203
+    },
+    "brightness@gopro": {
+     "0.30": {
+      "P": 0.9088,
+      "R": 0.8226,
+      "F1": 0.8636,
+      "tp": 269,
+      "fp": 27,
+      "fn": 58
+     },
+     "0.55": {
+      "P": 0.9722,
+      "R": 0.7492,
+      "F1": 0.8463,
+      "tp": 245,
+      "fp": 7,
+      "fn": 82
+     },
+     "AP": 0.8646
+    },
+    "brightness@beyond": {
+     "0.30": {
+      "P": 0.921,
+      "R": 0.8196,
+      "F1": 0.8673,
+      "tp": 268,
+      "fp": 23,
+      "fn": 59
+     },
+     "0.55": {
+      "P": 0.9757,
+      "R": 0.737,
+      "F1": 0.8397,
+      "tp": 241,
+      "fp": 6,
+      "fn": 86
+     },
+     "AP": 0.8611
+    },
+    "contrast@gopro": {
+     "0.30": {
+      "P": 0.9125,
+      "R": 0.8287,
+      "F1": 0.8686,
+      "tp": 271,
+      "fp": 26,
+      "fn": 56
+     },
+     "0.55": {
+      "P": 0.9686,
+      "R": 0.7554,
+      "F1": 0.8488,
+      "tp": 247,
+      "fp": 8,
+      "fn": 80
+     },
+     "AP": 0.8645
+    },
+    "contrast@beyond": {
+     "0.30": {
+      "P": 0.9094,
+      "R": 0.8287,
+      "F1": 0.8672,
+      "tp": 271,
+      "fp": 27,
+      "fn": 56
+     },
+     "0.55": {
+      "P": 0.9609,
+      "R": 0.7523,
+      "F1": 0.8439,
+      "tp": 246,
+      "fp": 10,
+      "fn": 81
+     },
+     "AP": 0.8668
+    },
+    "saturation@gopro": {
+     "0.30": {
+      "P": 0.9113,
+      "R": 0.8165,
+      "F1": 0.8613,
+      "tp": 267,
+      "fp": 26,
+      "fn": 60
+     },
+     "0.55": {
+      "P": 0.9764,
+      "R": 0.7584,
+      "F1": 0.8537,
+      "tp": 248,
+      "fp": 6,
+      "fn": 79
+     },
+     "AP": 0.8677
+    },
+    "saturation@beyond": {
+     "0.30": {
+      "P": 0.921,
+      "R": 0.8196,
+      "F1": 0.8673,
+      "tp": 268,
+      "fp": 23,
+      "fn": 59
+     },
+     "0.55": {
+      "P": 0.9763,
+      "R": 0.7554,
+      "F1": 0.8517,
+      "tp": 247,
+      "fp": 6,
+      "fn": 80
+     },
+     "AP": 0.8649
+    },
+    "gamma@gopro": {
+     "0.30": {
+      "P": 0.9308,
+      "R": 0.8226,
+      "F1": 0.8734,
+      "tp": 269,
+      "fp": 20,
+      "fn": 58
+     },
+     "0.55": {
+      "P": 0.9679,
+      "R": 0.737,
+      "F1": 0.8368,
+      "tp": 241,
+      "fp": 8,
+      "fn": 86
+     },
+     "AP": 0.8563
+    },
+    "gamma@beyond": {
+     "0.30": {
+      "P": 0.9431,
+      "R": 0.8104,
+      "F1": 0.8717,
+      "tp": 265,
+      "fp": 16,
+      "fn": 62
+     },
+     "0.55": {
+      "P": 0.9697,
+      "R": 0.685,
+      "F1": 0.8029,
+      "tp": 224,
+      "fp": 7,
+      "fn": 103
+     },
+     "AP": 0.8586
+    },
+    "wb@gopro": {
+     "0.30": {
+      "P": 0.9153,
+      "R": 0.8257,
+      "F1": 0.8682,
+      "tp": 270,
+      "fp": 25,
+      "fn": 57
+     },
+     "0.55": {
+      "P": 0.9763,
+      "R": 0.7554,
+      "F1": 0.8517,
+      "tp": 247,
+      "fp": 6,
+      "fn": 80
+     },
+     "AP": 0.8638
+    },
+    "wb@beyond": {
+     "0.30": {
+      "P": 0.9181,
+      "R": 0.8226,
+      "F1": 0.8677,
+      "tp": 269,
+      "fp": 24,
+      "fn": 58
+     },
+     "0.55": {
+      "P": 0.9679,
+      "R": 0.737,
+      "F1": 0.8368,
+      "tp": 241,
+      "fp": 8,
+      "fn": 86
+     },
+     "AP": 0.8639
+    },
+    "noise@gopro": {
+     "0.30": {
+      "P": 0.9144,
+      "R": 0.8165,
+      "F1": 0.8627,
+      "tp": 267,
+      "fp": 25,
+      "fn": 60
+     },
+     "0.55": {
+      "P": 0.9677,
+      "R": 0.7339,
+      "F1": 0.8348,
+      "tp": 240,
+      "fp": 8,
+      "fn": 87
+     },
+     "AP": 0.8672
+    },
+    "noise@beyond": {
+     "0.30": {
+      "P": 0.9286,
+      "R": 0.7951,
+      "F1": 0.8567,
+      "tp": 260,
+      "fp": 20,
+      "fn": 67
+     },
+     "0.55": {
+      "P": 0.969,
+      "R": 0.6697,
+      "F1": 0.792,
+      "tp": 219,
+      "fp": 7,
+      "fn": 108
+     },
+     "AP": 0.8545
+    },
+    "jpeg@gopro": {
+     "0.30": {
+      "P": 0.9141,
+      "R": 0.8135,
+      "F1": 0.8608,
+      "tp": 266,
+      "fp": 25,
+      "fn": 61
+     },
+     "0.55": {
+      "P": 0.9585,
+      "R": 0.7064,
+      "F1": 0.8134,
+      "tp": 231,
+      "fp": 10,
+      "fn": 96
+     },
+     "AP": 0.8488
+    },
+    "jpeg@beyond": {
+     "0.30": {
+      "P": 0.9173,
+      "R": 0.7798,
+      "F1": 0.843,
+      "tp": 255,
+      "fp": 23,
+      "fn": 72
+     },
+     "0.55": {
+      "P": 0.9609,
+      "R": 0.6758,
+      "F1": 0.7935,
+      "tp": 221,
+      "fp": 9,
+      "fn": 106
+     },
+     "AP": 0.8298
+    },
+    "all@gopro": {
+     "0.30": {
+      "P": 0.9694,
+      "R": 0.581,
+      "F1": 0.7266,
+      "tp": 190,
+      "fp": 6,
+      "fn": 137
+     },
+     "0.55": {
+      "P": 0.9792,
+      "R": 0.4312,
+      "F1": 0.5987,
+      "tp": 141,
+      "fp": 3,
+      "fn": 186
+     },
+     "AP": 0.7806
+    },
+    "res_all@gopro": {
+     "0.30": {
+      "P": 0.9341,
+      "R": 0.737,
+      "F1": 0.8239,
+      "tp": 241,
+      "fp": 17,
+      "fn": 86
+     },
+     "0.55": {
+      "P": 0.9707,
+      "R": 0.6086,
+      "F1": 0.7481,
+      "tp": 199,
+      "fp": 6,
+      "fn": 128
+     },
+     "AP": 0.8147
+    },
+    "photo_brightness@gopro": {
+     "0.30": {
+      "P": 0.9283,
+      "R": 0.8318,
+      "F1": 0.8774,
+      "tp": 272,
+      "fp": 21,
+      "fn": 55
+     },
+     "0.55": {
+      "P": 0.9675,
+      "R": 0.7278,
+      "F1": 0.8307,
+      "tp": 238,
+      "fp": 8,
+      "fn": 89
+     },
+     "AP": 0.864
+    },
+    "photo_gamma@gopro": {
+     "0.30": {
+      "P": 0.9336,
+      "R": 0.8165,
+      "F1": 0.8711,
+      "tp": 267,
+      "fp": 19,
+      "fn": 60
+     },
+     "0.55": {
+      "P": 0.9708,
+      "R": 0.7125,
+      "F1": 0.8219,
+      "tp": 233,
+      "fp": 7,
+      "fn": 94
+     },
+     "AP": 0.8589
+    },
+    "all_brightness@gopro": {
+     "0.30": {
+      "P": 0.9405,
+      "R": 0.7248,
+      "F1": 0.8187,
+      "tp": 237,
+      "fp": 15,
+      "fn": 90
+     },
+     "0.55": {
+      "P": 0.9742,
+      "R": 0.578,
+      "F1": 0.7255,
+      "tp": 189,
+      "fp": 5,
+      "fn": 138
+     },
+     "AP": 0.8139
+    }
+   },
+   "vs_none": {
+    "downscale@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0086,
+       "ci_lo": -0.0214,
+       "ci_hi": 0.0033
+      },
+      "recall": {
+       "observed": -0.0245,
+       "ci_lo": -0.0445,
+       "ci_hi": -0.009
+      },
+      "f1": {
+       "observed": -0.0175,
+       "ci_lo": -0.0318,
+       "ci_hi": -0.0055
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0022,
+       "ci_lo": -0.0137,
+       "ci_hi": 0.0187
+      },
+      "recall": {
+       "observed": -0.0489,
+       "ci_lo": -0.0808,
+       "ci_hi": -0.0209
+      },
+      "f1": {
+       "observed": -0.0309,
+       "ci_lo": -0.0538,
+       "ci_hi": -0.0126
+      }
+     }
+    },
+    "downscale@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0014,
+       "ci_lo": -0.0214,
+       "ci_hi": 0.0182
+      },
+      "recall": {
+       "observed": -0.0795,
+       "ci_lo": -0.1219,
+       "ci_hi": -0.0439
+      },
+      "f1": {
+       "observed": -0.0465,
+       "ci_lo": -0.0771,
+       "ci_hi": -0.0201
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0079,
+       "ci_lo": -0.0097,
+       "ci_hi": 0.0259
+      },
+      "recall": {
+       "observed": -0.1437,
+       "ci_lo": -0.1861,
+       "ci_hi": -0.1043
+      },
+      "f1": {
+       "observed": -0.0962,
+       "ci_lo": -0.1327,
+       "ci_hi": -0.0673
+      }
+     }
+    },
+    "blur@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0008,
+       "ci_lo": -0.013,
+       "ci_hi": 0.016
+      },
+      "recall": {
+       "observed": -0.0245,
+       "ci_lo": -0.0445,
+       "ci_hi": -0.009
+      },
+      "f1": {
+       "observed": -0.0133,
+       "ci_lo": -0.0281,
+       "ci_hi": -0.001
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0063,
+       "ci_lo": -0.0084,
+       "ci_hi": 0.0221
+      },
+      "recall": {
+       "observed": -0.0489,
+       "ci_lo": -0.0787,
+       "ci_hi": -0.0233
+      },
+      "f1": {
+       "observed": -0.0294,
+       "ci_lo": -0.0499,
+       "ci_hi": -0.0121
+      }
+     }
+    },
+    "blur@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0002,
+       "ci_lo": -0.0214,
+       "ci_hi": 0.0204
+      },
+      "recall": {
+       "observed": -0.0642,
+       "ci_lo": -0.098,
+       "ci_hi": -0.034
+      },
+      "f1": {
+       "observed": -0.0367,
+       "ci_lo": -0.0619,
+       "ci_hi": -0.0145
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0035,
+       "ci_lo": -0.0171,
+       "ci_hi": 0.023
+      },
+      "recall": {
+       "observed": -0.1346,
+       "ci_lo": -0.1797,
+       "ci_hi": -0.0963
+      },
+      "f1": {
+       "observed": -0.0907,
+       "ci_lo": -0.1278,
+       "ci_hi": -0.0618
+      }
+     }
+    },
+    "brightness@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0068,
+       "ci_lo": -0.0223,
+       "ci_hi": 0.0077
+      },
+      "recall": {
+       "observed": -0.0061,
+       "ci_lo": -0.0181,
+       "ci_hi": 0.0056
+      },
+      "f1": {
+       "observed": -0.0064,
+       "ci_lo": -0.0166,
+       "ci_hi": 0.0027
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0004,
+       "ci_lo": -0.0013,
+       "ci_hi": 0.0001
+      },
+      "recall": {
+       "observed": -0.0122,
+       "ci_lo": -0.032,
+       "ci_hi": 0.003
+      },
+      "f1": {
+       "observed": -0.0079,
+       "ci_lo": -0.0205,
+       "ci_hi": 0.0019
+      }
+     }
+    },
+    "brightness@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0054,
+       "ci_lo": -0.0095,
+       "ci_hi": 0.0214
+      },
+      "recall": {
+       "observed": -0.0092,
+       "ci_lo": -0.0222,
+       "ci_hi": 0.0032
+      },
+      "f1": {
+       "observed": -0.0027,
+       "ci_lo": -0.014,
+       "ci_hi": 0.0083
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0031,
+       "ci_lo": -0.0016,
+       "ci_hi": 0.0115
+      },
+      "recall": {
+       "observed": -0.0245,
+       "ci_lo": -0.0491,
+       "ci_hi": -0.0031
+      },
+      "f1": {
+       "observed": -0.0145,
+       "ci_lo": -0.0313,
+       "ci_hi": -0.0004
+      }
+     }
+    },
+    "contrast@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0031,
+       "ci_lo": -0.0148,
+       "ci_hi": 0.0074
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0118,
+       "ci_hi": 0.0122
+      },
+      "f1": {
+       "observed": -0.0014,
+       "ci_lo": -0.0116,
+       "ci_hi": 0.0079
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.004,
+       "ci_lo": -0.0168,
+       "ci_hi": 0.008
+      },
+      "recall": {
+       "observed": -0.0061,
+       "ci_lo": -0.0189,
+       "ci_hi": 0.0056
+      },
+      "f1": {
+       "observed": -0.0054,
+       "ci_lo": -0.015,
+       "ci_hi": 0.0031
+      }
+     }
+    },
+    "contrast@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0061,
+       "ci_lo": -0.02,
+       "ci_hi": 0.0061
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0141,
+       "ci_hi": 0.0153
+      },
+      "f1": {
+       "observed": -0.0028,
+       "ci_lo": -0.0143,
+       "ci_hi": 0.0082
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0117,
+       "ci_lo": -0.0318,
+       "ci_hi": 0.0064
+      },
+      "recall": {
+       "observed": -0.0092,
+       "ci_lo": -0.0208,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0103,
+       "ci_lo": -0.0209,
+       "ci_hi": -0.0012
+      }
+     }
+    },
+    "saturation@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0043,
+       "ci_lo": -0.016,
+       "ci_hi": 0.0054
+      },
+      "recall": {
+       "observed": -0.0122,
+       "ci_lo": -0.0249,
+       "ci_hi": -0.0029
+      },
+      "f1": {
+       "observed": -0.0087,
+       "ci_lo": -0.0181,
+       "ci_hi": -0.0018
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0037,
+       "ci_lo": -0.0003,
+       "ci_hi": 0.0119
+      },
+      "recall": {
+       "observed": -0.0031,
+       "ci_lo": -0.0101,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0005,
+       "ci_lo": -0.006,
+       "ci_hi": 0.004
+      }
+     }
+    },
+    "saturation@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0054,
+       "ci_lo": -0.0097,
+       "ci_hi": 0.0209
+      },
+      "recall": {
+       "observed": -0.0092,
+       "ci_lo": -0.0227,
+       "ci_hi": 0.0032
+      },
+      "f1": {
+       "observed": -0.0027,
+       "ci_lo": -0.0137,
+       "ci_hi": 0.0078
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0036,
+       "ci_lo": -0.0006,
+       "ci_hi": 0.0119
+      },
+      "recall": {
+       "observed": -0.0061,
+       "ci_lo": -0.021,
+       "ci_hi": 0.009
+      },
+      "f1": {
+       "observed": -0.0025,
+       "ci_lo": -0.0127,
+       "ci_hi": 0.0081
+      }
+     }
+    },
+    "gamma@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0153,
+       "ci_lo": -0.0025,
+       "ci_hi": 0.0337
+      },
+      "recall": {
+       "observed": -0.0061,
+       "ci_lo": -0.0207,
+       "ci_hi": 0.0085
+      },
+      "f1": {
+       "observed": 0.0034,
+       "ci_lo": -0.0101,
+       "ci_hi": 0.0165
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0048,
+       "ci_lo": -0.0185,
+       "ci_hi": 0.0079
+      },
+      "recall": {
+       "observed": -0.0245,
+       "ci_lo": -0.0488,
+       "ci_hi": -0.003
+      },
+      "f1": {
+       "observed": -0.0174,
+       "ci_lo": -0.0354,
+       "ci_hi": -0.0014
+      }
+     }
+    },
+    "gamma@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0275,
+       "ci_lo": 0.0045,
+       "ci_hi": 0.0516
+      },
+      "recall": {
+       "observed": -0.0183,
+       "ci_lo": -0.038,
+       "ci_hi": -0.0028
+      },
+      "f1": {
+       "observed": 0.0017,
+       "ci_lo": -0.0135,
+       "ci_hi": 0.0167
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.003,
+       "ci_lo": -0.0229,
+       "ci_hi": 0.0169
+      },
+      "recall": {
+       "observed": -0.0765,
+       "ci_lo": -0.1145,
+       "ci_hi": -0.0419
+      },
+      "f1": {
+       "observed": -0.0513,
+       "ci_lo": -0.0801,
+       "ci_hi": -0.0262
+      }
+     }
+    },
+    "wb@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0003,
+       "ci_lo": -0.0154,
+       "ci_hi": 0.0142
+      },
+      "recall": {
+       "observed": -0.0031,
+       "ci_lo": -0.0131,
+       "ci_hi": 0.0069
+      },
+      "f1": {
+       "observed": -0.0018,
+       "ci_lo": -0.0097,
+       "ci_hi": 0.0066
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0036,
+       "ci_lo": -0.0082,
+       "ci_hi": 0.0164
+      },
+      "recall": {
+       "observed": -0.0061,
+       "ci_lo": -0.0254,
+       "ci_hi": 0.0121
+      },
+      "f1": {
+       "observed": -0.0025,
+       "ci_lo": -0.0137,
+       "ci_hi": 0.0073
+      }
+     }
+    },
+    "wb@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0025,
+       "ci_lo": -0.0159,
+       "ci_hi": 0.0212
+      },
+      "recall": {
+       "observed": -0.0061,
+       "ci_lo": -0.0211,
+       "ci_hi": 0.0091
+      },
+      "f1": {
+       "observed": -0.0022,
+       "ci_lo": -0.0133,
+       "ci_hi": 0.0095
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0048,
+       "ci_lo": -0.0256,
+       "ci_hi": 0.0134
+      },
+      "recall": {
+       "observed": -0.0245,
+       "ci_lo": -0.0478,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0174,
+       "ci_lo": -0.0325,
+       "ci_hi": -0.0038
+      }
+     }
+    },
+    "noise@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0012,
+       "ci_lo": -0.0167,
+       "ci_hi": 0.0141
+      },
+      "recall": {
+       "observed": -0.0122,
+       "ci_lo": -0.0331,
+       "ci_hi": 0.0065
+      },
+      "f1": {
+       "observed": -0.0073,
+       "ci_lo": -0.0232,
+       "ci_hi": 0.0066
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0049,
+       "ci_lo": -0.0193,
+       "ci_hi": 0.0072
+      },
+      "recall": {
+       "observed": -0.0275,
+       "ci_lo": -0.0506,
+       "ci_hi": -0.0061
+      },
+      "f1": {
+       "observed": -0.0194,
+       "ci_lo": -0.0362,
+       "ci_hi": -0.0037
+      }
+     }
+    },
+    "noise@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.013,
+       "ci_lo": -0.005,
+       "ci_hi": 0.0338
+      },
+      "recall": {
+       "observed": -0.0336,
+       "ci_lo": -0.0604,
+       "ci_hi": -0.0093
+      },
+      "f1": {
+       "observed": -0.0133,
+       "ci_lo": -0.0322,
+       "ci_hi": 0.0051
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0036,
+       "ci_lo": -0.0255,
+       "ci_hi": 0.019
+      },
+      "recall": {
+       "observed": -0.0917,
+       "ci_lo": -0.1329,
+       "ci_hi": -0.0557
+      },
+      "f1": {
+       "observed": -0.0622,
+       "ci_lo": -0.0934,
+       "ci_hi": -0.0352
+      }
+     }
+    },
+    "jpeg@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0015,
+       "ci_lo": -0.0199,
+       "ci_hi": 0.0199
+      },
+      "recall": {
+       "observed": -0.0153,
+       "ci_lo": -0.0371,
+       "ci_hi": 0.0034
+      },
+      "f1": {
+       "observed": -0.0091,
+       "ci_lo": -0.0255,
+       "ci_hi": 0.006
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0142,
+       "ci_lo": -0.0309,
+       "ci_hi": 0.0025
+      },
+      "recall": {
+       "observed": -0.055,
+       "ci_lo": -0.0871,
+       "ci_hi": -0.0248
+      },
+      "f1": {
+       "observed": -0.0408,
+       "ci_lo": -0.0639,
+       "ci_hi": -0.0195
+      }
+     }
+    },
+    "jpeg@beyond": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0017,
+       "ci_lo": -0.018,
+       "ci_hi": 0.0236
+      },
+      "recall": {
+       "observed": -0.0489,
+       "ci_lo": -0.0767,
+       "ci_hi": -0.0228
+      },
+      "f1": {
+       "observed": -0.027,
+       "ci_lo": -0.0479,
+       "ci_hi": -0.0075
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0118,
+       "ci_lo": -0.0396,
+       "ci_hi": 0.0144
+      },
+      "recall": {
+       "observed": -0.0856,
+       "ci_lo": -0.1214,
+       "ci_hi": -0.0515
+      },
+      "f1": {
+       "observed": -0.0607,
+       "ci_lo": -0.0893,
+       "ci_hi": -0.0339
+      }
+     }
+    },
+    "all@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0538,
+       "ci_lo": 0.0272,
+       "ci_hi": 0.0822
+      },
+      "recall": {
+       "observed": -0.2477,
+       "ci_lo": -0.3045,
+       "ci_hi": -0.1981
+      },
+      "f1": {
+       "observed": -0.1434,
+       "ci_lo": -0.1954,
+       "ci_hi": -0.1028
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0065,
+       "ci_lo": -0.0175,
+       "ci_hi": 0.0293
+      },
+      "recall": {
+       "observed": -0.3303,
+       "ci_lo": -0.386,
+       "ci_hi": -0.277
+      },
+      "f1": {
+       "observed": -0.2555,
+       "ci_lo": -0.3113,
+       "ci_hi": -0.2062
+      }
+     }
+    },
+    "res_all@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0186,
+       "ci_lo": -0.0065,
+       "ci_hi": 0.0462
+      },
+      "recall": {
+       "observed": -0.0917,
+       "ci_lo": -0.1242,
+       "ci_hi": -0.06
+      },
+      "f1": {
+       "observed": -0.0461,
+       "ci_lo": -0.0733,
+       "ci_hi": -0.0212
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0019,
+       "ci_lo": -0.0208,
+       "ci_hi": 0.0156
+      },
+      "recall": {
+       "observed": -0.1529,
+       "ci_lo": -0.1994,
+       "ci_hi": -0.1108
+      },
+      "f1": {
+       "observed": -0.1061,
+       "ci_lo": -0.1448,
+       "ci_hi": -0.0743
+      }
+     }
+    },
+    "photo_brightness@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0128,
+       "ci_lo": -0.0061,
+       "ci_hi": 0.0327
+      },
+      "recall": {
+       "observed": 0.0031,
+       "ci_lo": -0.0098,
+       "ci_hi": 0.0169
+      },
+      "f1": {
+       "observed": 0.0074,
+       "ci_lo": -0.0047,
+       "ci_hi": 0.0196
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0052,
+       "ci_lo": -0.0133,
+       "ci_hi": -0.0005
+      },
+      "recall": {
+       "observed": -0.0336,
+       "ci_lo": -0.0641,
+       "ci_hi": -0.0068
+      },
+      "f1": {
+       "observed": -0.0235,
+       "ci_lo": -0.0445,
+       "ci_hi": -0.0062
+      }
+     }
+    },
+    "photo_gamma@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.018,
+       "ci_lo": -0.0007,
+       "ci_hi": 0.0383
+      },
+      "recall": {
+       "observed": -0.0122,
+       "ci_lo": -0.0301,
+       "ci_hi": 0.0033
+      },
+      "f1": {
+       "observed": 0.0011,
+       "ci_lo": -0.0127,
+       "ci_hi": 0.0146
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0018,
+       "ci_lo": -0.0218,
+       "ci_hi": 0.0166
+      },
+      "recall": {
+       "observed": -0.0489,
+       "ci_lo": -0.0838,
+       "ci_hi": -0.0181
+      },
+      "f1": {
+       "observed": -0.0323,
+       "ci_lo": -0.0577,
+       "ci_hi": -0.0101
+      }
+     }
+    },
+    "all_brightness@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0249,
+       "ci_lo": -0.0005,
+       "ci_hi": 0.0523
+      },
+      "recall": {
+       "observed": -0.104,
+       "ci_lo": -0.1433,
+       "ci_hi": -0.0687
+      },
+      "f1": {
+       "observed": -0.0513,
+       "ci_lo": -0.0827,
+       "ci_hi": -0.0245
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0016,
+       "ci_lo": -0.0226,
+       "ci_hi": 0.0216
+      },
+      "recall": {
+       "observed": -0.1835,
+       "ci_lo": -0.2341,
+       "ci_hi": -0.1402
+      },
+      "f1": {
+       "observed": -0.1287,
+       "ci_lo": -0.1704,
+       "ci_hi": -0.0946
+      }
+     }
+    }
+   }
+  },
+  "richmond": {
+   "metrics": {
+    "none": {
+     "0.30": {
+      "P": 0.8927,
+      "R": 0.8323,
+      "F1": 0.8614,
+      "tp": 258,
+      "fp": 31,
+      "fn": 52
+     },
+     "0.55": {
+      "P": 0.956,
+      "R": 0.771,
+      "F1": 0.8536,
+      "tp": 239,
+      "fp": 11,
+      "fn": 71
+     },
+     "AP": 0.8765
+    },
+    "colour_match@0.5": {
+     "0.30": {
+      "P": 0.8824,
+      "R": 0.8226,
+      "F1": 0.8514,
+      "tp": 255,
+      "fp": 34,
+      "fn": 55
+     },
+     "0.55": {
+      "P": 0.9631,
+      "R": 0.7581,
+      "F1": 0.8484,
+      "tp": 235,
+      "fp": 9,
+      "fn": 75
+     },
+     "AP": 0.867
+    },
+    "colour_match@1": {
+     "0.30": {
+      "P": 0.885,
+      "R": 0.8194,
+      "F1": 0.8509,
+      "tp": 254,
+      "fp": 33,
+      "fn": 56
+     },
+     "0.55": {
+      "P": 0.97,
+      "R": 0.729,
+      "F1": 0.8324,
+      "tp": 226,
+      "fp": 7,
+      "fn": 84
+     },
+     "AP": 0.8584
+    },
+    "unsharp@50": {
+     "0.30": {
+      "P": 0.885,
+      "R": 0.8194,
+      "F1": 0.8509,
+      "tp": 254,
+      "fp": 33,
+      "fn": 56
+     },
+     "0.55": {
+      "P": 0.959,
+      "R": 0.7548,
+      "F1": 0.8448,
+      "tp": 234,
+      "fp": 10,
+      "fn": 76
+     },
+     "AP": 0.8696
+    },
+    "unsharp@100": {
+     "0.30": {
+      "P": 0.8797,
+      "R": 0.8258,
+      "F1": 0.8519,
+      "tp": 256,
+      "fp": 35,
+      "fn": 54
+     },
+     "0.55": {
+      "P": 0.963,
+      "R": 0.7548,
+      "F1": 0.8463,
+      "tp": 234,
+      "fp": 9,
+      "fn": 76
+     },
+     "AP": 0.8741
+    },
+    "clahe@0.01": {
+     "0.30": {
+      "P": 0.8832,
+      "R": 0.829,
+      "F1": 0.8552,
+      "tp": 257,
+      "fp": 34,
+      "fn": 53
+     },
+     "0.55": {
+      "P": 0.9714,
+      "R": 0.7677,
+      "F1": 0.8577,
+      "tp": 238,
+      "fp": 7,
+      "fn": 72
+     },
+     "AP": 0.8732
+    },
+    "clahe@0.02": {
+     "0.30": {
+      "P": 0.8801,
+      "R": 0.829,
+      "F1": 0.8538,
+      "tp": 257,
+      "fp": 35,
+      "fn": 53
+     },
+     "0.55": {
+      "P": 0.963,
+      "R": 0.7548,
+      "F1": 0.8463,
+      "tp": 234,
+      "fp": 9,
+      "fn": 76
+     },
+     "AP": 0.8692
+    },
+    "repair_all": {
+     "0.30": {
+      "P": 0.866,
+      "R": 0.8129,
+      "F1": 0.8386,
+      "tp": 252,
+      "fp": 39,
+      "fn": 58
+     },
+     "0.55": {
+      "P": 0.9737,
+      "R": 0.7161,
+      "F1": 0.8253,
+      "tp": 222,
+      "fp": 6,
+      "fn": 88
+     },
+     "AP": 0.8594
+    }
+   },
+   "vs_none": {
+    "colour_match@0.5": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0104,
+       "ci_lo": -0.0293,
+       "ci_hi": 0.0075
+      },
+      "recall": {
+       "observed": -0.0097,
+       "ci_lo": -0.021,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.01,
+       "ci_lo": -0.0207,
+       "ci_hi": 0.0004
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0071,
+       "ci_lo": -0.0009,
+       "ci_hi": 0.02
+      },
+      "recall": {
+       "observed": -0.0129,
+       "ci_lo": -0.0301,
+       "ci_hi": 0.0001
+      },
+      "f1": {
+       "observed": -0.0052,
+       "ci_lo": -0.0168,
+       "ci_hi": 0.0052
+      }
+     }
+    },
+    "colour_match@1": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0077,
+       "ci_lo": -0.0347,
+       "ci_hi": 0.0178
+      },
+      "recall": {
+       "observed": -0.0129,
+       "ci_lo": -0.0286,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0105,
+       "ci_lo": -0.0252,
+       "ci_hi": 0.003
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.014,
+       "ci_lo": 0.0007,
+       "ci_hi": 0.0315
+      },
+      "recall": {
+       "observed": -0.0419,
+       "ci_lo": -0.0704,
+       "ci_hi": -0.0181
+      },
+      "f1": {
+       "observed": -0.0212,
+       "ci_lo": -0.0405,
+       "ci_hi": -0.0041
+      }
+     }
+    },
+    "unsharp@50": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0077,
+       "ci_lo": -0.0283,
+       "ci_hi": 0.0117
+      },
+      "recall": {
+       "observed": -0.0129,
+       "ci_lo": -0.026,
+       "ci_hi": -0.003
+      },
+      "f1": {
+       "observed": -0.0105,
+       "ci_lo": -0.0224,
+       "ci_hi": 0.0014
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.003,
+       "ci_lo": -0.0017,
+       "ci_hi": 0.0124
+      },
+      "recall": {
+       "observed": -0.0161,
+       "ci_lo": -0.0348,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0088,
+       "ci_lo": -0.0212,
+       "ci_hi": 0.0015
+      }
+     }
+    },
+    "unsharp@100": {
+     "0.30": {
+      "precision": {
+       "observed": -0.013,
+       "ci_lo": -0.0389,
+       "ci_hi": 0.0103
+      },
+      "recall": {
+       "observed": -0.0065,
+       "ci_lo": -0.0224,
+       "ci_hi": 0.0094
+      },
+      "f1": {
+       "observed": -0.0095,
+       "ci_lo": -0.025,
+       "ci_hi": 0.0053
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.007,
+       "ci_lo": -0.0011,
+       "ci_hi": 0.0199
+      },
+      "recall": {
+       "observed": -0.0161,
+       "ci_lo": -0.0369,
+       "ci_hi": 0.0028
+      },
+      "f1": {
+       "observed": -0.0073,
+       "ci_lo": -0.0208,
+       "ci_hi": 0.005
+      }
+     }
+    },
+    "clahe@0.01": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0096,
+       "ci_lo": -0.0339,
+       "ci_hi": 0.0124
+      },
+      "recall": {
+       "observed": -0.0032,
+       "ci_lo": -0.0179,
+       "ci_hi": 0.0104
+      },
+      "f1": {
+       "observed": -0.0062,
+       "ci_lo": -0.0206,
+       "ci_hi": 0.0075
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0154,
+       "ci_lo": 0.003,
+       "ci_hi": 0.0309
+      },
+      "recall": {
+       "observed": -0.0032,
+       "ci_lo": -0.0244,
+       "ci_hi": 0.0142
+      },
+      "f1": {
+       "observed": 0.0041,
+       "ci_lo": -0.011,
+       "ci_hi": 0.017
+      }
+     }
+    },
+    "clahe@0.02": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0126,
+       "ci_lo": -0.0436,
+       "ci_hi": 0.0155
+      },
+      "recall": {
+       "observed": -0.0032,
+       "ci_lo": -0.0256,
+       "ci_hi": 0.0177
+      },
+      "f1": {
+       "observed": -0.0076,
+       "ci_lo": -0.0273,
+       "ci_hi": 0.0107
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.007,
+       "ci_lo": -0.015,
+       "ci_hi": 0.0283
+      },
+      "recall": {
+       "observed": -0.0161,
+       "ci_lo": -0.0394,
+       "ci_hi": 0.006
+      },
+      "f1": {
+       "observed": -0.0073,
+       "ci_lo": -0.0265,
+       "ci_hi": 0.0091
+      }
+     }
+    },
+    "repair_all": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0268,
+       "ci_lo": -0.0611,
+       "ci_hi": 0.006
+      },
+      "recall": {
+       "observed": -0.0194,
+       "ci_lo": -0.0385,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0228,
+       "ci_lo": -0.0426,
+       "ci_hi": -0.0031
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0177,
+       "ci_lo": 0.0024,
+       "ci_hi": 0.0369
+      },
+      "recall": {
+       "observed": -0.0548,
+       "ci_lo": -0.0828,
+       "ci_hi": -0.0307
+      },
+      "f1": {
+       "observed": -0.0283,
+       "ci_lo": -0.049,
+       "ci_hi": -0.0105
+      }
+     }
+    }
+   }
+  },
+  "gainesville": {
+   "metrics": {
+    "none": {
+     "0.30": {
+      "P": 0.8537,
+      "R": 0.7721,
+      "F1": 0.8108,
+      "tp": 210,
+      "fp": 36,
+      "fn": 62
+     },
+     "0.55": {
+      "P": 0.9433,
+      "R": 0.6728,
+      "F1": 0.7854,
+      "tp": 183,
+      "fp": 11,
+      "fn": 89
+     },
+     "AP": 0.8422
+    },
+    "downscale@gopro": {
+     "0.30": {
+      "P": 0.8465,
+      "R": 0.75,
+      "F1": 0.7953,
+      "tp": 204,
+      "fp": 37,
+      "fn": 68
+     },
+     "0.55": {
+      "P": 0.9326,
+      "R": 0.6103,
+      "F1": 0.7378,
+      "tp": 166,
+      "fp": 12,
+      "fn": 106
+     },
+     "AP": 0.8195
+    },
+    "blur@gopro": {
+     "0.30": {
+      "P": 0.8584,
+      "R": 0.7353,
+      "F1": 0.7921,
+      "tp": 200,
+      "fp": 33,
+      "fn": 72
+     },
+     "0.55": {
+      "P": 0.9396,
+      "R": 0.6287,
+      "F1": 0.7533,
+      "tp": 171,
+      "fp": 11,
+      "fn": 101
+     },
+     "AP": 0.8144
+    },
+    "brightness@gopro": {
+     "0.30": {
+      "P": 0.8667,
+      "R": 0.7647,
+      "F1": 0.8125,
+      "tp": 208,
+      "fp": 32,
+      "fn": 64
+     },
+     "0.55": {
+      "P": 0.9459,
+      "R": 0.6434,
+      "F1": 0.7659,
+      "tp": 175,
+      "fp": 10,
+      "fn": 97
+     },
+     "AP": 0.8425
+    },
+    "contrast@gopro": {
+     "0.30": {
+      "P": 0.8577,
+      "R": 0.7757,
+      "F1": 0.8147,
+      "tp": 211,
+      "fp": 35,
+      "fn": 61
+     },
+     "0.55": {
+      "P": 0.9418,
+      "R": 0.6544,
+      "F1": 0.7722,
+      "tp": 178,
+      "fp": 11,
+      "fn": 94
+     },
+     "AP": 0.8392
+    },
+    "saturation@gopro": {
+     "0.30": {
+      "P": 0.8618,
+      "R": 0.7794,
+      "F1": 0.8185,
+      "tp": 212,
+      "fp": 34,
+      "fn": 60
+     },
+     "0.55": {
+      "P": 0.9482,
+      "R": 0.6728,
+      "F1": 0.7871,
+      "tp": 183,
+      "fp": 10,
+      "fn": 89
+     },
+     "AP": 0.8442
+    },
+    "gamma@gopro": {
+     "0.30": {
+      "P": 0.8686,
+      "R": 0.7537,
+      "F1": 0.8071,
+      "tp": 205,
+      "fp": 31,
+      "fn": 67
+     },
+     "0.55": {
+      "P": 0.9553,
+      "R": 0.6287,
+      "F1": 0.7583,
+      "tp": 171,
+      "fp": 8,
+      "fn": 101
+     },
+     "AP": 0.8328
+    },
+    "wb@gopro": {
+     "0.30": {
+      "P": 0.8607,
+      "R": 0.7721,
+      "F1": 0.814,
+      "tp": 210,
+      "fp": 34,
+      "fn": 62
+     },
+     "0.55": {
+      "P": 0.9471,
+      "R": 0.6581,
+      "F1": 0.7766,
+      "tp": 179,
+      "fp": 10,
+      "fn": 93
+     },
+     "AP": 0.8421
+    },
+    "noise@gopro": {
+     "0.30": {
+      "P": 0.8468,
+      "R": 0.7721,
+      "F1": 0.8077,
+      "tp": 210,
+      "fp": 38,
+      "fn": 62
+     },
+     "0.55": {
+      "P": 0.9468,
+      "R": 0.6544,
+      "F1": 0.7739,
+      "tp": 178,
+      "fp": 10,
+      "fn": 94
+     },
+     "AP": 0.8385
+    },
+    "jpeg@gopro": {
+     "0.30": {
+      "P": 0.8135,
+      "R": 0.7537,
+      "F1": 0.7824,
+      "tp": 205,
+      "fp": 47,
+      "fn": 67
+     },
+     "0.55": {
+      "P": 0.9091,
+      "R": 0.625,
+      "F1": 0.7407,
+      "tp": 170,
+      "fp": 17,
+      "fn": 102
+     },
+     "AP": 0.8137
+    },
+    "all@gopro": {
+     "0.30": {
+      "P": 0.8994,
+      "R": 0.5588,
+      "F1": 0.6893,
+      "tp": 152,
+      "fp": 17,
+      "fn": 120
+     },
+     "0.55": {
+      "P": 0.9588,
+      "R": 0.3419,
+      "F1": 0.5041,
+      "tp": 93,
+      "fp": 4,
+      "fn": 179
+     },
+     "AP": 0.7054
+    }
+   },
+   "vs_none": {
+    "downscale@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0072,
+       "ci_lo": -0.0347,
+       "ci_hi": 0.0198
+      },
+      "recall": {
+       "observed": -0.0221,
+       "ci_lo": -0.0437,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0155,
+       "ci_lo": -0.0342,
+       "ci_hi": 0.0017
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0107,
+       "ci_lo": -0.0446,
+       "ci_hi": 0.0175
+      },
+      "recall": {
+       "observed": -0.0625,
+       "ci_lo": -0.0909,
+       "ci_hi": -0.037
+      },
+      "f1": {
+       "observed": -0.0476,
+       "ci_lo": -0.0707,
+       "ci_hi": -0.0259
+      }
+     }
+    },
+    "blur@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0047,
+       "ci_lo": -0.0172,
+       "ci_hi": 0.0264
+      },
+      "recall": {
+       "observed": -0.0368,
+       "ci_lo": -0.063,
+       "ci_hi": -0.0115
+      },
+      "f1": {
+       "observed": -0.0187,
+       "ci_lo": -0.0384,
+       "ci_hi": 0.0002
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0037,
+       "ci_lo": -0.0358,
+       "ci_hi": 0.0228
+      },
+      "recall": {
+       "observed": -0.0441,
+       "ci_lo": -0.0743,
+       "ci_hi": -0.0169
+      },
+      "f1": {
+       "observed": -0.0321,
+       "ci_lo": -0.056,
+       "ci_hi": -0.0109
+      }
+     }
+    },
+    "brightness@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.013,
+       "ci_lo": 0.0012,
+       "ci_hi": 0.0276
+      },
+      "recall": {
+       "observed": -0.0074,
+       "ci_lo": -0.0231,
+       "ci_hi": 0.0071
+      },
+      "f1": {
+       "observed": 0.0017,
+       "ci_lo": -0.0105,
+       "ci_hi": 0.0122
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0026,
+       "ci_lo": -0.0044,
+       "ci_hi": 0.0142
+      },
+      "recall": {
+       "observed": -0.0294,
+       "ci_lo": -0.0512,
+       "ci_hi": -0.0098
+      },
+      "f1": {
+       "observed": -0.0195,
+       "ci_lo": -0.0361,
+       "ci_hi": -0.0039
+      }
+     }
+    },
+    "contrast@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0041,
+       "ci_lo": -0.0071,
+       "ci_hi": 0.0179
+      },
+      "recall": {
+       "observed": 0.0037,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0122
+      },
+      "f1": {
+       "observed": 0.0039,
+       "ci_lo": -0.0028,
+       "ci_hi": 0.0117
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0015,
+       "ci_lo": -0.0168,
+       "ci_hi": 0.0134
+      },
+      "recall": {
+       "observed": -0.0184,
+       "ci_lo": -0.0426,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0132,
+       "ci_lo": -0.0314,
+       "ci_hi": 0.0012
+      }
+     }
+    },
+    "saturation@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0081,
+       "ci_lo": 0.0005,
+       "ci_hi": 0.019
+      },
+      "recall": {
+       "observed": 0.0074,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0191
+      },
+      "f1": {
+       "observed": 0.0077,
+       "ci_lo": 0.0015,
+       "ci_hi": 0.0163
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0049,
+       "ci_lo": -0.0112,
+       "ci_hi": 0.022
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0176,
+       "ci_hi": 0.0182
+      },
+      "f1": {
+       "observed": 0.0017,
+       "ci_lo": -0.0122,
+       "ci_hi": 0.0155
+      }
+     }
+    },
+    "gamma@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.015,
+       "ci_lo": -0.0054,
+       "ci_hi": 0.037
+      },
+      "recall": {
+       "observed": -0.0184,
+       "ci_lo": -0.0453,
+       "ci_hi": 0.0071
+      },
+      "f1": {
+       "observed": -0.0037,
+       "ci_lo": -0.0231,
+       "ci_hi": 0.0144
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.012,
+       "ci_lo": -0.0091,
+       "ci_hi": 0.0342
+      },
+      "recall": {
+       "observed": -0.0441,
+       "ci_lo": -0.0706,
+       "ci_hi": -0.0169
+      },
+      "f1": {
+       "observed": -0.0271,
+       "ci_lo": -0.0469,
+       "ci_hi": -0.007
+      }
+     }
+    },
+    "wb@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.007,
+       "ci_lo": -0.0154,
+       "ci_hi": 0.0285
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0148,
+       "ci_hi": 0.0153
+      },
+      "f1": {
+       "observed": 0.0031,
+       "ci_lo": -0.0111,
+       "ci_hi": 0.0167
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0038,
+       "ci_lo": -0.0181,
+       "ci_hi": 0.0257
+      },
+      "recall": {
+       "observed": -0.0147,
+       "ci_lo": -0.042,
+       "ci_hi": 0.0134
+      },
+      "f1": {
+       "observed": -0.0088,
+       "ci_lo": -0.0291,
+       "ci_hi": 0.0114
+      }
+     }
+    },
+    "noise@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0069,
+       "ci_lo": -0.0311,
+       "ci_hi": 0.0158
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0227,
+       "ci_hi": 0.0222
+      },
+      "f1": {
+       "observed": -0.0031,
+       "ci_lo": -0.0205,
+       "ci_hi": 0.0134
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0035,
+       "ci_lo": -0.0187,
+       "ci_hi": 0.0269
+      },
+      "recall": {
+       "observed": -0.0184,
+       "ci_lo": -0.0463,
+       "ci_hi": 0.0078
+      },
+      "f1": {
+       "observed": -0.0115,
+       "ci_lo": -0.0329,
+       "ci_hi": 0.0088
+      }
+     }
+    },
+    "jpeg@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0402,
+       "ci_lo": -0.0743,
+       "ci_hi": -0.0057
+      },
+      "recall": {
+       "observed": -0.0184,
+       "ci_lo": -0.0408,
+       "ci_hi": 0.0041
+      },
+      "f1": {
+       "observed": -0.0284,
+       "ci_lo": -0.0503,
+       "ci_hi": -0.0077
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0342,
+       "ci_lo": -0.0668,
+       "ci_hi": -0.0051
+      },
+      "recall": {
+       "observed": -0.0478,
+       "ci_lo": -0.0856,
+       "ci_hi": -0.0103
+      },
+      "f1": {
+       "observed": -0.0447,
+       "ci_lo": -0.0731,
+       "ci_hi": -0.0148
+      }
+     }
+    },
+    "all@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0457,
+       "ci_lo": -0.0068,
+       "ci_hi": 0.1
+      },
+      "recall": {
+       "observed": -0.2132,
+       "ci_lo": -0.2613,
+       "ci_hi": -0.1692
+      },
+      "f1": {
+       "observed": -0.1215,
+       "ci_lo": -0.1661,
+       "ci_hi": -0.0801
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0155,
+       "ci_lo": -0.0321,
+       "ci_hi": 0.0595
+      },
+      "recall": {
+       "observed": -0.3309,
+       "ci_lo": -0.391,
+       "ci_hi": -0.2685
+      },
+      "f1": {
+       "observed": -0.2813,
+       "ci_lo": -0.3471,
+       "ci_hi": -0.2199
+      }
+     }
+    }
+   }
+  },
+  "paterson": {
+   "metrics": {
+    "none": {
+     "0.30": {
+      "P": 0.947,
+      "R": 0.7241,
+      "F1": 0.8207,
+      "tp": 286,
+      "fp": 16,
+      "fn": 109
+     },
+     "0.55": {
+      "P": 0.9677,
+      "R": 0.6835,
+      "F1": 0.8012,
+      "tp": 270,
+      "fp": 9,
+      "fn": 125
+     },
+     "AP": 0.755
+    },
+    "downscale@gopro": {
+     "0.30": {
+      "P": 0.9583,
+      "R": 0.6987,
+      "F1": 0.8082,
+      "tp": 276,
+      "fp": 12,
+      "fn": 119
+     },
+     "0.55": {
+      "P": 0.9692,
+      "R": 0.638,
+      "F1": 0.7695,
+      "tp": 252,
+      "fp": 8,
+      "fn": 143
+     },
+     "AP": 0.7363
+    },
+    "blur@gopro": {
+     "0.30": {
+      "P": 0.9622,
+      "R": 0.7089,
+      "F1": 0.8163,
+      "tp": 280,
+      "fp": 11,
+      "fn": 115
+     },
+     "0.55": {
+      "P": 0.9768,
+      "R": 0.6405,
+      "F1": 0.7737,
+      "tp": 253,
+      "fp": 6,
+      "fn": 142
+     },
+     "AP": 0.737
+    },
+    "brightness@gopro": {
+     "0.30": {
+      "P": 0.9467,
+      "R": 0.719,
+      "F1": 0.8173,
+      "tp": 284,
+      "fp": 16,
+      "fn": 111
+     },
+     "0.55": {
+      "P": 0.9665,
+      "R": 0.6582,
+      "F1": 0.7831,
+      "tp": 260,
+      "fp": 9,
+      "fn": 135
+     },
+     "AP": 0.7511
+    },
+    "contrast@gopro": {
+     "0.30": {
+      "P": 0.9497,
+      "R": 0.7165,
+      "F1": 0.8167,
+      "tp": 283,
+      "fp": 15,
+      "fn": 112
+     },
+     "0.55": {
+      "P": 0.9674,
+      "R": 0.6759,
+      "F1": 0.7958,
+      "tp": 267,
+      "fp": 9,
+      "fn": 128
+     },
+     "AP": 0.7483
+    },
+    "saturation@gopro": {
+     "0.30": {
+      "P": 0.9465,
+      "R": 0.7165,
+      "F1": 0.8156,
+      "tp": 283,
+      "fp": 16,
+      "fn": 112
+     },
+     "0.55": {
+      "P": 0.9672,
+      "R": 0.6709,
+      "F1": 0.7922,
+      "tp": 265,
+      "fp": 9,
+      "fn": 130
+     },
+     "AP": 0.7473
+    },
+    "gamma@gopro": {
+     "0.30": {
+      "P": 0.9529,
+      "R": 0.7165,
+      "F1": 0.8179,
+      "tp": 283,
+      "fp": 14,
+      "fn": 112
+     },
+     "0.55": {
+      "P": 0.9774,
+      "R": 0.6582,
+      "F1": 0.7867,
+      "tp": 260,
+      "fp": 6,
+      "fn": 135
+     },
+     "AP": 0.7585
+    },
+    "wb@gopro": {
+     "0.30": {
+      "P": 0.9439,
+      "R": 0.7241,
+      "F1": 0.8195,
+      "tp": 286,
+      "fp": 17,
+      "fn": 109
+     },
+     "0.55": {
+      "P": 0.9712,
+      "R": 0.6835,
+      "F1": 0.8024,
+      "tp": 270,
+      "fp": 8,
+      "fn": 125
+     },
+     "AP": 0.752
+    },
+    "noise@gopro": {
+     "0.30": {
+      "P": 0.9402,
+      "R": 0.7165,
+      "F1": 0.8132,
+      "tp": 283,
+      "fp": 18,
+      "fn": 112
+     },
+     "0.55": {
+      "P": 0.9664,
+      "R": 0.6557,
+      "F1": 0.7813,
+      "tp": 259,
+      "fp": 9,
+      "fn": 136
+     },
+     "AP": 0.738
+    },
+    "jpeg@gopro": {
+     "0.30": {
+      "P": 0.9485,
+      "R": 0.6987,
+      "F1": 0.8047,
+      "tp": 276,
+      "fp": 15,
+      "fn": 119
+     },
+     "0.55": {
+      "P": 0.9699,
+      "R": 0.6532,
+      "F1": 0.7806,
+      "tp": 258,
+      "fp": 8,
+      "fn": 137
+     },
+     "AP": 0.733
+    },
+    "all@gopro": {
+     "0.30": {
+      "P": 0.9707,
+      "R": 0.5873,
+      "F1": 0.7319,
+      "tp": 232,
+      "fp": 7,
+      "fn": 163
+     },
+     "0.55": {
+      "P": 0.9902,
+      "R": 0.5139,
+      "F1": 0.6767,
+      "tp": 203,
+      "fp": 2,
+      "fn": 192
+     },
+     "AP": 0.6822
+    }
+   },
+   "vs_none": {
+    "downscale@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0113,
+       "ci_lo": 0.0013,
+       "ci_hi": 0.0247
+      },
+      "recall": {
+       "observed": -0.0253,
+       "ci_lo": -0.0416,
+       "ci_hi": -0.012
+      },
+      "f1": {
+       "observed": -0.0125,
+       "ci_lo": -0.0243,
+       "ci_hi": -0.0025
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0015,
+       "ci_lo": -0.0096,
+       "ci_hi": 0.0148
+      },
+      "recall": {
+       "observed": -0.0456,
+       "ci_lo": -0.0698,
+       "ci_hi": -0.0239
+      },
+      "f1": {
+       "observed": -0.0317,
+       "ci_lo": -0.051,
+       "ci_hi": -0.0157
+      }
+     }
+    },
+    "blur@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0152,
+       "ci_lo": 0.0028,
+       "ci_hi": 0.0297
+      },
+      "recall": {
+       "observed": -0.0152,
+       "ci_lo": -0.0311,
+       "ci_hi": -0.0022
+      },
+      "f1": {
+       "observed": -0.0043,
+       "ci_lo": -0.0161,
+       "ci_hi": 0.0062
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0091,
+       "ci_lo": -0.005,
+       "ci_hi": 0.0247
+      },
+      "recall": {
+       "observed": -0.043,
+       "ci_lo": -0.0652,
+       "ci_hi": -0.0233
+      },
+      "f1": {
+       "observed": -0.0275,
+       "ci_lo": -0.0446,
+       "ci_hi": -0.0116
+      }
+     }
+    },
+    "brightness@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0004,
+       "ci_lo": -0.0012,
+       "ci_hi": 0.0003
+      },
+      "recall": {
+       "observed": -0.0051,
+       "ci_lo": -0.0155,
+       "ci_hi": 0.0048
+      },
+      "f1": {
+       "observed": -0.0034,
+       "ci_lo": -0.0105,
+       "ci_hi": 0.0032
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0012,
+       "ci_lo": -0.0108,
+       "ci_hi": 0.0094
+      },
+      "recall": {
+       "observed": -0.0253,
+       "ci_lo": -0.0434,
+       "ci_hi": -0.0099
+      },
+      "f1": {
+       "observed": -0.0181,
+       "ci_lo": -0.0312,
+       "ci_hi": -0.0065
+      }
+     }
+    },
+    "contrast@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0026,
+       "ci_lo": -0.001,
+       "ci_hi": 0.0092
+      },
+      "recall": {
+       "observed": -0.0076,
+       "ci_lo": -0.0174,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0039,
+       "ci_lo": -0.0111,
+       "ci_hi": 0.0015
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0004,
+       "ci_lo": -0.001,
+       "ci_hi": 0.0001
+      },
+      "recall": {
+       "observed": -0.0076,
+       "ci_lo": -0.0193,
+       "ci_hi": 0.0026
+      },
+      "f1": {
+       "observed": -0.0054,
+       "ci_lo": -0.0136,
+       "ci_hi": 0.0018
+      }
+     }
+    },
+    "saturation@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0005,
+       "ci_lo": -0.0101,
+       "ci_hi": 0.0079
+      },
+      "recall": {
+       "observed": -0.0076,
+       "ci_lo": -0.017,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.0051,
+       "ci_lo": -0.0128,
+       "ci_hi": 0.0007
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0006,
+       "ci_lo": -0.0014,
+       "ci_hi": -0.0001
+      },
+      "recall": {
+       "observed": -0.0127,
+       "ci_lo": -0.0244,
+       "ci_hi": -0.0026
+      },
+      "f1": {
+       "observed": -0.009,
+       "ci_lo": -0.0174,
+       "ci_hi": -0.0019
+      }
+     }
+    },
+    "gamma@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0058,
+       "ci_lo": -0.0062,
+       "ci_hi": 0.0188
+      },
+      "recall": {
+       "observed": -0.0076,
+       "ci_lo": -0.0191,
+       "ci_hi": 0.0026
+      },
+      "f1": {
+       "observed": -0.0027,
+       "ci_lo": -0.0122,
+       "ci_hi": 0.0056
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0097,
+       "ci_lo": -0.0006,
+       "ci_hi": 0.0225
+      },
+      "recall": {
+       "observed": -0.0253,
+       "ci_lo": -0.0421,
+       "ci_hi": -0.0096
+      },
+      "f1": {
+       "observed": -0.0145,
+       "ci_lo": -0.0272,
+       "ci_hi": -0.0022
+      }
+     }
+    },
+    "wb@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0031,
+       "ci_lo": -0.0107,
+       "ci_hi": 0.0005
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0098,
+       "ci_hi": 0.0106
+      },
+      "f1": {
+       "observed": -0.0012,
+       "ci_lo": -0.0081,
+       "ci_hi": 0.0059
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0035,
+       "ci_lo": -0.0074,
+       "ci_hi": 0.0168
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.012,
+       "ci_hi": 0.0132
+      },
+      "f1": {
+       "observed": 0.0012,
+       "ci_lo": -0.0081,
+       "ci_hi": 0.0111
+      }
+     }
+    },
+    "noise@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0068,
+       "ci_lo": -0.0242,
+       "ci_hi": 0.0091
+      },
+      "recall": {
+       "observed": -0.0076,
+       "ci_lo": -0.0208,
+       "ci_hi": 0.005
+      },
+      "f1": {
+       "observed": -0.0074,
+       "ci_lo": -0.0187,
+       "ci_hi": 0.0035
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0013,
+       "ci_lo": -0.0153,
+       "ci_hi": 0.0135
+      },
+      "recall": {
+       "observed": -0.0278,
+       "ci_lo": -0.0463,
+       "ci_hi": -0.0119
+      },
+      "f1": {
+       "observed": -0.0199,
+       "ci_lo": -0.0339,
+       "ci_hi": -0.0067
+      }
+     }
+    },
+    "jpeg@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0014,
+       "ci_lo": -0.0148,
+       "ci_hi": 0.018
+      },
+      "recall": {
+       "observed": -0.0253,
+       "ci_lo": -0.0429,
+       "ci_hi": -0.0105
+      },
+      "f1": {
+       "observed": -0.016,
+       "ci_lo": -0.0295,
+       "ci_hi": -0.0048
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0022,
+       "ci_lo": -0.0091,
+       "ci_hi": 0.0157
+      },
+      "recall": {
+       "observed": -0.0304,
+       "ci_lo": -0.0516,
+       "ci_hi": -0.0106
+      },
+      "f1": {
+       "observed": -0.0206,
+       "ci_lo": -0.0371,
+       "ci_hi": -0.0047
+      }
+     }
+    },
+    "all@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0237,
+       "ci_lo": 0.0063,
+       "ci_hi": 0.0438
+      },
+      "recall": {
+       "observed": -0.1367,
+       "ci_lo": -0.1723,
+       "ci_hi": -0.1051
+      },
+      "f1": {
+       "observed": -0.0888,
+       "ci_lo": -0.1161,
+       "ci_hi": -0.0649
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0225,
+       "ci_lo": 0.0011,
+       "ci_hi": 0.0466
+      },
+      "recall": {
+       "observed": -0.1696,
+       "ci_lo": -0.2112,
+       "ci_hi": -0.1302
+      },
+      "f1": {
+       "observed": -0.1245,
+       "ci_lo": -0.1599,
+       "ci_hi": -0.0924
+      }
+     }
+    }
+   }
+  }
+ },
+ "pooled": {
+  "GSV pool (degrade)": {
+   "members": [
+    "laurens_gsv",
+    "bend",
+    "gainesville",
+    "paterson"
+   ],
+   "vs_none": {
+    "downscale@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0023,
+       "ci_lo": -0.0118,
+       "ci_hi": 0.0071
+      },
+      "recall": {
+       "observed": -0.0124,
+       "ci_lo": -0.0234,
+       "ci_hi": -0.0024
+      },
+      "f1": {
+       "observed": -0.0084,
+       "ci_lo": -0.0166,
+       "ci_hi": -0.0011
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0013,
+       "ci_lo": -0.0117,
+       "ci_hi": 0.0086
+      },
+      "recall": {
+       "observed": -0.0404,
+       "ci_lo": -0.0547,
+       "ci_hi": -0.0267
+      },
+      "f1": {
+       "observed": -0.0294,
+       "ci_lo": -0.0409,
+       "ci_hi": -0.0186
+      }
+     }
+    },
+    "blur@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0056,
+       "ci_lo": -0.0033,
+       "ci_hi": 0.0146
+      },
+      "recall": {
+       "observed": -0.0173,
+       "ci_lo": -0.0272,
+       "ci_hi": -0.0073
+      },
+      "f1": {
+       "observed": -0.0083,
+       "ci_lo": -0.0161,
+       "ci_hi": -0.001
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0038,
+       "ci_lo": -0.0061,
+       "ci_hi": 0.0139
+      },
+      "recall": {
+       "observed": -0.0362,
+       "ci_lo": -0.0499,
+       "ci_hi": -0.0235
+      },
+      "f1": {
+       "observed": -0.0248,
+       "ci_lo": -0.0355,
+       "ci_hi": -0.0148
+      }
+     }
+    },
+    "brightness@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0032,
+       "ci_lo": -0.0029,
+       "ci_hi": 0.0094
+      },
+      "recall": {
+       "observed": -0.0041,
+       "ci_lo": -0.0115,
+       "ci_hi": 0.0026
+      },
+      "f1": {
+       "observed": -0.0012,
+       "ci_lo": -0.0067,
+       "ci_hi": 0.004
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0046,
+       "ci_lo": -0.0011,
+       "ci_hi": 0.0111
+      },
+      "recall": {
+       "observed": -0.0214,
+       "ci_lo": -0.0316,
+       "ci_hi": -0.0113
+      },
+      "f1": {
+       "observed": -0.0137,
+       "ci_lo": -0.0216,
+       "ci_hi": -0.0062
+      }
+     }
+    },
+    "contrast@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0037,
+       "ci_lo": -0.0021,
+       "ci_hi": 0.0105
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": -0.0051,
+       "ci_hi": 0.0049
+      },
+      "f1": {
+       "observed": 0.0015,
+       "ci_lo": -0.0029,
+       "ci_hi": 0.0061
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0004,
+       "ci_lo": -0.0065,
+       "ci_hi": 0.0047
+      },
+      "recall": {
+       "observed": -0.0074,
+       "ci_lo": -0.0155,
+       "ci_hi": 0.0008
+      },
+      "f1": {
+       "observed": -0.0054,
+       "ci_lo": -0.0118,
+       "ci_hi": 0.0006
+      }
+     }
+    },
+    "saturation@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0006,
+       "ci_lo": -0.0056,
+       "ci_hi": 0.0068
+      },
+      "recall": {
+       "observed": -0.0025,
+       "ci_lo": -0.0082,
+       "ci_hi": 0.0033
+      },
+      "f1": {
+       "observed": -0.0012,
+       "ci_lo": -0.0059,
+       "ci_hi": 0.0033
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0034,
+       "ci_lo": -0.0014,
+       "ci_hi": 0.0082
+      },
+      "recall": {
+       "observed": -0.0016,
+       "ci_lo": -0.008,
+       "ci_hi": 0.0049
+      },
+      "f1": {
+       "observed": -0.0,
+       "ci_lo": -0.005,
+       "ci_hi": 0.0051
+      }
+     }
+    },
+    "gamma@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0139,
+       "ci_lo": 0.0053,
+       "ci_hi": 0.0237
+      },
+      "recall": {
+       "observed": -0.0099,
+       "ci_lo": -0.0189,
+       "ci_hi": -0.0008
+      },
+      "f1": {
+       "observed": -0.0004,
+       "ci_lo": -0.0072,
+       "ci_hi": 0.0062
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0075,
+       "ci_lo": -0.0012,
+       "ci_hi": 0.0161
+      },
+      "recall": {
+       "observed": -0.0362,
+       "ci_lo": -0.0493,
+       "ci_hi": -0.0237
+      },
+      "f1": {
+       "observed": -0.0237,
+       "ci_lo": -0.0334,
+       "ci_hi": -0.0142
+      }
+     }
+    },
+    "wb@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0011,
+       "ci_lo": -0.0072,
+       "ci_hi": 0.0093
+      },
+      "recall": {
+       "observed": 0.0016,
+       "ci_lo": -0.0054,
+       "ci_hi": 0.0085
+      },
+      "f1": {
+       "observed": 0.0014,
+       "ci_lo": -0.0042,
+       "ci_hi": 0.0069
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0053,
+       "ci_lo": -0.0027,
+       "ci_hi": 0.0138
+      },
+      "recall": {
+       "observed": -0.0091,
+       "ci_lo": -0.0199,
+       "ci_hi": 0.0017
+      },
+      "f1": {
+       "observed": -0.0047,
+       "ci_lo": -0.0126,
+       "ci_hi": 0.0031
+      }
+     }
+    },
+    "noise@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0031,
+       "ci_lo": -0.0132,
+       "ci_hi": 0.0064
+      },
+      "recall": {
+       "observed": -0.0033,
+       "ci_lo": -0.0132,
+       "ci_hi": 0.0066
+      },
+      "f1": {
+       "observed": -0.0032,
+       "ci_lo": -0.0109,
+       "ci_hi": 0.0046
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0013,
+       "ci_lo": -0.0099,
+       "ci_hi": 0.0075
+      },
+      "recall": {
+       "observed": -0.0214,
+       "ci_lo": -0.0342,
+       "ci_hi": -0.009
+      },
+      "f1": {
+       "observed": -0.0156,
+       "ci_lo": -0.0254,
+       "ci_hi": -0.0059
+      }
+     }
+    },
+    "jpeg@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0139,
+       "ci_lo": -0.0261,
+       "ci_hi": -0.0015
+      },
+      "recall": {
+       "observed": -0.0181,
+       "ci_lo": -0.0293,
+       "ci_hi": -0.0074
+      },
+      "f1": {
+       "observed": -0.0166,
+       "ci_lo": -0.0252,
+       "ci_hi": -0.0082
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": -0.0117,
+       "ci_lo": -0.0218,
+       "ci_hi": -0.0018
+      },
+      "recall": {
+       "observed": -0.0354,
+       "ci_lo": -0.0512,
+       "ci_hi": -0.0204
+      },
+      "f1": {
+       "observed": -0.0291,
+       "ci_lo": -0.0411,
+       "ci_hi": -0.0175
+      }
+     }
+    },
+    "all@gopro": {
+     "0.30": {
+      "precision": {
+       "observed": 0.0398,
+       "ci_lo": 0.0225,
+       "ci_hi": 0.0581
+      },
+      "recall": {
+       "observed": -0.2092,
+       "ci_lo": -0.2344,
+       "ci_hi": -0.1847
+      },
+      "f1": {
+       "observed": -0.1332,
+       "ci_lo": -0.1542,
+       "ci_hi": -0.1122
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0185,
+       "ci_lo": 0.0038,
+       "ci_hi": 0.0344
+      },
+      "recall": {
+       "observed": -0.2611,
+       "ci_lo": -0.2883,
+       "ci_hi": -0.232
+      },
+      "f1": {
+       "observed": -0.2149,
+       "ci_lo": -0.2411,
+       "ci_hi": -0.1888
+      }
+     }
+    }
+   }
+  },
+  "GoPro pool (repair)": {
+   "members": [
+    "laurens_mapillary",
+    "clovis",
+    "richmond"
+   ],
+   "vs_none": {
+    "colour_match@0.5": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0166,
+       "ci_lo": -0.0289,
+       "ci_hi": -0.0056
+      },
+      "recall": {
+       "observed": -0.0093,
+       "ci_lo": -0.02,
+       "ci_hi": 0.0014
+      },
+      "f1": {
+       "observed": -0.0124,
+       "ci_lo": -0.0209,
+       "ci_hi": -0.004
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0078,
+       "ci_lo": -0.0031,
+       "ci_hi": 0.0194
+      },
+      "recall": {
+       "observed": -0.0146,
+       "ci_lo": -0.0248,
+       "ci_hi": -0.0053
+      },
+      "f1": {
+       "observed": -0.008,
+       "ci_lo": -0.017,
+       "ci_hi": 0.0003
+      }
+     }
+    },
+    "colour_match@1": {
+     "0.30": {
+      "precision": {
+       "observed": -0.001,
+       "ci_lo": -0.0169,
+       "ci_hi": 0.0137
+      },
+      "recall": {
+       "observed": -0.0159,
+       "ci_lo": -0.0302,
+       "ci_hi": -0.0013
+      },
+      "f1": {
+       "observed": -0.01,
+       "ci_lo": -0.0207,
+       "ci_hi": 0.0006
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0059,
+       "ci_lo": -0.0099,
+       "ci_hi": 0.0218
+      },
+      "recall": {
+       "observed": -0.0531,
+       "ci_lo": -0.073,
+       "ci_hi": -0.0337
+      },
+      "f1": {
+       "observed": -0.0373,
+       "ci_lo": -0.0548,
+       "ci_hi": -0.0214
+      }
+     }
+    },
+    "unsharp@50": {
+     "0.30": {
+      "precision": {
+       "observed": -0.005,
+       "ci_lo": -0.0166,
+       "ci_hi": 0.0072
+      },
+      "recall": {
+       "observed": -0.0053,
+       "ci_lo": -0.0155,
+       "ci_hi": 0.0051
+      },
+      "f1": {
+       "observed": -0.0052,
+       "ci_lo": -0.0137,
+       "ci_hi": 0.0036
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0058,
+       "ci_lo": -0.0002,
+       "ci_hi": 0.0143
+      },
+      "recall": {
+       "observed": -0.0159,
+       "ci_lo": -0.0261,
+       "ci_hi": -0.0062
+      },
+      "f1": {
+       "observed": -0.0096,
+       "ci_lo": -0.0179,
+       "ci_hi": -0.0015
+      }
+     }
+    },
+    "unsharp@100": {
+     "0.30": {
+      "precision": {
+       "observed": -0.008,
+       "ci_lo": -0.0241,
+       "ci_hi": 0.0076
+      },
+      "recall": {
+       "observed": -0.0239,
+       "ci_lo": -0.0386,
+       "ci_hi": -0.0095
+      },
+      "f1": {
+       "observed": -0.0176,
+       "ci_lo": -0.0297,
+       "ci_hi": -0.0058
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0136,
+       "ci_lo": 0.0037,
+       "ci_hi": 0.0258
+      },
+      "recall": {
+       "observed": -0.0358,
+       "ci_lo": -0.0505,
+       "ci_hi": -0.0217
+      },
+      "f1": {
+       "observed": -0.0219,
+       "ci_lo": -0.0342,
+       "ci_hi": -0.0105
+      }
+     }
+    },
+    "clahe@0.01": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0036,
+       "ci_lo": -0.0198,
+       "ci_hi": 0.0122
+      },
+      "recall": {
+       "observed": -0.0318,
+       "ci_lo": -0.0461,
+       "ci_hi": -0.0181
+      },
+      "f1": {
+       "observed": -0.0207,
+       "ci_lo": -0.0324,
+       "ci_hi": -0.0093
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0207,
+       "ci_lo": 0.0088,
+       "ci_hi": 0.0348
+      },
+      "recall": {
+       "observed": -0.0477,
+       "ci_lo": -0.0668,
+       "ci_hi": -0.0297
+      },
+      "f1": {
+       "observed": -0.0289,
+       "ci_lo": -0.045,
+       "ci_hi": -0.0141
+      }
+     }
+    },
+    "clahe@0.02": {
+     "0.30": {
+      "precision": {
+       "observed": -0.0069,
+       "ci_lo": -0.0272,
+       "ci_hi": 0.0136
+      },
+      "recall": {
+       "observed": -0.0517,
+       "ci_lo": -0.0724,
+       "ci_hi": -0.0323
+      },
+      "f1": {
+       "observed": -0.0344,
+       "ci_lo": -0.0518,
+       "ci_hi": -0.0185
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0215,
+       "ci_lo": 0.0037,
+       "ci_hi": 0.0404
+      },
+      "recall": {
+       "observed": -0.0889,
+       "ci_lo": -0.1111,
+       "ci_hi": -0.0667
+      },
+      "f1": {
+       "observed": -0.0612,
+       "ci_lo": -0.0812,
+       "ci_hi": -0.042
+      }
+     }
+    },
+    "repair_all": {
+     "0.30": {
+      "precision": {
+       "observed": -0.015,
+       "ci_lo": -0.0337,
+       "ci_hi": 0.004
+      },
+      "recall": {
+       "observed": -0.0318,
+       "ci_lo": -0.0473,
+       "ci_hi": -0.0154
+      },
+      "f1": {
+       "observed": -0.0253,
+       "ci_lo": -0.0379,
+       "ci_hi": -0.0114
+      }
+     },
+     "0.55": {
+      "precision": {
+       "observed": 0.0196,
+       "ci_lo": 0.0024,
+       "ci_hi": 0.0375
+      },
+      "recall": {
+       "observed": -0.0849,
+       "ci_lo": -0.1054,
+       "ci_hi": -0.0655
+      },
+      "f1": {
+       "observed": -0.0585,
+       "ci_lo": -0.0767,
+       "ci_hi": -0.0411
+      }
+     }
+    }
+   }
+  }
+ },
+ "laurens_gap": {
+  "0.30": {
+   "recall_gsv": 0.6545,
+   "recall_gopro": 0.5261,
+   "gap": -0.1284,
+   "share_reproduced": {
+    "downscale@half": -0.1768,
+    "downscale@gopro": -0.3185,
+    "downscale@beyond": 0.0709,
+    "blur@half": 0.0709,
+    "blur@gopro": -0.1059,
+    "blur@beyond": -0.2126,
+    "brightness@half": -0.0709,
+    "brightness@gopro": -0.035,
+    "brightness@beyond": 0.035,
+    "contrast@half": -0.035,
+    "contrast@gopro": -0.0709,
+    "contrast@beyond": -0.0,
+    "saturation@half": -0.0709,
+    "saturation@gopro": -0.0709,
+    "saturation@beyond": -0.0709,
+    "gamma@half": 0.035,
+    "gamma@gopro": 0.0709,
+    "gamma@beyond": 0.5662,
+    "wb@half": -0.0,
+    "wb@gopro": -0.1059,
+    "wb@beyond": -0.035,
+    "noise@half": -0.2477,
+    "noise@gopro": -0.1059,
+    "noise@beyond": 0.4603,
+    "jpeg@half": -0.1768,
+    "jpeg@gopro": 0.0709,
+    "jpeg@beyond": 0.0709,
+    "all@gopro": 2.1597,
+    "res_all@gopro": 0.2835,
+    "photo_brightness@gopro": 0.0709,
+    "photo_gamma@gopro": 0.6371,
+    "all_brightness@gopro": 0.4953
+   }
+  },
+  "0.55": {
+   "recall_gsv": 0.4591,
+   "recall_gopro": 0.3896,
+   "gap": -0.0695,
+   "share_reproduced": {
+    "downscale@half": -0.1957,
+    "downscale@gopro": -0.1309,
+    "downscale@beyond": 0.3266,
+    "blur@half": 0.3928,
+    "blur@gopro": -0.0647,
+    "blur@beyond": -0.1309,
+    "brightness@half": 0.2619,
+    "brightness@gopro": 0.2619,
+    "brightness@beyond": 0.4576,
+    "contrast@half": -0.1309,
+    "contrast@gopro": -0.0647,
+    "contrast@beyond": 0.0647,
+    "saturation@half": -0.2619,
+    "saturation@gopro": -0.2619,
+    "saturation@beyond": -0.1957,
+    "gamma@half": 0.1309,
+    "gamma@gopro": 0.9151,
+    "gamma@beyond": 1.6345,
+    "wb@half": 0.2619,
+    "wb@gopro": 0.3266,
+    "wb@beyond": 0.3266,
+    "noise@half": -0.1957,
+    "noise@gopro": 0.0647,
+    "noise@beyond": 1.5698,
+    "jpeg@half": -0.3928,
+    "jpeg@gopro": -0.0,
+    "jpeg@beyond": 0.1957,
+    "all@gopro": 3.4014,
+    "res_all@gopro": 0.4576,
+    "photo_brightness@gopro": 0.1309,
+    "photo_gamma@gopro": 2.0935,
+    "all_brightness@gopro": 0.9151
+   }
+  }
+ }
+}

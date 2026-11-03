@@ -1,0 +1,15 @@
+{
+ "elapsed_s": 264.1,
+ "f35_mm": 25.0,
+ "n_images": 514,
+ "vp_prior_pitch_deg_from_half_A": {
+  "base|furn_veg|boundary": -3.4,
+  "base|furn_veg|surface": -3.313,
+  "base|furn|boundary": -3.511,
+  "base|furn|surface": -3.414,
+  "bike|furn_veg|boundary": -3.4,
+  "bike|furn_veg|surface": -3.313,
+  "bike|furn|boundary": -3.511,
+  "bike|furn|surface": -3.414
+ }
+}

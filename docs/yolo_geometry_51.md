@@ -199,7 +199,11 @@ moved the headline four times further than any of this.
   ([`run_durable_snapshot.slurm`](../scripts/model_comparison/yolo_baseline/run_durable_snapshot.slurm)).
   **So this run is reproducible by someone with cluster access, and not from a clean
   clone.** Publishing the three checkpoints, or their per-pano detections, is what would
-  change that; neither is done.
+  change that. The checkpoints are still unpublished. The per-pano detections are now
+  published for two of the three arms: `y11x_pano_h200`'s with the pano trio, and
+  `y11x_tiles`'s on 2026-10-19 ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258),
+  `benchmark/model_detections/y11x_tiles__<split>.json`), so those two arms re-score from a
+  clean clone. `y11x_pano`'s detections are not published, so that arm still does not.
 - **The rescue's outcome is recorded only in the pull request that introduced it**
   ([#154](https://github.com/ProjectSidewalk/RampNet/pull/154)) — 557,413 train records /
   968,227 boxes / 59,923 background, `--verify PASS`. The expected counts are pinned in

@@ -399,7 +399,8 @@ def test_committed_instrument_check_extras_are_all_at_the_seam():
         chk = json.load(f)
     assert chk["pass"] is True
     checked = [c for c in chk["cities"] if c["checked"]]
-    assert len(checked) == 10
+    # 11 since 2026-10-20, when #263 added analysis_out/op_cache/laurens_gsv.json (0 extras).
+    assert len(checked) == 11
     assert sum(c["strict"]["extra"] for c in checked) == 173
     for c in checked:
         assert c["strict"]["extra"] == c["strict"]["extra_at_seam"]

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52514e"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2a78d6"/></marker></defs>
+<rect width="1920" height="1080" fill="#fcfcfb"/>
+<text x="40" y="70" font-size="40" fill="#0b0b0b" font-weight="bold" text-anchor="start">Labeling a city: the runtime</text>
+<text x="40" y="108" font-size="22" fill="#52514e" font-weight="normal" text-anchor="start">sidewalk-auto-labeler drives RampNet over a city's imagery and hands the result to that city's Project Sidewalk server.</text>
+<text x="40" y="170" font-size="22" fill="#52514e" font-weight="bold" text-anchor="start">Imagery</text>
+<rect x="40" y="200" width="330" height="120" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="60" y="248" font-size="23" fill="#0b0b0b" font-weight="bold" text-anchor="start">Google Street View</text>
+<text x="60" y="284" font-size="18" fill="#52514e" font-weight="normal" text-anchor="start">car rig, 2008–2026 history</text>
+<line x1="370" y1="260" x2="470" y2="440" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="40" y="350" width="330" height="120" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="60" y="398" font-size="23" fill="#0b0b0b" font-weight="bold" text-anchor="start">Mapillary 360°</text>
+<text x="60" y="434" font-size="18" fill="#52514e" font-weight="normal" text-anchor="start">GoPro, iSTAR, Trimble rigs</text>
+<line x1="370" y1="410" x2="470" y2="440" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="40" y="500" width="330" height="120" rx="14" fill="#f3f2ee" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="60" y="548" font-size="23" fill="#0b0b0b" font-weight="bold" text-anchor="start">Panoramax</text>
+<text x="60" y="584" font-size="18" fill="#52514e" font-weight="normal" text-anchor="start">French open imagery</text>
+<line x1="370" y1="560" x2="470" y2="440" stroke="#52514e" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="470" y="170" width="900" height="640" rx="18" fill="#fcfcfb" stroke="#e1e0d9" stroke-width="1.5"/>
+<rect x="492" y="188" width="698" height="35" rx="17" fill="#2a78d6" stroke="none" stroke-width="1.5"/>
+<text x="505" y="210" font-size="19" fill="#fcfcfb" font-weight="bold" text-anchor="start">sidewalk-auto-labeler  (one run per city, GPU box or cluster)</text>
+<circle cx="514" cy="272" r="16" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="514" y="279" font-size="18" fill="#fcfcfb" font-weight="bold" text-anchor="middle">1</text>
+<text x="546" y="270" font-size="22" fill="#0b0b0b" font-weight="bold" text-anchor="start">Enumerate</text>
+<text x="546" y="298" font-size="17" fill="#52514e" font-weight="normal" text-anchor="start">every panorama inside the city polygon; thin to one per ~10 m</text>
+<line x1="514" y1="290" x2="514" y2="312" stroke="#52514e" stroke-width="2" marker-end="url(#arrow)"/>
+<circle cx="514" cy="350" r="16" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="514" y="357" font-size="18" fill="#fcfcfb" font-weight="bold" text-anchor="middle">2</text>
+<text x="546" y="348" font-size="22" fill="#0b0b0b" font-weight="bold" text-anchor="start">Fetch</text>
+<text x="546" y="376" font-size="17" fill="#52514e" font-weight="normal" text-anchor="start">native-resolution tiles; archive the panoramas (23 GB to 1.2 TB per city)</text>
+<line x1="514" y1="368" x2="514" y2="390" stroke="#52514e" stroke-width="2" marker-end="url(#arrow)"/>
+<circle cx="514" cy="428" r="16" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="514" y="435" font-size="18" fill="#fcfcfb" font-weight="bold" text-anchor="middle">3</text>
+<text x="546" y="426" font-size="22" fill="#0b0b0b" font-weight="bold" text-anchor="start">Detect</text>
+<text x="546" y="454" font-size="17" fill="#52514e" font-weight="normal" text-anchor="start">RampNet on each panorama → peaks with confidence (0.30 band, 0.55 core)</text>
+<line x1="514" y1="446" x2="514" y2="468" stroke="#52514e" stroke-width="2" marker-end="url(#arrow)"/>
+<circle cx="514" cy="506" r="16" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="514" y="513" font-size="18" fill="#fcfcfb" font-weight="bold" text-anchor="middle">4</text>
+<text x="546" y="504" font-size="22" fill="#0b0b0b" font-weight="bold" text-anchor="start">Place</text>
+<text x="546" y="532" font-size="17" fill="#52514e" font-weight="normal" text-anchor="start">bearing from the pixel column; range from the ground plane and the rig's camera height</text>
+<line x1="514" y1="524" x2="514" y2="546" stroke="#52514e" stroke-width="2" marker-end="url(#arrow)"/>
+<circle cx="514" cy="584" r="16" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="514" y="591" font-size="18" fill="#fcfcfb" font-weight="bold" text-anchor="middle">5</text>
+<text x="546" y="582" font-size="22" fill="#0b0b0b" font-weight="bold" text-anchor="start">Check position</text>
+<text x="546" y="610" font-size="17" fill="#52514e" font-weight="normal" text-anchor="start">per-sequence drift on Mapillary; reposition before anything is sent</text>
+<line x1="514" y1="602" x2="514" y2="624" stroke="#52514e" stroke-width="2" marker-end="url(#arrow)"/>
+<circle cx="514" cy="662" r="16" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="514" y="669" font-size="18" fill="#fcfcfb" font-weight="bold" text-anchor="middle">6</text>
+<text x="546" y="660" font-size="22" fill="#0b0b0b" font-weight="bold" text-anchor="start">Fuse</text>
+<text x="546" y="688" font-size="17" fill="#52514e" font-weight="normal" text-anchor="start">cluster detections of one ramp across panoramas (7.5 m) → sites with a view count</text>
+<line x1="514" y1="680" x2="514" y2="702" stroke="#52514e" stroke-width="2" marker-end="url(#arrow)"/>
+<circle cx="514" cy="740" r="16" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="514" y="747" font-size="18" fill="#fcfcfb" font-weight="bold" text-anchor="middle">7</text>
+<text x="546" y="738" font-size="22" fill="#0b0b0b" font-weight="bold" text-anchor="start">Submit</text>
+<text x="546" y="766" font-size="17" fill="#52514e" font-weight="normal" text-anchor="start">POST labels per panorama to the city's server; idempotent, resumable</text>
+<rect x="1470" y="170" width="410" height="640" rx="18" fill="#fbf1cf" stroke="#e6d79a" stroke-width="1.5"/>
+<rect x="1492" y="188" width="334" height="35" rx="17" fill="#7a6210" stroke="none" stroke-width="1.5"/>
+<text x="1505" y="210" font-size="19" fill="#fcfcfb" font-weight="bold" text-anchor="start">Project Sidewalk city server</text>
+<text x="1494" y="265" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">Receives AI labels per panorama</text>
+<text x="1494" y="291" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">Clusters them into ramps (7.5 m)</text>
+<text x="1494" y="317" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">Shows them in the validation queue</text>
+<text x="1494" y="343" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">   · volunteers: agree / disagree</text>
+<text x="1494" y="369" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">   · experts: tags and severity</text>
+<text x="1494" y="395" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">LabelMap: the city's inventory</text>
+<text x="1494" y="421" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start"></text>
+<text x="1494" y="447" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">Live today</text>
+<text x="1494" y="473" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">   · Vancouver 64,814 AI labels</text>
+<text x="1494" y="499" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">   · Richmond 12,962</text>
+<text x="1494" y="525" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">   · Laurens 1,575</text>
+<text x="1494" y="551" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">   · Bayonne (Panoramax) staged</text>
+<text x="1494" y="577" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start"></text>
+<text x="1494" y="603" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">Agreement per ramp cluster</text>
+<text x="1494" y="629" font-size="19" fill="#0b0b0b" font-weight="normal" text-anchor="start">   · 0.97 / 0.96 / 0.90</text>
+<line x1="1370" y1="440" x2="1470" y2="440" stroke="#2a78d6" stroke-width="4" marker-end="url(#arrow-blue)"/>
+<text x="1420" y="420" font-size="18" fill="#2a78d6" font-weight="normal" text-anchor="middle">labels</text>
+<path d="M 1670 810 C 1670 900, 920 900, 920 810" fill="none" stroke="#898781" stroke-width="2.5" marker-end="url(#arrow)" stroke-dasharray="8 7"/>
+<text x="1295" y="922" font-size="17" fill="#898781" font-weight="normal" text-anchor="middle">validations and misses feed the benchmark and the next model</text>
+<text x="40" y="1052" font-size="16" fill="#898781" font-weight="normal" text-anchor="start">Steps follow sidewalk-auto-labeler README and docs/production-deployment.md; counts from docs/server-agree-check.md at 66c76d6.</text>
+</svg>

@@ -1,0 +1,45 @@
+LEDGER=/homes/gws/jonf/wt-openrig258/open_rig_258_ledger.jsonl
+python 3.12.13 torch 2.13.0+cu130 cuda True
+NVIDIA A40, 9195 MiB, 46068 MiB
+9f4b7ce83ac6ad98b0cb776407a58e199fc9967a
+=== manifest 2026-10-20T16:56:39-07:00
+               split  panos             digest  status
+         laurens_gsv     86   2f079d63d4af4063  OK
+   laurens_mapillary     94   7485886ea08f671b  OK
+
+Every reviewed panorama matches the bytes recorded at review time.
+=== repro laurens_mapillary 2026-10-20T16:56:42-07:00
+device=cuda model=projectsidewalk/rampnet-model score_floor=0.05 min_distance=10 tta=False
+  laurens_mapillary: 50/94
+laurens_mapillary: 94 panos -> analysis_out/open_rig_258_repro_op_cache/laurens_mapillary.json
+repro: 6/94 panos with identical peak lists; peaks committed 374 vs repro 374
+repro: 374 peaks at identical positions, max |score diff| 5.45e-05
+repro: ok within tolerance
+=== repro done 2026-10-20T16:58:11-07:00
+=== extract laurens_gsv 2026-10-20T16:58:11-07:00
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+device=cuda model=projectsidewalk/rampnet-model score_floor=0.05 min_distance=10 tta=False
+  laurens_gsv: 50/86
+laurens_gsv: 86 panos -> /homes/gws/jonf/wt-openrig258/analysis_out/op_cache/laurens_gsv.json
+=== extract done 2026-10-20T17:00:56-07:00
+=== ledger 2026-10-20T17:00:56-07:00
+{"ts": "2026-10-20T23:58:11Z", "bundle": "laurens_mapillary", "label": "open-rig-258:repro", "provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": false, "hardware": {"host": "makelab2.cs.washington.edu", "gpus": ["NVIDIA A40"]}, "status": "ok", "est_cost_usd": 0.0, "pricing": null, "panos_scored": 94, "elapsed_s": 89.538, "s_per_pano": 0.9525, "what": "operating_point_curve.py extract --cities laurens_mapillary (0.05 floor) for #263 Track 1 (repro control)", "run_id": "open-rig-258:repro:2026-10-20T23:58:11Z"}
+{"ts": "2026-10-21T00:00:56Z", "bundle": "laurens_gsv", "label": "open-rig-258:extract", "provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": false, "hardware": {"host": "makelab2.cs.washington.edu", "gpus": ["NVIDIA A40"]}, "status": "ok", "est_cost_usd": 0.0, "pricing": null, "panos_scored": 86, "elapsed_s": 164.587, "s_per_pano": 1.9138, "what": "operating_point_curve.py extract --cities laurens_gsv (0.05 floor) for #263 Track 1 (the laurens_gsv op_cache)", "run_id": "open-rig-258:extract:2026-10-21T00:00:56Z"}
+=== parity laurens_gsv 2026-10-20T17:00:56-07:00
+split                   records   cache   exact  within tol   med R   max R  verdict
+--------------------------------------------------------------------------------------------
+laurens_gsv                 121     111  74.8%      92.8%   0.000   0.439  MISMATCH
+    0ZUGJVgVEQcal9rp6tuILA: records 5 vs cache 3
+    IBzUt8AnDBXGZP_c7WG-Ww: records 3 vs cache 2
+    Ey45xetNUCN50MOs0OeK7w: records 1 vs cache 0
+    ViUMEouT9brZcocJpsUtTg: records 1 vs cache 0
+    roPUIwkaNxOkx8lNJMQq_w: records 1 vs cache 0
+
+Displacements are in match radii (R); tolerance 0.5 R. 'exact' = peak landed in the identical heatmap cell.
+
+laurens_gsv: reproduces within tolerance but not exactly (74.8% identical cells).
+  Expected where the production run fed the model a different resample of the same pano —
+  the GSV path built a 4096x2048 intermediate, so bundle native-res != production input.
+  Every displacement is under 0.44 R, so no scoring outcome changes.
+
+Parity gate: FAIL — preprocessing diverged; downstream numbers inherit it.

@@ -1,0 +1,73 @@
+{
+ "n_gt": 301,
+ "n_panos": 125,
+ "paired_recall_mcnemar": {
+  "gemini-3.1-pro-preview": {
+   "both": 57,
+   "challenger_only": 63,
+   "mcnemar_exact_p": 0.5825,
+   "rampnet_only": 56,
+   "union": 176,
+   "union_recall": 0.5847
+  },
+  "gemini-3.6-flash": {
+   "both": 65,
+   "challenger_only": 61,
+   "mcnemar_exact_p": 0.2503,
+   "rampnet_only": 48,
+   "union": 174,
+   "union_recall": 0.5781
+  }
+ },
+ "pano_bootstrap_f1": {
+  "legs": {
+   "gemini-3.1-pro-preview": {
+    "ci95": [
+     0.0052,
+     0.1679
+    ],
+    "rampnet_minus_challenger_f1": 0.0863,
+    "share_draws_rampnet_ahead": 0.9823
+   },
+   "gemini-3.6-flash": {
+    "ci95": [
+     0.0506,
+     0.1981
+    ],
+    "rampnet_minus_challenger_f1": 0.1241,
+    "share_draws_rampnet_ahead": 0.9999
+   }
+  },
+  "n_draws": 10000,
+  "seed": 0
+ },
+ "radius_normalized": 0.022,
+ "rampnet_operating_point": "committed records (deployed 0.55)",
+ "split": "bayonne",
+ "totals": {
+  "gemini-3.1-pro-preview": {
+   "f1": 0.4309,
+   "fn": 181,
+   "fp": 136,
+   "precision": 0.4688,
+   "recall": 0.3987,
+   "tp": 120
+  },
+  "gemini-3.6-flash": {
+   "f1": 0.3931,
+   "fn": 175,
+   "fp": 214,
+   "precision": 0.3706,
+   "recall": 0.4186,
+   "tp": 126
+  },
+  "rampnet": {
+   "f1": 0.5172,
+   "fn": 188,
+   "fp": 23,
+   "precision": 0.8309,
+   "recall": 0.3754,
+   "tp": 113
+  }
+ }
+}

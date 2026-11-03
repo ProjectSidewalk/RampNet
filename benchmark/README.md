@@ -121,10 +121,12 @@ marked for deletion; run the RampNet versions, not those.
 | annapolis | Mapillary 360 (Trimble MX7) | 125 | 0.964 | 0.728 |
 | paterson | GSV (Google Street View) | 125 | 0.975 | 0.684 |
 | gainesville | GSV (Google Street View) | 125 | 0.945 | 0.695 |
+| juneau | Mapillary 360 (Trimble MX7 + GoPro Max) | 125 | 0.967 | 0.687 |
 | budapest_district5 † | Mapillary 360 (GoPro Max) | 125 | 0.873 | 0.503 |
 | sao_paulo ‡ | GSV (Google Street View) | 125 | 0.888 | 0.676 |
 | laurens_mapillary § | Mapillary 360 (GoPro Max) | 94 | 0.898 | 0.390 |
 | laurens_gsv § | GSV (Google Street View) | 86 | 0.925 | 0.505 |
+| bayonne ¶ | Panoramax (GoPro Max) | 125 | 0.824 | 0.372 |
 
 † **Budapest is not comparable to the seven US splits without its caveats** — the reviewer rated
 their own pass low confidence and the rubric does not transfer cleanly. Read the section below
@@ -142,7 +144,12 @@ a `laurens_mapillary` one, so pooling both double-counts the same physical ramps
 independence the Wilson intervals assume. Held out for non-independence, **not** for GT quality.
 Read the section below before quoting either row.
 
-All eleven city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+¶ **Bayonne is the third non-US split and the first from Panoramax**, reviewed at **medium**
+confidence by a single rater, who found French crossing design hard to judge against a rubric
+written around US corners. Held out of the pooled recommendation for geography; read its section
+below before quoting it.
+
+All thirteen city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
@@ -164,10 +171,12 @@ hand-picked high-density panos — is the honest between-city comparison, and
 | annapolis | 120 | 0.961 | 0.692 |
 | paterson | 120 | 0.987 | 0.650 |
 | gainesville | 120 | 0.943 | 0.647 |
+| juneau | 120 | 0.978 | 0.664 |
 | budapest_district5 † | 120 | 0.885 | 0.459 |
 | sao_paulo ‡ | 120 | 0.869 | 0.626 |
 | laurens_mapillary § | 89 | 0.863 | 0.325 |
 | laurens_gsv § | 81 | 0.904 | 0.459 |
+| bayonne ¶ | 120 | 0.785 | 0.322 |
 
 Clovis is below the other cities on both metrics because it is 100% soft, 2018-era GoPro Fusion
 360 imagery, where richmond mixes in the sharper NCTECH iSTAR Pulsar (camera provenance is in the
@@ -181,7 +190,7 @@ reviewed panos — in `rampnet-dataset`'s train/val splits. Dropping them (measu
 `score_validation.py`) moves the headline **0.954 / 0.758 → 0.956 / 0.753** and the unbiased subset
 **0.972 / 0.738 → 0.976 / 0.731**: inside the Wilson intervals both ways, so nothing here rests on
 it. `scripts/analysis/train_overlap_check.py` re-ran the exact-id check on 2026-09-26 for all eleven
-splits, the Mapillary ones included, and found the same four in bend and none in any other split
+splits, again on 2026-10-04 for all twelve with bayonne (12 min 00 s), and on 2026-10-19 for all thirteen with juneau, the Mapillary ones included, and found the same four in bend and none in any other split
 (`benchmark/train_overlap.json`), so "only bend" is now a measurement rather than a prediction. The
 `records` config carries a `train_overlap` column to filter on (#127), and
 `python scripts/score_validation.py benchmark/bend --exclude-train-overlap` prints the numbers with
@@ -294,6 +303,68 @@ Smaller notes:
 - **This split carries no `review_notes`.** Unlike budapest, nothing about the rubric fought back
   here, but the reviewer's own confidence rating is not on the record — worth adding on a
   re-review.
+
+## Juneau — the Annapolis rig on new streets, and a Project Sidewalk deployment city
+
+Juneau, AK (125 panos, P 0.967 / R 0.687; unbiased **0.978 / 0.664**, reviewer-rated confidence
+**MEDIUM**) was added 2026-10-19 (#254) for two reasons. Project Sidewalk is launching in Juneau on
+Mapillary imagery, so this split measures the detector on the imagery that deployment uses. And
+120 of its 125 panos come from contributor `rking`'s **Trimble MX7**, the same contributor and rig
+as all of annapolis, so it is a replication of annapolis's far-field finding on new streets and a
+new season rather than a new provider. It is **pooled**: a US deployment city with verdict-grade GT.
+
+Imagery: 120 Trimble MX7 panos at 8000×4000, all captured 2024-05; 5 GoPro Max panos from two
+other contributors (4 at 4096×2048, 1 at 5760×2880), captured 2025-08/09. Median Mapillary quality
+0.89. Downtown only, minus Douglas Island (~4.8 km²); `bundle_provenance.json` has the run, the
+export, and a re-sample made before the review to fix a spacing-index bug.
+
+**Precision is near the top of the city splits:** on the unbiased subset 0.978 is second only to
+paterson's 0.987, and on all panos 0.967 is third, behind morgantown and paterson at 0.975. 204
+of 211 judged detections were correct: 5 false positives and 2 duplicates. All five false positives score between 0.62 and 0.76, so the
+errors live just above the deployed threshold. The reviewer abstained on 2.8% of detections.
+
+**Recall is middling, and the misses are far away, as on annapolis.** Recall at 0.55 by
+flat-ground distance band (`analysis_out/op/recall_by_distance.csv`):
+
+| band | juneau n | juneau recall | annapolis n | annapolis recall |
+|---|---|---|---|---|
+| near (< 12.5 m) | 127 | 0.835 | 131 | 0.870 |
+| mid (12.5–25 m) | 119 | 0.689 | 110 | 0.745 |
+| far (> 25 m) | 51 | 0.314 | 51 | 0.412 |
+
+Same rig, same steep fall-off with distance, a few points lower in every band. **Caveat on the
+metres:** downtown Juneau is built on steep hillsides, which is the case the annapolis section
+warns against for this flat-ground model. The band *ordering* is a rank statement and survives
+any monotonic distance model; the metre boundaries are softer here than on annapolis's flat coast.
+
+**What fought the rubric** (`review_notes`):
+
+- **Distant ramps.** Many far-field ramps were too small at model resolution to judge, so 50 of
+  the 143 missed marks (35%) are `unsure` and abstain. That is the third-highest missed-mark
+  abstention in the benchmark, after richmond (52%) and bend (48%). Recall would move if they
+  were resolved either way, and this is why the reviewer rated confidence medium.
+- **Diagonal corner ramps**, some with oddly placed or oriented tactile indicators. Whether a
+  corner takes one label or two was ruled *after* the review (`RUBRICS.md` §1, Class rulings):
+  two labels only when the ramp is large enough to serve both crossing directions. The verdicts
+  were not re-checked against the ruling.
+
+Smaller notes:
+
+- **Negative check: 22 of 25 `empty`-group panos were clean.** The other 3 held 3 missed marks
+  (2 confident, 1 unsure).
+- **#55 incremental-FP tags: A-rate 4 of 21** (19%) in [0.25, 0.55), inside the range the other
+  US cities span. At the recommended 0.30, precision 0.911 corrects to **0.927** (upper band
+  0.931) and F1 0.829 to 0.838. The gallery has no duplicate key; of its five "dup?" items the
+  reviewer judged one a separate ramp (A) and four second hits (B), so two exported tags were
+  changed to B. The as-exported file is kept in
+  `analysis_out/juneau_254/incremental_fp_tags_as_exported.json`.
+- **No training overlap:** 0 of 125 panos in `rampnet-dataset`'s train or validation split.
+- **Pooling it barely moves the pool.** The pooled F1 at 0.30 goes from 0.8260 over eight
+  cities to 0.8264 over nine, because juneau sits almost exactly at the pooled mean.
+- **Challengers** (`docs/model_comparison.md`, juneau section): RampNet F1 0.803 at 0.55 against
+  Gemini 3.1 Pro 0.542, the best zero-shot model, a lead of 0.261. The standing roster ranks in
+  exactly the order it does on annapolis, the same rig. claude-opus-5 (low) has not run on
+  juneau yet, so it is partial on the pooled board until it does.
 
 ## Paterson — the second GSV city, and the split whose misses aren't under-confident
 
@@ -469,6 +540,68 @@ other 5 held 11 missed ramps — the annapolis-shaped result that the model's "n
 mostly, not entirely, right. A live Project Sidewalk deployment
 (sidewalk-sao-paulo.cs.washington.edu) sits inside the footprint, so an agree-rate comparison
 is possible later; it covers Brás only and is 8.2% audited, so that comparison would be thin.
+
+## Bayonne — the first Panoramax split, and the lowest recall in the benchmark
+
+`benchmark/bayonne/` (issue #159) is 125 panos of Bayonne, France: 123 from the municipal
+producer `sig_bayonne` on Panoramax and 2 from another producer, all GoPro Max. It is the
+ground-truth gate for the first Panoramax Project Sidewalk city. The split's build, the
+pre-review reads and every command are in [`docs/bayonne_split_159.md`](../docs/bayonne_split_159.md).
+
+**Recall is the lowest in the benchmark.** All panos: P 0.824 [0.751, 0.878], R 0.372
+[0.319, 0.428]. Unbiased subset: P 0.785 [0.698, 0.852], R 0.322 [0.268, 0.381], level with
+`laurens_mapillary` (0.325) and below Budapest (0.459). The reviewer marked 189 missed ramps
+(+53 unsure) against 112 confirmed detections. Bayonne and `laurens_mapillary` are both GoPro
+Max imagery with the lowest recall in the benchmark, but the camera alone does not explain it:
+morgantown is GoPro Max too, at 0.730. Bayonne has no second imagery arm and its GT is medium
+confidence, so city, rubric and capture setup are confounded here.
+
+**Challengers** (`docs/model_comparison.md`, bayonne block): RampNet keeps the top F1, 0.517,
+but by 0.086 over gemini-3.1-pro-preview (0.431; pano-bootstrap 95% CI of the difference
+[0.005, 0.168]), the narrowest lead over a zero-shot challenger on any split. It is not the
+narrowest lead overall: the supervised YOLO arms come closer elsewhere, and beat RampNet on
+`laurens_mapillary`. gemini-3.6-flash's recall point estimate is above RampNet's at 0.55 (0.419 vs
+0.375), but the paired difference is not significant (exact McNemar p = 0.25,
+`analysis_out/bayonne_159/paired_tests.json`).
+
+**The misses are not far-field.** Using the flat-ground distance estimate, recall at 0.55 is
+0.450 near (< 12.5 m), 0.320 mid and 0.302 far (`low_floor_sweep.py distance`), so RampNet misses
+more than half of the ramps within 12.5 m of the camera. The estimate assumes one camera height,
+and Bayonne mixes car and two-wheeler mounts, so the band edges in metres are approximate; recall
+is low in every band either way. Lowering the threshold helps: 0.55 to
+0.30 moves recall 0.379 to 0.498 and precision 0.820 to 0.754 on all 125 panos (`sweep`, from
+the op_cache), and the F1 optimum sits at 0.20. About 28% of the GT ramps (recall ceiling 0.721
+at the 0.05 extraction floor, `floor`) produce no candidate at any threshold, so a lower threshold
+cannot reach them.
+
+**What fought the review** (`review_notes`, confidence medium, reviewer jonf, 2026-10-04):
+
+- **Bollards as crossing cues.** Crossings are often marked by bollards rather than a US-style
+  ramp with a tactile strip.
+- **Speed bumps vs raised crossings.** Speed bumps can look like crosswalks or raised walkways.
+- **Roundabouts and complex junctions** carry many ramps each, which makes per-corner judgments
+  and the completeness of the missed marks harder than on US grid corners.
+- **Bike-lane cuts.** One pano (`b517b388`) has a detection at a bike-lane cut, marked unsure.
+  The rubric was ruled afterwards: a bike-lane cut is not a pedestrian curb ramp
+  (`RUBRICS.md` §1, Class rulings). The verdict was left as recorded (unsure, so it abstains).
+
+No detection was marked duplicate. The negative check: 21 of the 25 `empty`-stratum panos were
+clean, and the other 4 held 8 missed ramps (+2 unsure). Abstention is 7.5% of detections and 21.9% of missed
+marks.
+
+**The logo band.** 124 panos carry a burned-in band that runs from its top edge to the bottom
+of the frame; the top edge sits at y 0.771-0.791 on the municipal panos and 0.8008 on the one
+measured by hand. The gallery hatched it, and a ramp under the band is invisible to the model and the
+reviewer alike, so it is outside the ground truth by construction. It covers ramps within about
+2 m of the camera.
+
+**The panos are not yet published** to the `rampnet-benchmark` dataset on Hugging Face (Jon's
+call, `docs/bayonne_split_159.md` §10), so a clean clone cannot re-run the numbers above from
+the Hub. They are public on Panoramax under the ids in `records.jsonl`, and
+`benchmark/bayonne/imagery_manifest.json` pins every file's sha256 and size, so a re-fetched
+copy can be checked with `python scripts/analysis/bayonne_159.py verify`. Nobody has tried a
+re-fetch yet, so whether Panoramax serves byte-identical files is unchecked. They are also in the makelab2
+archive (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/bayonne/panos/`).
 
 ## Laurens, IA — one town, two rigs, and the split that tests the rig itself
 

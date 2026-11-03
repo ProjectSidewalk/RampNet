@@ -1,0 +1,2196 @@
+{
+ "richmond-va/Crosswalk": {
+  "labels": 69,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 69,
+  "osm_nodes": 10713,
+  "osm_marked": 2450,
+  "osm_unmarked": 5786,
+  "osm_unknown": 2477,
+  "dist_any": {
+   "n": 69,
+   "median_m": 5.0,
+   "le5": 0.522,
+   "le10": 1.0,
+   "le15": 1.0,
+   "le25": 1.0
+  },
+  "dist_marked": {
+   "n": 69,
+   "median_m": 135.5,
+   "le5": 0.101,
+   "le10": 0.188,
+   "le15": 0.232,
+   "le25": 0.232
+  },
+  "tiles": 1
+ },
+ "richmond-va/Signal": {
+  "labels": 53,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 53,
+  "osm_nodes": 2529,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 53,
+   "median_m": 5.9,
+   "le5": 0.34,
+   "le10": 0.868,
+   "le15": 0.962,
+   "le25": 0.962
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "laurens-ia/Crosswalk": {
+  "labels": 20,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 20,
+  "osm_nodes": 11,
+  "osm_marked": 1,
+  "osm_unmarked": 3,
+  "osm_unknown": 7,
+  "dist_any": {
+   "n": 20,
+   "median_m": 6.0,
+   "le5": 0.45,
+   "le10": 0.75,
+   "le15": 0.8,
+   "le25": 0.8
+  },
+  "dist_marked": {
+   "n": 20,
+   "median_m": 122.2,
+   "le5": 0.0,
+   "le10": 0.1,
+   "le15": 0.2,
+   "le25": 0.5
+  },
+  "tiles": 1
+ },
+ "laurens-ia/Signal": {
+  "labels": 0,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 0,
+  "osm_nodes": 0,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 0
+ },
+ "washington-dc/Crosswalk": {
+  "labels": 4,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 4,
+  "osm_nodes": 8342,
+  "osm_marked": 4876,
+  "osm_unmarked": 1745,
+  "osm_unknown": 1721,
+  "dist_any": {
+   "n": 4,
+   "median_m": 0.7,
+   "le5": 1.0,
+   "le10": 1.0,
+   "le15": 1.0,
+   "le25": 1.0
+  },
+  "dist_marked": {
+   "n": 4,
+   "median_m": 0.7,
+   "le5": 1.0,
+   "le10": 1.0,
+   "le15": 1.0,
+   "le25": 1.0
+  },
+  "tiles": 1
+ },
+ "washington-dc/Signal": {
+  "labels": 0,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 0,
+  "osm_nodes": 0,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 0
+ },
+ "seattle-wa/Crosswalk": {
+  "labels": 6283,
+  "labels_correct": 1820,
+  "labels_incorrect": 232,
+  "labels_undecided": 4231,
+  "osm_nodes": 53353,
+  "osm_marked": 10968,
+  "osm_unmarked": 30370,
+  "osm_unknown": 12015,
+  "dist_any": {
+   "n": 6283,
+   "median_m": 2.2,
+   "le5": 0.837,
+   "le10": 0.96,
+   "le15": 0.977,
+   "le25": 0.986
+  },
+  "dist_marked": {
+   "n": 6283,
+   "median_m": 2.5,
+   "le5": 0.742,
+   "le10": 0.855,
+   "le15": 0.879,
+   "le25": 0.892
+  },
+  "tiles": 8
+ },
+ "seattle-wa/Signal": {
+  "labels": 1671,
+  "labels_correct": 494,
+  "labels_incorrect": 56,
+  "labels_undecided": 1121,
+  "osm_nodes": 7012,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 1657,
+   "median_m": 9.5,
+   "le5": 0.065,
+   "le10": 0.548,
+   "le15": 0.829,
+   "le25": 0.887
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 7
+ },
+ "columbus-oh/Crosswalk": {
+  "labels": 889,
+  "labels_correct": 177,
+  "labels_incorrect": 7,
+  "labels_undecided": 705,
+  "osm_nodes": 12925,
+  "osm_marked": 3156,
+  "osm_unmarked": 5639,
+  "osm_unknown": 4130,
+  "dist_any": {
+   "n": 889,
+   "median_m": 2.4,
+   "le5": 0.741,
+   "le10": 0.831,
+   "le15": 0.852,
+   "le25": 0.863
+  },
+  "dist_marked": {
+   "n": 889,
+   "median_m": 91.5,
+   "le5": 0.26,
+   "le10": 0.299,
+   "le15": 0.315,
+   "le25": 0.354
+  },
+  "tiles": 4
+ },
+ "columbus-oh/Signal": {
+  "labels": 725,
+  "labels_correct": 56,
+  "labels_incorrect": 0,
+  "labels_undecided": 669,
+  "osm_nodes": 2031,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 721,
+   "median_m": 12.9,
+   "le5": 0.008,
+   "le10": 0.295,
+   "le15": 0.652,
+   "le25": 0.917
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 4
+ },
+ "cdmx/Crosswalk": {
+  "labels": 3931,
+  "labels_correct": 114,
+  "labels_incorrect": 29,
+  "labels_undecided": 3788,
+  "osm_nodes": 5726,
+  "osm_marked": 1688,
+  "osm_unmarked": 339,
+  "osm_unknown": 3699,
+  "dist_any": {
+   "n": 3675,
+   "median_m": 185.0,
+   "le5": 0.148,
+   "le10": 0.187,
+   "le15": 0.202,
+   "le25": 0.222
+  },
+  "dist_marked": {
+   "n": 2524,
+   "median_m": 185.5,
+   "le5": 0.137,
+   "le10": 0.178,
+   "le15": 0.194,
+   "le25": 0.212
+  },
+  "tiles": 5
+ },
+ "cdmx/Signal": {
+  "labels": 112,
+  "labels_correct": 29,
+  "labels_incorrect": 10,
+  "labels_undecided": 73,
+  "osm_nodes": 4196,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 110,
+   "median_m": 20.7,
+   "le5": 0.055,
+   "le10": 0.209,
+   "le15": 0.336,
+   "le25": 0.564
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 4
+ },
+ "spgg/Crosswalk": {
+  "labels": 130,
+  "labels_correct": 29,
+  "labels_incorrect": 45,
+  "labels_undecided": 56,
+  "osm_nodes": 1431,
+  "osm_marked": 314,
+  "osm_unmarked": 51,
+  "osm_unknown": 1066,
+  "dist_any": {
+   "n": 129,
+   "median_m": 176.2,
+   "le5": 0.054,
+   "le10": 0.101,
+   "le15": 0.14,
+   "le25": 0.178
+  },
+  "dist_marked": {
+   "n": 118,
+   "median_m": 395.0,
+   "le5": 0.008,
+   "le10": 0.025,
+   "le15": 0.051,
+   "le25": 0.076
+  },
+  "tiles": 2
+ },
+ "spgg/Signal": {
+  "labels": 14,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 14,
+  "osm_nodes": 509,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 12,
+   "median_m": 32.0,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.25,
+   "le25": 0.417
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "pittsburgh-pa/Crosswalk": {
+  "labels": 1018,
+  "labels_correct": 214,
+  "labels_incorrect": 33,
+  "labels_undecided": 771,
+  "osm_nodes": 16703,
+  "osm_marked": 3787,
+  "osm_unmarked": 2928,
+  "osm_unknown": 9988,
+  "dist_any": {
+   "n": 1018,
+   "median_m": 2.3,
+   "le5": 0.721,
+   "le10": 0.805,
+   "le15": 0.825,
+   "le25": 0.83
+  },
+  "dist_marked": {
+   "n": 1012,
+   "median_m": 70.6,
+   "le5": 0.361,
+   "le10": 0.416,
+   "le15": 0.434,
+   "le25": 0.443
+  },
+  "tiles": 5
+ },
+ "pittsburgh-pa/Signal": {
+  "labels": 218,
+  "labels_correct": 83,
+  "labels_incorrect": 5,
+  "labels_undecided": 130,
+  "osm_nodes": 3634,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 218,
+   "median_m": 8.9,
+   "le5": 0.069,
+   "le10": 0.601,
+   "le15": 0.821,
+   "le25": 0.913
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 5
+ },
+ "newberg-or/Crosswalk": {
+  "labels": 47,
+  "labels_correct": 1,
+  "labels_incorrect": 5,
+  "labels_undecided": 41,
+  "osm_nodes": 1463,
+  "osm_marked": 384,
+  "osm_unmarked": 1003,
+  "osm_unknown": 76,
+  "dist_any": {
+   "n": 47,
+   "median_m": 97.9,
+   "le5": 0.298,
+   "le10": 0.34,
+   "le15": 0.34,
+   "le25": 0.362
+  },
+  "dist_marked": {
+   "n": 47,
+   "median_m": 179.1,
+   "le5": 0.234,
+   "le10": 0.234,
+   "le15": 0.234,
+   "le25": 0.234
+  },
+  "tiles": 2
+ },
+ "newberg-or/Signal": {
+  "labels": 0,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 0,
+  "osm_nodes": 0,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 0
+ },
+ "chicago-il/Crosswalk": {
+  "labels": 28091,
+  "labels_correct": 3907,
+  "labels_incorrect": 163,
+  "labels_undecided": 24021,
+  "osm_nodes": 247831,
+  "osm_marked": 60846,
+  "osm_unmarked": 47302,
+  "osm_unknown": 139683,
+  "dist_any": {
+   "n": 28024,
+   "median_m": 1.5,
+   "le5": 0.871,
+   "le10": 0.926,
+   "le15": 0.938,
+   "le25": 0.944
+  },
+  "dist_marked": {
+   "n": 27370,
+   "median_m": 93.5,
+   "le5": 0.339,
+   "le10": 0.37,
+   "le15": 0.397,
+   "le25": 0.416
+  },
+  "tiles": 52
+ },
+ "chicago-il/Signal": {
+  "labels": 5826,
+  "labels_correct": 699,
+  "labels_incorrect": 49,
+  "labels_undecided": 5078,
+  "osm_nodes": 33248,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 5807,
+   "median_m": 8.9,
+   "le5": 0.081,
+   "le10": 0.642,
+   "le15": 0.9,
+   "le25": 0.963
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 43
+ },
+ "amsterdam/Crosswalk": {
+  "labels": 2976,
+  "labels_correct": 890,
+  "labels_incorrect": 112,
+  "labels_undecided": 1974,
+  "osm_nodes": 8769,
+  "osm_marked": 7238,
+  "osm_unmarked": 852,
+  "osm_unknown": 679,
+  "dist_any": {
+   "n": 2976,
+   "median_m": 2.1,
+   "le5": 0.796,
+   "le10": 0.864,
+   "le15": 0.88,
+   "le25": 0.887
+  },
+  "dist_marked": {
+   "n": 2976,
+   "median_m": 2.1,
+   "le5": 0.789,
+   "le10": 0.856,
+   "le15": 0.867,
+   "le25": 0.874
+  },
+  "tiles": 6
+ },
+ "amsterdam/Signal": {
+  "labels": 1034,
+  "labels_correct": 507,
+  "labels_incorrect": 37,
+  "labels_undecided": 490,
+  "osm_nodes": 5333,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 1027,
+   "median_m": 8.6,
+   "le5": 0.294,
+   "le10": 0.538,
+   "le15": 0.613,
+   "le25": 0.635
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 6
+ },
+ "la-piedad/Crosswalk": {
+  "labels": 29,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 29,
+  "osm_nodes": 2,
+  "osm_marked": 1,
+  "osm_unmarked": 0,
+  "osm_unknown": 1,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "la-piedad/Signal": {
+  "labels": 0,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 0,
+  "osm_nodes": 0,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 0
+ },
+ "oradell-nj/Crosswalk": {
+  "labels": 675,
+  "labels_correct": 483,
+  "labels_incorrect": 33,
+  "labels_undecided": 159,
+  "osm_nodes": 973,
+  "osm_marked": 479,
+  "osm_unmarked": 115,
+  "osm_unknown": 379,
+  "dist_any": {
+   "n": 584,
+   "median_m": 430.4,
+   "le5": 0.046,
+   "le10": 0.053,
+   "le15": 0.057,
+   "le25": 0.062
+  },
+  "dist_marked": {
+   "n": 512,
+   "median_m": 426.1,
+   "le5": 0.053,
+   "le10": 0.061,
+   "le15": 0.064,
+   "le25": 0.07
+  },
+  "tiles": 1
+ },
+ "oradell-nj/Signal": {
+  "labels": 21,
+  "labels_correct": 8,
+  "labels_incorrect": 4,
+  "labels_undecided": 9,
+  "osm_nodes": 261,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 21,
+   "median_m": 14.8,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.524,
+   "le25": 0.619
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "auckland/Crosswalk": {
+  "labels": 273,
+  "labels_correct": 153,
+  "labels_incorrect": 8,
+  "labels_undecided": 112,
+  "osm_nodes": 8260,
+  "osm_marked": 2232,
+  "osm_unmarked": 3986,
+  "osm_unknown": 2042,
+  "dist_any": {
+   "n": 273,
+   "median_m": 2.6,
+   "le5": 0.791,
+   "le10": 0.93,
+   "le15": 0.934,
+   "le25": 0.96
+  },
+  "dist_marked": {
+   "n": 273,
+   "median_m": 3.9,
+   "le5": 0.575,
+   "le10": 0.692,
+   "le15": 0.703,
+   "le25": 0.755
+  },
+  "tiles": 4
+ },
+ "auckland/Signal": {
+  "labels": 271,
+  "labels_correct": 156,
+  "labels_incorrect": 0,
+  "labels_undecided": 115,
+  "osm_nodes": 1985,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 271,
+   "median_m": 6.8,
+   "le5": 0.244,
+   "le10": 0.841,
+   "le15": 0.993,
+   "le25": 1.0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 3
+ },
+ "cuenca/Crosswalk": {
+  "labels": 1768,
+  "labels_correct": 257,
+  "labels_incorrect": 15,
+  "labels_undecided": 1496,
+  "osm_nodes": 1439,
+  "osm_marked": 773,
+  "osm_unmarked": 55,
+  "osm_unknown": 611,
+  "dist_any": {
+   "n": 1768,
+   "median_m": 75.4,
+   "le5": 0.27,
+   "le10": 0.365,
+   "le15": 0.408,
+   "le25": 0.428
+  },
+  "dist_marked": {
+   "n": 1768,
+   "median_m": 103.7,
+   "le5": 0.19,
+   "le10": 0.248,
+   "le15": 0.292,
+   "le25": 0.316
+  },
+  "tiles": 4
+ },
+ "cuenca/Signal": {
+  "labels": 801,
+  "labels_correct": 324,
+  "labels_incorrect": 4,
+  "labels_undecided": 473,
+  "osm_nodes": 645,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 801,
+   "median_m": 11.0,
+   "le5": 0.092,
+   "le10": 0.433,
+   "le15": 0.67,
+   "le25": 0.926
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 4
+ },
+ "burnaby/Crosswalk": {
+  "labels": 1728,
+  "labels_correct": 289,
+  "labels_incorrect": 5,
+  "labels_undecided": 1434,
+  "osm_nodes": 23016,
+  "osm_marked": 6544,
+  "osm_unmarked": 13851,
+  "osm_unknown": 2621,
+  "dist_any": {
+   "n": 1728,
+   "median_m": 2.3,
+   "le5": 0.831,
+   "le10": 0.98,
+   "le15": 0.993,
+   "le25": 0.997
+  },
+  "dist_marked": {
+   "n": 1728,
+   "median_m": 2.8,
+   "le5": 0.697,
+   "le10": 0.818,
+   "le15": 0.858,
+   "le25": 0.879
+  },
+  "tiles": 3
+ },
+ "burnaby/Signal": {
+  "labels": 891,
+  "labels_correct": 197,
+  "labels_incorrect": 2,
+  "labels_undecided": 692,
+  "osm_nodes": 6728,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 891,
+   "median_m": 9.4,
+   "le5": 0.065,
+   "le10": 0.578,
+   "le15": 0.903,
+   "le25": 0.953
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 3
+ },
+ "teaneck-nj/Crosswalk": {
+  "labels": 3363,
+  "labels_correct": 1595,
+  "labels_incorrect": 112,
+  "labels_undecided": 1656,
+  "osm_nodes": 12890,
+  "osm_marked": 8525,
+  "osm_unmarked": 710,
+  "osm_unknown": 3655,
+  "dist_any": {
+   "n": 3246,
+   "median_m": 183.5,
+   "le5": 0.265,
+   "le10": 0.298,
+   "le15": 0.307,
+   "le25": 0.312
+  },
+  "dist_marked": {
+   "n": 3220,
+   "median_m": 186.7,
+   "le5": 0.251,
+   "le10": 0.283,
+   "le15": 0.292,
+   "le25": 0.298
+  },
+  "tiles": 4
+ },
+ "teaneck-nj/Signal": {
+  "labels": 227,
+  "labels_correct": 157,
+  "labels_incorrect": 6,
+  "labels_undecided": 64,
+  "osm_nodes": 8559,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 214,
+   "median_m": 29.6,
+   "le5": 0.042,
+   "le10": 0.304,
+   "le15": 0.439,
+   "le25": 0.495
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 4
+ },
+ "walla-walla-wa/Crosswalk": {
+  "labels": 878,
+  "labels_correct": 234,
+  "labels_incorrect": 19,
+  "labels_undecided": 625,
+  "osm_nodes": 505,
+  "osm_marked": 192,
+  "osm_unmarked": 75,
+  "osm_unknown": 238,
+  "dist_any": {
+   "n": 795,
+   "median_m": 42.3,
+   "le5": 0.355,
+   "le10": 0.416,
+   "le15": 0.444,
+   "le25": 0.484
+  },
+  "dist_marked": {
+   "n": 784,
+   "median_m": 115.7,
+   "le5": 0.264,
+   "le10": 0.307,
+   "le15": 0.332,
+   "le25": 0.369
+  },
+  "tiles": 3
+ },
+ "walla-walla-wa/Signal": {
+  "labels": 284,
+  "labels_correct": 53,
+  "labels_incorrect": 1,
+  "labels_undecided": 230,
+  "osm_nodes": 116,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 283,
+   "median_m": 16.6,
+   "le5": 0.0,
+   "le10": 0.074,
+   "le15": 0.382,
+   "le25": 0.728
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "st-louis-mo/Crosswalk": {
+  "labels": 2890,
+  "labels_correct": 292,
+  "labels_incorrect": 7,
+  "labels_undecided": 2591,
+  "osm_nodes": 18946,
+  "osm_marked": 5886,
+  "osm_unmarked": 8261,
+  "osm_unknown": 4799,
+  "dist_any": {
+   "n": 2875,
+   "median_m": 3.6,
+   "le5": 0.593,
+   "le10": 0.702,
+   "le15": 0.74,
+   "le25": 0.753
+  },
+  "dist_marked": {
+   "n": 2785,
+   "median_m": 4.1,
+   "le5": 0.545,
+   "le10": 0.643,
+   "le15": 0.669,
+   "le25": 0.682
+  },
+  "tiles": 6
+ },
+ "st-louis-mo/Signal": {
+  "labels": 1359,
+  "labels_correct": 64,
+  "labels_incorrect": 1,
+  "labels_undecided": 1294,
+  "osm_nodes": 4110,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 1345,
+   "median_m": 11.2,
+   "le5": 0.035,
+   "le10": 0.41,
+   "le15": 0.725,
+   "le25": 0.856
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 6
+ },
+ "la-ca/Crosswalk": {
+  "labels": 47,
+  "labels_correct": 28,
+  "labels_incorrect": 0,
+  "labels_undecided": 19,
+  "osm_nodes": 15215,
+  "osm_marked": 3741,
+  "osm_unmarked": 4306,
+  "osm_unknown": 7168,
+  "dist_any": {
+   "n": 47,
+   "median_m": 2.4,
+   "le5": 0.957,
+   "le10": 1.0,
+   "le15": 1.0,
+   "le25": 1.0
+  },
+  "dist_marked": {
+   "n": 47,
+   "median_m": 13.4,
+   "le5": 0.447,
+   "le10": 0.468,
+   "le15": 0.553,
+   "le25": 0.638
+  },
+  "tiles": 1
+ },
+ "la-ca/Signal": {
+  "labels": 57,
+  "labels_correct": 23,
+  "labels_incorrect": 0,
+  "labels_undecided": 34,
+  "osm_nodes": 5463,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 57,
+   "median_m": 11.9,
+   "le5": 0.018,
+   "le10": 0.333,
+   "le15": 0.702,
+   "le25": 0.982
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "mendota-il/Crosswalk": {
+  "labels": 983,
+  "labels_correct": 457,
+  "labels_incorrect": 246,
+  "labels_undecided": 280,
+  "osm_nodes": 33,
+  "osm_marked": 24,
+  "osm_unmarked": 6,
+  "osm_unknown": 3,
+  "dist_any": {
+   "n": 963,
+   "median_m": 178.9,
+   "le5": 0.142,
+   "le10": 0.158,
+   "le15": 0.174,
+   "le25": 0.191
+  },
+  "dist_marked": {
+   "n": 963,
+   "median_m": 184.1,
+   "le5": 0.133,
+   "le10": 0.144,
+   "le15": 0.16,
+   "le25": 0.179
+  },
+  "tiles": 2
+ },
+ "mendota-il/Signal": {
+  "labels": 31,
+  "labels_correct": 3,
+  "labels_incorrect": 1,
+  "labels_undecided": 27,
+  "osm_nodes": 5,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 26,
+   "median_m": 18.5,
+   "le5": 0.0,
+   "le10": 0.077,
+   "le15": 0.385,
+   "le25": 0.962
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "knox-oh/Crosswalk": {
+  "labels": 355,
+  "labels_correct": 76,
+  "labels_incorrect": 10,
+  "labels_undecided": 269,
+  "osm_nodes": 295,
+  "osm_marked": 109,
+  "osm_unmarked": 70,
+  "osm_unknown": 116,
+  "dist_any": {
+   "n": 301,
+   "median_m": 254.5,
+   "le5": 0.093,
+   "le10": 0.106,
+   "le15": 0.116,
+   "le25": 0.126
+  },
+  "dist_marked": {
+   "n": 224,
+   "median_m": 260.5,
+   "le5": 0.071,
+   "le10": 0.076,
+   "le15": 0.08,
+   "le25": 0.08
+  },
+  "tiles": 9
+ },
+ "knox-oh/Signal": {
+  "labels": 19,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 19,
+  "osm_nodes": 75,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 9,
+   "median_m": 593.5,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.0,
+   "le25": 0.0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "cliffside-park-nj/Crosswalk": {
+  "labels": 201,
+  "labels_correct": 64,
+  "labels_incorrect": 2,
+  "labels_undecided": 135,
+  "osm_nodes": 9050,
+  "osm_marked": 6081,
+  "osm_unmarked": 354,
+  "osm_unknown": 2615,
+  "dist_any": {
+   "n": 201,
+   "median_m": 239.4,
+   "le5": 0.164,
+   "le10": 0.179,
+   "le15": 0.189,
+   "le25": 0.189
+  },
+  "dist_marked": {
+   "n": 201,
+   "median_m": 239.4,
+   "le5": 0.164,
+   "le10": 0.179,
+   "le15": 0.189,
+   "le25": 0.189
+  },
+  "tiles": 1
+ },
+ "cliffside-park-nj/Signal": {
+  "labels": 9,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 9,
+  "osm_nodes": 7461,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 9,
+   "median_m": 137.8,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.333,
+   "le25": 0.444
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "blackhawk-hills-il/Crosswalk": {
+  "labels": 38,
+  "labels_correct": 18,
+  "labels_incorrect": 1,
+  "labels_undecided": 19,
+  "osm_nodes": 78,
+  "osm_marked": 3,
+  "osm_unmarked": 68,
+  "osm_unknown": 7,
+  "dist_any": {
+   "n": 1,
+   "median_m": 557.6,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.0,
+   "le25": 0.0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 3
+ },
+ "blackhawk-hills-il/Signal": {
+  "labels": 0,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 0,
+  "osm_nodes": 0,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 0
+ },
+ "west-chester-pa/Crosswalk": {
+  "labels": 331,
+  "labels_correct": 47,
+  "labels_incorrect": 0,
+  "labels_undecided": 284,
+  "osm_nodes": 448,
+  "osm_marked": 151,
+  "osm_unmarked": 42,
+  "osm_unknown": 255,
+  "dist_any": {
+   "n": 331,
+   "median_m": 136.8,
+   "le5": 0.263,
+   "le10": 0.284,
+   "le15": 0.296,
+   "le25": 0.305
+  },
+  "dist_marked": {
+   "n": 310,
+   "median_m": 288.3,
+   "le5": 0.103,
+   "le10": 0.123,
+   "le15": 0.132,
+   "le25": 0.142
+  },
+  "tiles": 2
+ },
+ "west-chester-pa/Signal": {
+  "labels": 44,
+  "labels_correct": 16,
+  "labels_incorrect": 0,
+  "labels_undecided": 28,
+  "osm_nodes": 289,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 44,
+   "median_m": 7.7,
+   "le5": 0.182,
+   "le10": 0.636,
+   "le15": 0.864,
+   "le25": 0.932
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "danville-il/Crosswalk": {
+  "labels": 488,
+  "labels_correct": 15,
+  "labels_incorrect": 2,
+  "labels_undecided": 471,
+  "osm_nodes": 2613,
+  "osm_marked": 159,
+  "osm_unmarked": 1207,
+  "osm_unknown": 1247,
+  "dist_any": {
+   "n": 488,
+   "median_m": 2.9,
+   "le5": 0.721,
+   "le10": 0.859,
+   "le15": 0.895,
+   "le25": 0.949
+  },
+  "dist_marked": {
+   "n": 425,
+   "median_m": 143.9,
+   "le5": 0.235,
+   "le10": 0.287,
+   "le15": 0.32,
+   "le25": 0.365
+  },
+  "tiles": 2
+ },
+ "danville-il/Signal": {
+  "labels": 100,
+  "labels_correct": 8,
+  "labels_incorrect": 0,
+  "labels_undecided": 92,
+  "osm_nodes": 93,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 71,
+   "median_m": 11.2,
+   "le5": 0.0,
+   "le10": 0.282,
+   "le15": 0.761,
+   "le25": 0.887
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "detroit-mi/Crosswalk": {
+  "labels": 283,
+  "labels_correct": 42,
+  "labels_incorrect": 7,
+  "labels_undecided": 234,
+  "osm_nodes": 5740,
+  "osm_marked": 292,
+  "osm_unmarked": 811,
+  "osm_unknown": 4637,
+  "dist_any": {
+   "n": 283,
+   "median_m": 1.7,
+   "le5": 0.7,
+   "le10": 0.749,
+   "le15": 0.809,
+   "le25": 0.845
+  },
+  "dist_marked": {
+   "n": 283,
+   "median_m": 202.6,
+   "le5": 0.113,
+   "le10": 0.134,
+   "le15": 0.18,
+   "le25": 0.198
+  },
+  "tiles": 1
+ },
+ "detroit-mi/Signal": {
+  "labels": 17,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 17,
+  "osm_nodes": 474,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 17,
+   "median_m": 13.4,
+   "le5": 0.0,
+   "le10": 0.176,
+   "le15": 0.529,
+   "le25": 0.941
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "hackensack-nj/Crosswalk": {
+  "labels": 98,
+  "labels_correct": 35,
+  "labels_incorrect": 1,
+  "labels_undecided": 62,
+  "osm_nodes": 2318,
+  "osm_marked": 1661,
+  "osm_unmarked": 193,
+  "osm_unknown": 464,
+  "dist_any": {
+   "n": 98,
+   "median_m": 102.4,
+   "le5": 0.163,
+   "le10": 0.163,
+   "le15": 0.204,
+   "le25": 0.327
+  },
+  "dist_marked": {
+   "n": 98,
+   "median_m": 139.2,
+   "le5": 0.122,
+   "le10": 0.122,
+   "le15": 0.122,
+   "le25": 0.122
+  },
+  "tiles": 1
+ },
+ "hackensack-nj/Signal": {
+  "labels": 16,
+  "labels_correct": 3,
+  "labels_incorrect": 2,
+  "labels_undecided": 11,
+  "osm_nodes": 660,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 16,
+   "median_m": 18.3,
+   "le5": 0.0,
+   "le10": 0.062,
+   "le15": 0.312,
+   "le25": 0.938
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "clifton-nj/Crosswalk": {
+  "labels": 18,
+  "labels_correct": 7,
+  "labels_incorrect": 0,
+  "labels_undecided": 11,
+  "osm_nodes": 1795,
+  "osm_marked": 905,
+  "osm_unmarked": 130,
+  "osm_unknown": 760,
+  "dist_any": {
+   "n": 18,
+   "median_m": 6.4,
+   "le5": 0.5,
+   "le10": 0.611,
+   "le15": 0.611,
+   "le25": 0.611
+  },
+  "dist_marked": {
+   "n": 18,
+   "median_m": 100.8,
+   "le5": 0.278,
+   "le10": 0.389,
+   "le15": 0.389,
+   "le25": 0.389
+  },
+  "tiles": 1
+ },
+ "clifton-nj/Signal": {
+  "labels": 3,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 3,
+  "osm_nodes": 465,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 3,
+   "median_m": 17.1,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.0,
+   "le25": 0.667
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "maywood-nj/Crosswalk": {
+  "labels": 505,
+  "labels_correct": 127,
+  "labels_incorrect": 2,
+  "labels_undecided": 376,
+  "osm_nodes": 3260,
+  "osm_marked": 2118,
+  "osm_unmarked": 308,
+  "osm_unknown": 834,
+  "dist_any": {
+   "n": 241,
+   "median_m": 586.7,
+   "le5": 0.008,
+   "le10": 0.008,
+   "le15": 0.017,
+   "le25": 0.021
+  },
+  "dist_marked": {
+   "n": 203,
+   "median_m": 608.9,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.0,
+   "le25": 0.0
+  },
+  "tiles": 2
+ },
+ "maywood-nj/Signal": {
+  "labels": 31,
+  "labels_correct": 8,
+  "labels_incorrect": 1,
+  "labels_undecided": 22,
+  "osm_nodes": 907,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 31,
+   "median_m": 22.5,
+   "le5": 0.0,
+   "le10": 0.065,
+   "le15": 0.226,
+   "le25": 0.548
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "madison-wi/Crosswalk": {
+  "labels": 137,
+  "labels_correct": 45,
+  "labels_incorrect": 2,
+  "labels_undecided": 90,
+  "osm_nodes": 1842,
+  "osm_marked": 931,
+  "osm_unmarked": 378,
+  "osm_unknown": 533,
+  "dist_any": {
+   "n": 137,
+   "median_m": 2.7,
+   "le5": 0.664,
+   "le10": 0.781,
+   "le15": 0.854,
+   "le25": 0.898
+  },
+  "dist_marked": {
+   "n": 137,
+   "median_m": 3.1,
+   "le5": 0.599,
+   "le10": 0.708,
+   "le15": 0.781,
+   "le25": 0.825
+  },
+  "tiles": 1
+ },
+ "madison-wi/Signal": {
+  "labels": 12,
+  "labels_correct": 3,
+  "labels_incorrect": 0,
+  "labels_undecided": 9,
+  "osm_nodes": 342,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 12,
+   "median_m": 19.1,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.25,
+   "le25": 0.75
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "niagara-falls-ny/Crosswalk": {
+  "labels": 115,
+  "labels_correct": 12,
+  "labels_incorrect": 1,
+  "labels_undecided": 102,
+  "osm_nodes": 1855,
+  "osm_marked": 823,
+  "osm_unmarked": 353,
+  "osm_unknown": 679,
+  "dist_any": {
+   "n": 111,
+   "median_m": 24.5,
+   "le5": 0.378,
+   "le10": 0.414,
+   "le15": 0.45,
+   "le25": 0.505
+  },
+  "dist_marked": {
+   "n": 104,
+   "median_m": 97.3,
+   "le5": 0.26,
+   "le10": 0.279,
+   "le15": 0.308,
+   "le25": 0.356
+  },
+  "tiles": 3
+ },
+ "niagara-falls-ny/Signal": {
+  "labels": 70,
+  "labels_correct": 6,
+  "labels_incorrect": 0,
+  "labels_undecided": 64,
+  "osm_nodes": 642,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 68,
+   "median_m": 12.1,
+   "le5": 0.029,
+   "le10": 0.338,
+   "le15": 0.588,
+   "le25": 0.662
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 3
+ },
+ "chandigarh-india/Crosswalk": {
+  "labels": 94,
+  "labels_correct": 6,
+  "labels_incorrect": 2,
+  "labels_undecided": 86,
+  "osm_nodes": 106,
+  "osm_marked": 66,
+  "osm_unmarked": 1,
+  "osm_unknown": 39,
+  "dist_any": {
+   "n": 43,
+   "median_m": 446.7,
+   "le5": 0.023,
+   "le10": 0.023,
+   "le15": 0.023,
+   "le25": 0.047
+  },
+  "dist_marked": {
+   "n": 9,
+   "median_m": 655.5,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.0,
+   "le25": 0.0
+  },
+  "tiles": 2
+ },
+ "chandigarh-india/Signal": {
+  "labels": 6,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 6,
+  "osm_nodes": 82,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "rancagua-chile/Crosswalk": {
+  "labels": 148,
+  "labels_correct": 7,
+  "labels_incorrect": 1,
+  "labels_undecided": 140,
+  "osm_nodes": 2237,
+  "osm_marked": 370,
+  "osm_unmarked": 7,
+  "osm_unknown": 1860,
+  "dist_any": {
+   "n": 148,
+   "median_m": 4.4,
+   "le5": 0.554,
+   "le10": 0.757,
+   "le15": 0.77,
+   "le25": 0.777
+  },
+  "dist_marked": {
+   "n": 148,
+   "median_m": 201.3,
+   "le5": 0.101,
+   "le10": 0.149,
+   "le15": 0.155,
+   "le25": 0.155
+  },
+  "tiles": 1
+ },
+ "rancagua-chile/Signal": {
+  "labels": 143,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 143,
+  "osm_nodes": 541,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 143,
+   "median_m": 7.8,
+   "le5": 0.238,
+   "le10": 0.671,
+   "le15": 0.902,
+   "le25": 0.958
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "vancouver-wa/Crosswalk": {
+  "labels": 12,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 12,
+  "osm_nodes": 9734,
+  "osm_marked": 3240,
+  "osm_unmarked": 1827,
+  "osm_unknown": 4667,
+  "dist_any": {
+   "n": 12,
+   "median_m": 3.1,
+   "le5": 0.667,
+   "le10": 0.917,
+   "le15": 0.917,
+   "le25": 0.917
+  },
+  "dist_marked": {
+   "n": 12,
+   "median_m": 231.7,
+   "le5": 0.25,
+   "le10": 0.5,
+   "le15": 0.5,
+   "le25": 0.5
+  },
+  "tiles": 2
+ },
+ "vancouver-wa/Signal": {
+  "labels": 6,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 6,
+  "osm_nodes": 1012,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 6,
+   "median_m": 10.9,
+   "le5": 0.0,
+   "le10": 0.5,
+   "le15": 0.667,
+   "le25": 0.833
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "santiago-chile/Crosswalk": {
+  "labels": 128,
+  "labels_correct": 3,
+  "labels_incorrect": 0,
+  "labels_undecided": 125,
+  "osm_nodes": 9864,
+  "osm_marked": 7636,
+  "osm_unmarked": 429,
+  "osm_unknown": 1799,
+  "dist_any": {
+   "n": 128,
+   "median_m": 4.5,
+   "le5": 0.602,
+   "le10": 0.852,
+   "le15": 0.867,
+   "le25": 0.93
+  },
+  "dist_marked": {
+   "n": 128,
+   "median_m": 5.4,
+   "le5": 0.477,
+   "le10": 0.711,
+   "le15": 0.75,
+   "le25": 0.82
+  },
+  "tiles": 1
+ },
+ "santiago-chile/Signal": {
+  "labels": 116,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 116,
+  "osm_nodes": 6985,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 116,
+   "median_m": 6.8,
+   "le5": 0.284,
+   "le10": 0.802,
+   "le15": 0.931,
+   "le25": 0.991
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "tucson-az/Crosswalk": {
+  "labels": 691,
+  "labels_correct": 195,
+  "labels_incorrect": 8,
+  "labels_undecided": 488,
+  "osm_nodes": 10492,
+  "osm_marked": 2743,
+  "osm_unmarked": 3907,
+  "osm_unknown": 3842,
+  "dist_any": {
+   "n": 691,
+   "median_m": 2.9,
+   "le5": 0.637,
+   "le10": 0.738,
+   "le15": 0.805,
+   "le25": 0.826
+  },
+  "dist_marked": {
+   "n": 691,
+   "median_m": 3.3,
+   "le5": 0.601,
+   "le10": 0.708,
+   "le15": 0.776,
+   "le25": 0.797
+  },
+  "tiles": 3
+ },
+ "tucson-az/Signal": {
+  "labels": 138,
+  "labels_correct": 29,
+  "labels_incorrect": 1,
+  "labels_undecided": 108,
+  "osm_nodes": 2003,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 138,
+   "median_m": 14.6,
+   "le5": 0.029,
+   "le10": 0.203,
+   "le15": 0.551,
+   "le25": 0.891
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 3
+ },
+ "paterson-nj/Crosswalk": {
+  "labels": 5300,
+  "labels_correct": 41,
+  "labels_incorrect": 0,
+  "labels_undecided": 5259,
+  "osm_nodes": 3695,
+  "osm_marked": 1933,
+  "osm_unmarked": 289,
+  "osm_unknown": 1473,
+  "dist_any": {
+   "n": 5235,
+   "median_m": 239.1,
+   "le5": 0.156,
+   "le10": 0.176,
+   "le15": 0.201,
+   "le25": 0.218
+  },
+  "dist_marked": {
+   "n": 5080,
+   "median_m": 321.1,
+   "le5": 0.138,
+   "le10": 0.149,
+   "le15": 0.158,
+   "le25": 0.162
+  },
+  "tiles": 3
+ },
+ "paterson-nj/Signal": {
+  "labels": 159,
+  "labels_correct": 81,
+  "labels_incorrect": 2,
+  "labels_undecided": 76,
+  "osm_nodes": 818,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 159,
+   "median_m": 19.7,
+   "le5": 0.0,
+   "le10": 0.126,
+   "le15": 0.358,
+   "le25": 0.616
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "fort-wayne-in/Crosswalk": {
+  "labels": 75,
+  "labels_correct": 3,
+  "labels_incorrect": 0,
+  "labels_undecided": 72,
+  "osm_nodes": 4208,
+  "osm_marked": 1018,
+  "osm_unmarked": 1486,
+  "osm_unknown": 1704,
+  "dist_any": {
+   "n": 75,
+   "median_m": 71.3,
+   "le5": 0.267,
+   "le10": 0.333,
+   "le15": 0.36,
+   "le25": 0.387
+  },
+  "dist_marked": {
+   "n": 68,
+   "median_m": 157.0,
+   "le5": 0.147,
+   "le10": 0.206,
+   "le15": 0.25,
+   "le25": 0.309
+  },
+  "tiles": 3
+ },
+ "fort-wayne-in/Signal": {
+  "labels": 17,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 17,
+  "osm_nodes": 418,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 17,
+   "median_m": 386.0,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.412,
+   "le25": 0.412
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "virden-il/Crosswalk": {
+  "labels": 17,
+  "labels_correct": 7,
+  "labels_incorrect": 2,
+  "labels_undecided": 8,
+  "osm_nodes": 18,
+  "osm_marked": 4,
+  "osm_unmarked": 13,
+  "osm_unknown": 1,
+  "dist_any": {
+   "n": 16,
+   "median_m": 135.5,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.0,
+   "le25": 0.0
+  },
+  "dist_marked": {
+   "n": 13,
+   "median_m": 798.0,
+   "le5": 0.0,
+   "le10": 0.0,
+   "le15": 0.0,
+   "le25": 0.0
+  },
+  "tiles": 2
+ },
+ "virden-il/Signal": {
+  "labels": 5,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 5,
+  "osm_nodes": 8,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "gainesville-fl/Crosswalk": {
+  "labels": 2420,
+  "labels_correct": 15,
+  "labels_incorrect": 0,
+  "labels_undecided": 2405,
+  "osm_nodes": 6448,
+  "osm_marked": 2610,
+  "osm_unmarked": 2181,
+  "osm_unknown": 1657,
+  "dist_any": {
+   "n": 2419,
+   "median_m": 1.8,
+   "le5": 0.843,
+   "le10": 0.921,
+   "le15": 0.933,
+   "le25": 0.954
+  },
+  "dist_marked": {
+   "n": 2417,
+   "median_m": 2.5,
+   "le5": 0.643,
+   "le10": 0.704,
+   "le15": 0.717,
+   "le25": 0.735
+  },
+  "tiles": 2
+ },
+ "gainesville-fl/Signal": {
+  "labels": 719,
+  "labels_correct": 4,
+  "labels_incorrect": 0,
+  "labels_undecided": 715,
+  "osm_nodes": 912,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 719,
+   "median_m": 12.4,
+   "le5": 0.017,
+   "le10": 0.268,
+   "le15": 0.682,
+   "le25": 0.919
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 2
+ },
+ "sao-paulo-brazil/Crosswalk": {
+  "labels": 105,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 105,
+  "osm_nodes": 15105,
+  "osm_marked": 9064,
+  "osm_unmarked": 910,
+  "osm_unknown": 5131,
+  "dist_any": {
+   "n": 105,
+   "median_m": 4.0,
+   "le5": 0.581,
+   "le10": 0.762,
+   "le15": 0.829,
+   "le25": 0.867
+  },
+  "dist_marked": {
+   "n": 105,
+   "median_m": 6.5,
+   "le5": 0.476,
+   "le10": 0.61,
+   "le15": 0.657,
+   "le25": 0.724
+  },
+  "tiles": 1
+ },
+ "sao-paulo-brazil/Signal": {
+  "labels": 20,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 20,
+  "osm_nodes": 3978,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 20,
+   "median_m": 87.0,
+   "le5": 0.05,
+   "le10": 0.15,
+   "le15": 0.3,
+   "le25": 0.4
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "waltham-ma/Crosswalk": {
+  "labels": 281,
+  "labels_correct": 62,
+  "labels_incorrect": 2,
+  "labels_undecided": 217,
+  "osm_nodes": 5737,
+  "osm_marked": 2289,
+  "osm_unmarked": 1402,
+  "osm_unknown": 2046,
+  "dist_any": {
+   "n": 281,
+   "median_m": 1.8,
+   "le5": 0.836,
+   "le10": 0.893,
+   "le15": 0.9,
+   "le25": 0.9
+  },
+  "dist_marked": {
+   "n": 281,
+   "median_m": 4.4,
+   "le5": 0.505,
+   "le10": 0.552,
+   "le15": 0.577,
+   "le25": 0.591
+  },
+  "tiles": 2
+ },
+ "waltham-ma/Signal": {
+  "labels": 47,
+  "labels_correct": 1,
+  "labels_incorrect": 0,
+  "labels_undecided": 46,
+  "osm_nodes": 989,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 47,
+   "median_m": 8.6,
+   "le5": 0.085,
+   "le10": 0.66,
+   "le15": 0.894,
+   "le25": 0.894
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "houston-tx/Crosswalk": {
+  "labels": 71,
+  "labels_correct": 1,
+  "labels_incorrect": 0,
+  "labels_undecided": 70,
+  "osm_nodes": 14587,
+  "osm_marked": 6615,
+  "osm_unmarked": 4672,
+  "osm_unknown": 3300,
+  "dist_any": {
+   "n": 71,
+   "median_m": 2.8,
+   "le5": 0.648,
+   "le10": 0.845,
+   "le15": 0.901,
+   "le25": 0.944
+  },
+  "dist_marked": {
+   "n": 71,
+   "median_m": 9.3,
+   "le5": 0.423,
+   "le10": 0.535,
+   "le15": 0.577,
+   "le25": 0.62
+  },
+  "tiles": 2
+ },
+ "houston-tx/Signal": {
+  "labels": 17,
+  "labels_correct": 12,
+  "labels_incorrect": 0,
+  "labels_undecided": 5,
+  "osm_nodes": 2627,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 17,
+   "median_m": 528.1,
+   "le5": 0.118,
+   "le10": 0.412,
+   "le15": 0.412,
+   "le25": 0.412
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 1
+ },
+ "newport-ky/Crosswalk": {
+  "labels": 2,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 2,
+  "osm_nodes": 1550,
+  "osm_marked": 721,
+  "osm_unmarked": 386,
+  "osm_unknown": 443,
+  "dist_any": {
+   "n": 2,
+   "median_m": 7.2,
+   "le5": 0.0,
+   "le10": 1.0,
+   "le15": 1.0,
+   "le25": 1.0
+  },
+  "dist_marked": {
+   "n": 2,
+   "median_m": 7.2,
+   "le5": 0.0,
+   "le10": 1.0,
+   "le15": 1.0,
+   "le25": 1.0
+  },
+  "tiles": 1
+ },
+ "newport-ky/Signal": {
+  "labels": 0,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 0,
+  "osm_nodes": 0,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 0
+ },
+ "bayonne-fr/Crosswalk": {
+  "labels": 9,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 9,
+  "osm_nodes": 1785,
+  "osm_marked": 1280,
+  "osm_unmarked": 16,
+  "osm_unknown": 489,
+  "dist_any": {
+   "n": 9,
+   "median_m": 3.4,
+   "le5": 0.778,
+   "le10": 1.0,
+   "le15": 1.0,
+   "le25": 1.0
+  },
+  "dist_marked": {
+   "n": 9,
+   "median_m": 3.4,
+   "le5": 0.778,
+   "le10": 1.0,
+   "le15": 1.0,
+   "le25": 1.0
+  },
+  "tiles": 1
+ },
+ "bayonne-fr/Signal": {
+  "labels": 0,
+  "labels_correct": 0,
+  "labels_incorrect": 0,
+  "labels_undecided": 0,
+  "osm_nodes": 0,
+  "osm_marked": 0,
+  "osm_unmarked": 0,
+  "osm_unknown": 0,
+  "dist_any": {
+   "n": 0
+  },
+  "dist_marked": {
+   "n": 0
+  },
+  "tiles": 0
+ }
+}

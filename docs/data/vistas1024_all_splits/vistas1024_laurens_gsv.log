@@ -1,0 +1,44 @@
+WARNING: --usage-log points inside this worktree (/homes/gws/jonf/wt-vistas1024), not the main checkout (/homes/gws/jonf/RampNet). A worktree is deleted when its session ends and takes the ledger with it; commit the log or point it at the main checkout.
+
+Bundle: benchmark/laurens_gsv  (86 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/wt-vistas1024/vistas1024_run/model_cache
+
+Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights: 100%|██████████| 758/758 [00:00<00:00, 12973.75it/s]
+[transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
+Key                                                                                                                      | Status     | 
+-------------------------------------------------------------------------------------------------------------------------+------------+-
+model.pixel_level_module.encoder.swin.encoder.layers.{0, 1, 2, 3}.blocks.{0...17}.attention.self.relative_position_index | UNEXPECTED | 
+model.pixel_level_module.encoder.swin.layernorm.bias                                                                     | MISSING    | 
+model.pixel_level_module.encoder.swin.layernorm.weight                                                                   | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[mask2former-vistas-curb-cut] time this run: 206.7s wall  (12.3s model load, 194.1s inference over 86 pano(s), 2.26 s/pano)
+[mask2former-vistas-curb-cut] usage logged to /homes/gws/jonf/wt-vistas1024/vistas1024_run/usage_log.jsonl
+[mask2former-vistas-curb-cut] ledger now: 5 rows, $0.00, 0.2 h
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+rampnet                               0.933   (0.874-0.966)  0.509   (0.443-0.574)  0.659  0.494        112/8/108/1
+mask2former-vistas-curb-cut           0.377   (0.335-0.422)  0.818   (0.762-0.864)  0.516  0.481       180/297/40/8
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   86 (of 86 seen)
+Detections judged:    120  (correct 111, incorrect 9)
+Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    1  (abstained — not in precision or recall)
+Missed ramps marked:  109  (+19 unsure, abstained)
+Precision: 0.925  (95% CI 0.864-0.960)
+Recall:    0.505  (95% CI 0.439-0.570)  [vs ramps visible in the 86 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    120      0.925    0.505
+     0.60    110      0.927    0.464
+     0.65     93      0.914    0.386
+     0.70     81      0.938    0.345
+     0.75     65      0.954    0.282
+     0.80     48      0.958    0.209
+     0.85     32      1.000    0.145
+     0.90     17      1.000    0.077
+     0.95      6      1.000    0.027

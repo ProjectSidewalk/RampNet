@@ -1,0 +1,247 @@
+{
+ "files": [
+  {
+   "bytes": 263784,
+   "file": "richmond_hits.jpg",
+   "sha256": "06ebbef21875864a8d37ea94b9fb5a161f58e3f2f38ce654e31065e266b32274"
+  },
+  {
+   "bytes": 277639,
+   "file": "richmond_misses.jpg",
+   "sha256": "86cd429b2ddf8e5d1f9cd4b859fe834c61a51c918c38b39f328c622eaa3e0050"
+  },
+  {
+   "bytes": 252653,
+   "file": "richmond_unmatched_stretch.jpg",
+   "sha256": "e765d989117bda3362770cc0656467c6095358e570a8d9bc1a492ae739396d8d"
+  },
+  {
+   "bytes": 444833,
+   "file": "seoul_strip.jpg",
+   "sha256": "2a3ab86e4ee832ea0132f45a0e14d1352ebaf17e23a51f31746996cdfa63d2fa"
+  },
+  {
+   "bytes": 80871,
+   "file": "canvas_geometry.jpg",
+   "sha256": "3dea2ed97f8b954bf752d1cb4e74e99c9b67533386e83ea002fb03256012ccb3"
+  }
+ ],
+ "misses_viewed": [
+  {
+   "image_id": "320533466155073",
+   "ramp": "richmond:22",
+   "seen": "not visible: locus is mid-road, no ramp there"
+  },
+  {
+   "image_id": "301315184774353",
+   "ramp": "richmond:31",
+   "seen": "not plainly visible: locus is on the far crosswalk"
+  },
+  {
+   "image_id": "590984823847247",
+   "ramp": "richmond:93",
+   "seen": "visible: tactile-paved ramp right of the locus"
+  },
+  {
+   "image_id": "1301363080261966",
+   "ramp": "richmond:8",
+   "seen": "not visible: locus is mid-road"
+  },
+  {
+   "image_id": "648022270132445",
+   "ramp": "richmond:195",
+   "seen": "unclear: plaza edge at the crosswalk, no clear ramp"
+  },
+  {
+   "image_id": "952482502230245",
+   "ramp": "richmond:145",
+   "seen": "visible: tactile-paved ramp at the right edge"
+  },
+  {
+   "image_id": "323753172499410",
+   "ramp": "richmond:144",
+   "seen": "visible: tactile-paved ramp at the right edge"
+  },
+  {
+   "image_id": "477911040083348",
+   "ramp": "richmond:188",
+   "seen": "not visible: locus is mid-road"
+  },
+  {
+   "image_id": "2907449746136160",
+   "ramp": "richmond:19",
+   "seen": "not visible: night, motion blur"
+  },
+  {
+   "image_id": "496296311587433",
+   "ramp": "richmond:108",
+   "seen": "not visible: locus falls on a porch (pose error)"
+  },
+  {
+   "image_id": "271541614653055",
+   "ramp": "richmond:221",
+   "seen": "not visible: locus is mid-road"
+  },
+  {
+   "image_id": "1195329198857725",
+   "ramp": "richmond:24",
+   "seen": "unclear: locus at a crosswalk end, curb not clearly ramped"
+  },
+  {
+   "image_id": "1791267528389167",
+   "ramp": "richmond:77",
+   "seen": "not visible: occluded by a vehicle"
+  },
+  {
+   "image_id": "1092779572545829",
+   "ramp": "richmond:74",
+   "seen": "not visible at the locus: crosswalk edge by the median"
+  },
+  {
+   "image_id": "532146831289058",
+   "ramp": "richmond:52",
+   "seen": "not visible: locus is mid-road"
+  }
+ ],
+ "note": "sha256 of each JPEG as rendered here; matplotlib / Pillow versions can change the bytes, not the selection",
+ "selection": {
+  "hits": [
+   {
+    "camera": "GoPro HERO11 Black",
+    "canvas_level_det": 0,
+    "canvas_level_score": 1.000333,
+    "canvas_sfm_det": 1,
+    "canvas_sfm_score": 0.984863,
+    "capture_date": "2024-06-09",
+    "dbear": -35.56,
+    "hfov": 115.3,
+    "image_id": "1179269906550644",
+    "pano": {
+     "dist_m": 8.1237,
+     "pano_id": "2295556777532722",
+     "world_conf": 0.9418,
+     "x_proj": 0.894,
+     "y_proj": 0.5986
+    },
+    "ramp": "richmond:151",
+    "range": 13.92,
+    "stretch_det": 1,
+    "stretch_score": 0.654043
+   },
+   {
+    "camera": "GoPro HERO11 Black",
+    "canvas_level_det": 0,
+    "canvas_level_score": 0.952879,
+    "canvas_sfm_det": 0,
+    "canvas_sfm_score": 0.970645,
+    "capture_date": "2024-06-29",
+    "dbear": 45.42,
+    "hfov": 113.8,
+    "image_id": "3785592465055349",
+    "pano": {
+     "dist_m": 4.3641,
+     "pano_id": "415775934748328",
+     "world_conf": 0.9126,
+     "x_proj": 0.8986,
+     "y_proj": 0.671
+    },
+    "ramp": "richmond:42",
+    "range": 7.11,
+    "stretch_det": 2,
+    "stretch_score": 0.639764
+   }
+  ],
+  "misses": [
+   {
+    "camera": "none none",
+    "canvas_level_det": null,
+    "canvas_level_score": null,
+    "canvas_sfm_det": null,
+    "canvas_sfm_score": null,
+    "capture_date": "2025-02-03",
+    "dbear": -0.69,
+    "hfov": 81.5,
+    "image_id": "590984823847247",
+    "pano": {
+     "dist_m": 6.6297,
+     "pano_id": "780062717703110",
+     "world_conf": 0.989,
+     "x_proj": 0.6567,
+     "y_proj": 0.619
+    },
+    "ramp": "richmond:93",
+    "range": 10.59,
+    "stretch_det": null,
+    "stretch_score": null
+   },
+   {
+    "camera": "motorola moto x4",
+    "canvas_level_det": null,
+    "canvas_level_score": null,
+    "canvas_sfm_det": null,
+    "canvas_sfm_score": null,
+    "capture_date": "2018-01-14",
+    "dbear": -1.48,
+    "hfov": 68.9,
+    "image_id": "952482502230245",
+    "pano": {
+     "dist_m": 9.7221,
+     "pano_id": "1476351756864913",
+     "world_conf": 0.9454,
+     "x_proj": 0.6295,
+     "y_proj": 0.5832
+    },
+    "ramp": "richmond:145",
+    "range": 11.8,
+    "stretch_det": null,
+    "stretch_score": null
+   }
+  ],
+  "seoul": [
+   "IMG_4664.HEIC",
+   "IMG_4683.HEIC",
+   "IMG_6579.HEIC",
+   "IMG_6464.HEIC"
+  ],
+  "stretch": {
+   "camera": "Apple iPhone",
+   "canvas_level_det": null,
+   "canvas_level_score": null,
+   "canvas_sfm_det": null,
+   "canvas_sfm_score": null,
+   "capture_date": "2018-09-08",
+   "dbear": 6.42,
+   "hfov": 61.8,
+   "image_id": "925996624882475",
+   "pano": {
+    "dist_m": 8.5276,
+    "pano_id": "1688913568343197",
+    "world_conf": 0.9508,
+    "x_proj": 0.9207,
+    "y_proj": 0.5942
+   },
+   "ramp": "richmond:190",
+   "range": 10.76,
+   "stretch_det": 0,
+   "stretch_score": 0.879972
+  },
+  "unmatched": {
+   "crop_box": [
+    1269,
+    569,
+    1989,
+    1049
+   ],
+   "det": 0,
+   "height": 1536,
+   "image_id": "386400549226049",
+   "item": "d001",
+   "matched_ramp": null,
+   "pool_negative": true,
+   "score": 0.477402,
+   "u": 1629.06,
+   "v": 809.47,
+   "width": 2048
+  }
+ }
+}

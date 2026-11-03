@@ -97,3 +97,54 @@ analysis_out/multiview_48/** text eol=lf
 benchmark/richmond_neighbourhood/records.jsonl -text
 # The klone offload's pano list, read by make_shards.py on Linux.
 scripts/analysis/multiview_48_klone/new_panos.txt text eol=lf
+# #48 cross-view placement harness: pairs.csv and fresh/pairs.csv are sha256-pinned
+# (PAIRS_SHA256, FRESH_PAIRS_SHA256) and read_frozen_pairs refuses any other bytes; every
+# prediction meta, results.json and fresh/confirmation.json are re-derived byte for byte by
+# the tests. All are written LF. An autocrlf=true clone would otherwise check them out CRLF
+# and fail those checks for files that are byte-correct (review of #220).
+analysis_out/crossview_align_48/** text eol=lf
+# #221 sub-cell decode: detections.json sha256 is quoted in docs/subcell_decode_221.md, and
+# the tests re-derive results.json from it. Written LF by subcell_decode_221.py.
+analysis_out/subcell_decode_221/** text eol=lf
+
+# #217: the Seoul GT table is kept byte-identical to the Zenodo file (its md5 is checked
+# against the manifest's Zenodo md5 by `seoul_fetch_217.py verify` and by
+# tests/test_sidewalk_width_217.py).
+data/seoul_sidewalk_217/*.csv  binary
+
+# The Seoul dataset's own summary table (#218), byte-identical to the Zenodo file so its md5 checks.
+analysis_out/perspective_photos_218/seoul/summary_attributes.csv  binary
+
+# #111 depth manifests are hash-bearing records written LF by harvest_depth_111.py; keep them LF
+# whatever a contributor's core.autocrlf says (docs/benchmark_depth_111.md).
+benchmark/*/depth_manifest.json        text eol=lf
+benchmark/*/depth_labeler_compare.json text eol=lf
+
+# The #113 crop-tilt outputs are byte-compared by scripts/analysis/crop_tilt_113.py --check.
+analysis_out/crop_tilt_113/** text eol=lf
+
+# #263 Track 1 open-rig miss report: open_rig_misses_258.py --check compares the JSON and the
+# doc's generated tables (a CRLF doc matches no block) byte for byte, so an autocrlf=true
+# clone must not rewrite either file's line endings.
+analysis_out/open_rig_misses_258.json text eol=lf
+docs/open_rig_misses_258.md text eol=lf
+
+# #263 Track 1 laurens_gsv GPU run logs: byte-exact as fetched from makelab2.
+analysis_out/open_rig_258/** -text
+
+# The Lyon label audit (#159, #263): the sha256 of audit_plan.json and records.jsonl is posted
+# on #159 and `lyon_review_159.py score` refuses a plan whose bytes differ, and the never-train
+# lists are read as LF. Keep git from rewriting their line endings on any checkout.
+benchmark/lyon/*  -text
+# #263 control arm: the caches are byte-compared (determinism) and the reports are compared by
+# control_arm_263.py --check, so neither may be re-ended on checkout.
+analysis_out/control_arm_263/** -text
+docs/control_arm_263.md text eol=lf
+
+# Image-based pano tilt (docs/pano_tilt_estimate.md): `pano_tilt_estimate.py summarize` and
+# tests/test_pano_tilt.py compare the summaries byte for byte with a re-derivation from the
+# committed rows, and `ids` compares the id list. All are written LF on every platform.
+analysis_out/pano_tilt/** text eol=lf
+
+# Lyon audit results (#159): written LF and checked byte for byte by lyon_review_159.py.
+analysis_out/lyon_review_159/** text eol=lf

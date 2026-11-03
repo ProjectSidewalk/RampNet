@@ -1,0 +1,440 @@
+{
+ "definitions": {
+  "above_horizon": "y_normalized < 0.5",
+  "fixed_cell": "peak in a 1024x512 cell that holds a >= 0.3 peak in >= 5 panos of its own sequence (the pano included)"
+ },
+ "items": [
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.3251,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "03a2955b-7c17-46ae-a4e9-8b3ee4969261",
+   "peak": 4,
+   "x": 0.4717,
+   "y": 0.4766
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 4,
+   "confidence": 0.9105,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "13b2b34b-c732-452d-b547-de61081923ed",
+   "peak": 0,
+   "x": 0.4258,
+   "y": 0.4902
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.3202,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "13b2b34b-c732-452d-b547-de61081923ed",
+   "peak": 1,
+   "x": 0.5352,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.3196,
+   "fixed_cell": false,
+   "group": "other_gopro_max",
+   "pano": "272f58bc-36eb-4184-ae3f-485cdaaa12e9",
+   "peak": 2,
+   "x": 0.4561,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 6,
+   "confidence": 0.6181,
+   "fixed_cell": true,
+   "group": "grand_lyon_ladybug",
+   "pano": "4cc98851-a96c-4229-87a5-1268ccfb65db",
+   "peak": 1,
+   "x": 0.5352,
+   "y": 0.5391
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 11,
+   "confidence": 0.3817,
+   "fixed_cell": true,
+   "group": "grand_lyon_ladybug",
+   "pano": "4cc98851-a96c-4229-87a5-1268ccfb65db",
+   "peak": 2,
+   "x": 0.9717,
+   "y": 0.5391
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 8,
+   "confidence": 0.8096,
+   "fixed_cell": true,
+   "group": "grand_lyon_ladybug",
+   "pano": "4f78e494-f18b-4882-87d1-a49b08688398",
+   "peak": 0,
+   "x": 0.0352,
+   "y": 0.5391
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 4,
+   "confidence": 0.5998,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "52847a1b-e7de-43a6-9cec-183dd9a4f0fd",
+   "peak": 0,
+   "x": 0.9639,
+   "y": 0.4766
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 3,
+   "confidence": 0.4593,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "52847a1b-e7de-43a6-9cec-183dd9a4f0fd",
+   "peak": 1,
+   "x": 0.0576,
+   "y": 0.4902
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.3216,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "5a7ee908-7735-462c-a06f-924734c70289",
+   "peak": 1,
+   "x": 0.4961,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 26,
+   "confidence": 0.5538,
+   "fixed_cell": true,
+   "group": "grand_lyon_ladybug",
+   "pano": "5d9e19f2-38fa-4ceb-a877-d40b9a013d2c",
+   "peak": 0,
+   "x": 0.0264,
+   "y": 0.2871
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 12,
+   "confidence": 0.447,
+   "fixed_cell": true,
+   "group": "grand_lyon_ladybug",
+   "pano": "5d9e19f2-38fa-4ceb-a877-d40b9a013d2c",
+   "peak": 1,
+   "x": 0.9873,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 26,
+   "confidence": 0.3961,
+   "fixed_cell": true,
+   "group": "grand_lyon_ladybug",
+   "pano": "5d9e19f2-38fa-4ceb-a877-d40b9a013d2c",
+   "peak": 2,
+   "x": 0.4961,
+   "y": 0.5059
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 19,
+   "confidence": 0.3756,
+   "fixed_cell": true,
+   "group": "grand_lyon_ladybug",
+   "pano": "5d9e19f2-38fa-4ceb-a877-d40b9a013d2c",
+   "peak": 3,
+   "x": 0.5195,
+   "y": 0.5059
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.3217,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "5df72f9d-340d-42a8-897e-49536cecb759",
+   "peak": 6,
+   "x": 0.9805,
+   "y": 0.4609
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.6333,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "6359cf72-cb45-439d-999e-11b402ab0ce5",
+   "peak": 2,
+   "x": 0.9326,
+   "y": 0.4453
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.3117,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "6359cf72-cb45-439d-999e-11b402ab0ce5",
+   "peak": 4,
+   "x": 0.043,
+   "y": 0.4766
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 4,
+   "confidence": 0.6521,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "6e9ff6fc-cafe-47d6-931f-3f607cef4471",
+   "peak": 0,
+   "x": 0.4482,
+   "y": 0.4766
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.5143,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "87819c5c-a869-45d3-adac-0236504336ae",
+   "peak": 1,
+   "x": 0.0576,
+   "y": 0.4453
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.5694,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "93cef77e-a16c-4e6c-a5e5-1d380b03243d",
+   "peak": 0,
+   "x": 0.0264,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.5923,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "94f69dba-977b-49e8-91e5-11e7fc5b4984",
+   "peak": 1,
+   "x": 0.0664,
+   "y": 0.459
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.7882,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "966f06a8-f832-4760-accc-d01ea9bfc15d",
+   "peak": 0,
+   "x": 0.957,
+   "y": 0.4434
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.3123,
+   "fixed_cell": false,
+   "group": "other_cameras",
+   "pano": "9c6dfd07-8e0a-432d-b485-5d994fcc4905",
+   "peak": 2,
+   "x": 0.5352,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 5,
+   "confidence": 0.802,
+   "fixed_cell": true,
+   "group": "ecartip_gopro_max",
+   "pano": "b0b721cf-c9a5-4935-91b3-1c60479fd5bf",
+   "peak": 0,
+   "x": 0.0273,
+   "y": 0.584
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 6,
+   "confidence": 0.3088,
+   "fixed_cell": true,
+   "group": "ecartip_gopro_max",
+   "pano": "b0b721cf-c9a5-4935-91b3-1c60479fd5bf",
+   "peak": 4,
+   "x": 0.957,
+   "y": 0.5859
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.7743,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "b3f788cb-f94a-495c-a769-4da77d13edbe",
+   "peak": 0,
+   "x": 0.0107,
+   "y": 0.4297
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.5966,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "b3f788cb-f94a-495c-a769-4da77d13edbe",
+   "peak": 1,
+   "x": 0.8623,
+   "y": 0.4453
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.6987,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "c0f8529c-bf06-4c65-a389-4ee227f91852",
+   "peak": 0,
+   "x": 0.9717,
+   "y": 0.4902
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 2,
+   "confidence": 0.3754,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "c0f8529c-bf06-4c65-a389-4ee227f91852",
+   "peak": 1,
+   "x": 0.0273,
+   "y": 0.4766
+  },
+  {
+   "above_horizon": false,
+   "cell_panos_in_sequence": 6,
+   "confidence": 0.7339,
+   "fixed_cell": true,
+   "group": "ecartip_gopro_max",
+   "pano": "ccd9dd72-1a99-4d0c-8539-cdf84b5d3268",
+   "peak": 1,
+   "x": 0.9414,
+   "y": 0.6016
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.8857,
+   "fixed_cell": false,
+   "group": "other_gopro_max",
+   "pano": "d86d4363-e12f-4be8-b906-8a194a77fd12",
+   "peak": 0,
+   "x": 0.0811,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.5348,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "db1b26ae-dd49-40fb-8522-ef58fbd6e813",
+   "peak": 1,
+   "x": 0.9023,
+   "y": 0.4453
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.5588,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "e0c7e610-ffd7-4cdd-929a-943aebf3b05c",
+   "peak": 0,
+   "x": 0.0586,
+   "y": 0.4766
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.3578,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "e0c7e610-ffd7-4cdd-929a-943aebf3b05c",
+   "peak": 1,
+   "x": 0.9717,
+   "y": 0.4922
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.7258,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "eb84933a-6801-4323-968f-0c2c04bee97b",
+   "peak": 0,
+   "x": 0.0195,
+   "y": 0.4902
+  },
+  {
+   "above_horizon": true,
+   "cell_panos_in_sequence": 1,
+   "confidence": 0.6136,
+   "fixed_cell": false,
+   "group": "ecartip_gopro_max",
+   "pano": "ef0751f9-0c10-48fb-8f75-5d0e30feb5eb",
+   "peak": 1,
+   "x": 0.5039,
+   "y": 0.459
+  }
+ ],
+ "per_group": {
+  "ecartip_gopro_max": {
+   "above_horizon_030": 23,
+   "above_horizon_055": 13,
+   "fixed_cell_030": 3,
+   "fixed_cell_055": 2,
+   "peaks030": 177,
+   "peaks055": 96
+  },
+  "grand_lyon_ladybug": {
+   "above_horizon_030": 2,
+   "above_horizon_055": 1,
+   "fixed_cell_030": 7,
+   "fixed_cell_055": 3,
+   "peaks030": 214,
+   "peaks055": 143
+  },
+  "other_cameras": {
+   "above_horizon_030": 1,
+   "above_horizon_055": 0,
+   "fixed_cell_030": 0,
+   "fixed_cell_055": 0,
+   "peaks030": 80,
+   "peaks055": 49
+  },
+  "other_gopro_max": {
+   "above_horizon_030": 2,
+   "above_horizon_055": 1,
+   "fixed_cell_030": 0,
+   "fixed_cell_055": 0,
+   "peaks030": 84,
+   "peaks055": 50
+  }
+ },
+ "results_jsonl_sha256": "60e688b28b62f85e71f51c603dc1b6f4ff020348220c6cc7955891dcfef061ef",
+ "what": "GT-free counts of the #159 known artifacts on the bundle's stored peaks. DO NOT open `items` before verdicts.json is exported: it names places you are about to judge."
+}

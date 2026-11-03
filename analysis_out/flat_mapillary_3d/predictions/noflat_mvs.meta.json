@@ -1,0 +1,25 @@
+{
+ "arm": "noflat_mvs",
+ "config": {
+  "control": "pano views only",
+  "corners": "analysis_out/flat_mapillary_3d/corners/",
+  "lift": "MVS depth",
+  "reconstruction": "scripts/analysis/flat3d/reconstruct.py (config in each corner's result.json)"
+ },
+ "description": "control: MVS depth with the flat images left out",
+ "elapsed_s": 0.0498,
+ "fallback": 246,
+ "gpu_visible": "NVIDIA GeForce RTX 3070",
+ "host": "jonfhome",
+ "missing_inputs": 0,
+ "needs": [],
+ "pairs": 300,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "ts": "2026-09-29T08:08:33Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "numpy": "2.5.1",
+  "python": "3.12.10",
+  "torch": "2.6.0+cu126"
+ }
+}

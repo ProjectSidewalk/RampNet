@@ -311,6 +311,9 @@ rubric text and version travel in the file itself.
 - **The rubric is retroactive.** The original 1,000-pano pass had none; `benchmark/RUBRICS.md` §4 was
   written on 2026-08-18, after the defect was found. A second pass measures labelling disagreement
   only if it uses the same version.
+- **Inference-side NMS across the seam** is now an opt-in option, `detect_peaks(..., wrap_nms=True)`
+  (default off). Its measurement, and why scoring it needs the GT merge first, are in
+  [`seam_nms_248.md`](seam_nms_248.md) ([#248](https://github.com/ProjectSidewalk/RampNet/issues/248)).
 - **Not done:** the GT merge itself; the Stage 1 generator fix; regenerating the `op_caches`; the
   three remaining clamping viewers in §5; the 234 non-seam within-radius pairs, which have never
   been adjudicated and have no tool.

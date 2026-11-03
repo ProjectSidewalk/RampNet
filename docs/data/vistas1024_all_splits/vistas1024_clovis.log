@@ -1,0 +1,43 @@
+WARNING: --usage-log points inside this worktree (/homes/gws/jonf/wt-vistas1024), not the main checkout (/homes/gws/jonf/RampNet). A worktree is deleted when its session ends and takes the ledger with it; commit the log or point it at the main checkout.
+
+Bundle: benchmark/clovis  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/wt-vistas1024/vistas1024_run/model_cache
+
+Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights:   4%|▍         | 31/758 [00:00<00:04, 176.50it/s]Loading weights:   6%|▋         | 49/758 [00:00<00:04, 167.70it/s]Loading weights:  19%|█▉        | 144/758 [00:00<00:01, 462.11it/s]Loading weights:  27%|██▋       | 205/758 [00:00<00:01, 492.82it/s]Loading weights:  34%|███▍      | 259/758 [00:00<00:01, 434.40it/s]Loading weights:  40%|████      | 306/758 [00:00<00:01, 356.34it/s]Loading weights:  46%|████▌     | 346/758 [00:00<00:01, 340.25it/s]Loading weights:  51%|█████     | 383/758 [00:01<00:01, 329.73it/s]Loading weights:  55%|█████▌    | 418/758 [00:01<00:01, 318.58it/s]Loading weights:  59%|█████▉    | 451/758 [00:01<00:01, 298.32it/s]Loading weights:  65%|██████▍   | 490/758 [00:01<00:00, 320.91it/s]Loading weights:  69%|██████▉   | 524/758 [00:01<00:00, 295.27it/s]Loading weights:  76%|███████▌  | 577/758 [00:01<00:00, 338.12it/s]Loading weights:  85%|████████▌ | 648/758 [00:01<00:00, 431.27it/s]Loading weights:  94%|█████████▍| 714/758 [00:01<00:00, 487.88it/s]Loading weights: 100%|██████████| 758/758 [00:01<00:00, 386.47it/s]
+[transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
+Key                                                                                                                      | Status     | 
+-------------------------------------------------------------------------------------------------------------------------+------------+-
+model.pixel_level_module.encoder.swin.encoder.layers.{0, 1, 2, 3}.blocks.{0...17}.attention.self.relative_position_index | UNEXPECTED | 
+model.pixel_level_module.encoder.swin.layernorm.bias                                                                     | MISSING    | 
+model.pixel_level_module.encoder.swin.layernorm.weight                                                                   | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[mask2former-vistas-curb-cut] time this run: 203.3s wall  (23.8s model load, 179.2s inference over 125 pano(s), 1.43 s/pano)
+[mask2former-vistas-curb-cut] usage logged to /homes/gws/jonf/wt-vistas1024/vistas1024_run/usage_log.jsonl
+[mask2former-vistas-curb-cut] ledger now: 1 rows, $0.00, 0.1 h
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+rampnet                               0.914   (0.859-0.949)  0.713   (0.646-0.772)  0.801  0.688       139/13/56/12
+mask2former-vistas-curb-cut           0.233   (0.204-0.265)  0.877   (0.823-0.916)  0.368  0.320      171/563/24/16
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    152  (correct 139, incorrect 13)
+Detections unsure:    12  (abstained — not in precision or recall)
+Missed ramps marked:  56  (+21 unsure, abstained)
+Precision: 0.914  (95% CI 0.859-0.949)
+Recall:    0.713  (95% CI 0.646-0.772)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    152      0.914    0.713
+     0.60    140      0.936    0.672
+     0.65    126      0.937    0.605
+     0.70    115      0.948    0.559
+     0.75     96      0.938    0.462
+     0.80     75      0.973    0.374
+     0.85     47      0.979    0.236
+     0.90     25      0.960    0.123
+     0.95      6      1.000    0.031

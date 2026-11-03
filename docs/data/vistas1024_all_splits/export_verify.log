@@ -1,0 +1,5 @@
+# export_model_cache.py --verify --models vistas:curb-cut --vistas-input-size 1024 1024 --splits clovis,morgantown,laurens_mapillary,juneau,laurens_gsv,budapest_district5,sao_paulo,bayonne,manual_gold
+# run 2026-10-20 on jonfhome against the makelab2 run's cache, copied as vistas1024_run.tgz sha256 a94c639654ef1d7a9794c3aef339267380f457cd265e7c0c85dd13f32a6002f4 (1930 shards; the tarball also holds env.txt, run.log, logs/ and usage_log.jsonl)
+# cache path below is the local unpacked copy
+compared 9 (model, split) pair(s) against C:/Users/jonf/AppData/Local/Temp/claude/D--Git-RampNet/382357d1-b7b5-484e-8415-1b6ed15f7991/scratchpad/run/vistas1024_run/model_cache
+9 pair(s): published detections score IDENTICALLY to the cache

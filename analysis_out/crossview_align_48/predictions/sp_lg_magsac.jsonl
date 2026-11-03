@@ -1,0 +1,300 @@
+{"inliers": 13, "n_ground": 54, "n_matches": 300, "pair_id": "p000", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 9, "n_ground": 25, "n_matches": 216, "pair_id": "p001", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 9, "n_matches": 90, "pair_id": "p002", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 31, "n_ground": 127, "n_matches": 476, "pair_id": "p003", "u": 561.874484, "v": 428.257522, "via": "homography", "x": 0.657845, "y": 0.587805}
+{"inliers": 0, "n_ground": 2, "n_matches": 381, "pair_id": "p004", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 1, "n_matches": 315, "pair_id": "p005", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 99, "n_ground": 297, "n_matches": 648, "pair_id": "p006", "u": 569.598182, "v": 379.298338, "via": "homography", "x": 0.325519, "y": 0.56319}
+{"inliers": 38, "n_ground": 107, "n_matches": 281, "pair_id": "p007", "u": 437.46054, "v": 398.050227, "via": "homography", "x": 0.824012, "y": 0.561315}
+{"inliers": 5, "n_ground": 11, "n_matches": 14, "pair_id": "p008", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 113, "n_ground": 266, "n_matches": 492, "pair_id": "p009", "u": 529.879138, "v": 428.633847, "via": "homography", "x": 0.837803, "y": 0.61124}
+{"inliers": 10, "n_ground": 23, "n_matches": 35, "pair_id": "p010", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 17, "n_ground": 40, "n_matches": 74, "pair_id": "p011", "u": 501.858884, "v": 267.589919, "via": "homography", "x": 0.920684, "y": 0.547329}
+{"inliers": 124, "n_ground": 251, "n_matches": 751, "pair_id": "p012", "u": 478.34268, "v": 380.183873, "via": "homography", "x": 0.111661, "y": 0.565089}
+{"inliers": 6, "n_ground": 13, "n_matches": 185, "pair_id": "p013", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 118, "n_ground": 436, "n_matches": 546, "pair_id": "p014", "u": 587.710997, "v": 381.811537, "via": "homography", "x": 0.638437, "y": 0.594006}
+{"inliers": 42, "n_ground": 75, "n_matches": 118, "pair_id": "p015", "u": 425.868925, "v": 424.658757, "via": "homography", "x": 0.886784, "y": 0.590935}
+{"inliers": 5, "n_ground": 16, "n_matches": 24, "pair_id": "p016", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 4, "n_matches": 7, "pair_id": "p017", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 38, "n_ground": 147, "n_matches": 147, "pair_id": "p018", "u": 445.217575, "v": 420.87955, "via": "homography", "x": 0.8776, "y": 0.607615}
+{"inliers": 16, "n_ground": 27, "n_matches": 249, "pair_id": "p019", "u": 498.081525, "v": 383.381546, "via": "homography", "x": 0.164202, "y": 0.546483}
+{"inliers": 5, "n_ground": 13, "n_matches": 26, "pair_id": "p020", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 10, "n_ground": 36, "n_matches": 125, "pair_id": "p021", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 28, "n_ground": 139, "n_matches": 197, "pair_id": "p022", "u": 434.809036, "v": 376.615966, "via": "homography", "x": 0.102178, "y": 0.570464}
+{"inliers": 12, "n_ground": 41, "n_matches": 121, "pair_id": "p023", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 16, "n_ground": 110, "n_matches": 279, "pair_id": "p024", "u": 327.190455, "v": 508.692136, "via": "homography", "x": 0.738386, "y": 0.639314}
+{"inliers": 84, "n_ground": 250, "n_matches": 615, "pair_id": "p025", "u": 534.060417, "v": 436.101752, "via": "homography", "x": 0.839706, "y": 0.601495}
+{"inliers": 5, "n_ground": 15, "n_matches": 25, "pair_id": "p026", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 19, "n_matches": 29, "pair_id": "p027", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 22, "n_ground": 53, "n_matches": 113, "pair_id": "p028", "u": 105.21207, "v": 422.822909, "via": "homography", "x": 0.786277, "y": 0.567004}
+{"inliers": 137, "n_ground": 336, "n_matches": 615, "pair_id": "p029", "u": 512.979276, "v": 362.270651, "via": "homography", "x": 0.643537, "y": 0.557602}
+{"inliers": 314, "n_ground": 803, "n_matches": 1110, "pair_id": "p030", "u": 512.294533, "v": 383.390259, "via": "homography", "x": 0.247759, "y": 0.640429}
+{"inliers": 0, "n_ground": 5, "n_matches": 91, "pair_id": "p031", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 15, "n_ground": 96, "n_matches": 220, "pair_id": "p032", "u": 667.818985, "v": 355.154921, "via": "homography", "x": 0.771664, "y": 0.569345}
+{"inliers": 62, "n_ground": 227, "n_matches": 499, "pair_id": "p033", "u": 449.194947, "v": 396.399472, "via": "homography", "x": 0.868769, "y": 0.559466}
+{"inliers": 56, "n_ground": 228, "n_matches": 596, "pair_id": "p034", "u": 450.801989, "v": 382.06773, "via": "homography", "x": 0.870131, "y": 0.561244}
+{"inliers": 12, "n_ground": 57, "n_matches": 139, "pair_id": "p035", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 7, "n_matches": 21, "pair_id": "p036", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 1, "n_matches": 43, "pair_id": "p037", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 21, "n_ground": 52, "n_matches": 436, "pair_id": "p038", "u": 487.557518, "v": 458.381584, "via": "homography", "x": 0.909481, "y": 0.622865}
+{"inliers": 0, "n_ground": 1, "n_matches": 5, "pair_id": "p039", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 13, "n_ground": 26, "n_matches": 168, "pair_id": "p040", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 9, "n_ground": 16, "n_matches": 41, "pair_id": "p041", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 87, "n_ground": 120, "n_matches": 618, "pair_id": "p042", "u": 494.62198, "v": 350.870474, "via": "homography", "x": 0.35988, "y": 0.532228}
+{"inliers": 4, "n_ground": 6, "n_matches": 36, "pair_id": "p043", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 119, "n_ground": 238, "n_matches": 437, "pair_id": "p044", "u": 468.249149, "v": 368.610171, "via": "homography", "x": 0.667557, "y": 0.556154}
+{"inliers": 77, "n_ground": 122, "n_matches": 447, "pair_id": "p045", "u": 513.098972, "v": 391.872995, "via": "homography", "x": 0.964562, "y": 0.555325}
+{"inliers": 9, "n_ground": 25, "n_matches": 41, "pair_id": "p046", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 96, "n_ground": 150, "n_matches": 741, "pair_id": "p047", "u": 507.054053, "v": 371.467852, "via": "homography", "x": 0.538975, "y": 0.54179}
+{"inliers": 4, "n_ground": 4, "n_matches": 31, "pair_id": "p048", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 60, "n_ground": 162, "n_matches": 305, "pair_id": "p049", "u": 537.233026, "v": 397.301292, "via": "homography", "x": 0.154388, "y": 0.56532}
+{"inliers": 32, "n_ground": 256, "n_matches": 377, "pair_id": "p050", "u": 398.786785, "v": 339.519133, "via": "homography", "x": 0.239126, "y": 0.614553}
+{"inliers": 4, "n_ground": 6, "n_matches": 12, "pair_id": "p051", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 21, "n_ground": 161, "n_matches": 227, "pair_id": "p052", "u": 574.232426, "v": 329.051582, "via": "homography", "x": 0.291365, "y": 0.602387}
+{"inliers": 5, "n_ground": 15, "n_matches": 23, "pair_id": "p053", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 101, "n_ground": 225, "n_matches": 263, "pair_id": "p054", "u": 886.360528, "v": 554.470435, "via": "homography", "x": 0.872113, "y": 0.726379}
+{"inliers": 4, "n_ground": 5, "n_matches": 10, "pair_id": "p055", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 86, "n_ground": 246, "n_matches": 253, "pair_id": "p056", "u": 457.433334, "v": 393.201791, "via": "homography", "x": 0.104021, "y": 0.609333}
+{"inliers": 0, "n_ground": 2, "n_matches": 14, "pair_id": "p057", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 7, "n_ground": 26, "n_matches": 28, "pair_id": "p058", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 28, "n_ground": 128, "n_matches": 452, "pair_id": "p059", "u": 386.942199, "v": 411.917807, "via": "homography", "x": 0.594663, "y": 0.558572}
+{"inliers": 17, "n_ground": 100, "n_matches": 311, "pair_id": "p060", "u": 517.574021, "v": 380.794013, "via": "homography", "x": 0.816934, "y": 0.606285}
+{"inliers": 5, "n_ground": 13, "n_matches": 22, "pair_id": "p061", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 2, "n_matches": 19, "pair_id": "p062", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 1, "n_matches": 7, "pair_id": "p063", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 2, "n_matches": 117, "pair_id": "p064", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 4, "pair_id": "p065", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 7, "n_ground": 16, "n_matches": 32, "pair_id": "p066", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 12, "pair_id": "p067", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 4, "n_matches": 23, "pair_id": "p068", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 100, "n_ground": 233, "n_matches": 350, "pair_id": "p069", "u": 395.94697, "v": 408.012066, "via": "homography", "x": 0.400169, "y": 0.581318}
+{"inliers": 9, "n_ground": 27, "n_matches": 78, "pair_id": "p070", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 22, "n_ground": 53, "n_matches": 100, "pair_id": "p071", "u": 492.258546, "v": 335.025171, "via": "homography", "x": 0.88822, "y": 0.552519}
+{"inliers": 4, "n_ground": 9, "n_matches": 22, "pair_id": "p072", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 27, "n_ground": 120, "n_matches": 440, "pair_id": "p073", "u": 807.049309, "v": 385.482411, "via": "homography", "x": 0.286743, "y": 0.583803}
+{"inliers": 7, "n_ground": 16, "n_matches": 153, "pair_id": "p074", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 23, "n_ground": 75, "n_matches": 494, "pair_id": "p075", "u": 464.055769, "v": 398.962401, "via": "homography", "x": 0.057956, "y": 0.563915}
+{"inliers": 0, "n_ground": 2, "n_matches": 17, "pair_id": "p076", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 5, "n_matches": 77, "pair_id": "p077", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 5, "n_matches": 9, "pair_id": "p078", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 13, "n_matches": 42, "pair_id": "p079", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 16, "n_ground": 31, "n_matches": 49, "pair_id": "p080", "u": 975.074487, "v": 295.231143, "via": "homography", "x": 0.389853, "y": 0.534608}
+{"inliers": 9, "n_ground": 14, "n_matches": 39, "pair_id": "p081", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 13, "n_matches": 148, "pair_id": "p082", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 21, "n_ground": 81, "n_matches": 353, "pair_id": "p083", "u": 599.582668, "v": 393.36486, "via": "homography", "x": 0.258155, "y": 0.581533}
+{"inliers": 35, "n_ground": 132, "n_matches": 497, "pair_id": "p084", "u": 482.330993, "v": 365.286462, "via": "homography", "x": 0.120196, "y": 0.554715}
+{"inliers": 7, "n_ground": 17, "n_matches": 47, "pair_id": "p085", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 8, "n_matches": 16, "pair_id": "p086", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 23, "n_ground": 100, "n_matches": 371, "pair_id": "p087", "u": 410.859671, "v": 374.19999, "via": "homography", "x": 0.101273, "y": 0.543859}
+{"inliers": 29, "n_ground": 127, "n_matches": 291, "pair_id": "p088", "u": 655.607896, "v": 362.768822, "via": "homography", "x": 0.190892, "y": 0.560794}
+{"inliers": 0, "n_ground": 4, "n_matches": 8, "pair_id": "p089", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 19, "n_matches": 30, "pair_id": "p090", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 6, "n_matches": 274, "pair_id": "p091", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 5, "n_matches": 23, "pair_id": "p092", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 6, "pair_id": "p093", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 4, "n_ground": 7, "n_matches": 13, "pair_id": "p094", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 15, "n_matches": 23, "pair_id": "p095", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 10, "n_ground": 22, "n_matches": 35, "pair_id": "p096", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 13, "n_ground": 47, "n_matches": 811, "pair_id": "p097", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 23, "n_ground": 64, "n_matches": 99, "pair_id": "p098", "u": 514.655749, "v": 387.865084, "via": "homography", "x": 0.573128, "y": 0.569491}
+{"inliers": 5, "n_ground": 8, "n_matches": 15, "pair_id": "p099", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 18, "n_ground": 47, "n_matches": 217, "pair_id": "p100", "u": 247.886271, "v": 383.020935, "via": "homography", "x": 0.160906, "y": 0.578544}
+{"inliers": 6, "n_ground": 19, "n_matches": 39, "pair_id": "p101", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 5, "n_matches": 26, "pair_id": "p102", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 17, "n_matches": 17, "pair_id": "p103", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 7, "pair_id": "p104", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 6, "n_ground": 22, "n_matches": 35, "pair_id": "p105", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 20, "n_matches": 32, "pair_id": "p106", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 11, "n_ground": 31, "n_matches": 210, "pair_id": "p107", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 36, "n_ground": 72, "n_matches": 362, "pair_id": "p108", "u": 555.432744, "v": 377.732064, "via": "homography", "x": 0.915929, "y": 0.549277}
+{"inliers": 10, "n_ground": 45, "n_matches": 693, "pair_id": "p109", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 19, "n_matches": 52, "pair_id": "p110", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 1, "n_matches": 170, "pair_id": "p111", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 392, "pair_id": "p112", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 51, "n_ground": 189, "n_matches": 305, "pair_id": "p113", "u": 560.671086, "v": 385.861207, "via": "homography", "x": 0.267787, "y": 0.56799}
+{"inliers": 4, "n_ground": 4, "n_matches": 10, "pair_id": "p114", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 27, "n_ground": 142, "n_matches": 517, "pair_id": "p115", "u": 486.578177, "v": 377.19597, "via": "homography", "x": 0.885504, "y": 0.562885}
+{"inliers": 10, "n_ground": 17, "n_matches": 104, "pair_id": "p116", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 18, "n_ground": 52, "n_matches": 247, "pair_id": "p117", "u": 494.487628, "v": 398.515933, "via": "homography", "x": 0.384334, "y": 0.556245}
+{"inliers": 0, "n_ground": 0, "n_matches": 28, "pair_id": "p118", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 5, "n_ground": 18, "n_matches": 32, "pair_id": "p119", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 6, "n_matches": 13, "pair_id": "p120", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 8, "n_ground": 26, "n_matches": 27, "pair_id": "p121", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 18, "n_matches": 19, "pair_id": "p122", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 4, "pair_id": "p123", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 24, "n_ground": 58, "n_matches": 345, "pair_id": "p124", "u": 454.856496, "v": 363.626476, "via": "homography", "x": 0.555966, "y": 0.546827}
+{"inliers": 16, "n_ground": 85, "n_matches": 95, "pair_id": "p125", "u": 631.968537, "v": 355.572085, "via": "homography", "x": 0.91184, "y": 0.573447}
+{"inliers": 5, "n_ground": 9, "n_matches": 329, "pair_id": "p126", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 2, "n_matches": 32, "pair_id": "p127", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 43, "pair_id": "p128", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 4, "n_ground": 8, "n_matches": 21, "pair_id": "p129", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 11, "n_matches": 25, "pair_id": "p130", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 8, "n_ground": 70, "n_matches": 128, "pair_id": "p131", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 10, "n_ground": 37, "n_matches": 139, "pair_id": "p132", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 1, "n_matches": 24, "pair_id": "p133", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 5, "n_matches": 15, "pair_id": "p134", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 17, "n_matches": 56, "pair_id": "p135", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 9, "n_matches": 248, "pair_id": "p136", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 36, "n_ground": 54, "n_matches": 54, "pair_id": "p137", "u": 508.364737, "v": 415.305743, "via": "homography", "x": 0.323862, "y": 0.578126}
+{"inliers": 7, "n_ground": 19, "n_matches": 19, "pair_id": "p138", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 6, "n_matches": 14, "pair_id": "p139", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 14, "pair_id": "p140", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 4, "n_ground": 6, "n_matches": 14, "pair_id": "p141", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 15, "n_matches": 22, "pair_id": "p142", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 8, "n_matches": 31, "pair_id": "p143", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 10, "n_ground": 25, "n_matches": 257, "pair_id": "p144", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 5, "n_matches": 214, "pair_id": "p145", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 1, "n_matches": 138, "pair_id": "p146", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 9, "n_ground": 50, "n_matches": 82, "pair_id": "p147", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 11, "n_matches": 20, "pair_id": "p148", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 13, "n_ground": 34, "n_matches": 184, "pair_id": "p149", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 26, "n_ground": 103, "n_matches": 383, "pair_id": "p150", "u": 455.1053, "v": 377.469632, "via": "homography", "x": 0.873287, "y": 0.617058}
+{"inliers": 5, "n_ground": 9, "n_matches": 22, "pair_id": "p151", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 14, "n_ground": 60, "n_matches": 281, "pair_id": "p152", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 26, "n_ground": 123, "n_matches": 164, "pair_id": "p153", "u": 468.40885, "v": 402.487003, "via": "homography", "x": 0.268956, "y": 0.560606}
+{"inliers": 12, "n_ground": 65, "n_matches": 399, "pair_id": "p154", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 15, "n_matches": 49, "pair_id": "p155", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 16, "n_matches": 68, "pair_id": "p156", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 12, "n_ground": 63, "n_matches": 335, "pair_id": "p157", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 9, "n_matches": 12, "pair_id": "p158", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 16, "n_ground": 47, "n_matches": 182, "pair_id": "p159", "u": 396.091202, "v": 378.333525, "via": "homography", "x": 0.332856, "y": 0.549937}
+{"inliers": 5, "n_ground": 9, "n_matches": 33, "pair_id": "p160", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 12, "n_ground": 58, "n_matches": 85, "pair_id": "p161", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 7, "n_matches": 68, "pair_id": "p162", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 13, "n_matches": 410, "pair_id": "p163", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 10, "n_ground": 33, "n_matches": 45, "pair_id": "p164", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 11, "n_matches": 24, "pair_id": "p165", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 6, "n_matches": 15, "pair_id": "p166", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 10, "n_matches": 26, "pair_id": "p167", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 9, "n_ground": 22, "n_matches": 208, "pair_id": "p168", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 12, "n_matches": 159, "pair_id": "p169", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 13, "n_matches": 24, "pair_id": "p170", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 8, "n_ground": 20, "n_matches": 131, "pair_id": "p171", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 9, "n_matches": 26, "pair_id": "p172", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 17, "n_matches": 24, "pair_id": "p173", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 15, "n_matches": 18, "pair_id": "p174", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 7, "pair_id": "p175", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 17, "n_ground": 103, "n_matches": 303, "pair_id": "p176", "u": 298.880863, "v": 367.994083, "via": "homography", "x": 0.694644, "y": 0.564034}
+{"inliers": 18, "n_ground": 104, "n_matches": 110, "pair_id": "p177", "u": 329.071071, "v": 439.88377, "via": "homography", "x": 0.311535, "y": 0.631003}
+{"inliers": 0, "n_ground": 8, "n_matches": 14, "pair_id": "p178", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 15, "n_matches": 209, "pair_id": "p179", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 14, "n_matches": 18, "pair_id": "p180", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 14, "n_ground": 37, "n_matches": 396, "pair_id": "p181", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 37, "pair_id": "p182", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 19, "n_ground": 52, "n_matches": 457, "pair_id": "p183", "u": 577.104659, "v": 359.560164, "via": "homography", "x": 0.950929, "y": 0.565416}
+{"inliers": 0, "n_ground": 1, "n_matches": 8, "pair_id": "p184", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 5, "n_ground": 15, "n_matches": 17, "pair_id": "p185", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 4, "n_matches": 10, "pair_id": "p186", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 1, "n_matches": 2, "pair_id": "p187", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 9, "pair_id": "p188", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 4, "n_ground": 7, "n_matches": 9, "pair_id": "p189", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 9, "pair_id": "p190", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 7, "n_ground": 18, "n_matches": 27, "pair_id": "p191", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 41, "n_ground": 96, "n_matches": 345, "pair_id": "p192", "u": 502.477681, "v": 376.635638, "via": "homography", "x": 0.545694, "y": 0.554886}
+{"inliers": 54, "n_ground": 229, "n_matches": 272, "pair_id": "p193", "u": 535.233149, "v": 373.547, "via": "homography", "x": 0.920308, "y": 0.598345}
+{"inliers": 0, "n_ground": 2, "n_matches": 14, "pair_id": "p194", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 1, "n_matches": 36, "pair_id": "p195", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 6, "n_matches": 9, "pair_id": "p196", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 16, "pair_id": "p197", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 4, "pair_id": "p198", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 4, "n_ground": 11, "n_matches": 13, "pair_id": "p199", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 14, "pair_id": "p200", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 5, "n_ground": 13, "n_matches": 15, "pair_id": "p201", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 26, "n_ground": 156, "n_matches": 177, "pair_id": "p202", "why": "mapped_outside_view", "x": null, "y": null}
+{"inliers": 15, "n_ground": 38, "n_matches": 279, "pair_id": "p203", "u": 498.814852, "v": 352.948076, "via": "homography", "x": 0.227881, "y": 0.531873}
+{"inliers": 15, "n_ground": 34, "n_matches": 90, "pair_id": "p204", "u": 301.85569, "v": 540.044951, "via": "homography", "x": 0.238502, "y": 0.665834}
+{"inliers": 13, "n_ground": 35, "n_matches": 44, "pair_id": "p205", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 8, "n_matches": 17, "pair_id": "p206", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 15, "n_matches": 53, "pair_id": "p207", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 26, "n_matches": 41, "pair_id": "p208", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 8, "n_ground": 27, "n_matches": 189, "pair_id": "p209", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 8, "n_ground": 31, "n_matches": 303, "pair_id": "p210", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 11, "n_matches": 80, "pair_id": "p211", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 11, "n_ground": 34, "n_matches": 279, "pair_id": "p212", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 39, "n_ground": 156, "n_matches": 373, "pair_id": "p213", "u": 394.995556, "v": 410.373786, "via": "homography", "x": 0.250382, "y": 0.581375}
+{"inliers": 0, "n_ground": 3, "n_matches": 23, "pair_id": "p214", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 80, "n_ground": 142, "n_matches": 438, "pair_id": "p215", "u": 488.717622, "v": 382.323857, "via": "homography", "x": 0.533982, "y": 0.54634}
+{"inliers": 18, "n_ground": 59, "n_matches": 274, "pair_id": "p216", "u": 538.755595, "v": 382.422824, "via": "homography", "x": 0.489085, "y": 0.545532}
+{"inliers": 6, "n_ground": 19, "n_matches": 21, "pair_id": "p217", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 69, "pair_id": "p218", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 2, "n_matches": 18, "pair_id": "p219", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 4, "n_ground": 7, "n_matches": 15, "pair_id": "p220", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 1, "n_matches": 17, "pair_id": "p221", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 129, "n_ground": 307, "n_matches": 428, "pair_id": "p222", "u": 523.221914, "v": 392.207078, "via": "homography", "x": 0.282577, "y": 0.596586}
+{"inliers": 5, "n_ground": 17, "n_matches": 25, "pair_id": "p223", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 2, "n_matches": 43, "pair_id": "p224", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 0, "n_ground": 2, "n_matches": 12, "pair_id": "p225", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 20, "n_ground": 53, "n_matches": 122, "pair_id": "p226", "why": "mapped_outside_view", "x": null, "y": null}
+{"inliers": 11, "n_ground": 81, "n_matches": 85, "pair_id": "p227", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 27, "n_ground": 50, "n_matches": 216, "pair_id": "p228", "u": 517.790202, "v": 386.999208, "via": "homography", "x": 0.5685, "y": 0.549098}
+{"inliers": 0, "n_ground": 1, "n_matches": 42, "pair_id": "p229", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 38, "n_ground": 129, "n_matches": 222, "pair_id": "p230", "u": 536.9495, "v": 364.445009, "via": "homography", "x": 0.41686, "y": 0.562373}
+{"inliers": 4, "n_ground": 4, "n_matches": 7, "pair_id": "p231", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 4, "n_matches": 4, "pair_id": "p232", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 50, "n_ground": 133, "n_matches": 274, "pair_id": "p233", "u": 509.242661, "v": 402.31193, "via": "homography", "x": 0.307667, "y": 0.573534}
+{"inliers": 0, "n_ground": 2, "n_matches": 73, "pair_id": "p234", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 24, "n_ground": 77, "n_matches": 367, "pair_id": "p235", "u": 506.391979, "v": 365.392589, "via": "homography", "x": 0.949599, "y": 0.569531}
+{"inliers": 16, "n_ground": 59, "n_matches": 118, "pair_id": "p236", "why": "mapped_outside_view", "x": null, "y": null}
+{"inliers": 7, "n_ground": 20, "n_matches": 41, "pair_id": "p237", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 75, "n_ground": 276, "n_matches": 433, "pair_id": "p238", "u": 519.635135, "v": 377.228038, "via": "homography", "x": 0.380741, "y": 0.594306}
+{"inliers": 35, "n_ground": 171, "n_matches": 192, "pair_id": "p239", "u": 557.398612, "v": 367.540417, "via": "homography", "x": 0.830191, "y": 0.617117}
+{"inliers": 4, "n_ground": 14, "n_matches": 18, "pair_id": "p240", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 50, "pair_id": "p241", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 4, "n_ground": 10, "n_matches": 61, "pair_id": "p242", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 114, "n_ground": 337, "n_matches": 486, "pair_id": "p243", "u": 532.582247, "v": 395.15907, "via": "homography", "x": 0.86721, "y": 0.571403}
+{"inliers": 51, "n_ground": 137, "n_matches": 270, "pair_id": "p244", "u": 497.992006, "v": 380.894681, "via": "homography", "x": 0.604559, "y": 0.550737}
+{"inliers": 11, "n_ground": 41, "n_matches": 46, "pair_id": "p245", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 16, "n_matches": 23, "pair_id": "p246", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 60, "pair_id": "p247", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 22, "n_ground": 83, "n_matches": 608, "pair_id": "p248", "u": 488.317772, "v": 415.78278, "via": "homography", "x": 0.345339, "y": 0.573618}
+{"inliers": 6, "n_ground": 8, "n_matches": 51, "pair_id": "p249", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 6, "n_matches": 17, "pair_id": "p250", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 14, "n_matches": 33, "pair_id": "p251", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 9, "n_matches": 13, "pair_id": "p252", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 5, "n_matches": 22, "pair_id": "p253", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 21, "n_ground": 118, "n_matches": 139, "pair_id": "p254", "u": 520.3182, "v": 374.423581, "via": "homography", "x": 0.411754, "y": 0.57352}
+{"inliers": 83, "n_ground": 120, "n_matches": 400, "pair_id": "p255", "u": 509.88329, "v": 382.502801, "via": "homography", "x": 0.054363, "y": 0.547031}
+{"inliers": 5, "n_ground": 6, "n_matches": 17, "pair_id": "p256", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 11, "n_ground": 47, "n_matches": 126, "pair_id": "p257", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 4, "n_matches": 13, "pair_id": "p258", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 11, "n_matches": 88, "pair_id": "p259", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 8, "n_ground": 26, "n_matches": 32, "pair_id": "p260", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 42, "n_ground": 177, "n_matches": 231, "pair_id": "p261", "u": 496.588679, "v": 379.610618, "via": "homography", "x": 0.939446, "y": 0.589064}
+{"inliers": 8, "n_ground": 18, "n_matches": 30, "pair_id": "p262", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 54, "n_ground": 152, "n_matches": 344, "pair_id": "p263", "u": 505.555024, "v": 386.256585, "via": "homography", "x": 0.43816, "y": 0.556365}
+{"inliers": 5, "n_ground": 8, "n_matches": 30, "pair_id": "p264", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 98, "n_ground": 196, "n_matches": 296, "pair_id": "p265", "why": "mapped_outside_view", "x": null, "y": null}
+{"inliers": 8, "n_ground": 28, "n_matches": 41, "pair_id": "p266", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 8, "n_ground": 40, "n_matches": 49, "pair_id": "p267", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 12, "n_ground": 29, "n_matches": 50, "pair_id": "p268", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 17, "n_matches": 42, "pair_id": "p269", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 9, "n_matches": 66, "pair_id": "p270", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 8, "n_ground": 23, "n_matches": 26, "pair_id": "p271", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 4, "n_ground": 5, "n_matches": 127, "pair_id": "p272", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 10, "n_matches": 27, "pair_id": "p273", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 11, "n_ground": 46, "n_matches": 50, "pair_id": "p274", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 22, "pair_id": "p275", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 8, "n_ground": 39, "n_matches": 107, "pair_id": "p276", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 18, "n_ground": 54, "n_matches": 261, "pair_id": "p277", "u": 440.954783, "v": 411.033261, "via": "homography", "x": 0.456414, "y": 0.568399}
+{"inliers": 45, "n_ground": 208, "n_matches": 245, "pair_id": "p278", "u": 404.182937, "v": 372.224884, "via": "homography", "x": 0.1036, "y": 0.595455}
+{"inliers": 6, "n_ground": 9, "n_matches": 49, "pair_id": "p279", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 19, "n_matches": 100, "pair_id": "p280", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 0, "n_matches": 124, "pair_id": "p281", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 10, "n_ground": 62, "n_matches": 262, "pair_id": "p282", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 15, "n_matches": 15, "pair_id": "p283", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 24, "n_ground": 65, "n_matches": 167, "pair_id": "p284", "u": 566.560954, "v": 431.170811, "via": "homography", "x": 0.084133, "y": 0.587523}
+{"inliers": 4, "n_ground": 9, "n_matches": 51, "pair_id": "p285", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 14, "n_ground": 35, "n_matches": 474, "pair_id": "p286", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 11, "n_ground": 51, "n_matches": 56, "pair_id": "p287", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 15, "n_matches": 157, "pair_id": "p288", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 8, "n_ground": 16, "n_matches": 111, "pair_id": "p289", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 3, "n_matches": 31, "pair_id": "p290", "why": "no_ground_matches", "x": null, "y": null}
+{"inliers": 5, "n_ground": 14, "n_matches": 41, "pair_id": "p291", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 12, "n_matches": 277, "pair_id": "p292", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 5, "n_ground": 8, "n_matches": 13, "pair_id": "p293", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 13, "n_matches": 130, "pair_id": "p294", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 0, "n_ground": 4, "n_matches": 15, "pair_id": "p295", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 14, "n_ground": 59, "n_matches": 99, "pair_id": "p296", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 19, "n_matches": 22, "pair_id": "p297", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 6, "n_ground": 11, "n_matches": 26, "pair_id": "p298", "why": "few_inliers", "x": null, "y": null}
+{"inliers": 7, "n_ground": 12, "n_matches": 94, "pair_id": "p299", "why": "few_inliers", "x": null, "y": null}

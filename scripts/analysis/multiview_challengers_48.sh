@@ -11,8 +11,9 @@
 #   ARCHIVE     the labeler's native-res Richmond archive (<pano_id>.jpg)
 #   PY          RampNet eval env: torch + transformers 5.x + ultralytics
 #   MOLMOPY     Molmo2's own env, transformers==4.57.1. On 5.x Molmo's Hub code fails at
-#               import, compare.py skips the model with a note and exits 0 -- the leg
-#               "completes" with no Molmo row. The check after the leg catches that.
+#               import, compare.py skips the model with a note -- the leg "completes"
+#               with no Molmo row. The check after the leg catches that (compare.py
+#               also exits 3 for a not-runnable leg since #261; this script logs it).
 #   YOLO_CKPTS  dir holding y11l_pano.pt, y11x_pano_h200.pt, y26_pano.pt (#51 snapshots)
 #   WORK        detection cache, logs and the usage ledger, OUTSIDE any worktree, so a
 #               removed worktree cannot take them with it

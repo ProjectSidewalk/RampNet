@@ -1,0 +1,251 @@
+"""mined_label_check_158 (#158 step 4): the fixed sampling rule, the instrument draw, the
+verdict-file integrity checks and the precision read."""
+import json
+import os
+import sys
+
+import pytest
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "scripts", "analysis"))
+
+import mined_label_check_158 as M  # noqa: E402
+
+
+def _lab(site, pano, band, emit=True, bench=False, x=0.5, y=0.6):
+    return {"site_id": site, "pano_id": pano, "band": band, "emit": emit,
+            "benchmark_pano": bench, "x": x, "y": y, "range_m": 5.0, "peak_conf": 0.3,
+            "src_pano": "s" + pano, "src_x": 0.4, "src_y": 0.6, "capture_date": "",
+            "src_capture_date": ""}
+
+
+def test_allocation_is_proportional_and_sums_to_n():
+    assert M.allocate({"0-8 m": 50, "8-12 m": 30, "12-15 m": 20}, 10) == \
+        {"0-8 m": 5, "8-12 m": 3, "12-15 m": 2}
+    a = M.allocate({"0-8 m": 101, "8-12 m": 202, "12-15 m": 303}, 100)
+    assert sum(a.values()) == 100
+    assert M.allocate({"0-8 m": 3, "8-12 m": 2, "12-15 m": 0}, 100) == \
+        {"0-8 m": 3, "8-12 m": 2, "12-15 m": 0}
+
+
+def test_sample_excludes_benchmark_panos_and_is_seeded():
+    labels = [_lab(i, f"p{i}", M.BANDS[i % 3]) for i in range(300)]
+    labels += [_lab(1000 + i, f"b{i}", "0-8 m", bench=True) for i in range(50)]
+    labels += [_lab(2000 + i, f"n{i}", "0-8 m", emit=False) for i in range(50)]
+    s1, alloc, pop = M.draw_sample(labels)
+    s2, _, _ = M.draw_sample(list(reversed(labels)))
+    assert [r["pano_id"] for r in s1] == [r["pano_id"] for r in s2]   # order-free, seeded
+    assert len(s1) == 100 and pop == {b: 100 for b in M.BANDS}
+    assert not any(r["benchmark_pano"] or not r["emit"] for r in s1)
+
+
+def test_instrument_draw_uses_known_answers_and_checks_reproduction():
+    labels = [_lab(1, "a", "0-8 m", bench=True), _lab(2, "b", "8-12 m", bench=True),
+              _lab(3, "c", "0-8 m", bench=True)]
+    step3 = [{"city": "richmond", "site_id": s, "pano_id": p, "emit": True, "x": 0.5, "y": 0.6}
+             for s, p in ((1, "a"), (2, "b"), (3, "c"))]
+    cands = [{"site_id": "1", "pano_id": "a", "bucket": "tp"},
+             {"site_id": "2", "pano_id": "b", "bucket": "fp"},
+             {"site_id": "3", "pano_id": "c", "bucket": "unsure"}]
+    got, pool = M.draw_instrument(labels, step3, cands)
+    assert pool == 2
+    assert {(k, a) for k, a, _ in got} == {((1, "a"), "yes"), ((2, "b"), "no")}
+    labels[0]["x"] = 0.7                                    # the city-wide pixel moved
+    with pytest.raises(SystemExit, match="does not reproduce"):
+        M.draw_instrument(labels, step3, cands)
+
+
+def test_rule_reading_and_precision():
+    assert M.rule_reading(0.9, 0.82, 0.96) == "build"
+    assert "not decisive" in M.rule_reading(0.7, 0.45, 0.85)
+    v = {"a": {"answer": "yes"}, "b": {"answer": "no"}, "c": {"answer": "cant_tell"}}
+    p = M.precision(v, ["a", "b", "c", "d"])
+    assert (p["yes"], p["no"], p["cant_tell"], p["unanswered"], p["precision"]) == \
+        (1, 1, 1, 1, 0.5)
+
+
+def _ref():
+    cards = {"c1": {"instrument": False, "band": "0-8 m", "known_answer": None},
+             "c2": {"instrument": True, "band": "8-12 m", "known_answer": "no"},
+             "c3": {"instrument": False, "band": "12-15 m", "known_answer": None}}
+    return {"manifest_digest": "d" * 16, "items": ["c1", "c2", "c3"], "cards": cards}
+
+
+def test_verdict_file_integrity_and_rates(tmp_path):
+    ref = _ref()
+    d = M.empty_verdicts(ref["items"], ref["manifest_digest"], "jonf")
+    d["verdicts"] = {"c1": {"answer": "yes"}, "c2": {"answer": "yes"}, "c3": {"answer": "no"}}
+    path = tmp_path / "mined_label_check__jonf.json"
+    path.write_text(json.dumps(d), encoding="utf-8")
+    got = M.rates(M.load_verdicts(str(path), ref), ref)
+    assert got["pooled"]["n_items"] == 2 and got["pooled"]["precision"] == 0.5
+    assert got["instrument"]["agree_with_earlier_verdicts"] == 0      # said yes, known no
+    for bad in ({"manifest_digest": "e" * 16}, {"items": ["c1"]}, {"question": "other"}):
+        path.write_text(json.dumps({**d, **bad}), encoding="utf-8")
+        with pytest.raises(ValueError):
+            M.load_verdicts(str(path), ref)
+    wrong_name = tmp_path / "mined_label_check__other.json"
+    wrong_name.write_text(json.dumps(d), encoding="utf-8")
+    with pytest.raises(ValueError, match="file name"):
+        M.load_verdicts(str(wrong_name), ref)
+
+
+def test_page_has_no_instrument_or_confidence_leak():
+    cards = [{"id": "c0000aaaa"}]
+    crops = [{"ramp_uid": "c0000aaaa", "city": "richmond", "pano_id": "p1", "x": 0.5,
+              "y": 0.6, "ring": True, "capture_date": ""}]
+    h = M.render_gallery(cards, crops, "0" * 16)
+    for word in ("instrument", "known_answer", "peak_conf", "residual", "item_class"):
+        assert word not in h
+    assert "mined_label_check__" in h and M.QUESTION in h
+
+
+def test_pass2_file_is_bound_to_pass1_and_combined_overrides_cant_tell(tmp_path):
+    ref = _ref()
+    d1 = M.empty_verdicts(ref["items"], ref["manifest_digest"], "jonf")
+    d1["verdicts"] = {"c1": {"answer": "cant_tell", "note": "washed out"},
+                      "c2": {"answer": "cant_tell"}, "c3": {"answer": "no"}}
+    p1 = tmp_path / "mined_label_check__jonf.json"
+    p1.write_text(json.dumps(d1), encoding="utf-8")
+    pass1 = M.load_verdicts(str(p1), ref)
+    assert M.pass2_items(pass1, ref) == ["c1", "c2"]
+    meta = M.pass2_meta(str(p1), ref["manifest_digest"])
+    assert meta["pass"] == 2 and meta["subset"] == "cant_tell" and meta["image_controls"]
+    assert meta["ring_overlay"] and meta["native_crops"]
+    assert meta["pass1_manifest_digest"] == ref["manifest_digest"]
+    # the pass-2 gallery has its own digest (new crops) over the pass-1 one
+    ref2 = {"manifest_digest": "2" * 16, "pass1_manifest_digest": ref["manifest_digest"],
+            "items": ["c1", "c2"], "from_sha256": meta["from_sha256"]}
+    d2 = M.empty_verdicts(["c1", "c2"], ref2["manifest_digest"], "jonf-p2", pass2=meta)
+    d2["verdicts"] = {"c1": {"answer": "yes", "image": {"bp": 170, "wp": 255, "gm": 100,
+                                                        "lc": 120, "br": 100, "ct": 120,
+                                                        "sa": 100}}}
+    p2 = tmp_path / "mined_label_check__jonf-p2.json"
+    p2.write_text(json.dumps(d2), encoding="utf-8")
+    with pytest.raises(ValueError, match="pass-1 file"):        # a pass-2 file needs pass 1
+        M.load_verdicts(str(p2), ref)
+    pass2 = M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1), ref2=ref2)
+    # the pass-1 digest is not the pass-2 digest, in either direction
+    with pytest.raises(ValueError, match="pass-2 gallery"):
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1),
+                        ref2={**ref2, "manifest_digest": ref["manifest_digest"]})
+    with pytest.raises(ValueError, match="sits over"):
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1),
+                        ref2={**ref2, "pass1_manifest_digest": "e" * 16})
+    got = M.combined(pass1, pass2, ref)
+    assert got["manifest_digest"] == ref["manifest_digest"]
+    assert got["pass2"]["manifest_digest"] == ref2["manifest_digest"]
+    # c1 resolved to yes, c2 (a check item) still cant_tell, c3 keeps pass 1's no
+    assert got["pooled"]["yes"] == 1 and got["pooled"]["no"] == 1 and got["pooled"]["cant_tell"] == 0
+    assert got["pass2"]["resolved"] == {"yes": 1, "unanswered": 1}
+    assert got["pass2"]["subset_precision"]["n_decided"] == 1
+    assert got["pass2"]["subset_precision"]["n_items"] == 1     # c2 is an instrument item
+    assert got["instrument"]["decided"] == 0
+    # binding: a different pass-1 file, a wrong subset, the same rater id, all refused
+    p1.write_text(json.dumps({**d1, "n_answered": 3}), encoding="utf-8")
+    with pytest.raises(ValueError, match="sha256"):
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1), ref2=ref2)
+    p1.write_text(json.dumps(d1), encoding="utf-8")
+    p2.write_text(json.dumps({**d2, "items": ["c1"]}), encoding="utf-8")
+    with pytest.raises(ValueError, match="cant_tell"):
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1), ref2=ref2)
+    p2.write_text(json.dumps(d2), encoding="utf-8")
+    with pytest.raises(ValueError, match="another pass-1 file"):   # gallery planned elsewhere
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1),
+                        ref2={**ref2, "from_sha256": "f" * 64})
+    same = tmp_path / "x" / "mined_label_check__jonf.json"
+    same.parent.mkdir()
+    same.write_text(json.dumps({**d2, "rater": "jonf"}), encoding="utf-8")
+    with pytest.raises(ValueError, match="same rater"):
+        M.load_verdicts(str(same), ref, pass1=(str(p1), pass1), ref2=ref2)
+
+
+def test_pass2_page_has_image_controls_and_records_the_setting():
+    cards = [{"id": "c0000aaaa"}]
+    # pass 2: the target is the native, unringed cut (role target, ring False, px known);
+    # the context view is pass 1's crop
+    crops = [{"ramp_uid": "c0000aaaa", "city": "richmond", "pano_id": "p1", "x": 0.5,
+              "y": 0.6, "ring": False, "role": "target", "px": [1100, 733],
+              "capture_date": ""},
+             {"ramp_uid": "c0000aaaa", "city": "richmond", "pano_id": "p2", "x": 0.4,
+              "y": 0.6, "ring": False, "role": "context", "capture_date": ""}]
+    meta = {"pass": 2, "subset": "cant_tell", "image_controls": True, "ring_overlay": True,
+            "native_crops": True, "crops": M.CROPS2_REL, "gallery": M.GALLERY2_REL,
+            "pass1_manifest_digest": "1" * 16, "from_file": "f", "from_sha256": "0" * 64}
+    h = M.render_gallery(cards, crops, "2" * 16, pass2=meta)
+    for s in ('data-img="br"', 'data-img="ct"', 'data-img="sa"', 'data-img="bp"',
+              'data-img="wp"', 'data-img="gm"', 'data-img="lc"', "image: imgState(card)",
+              "image: v.image || null", "...(META.pass2 || {})", "mlc158_p2_", "Pass 2",
+              'class="ring_toggle"', 'class="zoom_toggle"', 'class="halo ring"',
+              'src="crops_pass2/c0000aaaa__p1.jpg"', 'src="crops/c0000aaaa__p2.jpg"',
+              'data-natural="1100 733"', 'native 1100&times;733 px'):
+        assert s in h
+    assert h.count('class="imgctl"') == 1                 # one set of controls per card
+    assert h.count('<filter id="f_c0000aaaa"') == 1       # one SVG filter per card
+    assert h.count('class="halo ring"') == 1              # the ring is drawn once, as overlay
+    for word in ("instrument", "known_answer", "peak_conf", "residual"):
+        assert word not in h
+    # pass 1: baked ring + halo, pass-1 crops, no ring toggle, same controls
+    crops1 = [{"ramp_uid": "c0000aaaa", "city": "richmond", "pano_id": "p1", "x": 0.5,
+               "y": 0.6, "ring": True, "capture_date": ""}]
+    h1 = M.render_gallery(cards, crops1, "0" * 16)
+    assert 'data-img="br"' in h1 and 'data-img="lc"' in h1
+    assert "mlc158_p2_" not in h1 and "Pass 2" not in h1
+    assert 'src="crops/c0000aaaa__p1.jpg"' in h1 and "crops_pass2" not in h1
+    assert 'class="ring_toggle"' not in h1 and 'class="halo ring"' not in h1 and 'class="halo"' in h1
+
+
+def test_ring_overlay_sits_where_the_baked_ring_was():
+    it = {"x": 0.3711, "y": 0.584}
+    svg = M._ring_overlay(it)
+    fx, fy = M.R.ring_centre_frac(it["x"], it["y"])
+    assert f'cx="{round(fx * 360, 2)}"' in svg and f'cy="{round(fy * 240, 2)}"' in svg
+    assert 'r="14"' in svg and 'viewBox="0 0 360 240"' in svg
+
+
+# --------------------------------------------------------------------------- #
+# Pinned headline numbers (docs/mined_placement_158.md, Step 4), re-derived from the
+# committed rater files with the script's own functions. A pinning test, not a
+# check_all entry: the read is CPU-only over committed files and runs in under a second.
+# --------------------------------------------------------------------------- #
+P1 = os.path.join(M.OUT, "mined_label_check__jonf.json")
+P2 = os.path.join(M.OUT, "mined_label_check__jonf-p2.json")
+
+
+def _committed():
+    ref = M.committed_reference()
+    p1 = M.load_verdicts(P1, ref)
+    p2 = M.load_verdicts(P2, ref, pass1=(P1, p1))
+    return ref, p1, p2
+
+
+def _pin(row, yes, no, cant, p, lo, hi):
+    assert (row["yes"], row["no"], row["cant_tell"]) == (yes, no, cant)
+    assert row["n_decided"] == yes + no
+    assert [round(row["precision"], 3)] + [round(x, 3) for x in row["wilson_95"]] == [p, lo, hi]
+
+
+def test_pinned_pass1_and_combined_headline():
+    ref, p1, p2 = _committed()
+    r1 = M.rates(p1, ref)
+    _pin(r1["pooled"], 59, 11, 30, 0.843, 0.740, 0.910)
+    assert r1["pooled"]["rule"] == "build; the 95% CI spans visibility..build, not decisive"
+    assert (r1["instrument"]["decided"], r1["instrument"]["agree_with_earlier_verdicts"]) == (8, 7)
+    c = M.combined(p1, p2, ref)
+    _pin(c["pooled"], 71, 12, 17, 0.855, 0.764, 0.915)
+    assert c["pooled"]["rule"] == "build; the 95% CI spans visibility..build, not decisive"
+    _pin(c["by_band"]["0-8 m"], 12, 2, 4, 0.857, 0.601, 0.960)
+    _pin(c["by_band"]["8-12 m"], 29, 3, 5, 0.906, 0.758, 0.968)
+    _pin(c["by_band"]["12-15 m"], 30, 7, 8, 0.811, 0.658, 0.905)
+    assert (c["instrument"]["decided"], c["instrument"]["agree_with_earlier_verdicts"]) == (10, 9)
+    # the pass-2 subset, sample cards only (30 of the 32; 2 are instrument items)
+    _pin(c["pass2"]["subset_precision"], 12, 1, 17, 0.923, 0.667, 0.986)
+    assert c["pass2"]["subset_precision"]["n_items"] == 30
+
+
+def test_pinned_clipping_figure():
+    plan = json.load(open(M.ITEMS_PATH, encoding="utf-8"))
+    got = M.clipping(json.load(open(P1, encoding="utf-8")), plan)
+    wo = got["washed_out_notes"]
+    assert got["n_cant_tell"] == 32 and wo["n"] == 11 and wo["n_at_least_25pct"] == 8
+    assert [round(wo[k], 3) for k in ("min", "median", "max")] == [0.0, 0.360, 0.513]

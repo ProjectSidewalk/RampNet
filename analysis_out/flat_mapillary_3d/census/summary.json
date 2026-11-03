@@ -1,0 +1,395 @@
+{
+ "all_ramps": {
+  "15m": {
+   "flat": {
+    "max": 93.0,
+    "median": 2.0,
+    "n": 253,
+    "p10": 0.0,
+    "p90": 10.0,
+    "zero": 107
+   },
+   "flat_seq": {
+    "max": 8.0,
+    "median": 1.0,
+    "n": 253,
+    "p10": 0.0,
+    "p90": 3.0,
+    "zero": 107
+   },
+   "flat_sfm": {
+    "max": 93.0,
+    "median": 2.0,
+    "n": 253,
+    "p10": 0.0,
+    "p90": 10.0,
+    "zero": 107
+   },
+   "n": {
+    "max": 393.0,
+    "median": 31.0,
+    "n": 253,
+    "p10": 8.2,
+    "p90": 110.0,
+    "zero": 6
+   },
+   "pano": {
+    "max": 393.0,
+    "median": 27.0,
+    "n": 253,
+    "p10": 6.0,
+    "p90": 100.0,
+    "zero": 7
+   }
+  },
+  "25m": {
+   "flat": {
+    "max": 112.0,
+    "median": 6.0,
+    "n": 253,
+    "p10": 0.0,
+    "p90": 22.0,
+    "zero": 92
+   },
+   "flat_seq": {
+    "max": 15.0,
+    "median": 2.0,
+    "n": 253,
+    "p10": 0.0,
+    "p90": 4.8,
+    "zero": 92
+   },
+   "flat_sfm": {
+    "max": 112.0,
+    "median": 6.0,
+    "n": 253,
+    "p10": 0.0,
+    "p90": 22.0,
+    "zero": 92
+   },
+   "n": {
+    "max": 477.0,
+    "median": 72.0,
+    "n": 253,
+    "p10": 28.0,
+    "p90": 188.0,
+    "zero": 0
+   },
+   "pano": {
+    "max": 459.0,
+    "median": 60.0,
+    "n": 253,
+    "p10": 17.0,
+    "p90": 174.8,
+    "zero": 0
+   }
+  },
+  "30m": {
+   "flat": {
+    "max": 146.0,
+    "median": 8.0,
+    "n": 253,
+    "p10": 0.0,
+    "p90": 26.8,
+    "zero": 90
+   },
+   "flat_seq": {
+    "max": 25.0,
+    "median": 2.0,
+    "n": 253,
+    "p10": 0.0,
+    "p90": 5.0,
+    "zero": 90
+   },
+   "flat_sfm": {
+    "max": 146.0,
+    "median": 8.0,
+    "n": 253,
+    "p10": 0.0,
+    "p90": 26.8,
+    "zero": 90
+   },
+   "n": {
+    "max": 514.0,
+    "median": 88.0,
+    "n": 253,
+    "p10": 35.0,
+    "p90": 224.8,
+    "zero": 0
+   },
+   "pano": {
+    "max": 495.0,
+    "median": 78.0,
+    "n": 253,
+    "p10": 22.0,
+    "p90": 210.0,
+    "zero": 0
+   }
+  }
+ },
+ "api": {
+  "calls": 589,
+  "elapsed_s": 719.0,
+  "endpoint": "https://graph.mapillary.com/images (bbox search)",
+  "fields": [
+   "id",
+   "is_pano",
+   "camera_type",
+   "captured_at",
+   "make",
+   "model",
+   "sequence",
+   "computed_geometry",
+   "geometry",
+   "computed_compass_angle",
+   "compass_angle",
+   "computed_rotation",
+   "computed_altitude",
+   "altitude",
+   "merge_cc",
+   "atomic_scale",
+   "camera_parameters",
+   "width",
+   "height",
+   "quality_score",
+   "exif_orientation"
+  ],
+  "note": "calls = 0 when every ramp was read from the raw cache",
+  "radius_m": 30.0,
+  "retries": 99,
+  "run_date": "2026-09-28"
+ },
+ "flat_camera_make_model_top15": [
+  [
+   "Garmin VIRB",
+   271
+  ],
+  [
+   "none none",
+   248
+  ],
+  [
+   "GoPro HERO11 Black",
+   194
+  ],
+  [
+   "motorola moto x4",
+   176
+  ],
+  [
+   "GoPro GoPro Max",
+   171
+  ],
+  [
+   "Apple iPhone",
+   106
+  ],
+  [
+   "Apple iPhone6S",
+   63
+  ],
+  [
+   "GoPro HERO7 Black",
+   38
+  ],
+  [
+   "Apple iPhone6",
+   37
+  ],
+  [
+   "Apple iPhone7",
+   28
+  ],
+  [
+   "Apple iPhone 11",
+   26
+  ],
+  [
+   "Apple iPhone 13",
+   23
+  ],
+  [
+   "Apple iPhoneXS_Max",
+   13
+  ],
+  [
+   "Apple iPhoneX",
+   12
+  ],
+  [
+   "Apple iPhone5",
+   9
+  ]
+ ],
+ "flat_camera_type": {
+  "fisheye": 69,
+  "perspective": 1353
+ },
+ "flat_capture_year": {
+  "2017": 19,
+  "2018": 412,
+  "2019": 15,
+  "2021": 271,
+  "2023": 61,
+  "2024": 207,
+  "2025": 437
+ },
+ "harness_ramps": {
+  "15m": {
+   "flat": {
+    "max": 31.0,
+    "median": 7.0,
+    "n": 31,
+    "p10": 0.0,
+    "p90": 10.0,
+    "zero": 9
+   },
+   "flat_seq": {
+    "max": 8.0,
+    "median": 2.0,
+    "n": 31,
+    "p10": 0.0,
+    "p90": 4.0,
+    "zero": 9
+   },
+   "flat_sfm": {
+    "max": 31.0,
+    "median": 7.0,
+    "n": 31,
+    "p10": 0.0,
+    "p90": 10.0,
+    "zero": 9
+   },
+   "n": {
+    "max": 165.0,
+    "median": 37.0,
+    "n": 31,
+    "p10": 14.0,
+    "p90": 106.0,
+    "zero": 0
+   },
+   "pano": {
+    "max": 160.0,
+    "median": 30.0,
+    "n": 31,
+    "p10": 7.0,
+    "p90": 94.0,
+    "zero": 0
+   }
+  },
+  "25m": {
+   "flat": {
+    "max": 102.0,
+    "median": 15.0,
+    "n": 31,
+    "p10": 0.0,
+    "p90": 23.0,
+    "zero": 7
+   },
+   "flat_seq": {
+    "max": 8.0,
+    "median": 3.0,
+    "n": 31,
+    "p10": 0.0,
+    "p90": 4.0,
+    "zero": 7
+   },
+   "flat_sfm": {
+    "max": 102.0,
+    "median": 15.0,
+    "n": 31,
+    "p10": 0.0,
+    "p90": 23.0,
+    "zero": 7
+   },
+   "n": {
+    "max": 259.0,
+    "median": 78.0,
+    "n": 31,
+    "p10": 32.0,
+    "p90": 171.0,
+    "zero": 0
+   },
+   "pano": {
+    "max": 249.0,
+    "median": 64.0,
+    "n": 31,
+    "p10": 23.0,
+    "p90": 149.0,
+    "zero": 0
+   }
+  },
+  "30m": {
+   "flat": {
+    "max": 107.0,
+    "median": 19.0,
+    "n": 31,
+    "p10": 0.0,
+    "p90": 26.0,
+    "zero": 7
+   },
+   "flat_seq": {
+    "max": 8.0,
+    "median": 3.0,
+    "n": 31,
+    "p10": 0.0,
+    "p90": 5.0,
+    "zero": 7
+   },
+   "flat_sfm": {
+    "max": 107.0,
+    "median": 19.0,
+    "n": 31,
+    "p10": 0.0,
+    "p90": 26.0,
+    "zero": 7
+   },
+   "n": {
+    "max": 294.0,
+    "median": 88.0,
+    "n": 31,
+    "p10": 46.0,
+    "p90": 242.0,
+    "zero": 0
+   },
+   "pano": {
+    "max": 273.0,
+    "median": 78.0,
+    "n": 31,
+    "p10": 31.0,
+    "p90": 210.0,
+    "zero": 0
+   }
+  }
+ },
+ "overall": {
+  "flat": 1422,
+  "flat_has_camera_parameters": 1.0,
+  "flat_has_computed_compass_angle": {
+   "of": 1422,
+   "share": 1.0
+  },
+  "flat_has_computed_geometry": {
+   "of": 1422,
+   "share": 1.0
+  },
+  "flat_has_computed_rotation": {
+   "of": 1422,
+   "share": 1.0
+  },
+  "flat_has_sfm_cluster": {
+   "of": 490,
+   "share": 1.0
+  },
+  "flat_sequences": 103,
+  "harness_ramps": 31,
+  "pano": 10728,
+  "pano_has_computed_geometry": {
+   "of": 10728,
+   "share": 1.0
+  },
+  "pano_sequences": 335,
+  "ramps": 253,
+  "unique_images_30m": 12150
+ }
+}

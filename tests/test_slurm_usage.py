@@ -37,6 +37,14 @@ KLONE_DUMP_C35 = os.path.join(REPO_ROOT, "docs", "data", "compute",
                               "sacct_klone_2026-09-27_cascade35.txt")
 KLONE_DUMP_DA3 = os.path.join(REPO_ROOT, "docs", "data", "compute",
                               "sacct_klone_2026-09-27_da3_101.txt")
+KLONE_DUMP_AUG82 = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                                "sacct_klone_2026-10-03_aug82.txt")
+KLONE_DUMP_JUNEAU = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                                 "sacct_klone_2026-10-19_juneau254.txt")
+KLONE_DUMP_RESTAGE = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                                  "sacct_klone_2026-10-21_restage263.txt")
+KLONE_DUMP_CONTROL = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                                  "sacct_klone_2026-10-22_control263.txt")
 HYAKUSAGE_REPORT = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                 "hyakusage_tillicum_2026-09-21.txt")
 
@@ -352,12 +360,17 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     """docs/compute_cost.md's numbers are claimed re-derivable from a clean clone.
     That is only true if the ledger is the dump's parse and nothing else: same
     rows, same order, differing only in the recorded_at stamp."""
-    # Eight dumps, appended in this order: klone on 2026-08-19; Tillicum on 2026-09-21; two
+    # Ten dumps, appended in this order: klone on 2026-08-19; Tillicum on 2026-09-21; two
     # klone pulls by job id on 2026-09-24, the three jobs of the #131 Phase 1 replication
     # (#185, merged first) and the five of the #86 context experiment (docs/context_fov_86.md);
     # the klone pull of 2026-09-26, the #86 resolution and seed arms (#187); and three klone
     # pulls on 2026-09-27, the ten jobs of the #48 pass-2 offload (#200), the #35 cascade
-    # transfer job and the three #101 DA3 calibration jobs.
+    # transfer job and the three #101 DA3 calibration jobs; then the klone pull of 2026-10-03,
+    # the 43 allocations of the #82 augmentation fine-tune screen; then the klone pull of
+    # 2026-10-19, the eleven jobs of the #254 Juneau GPU run; then the klone pull of
+    # 2026-10-21, the two CPU-only #263 dataset re-stage jobs (three incarnations, 0 GPU-h);
+    # then the klone pull of 2026-10-22, the #263 control arm (six training jobs, three of them
+    # failed on a bad node, and five scoring jobs).
     parsed, stamps = [], []
     for dump, cluster, stamp in ((KLONE_DUMP, "klone", "2026-08-19T"),
                                  (TILLICUM_DUMP, "tillicum", "2026-09-21T"),
@@ -366,14 +379,45 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
                                  (KLONE_DUMP_CTX2, "klone", "2026-09-26T"),
                                  (KLONE_DUMP_MV48, "klone", "2026-09-27T"),
                                  (KLONE_DUMP_C35, "klone", "2026-09-27T"),
-                                 (KLONE_DUMP_DA3, "klone", "2026-09-27T")):
+                                 (KLONE_DUMP_DA3, "klone", "2026-09-27T"),
+                                 (KLONE_DUMP_AUG82, "klone", "2026-10-03T"),
+                                 (KLONE_DUMP_JUNEAU, "klone", "2026-10-19T"),
+                                 (KLONE_DUMP_RESTAGE, "klone", "2026-10-21T"),
+                                 (KLONE_DUMP_CONTROL, "klone", "2026-10-22T")):
         with open(dump, encoding="utf-8") as fh:
             rows = parse_sacct(fh.read(), cluster=cluster, user="jfroehli")
         parsed += rows
         stamps += [stamp] * len(rows)
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
-    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 10 + 1 + 3
+    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 10 + 1 + 3 + 43 + 11 + 3 + 11
+    # The #263 control arm (docs/control_arm_263.md, klone 2026-10-22): 34.20 GPU-hours of
+    # training (3.48 of it the three runs that failed on g3110) and 3.10 of scoring, all free.
+    ctl = [r for r in committed if r["cluster"] == "klone"
+           and r["recorded_at"].startswith("2026-10-22T")]
+    assert len(ctl) == 11 and all(r["est_cost_usd"] == 0.0 for r in ctl)
+    train = [r for r in ctl if r["job_name"] == "rampnet_ctrl263"]
+    assert len(train) == 6 and [r["state"] for r in train].count("FAILED") == 3
+    assert round(sum(r["gpu_hours"] for r in train), 2) == 34.20
+    assert round(sum(r["gpu_hours"] for r in train if r["state"] == "FAILED"), 2) == 3.48
+    assert round(sum(r["gpu_hours"] for r in ctl if r["job_name"] == "control263_score"), 2) == 3.10
+    # The #254 Juneau run (docs/compute_cost.md, klone 2026-10-19): 11 records, 2.75 GPU-hours,
+    # all free; five cancelled before starting.
+    jun = [r for r in committed if r["cluster"] == "klone"
+           and r["recorded_at"].startswith("2026-10-19T")]
+    assert len(jun) == 11 and all(r["est_cost_usd"] == 0.0 for r in jun)
+    assert round(sum(r["gpu_hours"] for r in jun), 2) == 2.75
+    # The #263 re-stage (docs/restage_263.md, klone 2026-10-21): three CPU-only incarnations,
+    # 0 GPU-hours, 6.89 wall-hours, all free.
+    rst = [r for r in committed if r["cluster"] == "klone"
+           and r["job_name"].startswith("rampnet_restage")]
+    assert len(rst) == 3 and all(r["gpus"] == 0 and r["est_cost_usd"] == 0.0 for r in rst)
+    assert round(sum(r["elapsed_s"] for r in rst) / 3600, 2) == 6.89
+    # The #82 screen (docs/compute_cost.md, klone 2026-10-03): 108.66 GPU-hours, all free.
+    aug = [r for r in committed if r["cluster"] == "klone"
+           and r["job_name"].startswith("aug82")]
+    assert len(aug) == 43 and all(r["est_cost_usd"] == 0.0 for r in aug)
+    assert round(sum(r["gpu_hours"] for r in aug), 2) == 108.66
     for have, want, stamp in zip(committed, parsed, stamps):
         have = dict(have)
         assert have.pop("recorded_at").startswith(stamp)
@@ -519,6 +563,24 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     assert hashlib.sha256(raw_d).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
     assert f"({len(raw_d):,} bytes" in doc
     assert raw_d.count(b"\r\n") == 0
+    # ...and the 2026-10-03 klone pull for the #82 augmentation screen.
+    with open(KLONE_DUMP_AUG82, "rb") as fh:
+        raw_a = fh.read()
+    assert hashlib.sha256(raw_a).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_a):,} bytes" in doc
+    assert raw_a.count(b"\r\n") == 0
+    # ...and the 2026-10-19 klone pull for the Juneau GPU run (#254).
+    with open(KLONE_DUMP_JUNEAU, "rb") as fh:
+        raw_j = fh.read()
+    assert hashlib.sha256(raw_j).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_j):,} bytes" in doc
+    assert raw_j.count(b"\r\n") == 0
+    # ...and the 2026-10-22 klone pull for the #263 control arm.
+    with open(KLONE_DUMP_CONTROL, "rb") as fh:
+        raw_k = fh.read()
+    assert hashlib.sha256(raw_k).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_k):,} bytes" in doc
+    assert raw_k.count(b"\r\n") == 0
     # The pin only holds if git never normalises the dump's line endings: a
     # core.autocrlf=true clone checks it out CRLF and the hash above fails for a
     # file that is byte-correct. So .gitattributes must mark it -text (or binary),

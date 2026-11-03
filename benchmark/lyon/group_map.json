@@ -1,0 +1,9 @@
+[
+  ["Ladybug|grand lyon", "grand_lyon_ladybug"],
+  ["Ladybug|grand-lyon", "grand_lyon_ladybug"],
+  ["|grand lyon", "grand_lyon_ladybug"],
+  ["|grand-lyon", "grand_lyon_ladybug"],
+  ["Max|ecartip", "ecartip_gopro_max"],
+  ["Max|*", "other_gopro_max"],
+  ["*", "other_cameras"]
+]

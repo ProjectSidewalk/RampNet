@@ -1,0 +1,69 @@
+{
+  "bundle": "lyon",
+  "kind": "label audit bundle, NOT a benchmark split: Lyon is a training-only candidate city (#159 decision of 2026-10-06). It is not registered anywhere and nothing scores it as a split.",
+  "issue": "https://github.com/ProjectSidewalk/RampNet/issues/159",
+  "campaign": "https://github.com/ProjectSidewalk/RampNet/issues/263",
+  "status": "staged, NOT reviewed: no verdicts.json, nothing scored. The plan and pass bar in audit_plan.json are a working draft; 'posted' below pins the version posted on #159, and score refuses any other.",
+  "never_train": {
+    "rule": "Every id in ids.txt (the 200 audited panos) and every run pano within 30 m of one (exclude_ids.txt) is held out of every training pool, whatever the audit reads.",
+    "ids_txt": 200,
+    "exclude_ids_txt": 6021,
+    "buffer_m": 30,
+    "how": "haversine on the run's lat/lng, every run pano against every audited pano (lyon_review_159.py stage; exclusion_ids). 6,021 of the run's 174,405 panos, the 200 audited included.",
+    "enforcement": "the training-label builder must be passed these lists (#266 requires --benchmark-ids for a city with a benchmark/<city>/ directory); nothing in this repo enforces it on its own"
+  },
+  "imagery": {
+    "source": "panoramax",
+    "instances": {"panoramax.ign.fr": 167, "panoramax.openstreetmap.fr": 33},
+    "licences": {"etalab-2.0": 167, "CC-BY-SA-4.0": 33},
+    "native_widths": {"5376": 2, "5640": 5, "5760": 92, "5952": 6, "7680": 1, "8192": 75, "10560": 6, "11136": 12, "11904": 1},
+    "credit": "Each pano is credited by the copyright and license fields of records.jsonl. The review gallery is built with --hide-credit, so the reviewer does not see the producer; the credit stays in the records. stage masks email-shaped tokens in every file it writes; this draw holds none."
+  },
+  "run": {
+    "repo": "ProjectSidewalk/sidewalk-auto-labeler",
+    "pr": "https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/163",
+    "doc": "docs/panoramax-lyon.md section 8 on branch lyon-densify-159 (4335e73)",
+    "detection_commit": "fd08b8f (plain clone of main, Hyak job 41504145, ckpt-g2, one L40S)",
+    "command": "python main.py example_geojson/lyon.geojson --name lyon --source panoramax --reuse-scan --thin-spacing 5",
+    "model": "projectsidewalk/rampnet-model@606a11956743f7eb328d9207769034752f6191f4",
+    "detection_storage_floor": 0.1,
+    "detection_border": "exclude (production drops peaks within 10 heatmap cells of the seam, sidewalk-auto-labeler#130)",
+    "results_jsonl": "runs/lyon/results.jsonl (local copy D:/Git/labeler-wt/lyon5m/runs/lyon/results.jsonl)",
+    "results_jsonl_sha256": "60e688b28b62f85e71f51c603dc1b6f4ff020348220c6cc7955891dcfef061ef",
+    "results_record_count": 174405,
+    "archive": "makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/lyon/panos/ (all 174,405 native panos, index.csv with sha256 per file)"
+  },
+  "export": {
+    "exporter": "scripts/export_benchmark.py at sidewalk-auto-labeler f5ddd6d (branch lyon-review-bundle-159, PR 167): stratified sampling by --group-key",
+    "command": "python scripts/export_benchmark.py D:/Git/labeler-wt/lyon5m/runs/lyon/results.jsonl --bundle D:/Git/labeler-wt/lyon-bundle --sample 175 --empty-sample 25 --seed 159 --min-spacing 30 --top 5 --group-key camera_model --group-key copyright --group-map D:/Git/labeler-wt/lyon-bundle/group_map.json --group-min 30 --empty-group-min 3 --records-only",
+    "written": "2026-10-20",
+    "exporter_records_jsonl_sha256": "aa64a1e7874bf8775fd6689d48599799640e2767df45bfc1f6423d5f8bed1fc5",
+    "reproduced": "re-run from f5ddd6d into a fresh directory: records.jsonl byte-identical, sample.json identical apart from source_records",
+    "superseded_draw": "a first draw (top 10, group-min 20, records down to 0.30; exporter records sha256 d17d367e...) was replaced on 2026-10-20 after review of PR 264, before anyone reviewed it",
+    "pixels": "--records-only: the panos are copied out of the makelab2 archive, not re-fetched from Panoramax"
+  },
+  "staged": {
+    "date": "2026-10-20",
+    "command": "python scripts/analysis/lyon_review_159.py stage --from D:/Git/labeler-wt/lyon-bundle --results D:/Git/labeler-wt/lyon5m/runs/lyon/results.jsonl",
+    "changes": "records.jsonl is byte-identical to the exporter's (no email-shaped token in this draw)",
+    "run_peaks": "analysis_out/lyon_review_159/run_peaks.json (outside the bundle, so the reviewer's bundle holds only what the gallery shows), sha256 37ad8482e675370962b743a138ae93207ae9e0a8fd0da1b0c599725df39c50d0",
+    "files": ["records.jsonl", "sample.json", "group_map.json", "ids.txt", "exclude_ids.txt", "audit_plan.json", "bundle_provenance.json", "nadir_band.json and imagery_manifest.json (once the panos are local)", "index.csv and panos/ (git-ignored, travel with the imagery)"]
+  },
+  "posted": {
+    "comment": "https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301627994",
+    "date": "2026-10-20",
+    "commit": "6c86757",
+    "audit_plan_sha256": "0585f79940dd40ba47faa9d4bfafc16a9e2619fca1c259fa42e82d137cdb7f68",
+    "records_jsonl_sha256": "aa64a1e7874bf8775fd6689d48599799640e2767df45bfc1f6423d5f8bed1fc5",
+    "note": "the version of the plan and sample in force when the review opens; score refuses an audit_plan.json or records.jsonl with any other sha256, or code that no longer rebuilds the plan. Amending the plan before the review means a new post and a new pin here."
+  },
+  "superseded_posts": [
+    {
+      "comment": "https://github.com/ProjectSidewalk/RampNet/issues/159#issuecomment-6301107391",
+      "commit": "208c662",
+      "audit_plan_sha256": "a2e05f6ca92e02ac6f0689902ac819e565fa9e3b06d1e07cff1bcddacbcd688a",
+      "records_jsonl_sha256": "aa64a1e7874bf8775fd6689d48599799640e2767df45bfc1f6423d5f8bed1fc5",
+      "why": "re-review of PR 264 (N1): the bootstrap-only three-outcome rule was replaced by eligibility on the point estimate with both intervals beside it; the sample did not change"
+    }
+  ]
+}

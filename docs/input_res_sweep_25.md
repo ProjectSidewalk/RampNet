@@ -108,7 +108,7 @@ tp/fp/fn at 0.30 and 0.55 are identical. `analysis_out/op_cache` was not regener
 | paterson | exclude_border=True | 13 | 0 | 1.04e-4 | 284/15/111 / 286/16/109 | 269/8/126 / 270/9/125 |
 | richmond | exclude_border=True | 12 | 0 | 5.4e-5 | 257/28/53 / 258/31/52 | 238/9/72 / 239/11/71 |
 | sao_paulo | exclude_border=True | 16 | 0 | 5.1e-5 | 224/55/57 / 224/55/57 | 183/19/98 / 183/19/98 |
-| laurens_gsv | — (no op_cache) | — | — | — | not checked | not checked |
+| laurens_gsv | exclude_border=False (added 2026-10-20, #263) | 0 | 0 | 4.0e-5 | 144/12/76 / 144/12/76 | 101/7/119 / 101/7/119 |
 
 Once the seam strip is set aside, the tp/fp/fn counts equal the op_cache's on every checked
 split, at both thresholds (asserted by `check`, and for richmond by
@@ -135,8 +135,12 @@ Caveats on this table:
   identical counts. Every other peak differs by at most 6.8e-5. This is fp32 convolution noise
   between two machines: the op_cache was extracted on a different GPU and software stack. It is
   the only matched peak above 1e-4.
-- **laurens_gsv has no op_cache** and is not checked. Its r2048 arm is the same code path as the
-  ten that are.
+- **laurens_gsv was not checked when this doc was written**, because it had no op_cache. One was
+  added on 2026-10-20 for #263 (`docs/open_rig_misses_258.md`, Gaps), extracted on makelab2 with
+  the post-`f4c71c8` extractor. Its row above was added then, and it reproduces this sweep's r2048
+  arm exactly. That cache is a `low_floor_sweep.PARITY_EXCEPTIONS` entry: it under-scores the
+  deployed GSV run's records (111 against 121 detections at 0.55), the same deployed-vs-re-extraction
+  gap #151 reports. This sweep's own conclusions did not change.
 - The committed native panoramas were verified against each split's `imagery_manifest.json`
   (`imagery_manifest.py --verify`, all 11 splits OK) before the run.
 

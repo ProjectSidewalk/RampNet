@@ -1,0 +1,51 @@
+--- #82 fine-tune screen ---
+Job ID:      41106894   restarts: 0
+Arm / seed:  res / 1
+Aug flags:   --aug downscale=0.5:0.5:1.0 --aug blur=0.3:0.0:1.15 --aug jpeg=0.5:50:95
+Repo:        /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82  commit 35d1ff0  dirty files: 12
+Run dir:     /gscratch/scrubbed/jfroehli/aug82/res_s1
+Data root:   /gscratch/scrubbed/jfroehli/rampnet_dataset
+Init:        /gscratch/scrubbed/jfroehli/aug82/released_rampnet_state_dict.pth  sha256 024a987cabed7cc9
+GPUs:        1 x 4 (world 4) x accum 4 = global batch 16
+Steps:       2000 optimizer steps, LR 1e-5 constant, ckpt every 400 micro-batches
+Node list:   g3075
+      4 NVIDIA A40
+----------------------------
+Initialized EquiHeatmapDataset for split 'train' with 150063 samples. Horizontal flip: True
+Initialized EquiHeatmapDataset for split 'val' with 42875 samples. Horizontal flip: False
+Preset: scratch, lr: 1e-05, epochs: 1, data root: /gscratch/scrubbed/jfroehli/rampnet_dataset
+Seed: 1 (sampler seed: 1), checkpoint dir: /gscratch/scrubbed/jfroehli/aug82/res_s1/checkpoints
+Augmentation (#82): downscale=0.5:0.5:1 blur=0.3:0:1.15 jpeg=0.5:50:95; grad accum: 4 (global batch 16); max optimizer steps: 2000
+LR schedule: constant (no decay, as in the paper)
+Warm-started model weights from /gscratch/scrubbed/jfroehli/aug82/released_rampnet_state_dict.pth
+Saved latest checkpoint at step 400
+Saved latest checkpoint at step 800
+Saved latest checkpoint at step 1200
+Saved latest checkpoint at step 1600
+Saved latest checkpoint at step 2000
+Saved latest checkpoint at step 2400
+Saved latest checkpoint at step 2800
+Saved latest checkpoint at step 3200
+Saved latest checkpoint at step 3600
+Saved latest checkpoint at step 4000
+Saved latest checkpoint at step 4400
+Saved latest checkpoint at step 4800
+Saved latest checkpoint at step 5200
+Saved latest checkpoint at step 5600
+Saved latest checkpoint at step 6000
+Saved latest checkpoint at step 6400
+Saved latest checkpoint at step 6800
+Saved latest checkpoint at step 7200
+Saved latest checkpoint at step 7600
+Rank 2 finished.
+Saved latest checkpoint at step 8000
+Saved final model (2000 optimizer steps, 8000 micro-batches) to /gscratch/scrubbed/jfroehli/aug82/res_s1/checkpoints/final_step_2000.pth
+Saved latest checkpoint at step 8000 (final)
+Rank 3 finished.
+Rank 1 finished.
+Rank 0 finished.
+--- Slurm job finished ---
+total 352002
+drwxr-xr-x 2 jfroehli all       512 Oct  2 15:13 .
+drwxr-xr-x 5 jfroehli all       512 Oct  2 12:24 ..
+-rw-r--r-- 1 jfroehli all 360360378 Oct  2 15:13 final_step_2000.pth

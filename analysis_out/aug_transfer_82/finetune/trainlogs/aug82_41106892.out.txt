@@ -1,0 +1,13 @@
+--- #82 fine-tune screen ---
+Job ID:      41106892   restarts: 0
+Arm / seed:  control / 1
+Aug flags:   none
+Repo:        /mmfs1/gscratch/scrubbed/jfroehli/RampNet_aug82  commit 35d1ff0  dirty files: 12
+Run dir:     /gscratch/scrubbed/jfroehli/aug82/control_s1
+Data root:   /gscratch/scrubbed/jfroehli/rampnet_dataset
+Init:        /gscratch/scrubbed/jfroehli/aug82/released_rampnet_state_dict.pth  sha256 024a987cabed7cc9
+GPUs:        1 x 4 (world 4) x accum 4 = global batch 16
+Steps:       2000 optimizer steps, LR 1e-5 constant, ckpt every 400 micro-batches
+Node list:   g3115
+      4 NVIDIA L40
+----------------------------

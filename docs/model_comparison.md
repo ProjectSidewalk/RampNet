@@ -12,7 +12,7 @@ model-agnostic, so new models (issues #20, #39) plug in the same way.
 > and by how much" is spread across a dozen tables in chronological order. `model_scoreboard.md`
 > is the same data pivoted the other way (rows are models, columns are metrics, aggregated
 > across splits) plus five summary figures, and it covers every leg in `rampnet/roster.py`
-> rather than the standing eight. It is generated from the committed detections by
+> except the seed legs (`seed_of`), rather than the standing eight. It is generated from the committed detections by
 > `scripts/analysis/scoreboard.py`, and a test fails if it drifts from this log.
 
 > **Start here.** This file is the log: per-split results in run order, the mechanism behind each
@@ -43,12 +43,14 @@ a run that hasn't happened, not a result being withheld.
 | richmond | ✅ | ✅ full roster | ✅ | ✅ 17% (5/29) | OOD deployment, Mapillary 360 |
 | bend | ✅ | ✅ full roster | ✅ | ✅ 29% (7/24) | in-domain GSV reference |
 | clovis | ✅ | ✅ full roster | ✅ | ✅ 30% (7/23) | hardest split — 2018 GoPro Fusion |
-| annapolis | ✅ | ✅ full roster | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with all six Claude legs** (#122, #156; `claude-opus-5` low has run all eleven city splits) |
+| annapolis | ✅ | ✅ full roster | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with all seven Claude legs** (#122, #156, `docs/claude_newest_ids.md`; `claude-opus-5` low has run eleven of the thirteen city splits (not `bayonne` or `juneau`), `claude-opus-5-5` and `claude-fable-5-1` low all fourteen splits) |
 | morgantown | ✅ | ✅ full roster | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
-| paterson | ✅ | ✅ full roster | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead (0.12); 2nd Qwen inversion |
+| paterson | ✅ | ✅ full roster | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead over the standing roster on a high-confidence split (0.12; bayonne's 0.086 is narrower, on medium-confidence GT); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ full roster | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
+| juneau | ✅ | ⚠️ full roster except **claude-opus-5** (low): not run yet, waiting on the plan API-credits route being set up (it would bill Anthropic's first-party API, which is the same leg — `serving_path` is not in the cache key); off-roster, `claude-opus-5-5` and `claude-fable-5-1` at low (2026-10-20, `docs/claude_newest_ids.md`) | ❌ not run | ✅ 19% (4/21) | the Annapolis rig (Trimble MX7, 120 of 125) on new streets; a Project Sidewalk deployment city on the same Mapillary imagery; GT single-rater, **medium** confidence; pooled (#254, `docs/juneau_split_254.md`) |
 | budapest_district5 | ✅ | ✅ full roster | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
 | sao_paulo | ✅ | ✅ full roster | ✅ | ✅ **12.5% (6/48) — lowest measured** | second non-US split (GSV, NBR 9050), GT **high** confidence — the budapest recall collapse did not replicate; 4th Qwen-32B caution occurrence, this time at parity not inversion |
+| bayonne | ✅ | ⚠️ partial: Gemini 3.6 Flash, Gemini 3.1 Pro, Gemini 3.7 Flash, Qwen3-VL-8B, OWLv2, Grounding DINO, the three YOLO pano arms; off-roster, `claude-opus-5-5` and `claude-fable-5-1` at low (2026-10-20, `docs/claude_newest_ids.md`). **Not run:** Molmo2-8B (failed on every pano), Qwen3-VL-32B (weights not cached on makelab2), claude-opus-5 (bills a separate account, not authorized; the 2026-10-19 campaign ran only the newest ids) | ❌ not run | ❌ gallery built (40 items), **tags pending** | third non-US split, first Panoramax (GoPro Max); GT single-rater, **medium** confidence; lowest recall in the benchmark (`docs/bayonne_split_159.md`) |
 | manual_gold | ✅ | ✅ full roster | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "Full roster" is the standing roster below. It is not a count written into this prose: the
@@ -74,12 +76,20 @@ and `tests/test_roster.py` fails if the two stop agreeing. Regenerate it with
 | `y11l_pano` | yolo | sparse | 2026-08-14 | — published, not in these tables |
 | `y11x_pano_h200` | yolo | sparse | 2026-08-14 | — published, not in these tables |
 | `y26_pano` | yolo | sparse | 2026-08-14 | — published, not in these tables |
+| `y11x_tiles` | yolo | sparse | 2026-10-19 | — published, not in these tables |
+| `y11x_tiles_s1_ep44` | yolo | sparse | 2026-10-19 | — published, not in these tables |
+| `y11x_tiles_s2_ep44` | yolo | sparse | 2026-10-19 | — published, not in these tables |
+| `y11x_tiles_s3_ep42` | yolo | sparse | 2026-10-19 | — published, not in these tables |
+| `y11x_tiles_s1_best` | yolo | sparse | 2026-10-19 | — published, not in these tables |
+| `y11x_tiles_s2_best` | yolo | sparse | 2026-10-19 | — published, not in these tables |
+| `y11x_tiles_s3_best` | yolo | sparse | 2026-10-19 | — published, not in these tables |
 | `claude-opus-5-effort-low` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-opus-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-low` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-fable-5-1-effort-low-anthropic` | claude | sparse | 2026-09-05 | — published, not in these tables |
 | `claude-fable-5-effort-low-anthropic` | claude | sparse | 2026-09-05 | — published, not in these tables |
+| `claude-opus-5-5-effort-low-anthropic` | claude | sparse | 2026-10-19 | — published, not in these tables |
 
 **"Not in these tables" covers three different situations, and the difference matters.**
 The tables below are the zero-shot comparison; a leg can sit outside them because its
@@ -98,38 +108,59 @@ the matrix above exists to make, stated here because the artifact is already in 
 would otherwise read as a withheld result. Promoting it is one field in the registry plus a
 re-run; since #122 froze the #46 witness pool, doing so no longer disturbs that human pass.
 
-**Six Claude legs are off-roster.** Four are `claude-sonnet-5` and `claude-opus-5` at
-effort `low`/`high` (#122), served on Vertex; two are `claude-fable-5` and `claude-fable-5-1`
-at effort `low` (#156), served on Anthropic's first-party API because Vertex gates that
-family — which is why their published names carry `-anthropic`. All six are absent from the
-roster tables below, so no number in this document moves; `claude-opus-5` at `low` **is**
-scored in [`model_scoreboard.md`](model_scoreboard.md), which keys off coverage rather than
-`standing`. Detections are published (`benchmark/model_detections/claude-*__*.json`, 16
-files) and 14 of the 16 are verified identical to the cache that produced them with
-`export_model_cache.py --verify` (the four Vertex annapolis legs, the eight #139 splits, and
-the two Fable annapolis legs); the two Laurens files were exported with `n_uncached` 0 on the
-machine that ran #151, which never had a recorded `--verify`, and are re-scored from the
-committed detections by `tests/test_claude_published_legs.py` — a different guarantee,
-stated as such. The write-ups are the "Claude on Vertex" section and the "Claude Fable on
-annapolis" section of [`claude_legs_122.md`](claude_legs_122.md), where every result table is re-derived from those files by
-`tests/test_claude_published_legs.py`.
+**Seven Claude legs are off-roster.** Four are `claude-sonnet-5` and `claude-opus-5` at
+effort `low`/`high` (#122), served on Vertex. Three are served on Anthropic's first-party API,
+which is why their published names carry `-anthropic`: `claude-fable-5` and
+`claude-fable-5-1` at effort `low` (#156), first-party because Vertex gates that family, and
+`claude-opus-5-5` at effort `low` (added 2026-10-19), first-party because the campaign that
+ran it was paid from subscription API credits, which do not cover Vertex. All seven are
+absent from the roster tables below, so no number in those tables moves; each generated city
+table's footnote lists the ones scored on that split. `claude-opus-5`, `claude-opus-5-5` and
+`claude-fable-5-1` at `low` **are** scored in the pooled tables of
+[`model_scoreboard.md`](model_scoreboard.md), which keys off coverage rather than
+`standing`. Detections are published (`benchmark/model_detections/claude-*__*.json`, 43
+files) and 41 of the 43 are verified identical to the cache that produced them with
+`export_model_cache.py --verify` (the four Vertex annapolis legs, the eight #139 splits, the
+two Fable annapolis legs, and the 28 files of the 2026-10-19/20 campaign, which include the
+Fable 5.1 annapolis file a second time); the two Laurens files of `claude-opus-5` were
+exported with `n_uncached` 0 on the machine that ran #151, which never had a recorded
+`--verify`, and are re-scored from the committed detections by
+`tests/test_claude_published_legs.py` — a different guarantee, stated as such. The write-ups
+are the "Claude on Vertex" section and the "Claude Fable on annapolis" section of
+[`claude_legs_122.md`](claude_legs_122.md), and
+[`claude_newest_ids.md`](claude_newest_ids.md) for Opus 5.5 and Fable 5.1 on every split.
+Every result table in them is re-derived from those files by
+`tests/test_claude_published_legs.py`; the newest-ids page's paired-interval and radius tables
+by `tests/test_claude_newest_ids_261.py` (from `scripts/analysis/claude_newest_ids_261.py`'s
+committed output).
 
-Coverage is not uniform across the six, so it is stated per leg:
+Coverage is not uniform across the seven, so it is stated per leg:
 
-- **`claude-opus-5` at `low` has run eleven splits** — everything but `manual_gold`: the
-  nine of #139 plus both Laurens arms (#151). The `manual_gold` absence is a decision, not a
-  pending run: `gemini-3.1-pro-preview` has no `manual_gold` row either, so a Claude-only
-  run there would have no peer to compare against (#144).
-- **The other five legs have run annapolis only.** A gap in coverage, not a withheld
+- **`claude-opus-5-5` and `claude-fable-5-1` at `low` have run all fourteen splits**, the
+  thirteen city splits plus `manual_gold` (2026-10-19/20, [`claude_newest_ids.md`](claude_newest_ids.md)).
+  Fable 5.1's annapolis file is the #156 leg; the campaign ran its other thirteen splits.
+  `bayonne` was run late, on 2026-10-20, because the campaign's first split list came from a
+  checkout that predated it, and `juneau` last, the same day, after #260 pooled it. Opus 5.5
+  leads Fable 5.1 on all fourteen: on the city splits by 0.054 (juneau) to 0.286 F1, and on
+  `manual_gold` 0.722 against 0.638. Both are single runs with no seed-variance estimate.
+- **`manual_gold` was run for these two by decision, reversing #144.** #144 had skipped
+  Claude on `manual_gold` because `gemini-3.1-pro-preview` has no `manual_gold` row to
+  compare against. On 2026-10-19 Jon decided to run the newest ids there anyway, because he
+  wants the coverage regardless of that peer. The run cost $167.92 for Fable 5.1 and $67.98
+  for Opus 5.5 (`analysis_out/usage_log.jsonl`); #156's estimate for Fable 5.1 was ~$165.
+- **`claude-opus-5` at `low` has run eleven splits** — everything but `bayonne`, `juneau` and `manual_gold`: the
+  nine of #139 plus both Laurens arms (#151). Its `manual_gold` absence is still the #144
+  decision; the 2026-10-19 reversal covered only the two newest ids.
+- **The other four legs have run annapolis only.** A gap in coverage, not a withheld
   result. For the Opus/Sonnet legs it was estimated at "about $57 at `low` effort" before
   anyone ran it; the nine-split Opus leg then **measured $70.41 for eight splits** (§"Cost
   accounting" below), so budget roughly **$8.80 per split** for Opus and re-derive Sonnet
   from its own $3.60 annapolis leg rather than from that average. Re-running `high`
   comprehensively would roughly double the bill to re-measure a result we already have,
-  which is why it stays at one split. The two Fable legs are annapolis-only for a different
-  reason: both clear the pre-registered expansion gate, and the expansion has not been
-  taken — `manual_gold` alone is ~$154–165 per id at their measured rates
-  ([`claude_legs_122.md`](claude_legs_122.md) § "Claude Fable on annapolis").
+  which is why it stays at one split. `claude-fable-5` is annapolis-only for a different
+  reason: it cleared the pre-registered expansion gate, and Jon chose only the newest ids
+  (`claude-fable-5-1`, `claude-opus-5-5`) for the 2026-10-19 expansion
+  ([`claude_newest_ids.md`](claude_newest_ids.md) § "What and why").
 
 **The three `y*_pano` rows are the supervised YOLO baseline** (#51), the one part of the
 registry that is not zero-shot. They have run on all ten splits and are scored, but under the
@@ -141,6 +172,17 @@ anything: that tuple is the default `--models` of `fp_taxonomy` and `null_recall
 without the weights. `silent_witness` is not in that list — it defaults to the frozen
 `WITNESS_POOL_46`, so the #46 human pass is unaffected by any promotion, which is what the
 freeze is for.
+
+**The three `mask2former-vistas-*` rows are supervised transfer** (#126): a checkpoint trained on
+somebody else's curb-cut labels, read with no training of ours. That puts them outside the
+zero-shot tables for the same reason as the YOLO arms. Coverage is per leg. The 384 arm and the
+`+curb` union arm have run richmond only, and they stay there by decision. The 1024 parity arm
+(`mask2former-vistas-curb-cut-1024x1024`) has run **all fourteen splits**: richmond (#163),
+bend/paterson/gainesville/annapolis (#35, 2026-09-27), and the other nine on 2026-10-20. Each
+generated city table's footnote lists it, and [`model_scoreboard.md`](model_scoreboard.md) scores
+it in the pooled headline (F1 0.519, 0.274 behind RampNet, recall 0.836). The per-split table,
+what it changes and what it cost are in
+[`vistas_transfer_126.md` § "All fourteen splits"](vistas_transfer_126.md).
 
 ### Are gemini-3.7-flash's silent panoramas real, or lost responses? (#120 review)
 
@@ -218,7 +260,15 @@ on manual_gold, far above every zero-shot model), but out-of-domain it degrades 
 than RampNet does** — the architecture's measured contribution is generalization, not
 in-domain fit. Against the zero-shot field it splits 5–5 at the headline threshold (bold =
 above the best challenger), with budapest the honest worst case: the US-trained detector
-nearly stops firing on non-US design vocabulary and lands below gemini-pro. The sweeps show
+nearly stops firing on non-US design vocabulary and lands below gemini-pro. *Superseded
+2026-10-19/20: the "best zero-shot" column and the 5–5 count are the standing roster's. With
+off-roster `claude-opus-5-5` at effort low included, it is the best zero-shot model on all ten
+of these splits, and the best YOLO pano arm is above it on two (`manual_gold` 0.851 vs 0.722,
+`sao_paulo` 0.662 vs 0.646) and below it on eight, so the split is 2–8 (it is also below Opus
+5.5 on the four splits not in this table: both Laurens arms, bayonne and juneau). That matches
+finding 1 of [`model_scoreboard.md`](model_scoreboard.md): the best zero-shot VLM now beats the
+supervised baseline pooled. Opus 5.5 is a single run, no seed variance, effort low only,
+first-party serving path ([`claude_newest_ids.md`](claude_newest_ids.md)).* The sweeps show
 much of the missing recall sits *below* conf 0.25 (per-split best-F1 lives at 0.10–0.15 —
 tuned-on-test, reported under that flag only), the same under-firing-at-the-library-default
 pattern as RampNet's own #54/#55 threshold correction. Full tables, calibration analysis,
@@ -265,8 +315,12 @@ the training record's
 [caveat section](../scripts/model_comparison/yolo_baseline/README.md#the-caveat-that-travels-with-every-number-above-the-warmup-lr-collapse-72).
 
 The tiles arms — the resolution-controlled half of the ablation, and the geometry the VLM
-rows are scored with — are **absent from every table above because their detections are not
-published**, not because they are unmeasured. `y11x_tiles` (ep44) was scored on all ten
+rows are scored with — are **absent from every table above because they are not standing
+legs**, not because they are unmeasured. Their detections have been published since
+2026-10-19 ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258)). `y11x_tiles` is
+listed in the per-split "Also scored" lines below. Its six #135 seed legs are not, for the
+reason given in [`model_scoreboard.md`](model_scoreboard.md); they are analysed in
+[`seed_variance_51_135.md`](seed_variance_51_135.md). `y11x_tiles` (ep44) was scored on all ten
 splits on 2026-08-30: the equirect handicap is real and worth about **0.044 F1**, and the
 tiles arm is the best YOLO cell in the grid
 ([`yolo_geometry_51.md`](yolo_geometry_51.md)). Two further caveats belong with the YOLO
@@ -313,7 +367,7 @@ These tables are now checked against the scorer on every CI run
 (`tests/test_scoreboard.py::test_every_number_matches_model_comparison`), so a code change
 that moves a published number here fails the build instead of going unnoticed.
 
-The eleven city tables below are generated blocks, written by `scripts/analysis/scoreboard.py`
+The thirteen city tables below are generated blocks, written by `scripts/analysis/scoreboard.py`
 and checked by its `--check` (#145); each carries the standing roster the log has always
 printed, and its footnote names every other leg scored on that split. `manual_gold`'s table
 is hand-maintained, because two of its rows have no published detections to score.
@@ -350,7 +404,9 @@ is the one untruncated RampNet AP here.
 | owlv2-large-patch14-ensemble | 0.033 | **0.971** | 0.064 | 0.104 | 301/8799/9 |
 | grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.033 | 264/9321/46 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.664, Claude Opus 5 (low) F1 0.601. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11l (pano) F1 0.595, YOLO11x (pano) F1 0.547, Mask2Former Vistas (curb cut, 1024) F1 0.534, Mask2Former Vistas (curb cut) F1 0.517, YOLO26 (pano) F1 0.491, Mask2Former Vistas (+curb) F1 0.210.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.738, Gemini 3.7 Flash F1 0.664, Claude Fable 5.1 (low, anthropic) F1 0.628, Claude Opus 5 (low) F1 0.601. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11x (tiles) F1 0.667, YOLO11l (pano) F1 0.595, YOLO11x (pano) F1 0.547, Mask2Former Vistas (curb cut, 1024) F1 0.534, Mask2Former Vistas (curb cut) F1 0.517, YOLO26 (pano) F1 0.491, Mask2Former Vistas (+curb) F1 0.210.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.117 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.188 over the table's best row.
 
 <!-- END GENERATED: results:richmond -->
 
@@ -369,9 +425,9 @@ Also scored on this split, not in the standing table (see [`model_scoreboard.md`
 | grounding-dino-base | 0.038 | 0.850 | 0.073 | 0.049 | 278/6969/49 |
 | owlv2-large-patch14-ensemble | 0.037 | **0.954** | 0.071 | 0.093 | 312/8187/15 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.639, Claude Opus 5 (low) F1 0.604. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11l (pano) F1 0.713, YOLO11x (pano) F1 0.710, YOLO26 (pano) F1 0.637, Mask2Former Vistas (curb cut, 1024) F1 0.509.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.720, Gemini 3.7 Flash F1 0.639, Claude Fable 5.1 (low, anthropic) F1 0.626, Claude Opus 5 (low) F1 0.604. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11x (tiles) F1 0.750, YOLO11l (pano) F1 0.713, YOLO11x (pano) F1 0.710, YOLO26 (pano) F1 0.637, Mask2Former Vistas (curb cut, 1024) F1 0.509.
 
-Against the whole zero-shot field RampNet's lead on this split is 0.211 F1 (over Gemini 3.7 Flash), not the 0.212 over the table's best row.
+Against the whole zero-shot field RampNet's lead on this split is 0.130 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.212 over the table's best row.
 
 <!-- END GENERATED: results:bend -->
 
@@ -391,9 +447,9 @@ three deployment cities
 | owlv2-large-patch14-ensemble | 0.025 | **0.913** | 0.049 | 0.067 | 178/6910/17 |
 | grounding-dino-base | 0.018 | 0.872 | 0.035 | 0.026 | 170/9432/25 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.550, Gemini 3.7 Flash F1 0.504. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.600, YOLO26 (pano) F1 0.552, YOLO11x (pano) F1 0.551.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.610, Claude Fable 5.1 (low, anthropic) F1 0.552, Claude Opus 5 (low) F1 0.550, Gemini 3.7 Flash F1 0.504. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11x (tiles) F1 0.712, YOLO11l (pano) F1 0.600, YOLO26 (pano) F1 0.552, YOLO11x (pano) F1 0.551, Mask2Former Vistas (curb cut, 1024) F1 0.368.
 
-Against the whole zero-shot field RampNet's lead on this split is 0.251 F1 (over Claude Opus 5 (low)), not the 0.288 over the table's best row.
+Against the whole zero-shot field RampNet's lead on this split is 0.191 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.288 over the table's best row.
 
 <!-- END GENERATED: results:clovis -->
 
@@ -427,9 +483,9 @@ survey-grade camera in the benchmark
 | owlv2-large-patch14-ensemble | 0.032 | **0.959** | 0.063 | 0.126 | 282/8444/12 |
 | grounding-dino-base | 0.029 | 0.898 | 0.055 | 0.042 | 264/8992/30 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Fable 5 (low, anthropic) F1 0.611, Claude Fable 5.1 (low, anthropic) F1 0.610, Claude Opus 5 (low) F1 0.588, Gemini 3.7 Flash F1 0.565, Claude Opus 5 (high) F1 0.520, Claude Sonnet 5 (low) F1 0.463, Claude Sonnet 5 (high) F1 0.456. Supervised (#71 / #126 protocols, not comparable as 'challenger'): Mask2Former Vistas (curb cut, 1024) F1 0.587, YOLO11l (pano) F1 0.481, YOLO26 (pano) F1 0.450, YOLO11x (pano) F1 0.397.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.720, Claude Fable 5 (low, anthropic) F1 0.611, Claude Fable 5.1 (low, anthropic) F1 0.610, Claude Opus 5 (low) F1 0.588, Gemini 3.7 Flash F1 0.565, Claude Opus 5 (high) F1 0.520, Claude Sonnet 5 (low) F1 0.463, Claude Sonnet 5 (high) F1 0.456. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11x (tiles) F1 0.640, Mask2Former Vistas (curb cut, 1024) F1 0.587, YOLO11l (pano) F1 0.481, YOLO26 (pano) F1 0.450, YOLO11x (pano) F1 0.397.
 
-Against the whole zero-shot field RampNet's lead on this split is 0.229 F1 (over Claude Fable 5 (low, anthropic)), not the 0.273 over the table's best row.
+Against the whole zero-shot field RampNet's lead on this split is 0.119 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.273 over the table's best row.
 
 <!-- END GENERATED: results:annapolis -->
 
@@ -460,9 +516,9 @@ the benchmark and the control for everything below
 | owlv2-large-patch14-ensemble | 0.037 | **0.948** | 0.071 | 0.114 | 253/6613/14 |
 | grounding-dino-base | 0.022 | 0.831 | 0.042 | 0.028 | 222/9991/45 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.649, Gemini 3.7 Flash F1 0.595. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11x (pano) F1 0.686, YOLO26 (pano) F1 0.681, YOLO11l (pano) F1 0.675.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.785, Claude Fable 5.1 (low, anthropic) F1 0.661, Claude Opus 5 (low) F1 0.649, Gemini 3.7 Flash F1 0.595. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11x (tiles) F1 0.728, YOLO11x (pano) F1 0.686, YOLO26 (pano) F1 0.681, YOLO11l (pano) F1 0.675, Mask2Former Vistas (curb cut, 1024) F1 0.521.
 
-Against the whole zero-shot field RampNet's lead on this split is 0.187 F1 (over Claude Opus 5 (low)), not the 0.192 over the table's best row.
+Against the whole zero-shot field RampNet's lead on this split is 0.050 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.192 over the table's best row.
 
 <!-- END GENERATED: results:morgantown -->
 
@@ -489,7 +545,9 @@ confidence HIGH; the split whose misses are structural (`benchmark/README.md`)
 | owlv2-large-patch14-ensemble | 0.040 | **0.894** | 0.077 | 0.116 | 353/8398/42 |
 | grounding-dino-base | 0.036 | 0.803 | 0.068 | 0.044 | 317/8551/78 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.642, Gemini 3.7 Flash F1 0.609. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11l (pano) F1 0.647, YOLO11x (pano) F1 0.635, YOLO26 (pano) F1 0.591, Mask2Former Vistas (curb cut, 1024) F1 0.510.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.742, Claude Fable 5.1 (low, anthropic) F1 0.666, Claude Opus 5 (low) F1 0.642, Gemini 3.7 Flash F1 0.609. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11l (pano) F1 0.647, YOLO11x (pano) F1 0.635, YOLO11x (tiles) F1 0.595, YOLO26 (pano) F1 0.591, Mask2Former Vistas (curb cut, 1024) F1 0.510.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.063 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.124 over the table's best row.
 
 <!-- END GENERATED: results:paterson -->
 
@@ -497,7 +555,8 @@ Best sweep F1: OWLv2 **0.216** (thr 0.25), Grounding DINO **0.100** (thr 0.15).
 
 Three things paterson adds to the comparison:
 
-1. **The narrowest RampNet lead measured anywhere: 0.124 F1** (prior range 0.19–0.34), and
+1. **The narrowest RampNet lead measured when paterson landed: 0.124 F1** over the standing
+   roster (prior range 0.19–0.34; bayonne, 2026-10-04, is now narrower at 0.086), and
    the decomposition matters. It is *not* a challenger breakthrough — gemini-pro's recall
    (0.567) is ordinary. Two things compress the gap: RampNet posts its lowest US F1 (its
    structural recall ceiling — see `benchmark/README.md`), and the fresh GSV imagery hands
@@ -541,7 +600,9 @@ reviewer confidence HIGH; the benchmark's freshest imagery (A-rate 35%, the high
 | owlv2-large-patch14-ensemble | 0.031 | **0.967** | 0.060 | 0.063 | 263/8185/9 |
 | grounding-dino-base | 0.028 | 0.893 | 0.055 | 0.040 | 243/8328/29 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.479, Gemini 3.7 Flash F1 0.456. Supervised (#71 / #126 protocols, not comparable as 'challenger'): Mask2Former Vistas (curb cut, 1024) F1 0.527, YOLO11l (pano) F1 0.516, YOLO11x (pano) F1 0.499, YOLO26 (pano) F1 0.451.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.684, Claude Fable 5.1 (low, anthropic) F1 0.553, Claude Opus 5 (low) F1 0.479, Gemini 3.7 Flash F1 0.456. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11x (tiles) F1 0.576, Mask2Former Vistas (curb cut, 1024) F1 0.527, YOLO11l (pano) F1 0.516, YOLO11x (pano) F1 0.499, YOLO26 (pano) F1 0.451.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.119 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.255 over the table's best row.
 
 <!-- END GENERATED: results:gainesville -->
 
@@ -599,7 +660,9 @@ of 1,264 people. The eighth US split, and the one RampNet does worst on by a fac
 | owlv2-large-patch14-ensemble | 0.032 | **0.851** | 0.062 | 0.054 | 212/6391/37 |
 | grounding-dino-base | 0.023 | 0.783 | 0.045 | 0.025 | 195/8162/54 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.281. Supervised (#71 protocol, not comparable as 'challenger'): YOLO26 (pano) F1 0.574 (**beats RampNet's 0.543 here**), YOLO11l (pano) F1 0.563 (**beats RampNet's 0.543 here**), YOLO11x (pano) F1 0.529.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.679 (**beats RampNet's 0.543 here**), Claude Fable 5.1 (low, anthropic) F1 0.493, Gemini 3.7 Flash F1 0.281. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO26 (pano) F1 0.574 (**beats RampNet's 0.543 here**), YOLO11l (pano) F1 0.563 (**beats RampNet's 0.543 here**), Mask2Former Vistas (curb cut, 1024) F1 0.535, YOLO11x (pano) F1 0.529.
+
+Against the whole zero-shot field RampNet does not lead on this split: Claude Opus 5.5 (low, anthropic) is 0.136 F1 ahead of it, where RampNet leads the table's best row by 0.114.
 
 <!-- END GENERATED: results:laurens_mapillary -->
 
@@ -607,7 +670,7 @@ Best sweep F1: OWLv2 **0.099** (thr 0.15), Grounding DINO **0.060** (thr 0.15).
 
 Three things laurens adds:
 
-1. **RampNet's worst split still leads the best zero-shot challenger — by 0.113.** Its
+1. **RampNet's worst split still leads the best zero-shot challenger — by 0.114.** Its
    recall halves against every other US split (0.390 against clovis's next-worst 0.650), but
    the challengers fall further: `claude-opus-5` at effort low, added 2026-09-04 and the
    strongest zero-shot model in the benchmark (qualified 2026-09-26: strongest on this split,
@@ -615,10 +678,18 @@ Three things laurens adds:
    on annapolis both Fable legs do, 0.611 and 0.610 vs 0.588; see `model_scoreboard.md`),
    lands at 0.430; gemini-pro at 0.343, its
    second-lowest US F1. **That lead was published as 0.200 against gemini-pro before the
-   Claude leg existed — quote 0.113, not the earlier figure.** So the
+   Claude leg existed — quote 0.114, not the earlier figure.** (0.1139 unrounded; this
+   paragraph printed 0.113 until 2026-10-20, the difference of the two rounded F1s.) So the
    rural deficit is not RampNet-specific in the zero-shot field — whatever makes this town
    hard makes it hard for everything that has never seen a curb ramp label. What it is *not*
    is a ramp-poor or weak sample: laurens is ramp-**rich** (2.65 ramps/pano, third of ten).
+   *Superseded 2026-10-19: RampNet no longer leads the zero-shot field here.
+   `claude-opus-5-5` at effort low scores 0.679 on this arm, 0.136 above RampNet's 0.543 (the
+   footnote under the table above; [`claude_newest_ids.md`](claude_newest_ids.md)). The paired
+   interval excludes zero: RampNet minus Opus 5.5 is −0.136, 95% CI [−0.216, −0.053]
+   (pano bootstrap, 10,000 draws, `scripts/analysis/claude_newest_ids_261.py`). That is a
+   single run, no seed variance, effort low only, first-party serving path. The 0.114 above is the lead over `claude-opus-5`, and stays correct as
+   that.*
 2. **The supervised YOLO baseline beats RampNet here — the first split where that happens at
    the pre-registered operating point.** Under the #71 protocol (conf 0.25) `y26_pano` reads
    F1 **0.574** and `y11l_pano` **0.563**, against RampNet's 0.543; `y11x_pano_h200` is
@@ -637,6 +708,57 @@ Three things laurens adds:
    established rather than suggestive; rural streetscape is simply the strongest dose of it
    the benchmark has. OWLv2's 0.851 recall against RampNet's 0.390 is, as everywhere, mostly
    density — 68.0 boxes/pano — and is not a recall ceiling anyone can deploy.
+
+**juneau** (125 reviewed panos, 297 GT ramps) — added 2026-10-19 (#254): 120 panos from the
+Annapolis contributor's Trimble MX7 plus 5 GoPro Max, on the Mapillary imagery Project
+Sidewalk's Juneau deployment uses; single rater, reviewer confidence **MEDIUM** (many distant
+ramps marked unsure; diagonal corner ramps; see `benchmark/README.md`)
+
+<!-- BEGIN GENERATED: results:juneau (scripts/analysis/scoreboard.py) -->
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.967** | 0.687 | **0.803** | 0.680 | 204/7/93 |
+| **gemini-3.1-pro-preview** | 0.581 | 0.508 | **0.542** | – | 151/109/146 |
+| gemini-3.6-flash | 0.536 | 0.475 | 0.504 | – | 141/122/156 |
+| **molmo2-8B** (points) | 0.474 | 0.424 | **0.448** | – | 126/140/171 |
+| Qwen3-VL-32B-Instruct | 0.500 | 0.259 | 0.341 | – | 77/77/220 |
+| Qwen3-VL-8B-Instruct | 0.226 | 0.283 | 0.251 | – | 84/287/213 |
+| owlv2-large-patch14-ensemble | 0.034 | **0.943** | 0.066 | 0.098 | 280/7851/17 |
+| grounding-dino-base | 0.026 | 0.865 | 0.050 | 0.030 | 257/9764/40 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.727, Claude Fable 5.1 (low, anthropic) F1 0.673, Gemini 3.7 Flash F1 0.528. Supervised (#71 / #126 protocols, not comparable as 'challenger'): Mask2Former Vistas (curb cut, 1024) F1 0.577, YOLO26 (pano) F1 0.496, YOLO11l (pano) F1 0.462, YOLO11x (pano) F1 0.410.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.076 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.261 over the table's best row.
+
+<!-- END GENERATED: results:juneau -->
+
+Paid legs: the three Gemini legs ran on 2026-10-19 ($5.60 estimated; rows in
+`analysis_out/usage_log.jsonl`, `vertex_usage.py --reconcile` ok). The free legs ran on klone
+(`ckpt-g2`, H200 and L40 nodes, 2.75 GPU-h) after makelab2 wedged; the replication control
+(on an H200) reproduced
+`laurens_mapillary`'s committed cache cell for cell and Juneau's parity is exact
+(`analysis_out/juneau_254/checks.json`). **Not run: claude-opus-5 (low)**, so it drops from the
+complete pooled rows to 8 of 9 cities until it runs. Off-roster, `claude-opus-5-5` and
+`claude-fable-5-1` at effort low ran here on 2026-10-20 (first-party API, `claude20` org,
+$8.40 and $20.66; [`claude_newest_ids.md`](claude_newest_ids.md)): F1 0.727 and 0.673, both
+below RampNet's 0.803. Paired (pano bootstrap, 10,000 draws), RampNet minus Opus 5.5 is
++0.076 [+0.028, +0.126] and RampNet minus Fable 5.1 +0.131 [+0.080, +0.182]. Each is a single
+run, no seed variance, effort low only.
+
+What juneau adds:
+
+1. **The same rig gives the same ranking.** On the standing roster juneau orders every model
+   exactly as annapolis does (RampNet, Gemini 3.1 Pro, Gemini 3.6 Flash, Molmo2-8B, Qwen3-VL-32B,
+   Qwen3-VL-8B, OWLv2, Grounding DINO), with most models a few points lower here; Molmo2-8B
+   (0.448 against 0.424) and OWLv2 (0.066 against 0.063) are higher, as are two of the
+   supervised YOLO arms off the roster (y26_pano 0.496 against 0.450, y11x_pano_h200 0.410
+   against 0.397). One split cannot say whether that is the rig, the
+   contributor or the rubric, since juneau shares all three with annapolis.
+2. **RampNet's lead over the best standing-roster challenger is 0.261 F1** (Gemini 3.1 Pro
+   0.542), against 0.273 over the same challenger on annapolis. Over the whole zero-shot
+   field it is 0.076, over off-roster Claude Opus 5.5 (the footnote above), against 0.119 over
+   the same model on annapolis.
 
 **laurens_gsv** (86 reviewed panos, 220 GT ramps) — the **second imagery arm** of Laurens
 (2026-08-31), reviewer confidence HIGH; Google Street View zoom-5 over the same 1.91 km²
@@ -661,7 +783,9 @@ Laurens hard because it is **rural**, or because of the **rig**?
 | grounding-dino-base | 0.028 | **0.882** | 0.054 | 0.038 | 194/6799/26 |
 | Qwen3-VL-32B-Instruct | 0.250 | 0.009 | 0.018 | – | 2/6/218 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.261. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.587, YOLO11x (pano) F1 0.568, YOLO26 (pano) F1 0.538.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.701 (**beats RampNet's 0.659 here**), Claude Fable 5.1 (low, anthropic) F1 0.415, Gemini 3.7 Flash F1 0.261. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11l (pano) F1 0.587, YOLO11x (pano) F1 0.568, YOLO26 (pano) F1 0.538, Mask2Former Vistas (curb cut, 1024) F1 0.516.
+
+Against the whole zero-shot field RampNet does not lead on this split: Claude Opus 5.5 (low, anthropic) is 0.042 F1 ahead of it, where RampNet leads the table's best row by 0.222.
 
 <!-- END GENERATED: results:laurens_gsv -->
 
@@ -706,6 +830,14 @@ Three readings, in decreasing order of how well the data supports them:
    general model gains essentially nothing from the rig that gains RampNet +0.115, which is
    the cleanest available evidence that the gain is a domain effect specific to RampNet's
    training distribution rather than a property of the imagery being easier to read.
+   *Superseded 2026-10-19 as "the strongest zero-shot model": `claude-opus-5-5`, run on
+   both arms since, scores 0.679 and 0.701 and moves **+0.022**, still far below RampNet's
+   +0.115; `claude-fable-5-1` moves −0.078 (0.493 → 0.415). The reading above holds for
+   Opus 5.5. It scores above RampNet on both arms, but only the `laurens_mapillary` margin is
+   established: RampNet minus Opus 5.5 is −0.136 [−0.216, −0.053] there and −0.042
+   [−0.101, +0.020] on `laurens_gsv`, where the interval includes zero (pano bootstrap,
+   `scripts/analysis/claude_newest_ids_261.py`; single run, no seed variance, effort low only, first-party serving path;
+   [`claude_newest_ids.md`](claude_newest_ids.md)).*
 2. **The RampNet–YOLO ordering flips between the arms.** On Mapillary the supervised baseline
    wins (`y26_pano` 0.574, `y11l_pano` 0.563, against 0.543); on GSV RampNet leads by 0.072
    (0.659 against `y11l_pano`'s 0.587). The claim "YOLO beats RampNet on the rural split" is
@@ -726,7 +858,10 @@ would turn this into a measurement, and both arms' detections are now committed,
 analysis needs no new inference. And **the AP column is not comparable across the two arms
 for RampNet**: `laurens_mapillary` has a 0.05-floor `op_cache` and `laurens_gsv` does not, so
 its 0.494 is truncated at the deployed 0.55 while the other arm's 0.691 is not. The F1, P and
-R columns are comparable — both arms are read at 0.55.
+R columns are comparable — both arms are read at 0.55. *Added 2026-10-20:* `laurens_gsv` now has
+an op_cache (#263, a `low_floor_sweep.PARITY_EXCEPTIONS` entry because it under-scores the
+deployed run), and `docs/model_scoreboard.md` reads its RampNet AP from it: 0.768. The 0.494 in
+this table is still the bundle's, so the caveat holds for this table as written.
 
 **The paired version is done** (`docs/laurens_paired_151.md`, 2026-09-27, corrected after
 [review](https://github.com/ProjectSidewalk/RampNet/pull/201#issuecomment-5858671681)), and it
@@ -768,9 +903,9 @@ bend/paterson/gainesville — see `benchmark/README.md` for what the split de-co
 | owlv2-large-patch14-ensemble | 0.027 | **0.922** | 0.052 | 0.050 | 259/9433/22 |
 | grounding-dino-base | 0.025 | 0.797 | 0.049 | 0.034 | 224/8676/57 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.468, Gemini 3.7 Flash F1 0.358. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.662, YOLO11x (pano) F1 0.659, YOLO26 (pano) F1 0.605.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.646, Claude Fable 5.1 (low, anthropic) F1 0.503, Claude Opus 5 (low) F1 0.468, Gemini 3.7 Flash F1 0.358. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11l (pano) F1 0.662, YOLO11x (pano) F1 0.659, YOLO11x (tiles) F1 0.625, YOLO26 (pano) F1 0.605, Mask2Former Vistas (curb cut, 1024) F1 0.483.
 
-Against the whole zero-shot field RampNet's lead on this split is 0.308 F1 (over Claude Opus 5 (low)), not the 0.323 over the table's best row.
+Against the whole zero-shot field RampNet's lead on this split is 0.131 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.323 over the table's best row.
 
 <!-- END GENERATED: results:sao_paulo -->
 
@@ -826,7 +961,9 @@ Budapest section before quoting any of this.**
 | owlv2-large-patch14-ensemble | 0.032 | **0.930** | 0.062 | 0.089 | 279/8467/21 |
 | grounding-dino-base | 0.021 | 0.787 | 0.042 | 0.025 | 236/10755/64 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.378, Gemini 3.7 Flash F1 0.338. Supervised (#71 protocol, not comparable as 'challenger'): YOLO26 (pano) F1 0.277, YOLO11l (pano) F1 0.247, YOLO11x (pano) F1 0.221.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.451, Claude Fable 5.1 (low, anthropic) F1 0.393, Claude Opus 5 (low) F1 0.378, Gemini 3.7 Flash F1 0.338. Supervised (#71 / #126 protocols, not comparable as 'challenger'): Mask2Former Vistas (curb cut, 1024) F1 0.527, YOLO11x (tiles) F1 0.319, YOLO26 (pano) F1 0.277, YOLO11l (pano) F1 0.247, YOLO11x (pano) F1 0.221.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.193 F1 (over Claude Opus 5.5 (low, anthropic)), not the 0.263 over the table's best row.
 
 <!-- END GENERATED: results:budapest_district5 -->
 
@@ -865,7 +1002,79 @@ the headline claim (RampNet beats every off-the-shelf model) survives ground tru
 reviewer rated low-confidence, on non-US imagery, with RampNet's margin over the best
 challenger at 0.263 — squarely in the 0.19–0.34 band of every other split. What it does *not*
 establish is any between-challenger ordering, and its numbers must not be pooled with the US
-splits or averaged into a headline.
+splits or averaged into a headline. *Superseded 2026-10-19: 0.263 is the margin over the
+standing roster. Off-roster `claude-opus-5-5` at effort low scores 0.451 here, so RampNet's
+margin over the whole zero-shot field is 0.193 (the footnote under the table above), and the
+band no longer holds on every other split: Opus 5.5 beats RampNet on `laurens_mapillary` and
+`bayonne`, and scores above it on `laurens_gsv` with a paired interval that includes zero
+([`claude_newest_ids.md`](claude_newest_ids.md)).*
+
+**bayonne** (125 reviewed panos, 301 GT ramps) — the third non-US split and the first from
+Panoramax (2026-10-04), consumer GoPro Max imagery from the municipal producer; single rater,
+reviewer confidence **MEDIUM** (French crossing design fought the rubric: bollards as crossing
+cues, speed bumps vs raised crossings, roundabouts; see `benchmark/README.md`)
+
+<!-- BEGIN GENERATED: results:bayonne (scripts/analysis/scoreboard.py) -->
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.831** | 0.375 | **0.517** | 0.344 | 113/23/188 |
+| **gemini-3.1-pro-preview** | 0.469 | 0.399 | **0.431** | – | 120/136/181 |
+| gemini-3.6-flash | 0.371 | 0.419 | 0.393 | – | 126/214/175 |
+| **Qwen3-VL-8B-Instruct** | 0.161 | 0.186 | **0.173** | – | 56/292/245 |
+| owlv2-large-patch14-ensemble | 0.034 | **0.950** | 0.065 | 0.092 | 286/8229/15 |
+| grounding-dino-base | 0.025 | 0.824 | 0.048 | 0.025 | 248/9872/53 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5.5 (low, anthropic) F1 0.619 (**beats RampNet's 0.517 here**), Claude Fable 5.1 (low, anthropic) F1 0.540 (**beats RampNet's 0.517 here**), Gemini 3.7 Flash F1 0.351. Supervised (#71 / #126 protocols, not comparable as 'challenger'): Mask2Former Vistas (curb cut, 1024) F1 0.497, YOLO11x (pano) F1 0.296, YOLO26 (pano) F1 0.261, YOLO11l (pano) F1 0.249.
+
+Against the whole zero-shot field RampNet does not lead on this split: Claude Opus 5.5 (low, anthropic) is 0.102 F1 ahead of it, where RampNet leads the table's best row by 0.086.
+
+<!-- END GENERATED: results:bayonne -->
+
+Paid legs: the three Gemini legs ran on 2026-10-04 ($5.80 estimated, 2.6 h wall; rows in
+`analysis_out/usage_log.jsonl`). Not run: claude-opus-5 (bills a separate account, not
+authorized), Qwen3-VL-32B (weights not cached on makelab2) and Molmo2-8B (failed on every pano
+on 2026-10-02). `docs/bayonne_split_159.md` §10 has the reasons. `claude-opus-5-5` and
+`claude-fable-5-1` at effort low ran here on 2026-10-20, off-roster, for $8.53 and $21.24
+([`claude_newest_ids.md`](claude_newest_ids.md)); they are in the footnote above, not the
+table.
+
+What bayonne adds:
+
+1. **The narrowest RampNet lead over a zero-shot challenger on any split, 0.086 F1**
+   (gemini-3.1-pro-preview 0.431; pano-bootstrap 95% CI of the difference [0.005, 0.168],
+   `analysis_out/bayonne_159/paired_tests.json`). The previous zero-shot low was
+   laurens_mapillary's 0.114 over claude-opus-5 at effort low, which is off the standing roster;
+   against the standing roster it was paterson's 0.124. It is **not** the narrowest lead
+   overall: RampNet loses laurens_mapillary to two supervised YOLO arms and leads them by only
+   0.058 on manual_gold and 0.072 on laurens_gsv. The margin is mostly RampNet's recall, 0.375,
+   its lowest on any split. gemini-pro also holds up better here than on the other two GoPro
+   Max splits where RampNet struggles (F1 0.431 vs 0.343 on laurens_mapillary and 0.381 on
+   budapest; its morgantown 0.643 is higher). RampNet keeps the precision lead (0.831 against
+   0.469). *Superseded 2026-10-20: 0.086 is the lead over the standing roster, and RampNet no
+   longer has the top F1 here. Off-roster, `claude-opus-5-5` at effort low scores 0.619 and
+   `claude-fable-5-1` 0.540, both above RampNet's 0.517 (single run, no seed variance, effort low only, first-party serving path; the footnote above).
+   Paired, RampNet minus Opus 5.5 is −0.102 [−0.165, −0.040], a win for Opus 5.5; RampNet
+   minus Fable 5.1 is −0.023 [−0.096, +0.050], which includes zero, so Fable 5.1's higher F1
+   is a point estimate, not an established win (`scripts/analysis/claude_newest_ids_261.py`). The footnote's
+   "beats RampNet's 0.517 here" compares point estimates only.*
+2. **gemini-3.6-flash's recall point estimate is above RampNet's at the deployed threshold**
+   (126 vs 113 of 301 ramps, R 0.419 vs 0.375), the only split where a chat VLM's is. The
+   paired difference is **not significant**: 61 ramps found only by Flash, 48 only by RampNet,
+   exact McNemar p = 0.25 (gemini-3.1-pro: 63 vs 56, p = 0.58). The two models' hits are largely
+   disjoint; their union finds 174 of 301 (0.578). At the recommended 0.30 RampNet's recall is
+   0.498 (`docs/operating_point.md`), above every chat VLM. *Superseded 2026-10-19/20: this
+   counted the chat VLMs then run. `claude-opus-5-5`'s recall is above RampNet's at 0.55 on
+   eight of fourteen splits, bayonne (0.618) and juneau (0.721) included, and `claude-fable-5-1`'s on two
+   (bayonne, 0.528, and laurens_mapillary). Both are above RampNet's 0.498 at 0.30 here too.*
+3. **The supervised YOLO pano arms collapse here** (F1 0.249-0.296, recall 0.146-0.176), below
+   both Gemini legs, at high precision. This is not a GoPro Max effect: on laurens_mapillary,
+   also GoPro Max, the same arms beat RampNet. Nothing here separates country, imagery source
+   and rubric as the cause.
+4. **Read it with its GT caveat.** Single rater, medium confidence, and the review notes say
+   French crossing design fought the rubric. A rubric that is unsure where a crossing's ramp is
+   costs a model that fires only when confident more than one that fires often, as on
+   budapest. The second rater that budapest asks for would help here too.
 
 ### Scope of the claim
 
@@ -880,22 +1089,48 @@ no experiment here tested (OWLv2 / Grounding DINO are general open-vocab models,
 curb-ramp detectors). How much of the gap survives a tuned prompt (#45), a failure-artifact
 audit (#46), and a nadir/hood mask (#47) is exactly what those follow-ups measure.
 
-**What the claim now rests on:** nine city splits across three countries, four camera rigs
-(GSV, iSTAR Pulsar, GoPro Max/Fusion, Trimble MX7) and one 1,000-pano un-anchored gold set —
-RampNet wins on every one, by **0.12–0.34 F1**. It survives the hardest imagery (clovis),
+**What the claim now rests on:** thirteen city splits across four countries (the US, Hungary,
+Brazil, France), four camera rigs (GSV, iSTAR Pulsar, GoPro Max/Fusion, Trimble MX7) and one
+1,000-pano un-anchored gold set — RampNet has the top F1 against every zero-shot challenger on
+every one, by **0.09–0.49 F1** against the standing roster (`analysis_out/scoreboard.json`;
+0.086 on bayonne, 0.124 on paterson). It survives the hardest imagery (clovis),
 un-anchored ground truth (`manual_gold`), ground truth the reviewer distrusts (budapest),
 the split engineered to remove its in-domain GSV advantage (paterson), and a second non-US
 design vocabulary at high-confidence GT (sao_paulo, lead 0.323). The low end of
-the range is paterson, and its decomposition is in that split's section: RampNet's
+the range among the trusted-GT splits is paterson, and its decomposition is in that split's section: RampNet's
 structural recall ceiling meeting precision-friendly imagery, not a challenger closing the
 gap. That is a wide claim, and the qualifiers above are what keep it honest.
 
+**Superseded on the two Laurens arms (2026-10-19) and on bayonne (2026-10-20).** The paragraph
+above counts the standing roster. `claude-opus-5-5` at effort low, zero-shot and off-roster,
+beats RampNet on `laurens_mapillary` (0.679 vs 0.543; RampNet minus Opus 5.5 −0.136, paired
+95% CI [−0.216, −0.053]) and `bayonne` (0.619 vs 0.517; −0.102 [−0.165, −0.040]). It also
+scores above RampNet on `laurens_gsv` (0.701 vs 0.659), and `claude-fable-5-1` scores above it
+on `bayonne` (0.540), but both intervals include zero (−0.042 [−0.101, +0.020] and −0.023
+[−0.096, +0.050]): point estimates, not established wins (pano bootstrap, 10,000 draws,
+`scripts/analysis/claude_newest_ids_261.py`). The generated footnotes' "beats RampNet's ... here" compare point
+estimates only. RampNet keeps the top F1 on the other eleven splits, `juneau` and
+`manual_gold` included (0.908 vs 0.722), with a paired interval above zero against Opus 5.5 on
+all eleven. Pooled over the nine US city splits RampNet leads Opus 5.5 by 0.081. Each Claude number is a single run, no seed variance, effort low only, first-party serving path
+([`model_scoreboard.md`](model_scoreboard.md), [`claude_newest_ids.md`](claude_newest_ids.md)).
+
+**Bayonne (2026-10-04) narrows it further, on GT the reviewer rated medium confidence:**
+RampNet's lead over the best zero-shot challenger there is **0.086 F1** (gemini-3.1-pro-preview,
+0.517 vs 0.431, bootstrap CI [0.005, 0.168]), below every other split. gemini-3.6-flash's recall
+point estimate is above RampNet's (0.419 vs 0.375) but not significantly (McNemar p = 0.25).
+RampNet still has the top F1 on the split; see the bayonne block above for why the margin is a
+recall story. *Superseded 2026-10-20: against the standing roster only. Off-roster Claude Opus
+5.5 and Fable 5.1 both score above RampNet here (previous paragraph).*
+
 ### What the numbers say
 
-1. **RampNet still wins by a wide margin**, and nothing tested comes close on F1. The best
+1. **RampNet still wins by a wide margin**, and nothing tested comes close on F1. *(Superseded
+   2026-10-19/20: pooled over the nine US city splits, Claude Opus 5.5 at effort low trails
+   RampNet by 0.081; see "Scope of the claim" above.)* The best
    challenger (Gemini-3.1-pro, F1 0.664) trails it by ~0.19; the best open-weight model
-   (Molmo, F1 0.457) by ~0.40. (The narrowest lead anywhere is paterson's 0.124 — see that
-   split's section for why it narrows there.)
+   (Molmo, F1 0.457) by ~0.40. (The narrowest lead on a high-confidence split is paterson's
+   0.124 — see that split's section for why it narrows there. Bayonne's 0.086, on
+   medium-confidence GT, is narrower still.)
 2. **Off-the-shelf open-vocab detectors did worse than chat models, not better.** OWLv2's
    best F1 over the whole threshold sweep is **0.184** (thr 0.25: P 0.130 / R 0.310);
    Grounding DINO's is **0.073**. Both are far below Gemini-3.6-flash's 0.634. So the
@@ -1870,7 +2105,14 @@ What this split adds to the story:
 1. **The ranking is identical to all three deployment cities, on ground truth that never
    saw a RampNet review** — and RampNet's lead is the widest measured anywhere: **0.34 F1**
    over the best challenger (vs ~0.19 on richmond, ~0.30 on clovis), at CIs roughly 4×
-   tighter than any city split (3,919 GT points vs 195–327).
+   tighter than any city split (3,919 GT points vs 195–327). *Superseded 2026-10-19: 0.34 is
+   the lead over `gemini-3.1-pro-preview`, the best row of the standing roster. Off-roster
+   `claude-opus-5-5` at effort low scores 0.722 here, so RampNet's lead over the whole
+   zero-shot field is **0.187** (0.908 − 0.722, 0.1868 unrounded; paired pano bootstrap 95% CI
+   [+0.174, +0.200], `scripts/analysis/claude_newest_ids_261.py`). That is no longer the widest lead: against the
+   whole zero-shot field budapest (0.193) and clovis (0.191) are wider
+   (`analysis_out/scoreboard.json`). Opus 5.5 is a single run, no seed variance, effort low
+   only, first-party serving path.*
 2. **The anchoring-bias caveat can now be retired with evidence.** If the city GT had been
    tilted toward what RampNet finds, challengers would gain here — real-but-unlabeled ramps
    that scored as challenger FPs in the cities would become TPs. Neither signature appears:

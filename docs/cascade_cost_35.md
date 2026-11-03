@@ -217,7 +217,12 @@ The best viable row gains **12 ramps, all 12 of them among #126's 19 promotable 
 
 The null is small at these settings because the gate is tight: a wrong-pano box rarely lands within 11 px of a sub-threshold peak. For the headline row the worst of the 123 shifts gains 4 ramps against the real 12.
 
-## (d) Every published challenger on richmond, T_hi 0.30, all 123 shifts
+## (d) Every challenger published at the time on richmond, T_hi 0.30, all 123 shifts
+
+This section covers the 15 challengers that were published when it was run. The seven YOLO11x
+tiles legs published on 2026-10-19 ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258))
+were not run here or in (e); `summary.json` lists every one of those (leg, split) pairs under
+`gaps` as "published detections exist but this pair was not run".
 
 | challenger | verdict | best viable (T_lo, r_gate, c_min) | F1 | attributable ΔR | FP / attr ramp | fixed setting F1 | fixed ΔF1 [95% CI] | fixed attributable ΔR | union F1 |
 |---|---|---|---:|---:|---:|---:|---|---:|---:|
@@ -288,7 +293,9 @@ extended to {0.05, …, 0.25, 0.30, 0.40}. Baseline 238 / 9 / 72, F1 0.8546 (the
 - **Promoted peaks keep RampNet's own scores**, so the cascade's output has a score and an AP could be
   computed, but that AP would rank promoted peaks by a score the gate has already overridden. No AP is
   reported.
-- **`laurens_gsv` has no op_cache** and is not in the sweep (listed under `gaps` in `summary.json`).
+- **`laurens_gsv` had no op_cache** when the sweep ran, so it is not in the sweep. *Added 2026-10-20:* #263 added
+  `analysis_out/op_cache/laurens_gsv.json` (a parity exception, `docs/open_rig_misses_258.md`); `summary.json` now
+  lists its pairs under `gaps` as "published detections exist but this pair was not run". No pair was re-run.
 - **The ceiling artifact exists for richmond × parity arm at 0.30 only**; other pairs carry
   `ceiling: null`.
 - **The 4 hand-off and 15 peakless ramps** in the richmond ceiling are out of reach of any threshold

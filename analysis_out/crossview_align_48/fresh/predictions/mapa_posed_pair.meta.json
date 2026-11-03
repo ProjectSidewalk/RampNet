@@ -1,0 +1,54 @@
+{
+ "arm": "mapa_posed_pair",
+ "config": {
+  "amp": "bf16",
+  "given": "intrinsics + pose priors (metric ENU, flat, 'auto' height)",
+  "input": [
+   518,
+   392
+  ],
+  "masking": "off",
+  "model": "facebook/map-anything",
+  "projection": "MapAnything's output camera for the other view",
+  "views": 2
+ },
+ "description": "MapAnything on the pair only, given intrinsics and pose priors",
+ "elapsed_s": 170.3844,
+ "env": {
+  "added": "2026-09-29, from logs/freeze_main.txt and logs/gpu_times.txt written by the run",
+  "gpu_memory_before_launch": "8817 MiB of 46068 MiB in use (another user's idle process)",
+  "huggingface-hub": "1.33.0",
+  "map-anything": "facebookresearch/map-anything@3d10cf7 (editable)",
+  "torch": "2.6.0+cu124",
+  "uniception": "0.1.7",
+  "venv": "makelab2:/homes/gws/jonf/crossview48_sfm/venv (the #215 env, not rebuilt)",
+  "weights": "facebook/map-anything@a1d87e9086706fb9974f3be5a3e3a0ca5401c5aa"
+ },
+ "fallback": 0,
+ "gpu_visible": "NVIDIA A40",
+ "host": "makelab2.cs.washington.edu",
+ "manifest_sha256": "06ea2e42fa987cdb43bf861770d7c13b537deb0173680248fd5bbc9a928d4509",
+ "missing_inputs": 0,
+ "needs": [
+  "views"
+ ],
+ "pair_set": "fresh",
+ "pairs": 807,
+ "pairs_sha256": "4ae009bfc4a767c3a176c7707cbace77a09932d69e44792bdc3adc97d51e9f7a",
+ "shared_context_with": [
+  "mapa_posed_pair"
+ ],
+ "ts": "2026-09-29T17:19:46Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "dust3r": "installed",
+  "kornia": "0.8.3",
+  "mapanything": "installed",
+  "mast3r": "installed",
+  "numpy": "2.5.2",
+  "pycolmap": "4.2.0",
+  "python": "3.12.13",
+  "torch": "2.6.0+cu124",
+  "vggt": "installed"
+ }
+}

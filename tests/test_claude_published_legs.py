@@ -8,13 +8,23 @@ legs cost real money and nobody should have to spend it again to check the
 arithmetic, or to notice when someone edits a number in the doc without re-running
 anything.
 
-Three splits are covered, and they are not symmetric:
+Coverage is not symmetric across the legs:
 
-* ``annapolis`` (#122) -- all four legs, two model ids x two effort levels.
+* ``annapolis`` (#122) -- all four Vertex legs, two model ids x two effort levels,
+  plus the two Fable legs served on the first-party API (#156).
 * ``laurens_mapillary`` / ``laurens_gsv`` (#151) -- ``claude-opus-5`` at effort low
-  only. Those two arms were run to answer whether Laurens is hard because it is
-  rural or because of the imagery rig, and that test wanted the strongest zero-shot
-  model in the benchmark on both arms. The other three legs were not run there.
+  only, of the Vertex legs. Those two arms were run to answer whether Laurens is hard
+  because it is rural or because of the imagery rig, and that test wanted the
+  strongest zero-shot model in the benchmark on both arms.
+* All fourteen splits, ``manual_gold`` included -- ``claude-opus-5-5`` and
+  ``claude-fable-5-1`` at effort low on the first-party API, the newest-ids campaign
+  of 2026-10-19/20 (``docs/claude_newest_ids.md``). Fable 5.1's annapolis row is the
+  #156 leg; the campaign did not re-run it. ``bayonne`` was run late (2026-10-20),
+  because the first split list was read from a checkout that predated it, and
+  ``juneau`` last (2026-10-20, the ``claude20`` org), after PR #260 pooled it.
+
+The other city splits of ``claude-opus-5`` at effort low (#139) are pinned in
+``test_scoreboard.py``, not here.
 
 **Whole-split coverage is asserted, never assumed**, because it has silently broken
 twice. On annapolis the sonnet/low leg originally scored 124 panos / 290 GT ramps --
@@ -54,8 +64,19 @@ RECOVERED = {
 # split -> (panos, GT ramps) the bundle must hold for these numbers to mean anything.
 SPLITS = {
     "annapolis": (125, 294),
-    "laurens_mapillary": (94, 249),
+    "bayonne": (125, 301),
+    "bend": (110, 327),
+    "budapest_district5": (125, 300),
+    "clovis": (125, 195),
+    "gainesville": (125, 272),
+    "juneau": (125, 297),
     "laurens_gsv": (86, 220),
+    "laurens_mapillary": (94, 249),
+    "manual_gold": (1000, 3919),
+    "morgantown": (125, 267),
+    "paterson": (125, 395),
+    "richmond": (124, 310),
+    "sao_paulo": (125, 281),
 }
 
 # (model, effort, serving_path, split) -> (panos, n_gt, tp, fp, fn, P, R, F1) exactly
@@ -73,6 +94,35 @@ PUBLISHED_LEGS = {
     ("claude-opus-5", "low", "vertex", "laurens_gsv"): (86, 220, 87, 91, 133, 0.489, 0.395, 0.437),
     ("claude-fable-5-1", "low", "anthropic", "annapolis"): (125, 294, 172, 98, 122, 0.637, 0.585, 0.610),
     ("claude-fable-5", "low", "anthropic", "annapolis"): (125, 294, 190, 138, 104, 0.579, 0.646, 0.611),
+    # The newest-ids campaign (2026-10-19/20, docs/claude_newest_ids.md): every split,
+    # manual_gold, bayonne and juneau included. Fable 5.1's annapolis row is the #156 leg above.
+    ("claude-opus-5-5", "low", "anthropic", "annapolis"): (125, 294, 220, 97, 74, 0.694, 0.748, 0.720),
+    ("claude-opus-5-5", "low", "anthropic", "bayonne"): (125, 301, 186, 114, 115, 0.620, 0.618, 0.619),
+    ("claude-opus-5-5", "low", "anthropic", "bend"): (110, 327, 242, 103, 85, 0.701, 0.740, 0.720),
+    ("claude-opus-5-5", "low", "anthropic", "budapest_district5"): (125, 300, 120, 112, 180, 0.517, 0.400, 0.451),
+    ("claude-opus-5-5", "low", "anthropic", "clovis"): (125, 195, 130, 101, 65, 0.563, 0.667, 0.610),
+    ("claude-opus-5-5", "low", "anthropic", "gainesville"): (125, 272, 207, 126, 65, 0.622, 0.761, 0.684),
+    ("claude-opus-5-5", "low", "anthropic", "juneau"): (125, 297, 214, 78, 83, 0.733, 0.721, 0.727),
+    ("claude-opus-5-5", "low", "anthropic", "laurens_gsv"): (86, 220, 149, 56, 71, 0.727, 0.677, 0.701),
+    ("claude-opus-5-5", "low", "anthropic", "laurens_mapillary"): (94, 249, 163, 68, 86, 0.706, 0.655, 0.679),
+    ("claude-opus-5-5", "low", "anthropic", "manual_gold"): (1000, 3919, 2840, 1111, 1079, 0.719, 0.725, 0.722),
+    ("claude-opus-5-5", "low", "anthropic", "morgantown"): (125, 267, 217, 69, 50, 0.759, 0.813, 0.785),
+    ("claude-opus-5-5", "low", "anthropic", "paterson"): (125, 395, 266, 56, 129, 0.826, 0.673, 0.742),
+    ("claude-opus-5-5", "low", "anthropic", "richmond"): (124, 310, 260, 135, 50, 0.658, 0.839, 0.738),
+    ("claude-opus-5-5", "low", "anthropic", "sao_paulo"): (125, 281, 177, 90, 104, 0.663, 0.630, 0.646),
+    ("claude-fable-5-1", "low", "anthropic", "bayonne"): (125, 301, 159, 129, 142, 0.552, 0.528, 0.540),
+    ("claude-fable-5-1", "low", "anthropic", "bend"): (110, 327, 198, 108, 129, 0.647, 0.606, 0.626),
+    ("claude-fable-5-1", "low", "anthropic", "budapest_district5"): (125, 300, 105, 130, 195, 0.447, 0.350, 0.393),
+    ("claude-fable-5-1", "low", "anthropic", "clovis"): (125, 195, 101, 70, 94, 0.591, 0.518, 0.552),
+    ("claude-fable-5-1", "low", "anthropic", "gainesville"): (125, 272, 160, 147, 112, 0.521, 0.588, 0.553),
+    ("claude-fable-5-1", "low", "anthropic", "juneau"): (125, 297, 189, 76, 108, 0.713, 0.636, 0.673),
+    ("claude-fable-5-1", "low", "anthropic", "laurens_gsv"): (86, 220, 72, 55, 148, 0.567, 0.327, 0.415),
+    ("claude-fable-5-1", "low", "anthropic", "laurens_mapillary"): (94, 249, 100, 57, 149, 0.637, 0.402, 0.493),
+    ("claude-fable-5-1", "low", "anthropic", "manual_gold"): (1000, 3919, 2351, 1101, 1568, 0.681, 0.600, 0.638),
+    ("claude-fable-5-1", "low", "anthropic", "morgantown"): (125, 267, 165, 67, 102, 0.711, 0.618, 0.661),
+    ("claude-fable-5-1", "low", "anthropic", "paterson"): (125, 395, 231, 68, 164, 0.773, 0.585, 0.666),
+    ("claude-fable-5-1", "low", "anthropic", "richmond"): (124, 310, 216, 162, 94, 0.571, 0.697, 0.628),
+    ("claude-fable-5-1", "low", "anthropic", "sao_paulo"): (125, 281, 146, 154, 135, 0.487, 0.520, 0.503),
 }
 
 
@@ -94,7 +144,11 @@ def _bundle(split):
 
 def _ground_truths(split):
     records, verdicts, _ = C.load_bundle(_bundle(split))
-    return C.ground_truths_from_verdicts(records, verdicts)
+    if verdicts is not None:
+        return C.ground_truths_from_verdicts(records, verdicts)
+    # manual_gold carries no verdicts: its GT is manual_labels/, independent of any model.
+    gts = C.load_manual_ground_truths(_bundle(split))
+    return {pid: gts[pid] for pid in records if pid in gts}
 
 
 def _score(model, effort, serving, split, gts):
@@ -204,11 +258,19 @@ def test_the_laurens_arms_are_the_pair_the_rig_comparison_rests_on():
     model ids) would attribute to the imagery a difference that is really a
     configuration change -- the exact confound the second arm exists to remove."""
     arms = [k for k in PUBLISHED_LEGS if k[3].startswith("laurens_")]
-    assert {k[3] for k in arms} == {"laurens_mapillary", "laurens_gsv"}
-    # Serving path is pinned here too: both arms must come from the same account,
-    # for the same reason they must share an effort level.
-    assert {(k[0], k[1], k[2]) for k in arms} == {("claude-opus-5", "low", "vertex")}
-    f1 = {k[3]: PUBLISHED_LEGS[k][7] for k in arms}
+    # Every leg that ran Laurens ran both arms, so each one is a same-leg pair. Since
+    # 2026-10-19 that is three legs: #151's claude-opus-5, and claude-opus-5-5 and
+    # claude-fable-5-1 from the newest-ids campaign. Serving path is part of the leg:
+    # both arms must come from the same account, for the same reason they must share an
+    # effort level.
+    legs = {(k[0], k[1], k[2]) for k in arms}
+    assert legs == {("claude-opus-5", "low", "vertex"),
+                    ("claude-opus-5-5", "low", "anthropic"),
+                    ("claude-fable-5-1", "low", "anthropic")}
+    for leg in legs:
+        assert {k[3] for k in arms if k[:3] == leg} == {"laurens_mapillary", "laurens_gsv"}, leg
+    f1 = {k[3]: PUBLISHED_LEGS[k][7] for k in arms
+          if k[:3] == ("claude-opus-5", "low", "vertex")}
     # The published reading: the strongest zero-shot model is FLAT across the rigs
     # (+0.007) where RampNet gains +0.115. If a re-run ever moves this materially,
     # the write-up's argument changes and should be re-read, not silently updated.
@@ -258,9 +320,11 @@ def test_the_strongest_annapolis_claim_tracks_the_published_legs():
                 assert scored[k][7] > opus, (k, scored[k][7], opus)
         assert "**Both displace `claude-opus-5` at the top of this split**" in doc
     # The coverage paragraph at the top of the doc names every off-roster Claude leg
-    # (not "annapolis only" any more: Opus-low has eleven splits since #139/#151).
-    assert "**Six Claude legs are off-roster.**" in log
-    assert len({k[:3] for k in scored}) == 6
+    # (not "annapolis only" any more: Opus-low has eleven splits since #139/#151, and
+    # Opus 5.5 / Fable 5.1 have all fourteen since 2026-10-20). Every one of them has an
+    # annapolis row, so the annapolis legs are the full set.
+    assert "**Seven Claude legs are off-roster.**" in log
+    assert len({k[:3] for k in scored}) == 7
 
 
 # --------------------------------------------------------------------------- #
@@ -271,16 +335,23 @@ USAGE_LOG = os.path.join(REPO, "analysis_out", "usage_log.jsonl")
 DOC = os.path.join(REPO, "docs", "claude_legs_122.md")
 
 
-def _fable_ledger():
-    """``{model_id: [rows]}`` for the two Fable ids, in ledger order."""
-    rows = {}
+def _ledger_rows():
     with open(USAGE_LOG, encoding="utf-8") as fh:
-        for line in fh:
-            if not line.strip():
-                continue
-            r = json.loads(line)
-            if r.get("provider") == "claude" and "fable" in r["model_id"]:
-                rows.setdefault(r["model_id"], []).append(r)
+        return [json.loads(line) for line in fh if line.strip()]
+
+
+def _fable_ledger():
+    """``{model_id: [rows]}`` for the two Fable ids' #156 annapolis legs, in ledger order.
+
+    Scoped to the 2026-09-05 annapolis rows the doc's figures were read from. The
+    newest-ids campaign (2026-10-19/20) added twelve more claude-fable-5-1 rows on other
+    splits; ``test_the_newest_ids_cost_figures_are_what_the_ledger_says`` checks those.
+    """
+    rows = {}
+    for r in _ledger_rows():
+        if (r.get("provider") == "claude" and "fable" in r["model_id"]
+                and r["bundle"] == "annapolis" and r["ts"].startswith("2026-09-05")):
+            rows.setdefault(r["model_id"], []).append(r)
     return rows
 
 
@@ -328,3 +399,84 @@ def test_the_fable_cost_figures_are_what_the_ledger_says():
     # The thing the old sentence got wrong: an estimate must follow from the rate
     # beside it. $155 at $0.0272/call would have needed 5,699 calls.
     assert "$0.0272/call it is" not in doc
+
+
+# --------------------------------------------------------------------------- #
+# the newest-ids write-up (2026-10-19), re-derived from detections and ledger
+# --------------------------------------------------------------------------- #
+NEWEST_DOC = os.path.join(REPO, "docs", "claude_newest_ids.md")
+
+
+def test_the_newest_ids_results_table_is_what_the_detections_say():
+    """Every P / R / F1 in docs/claude_newest_ids.md's results table is one of the
+    pinned rows above, and its gap column is the difference of the UNROUNDED F1s, rounded
+    once. (Until review of PR #261 the column was allowed to be the difference of the
+    rounded F1s, which put five cells 0.001 off.)"""
+    import re
+    with open(NEWEST_DOC, encoding="utf-8") as fh:
+        doc = fh.read()
+    rows = re.findall(r"^\| (\w+) \| ([\d.]+) / ([\d.]+) / \*\*([\d.]+)\*\*[^|]*"
+                      r"\| ([\d.]+) / ([\d.]+) / \*\*([\d.]+)\*\*[^|]*\| \+([\d.]+) \|$",
+                      doc, flags=re.M)
+    assert sorted(r[0] for r in rows) == sorted(SPLITS), [r[0] for r in rows]
+    for split, *vals in rows:
+        opus = PUBLISHED_LEGS[("claude-opus-5-5", "low", "anthropic", split)][5:]
+        fable = PUBLISHED_LEGS[("claude-fable-5-1", "low", "anthropic", split)][5:]
+        got = [float(v) for v in vals]
+        assert got[:3] == pytest.approx(opus, abs=0.0005), split
+        assert got[3:6] == pytest.approx(fable, abs=0.0005), split
+        gts = _ground_truths(split)
+        exact = (_score("claude-opus-5-5", "low", "anthropic", split, gts)[7]
+                 - _score("claude-fable-5-1", "low", "anthropic", split, gts)[7])
+        assert vals[6] == f"{exact:.3f}", (split, vals[6], exact)
+
+
+def test_the_newest_ids_cost_figures_are_what_the_ledger_says():
+    """The cost table in docs/claude_newest_ids.md, summed from the ledger rows the
+    campaign tagged with --api-account. Every one of its 27 legs has exactly one row,
+    plus the one 5-pano Opus 5.5 calibration row on annapolis. (28 legs make up the two
+    models' 14 splits; the 28th, Fable 5.1 on annapolis, is #156's untagged row.)"""
+    with open(NEWEST_DOC, encoding="utf-8") as fh:
+        doc = fh.read()
+    rows = [r for r in _ledger_rows() if r.get("api_account")]
+    by = {}
+    for r in rows:
+        by.setdefault((r["model_id"], r["bundle"]), []).append(r)
+    city = [s for s in SPLITS if s != "manual_gold"]
+    # juneau was billed to a third org, so the first two orgs' city totals leave it out.
+    early = [s for s in city if s != "juneau"]
+    for s in city:
+        assert len(by[("claude-opus-5-5", s)]) == (2 if s == "annapolis" else 1), s
+        if s != "annapolis":     # Fable 5.1's annapolis leg is #156's, not re-run
+            assert len(by[("claude-fable-5-1", s)]) == 1, s
+    assert ("claude-fable-5-1", "annapolis") not in by
+    for model in ("claude-opus-5-5", "claude-fable-5-1"):
+        assert len(by[(model, "manual_gold")]) == 1
+        assert by[(model, "manual_gold")][0]["panos_scored"] == 1000
+
+    def total(model, splits, account):
+        picked = [r for s in splits for r in by.get((model, s), [])]
+        assert {r["api_account"] for r in picked} == {account}
+        return sum(r["est_cost_usd"] for r in picked)
+
+    cal = [r for r in by[("claude-opus-5-5", "annapolis")] if r["panos_scored"] == 5]
+    assert len(cal) == 1
+    assert f"${total('claude-opus-5-5', early, 'claude5'):.2f} (incl. " \
+           f"${cal[0]['est_cost_usd']:.2f} calibration)" in doc
+    assert f"| ${total('claude-fable-5-1', early, 'claude-team'):.2f} |" in doc
+    jo = total("claude-opus-5-5", ["juneau"], "claude20")
+    jf = total("claude-fable-5-1", ["juneau"], "claude20")
+    assert f"| ${jo + jf:.2f} (Opus 5.5 ${jo:.2f}, Fable 5.1 ${jf:.2f}) |" in doc
+    assert f"| ${total('claude-fable-5-1', ['manual_gold'], 'claude-team'):.2f} |" in doc
+    assert f"| ${total('claude-opus-5-5', ['manual_gold'], 'claude-team'):.2f} |" in doc
+    # The per-org totals the write-up quotes, summed over every tagged row. Nothing
+    # outside this campaign carries an --api-account tag; claude20 paid for juneau only.
+    org = {}
+    for r in rows:
+        org[r["api_account"]] = org.get(r["api_account"], 0.0) + r["est_cost_usd"]
+    assert set(org) == {"claude5", "claude-team", "claude20"}
+    assert {r["bundle"] for r in rows if r["api_account"] == "claude20"} == {"juneau"}
+    assert f"**${org['claude5']:.2f} of $100**" in doc
+    assert f"**${org['claude-team']:.2f} of $500**" in doc
+    assert f"**${org['claude20']:.2f} of $200**" in doc
+    assert f"ledger total is **${sum(org.values()):.2f}**" in doc.replace("\n", " ")

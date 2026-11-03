@@ -1,4 +1,5 @@
 import argparse
+import contextlib
 import itertools
 import os
 import random
@@ -20,6 +21,7 @@ from tqdm import tqdm
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
+from rampnet import augment as A
 from rampnet.model import KeypointModel
 from rampnet.loading import load_checkpoint
 from rampnet.seeding import HISTORICAL_SEED, sampler_seed_for
@@ -114,6 +116,23 @@ class ResumeSkipSampler(Sampler):
         return max(0, self.epoch_length - self.skip)
 
 
+def periodic_save_due(step, interval, max_micro_steps=None):
+    """Whether the periodic ``latest_checkpoint.pth`` save runs after micro-batch ``step``.
+
+    The last micro-batch of a ``--max-steps`` run is excluded, even when ``interval``
+    divides it: ``save_final`` writes ``final_step_N.pth`` and then the resume file, in that
+    order. If the periodic save also ran at that step, a preemption after it and before
+    ``save_final`` would requeue into "nothing to do" with no final weights (#82 review, S3).
+    With ``max_micro_steps=None`` (the recipe) this is ``step % interval == 0``, unchanged.
+
+    >>> periodic_save_due(8000, 400, 8000), periodic_save_due(7600, 400, 8000)
+    (False, True)
+    """
+    if max_micro_steps is not None and step >= max_micro_steps:
+        return False
+    return step % interval == 0
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Train the stage-2 panorama curb ramp detector.")
     parser.add_argument('--data-root', default='../dataset',
@@ -148,6 +167,50 @@ def parse_args():
                              "the paper recipe). This is the granularity a preemption "
                              "rewinds to, so on a preemptible partition it must be well "
                              "under the interval between preemptions or nothing is banked.")
+    # --- #82 additions. Every default reproduces the published recipe exactly. ---
+    parser.add_argument('--aug', action='append', default=[], metavar='OP=P:LO:HI',
+                        help="Pixel-statistics augmentation (#82), repeatable: apply OP with "
+                             "probability P at a level drawn uniformly from [LO, HI]. OPs: "
+                             + ", ".join(A.TRAIN_ORDER) + ". Applied after the flip, "
+                             "before Resize/ToTensor, in that fixed order. Default: none, "
+                             "and with none the dataset output is bit-identical to the "
+                             "published recipe (tests/test_train_augment_82.py). Draws come "
+                             "from their own generator keyed on (--seed, epoch, sample "
+                             "index), so arms with the same --seed share data order and, "
+                             "until either run resumes from a checkpoint, flips (the "
+                             "DataLoader re-seeds its workers on every start, so flips "
+                             "after a resume are re-drawn; augmentation draws are not).")
+    parser.add_argument('--max-steps', type=int, default=None,
+                        help="Stop after this many OPTIMIZER steps, write "
+                             "final_step_<N>.pth (model state_dict) and latest_checkpoint.pth, "
+                             "and skip validation. Default: none (run --epochs in full, as "
+                             "the recipe does). For the #82 fine-tune screen.")
+    parser.add_argument('--grad-accum', type=int, default=1,
+                        help="Micro-batches per optimizer step (default 1, the recipe). "
+                             "Global batch = world size x this, so a job that gets fewer "
+                             "GPUs can keep the recipe's global batch of 16. Step counters, "
+                             "--checkpoint-interval-steps and the LR horizon stay in "
+                             "micro-batches; --max-steps is in optimizer steps.")
+    # --- #263 addition. Off by default; off is the published recipe exactly. ---
+    parser.add_argument('--loss-mask', action='store_true',
+                        help="Masked heatmap loss for sparse supervision (#263; schema in "
+                             "docs/sparse_supervision.md). Each pano's JSON may carry a "
+                             "'supervision' block: mode 'sparse' trains only inside 3-sigma "
+                             "discs around its listed positives (minus the discs of its "
+                             "unverified 'ignore_points'), 'verified_empty' trains everywhere "
+                             "on an empty target, and a pano with no block is dense (trained "
+                             "everywhere, as now). Used for train and val. Default off: "
+                             "nn.MSELoss as published, and a JSON that carries a "
+                             "'supervision' block is an error rather than silently dense.")
+    # choices spelled out, not MASK_NORMS: parse_args runs before that constant is defined
+    # (tests/test_train_mask.py asserts the two agree).
+    parser.add_argument('--mask-norm', choices=('pixels', 'weight'), default=None,
+                        help="With --loss-mask, what sum(w*(out-target)^2) is divided by, "
+                             "per micro-batch per rank (= per pano): 'pixels' (default; a "
+                             "sparse positive trains exactly like a dense one) or 'weight' "
+                             "(sum(w); up-weights each sparse positive ~186/k for k positives "
+                             "on the pano). A hyperparameter, not settled (#263). Recorded in "
+                             "latest_checkpoint.pth; a resume with a different value is refused.")
     args = parser.parse_args()
     if not 0.0 <= args.lr_final_frac < 1.0:
         parser.error("--lr-final-frac must be in [0, 1)")
@@ -157,6 +220,21 @@ def parse_args():
         parser.error("--preset finetune requires --init-weights")
     if args.lr is None:
         args.lr = PRESET_LR[args.preset]
+    try:
+        args.aug_specs = A.parse_specs(args.aug)
+    except ValueError as e:
+        parser.error(str(e))
+    if args.grad_accum < 1:
+        parser.error("--grad-accum must be >= 1")
+    if args.checkpoint_interval_steps % args.grad_accum:
+        parser.error("--checkpoint-interval-steps must be a multiple of --grad-accum, so a "
+                     "resume never lands inside an accumulation group")
+    if args.max_steps is not None and args.max_steps < 1:
+        parser.error("--max-steps must be >= 1")
+    if args.mask_norm is not None and not args.loss_mask:
+        parser.error("--mask-norm only applies with --loss-mask")
+    if args.loss_mask and args.mask_norm is None:
+        args.mask_norm = 'pixels'
     return args
 
 
@@ -230,10 +308,145 @@ def generate_heatmap_from_points(points_normalized, heatmap_shape=(512, 1024), s
     
     return torch.from_numpy(heatmap).unsqueeze(0)
 
+
+#: The values a pano JSON's ``supervision.mode`` may take (#263, docs/sparse_supervision.md).
+#: A JSON with no ``supervision`` block is dense, which is every published Stage 1 pano.
+SUPERVISION_MODES = ('sparse', 'verified_empty')
+
+#: ``--mask-norm`` choices (#263). 'pixels' divides the masked sum by the pixel count, so a
+#: sparse positive is trained exactly as a dense one is; 'weight' divides by the weighted
+#: pixel count, which up-weights each sparse positive by about 186/k (k positives on the
+#: pano). Which trains better is a hyperparameter for the label-budget curve, not settled.
+MASK_NORMS = ('pixels', 'weight')
+
+
+def _point_list(raw, what):
+    if not isinstance(raw, list) or not all(
+            isinstance(p, (list, tuple)) and len(p) == 2
+            and all(isinstance(v, (int, float)) for v in p) for p in raw):
+        raise ValueError(f"{what} must be a list of [x, y] pairs, got {raw!r}")
+    return [(float(p[0]), float(p[1])) for p in raw]
+
+
+def supervision_mode(data, points_normalized):
+    """('dense'|'sparse'|'verified_empty', ignore_points) for one pano's parsed JSON (#263).
+
+    ``ignore_points`` are the pano's own detections that the label builder could not verify
+    (``supervision.ignore_points``); ``generate_weight_from_points`` zeroes the loss around
+    them. Raises ValueError on an unknown mode, on a 'sparse' pano with no positives, and on
+    a 'verified_empty' pano that lists positives or ignore points -- each means the label
+    builder and this script disagree about the schema, and training through that would
+    quietly teach the wrong thing.
+
+    >>> supervision_mode({'curb_ramp_points_normalized': []}, [])
+    ('dense', [])
+    >>> supervision_mode({'supervision': {'mode': 'sparse', 'ignore_points': [[0.1, 0.6]]}},
+    ...                  [(0.5, 0.6)])
+    ('sparse', [(0.1, 0.6)])
+    """
+    sup = data.get('supervision') if isinstance(data, dict) else None
+    if sup is None:
+        return 'dense', []
+    mode = sup.get('mode') if isinstance(sup, dict) else None
+    if mode not in SUPERVISION_MODES:
+        raise ValueError(f"supervision.mode must be one of {SUPERVISION_MODES}, got {mode!r}")
+    ignore = _point_list(sup.get('ignore_points', []), 'supervision.ignore_points')
+    if mode == 'sparse' and not points_normalized:
+        raise ValueError("supervision.mode 'sparse' with no positives: the pano would teach "
+                         "nothing")
+    if mode == 'verified_empty' and (points_normalized or ignore):
+        raise ValueError(f"supervision.mode 'verified_empty' with {len(points_normalized)} "
+                         f"positives and {len(ignore)} ignore points listed")
+    return mode, ignore
+
+
+def _nearest_dist_sq(points_normalized, heatmap_shape, radius):
+    """Per pixel, the squared distance to the nearest point within ``radius`` (else a
+    sentinel above radius^2), with the target's rounding, clamping and no seam wrap."""
+    heatmap_h, heatmap_w = heatmap_shape
+    far = (radius + 1) ** 2
+    d = np.full(heatmap_shape, far, dtype=np.int64)
+    for p_norm in points_normalized:
+        cx = max(0, min(int(round(p_norm[0] * heatmap_w)), heatmap_w - 1))
+        cy = max(0, min(int(round(p_norm[1] * heatmap_h)), heatmap_h - 1))
+        y_min, y_max = max(0, cy - radius), min(heatmap_h, cy + radius + 1)
+        x_min, x_max = max(0, cx - radius), min(heatmap_w, cx + radius + 1)
+        yy, xx = np.ogrid[y_min:y_max, x_min:x_max]
+        window = d[y_min:y_max, x_min:x_max]               # a view: writes land in d
+        np.minimum(window, (yy - cy) ** 2 + (xx - cx) ** 2, out=window)
+    return d
+
+
+def generate_weight_from_points(points_normalized, heatmap_shape=(512, 1024), sigma=10.0,
+                                ignore_points=()):
+    """Loss-weight map for a sparse pano (#263), shape (1, H, W), float32.
+
+    1 inside a disc of radius ceil(3*sigma) heatmap pixels around each positive, 0
+    elsewhere. The centre is rounded and clamped exactly as ``generate_heatmap_from_points``
+    does, and the disc is clipped at the image edge with **no wrap across the 0/360 seam**
+    -- the same as the target. So the weight covers the target's support (bar the square
+    window's corners, where the Gaussian is below exp(-4.5) = 0.011), and a point mirrored
+    by the horizontal flip gets a mirrored disc, because both maps are built from one point
+    list.
+
+    ``ignore_points`` (the pano's unverified detections) carve their own discs out of the
+    positives' discs: inside a positive's disc, a pixel strictly nearer an ignore point than
+    every positive gets weight 0. Positives win ties, and a pixel nearer its positive keeps
+    weight 1, so an ignore point next to a positive never erases that positive's peak. With
+    no ignore points this is exactly the union of the positives' discs.
+    """
+    radius = int(math.ceil(3 * sigma))
+    d_pos = _nearest_dist_sq(points_normalized, heatmap_shape, radius)
+    weight = d_pos <= radius * radius
+    if ignore_points:
+        d_ign = _nearest_dist_sq(ignore_points, heatmap_shape, radius)
+        weight &= ~((d_ign <= radius * radius) & (d_ign < d_pos))
+    return torch.from_numpy(weight.astype(np.float32)).unsqueeze(0)
+
+
+def masked_mse(outputs, target, weight, norm='pixels'):
+    """The ``--loss-mask`` loss (#263): sum(w * (out - target)^2), divided by the pixel
+    count (``norm='pixels'``, the default) or by sum(w) (``norm='weight'``).
+
+    train.py runs one pano per rank per micro-batch, so either way the normalization is
+    per pano. 'pixels' gives a sparse positive exactly the gradient a dense pano's positive
+    gets; 'weight' multiplies it by about 186/k (see MASK_NORMS). With ``w`` all ones both
+    equal ``nn.MSELoss()`` (the mean), up to float summation order.
+
+    ``outputs.float()`` because under autocast the model emits fp16; ``nn.MSELoss`` is on
+    autocast's fp32 list, so this matches what the unmasked path computes in. A batch with
+    every pixel masked is loss 0 under both norms, never NaN.
+    """
+    total = ((outputs.float() - target) ** 2 * weight).sum()
+    if norm == 'pixels':
+        return total / weight.numel()
+    if norm == 'weight':
+        return total / weight.sum().clamp(min=1)
+    raise ValueError(f"mask norm must be one of {MASK_NORMS}, got {norm!r}")
+
+
+def mask_checkpoint_fields(loss_mask, mask_norm):
+    """What latest_checkpoint.pth records about the objective (#263). Empty with the mask
+    off, so a published-recipe checkpoint carries exactly the keys it always has."""
+    return {'loss_mask': True, 'mask_norm': mask_norm} if loss_mask else {}
+
+
+def check_resume_objective(checkpoint, loss_mask, mask_norm, path='latest_checkpoint.pth'):
+    """Refuse to resume a run under a different objective (#263). A requeue that toggled
+    --loss-mask or --mask-norm would mix two losses in one run, and best_val_loss would then
+    compare different quantities. A checkpoint without the keys was written with the mask off."""
+    saved = (checkpoint.get('loss_mask', False), checkpoint.get('mask_norm'))
+    now = (bool(loss_mask), mask_norm if loss_mask else None)
+    if saved != now:
+        raise SystemExit(f"{path} was written with loss_mask={saved[0]}, mask_norm={saved[1]}; "
+                         f"this run has loss_mask={now[0]}, mask_norm={now[1]}. Resume with "
+                         f"the original flags, or start a fresh run directory.")
+
+
 class EquiHeatmapDataset(Dataset):
     def __init__(self, root_dir, split, target_heatmap_shape=(512, 1024),
                  transform_input=None, points_to_heatmap_transform_fn=None,
-                 apply_horizontal_flip=True):
+                 apply_horizontal_flip=True, augment=None, loss_mask=False):
         self.root_dir = root_dir
         self.split = split
         self.split_dir = os.path.join(self.root_dir, self.split)
@@ -242,6 +455,14 @@ class EquiHeatmapDataset(Dataset):
         self.transform_input = transform_input
         self.points_to_heatmap_transform_fn = points_to_heatmap_transform_fn
         self.apply_horizontal_flip = apply_horizontal_flip
+        # #82: an rampnet.augment.Augmenter, or None. None (the default) leaves
+        # __getitem__ exactly as published. aug_epoch is set by the training loop before
+        # each epoch's DataLoader iterator is created, so workers see the right epoch.
+        self.augment = augment
+        self.aug_epoch = 0
+        # #263: when True, __getitem__ returns (image, heatmap, weight) -- see
+        # generate_weight_from_points. False (the default) returns the published 2-tuple.
+        self.loss_mask = loss_mask
 
         self.image_paths = []
         self.json_paths = []
@@ -277,6 +498,9 @@ class EquiHeatmapDataset(Dataset):
             dummy_img_size = (2048, 4096) 
             dummy_img = torch.zeros((3, dummy_img_size[0], dummy_img_size[1])) 
             dummy_heatmap = torch.zeros((1, self.target_heatmap_shape[0], self.target_heatmap_shape[1]))
+            if self.loss_mask:
+                # #263: a dummy sample must teach nothing, so its weight is all zero.
+                return dummy_img, dummy_heatmap, torch.zeros_like(dummy_heatmap)
             return dummy_img, dummy_heatmap
 
         input_path = self.image_paths[idx]
@@ -295,9 +519,12 @@ class EquiHeatmapDataset(Dataset):
                     dummy_img = self.transform_input(pil_dummy)
                 except: pass
             dummy_heatmap = torch.zeros((1, self.target_heatmap_shape[0], self.target_heatmap_shape[1]))
+            if self.loss_mask:
+                return dummy_img, dummy_heatmap, torch.zeros_like(dummy_heatmap)
             return dummy_img, dummy_heatmap
 
         points_normalized = []
+        data = None
         try:
             with open(json_path, 'r') as f:
                 data = json.load(f)
@@ -315,13 +542,35 @@ class EquiHeatmapDataset(Dataset):
             if rank == 0: print(f"Error loading or parsing JSON {json_path}: {e}. Using empty points list.")
             points_normalized = []
 
+        # #263. Decided before the flip, which moves points but never changes the mode.
+        if self.loss_mask:
+            # An unreadable JSON is 'unknown' (weight all zero), not dense-and-empty: with
+            # sparse panos in the pool, dense-empty would teach "no ramp" over the whole pano.
+            if isinstance(data, dict):
+                mode, ignore_points = supervision_mode(data, points_normalized)
+            else:
+                mode, ignore_points = 'unknown', []
+        elif isinstance(data, dict) and 'supervision' in data:
+            raise ValueError(f"{json_path} carries a 'supervision' block (#263) but "
+                             f"--loss-mask is off, so it would train as a dense pano. Pass "
+                             f"--loss-mask, or remove sparse panos from {self.split_dir}.")
+
         if self.apply_horizontal_flip and random.random() < 0.5:
             image = F.hflip(image)
             flipped_points = []
             for x_norm, y_norm in points_normalized:
                 flipped_points.append((1.0 - x_norm, y_norm))
             points_normalized = flipped_points
-        
+            if self.loss_mask:
+                # #263: the unverified detections mirror with the positives.
+                ignore_points = [(1.0 - x_norm, y_norm) for x_norm, y_norm in ignore_points]
+
+        if self.augment is not None:
+            # Pixel-wise only, so the points are untouched. Draws come from the
+            # augmenter's own (seed, epoch, idx) generator, never from `random`, so the
+            # flip above sees the same stream whether or not augmentation is on.
+            image = self.augment(image, idx, self.aug_epoch)
+
         if self.transform_input:
             image = self.transform_input(image)
 
@@ -332,7 +581,19 @@ class EquiHeatmapDataset(Dataset):
             heatmap = torch.zeros((1, self.target_heatmap_shape[0], self.target_heatmap_shape[1]))
             if rank == 0 and len(points_normalized) > 0 :
                  print(f"Warning: points_to_heatmap_transform_fn not provided, but points found for {json_path}. Generating zero heatmap.")
-        
+
+        if self.loss_mask:
+            # Built from the same (possibly flipped) point list as the heatmap above.
+            if mode == 'sparse':
+                weight = generate_weight_from_points(points_normalized,
+                                                     heatmap_shape=self.target_heatmap_shape,
+                                                     ignore_points=ignore_points)
+            elif mode == 'unknown':
+                weight = torch.zeros_like(heatmap)
+            else:                                           # dense, verified_empty
+                weight = torch.ones_like(heatmap)
+            return image, heatmap, weight
+
         return image, heatmap
 
 heatmap_output_shape = (512, 1024) 
@@ -352,7 +613,9 @@ train_dataset = EquiHeatmapDataset(
     target_heatmap_shape=heatmap_output_shape,
     transform_input=input_transform,
     points_to_heatmap_transform_fn=points_to_heatmap_fn,
-    apply_horizontal_flip=True
+    apply_horizontal_flip=True,
+    augment=A.Augmenter(args.aug_specs, args.seed) if args.aug_specs else None,
+    loss_mask=args.loss_mask
 )
 
 val_dataset = EquiHeatmapDataset(
@@ -361,7 +624,8 @@ val_dataset = EquiHeatmapDataset(
     target_heatmap_shape=heatmap_output_shape,
     transform_input=input_transform,
     points_to_heatmap_transform_fn=points_to_heatmap_fn,
-    apply_horizontal_flip=False
+    apply_horizontal_flip=False,
+    loss_mask=args.loss_mask
 )
 
 if len(train_dataset) == 0:
@@ -406,6 +670,23 @@ num_epochs = args.epochs
 # rather than len(train_loader), which shrinks on the epoch a resume lands in: the
 # horizon a resumed run decays over has to be the one it started with.
 total_train_steps = num_epochs * train_sampler.epoch_length
+# #82 screen: --max-steps counts OPTIMIZER steps; everything else here counts micro-batches
+# (one micro-batch per rank per loader iteration), which is what global_step has always
+# counted. With --grad-accum 1 the two are the same thing, as in the recipe.
+max_micro_steps = args.max_steps * args.grad_accum if args.max_steps else None
+if max_micro_steps is not None:
+    total_train_steps = min(total_train_steps, max_micro_steps)
+# Accumulation groups are aligned on global_step, and an epoch's per-rank length need not
+# be a multiple of --grad-accum, so a group could straddle an epoch boundary. The screen
+# this exists for stays inside epoch 1; refuse anything else rather than handle it.
+if args.grad_accum > 1 and (max_micro_steps is None
+                            or max_micro_steps > train_sampler.epoch_length):
+    if rank == 0:
+        print(f"Error: --grad-accum {args.grad_accum} is only supported for a --max-steps run "
+              f"that ends inside the first epoch ({train_sampler.epoch_length} micro-batches "
+              f"per rank at world size {world_size}).")
+    cleanup_distributed()
+    raise SystemExit(2)
 
 if rank == 0:
     os.makedirs("peek_training", exist_ok=True)
@@ -417,9 +698,17 @@ if rank == 0:
     # to leave unset without noticing.
     print(f"Seed: {args.seed} (sampler seed: {sampler_seed_for(args.seed)}), "
           f"checkpoint dir: {args.checkpoint_dir}")
+    print(f"Augmentation (#82): {A.Augmenter(args.aug_specs, args.seed).describe()}; "
+          f"grad accum: {args.grad_accum} (global batch {world_size * args.grad_accum}); "
+          f"max optimizer steps: {args.max_steps if args.max_steps else 'none (full epochs)'}")
     print(f"LR schedule: {args.lr_schedule}"
           + (f" -> {args.lr * args.lr_final_frac:.3g} over {total_train_steps} steps"
              if args.lr_schedule != 'constant' else " (no decay, as in the paper)"))
+    print(f"Loss mask (#263): "
+          + (f"ON, mask norm '{args.mask_norm}' -- masked MSE, sum(w*(out-target)^2) / "
+             + ("pixel count" if args.mask_norm == 'pixels' else "sum(w)")
+             + "; sparse panos train only inside 3-sigma discs of their positives"
+             if args.loss_mask else "off (nn.MSELoss, the published recipe)"))
 
 else:
     writer = None
@@ -430,6 +719,8 @@ global_step = 0
 batch_idx_in_epoch = 0
 best_val_loss = float('inf')
 checkpoint_file = "latest_checkpoint.pth"
+# #263: {} with the mask off, so the published checkpoints keep exactly their keys.
+MASK_STATE = mask_checkpoint_fields(args.loss_mask, args.mask_norm)
 
 if args.init_weights:
     if os.path.exists(checkpoint_file):
@@ -447,6 +738,7 @@ if args.init_weights:
 
 if os.path.exists(checkpoint_file):
     checkpoint = torch.load(checkpoint_file, map_location='cpu')
+    check_resume_objective(checkpoint, args.loss_mask, args.mask_norm, checkpoint_file)
     model_to_load = model.module if isinstance(model, DDP) else model
     model_to_load.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -470,6 +762,35 @@ if world_size > 1:
     best_val_loss = states[3].item()
     dist.barrier()
 
+# Already past --max-steps (a requeue after the final save): nothing left to train.
+stop_training = max_micro_steps is not None and global_step >= max_micro_steps
+if stop_training and rank == 0:
+    print(f"global_step {global_step} >= --max-steps x --grad-accum = {max_micro_steps}: "
+          f"nothing to do")
+
+
+def save_final(step):
+    """#82 --max-steps exit: the model alone (the format best_model.pth has, so every
+    scorer loads it), then latest_checkpoint.pth, in that order -- a preemption between
+    the two leaves a resume file that still points before the end, never a finished
+    resume file without its final weights."""
+    state = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
+    final_path = os.path.join(args.checkpoint_dir, f"final_step_{step // args.grad_accum}.pth")
+    torch.save(state, final_path)
+    print(f"Saved final model ({step // args.grad_accum} optimizer steps, {step} "
+          f"micro-batches) to {final_path}")
+    torch.save({**MASK_STATE,
+        'epoch': epoch,
+        'global_step': step,
+        'batch_idx_in_epoch': resume_offset + i + 1,
+        'model_state_dict': state,
+        'optimizer_state_dict': optimizer.state_dict(),
+        'scaler_state_dict': scaler.state_dict(),
+        'best_val_loss': best_val_loss
+    }, checkpoint_file)
+    print(f"Saved latest checkpoint at step {step} (final)")
+
+
 def unnormalize(img_tensor):
     mean = torch.tensor([0.485, 0.456, 0.406], device=img_tensor.device).view(3, 1, 1)
     std = torch.tensor([0.229, 0.224, 0.225], device=img_tensor.device).view(3, 1, 1)
@@ -477,8 +798,13 @@ def unnormalize(img_tensor):
 
 
 for epoch in range(start_epoch, num_epochs):
+    if stop_training:
+        break
     if world_size > 1:
         train_sampler.set_epoch(epoch)
+    # #82: the augmentation generator is keyed on (seed, epoch, sample index). Set before
+    # enumerate(train_loader) creates the workers, which copy the dataset at that point.
+    train_dataset.aug_epoch = epoch
     
     model.train()
     
@@ -496,7 +822,11 @@ for epoch in range(start_epoch, num_epochs):
                             initial=resume_offset)
 
 
-    for i, (images, target_heatmaps) in enumerate(train_loader):
+    # #263: masked-pixel tally for this epoch, on this rank's shard. Kept as tensors and
+    # read once at the end, so it adds no per-step device sync.
+    mask_px_zero, mask_px_total = 0, 0
+
+    for i, (images, target_heatmaps, *weights) in enumerate(train_loader):
         # `i` counts batches actually processed this epoch; the skipped ones are gone
         # from the sampler, so the position within the epoch is resume_offset + i.
         #
@@ -514,16 +844,34 @@ for epoch in range(start_epoch, num_epochs):
 
         images = images.cuda(local_rank, non_blocking=True)
         target_heatmaps = target_heatmaps.cuda(local_rank, non_blocking=True)
+        if args.loss_mask:
+            weights = weights[0].cuda(local_rank, non_blocking=True)
+            mask_px_zero = mask_px_zero + (weights == 0).sum()
+            mask_px_total += weights.numel()
 
-        optimizer.zero_grad(set_to_none=True)
-        
-        with torch.cuda.amp.autocast():
-            outputs = model(images)
-            loss = criterion(outputs, target_heatmaps)
-        
-        scaler.scale(loss).backward()
-        scaler.step(optimizer)
-        scaler.update()
+        # Gradient accumulation (#82). With --grad-accum 1 (the recipe) micro_pos is
+        # always 0 and is_step always True: zero_grad, forward, backward on the unscaled
+        # loss, step, update -- exactly the published sequence.
+        accum = args.grad_accum
+        micro_pos = step_index % accum
+        is_step = micro_pos == accum - 1
+        if micro_pos == 0:
+            optimizer.zero_grad(set_to_none=True)
+
+        # Skip DDP's gradient all-reduce on micro-batches that do not end a group.
+        sync_ctx = (model.no_sync() if (accum > 1 and not is_step and isinstance(model, DDP))
+                    else contextlib.nullcontext())
+        with sync_ctx:
+            with torch.cuda.amp.autocast():
+                outputs = model(images)
+                if args.loss_mask:
+                    loss = masked_mse(outputs, target_heatmaps, weights, args.mask_norm)
+                else:
+                    loss = criterion(outputs, target_heatmaps)
+            scaler.scale(loss / accum if accum > 1 else loss).backward()
+        if is_step:
+            scaler.step(optimizer)
+            scaler.update()
 
         
         
@@ -541,9 +889,9 @@ for epoch in range(start_epoch, num_epochs):
             progress_bar.set_postfix(loss=loss.item(), step=current_total_step)
             progress_bar.update(1) 
 
-            if current_total_step % checkpoint_interval_steps == 0:
+            if periodic_save_due(current_total_step, checkpoint_interval_steps, max_micro_steps):
                 model_state_to_save = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
-                torch.save({
+                torch.save({**MASK_STATE,
                     'epoch': epoch, 
                     'global_step': current_total_step,
                     'batch_idx_in_epoch': resume_offset + i + 1,
@@ -553,9 +901,30 @@ for epoch in range(start_epoch, num_epochs):
                     'best_val_loss': best_val_loss
                 }, checkpoint_file)
                 if rank == 0: print(f"Saved latest checkpoint at step {current_total_step}")
-    
+
+        if max_micro_steps is not None and current_total_step >= max_micro_steps:
+            stop_training = True
+            break
+
     if rank == 0 and isinstance(progress_bar, tqdm): 
         progress_bar.close()
+
+    if args.loss_mask and rank == 0 and mask_px_total:
+        # #263: the visible check on a misconfigured run. A sparse-only pool reads ~0.99;
+        # a run whose sparse panos never arrived reads 0.0.
+        masked_share = float(mask_px_zero) / mask_px_total
+        print(f"Epoch {epoch+1}: masked pixel share {masked_share:.4f} over "
+              f"{mask_px_total // (heatmap_output_shape[0] * heatmap_output_shape[1])} "
+              f"rank-0 samples (#263 --loss-mask)")
+        writer.add_scalar('Mask/masked_pixel_share', masked_share, step_index + 1)
+
+    if stop_training:
+        # --max-steps reached mid-epoch: save and leave without the validation pass
+        # (42,875 val panos -- longer than the whole screen). Every rank reaches this at
+        # the same step, since every rank counts the same steps.
+        if rank == 0:
+            save_final(current_total_step)
+        break
 
     
     
@@ -575,16 +944,28 @@ for epoch in range(start_epoch, num_epochs):
         val_pbar = tqdm(val_loader, desc=val_pbar_desc, disable=(rank != 0)) if rank == 0 else val_loader
 
         with torch.no_grad():
-            for images_val, target_heatmaps_val in val_pbar:
+            for images_val, target_heatmaps_val, *weights_val in val_pbar:
                 images_val = images_val.cuda(local_rank, non_blocking=True)
                 target_heatmaps_val = target_heatmaps_val.cuda(local_rank, non_blocking=True)
                 
                 with torch.cuda.amp.autocast():
                     outputs_val = model(images_val)
-                    loss_val = criterion(outputs_val, target_heatmaps_val)
+                    if args.loss_mask:
+                        w_val = weights_val[0].cuda(local_rank, non_blocking=True)
+                        loss_val = masked_mse(outputs_val, target_heatmaps_val, w_val,
+                                              args.mask_norm)
+                    else:
+                        loss_val = criterion(outputs_val, target_heatmaps_val)
                 
-                val_loss_sum += loss_val.item() * images_val.size(0)
-                num_val_samples += images_val.size(0)
+                if args.loss_mask:
+                    # #263: a sample with nothing to learn from (unreadable JSON or image)
+                    # has loss 0 and must not count toward the mean. Batch size is 1.
+                    n_val = int((w_val.flatten(1).sum(1) > 0).sum().item())
+                    val_loss_sum += loss_val.item() * n_val
+                    num_val_samples += n_val
+                else:
+                    val_loss_sum += loss_val.item() * images_val.size(0)
+                    num_val_samples += images_val.size(0)
 
         if world_size > 1:
             val_loss_tensor = torch.tensor([val_loss_sum, num_val_samples], dtype=torch.float64).cuda(local_rank)
@@ -603,7 +984,7 @@ for epoch in range(start_epoch, num_epochs):
 
             epoch_checkpoint_path = os.path.join(args.checkpoint_dir, f"epoch_{epoch+1}_step_{global_step}.pth")
             model_state_to_save = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
-            torch.save({
+            torch.save({**MASK_STATE,
                 'epoch': epoch + 1,
                 'global_step': global_step,
                 'batch_idx_in_epoch': 0,
@@ -622,7 +1003,7 @@ for epoch in range(start_epoch, num_epochs):
 
             if len(val_dataset) > 0 and len(val_dataset.image_paths) > 0 :
                 rand_idx = random.randint(0, len(val_dataset) - 1)
-                image_vis, gt_heatmap_vis = val_dataset[rand_idx] 
+                image_vis, gt_heatmap_vis, *_ = val_dataset[rand_idx] 
                 
                 model.eval()
                 with torch.no_grad(), torch.cuda.amp.autocast():
@@ -660,7 +1041,7 @@ for epoch in range(start_epoch, num_epochs):
                 print(f"Saved visualization to {visualization_path}")
             
             model_state_to_save = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
-            torch.save({
+            torch.save({**MASK_STATE,
                 'epoch': epoch + 1, 
                 'global_step': global_step,
                 'batch_idx_in_epoch': 0,

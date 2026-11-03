@@ -91,7 +91,10 @@ for s in $SPLITS; do
   $PY scripts/model_comparison/compare.py "benchmark/$s" \
       --models rampnet,vistas:curb-cut --vistas-input-size 1024 1024 \
       --cache-dir "$W/model_cache" --usage-log "$W/usage_log.jsonl" \
-      2>&1 | tee "$W/logs/vistas1024_${s}_$SLURM_JOB_ID.log"
+      2>&1 | tee "$W/logs/vistas1024_${s}_$SLURM_JOB_ID.log" \
+      || echo "compare.py exited non-zero on $s: a leg was not runnable or aborted (see log)"
+  # ^ Since #261 compare.py exits 3 for that; under set -eo pipefail it would otherwise
+  #   end the job here and skip the remaining splits and step 3.
 done
 
 # 3. RampNet's 1x pass (2048x4096 input, one forward, peaks to the 0.05 floor), same GPU.
