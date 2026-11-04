@@ -119,6 +119,10 @@ def main(argv=None):
               + (f" -- {p['why_none']}" if p.get("why_none") else ""))
         if "pair_f1_different_seed" in p:
             print(f1_line("pilot, different seed", p["pair_f1_different_seed"]))
+            wo = p["pair_f1_different_seed_without_under_min"]
+            if wo["units"] != p["pair_f1_different_seed"]["units"]:
+                print(f1_line(f"pilot, different seed, without units under {w['min_days']:g} d "
+                              "(reported, not gated)", wo))
             ref = p["seed_reference"]
             print(f"     seed reference (deployed vs fusion seeds on those units): pooled "
                   f"{f3(ref['pooled'])}, per-unit mean {f3(ref['per_unit_mean'])}")

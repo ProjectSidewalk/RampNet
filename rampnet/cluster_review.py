@@ -435,6 +435,8 @@ def agreement(a, b, corners=None, kind=None):
         return [v for c in ids for v in vec[c]]
 
     split = {k: [c for c in common if split_of[c] == k] for k in ("same_seed", "different_seed")}
+    known = [d for d in wash.values() if d is not None]
+    short = sorted(c for c, d in wash.items() if d is not None and d < WASHOUT_MIN_DAYS)
     kappa, _ok, k_undef = kappa_leg(flat(kx, common), flat(ky, common))
     pilot = {"rule": (f"pilot units opened with different seeds: pair F1 pooled >= "
                       f"{PILOT_MIN_PAIR_F1} and per-unit mean >= {PILOT_MIN_PAIR_F1}; kappa"
@@ -457,14 +459,16 @@ def agreement(a, b, corners=None, kind=None):
         pilot.update({
             "pilot_units": len(pilot_ids), "both_complete": len(p_common), "full_pilot": full,
             "pair_f1_different_seed": f1d, "seed_reference": seed_reference(corners, p_diff),
+            # the gate reads every unit, retested under 7 days or not; this is the same pair
+            # F1 without those units, reported beside it, never gated (Amendment 5a, N4)
+            "pair_f1_different_seed_without_under_min": f1_block([c for c in p_diff
+                                                                  if c not in short]),
             "kappa": pk, "kappa_undefined_identical": pk_undef,
             "pair_f1_leg": f1_ok, "kappa_leg": pk_ok,
             "pass": (f1_ok and pk_ok) if full else None,
             "why_none": None if full else ("not every pilot unit is complete or can't judge "
                                            "in both passes: a partial pilot decides nothing")})
 
-    known = [d for d in wash.values() if d is not None]
-    short = sorted(c for c, d in wash.items() if d is not None and d < WASHOUT_MIN_DAYS)
     return {"agreement_kind": kind,
             "rater_a": a.get("rater"), "rater_b": b.get("rater"),
             "rubric_version": a.get("rubric_version"),

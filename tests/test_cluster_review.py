@@ -317,6 +317,43 @@ def test_washout_days_flag_units_under_seven():
     assert w["pair_f1_without_under_min"]["units"] == 2          # u2, u3: reported without u1
 
 
+def test_pilot_gate_reads_units_under_seven_days_and_reports_without_them(tmp_path, capsys):
+    # Final review N4 (Amendment 5a): the gate reads every pilot unit, retested under 7 days
+    # or not; the different-seed pair F1 without those units is reported beside it.
+    # u1 is retested after 2 days and disagrees ({1,2,3} vs {1}{2,3}: F1 2/4); u2, after
+    # 10 days, agrees. Gate: pooled (2 + 6) / (4 + 6) = 0.8 -> fail; without u1: 1.0.
+    t0 = "2026-11-01T10:00:00.000Z"
+    a = assignments({"u1": dict(unit({"1": "r1", "2": "r1", "3": "r1"}), completed_at=t0),
+                     "u2": dict(unit({"1": "r1", "2": "r1", "3": "r1"}), completed_at=t0)},
+                    rater="x")
+    b = assignments({"u1": dict(unit({"1": "r1", "2": "r2", "3": "r2"}, seed="fusion"),
+                                opened_at="2026-11-03T10:00:00.000Z"),
+                     "u2": dict(unit({"1": "r1", "2": "r1", "3": "r1"}, seed="fusion"),
+                                opened_at="2026-11-11T10:00:00.000Z")}, rater="x-retest")
+    cs = [dict(corner(u, keys=("1", "2", "3")), pilot=True) for u in ("u1", "u2")]
+    rep = cr.agreement(a, b, cs)
+    assert rep["washout"]["under_min"] == ["u1"]
+    p = rep["pilot"]
+    assert p["pair_f1_different_seed"]["units"] == 2
+    assert p["pair_f1_different_seed"]["pooled"] == pytest.approx(0.8)
+    assert p["pass"] is False
+    wo = p["pair_f1_different_seed_without_under_min"]
+    assert wo["units"] == 1 and wo["pooled"] == pytest.approx(1.0)
+    # ... and the script prints that read beside the gate
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("cra", "scripts/cluster_review_agreement.py")
+    cra = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cra)
+    (tmp_path / "snapshot.json").write_text(json.dumps(SNAP), encoding="utf-8")
+    (tmp_path / "corners.jsonl").write_text("".join(json.dumps(c) + "\n" for c in cs),
+                                            encoding="utf-8")
+    (tmp_path / "assignments.json").write_text(json.dumps(a), encoding="utf-8")
+    (tmp_path / "assignments__x-retest.json").write_text(json.dumps(b), encoding="utf-8")
+    assert cra.main([str(tmp_path), "--b", "assignments__x-retest.json"]) == 0
+    out = capsys.readouterr().out
+    assert "pilot gate" in out and "without units under 7 d (reported, not gated)" in out
+
+
 def test_validate_refuses_a_malformed_time():
     a = assignments({"c:sig:000001": dict(GOOD, completed_at="yesterday")})
     assert any("completed_at" in p for p in cr.validate(a, [corner()], SNAP))
