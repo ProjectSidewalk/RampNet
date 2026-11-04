@@ -464,6 +464,7 @@ def agreement(a, b, corners=None, kind=None):
                                            "in both passes: a partial pilot decides nothing")})
 
     known = [d for d in wash.values() if d is not None]
+    short = sorted(c for c, d in wash.items() if d is not None and d < WASHOUT_MIN_DAYS)
     return {"agreement_kind": kind,
             "rater_a": a.get("rater"), "rater_b": b.get("rater"),
             "rubric_version": a.get("rubric_version"),
@@ -489,9 +490,11 @@ def agreement(a, b, corners=None, kind=None):
                                  "completed_at, days",
                         "min_days": WASHOUT_MIN_DAYS, "units_with_times": len(known),
                         "shortest_days": round(min(known), 2) if known else None,
-                        "under_min": sorted(c for c, d in wash.items()
-                                            if d is not None and d < WASHOUT_MIN_DAYS),
-                        "missing": sorted(c for c, d in wash.items() if d is None)},
+                        "under_min": short,
+                        "missing": sorted(c for c, d in wash.items() if d is None),
+                        # the agreement again without the units re-reviewed too soon (S3)
+                        "pair_f1_without_under_min": f1_block([c for c in common
+                                                               if c not in short])},
             "pilot": pilot,
             "per_unit": per_unit}
 

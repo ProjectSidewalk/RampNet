@@ -289,6 +289,7 @@ def test_washout_days_flag_units_under_seven():
     w = cr.agreement(a, b)["washout"]
     assert w["under_min"] == ["u1"] and w["missing"] == ["u3"]
     assert w["units_with_times"] == 2 and w["shortest_days"] == pytest.approx(4.0)
+    assert w["pair_f1_without_under_min"]["units"] == 2          # u2, u3: reported without u1
 
 
 def test_validate_refuses_a_malformed_time():

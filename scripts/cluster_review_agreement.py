@@ -112,6 +112,8 @@ def main(argv=None):
         print(f"   washout ({w['basis']}): {w['units_with_times']} units timed, shortest "
               f"{w['shortest_days']} d; UNDER {w['min_days']:g} d: {w['under_min'] or 'none'}; "
               f"no time: {len(w['missing'])}")
+        if w['under_min']:
+            print(f1_line('pair F1 without them', w['pair_f1_without_under_min']))
         p = report["pilot"]
         print(f"   pilot gate ({p['rule']}): {p['pass']}"
               + (f" -- {p['why_none']}" if p.get("why_none") else ""))
