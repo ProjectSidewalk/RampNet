@@ -566,3 +566,9 @@ analysis_out/control_arm_263/caches_aug82_controls/*
 !analysis_out/control_arm_263/trainlogs/
 analysis_out/control_arm_263/trainlogs/*
 !analysis_out/control_arm_263/trainlogs/*.txt
+# Corner-level cluster review (#224): the bundle's text (snapshot.json, corners.jsonl,
+# crops_missing.csv, report.md, export_runs.json, assignments*.json) is tracked; the pixels
+# and the rendered tool are not -- the auto-labeler's exporter re-cuts them.
+benchmark/*/cluster_review/crops/
+benchmark/*/cluster_review/aerial/
+benchmark/*/cluster_review/gallery/
