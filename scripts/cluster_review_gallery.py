@@ -11,7 +11,8 @@ Per unit the reviewer sees an aerial panel (labels as dots coloured by their cur
 each camera as a small triangle with a thin ray to its label, the 30 m window, north arrow,
 10 m scale bar, imagery attribution) and one crop strip per group. Keyboard-first:
 
-    click crops / dots   select labels          1-9   assign selection to group N
+    click crops / dots   select labels (or Tab to a crop, Enter / Space)
+    1-9   assign selection to group N
     n   new group from the selection (split)    m     merge the selected groups
     x   not a ramp     u   unsure     0   unassign
     a   add-uncovered mode: click the aerial to add a ramp no label covers, click a mark to
@@ -20,18 +21,27 @@ each camera as a small triangle with a thin ray to its label, the 30 m window, n
 
 City inventory points appear only after the unit is marked complete; the first reveal
 sets a sticky ``inventory_seen`` and any later edit ``edited_after_inventory`` (both
-exported; the scorer's inventory calibration drops the latter). Each unit's ``elapsed_s``
+exported; the scorer's inventory calibration drops the latter). They are never shown in a
+``--role b`` (retest) build, and a role-a build withholds them on double-rated units until
+the bundle holds a role-b export in which that unit is done (protocol Amendment 5, S2: the
+reveal would otherwise teach the retest where the ramps are). Each unit also records a
+sticky ``opened_at`` (first shown) and ``completed_at`` (first completed), ISO 8601 UTC,
+from which the washout between a pass and its retest is checked (Amendment 5, S3). Each unit's ``elapsed_s``
 accumulates while it is on screen, the tab is visible and there has been keyboard/mouse
 input in the last 60 s (1 s ticks, each capped at 2 s). State autosaves to localStorage keyed by
-bundle + rater + label-snapshot sha256; Export downloads the assignments file; an existing
-file prefills for revision.
+city + rater + label-snapshot sha256 + corners.jsonl sha256, so a build over a re-seeded
+bundle starts fresh; it says so when this browser holds unexported work for an earlier
+corners.jsonl of the same city, rater and snapshot (review N5: Export from the old build
+first). Export downloads the assignments file; an existing file prefills for revision.
 
     python scripts/cluster_review_gallery.py benchmark/vancouver/cluster_review --pilot
         # rater A: deployed seed, exports assignments.json
     python scripts/cluster_review_gallery.py benchmark/vancouver/cluster_review --pilot \\
-        --rater mikey --role b --out benchmark/vancouver/cluster_review/gallery/mikey
-        # rater B: only double-rated units, each seeded with its rater_b_seed,
-        # exports assignments__mikey.json
+        --rater jon-retest --role b --seed-arm auto \\
+        --out benchmark/vancouver/cluster_review/gallery/jon-retest
+        # the delayed re-review (Amendment 2; >= 7 days after each unit's first pass): only
+        # double-rated units, each seeded with its rater_b_seed; exports
+        # assignments__jon-retest.json
 """
 import argparse
 import hashlib
@@ -64,13 +74,35 @@ def select_units(corners, pilot=False, role='a'):
     return sorted(us, key=lambda c: hashlib.sha1(c['corner_id'].encode()).hexdigest())
 
 
-def viewer_unit(c, arm, rel):
-    """The per-unit payload the viewer needs (paths relative to the gallery dir)."""
+def retest_done_units(files):
+    """Units some role-b (retest) export in the bundle has completed or marked can't judge."""
+    done = set()
+    for a in files.values():
+        if a.get('role') == 'b':
+            done |= {cid for cid, u in (a.get('corners') or {}).items()
+                     if u.get('complete') or u.get('cant_judge') is True}
+    return done
+
+
+def inventory_revealed(c, role, retest_done):
+    """Whether this build may show the unit's city inventory (protocol Amendment 5, S2):
+    never in a retest (role b) build; in role a, not on a double-rated unit until its
+    retest is exported, so the first pass cannot teach the retest where the ramps are."""
+    if role == 'b':
+        return False
+    return not c.get('double_rate') or c['corner_id'] in retest_done
+
+
+def viewer_unit(c, arm, rel, reveal=True):
+    """The per-unit payload the viewer needs (paths relative to the gallery dir). With
+    ``reveal`` false the city inventory is left out of the page entirely."""
+    inv = c.get('inventory', [])
     return {'id': c['corner_id'], 'type': c['type'], 'has_labels': c['has_labels'],
             'pilot': bool(c.get('pilot')), 'double_rate': bool(c.get('double_rate')),
             'seed_arm': arm, 'centre': c['centre'], 'window_m': c.get('window_m', 30.0),
             'aerial': dict(c['aerial'], file=rel + c['aerial']['file']),
-            'inventory': c.get('inventory', []),
+            'inventory': inv if reveal else [],
+            'inventory_withheld': bool(inv) and not reveal,
             'labels': [{'key': lab['key'], 'pano_id': lab['pano_id'],
                         'user_kind': lab.get('user_kind'), 'lat': lab['lat'], 'lng': lab['lng'],
                         'camera': lab.get('camera') or {}, 'date': lab.get('capture_date'),
@@ -154,7 +186,31 @@ function fromFile(f) {
           elapsed_s: f.elapsed_s || 0, note: f.note || '',
           inventory_seen: !!f.inventory_seen,
           edited_after_inventory: !!f.edited_after_inventory,
+          opened_at: f.opened_at || null, completed_at: f.completed_at || null,
           seen: true, nextRamp: mx + 1};
+}
+// HTML-escape text a person typed (a can't-judge reason) before it goes into markup or an
+// attribute (review N8: '&' was not escaped).
+function esc(t) {
+  return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+// localStorage keys of this city, rater and label snapshot made for ANOTHER corners.jsonl
+// (a re-seed changes its sha256, so a new build cannot see that work; review N5) holding at
+// least one unit seen, completed or marked can't judge. `get` reads one key's value.
+function staleStores(keys, get, city, rater, snapshot, cornersSha) {
+  const prefix = 'clusterreview:' + city + ':' + (rater || 'A') + ':' + snapshot + ':';
+  const out = [];
+  for (const k of keys) {
+    if (!k.startsWith(prefix)) continue;
+    const rest = k.slice(prefix.length);
+    if (rest.indexOf(':') >= 0 || rest === cornersSha) continue;     // ':idx' keys; this build
+    let st = {};
+    try { st = JSON.parse(get(k) || '{}'); } catch (e) { continue; }
+    const n = Object.values(st).filter(u => u && (u.seen || u.complete || u.cant_judge)).length;
+    if (n) out.push({key: k, units: n});
+  }
+  return out;
 }
 function bootstrapState(INITIAL, local, UNITS, SNAPSHOT) {
   const state = local || {};
@@ -190,6 +246,7 @@ function bootstrapState(INITIAL, local, UNITS, SNAPSHOT) {
 """
 
 HTML_TEMPLATE = r"""<!doctype html>
+<html lang="en">
 <meta charset="utf-8">
 <title>RampNet cluster review</title>
 <style>
@@ -224,6 +281,7 @@ HTML_TEMPLATE = r"""<!doctype html>
   .crops{display:flex;flex-wrap:wrap;gap:6px}
   .crop{width:160px;cursor:pointer;border:3px solid transparent;border-radius:4px;background:#eee}
   .crop.sel{border-color:#00c2ff}
+  .crop:focus-visible{outline:3px solid #000;outline-offset:1px}
   .crop.hov{border-color:#ff9f1c}
   .crop.flash{animation:flash 1.2s ease-out}
   @keyframes flash{0%{box-shadow:0 0 0 8px #ff9f1c}100%{box-shadow:0 0 0 0 rgba(255,159,28,0)}}
@@ -310,7 +368,7 @@ HTML_TEMPLATE = r"""<!doctype html>
 <h2 id="title" style="margin:4px 0 8px;font-size:17px"></h2>
 <div id="main">
   <div id="left">
-    <div id="aerialwrap"><img id="aerial" alt=""><svg id="plan" width="512" height="512"></svg></div>
+    <div id="aerialwrap"><img id="aerial" alt="aerial image of the review window"><svg id="plan" width="512" height="512"></svg></div>
     <div id="attrib"></div>
     <p><textarea id="unitnote" rows="2" placeholder="Note on this unit (optional)"></textarea></p>
   </div>
@@ -330,10 +388,13 @@ HTML_TEMPLATE = r"""<!doctype html>
   <b>Aerial</b>: dots = labels (colour = group; blue ring = selected; hollow = not ramp; grey =
   unsure / unassigned) · hover a dot = its crop, camera and ray · star = ramp point (hollow =
   mean of its labels, filled = placed) · orange X = uncovered (dashed = unsure) · dashed circle =
-  30 m window · white squares = city inventory (after complete)<br><br>
+  30 m window · white squares = city inventory (after complete; never in a retest build, and
+  withheld on double-rated units until their retest is exported) · hover a dot or star for its
+  group number (colour is not the only cue)<br><br>
   <b>Keys</b><br>
   hover a dot: see its crop · hover a crop or group header: see it on the aerial<br>
-  click crop / dot: select label (again to deselect) · click group header: select group<br>
+  click crop / dot: select label (again to deselect) · <kbd>Tab</kbd> to a crop, then
+  <kbd>Enter</kbd> / <kbd>Space</kbd>: the same · click group header: select group<br>
   <kbd>r</kbd> show / hide every camera and ray<br>
   double-click a crop (or <kbd>Space</kbd> over it): big view, with the rest of its group beside
   it (<kbd>←</kbd>/<kbd>→</kbd> to step, <kbd>Esc</kbd> to close)<br>
@@ -393,6 +454,10 @@ function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } ca
   if (boot.prefilled) bits.push(boot.prefilled + ' unit(s) prefilled from the assignments file.');
   if (boot.conflicts.length) bits.push('<b>' + boot.conflicts.length + ' unit(s) kept this browser&#39;s work over a different entry in the assignments file</b>: ' + boot.conflicts.join(', ') + '. Clear this page&#39;s site data to take the file instead.');
   if (boot.reopened) bits.push('<b>' + boot.reopened + ' complete unit(s) reopened</b>: their label set changed since they were reviewed.');
+  let stale = [];
+  try { stale = staleStores(Object.keys(localStorage), k => localStorage.getItem(k), CITY, RATER, SNAPSHOT, CORNERS_SHA); } catch (e) {}
+  if (stale.length) bits.push('<b>This browser holds review work for another version of this bundle</b> (' + stale.map(x => x.units + ' unit(s)').join(', ') +
+    '), which this build cannot show: the bundle was re-seeded since. If that work was never exported, open the build it was made in and Export it before working here.');
   if (bits.length) { const n = document.getElementById('notice'); n.style.display = ''; n.innerHTML = bits.join('<br>'); }
 })();
 document.getElementById('attrib').textContent = ATTRIBUTION;
@@ -478,11 +543,11 @@ function openLightbox(key) {
   const mates = u.labels.filter(l => (s.labels[l.key] || null) === v);
   const samePano = u.labels.filter(l => l.pano_id === lab.pano_id).length;
   const lb = document.getElementById('lb');
-  lb.innerHTML = '<div class="big"><img src="' + lab.crop + '"><div class="cap"><b>' + groupName(u, v) + '</b>' +
+  lb.innerHTML = '<div class="big"><img alt="label ' + key + '" src="' + lab.crop + '"><div class="cap"><b>' + groupName(u, v) + '</b>' +
     (lab.date ? ' · captured ' + lab.date : '') + (lab.user_kind === 'human' ? ' · <span class="h">human</span>' : '') +
     ' · pano ' + lab.pano_id + (samePano > 1 ? ' (' + samePano + ' labels from it here)' : '') +
     '<br><span style="color:#aaa">←/→ or click a thumbnail: the rest of this group · Esc or click outside: close</span></div></div>' +
-    (mates.length > 1 ? '<div class="side">' + mates.map(l => '<div><img data-lb="' + l.key + '" class="' + (l.key === key ? 'on' : '') +
+    (mates.length > 1 ? '<div class="side">' + mates.map(l => '<div><img alt="label ' + l.key + '" data-lb="' + l.key + '" class="' + (l.key === key ? 'on' : '') +
       '" src="' + l.crop + '"><div class="t">' + (l.date || '') + '</div></div>').join('') + '</div>' : '');
   lb.style.display = 'flex';
   setHover(key, null);
@@ -559,7 +624,9 @@ function toggleComplete() {
   const u = cur(), s = S();
   if (!s.complete && s.cant_judge) { alert('This unit is marked can\'t judge. Clear that first (Can\'t judge… button).'); return; }
   if (!s.complete && unassigned(u)) { alert(unassigned(u) + ' label(s) are still on the shelf: give each a group, not ramp or unsure first.'); return; }
-  push(); s.complete = !s.complete; edited();
+  push(); s.complete = !s.complete;
+  if (s.complete && !s.completed_at) s.completed_at = new Date().toISOString();   // sticky
+  edited();
 }
 function toggleCantJudge() {
   const s = S();
@@ -612,13 +679,13 @@ function drawPlan() {
     const q = toImg(u, r.lat, r.lng), col = colorOf(u, g);
     const pts = [];
     for (let i = 0; i < 10; i++) { const rr = i % 2 ? 4 : 10, a = Math.PI / 5 * i - Math.PI / 2; pts.push((q[0] + rr * Math.cos(a)).toFixed(1) + ',' + (q[1] + rr * Math.sin(a)).toFixed(1)); }
-    out.push('<polygon data-star="' + g + '" points="' + pts.join(' ') + '" fill="' + (r.placed ? col : 'rgba(0,0,0,.25)') + '" stroke="' + col + '" stroke-width="' + (gsel.has(g) ? 4 : 2.5) + '" style="cursor:grab"/>');
+    out.push('<polygon data-star="' + g + '" points="' + pts.join(' ') + '" fill="' + (r.placed ? col : 'rgba(0,0,0,.25)') + '" stroke="' + col + '" stroke-width="' + (gsel.has(g) ? 4 : 2.5) + '" style="cursor:grab"><title>' + groupName(u, g) + ' ramp point (' + (r.placed ? 'placed' : 'mean of its labels') + ')</title></polygon>');
   }
   for (const lab of u.labels) {
     const p = toImg(u, lab.lat, lab.lng), v = s.labels[lab.key];
     const col = v && v.startsWith('r') ? colorOf(u, v) : '#bbb';
     const fill = v === 'not_ramp' ? 'none' : col;
-    out.push('<circle data-key="' + lab.key + '" cx="' + p[0] + '" cy="' + p[1] + '" r="5" fill="' + fill + '" stroke="' + (sel.has(lab.key) ? '#00c2ff' : (v === 'not_ramp' ? col : '#000')) + '" stroke-width="' + (sel.has(lab.key) ? 3 : 1) + '" style="cursor:pointer"/>');
+    out.push('<circle data-key="' + lab.key + '" cx="' + p[0] + '" cy="' + p[1] + '" r="5" fill="' + fill + '" stroke="' + (sel.has(lab.key) ? '#00c2ff' : (v === 'not_ramp' ? col : '#000')) + '" stroke-width="' + (sel.has(lab.key) ? 3 : 1) + '" style="cursor:pointer"><title>label ' + lab.key + ': ' + groupName(u, v) + '</title></circle>');
   }
   s.uncovered.forEach((p, i) => {
     const q = toImg(u, p.lat, p.lng);
@@ -671,7 +738,7 @@ function showPop(key, ev) {
   const u = cur(), lab = labOf(u, key), pop = document.getElementById('pop');
   if (!lab) { pop.style.display = 'none'; return; }
   const samePano = u.labels.filter(l => l.pano_id === lab.pano_id).length;
-  pop.innerHTML = '<img src="' + lab.crop + '"><div class="cap"><b>' + groupName(u, S().labels[key]) + '</b>' + (lab.date ? ' · ' + lab.date : '') +
+  pop.innerHTML = '<img alt="label ' + key + '" src="' + lab.crop + '"><div class="cap"><b>' + groupName(u, S().labels[key]) + '</b>' + (lab.date ? ' · ' + lab.date : '') +
     (lab.user_kind === 'human' ? ' · <span class="h">human</span>' : '') + ' · pano ' + lab.pano_id.slice(0, 10) + '…' +
     (samePano > 1 ? ' (' + samePano + ' labels from it here)' : '') + '</div>';
   placePop(ev);
@@ -845,8 +912,9 @@ function actsHtml(u, s, lab) {    // hover buttons: move to a group, new group, 
 }
 function cropHtml(lab) {
   const u = cur(), s = S();
-  return '<div class="crop' + (sel.has(lab.key) ? ' sel' : '') + '" draggable="true" data-key="' + lab.key + '" title="label ' + lab.key + ' · pano ' + lab.pano_id +
-    '"><img loading="lazy" draggable="false" src="' + lab.crop + '" onerror="this.style.opacity=0.15;this.alt=\'no crop\'">' + actsHtml(u, s, lab) + '<div class="cap">' +
+  return '<div class="crop' + (sel.has(lab.key) ? ' sel' : '') + '" draggable="true" tabindex="0" role="button" aria-pressed="' + sel.has(lab.key) +
+    '" aria-label="label ' + lab.key + ', ' + groupName(u, s.labels[lab.key] || null) + '" data-key="' + lab.key + '" title="label ' + lab.key + ' · pano ' + lab.pano_id +
+    '"><img loading="lazy" draggable="false" alt="label ' + lab.key + '" src="' + lab.crop + '" onerror="this.style.opacity=0.15;this.alt=\'no crop for label ' + lab.key + '\'">' + actsHtml(u, s, lab) + '<div class="cap">' +
     (lab.date || '') + (lab.user_kind === 'human' ? ' · <span class="h">human</span>' : '') + '</div></div>';
 }
 function actKeys(key) { return sel.has(key) ? [...sel] : [key]; }   // a selected crop acts for the selection
@@ -946,17 +1014,18 @@ document.getElementById('right').addEventListener('click', ev => {
 function render() {
   if (!UNITS.length) { document.getElementById('title').textContent = 'No units to review.'; return; }
   const u = cur(), s = S();
+  if (!s.opened_at) { s.opened_at = new Date().toISOString(); save(); }   // sticky: first shown
   const nDone = UNITS.filter(x => state[x.id].complete).length, nCj = UNITS.filter(x => state[x.id].cant_judge).length;
   document.getElementById('unitsel').innerHTML = UNITS.map((x, i) => '<option value="' + i + '"' + (i === idx ? ' selected' : '') + '>' +
     (i + 1) + '. ' + x.id.replace(CITY + ':', '') + ' · ' + x.type + ' · ' + x.labels.length + ' labels' +
     (state[x.id].complete ? ' ✓' : state[x.id].cant_judge ? " ✗ can't judge" : '') + '</option>').join('');
   document.getElementById('progress').textContent = (idx + 1) + ' / ' + UNITS.length + ' · ' + nDone + ' complete' + (nCj ? ' · ' + nCj + " can't judge" : '');
   document.getElementById('title').innerHTML = u.id + ' <span class="badge">' + u.type + '</span> ' +
-    (s.cant_judge ? '<span class="badge cj" title="' + s.cant_judge_reason.replace(/"/g, '&quot;') + '">can\'t judge: ' +
-       s.cant_judge_reason.replace(/</g, '&lt;') + '</span> ' :
+    (s.cant_judge ? '<span class="badge cj" title="' + esc(s.cant_judge_reason) + '">can\'t judge: ' +
+       esc(s.cant_judge_reason) + '</span> ' :
        '<span class="badge ' + (s.complete ? 'done' : 'todo') + '">' + (s.complete ? 'complete' : 'to do') + '</span> ') +
     '<span class="meta">' + u.labels.length + ' labels · seed ' + s.seed_arm + (u.pilot ? ' · pilot' : '') +
-    ' · ' + s.uncovered.length + ' uncovered' + (s.inventory_seen ? ' · <b>inventory seen' + (s.edited_after_inventory ? ', edited after' : '') + '</b>' : '') + ' · on screen <span id="elapsed">' + Math.round(s.elapsed_s) + ' s</span></span>';
+    ' · ' + s.uncovered.length + ' uncovered' + (u.inventory_withheld ? ' · inventory withheld until the retest' : '') + (s.inventory_seen ? ' · <b>inventory seen' + (s.edited_after_inventory ? ', edited after' : '') + '</b>' : '') + ' · on screen <span id="elapsed">' + Math.round(s.elapsed_s) + ' s</span></span>';
   const img = document.getElementById('aerial');
   if (img.getAttribute('src') !== u.aerial.file) img.src = u.aerial.file;
   const w = document.getElementById('aerialwrap');
@@ -1001,6 +1070,12 @@ document.addEventListener('keydown', ev => {
     else return;
     ev.preventDefault(); return;
   }
+  const fc = ev.target.closest && ev.target.closest('.crop');
+  if (fc && (ev.key === 'Enter' || ev.key === ' ') && fc.matches(':focus-visible')) {
+    const k = fc.dataset.key; sel.has(k) ? sel.delete(k) : sel.add(k); render();
+    const again = cropEl(k); if (again) again.focus();
+    ev.preventDefault(); return;
+  }
   if (ev.key === ' ') { if (hoverKey) { openLightbox(hoverKey); ev.preventDefault(); } return; }
   const k = ev.key, u = cur();
   if (k === 'ArrowLeft') go(-1);
@@ -1038,7 +1113,8 @@ function exportUnit(u, s) {
           labels: labels, ramps: ramps, uncovered: s.uncovered, complete: !!s.complete,
           cant_judge: !!s.cant_judge, cant_judge_reason: s.cant_judge ? (s.cant_judge_reason || '').trim() : '',
           elapsed_s: Math.round(s.elapsed_s * 10) / 10, note: (s.note || '').trim(),
-          inventory_seen: !!s.inventory_seen, edited_after_inventory: !!s.edited_after_inventory};
+          inventory_seen: !!s.inventory_seen, edited_after_inventory: !!s.edited_after_inventory,
+          opened_at: s.opened_at || null, completed_at: s.completed_at || null};
 }
 document.getElementById('export').onclick = () => {
   const bad = UNITS.filter(u => state[u.id].complete && unassigned(u));
@@ -1109,13 +1185,20 @@ def main(argv=None):
     problem = role_problem(args.bundle, args.rater, args.role)
     if problem:
         raise SystemExit(problem)
-    snapshot, corners, _files = cr.load_bundle(args.bundle)
+    snapshot, corners, files = cr.load_bundle(args.bundle)
     city = snapshot['city']
     out = (args.out or args.bundle / 'gallery')
+    try:      # before anything is created: the page reaches crops by a relative path
+        rel = os.path.relpath(args.bundle.resolve(), out.resolve()).replace(os.sep, '/') + '/'
+    except ValueError:
+        raise SystemExit(f'--out {out} is on another drive than the bundle {args.bundle}: the '
+                         'page reaches crops and aerials by a relative path, so put --out on '
+                         "the bundle's drive (default: <bundle>/gallery)") from None
     out.mkdir(parents=True, exist_ok=True)
-    rel = os.path.relpath(args.bundle.resolve(), out.resolve()).replace(os.sep, '/') + '/'
     units = select_units(corners, args.pilot, args.role)
-    view = [viewer_unit(c, unit_seed_arm(c, args.seed_arm, args.role), rel) for c in units]
+    retest_done = retest_done_units(files)
+    view = [viewer_unit(c, unit_seed_arm(c, args.seed_arm, args.role), rel,
+                        inventory_revealed(c, args.role, retest_done)) for c in units]
     initial, msg = load_prefill(args.bundle, args.rater, snapshot)
     if msg:
         print(msg)
@@ -1126,7 +1209,8 @@ def main(argv=None):
     arms = {}
     for v in view:
         arms[v['seed_arm']] = arms.get(v['seed_arm'], 0) + 1
-    print(f"{len(view)} units ({sum(len(v['labels']) for v in view)} labels), seed arms {arms}")
+    print(f"{len(view)} units ({sum(len(v['labels']) for v in view)} labels), seed arms {arms}; "
+          f"inventory withheld on {sum(1 for v in view if v['inventory_withheld'])} unit(s) (S2)")
     print(f"Gallery: {out / 'index.html'}")
     print(f'Open it, review, Export, and save the download as {args.bundle / file_name}')
     return 0

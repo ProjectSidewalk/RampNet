@@ -235,3 +235,111 @@ def test_main_refuses_role_b_without_rater(tmp_path):
     assert "__CORNERS_SHA__" not in html
     import hashlib
     assert hashlib.sha256((b / "corners.jsonl").read_bytes()).hexdigest() in html
+
+
+# --- review fixes on PR #280 (Amendment 5) ----------------------------------------------
+
+def _bundle(tmp_path, corners=None):
+    b = tmp_path / "cluster_review"
+    b.mkdir()
+    (b / "snapshot.json").write_text(json.dumps(SNAP), encoding="utf-8")
+    (b / "corners.jsonl").write_text("".join(json.dumps(c) + "\n" for c in corners or CORNERS),
+                                     encoding="utf-8")
+    return b
+
+
+def _units_in(html):
+    return json.loads(re.search(r"const UNITS = (.*?);\n", html).group(1))
+
+
+def test_inventory_never_reaches_a_retest_and_waits_for_it_on_double_rated_units(tmp_path):
+    # S2: the first pass's reveal would teach the retest where the ramps are
+    inv = [{"lat": 45.6, "lng": -122.6, "unit_id": "CR1"}]
+    cs = [dict(c, inventory=inv) for c in CORNERS]
+    from cluster_review_gallery import inventory_revealed, retest_done_units
+    assert inventory_revealed(cs[0], "b", set()) is False
+    assert inventory_revealed(cs[0], "a", set()) is False                  # double-rated
+    assert inventory_revealed(cs[0], "a", {"t:res:000001"}) is True        # retest exported
+    assert inventory_revealed(cs[2], "a", set()) is True                   # not double-rated
+    b = _bundle(tmp_path, cs)
+    assert main([str(b), "--role", "b", "--rater", "jon-retest"]) == 0
+    units = _units_in((b / "gallery" / "index.html").read_text(encoding="utf-8"))
+    assert all(u["inventory"] == [] for u in units) and all(u["inventory_withheld"] for u in units)
+    assert main([str(b)]) == 0
+    units = {u["id"]: u for u in _units_in((b / "gallery" / "index.html").read_text(encoding="utf-8"))}
+    assert units["t:res:000001"]["inventory"] == [] and units["t:res:000003"]["inventory"] == inv
+    retest = {"schema": "rampnet.cluster_review/1", "snapshot_sha256": SHA, "role": "b",
+              "rater": "jon-retest",
+              "corners": {"t:res:000001": {"labels": {}, "complete": True}}}
+    (b / "assignments__jon-retest.json").write_text(json.dumps(retest), encoding="utf-8")
+    assert retest_done_units({"x": retest}) == {"t:res:000001"}
+    assert main([str(b)]) == 0
+    units = {u["id"]: u for u in _units_in((b / "gallery" / "index.html").read_text(encoding="utf-8"))}
+    assert units["t:res:000001"]["inventory"] == inv
+    assert units["t:res:000002"]["inventory"] == []                        # its retest: not yet
+
+
+def test_out_on_another_drive_is_refused_before_anything_is_written(tmp_path, monkeypatch):
+    # N3: os.path.relpath raises across Windows drives; refuse cleanly, create nothing
+    import cluster_review_gallery as crg
+    b = _bundle(tmp_path)
+
+    def other_drive(*a, **k):
+        raise ValueError("path is on mount 'D:', start on mount 'C:'")
+    monkeypatch.setattr(crg.os.path, "relpath", other_drive)
+    out = tmp_path / "elsewhere"
+    with pytest.raises(SystemExit, match="another drive"):
+        main([str(b), "--out", str(out)])
+    assert not out.exists()
+
+
+def _node(tmp_path, js):
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node not available")
+    script = tmp_path / "t.js"
+    script.write_text(STATE_BOOTSTRAP_JS + "\n" + js, encoding="utf-8")
+    proc = subprocess.run([node, str(script)], capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_esc_escapes_every_markup_character(tmp_path):
+    # N8: a can't-judge reason goes into a title attribute and the badge text
+    out = _node(tmp_path, "console.log(JSON.stringify(esc(%s)));"
+                % json.dumps('trees & "deck" <b>\'x\'</b>'))
+    assert out == "trees &amp; &quot;deck&quot; &lt;b&gt;&#39;x&#39;&lt;/b&gt;"
+
+
+def test_stale_stores_find_unexported_work_of_an_earlier_bundle(tmp_path):
+    # N5: a re-seed changes the corners.jsonl sha256 and so the storage key
+    pre = "clusterreview:testville:jon:" + SHA + ":"
+    store = {pre + "old": json.dumps({"u1": {"seen": True}, "u2": {"seen": False}}),
+             pre + "old:idx": "3",
+             pre + "new": json.dumps({"u1": {"seen": True}}),
+             pre + "empty": json.dumps({"u1": {"seen": False}}),
+             "clusterreview:testville:A:" + SHA + ":old": json.dumps({"u1": {"complete": True}})}
+    js = ("const S = %s; console.log(JSON.stringify(staleStores(Object.keys(S), k => S[k], "
+          "'testville', 'jon', %s, 'new')));" % (json.dumps(store), json.dumps(SHA)))
+    assert _node(tmp_path, js) == [{"key": pre + "old", "units": 1}]
+
+
+def test_prefill_keeps_the_unit_times(tmp_path):
+    # S3: opened_at / completed_at survive a prefill round trip, and the export writes them
+    f = {"labels": {"1": "r1"}, "ramps": {"r1": {}}, "complete": True,
+         "opened_at": "2026-11-01T09:00:00.000Z", "completed_at": "2026-11-01T09:05:00.000Z"}
+    out = _node(tmp_path, "console.log(JSON.stringify(fromFile(%s)));" % json.dumps(f))
+    assert out["opened_at"] == f["opened_at"] and out["completed_at"] == f["completed_at"]
+    html = build_html([viewer_unit(c, "deployed", "../") for c in CORNERS], SNAP, "testville",
+                      None, "a", None, "assignments.json")
+    assert "completed_at: s.completed_at || null" in html and "s.completed_at = new Date()" in html
+
+
+def test_page_basics_for_assistive_tech():
+    # N2: page language, keyboard-reachable crops with alt text, group number off-colour
+    html = build_html([viewer_unit(c, "deployed", "../") for c in CORNERS], SNAP, "testville",
+                      None, "a", None, "assignments.json")
+    assert '<html lang="en">' in html
+    assert 'tabindex="0" role="button"' in html and "alt=\"label ' + lab.key" in html
+    assert "<title>' + groupName(u, g) + ' ramp point" in html
+    assert "<title>label ' + lab.key + ': ' + groupName(u, v)" in html
