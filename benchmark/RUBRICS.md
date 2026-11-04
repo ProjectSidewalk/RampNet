@@ -278,6 +278,10 @@ the inventory, and say so in the unit's note.
 Since protocol Amendment 5 (2026-11-03) the inventory is never shown in a retest build, and in the
 first pass it is withheld on double-rated units until their retest is exported, so the reveal
 cannot teach the retest where the ramps are.
+In practice (added 2026-11-03, protocol Amendment 5a): every pilot unit is double-rated, so the
+pilot gives no inventory feedback at all. A unit's inventory appears only after its retest is
+exported, the file is saved into the bundle as `assignments__<rater>-retest.json`, and the
+role-a gallery is rebuilt; the retest build itself never shows it.
 
 ### What is scored
 

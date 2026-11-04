@@ -1,6 +1,6 @@
 # Corner-level cluster review: pre-registered protocol (issue #224)
 
-**Status (2026-11-03): pre-registered, no review done; single rater (Amendment 2); sampling rule v2 and can't-judge (Amendment 3); fusion arm pinned and the bundle's fusion seeds rebuilt (Amendment 4); pilot gate, blinding, inventory reveal, washout and reporting amended after a code review (Amendment 5).** Where an amendment and the text above it disagree, the amendment governs. Written before any unit was reviewed and
+**Status (2026-11-03): pre-registered, no review done; single rater (Amendment 2); sampling rule v2 and can't-judge (Amendment 3); fusion arm pinned and the bundle's fusion seeds rebuilt (Amendment 4); pilot gate, blinding, inventory reveal, washout and reporting amended after a code review (Amendment 5); gated-unit count corrected and the washout rule for the gate stated (Amendment 5a).** Where an amendment and the text above it disagree, the amendment governs. Written before any unit was reviewed and
 before any assignment-based number existed. The rubric is [`benchmark/RUBRICS.md` §6](../benchmark/RUBRICS.md)
 (`rubric_version: 1`). Nothing in this document may be changed after the pilot is read except where
 it says so (the pilot pass/fail rule may be revised, once, before the full pass, as rubric v2).
@@ -528,3 +528,48 @@ does not use the one revision of the pilot rule that "Status" allows after the p
     `label_id` [N4].
 13. Nothing else changes: the sampling rule (v2), the strata, the pilot and double-rate draws, the
     rubric (`rubric_version` 1), the metrics and the decision rule's thresholds are as before.
+
+## Amendment 5a (2026-11-03, erratum and clarification to Amendment 5, after the final review of PR #280; before the pilot is read)
+
+No assignments file is in the bundle (`benchmark/vancouver/cluster_review/` holds only the
+export), so no pilot number exists. The review is
+[RampNet#280 (comment)](https://github.com/ProjectSidewalk/RampNet/pull/280#issuecomment-6619816172);
+its finding ids are given in brackets. Amendment 5 is not edited; where the two disagree, this
+amendment governs.
+
+1. **The gated units: 15, of which 14 have labels [N1].** Amendment 5, point 1 says the gate reads
+   "15 of 30" pilot units and quotes "15 gated units". Fifteen pilot units open with different
+   seeds (`rater_b_seed: fusion`), but one of them, `vancouver:res:000019`, has no labels and can
+   never have a pair F1. So **at most 14 units enter the per-unit mean**, and `seed_reference` on
+   the committed bundle reports `units: 15, units_defined: 14`. Their label counts are 3, 4, 9,
+   10, 10, 14, 14, 16, 21, 33, 46, 50, 52 and 81; the four largest carry most of the pooled
+   leg's pairs, which is why the per-unit mean is a second leg. The rule for an undefined unit is
+   the one Amendment 5 already gives, stated in full here:
+   - a gated unit where neither pass puts two labels in one ramp (no labels, or every label alone)
+     has no F1. It is left out of the per-unit mean, adds nothing to the pooled numerator or
+     denominator, and is reported as the difference between `units` and `units_defined` (the
+     agreement script prints "N with a same-ramp pair");
+   - it still counts toward the full-pilot condition (point 2): it must be complete or can't
+     judge in both passes for the gate to decide;
+   - if no gated unit has an F1, the pair-F1 leg fails (on a full pilot `pass` is false, not null).
+
+   The numbers quoted in Amendment 5, point 1 (0.782 / 0.830 and the seed reference 0.783 / 0.830)
+   were already computed over those 14 units; none of them changes.
+2. **Units retested under 7 days count toward the gate [N4].** Amendment 5, point 5 reports
+   agreement with and without the units retested under 7 days but did not say which one the gate
+   reads. **The gate reads every pilot unit**, retested under 7 days or not: dropping units after
+   their times are known would change which units decide, on a gate that already reads 14. A unit
+   retested under 7 days is a deviation; the report lists it (`washout.under_min`) and gives,
+   beside the gate and never gated, the same different-seed pair F1 without those units
+   (`pilot.pair_f1_different_seed_without_under_min`, which the agreement script prints whenever
+   it excludes a unit). The κ leg likewise reads every pilot unit. The read over all completed
+   units without them (`washout.pair_f1_without_under_min`) is unchanged.
+3. **What the rater is told [N3].** `benchmark/RUBRICS.md` §6 gains a dated sentence on the
+   procedure that Amendment 5, point 4 implies: the pilot gives no inventory feedback at all, and a
+   unit's inventory appears only after its retest is saved into the bundle and the role-a gallery is
+   rebuilt. This changes no rule.
+4. Tool changes with no effect on the protocol: the new report field in point 2, and tests that the
+   role-b inventory guard holds after a retest file is in the bundle [SF1] and that the pooled leg
+   of the gate fails a rater on its own [N2].
+5. Nothing else changes: the sampling rule (v2), the strata, the pilot and double-rate draws, the
+   rubric (`rubric_version` 1), the metrics, the thresholds and the decision rule are as before.
