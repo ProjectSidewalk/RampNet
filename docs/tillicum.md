@@ -37,8 +37,9 @@ corrected in place, or marked where they record what was true at the time. The d
   already set 8 CPUs and 200 G, so they are unaffected.
 - **CPU-only jobs are now allowed**, and free through the end of 2026. A new rate starts in
   2027; the notice gives no amount. Dry runs with no GPU landed in the default `gpu-h200`
-  partition, and accepted 32 CPUs but refused 33 on one node. Their start estimate was 5 days
-  out, twice, against the same evening for a 1-GPU dry run; the reason is unknown. They quoted
+  partition, and accepted 32 CPUs but refused 33 on one node. Their start estimate stayed at
+  about 23:00 on 11-08 on both 11-03 and 11-04, against the same evening for a 1-GPU dry run on
+  11-03; the reason is unknown. They quoted
   $0.00, which says nothing about price, because the estimate only counts GPU hours. **No
   CPU-only job has actually been run here.**
 - **TODO when the 2027 rate is announced:** `scripts/analysis/slurm_usage.py` and
@@ -631,8 +632,9 @@ history recorded above than anything model-specific. **It is an inference, not a
 - **Group:** `u_hyak_tillicum_makelab` (UW Groups Service). Jon is a member manager and
   can add users via the Membership tab; UW-IT can grant member-manager rights to others
   on request.
-- **Maintenance:** second Tuesday monthly (next: 2026-11-10, 9 AM to 5 PM). Join the mailing
-  list; put it on the run calendar so long jobs are not scheduled across it.
+- **Maintenance:** second Tuesday monthly. Join the mailing list; put it on the run calendar
+  so long jobs are not scheduled across it. The scheduler can hold nodes past the announced
+  end, so check `scontrol show reservation`.
 - **Support:** `help@uw.edu` with "Tillicum" in the subject; twice-weekly office hours.
 - **Budget changes:** contact UW-IT; enforcement semantics (blocks new submissions vs.
   cancels running jobs) are **UNVERIFIED** and were asked about on 2026-07-30.
