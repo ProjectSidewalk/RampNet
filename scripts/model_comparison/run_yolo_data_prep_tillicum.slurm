@@ -18,10 +18,12 @@
 # equivalent and nothing trained here is comparable to the #51 runs — stop and diff.
 #
 # WHY A GPU JOB FOR CPU WORK
-# Tillicum prohibits CPU-only jobs; every job must request >=1 GPU. The runbook also
-# warns that login nodes reap heavy long-running processes, and on Tillicum that would
-# take the Duo-authenticated SSH master with it. So we hold one GPU and eat the cost:
-# roughly 6-12 h at $0.90/h, i.e. $5-11. Cheap against a $1,500/month cap.
+# When this was written Tillicum prohibited CPU-only jobs, so every job had to request
+# >=1 GPU. The runbook also warns that login nodes reap heavy long-running processes, and
+# on Tillicum that would take the Duo-authenticated SSH master with it. So we held one GPU
+# and ate the cost: roughly 6-12 h at $0.90/h, i.e. $5-11, against what was then a
+# $1,500/month cap. The 2026-11-03 notice says CPU-only jobs are now available (see
+# docs/tillicum.md). The directives below are unchanged, because the no-GPU path is untested.
 #
 #   sbatch scripts/model_comparison/run_yolo_data_prep_tillicum.slurm
 #
