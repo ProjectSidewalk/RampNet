@@ -22,7 +22,7 @@
 # >=1 GPU. The runbook also warns that login nodes reap heavy long-running processes, and
 # on Tillicum that would take the Duo-authenticated SSH master with it. So we held one GPU
 # and ate the cost: roughly 6-12 h at $0.90/h, i.e. $5-11, against what was then a
-# $1,500/month cap. CPU-only jobs have been allowed since the 2026-11-03 notice (see
+# $1,500/month cap. The 2026-11-03 notice says CPU-only jobs are now available (see
 # docs/tillicum.md). The directives below are unchanged, because the no-GPU path is untested.
 #
 #   sbatch scripts/model_comparison/run_yolo_data_prep_tillicum.slurm

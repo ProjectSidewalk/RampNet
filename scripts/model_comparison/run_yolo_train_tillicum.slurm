@@ -7,7 +7,7 @@
 # should not churn. See docs/tillicum.md for the directive-by-directive diff.
 #
 # WHAT CHANGED FROM THE KLONE VERSION, AND WHY
-#   -p ckpt-g2 / -q ckpt-gpu  ->  --qos=normal   Tillicum has NO partitions; QoS only.
+#   -p ckpt-g2 / -q ckpt-gpu  ->  --qos=normal   QoS only; default gpu-h200 partition.
 #   --requeue                 ->  CHAIN=<n>      Nothing preempts on Tillicum, so the
 #                                                requeue is unnecessary -- but the 24 h
 #                                                ceiling is not, so the unattended
@@ -39,9 +39,9 @@
 #SBATCH --mail-type=NONE
 #SBATCH --output=logs/yolo_train_till_%j.out
 #SBATCH --error=logs/yolo_train_till_%j.err
-# The 1-GPU defaults below are deliberate, and all THREE move together: Tillicum binds
-# 8 CPUs *and* 200 GB per GPU, so overriding one alone gets you a starved job rather
-# than a bigger one. For the 2-GPU dataloader arm (see the DEVICE block) override all
+# The 1-GPU defaults below are deliberate, and all THREE move together: Tillicum documents
+# 8 CPUs *and* 200 GB per GPU (it enforces 8 and 240G), so overriding one alone gets you a
+# starved job rather than a bigger one. For the 2-GPU dataloader arm (see the DEVICE block) override all
 # three, and raise WORKERS to match -- ultralytics will not use the extra CPUs on its
 # own:
 #
@@ -56,7 +56,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------------
 # The 2-GPU dataloader trick, and why DEVICE is separate from the allocation.
 #
-# Tillicum fixes CPUs at 8 per GPU. Our tiles arm is I/O-bound (the same epoch took
+# Tillicum caps CPUs at 8 per GPU. Our tiles arm is I/O-bound (the same epoch took
 # 4.1-9.5 h on klone depending only on which node it landed on), so more dataloader
 # workers is the obvious lever -- but on Tillicum more CPUs means more GPUs.
 #
