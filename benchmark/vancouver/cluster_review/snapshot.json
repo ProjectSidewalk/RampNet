@@ -24,8 +24,8 @@
   "fusion": {
    "definition": "fusion_server+attach, auto frame, inventory_clustering.server_arms (= score_server_arms)",
    "results_sha256": "7fdf4005824f3edbebb93c6f365d25c54d1c61384b801b0213aaafa97ef79f28",
-   "n_clusters": 16101,
-   "n_attached": 2274,
+   "n_clusters": 16171,
+   "n_attached": 2313,
    "height": "per-rig",
    "cross_check": "identical partitions (deployed, ps @ 7.5 m, fusion+attach)"
   }
@@ -152,8 +152,8 @@
    }
   }
  },
- "exported_at": "2026-09-30T15:18:49+00:00",
- "exporter": "sidewalk-auto-labeler scripts/export_cluster_review.py@5b21cd9b00d9b00a2b8f9ab5345591eb599182b2",
+ "exported_at": "2026-11-04T00:28:44+00:00",
+ "exporter": "sidewalk-auto-labeler scripts/export_cluster_review.py@a65b91abcfe7cc6ae76cde034c44c11fccea38c5",
  "inventory": {
   "path_in_run": "inventory_oracle/inventory.geojson",
   "url": "https://services.arcgis.com/oNvpY90qsPDizwkN/arcgis/rest/services/COV_TransCurbRamp/FeatureServer/0",

@@ -37,5 +37,34 @@
     "note": "1459 requested, 6 missing, from makelab2:/projects/makeabilitylab/sidewalk_panos/Panoramas/vancouver-wa"
    }
   ]
+ },
+ {
+  "started_at": "2026-11-04T00:27:16+00:00",
+  "argv": [
+   "vancouver",
+   "--run-dir",
+   "../sal-vancouver/runs/vancouver",
+   "--bundle",
+   "../RampNet-wt/cr224-sweep/benchmark/vancouver/cluster_review",
+   "--no-crops",
+   "--skip-aerial"
+  ],
+  "steps": [
+   {
+    "step": "arms",
+    "seconds": 68.08534359931946,
+    "note": "64847 labels; fusion+attach 16171 clusters"
+   },
+   {
+    "step": "overpass",
+    "seconds": 0.31071925163269043,
+    "note": "cached"
+   },
+   {
+    "step": "sample",
+    "seconds": 18.495027780532837,
+    "note": "21341 eligible candidates -> 80 units"
+   }
+  ]
  }
 ]
