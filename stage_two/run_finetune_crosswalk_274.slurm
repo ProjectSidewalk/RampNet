@@ -13,8 +13,13 @@
 #     docs/sparse_supervision.md. Without the flag train.py refuses those JSONs.
 #   * DATA_ROOT, RUNDIR and COPY_DEST under crosswalk274/; EXPECT_TRAIN / EXPECT_VAL must be
 #     set from the export's manifest.json (no default: the root is new).
-#   * STEPS defaults to 1000 optimizer steps at global batch 16 (about two epochs of a ~8k-pano
-#     train split); job name crosswalk274.
+#   * STEPS defaults to 1000 optimizer steps at global batch 16 (about 4.4 epochs of the
+#     3,601-pano train split); job name crosswalk274.
+#   * --epochs is passed (computed from STEPS, ACCUM and EXPECT_TRAIN, or set EPOCHS):
+#     --preset scratch means ONE epoch, which would stop this run at 225 steps. #263's
+#     control never needed it, because its 2,000 steps fit inside one epoch of a far
+#     larger set. train.py allows --grad-accum past epoch 1 only when the per-rank epoch
+#     length is a multiple of it (900 at world size 4, accumulation 4).
 #
 # USAGE (repo root of a checkout of this branch; logs/ must exist; root staged to scrubbed):
 #   RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 SEED=1 EXPECT_TRAIN=<n> EXPECT_VAL=<n> \
@@ -157,6 +162,16 @@ if [ $((GLOBAL_BATCH % WORLD_SIZE)) -ne 0 ]; then
     exit 1
 fi
 ACCUM=$((GLOBAL_BATCH / WORLD_SIZE))
+# Epochs that hold STEPS optimizer steps. The per-rank epoch length is
+# floor(train / world) (DistributedSampler, drop_last), which is what train.py counts.
+if [ -z "${EPOCHS:-}" ]; then
+    if [ -z "$EXPECT_TRAIN" ]; then
+        echo "FATAL: set EPOCHS when EXPECT_TRAIN is empty (it is computed from it)" >&2
+        exit 1
+    fi
+    PER_RANK=$((EXPECT_TRAIN / WORLD_SIZE))
+    EPOCHS=$(( (STEPS * ACCUM + PER_RANK - 1) / PER_RANK ))
+fi
 # latest_checkpoint.pth every 100 optimizer steps (~9 min at 4 GPUs): the granularity a
 # preemption rewinds to.
 CKPT_INTERVAL="${CKPT_INTERVAL:-$((100 * ACCUM))}"
@@ -175,7 +190,7 @@ echo "Copy to:     ${COPY_DEST}"
 echo "Data root:   ${DATA_ROOT}"
 echo "Init:        ${INIT}  sha256 $(sha256sum "$INIT" | cut -c1-16)"
 echo "GPUs:        ${SLURM_NNODES} x ${NPROC_PER_NODE} (world ${WORLD_SIZE}) x accum ${ACCUM} = global batch ${GLOBAL_BATCH}"
-echo "Steps:       ${STEPS} optimizer steps, LR ${LR} constant, ckpt every ${CKPT_INTERVAL} micro-batches"
+echo "Steps:       ${STEPS} optimizer steps over at most ${EPOCHS} epochs, LR ${LR} constant, ckpt every ${CKPT_INTERVAL} micro-batches"
 echo "Node list:   ${SLURM_NODELIST}"
 nvidia-smi --query-gpu=name --format=csv,noheader | sort | uniq -c
 echo "----------------------------"
@@ -204,7 +219,7 @@ srun --export=ALL \
              --rdzv_endpoint $MASTER_ADDR:$MASTER_PORT \
              "$REPO/stage_two/train.py" \
              --seed "$SEED" \
-             --preset scratch --lr "$LR" \
+             --preset scratch --lr "$LR" --epochs "$EPOCHS" \
              --init-weights "$INIT" \
              --data-root "$DATA_ROOT" \
              --checkpoint-dir "$RUNDIR/checkpoints" \

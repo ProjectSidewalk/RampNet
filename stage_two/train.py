@@ -747,14 +747,20 @@ max_micro_steps = args.max_steps * args.grad_accum if args.max_steps else None
 if max_micro_steps is not None:
     total_train_steps = min(total_train_steps, max_micro_steps)
 # Accumulation groups are aligned on global_step, and an epoch's per-rank length need not
-# be a multiple of --grad-accum, so a group could straddle an epoch boundary. The screen
-# this exists for stays inside epoch 1; refuse anything else rather than handle it.
+# be a multiple of --grad-accum, so a group could straddle an epoch boundary. The #82
+# screen stays inside epoch 1. A multi-epoch run (#274: 1,000 steps over a 3,601-pano
+# train split, ~4.4 epochs) is safe exactly when the per-rank epoch length is a multiple
+# of --grad-accum: every epoch then starts on a group boundary, since global_step only
+# ever advances by whole epochs between them (and checkpoints land on group boundaries,
+# checked above). Anything else is refused rather than handled.
 if args.grad_accum > 1 and (max_micro_steps is None
-                            or max_micro_steps > train_sampler.epoch_length):
+                            or (max_micro_steps > train_sampler.epoch_length
+                                and train_sampler.epoch_length % args.grad_accum)):
     if rank == 0:
         print(f"Error: --grad-accum {args.grad_accum} is only supported for a --max-steps run "
-              f"that ends inside the first epoch ({train_sampler.epoch_length} micro-batches "
-              f"per rank at world size {world_size}).")
+              f"that ends inside the first epoch, or whose per-rank epoch length is a "
+              f"multiple of it ({train_sampler.epoch_length} micro-batches per rank at "
+              f"world size {world_size}).")
     cleanup_distributed()
     raise SystemExit(2)
 
