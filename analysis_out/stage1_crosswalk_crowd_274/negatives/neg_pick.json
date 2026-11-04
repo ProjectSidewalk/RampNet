@@ -1,0 +1,14 @@
+{
+ "store_listing_sha256": "479891fd5455b156dc2b97c55ff171a9fef2dd823540bb3fd6facc5566cabdbf",
+ "sampled": 3000,
+ "kept": 598,
+ "dropped": {
+  "osm_crossing_within_60m": 1585,
+  "outside_regions": 107,
+  "sdot_within_60m": 680,
+  "no_metadata": 15,
+  "crowd_crosswalk_within_60m": 15
+ },
+ "neg_m": 60.0,
+ "seed": 274
+}

@@ -1,0 +1,11 @@
+{
+ "city": "burnaby",
+ "confirm_rule": "O&P",
+ "counts": {
+  "crowd_pos": 943,
+  "crowd_unconfirmed": 777,
+  "vistas_unexplained": 12767,
+  "crowd_conflict": 1,
+  "crowd_neg": 4
+ }
+}

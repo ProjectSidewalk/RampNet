@@ -1,0 +1,42 @@
+{
+ "root": "D:/Git/sal-scratch-keep/crosswalk274-root",
+ "panos": 5145,
+ "counts": {
+  "test/dense_ignore/seattle-wa": 257,
+  "test/sparse/amsterdam": 64,
+  "test/sparse/burnaby": 49,
+  "test/sparse/seattle-wa": 91,
+  "test/sparse/teaneck-nj": 23,
+  "test/verified_empty/seattle-wa": 31,
+  "train/dense_ignore/seattle-wa": 1655,
+  "train/sparse/amsterdam": 448,
+  "train/sparse/burnaby": 396,
+  "train/sparse/seattle-wa": 430,
+  "train/sparse/teaneck-nj": 266,
+  "train/verified_empty/seattle-wa": 406,
+  "val/dense_ignore/seattle-wa": 487,
+  "val/sparse/amsterdam": 95,
+  "val/sparse/burnaby": 111,
+  "val/sparse/seattle-wa": 161,
+  "val/sparse/teaneck-nj": 69,
+  "val/verified_empty/seattle-wa": 106
+ },
+ "dropped": {
+  "incomplete_no_positive": 2386,
+  "near_phase1_gt": 340,
+  "negative_has_vistas_paint": 55
+ },
+ "inputs_sha256": {
+  "analysis_out/stage1_crosswalk_crowd_274": "6dcb37f3963525c248953faba6eedb7971f95a2b989bcac96e2903029d8660b4",
+  "analysis_out/stage1_crosswalk_crowd_274/cities/teaneck-nj": "f3b0cd3c8e0bd72511c1d1abd51fcd3082dcddc2f6afe024be867e3740826590",
+  "analysis_out/stage1_crosswalk_crowd_274/cities/amsterdam": "ee6004d186e5facf57108af8224ca8dea4c54038fbb8b08d763df0be43422b28",
+  "analysis_out/stage1_crosswalk_crowd_274/cities/burnaby": "a755eefd577f3f512fb25e92b78917e831658f99f5f4ddddfe38230099a1eeee",
+  "analysis_out/stage1_crosswalk_crowd_274/negatives": "fa1a2d4f5125cb3990664c2f8de0371e6762e3fc56597b4c2a54be3bad3ad784"
+ },
+ "split": {
+  "rule": "split_dataset.py: 60 m groups, seed 42, 70/20/rest",
+  "phase1_exclusion_m": 35.0
+ },
+ "points": 10410,
+ "built_utc": "2026-11-04T18:52:29Z"
+}

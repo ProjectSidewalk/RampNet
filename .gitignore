@@ -559,6 +559,9 @@ analysis_out/stage1_crosswalk_crowd_274/negatives/*
 !analysis_out/stage1_crosswalk_crowd_274/negatives/*.json
 !analysis_out/stage1_crosswalk_crowd_274/negatives/*.jsonl
 !analysis_out/stage1_crosswalk_crowd_274/negatives/*.txt
+!analysis_out/stage1_crosswalk_crowd_274/stage2_build/
+analysis_out/stage1_crosswalk_crowd_274/stage2_build/*
+!analysis_out/stage1_crosswalk_crowd_274/stage2_build/manifest.json
 !analysis_out/stage1_crosswalk_crowd_274/cities/
 analysis_out/stage1_crosswalk_crowd_274/cities/*/*
 !analysis_out/stage1_crosswalk_crowd_274/cities/*/

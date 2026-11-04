@@ -1,0 +1,11 @@
+{
+ "city": "teaneck-nj",
+ "confirm_rule": "O&P",
+ "counts": {
+  "crowd_unconfirmed": 2705,
+  "vistas_unexplained": 16310,
+  "crowd_pos": 546,
+  "crowd_neg": 103,
+  "crowd_conflict": 9
+ }
+}

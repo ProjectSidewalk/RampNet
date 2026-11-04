@@ -67,6 +67,53 @@ rate moves less, 0.78–0.89 across years.
   crosswalk within 10 m. A person clicked paint in that exact pano, so neither the date nor the placement is
   in doubt. B2 then labels the other SDOT crosswalks in the same pano.
 
+## First crosswalk detector: training set and pre-registered evaluation (fixed 2026-11-04, before any checkpoint)
+
+**Training set** (`export_stage2.py build`, `analysis_out/stage1_crosswalk_crowd_274/stage2_build/manifest.json`):
+- 5,145 panos with 10,410 positive points: train 3,601, val 1,029, test 515. The split is `split_dataset.py`'s
+  60 m groups, seed 42.
+- Sources:
+  - Seattle arm C. Complete panos train as `dense_ignore`; incomplete panos that have positives train as
+    `sparse`.
+  - 543 Vistas-verified empty Seattle panos (`verified_empty`).
+  - Teaneck, Amsterdam and Burnaby crowd labels that pass the adopted confirmer `O&P`. These are all `sparse`.
+- Dropped:
+  - 340 panos within 35 m of a Phase 1 GT node (all in Amsterdam);
+  - 2,386 incomplete panos with no positive;
+  - 55 negatives where Vistas saw paint.
+- Teaneck's yield under `O&P` is low: 546 of 3,251 candidates. The cause is OSM, not the crowd. Only 28% of
+  Teaneck clicks are within 10 m of an OSM-marked crossing, against 86% in Amsterdam and 94% in Burnaby, while
+  the exact-pixel paint rate is similar (0.58 vs 0.56–0.71). The rule's yield depends on local OSM tagging.
+
+**Run.** `stage_two/run_finetune_crosswalk_274.slurm`, a single run, set up as follows:
+- Initialisation: from the released RampNet weights (Hub 606a119, sha256 `f2119e3b…`).
+- Schedule: seed 1, 1,000 optimizer steps at global batch 16 (about 4.4 epochs), LR 1e-5 constant.
+- Loss: `--loss-mask --mask-norm pixels`.
+- Only the final checkpoint is scored. No checkpoint is picked on val or test.
+
+**Evaluation.** Detections are heatmap peaks via `peak_local_max`, as Stage 2 inference does. Each detection is
+then held to the reading below that applies to it.
+
+- **(a) Pixels, test split.** Matching is one-to-one with RampNet's matcher (seam wrap) at radius 0.05, Phase
+  0's crosswalk radius.
+  - Recall is over all 515 test panos' positives.
+  - Precision is over complete panos only (`dense_ignore` and `verified_empty`). A detection inside an ignore
+    region counts as neither TP nor FP. On `sparse` panos, unmatched detections are not scored, because their
+    background is unverified.
+  - Confidence threshold: the one that maximises F1 on the **val** split, applied unchanged to test.
+  - Reported overall, per city, per supervision mode, and per capture year (≤2018, 2019–2022, 2023+).
+  - The released curb-ramp weights, scored the same way, give the floor.
+- **(b) Per OSM node, Seattle test split, against the map-only baseline.**
+  - Nodes: the rows of `baseline_nodes.csv` (inside SDOT coverage) within 25 m of a test-split Seattle pano.
+  - Prediction: a node is predicted marked when some detection, ground-raycast at 2.5 m camera height (the
+    pilot's B1 geometry) and kept only within 25 m range, lands within 10 m of it.
+  - Truth: a current SDOT point within 10 m, as in the baseline.
+  - Compared with `osm_marked_signal` **on the same node subset**, not with the city-wide 0.846.
+  - **Passes** if the detector's node F1 is ≥ the baseline's on that subset. Also reported:
+    detector OR `osm_marked_signal`, and the detector on nodes OSM leaves untagged (where a detector adds most).
+- **(c) Phase 1 GT** (Jon's blind ratings across four cities, none of it trained on). Pre-registered separately
+  once the ratings are in. The ratings are not looked at before then.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
