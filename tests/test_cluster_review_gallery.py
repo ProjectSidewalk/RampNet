@@ -258,6 +258,7 @@ def test_inventory_never_reaches_a_retest_and_waits_for_it_on_double_rated_units
     cs = [dict(c, inventory=inv) for c in CORNERS]
     from cluster_review_gallery import inventory_revealed, retest_done_units
     assert inventory_revealed(cs[0], "b", set()) is False
+    assert inventory_revealed(cs[0], "b", {cs[0]["corner_id"]}) is False   # even once retested
     assert inventory_revealed(cs[0], "a", set()) is False                  # double-rated
     assert inventory_revealed(cs[0], "a", {"t:res:000001"}) is True        # retest exported
     assert inventory_revealed(cs[2], "a", set()) is True                   # not double-rated
@@ -277,6 +278,11 @@ def test_inventory_never_reaches_a_retest_and_waits_for_it_on_double_rated_units
     units = {u["id"]: u for u in _units_in((b / "gallery" / "index.html").read_text(encoding="utf-8"))}
     assert units["t:res:000001"]["inventory"] == inv
     assert units["t:res:000002"]["inventory"] == []                        # its retest: not yet
+    # SF1 (final review): a role-b rebuild after part of the retest is saved into the bundle
+    # (the rater carrying on) must still show no inventory, on the retested unit included
+    assert main([str(b), "--role", "b", "--rater", "jon-retest", "--out", str(b / "g2")]) == 0
+    units = _units_in((b / "g2" / "index.html").read_text(encoding="utf-8"))
+    assert units and all(u["inventory"] == [] for u in units)
 
 
 def test_out_on_another_drive_is_refused_before_anything_is_written(tmp_path, monkeypatch):
