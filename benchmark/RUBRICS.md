@@ -275,6 +275,9 @@ protocol depends on that). The first reveal sets a sticky `inventory_seen`; reop
 unit afterwards sets `edited_after_inventory`, and such units are dropped from the inventory
 calibration. Correct a unit after the reveal only if you are sure the correction does not come from
 the inventory, and say so in the unit's note.
+Since protocol Amendment 5 (2026-11-03) the inventory is never shown in a retest build, and in the
+first pass it is withheld on double-rated units until their retest is exported, so the reveal
+cannot teach the retest where the ramps are.
 
 ### What is scored
 

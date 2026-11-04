@@ -1,6 +1,6 @@
 # Corner-level cluster review: pre-registered protocol (issue #224)
 
-**Status (2026-09-30): pre-registered, no review done; single rater (Amendment 2); sampling rule v2 and can't-judge (Amendment 3).** Written before any unit was reviewed and
+**Status (2026-11-03): pre-registered, no review done; single rater (Amendment 2); sampling rule v2 and can't-judge (Amendment 3); fusion arm pinned and the bundle's fusion seeds rebuilt (Amendment 4); pilot gate, blinding, inventory reveal, washout and reporting amended after a code review (Amendment 5).** Where an amendment and the text above it disagree, the amendment governs. Written before any unit was reviewed and
 before any assignment-based number existed. The rubric is [`benchmark/RUBRICS.md` §6](../benchmark/RUBRICS.md)
 (`rubric_version: 1`). Nothing in this document may be changed after the pilot is read except where
 it says so (the pilot pass/fail rule may be revised, once, before the full pass, as rubric v2).
@@ -338,3 +338,193 @@ the change to split from.
    for surprises the rule misses — tree cover or shadow hiding the corner, construction, imagery
    missing or unusable for the window — **never for a unit that is merely hard** (many labels,
    confusing geometry): a hard unit is exactly what the review is for.
+
+## Amendment 4 (2026-11-03, the fusion arm's construction is pinned and the bundle's fusion seeds are rebuilt; before any unit was reviewed)
+
+No unit had been reviewed and no assignments file existed when this was made: nothing had been
+rated in the v2 gallery (Jon, 2026-11-03).
+
+The arm compared in the decision rule changed after this protocol was written. The change was
+made in the auto-labeler for reasons unrelated to this study, before any unit was reviewed, and is
+recorded here so that the pre-registered arm has one definition that the score can be checked
+against.
+
+1. **What changed.** "Seed partitions" defines `fusion` as `fusion_server+attach` "built exactly
+   as `inventory_clustering.score_server_arms` builds it". The auto-labeler's
+   [PR #118](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/118) (merged
+   2026-10-04, merge commit `66c76d6`; the change itself is `104d892`) changed that construction:
+   labels on panos the server arm cannot place are now passed to `clusters_from_server_sites` and
+   `attach_unplaceable` as unpositioned labels instead of being dropped. On the frozen Vancouver
+   inputs (labels sha256 `57c31c73…`, `results.jsonl` sha256 `7fdf4005…`):
+
+   | | as exported (labeler `5b21cd9`, 2026-09-30) | after #118 |
+   | :--- | ---: | ---: |
+   | `fusion_server` clusters | 18,414 | 18,484 |
+   | `fusion_server+attach` clusters | 16,101 | 16,171 |
+   | labels attached | 2,274 | 2,313 |
+   | bundle labels with no fusion group | 5 | 0 |
+
+   The "34 in the Vancouver bundle" quoted under "Metrics" rule (b) and in the first Amendment
+   counted the v1 bundle (1,406 labels) under the old construction; the v2 bundle as first
+   exported had 5, and under the pinned arm fusion holds every label of the bundle. Rule (b)
+   itself is unchanged and still applies to `deployed` (1 label unheld) and to `ps @ t` (no
+   human labels). With the seeds rebuilt (point 3), "built exactly as `score_server_arms`
+   builds it" describes the bundle again.
+
+2. **The arm is pinned.** From this amendment on, `fusion_server+attach` (and `fusion_server`)
+   mean the partition built by `inventory_clustering.server_arms` at sidewalk-auto-labeler commit
+   [`a65b91a`](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/commit/a65b91abcfe7cc6ae76cde034c44c11fccea38c5),
+   the commit the re-seed ran at (`snapshot.json`'s `exporter`). `server_arms` and
+   `score_server_arms` share one helper, `fuse_server_labels`, so the two cannot drift apart again.
+   The construction is the same as at `75b907e`, the head this amendment was drafted against:
+   `git diff 75b907e a65b91a -- scripts/inventory_clustering.py scripts/eval_ps_clustering.py
+   scripts/fuse_sites.py geo.py` is empty. Any later change to that construction is a deviation:
+   it is recorded as a further amendment before any assignment-based number is read, or the score
+   is computed at `a65b91a`. The score report names the labeler commit it ran at
+   (`scripts/cluster_review_score.py`, since `a65b91a`), so the check is a comparison of two
+   strings.
+
+3. **The seeds are rebuilt (no unit had been reviewed in the v2 bundle).** The bundle's `fusion`
+   seeds were rebuilt with the pinned arm:
+
+   - **How.** The exporter was re-run at `a65b91a` with `corners.jsonl` and `snapshot.json`
+     moved aside, `--no-crops --skip-aerial` (crops and aerials are reused, never re-cut: they
+     are git-ignored and are cut on makelab2), on the frozen inputs of the auto-labeler's
+     `docs/ps-clustering-eval.md` "Frozen inputs" table, whose six sha256 all matched. The
+     Overpass payload was the cached one (sha256 `58ce83ff…`; the exporter reuses a cache that
+     answers the same query, which was checked before the run, and the file's sha256 was
+     unchanged after it), never a fresh fetch, which could have changed the draw.
+     `split_figures/state.pkl` already held the #118 arm, so the cross-check still reads
+     "identical partitions". Reconcile: 1,453 crops, 6 listed missing, 80 aerials, OK.
+   - **How the result was checked.** A field-level diff of the old `corners.jsonl` (RampNet
+     `39155d8`, sha256 `4c862a40…`) against the new one (sha256 `d55c71c8…`): the same 80
+     `corner_id`s in the same order; every field of every unit and of every label identical
+     except `labels[].seed_group.fusion` (0 other differences, so centres, node ids, windows,
+     strata, the pilot and double-rate flags, `rater_b_seed`, aerial geometry, inventory points,
+     crop paths and `deployed` seeds are all unchanged); and `snapshot.json` differs only in
+     `exported_at`, `exporter`, `seed_arms.fusion.n_clusters` (16,101 → 16,171) and
+     `seed_arms.fusion.n_attached` (2,274 → 2,313). The `fusion` seed was compared as each unit's
+     in-window partition (group ids are positional and 967 of the 1,459 were renumbered; nothing
+     reads them across builds).
+   - **What changed.** Counting a label with no fusion group as a group of its own, the in-window
+     `fusion` partition changed in **5 of the 80 units, touching 59 labels** (labels in a group
+     that differs between the two builds):
+     - `vancouver:art:000008`: 5 groups plus 4 labels with no fusion group
+       (`vancouver:25640`, `:25641`, `:26221`, `:26222`) become 5 groups; each of the four joins
+       a group and the groups are rebuilt around them (14 labels). The draft of this amendment
+       said "8 groups become 4"; the diff above is the count.
+     - `vancouver:sig:000011` (double-rated, `rater_b_seed: fusion`): `vancouver:75978` moves
+       between two groups (24 labels).
+     - `vancouver:art:000013` (pilot; `rater_b_seed: deployed`): `vancouver:53333` moves from a
+       2-label group into another (9 labels).
+     - `vancouver:sig:000003`: `vancouver:78013`, alone, joins a 2-label group (3 labels).
+     - `vancouver:res:000002`: `vancouver:63712` leaves its group to stand alone (9 labels).
+
+     A sixth unit, `vancouver:sig:000016`, keeps its partition: its label `vancouver:59734` had
+     no fusion group and is now a group of one. Labels with no fusion group: 5 → 0.
+   - **Who sees it.** A `fusion` seed is shown only in the retest of a double-rated unit whose
+     `rater_b_seed` is `fusion` (Amendment 2: the first pass opens with `deployed`). Of the
+     units above, only `vancouver:sig:000011` is one.
+   - **Storage.** The new `corners.jsonl` sha256 changes the gallery's browser-storage key, so no
+     state a browser held for the old bundle is carried over (none was in use). Since Amendment 5
+     the gallery says so when such state exists.
+
+4. Nothing else changes: the sampling rule (v2), the strata, the pilot and double-rate draws, the
+   rubric (`rubric_version` 1), the metrics, the thresholds and the decision rule are as before.
+
+## Amendment 5 (2026-11-03, after a code review of PR #280, before any unit was reviewed)
+
+No unit had been reviewed and no assignments file existed when this was made. The review is
+[RampNet#280 (comment)](https://github.com/ProjectSidewalk/RampNet/pull/280#issuecomment-6618318887);
+its finding ids are given in brackets. This amendment is made before the pilot is read, so it
+does not use the one revision of the pilot rule that "Status" allows after the pilot.
+
+1. **Pilot gate [B1].** The rule under "Pilot pass/fail" (pairwise ≥ 0.90 AND κ ≥ 0.6) is
+   replaced. The pairwise rate is Rand-style: it counts every label pair, and in a 30 m window
+   almost every pair is "different ramp", which any two passes get right. On this bundle the
+   `deployed` and `fusion` seeds already agree on 0.932 of pilot pairs (0.931 before
+   Amendment 4), and a rater who accepts whatever seed is shown scores 0.963 and passes.
+   **New gate:** on the pilot units whose two passes opened with **different** seeds (15 of 30:
+   the `rater_b_seed: fusion` ones), the same-ramp **pair F1** = 2·|pairs both passes put in one
+   ramp| / (|pass A's same-ramp pairs| + |pass B's|), over label pairs both passes gave a ramp
+   key, must be **≥ 0.90 pooled AND ≥ 0.90 as the per-unit mean** (units where neither pass puts
+   two labels together have no F1 and are counted apart); AND the κ leg (point 2).
+   - Why the different-seed units: on a same-seed unit a rater who accepts the seed agrees with
+     themselves perfectly. Over all 30 pilot units that rater scores pair F1 0.854 pooled and
+     **0.901 per-unit mean, which would pass**; on the 15 different-seed units they score 0.782 /
+     0.830 (unit-level bootstrap 95% CI 0.711–0.845 / 0.767–0.895), which is the seed arms' own
+     agreement there (0.783 / 0.830), and fail. The review measured 0.748 pooled / 0.802
+     per-unit mean for `deployed` vs `fusion` seeds over all 30 pilot units on the old seeds;
+     re-seeded it is 0.751 / 0.803. The test `test_new_pilot_gate_fails_a_rater_who_accepts_every_seed`
+     replays that rater on the committed bundle.
+   - Reported beside the gate, not gated: pair F1 overall and on same-seed units, each pooled and
+     per-unit mean with a **unit-level bootstrap 95% CI** (units resampled, never pairs; 2,000
+     resamples, seed 224); `seed_reference`, the seed arms' own pair F1 on the gated units; and
+     the Rand-style pairwise rate, whose Wilson CI treats ~12,000 pairs from 30 units as
+     independent and is therefore far too narrow. With 15 gated units the bootstrap CI will be
+     wide; the gate reads the point estimates, and 0.90 remains a judgment call.
+2. **κ leg and which units the gate reads [S5].** κ(not_ramp) ≥ 0.6 over the pilot units both
+   passes completed, **or κ undefined because both passes are constant and identical** (no
+   `not_ramp`, or no label): that is complete agreement and passes. The `not_ramp` counts are
+   reported beside κ; at ~0.97 live precision they will be small and κ noisy. The gate reads the
+   pilot units from `corners.jsonl`, whatever selection the agreement is computed over, and
+   decides only when every pilot unit is complete or can't judge in **both** passes; otherwise
+   (a partial pilot, no `corners`) `pass` is null.
+3. **No arm-level number before rater A's full pass [S1].** Replaces "Pilot-only scores are
+   descriptive" under "Decision rule": no arm-level number (split, merge, validity, coverage,
+   per-ramp tables, the inventory calibration's arm columns) is computed or read until rater A's
+   full pass is exported. With one rater who is also the PI, an arm table read after 30 units
+   would show which arm is ahead before the other 50 are rated. The pilot is read for agreement,
+   timing and can't-judge counts only (`scripts/cluster_review_agreement.py`). The auto-labeler's
+   scorer refuses any other file (since `a65b91a`); a retest file is scored, as descriptive,
+   only once the bundle's `assignments.json` is rater A's full pass.
+   `--allow-partial-descriptive` overrides and is written into the report; using it before the
+   full pass is a deviation and is recorded as one.
+4. **Inventory reveal [S2].** The city inventory is **never** shown in a retest (`--role b`)
+   build, and in the first pass it is **withheld on double-rated units until that unit's retest
+   is exported** (a later role-a build shows it). The page does not carry the withheld points.
+   Every pilot unit is double-rated, so no pilot unit reveals the inventory in the first pass
+   (22 of the 30 have inventory points; 29 of the 40 double-rated units do). Nothing calibrates
+   on the retest, and the first pass's calibration does not need the reveal; it only sets
+   `inventory_seen` later on those units.
+5. **Washout check [S3].** Each unit's export carries a sticky `opened_at` (first shown) and
+   `completed_at` (first completed), ISO 8601 UTC (`validate()` refuses a malformed one). The
+   agreement report gives each unit's washout in days, the retest's `opened_at` (else its
+   `completed_at`, which overstates it) minus the first pass's `completed_at`, and lists every
+   unit under 7 days and every unit without the times. Agreement is reported with and without
+   the units under 7 days.
+6. **"Intra-rater" in the tool output [S4].** The agreement report carries `agreement_kind`
+   (`intra` | `inter`), in the headline and the JSON. The script infers `intra` when B's rater is
+   `<name>-retest` and otherwise requires `--kind`.
+7. **Seed direction [S7].** Amendment 2, point 5's "close to `ps @ 7.5 m`" and "A PASS is
+   conservative" are withdrawn. On Vancouver the deployed clusters reproduce PS's own algorithm
+   only 0.765 of the time (14,300 of 18,684 clusters; 18,684 deployed vs 17,451 for `ps @ 7.5 m`;
+   the auto-labeler's `docs/ps-clustering-eval.md`, "(a) Verbatim reproduction: 0.765"), so
+   anchoring toward the `deployed` seed does not map onto favouring either decision arm. The
+   direction of any anchoring bias relative to `fusion_server+attach` and `ps @ 7.5 m` is
+   unknown; the `different_seed` agreement bounds its size.
+8. **What the decision can resolve [S8].** "What is a guess" quoted ~2.7 pts at ~600 covered
+   ramps. The bundle implies about **290–380** GT ramps (294 in-window `fusion` seed groups after
+   Amendment 4, 380 `deployed`). At split ≈ 0.13 the Wilson half-width is **±3.4–3.9 pts**
+   against a 5-pt bar, and that is optimistic: ramps cluster in 68 labelled units, the largest
+   with 81 labels. The merge leg's 0.01 margin is about 3 merges. The rule is unchanged; the
+   score report puts a **unit-level paired bootstrap 95% CI of the split-rate difference**
+   (2,000 resamples, seed 224) beside the verdict, as a descriptive number (the auto-labeler's
+   scorer since
+   [`898d8f8`](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/commit/898d8f8336e7829d5dc21b6f2ec03a4f433fc887)).
+9. **The 1 m rule [S9].** Under "Schemas", `validate()` refuses an uncovered point within 1 m of
+   an assigned ramp only in a **complete** unit, as the gallery's Export does: an unplaced ramp
+   sits at the mean of its labels, so regrouping an unfinished unit can move it onto a mark.
+10. **The coverage leg cannot fail [N7].** Under rule (b) every arm clusters the same label set,
+    so coverage is identical across arms by construction and the decision rule's coverage leg is
+    always met. It stays in the rule for the record; the scorer says so beside the verdict.
+11. **The stale "34" [S6]** is corrected by Amendment 4, point 1, not in place.
+12. Tool changes with no effect on the protocol: the gallery declares its language, makes crops
+    keyboard-selectable with alt text and names each star's and dot's group in a tooltip
+    (colour is not the only cue) [N2]; refuses `--out` on another drive before writing anything
+    [N3]; warns when the browser holds unexported work for an earlier `corners.jsonl` of the same
+    city, rater and snapshot, which a re-seed hides [N5]; escapes the can't-judge reason fully
+    [N8]; and `verdict_consistency` looks a label up in its own unit, since a key is a per-city
+    `label_id` [N4].
+13. Nothing else changes: the sampling rule (v2), the strata, the pilot and double-rate draws, the
+    rubric (`rubric_version` 1), the metrics and the decision rule's thresholds are as before.
