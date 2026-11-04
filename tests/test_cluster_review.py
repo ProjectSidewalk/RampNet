@@ -256,6 +256,31 @@ def test_new_pilot_gate_fails_a_rater_who_accepts_every_seed():
     assert cr.agreement(a, same, corners)["pilot"]["pass"] is True
 
 
+def test_pooled_leg_of_the_pilot_gate_bites_on_its_own():
+    # Final review N2: per-unit mean passes, pooled fails. One large unit disagrees (A puts
+    # 6 labels on one ramp, 15 same pairs; B splits them 3 + 3, 6 pairs, all shared:
+    # F1 12/21) beside nine 2-label units both passes read the same (F1 1 each).
+    # Per-unit mean (12/21 + 9) / 10 = 0.957; pooled (12 + 18) / (21 + 18) = 0.769.
+    big = ("1", "2", "3", "4", "5", "6")
+    small = [f"s{i}" for i in range(9)]
+    a = {"big": unit({k: "r1" for k in big})}
+    b = {"big": unit({k: ("r1" if int(k) <= 3 else "r2") for k in big}, seed="fusion")}
+    for s in small:
+        a[s] = unit({"1": "r1", "2": "r1"})
+        b[s] = unit({"1": "r1", "2": "r1"}, seed="fusion")
+    cs = ([dict(corner("big", keys=big), pilot=True)]
+          + [dict(corner(s, keys=("1", "2")), pilot=True) for s in small])
+    rep = cr.agreement(assignments(a, rater="x"), assignments(b, rater="x-retest"), cs)
+    p = rep["pilot"]
+    d = p["pair_f1_different_seed"]
+    assert d["units"] == 10 and d["units_defined"] == 10
+    assert d["per_unit_mean"] == pytest.approx((12 / 21 + 9) / 10)
+    assert d["per_unit_mean"] >= cr.PILOT_MIN_PAIR_F1
+    assert d["pooled"] == pytest.approx(30 / 39) and d["pooled"] < cr.PILOT_MIN_PAIR_F1
+    assert p["full_pilot"] is True and p["kappa_leg"] is True
+    assert p["pair_f1_leg"] is False and p["pass"] is False
+
+
 def test_identical_passes_without_not_ramp_pass_the_kappa_leg():
     # S5: kappa is undefined when both passes are constant and identical: full agreement
     u = unit({"1": "r1", "2": "r1", "3": "r2"})
