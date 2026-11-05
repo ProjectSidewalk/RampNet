@@ -710,11 +710,15 @@ def card_items(anns, preds, threshold):
         for k, g in enumerate(gt):
             if k not in hit:
                 # the best peak in the radius that no other label took (any confidence down to the floor)
-                near = max([q[2] for q in preds.get(pid, []) if (q[0], q[1]) not in used
-                            and dist_sq(q[0], q[1], g[0], g[1], SCALE_X, SCALE_Y, True) < RADIUS_SQ] or [0.0])
-                items.append({**base, "kind": "fn", "x": g[0], "y": g[1], "conf": near})
+                inr = [q for q in preds.get(pid, [])
+                       if dist_sq(q[0], q[1], g[0], g[1], SCALE_X, SCALE_Y, True) < RADIUS_SQ]
+                near = max([q[2] for q in inr if (q[0], q[1]) not in used] or [0.0])
+                # sort_conf (claimed peaks included) is the first gallery's order; the seeded sample draws from it,
+                # so the rated sample of misses stays the same cards
+                items.append({**base, "kind": "fn", "x": g[0], "y": g[1], "conf": near,
+                              "sort_conf": max([q[2] for q in inr] or [0.0])})
     order = {"fp": 0, "fn": 1, "tp": 2}
-    return sorted(items, key=lambda it: (order[it["kind"]], -it["conf"]))
+    return sorted(items, key=lambda it: (order[it["kind"]], -it.get("sort_conf", it["conf"])))
 
 
 def crop_card(img, it, half_w=0.08, out_w=480):
