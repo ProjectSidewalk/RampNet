@@ -640,6 +640,117 @@ def cmd_figures(a):
     log(f"figures -> {p1}, {p2}")
 
 
+def card_items(anns, preds, threshold):
+    """Test-split cards at a threshold: every FP (complete panos), every missed positive, and every TP, each with
+    the pano's other marks. Returns a list of dicts sorted by kind then confidence."""
+    items = []
+    for pid, ann in anns.items():
+        sup = ann.get("supervision") or {}
+        gt = [tuple(q) for q in ann.get("curb_ramp_points_normalized", [])]
+        kept = sorted([q for q in preds.get(pid, []) if q[2] >= threshold], key=lambda q: -q[2])
+        cl = classify_pano(kept, ann)
+        assign = greedy_match([(q[0], q[1]) for q in kept], gt, RADIUS_SQ, SCALE_X, SCALE_Y, wrap_x=True)
+        hit = {k for k, _ in assign if k >= 0}
+        base = {"pano_id": pid, "city": sup.get("city"), "mode": sup.get("mode"),
+                "year": year_bin(ann.get("capture_date")), "gt": gt, "dets": kept,
+                "ignore": [tuple(q) for q in sup.get("ignore_points", [])]}
+        for q, (conf, kind) in zip(kept, cl):
+            if kind in ("tp", "fp"):
+                items.append({**base, "kind": kind, "x": q[0], "y": q[1], "conf": conf})
+        for k, g in enumerate(gt):
+            if k not in hit:
+                near = max([q[2] for q in preds.get(pid, []) if dist_sq(q[0], q[1], g[0], g[1], SCALE_X, SCALE_Y, True)
+                            < RADIUS_SQ] or [0.0])
+                items.append({**base, "kind": "fn", "x": g[0], "y": g[1], "conf": near})
+    order = {"fp": 0, "fn": 1, "tp": 2}
+    return sorted(items, key=lambda it: (order[it["kind"]], -it["conf"]))
+
+
+def crop_card(img, it, half_w=0.08, out_w=480):
+    """A crop centred on the item (seam-wrapped), marks drawn: green GT, red detections above threshold, grey
+    ignore points, the item ringed in yellow. Returns JPEG bytes."""
+    import io
+    from PIL import ImageDraw
+    W, H = img.size
+    cw, ch = int(2 * half_w * W), int(half_w * W)
+    cx, cy = int(it["x"] * W), int(it["y"] * H)
+    x0, y0 = cx - cw // 2, max(0, min(H - ch, cy - ch // 2))
+    import numpy as np
+    from PIL import Image
+    arr = np.asarray(img)
+    cols = np.arange(x0, x0 + cw) % W             # seam wrap
+    crop = Image.fromarray(arr[y0:y0 + ch][:, cols])
+    s = out_w / cw
+    crop = crop.resize((out_w, int(ch * s)))
+    d = ImageDraw.Draw(crop)
+
+    def local(px, py):
+        lx = (px * W - x0) % W
+        return lx * s, (py * H - y0) * s
+
+    r_match = RADIUS * W * s      # the matcher's radius is RADIUS pano widths in x and in y (y counts half of H)
+    for px, py in it["ignore"]:
+        lx, ly = local(px, py)
+        d.ellipse((lx - 5, ly - 5, lx + 5, ly + 5), outline=(160, 160, 160), width=2)
+    for px, py in it["gt"]:
+        lx, ly = local(px, py)
+        d.ellipse((lx - 7, ly - 7, lx + 7, ly + 7), outline=(40, 220, 60), width=3)
+    for px, py, c in it["dets"]:
+        lx, ly = local(px, py)
+        d.line((lx - 7, ly, lx + 7, ly), fill=(255, 40, 40), width=3)
+        d.line((lx, ly - 7, lx, ly + 7), fill=(255, 40, 40), width=3)
+    lx, ly = local(it["x"], it["y"])
+    d.ellipse((lx - r_match, ly - r_match, lx + r_match, ly + r_match), outline=(255, 220, 0), width=1)
+    buf = io.BytesIO()
+    crop.save(buf, "JPEG", quality=82)
+    return buf.getvalue()
+
+
+def cmd_gallery(a):
+    """Local HTML (untracked: it embeds imagery) of a model's test FPs, misses and a sample of TPs."""
+    import base64
+    import html
+    from PIL import Image
+    res = json.load(open(os.path.join(a.scores, "scores.json"), encoding="utf-8"))
+    t = res["models"][a.label]["threshold"] if a.threshold is None else a.threshold
+    anns = load_split(a.root, "test")
+    items = card_items(anns, load_preds(a.preds, a.label, "test", anns), t)
+    rng = random.Random(BOOT_SEED)
+    pick = []
+    for kind, n in (("fp", a.n), ("fn", a.n), ("tp", a.n // 2)):
+        group = [it for it in items if it["kind"] == kind]
+        pick += sorted(rng.sample(group, min(n, len(group))), key=lambda it: -it["conf"])
+    os.makedirs(a.out, exist_ok=True)
+    cache = {}
+    cards = []
+    for it in pick:
+        if it["pano_id"] not in cache:
+            cache.clear()
+            cache[it["pano_id"]] = Image.open(os.path.join(a.root, "test", f"{it['pano_id']}.jpg")).convert("RGB")
+        b64 = base64.b64encode(crop_card(cache[it["pano_id"]], it)).decode("ascii")
+        cap = (f"{it['kind'].upper()} conf {it['conf']:.2f} · {it['city']} · {it['mode']} · {it['year']} · "
+               f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})")
+        cards.append(f'<figure class="{it["kind"]}"><img src="data:image/jpeg;base64,{b64}" '
+                     f'alt="{html.escape(cap)}"><figcaption>{html.escape(cap)}</figcaption></figure>')
+    counts = {k: sum(1 for it in items if it["kind"] == k) for k in ("fp", "fn", "tp")}
+    page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>{html.escape(a.label)} test cards</title>
+<style>body{{font:14px system-ui,sans-serif;margin:16px;background:#fff;color:#222}}
+figure{{display:inline-block;margin:6px;width:480px;vertical-align:top}}img{{width:100%;display:block}}
+figcaption{{font-size:12px}}.fp{{border-top:4px solid #d33}}.fn{{border-top:4px solid #e90}}
+.tp{{border-top:4px solid #2a2}}</style></head><body>
+<h1>{html.escape(a.label)}: test cards at threshold {t:.2f}</h1>
+<p>All test-split items: {counts['fp']} false positives (complete panos), {counts['fn']} missed positives,
+{counts['tp']} true positives. Shown: a seeded sample of up to {a.n} FP, {a.n} misses and {a.n // 2} TP.
+Green ring = labelled positive, red cross = detection at or above the threshold, grey ring = ignore point,
+yellow ellipse = the match radius around the card's item. A miss's "conf" is the best peak within the radius.</p>
+{''.join(cards)}</body></html>"""
+    path = os.path.join(a.out, f"gallery_{a.label}.html")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(page)
+    log(f"gallery -> {path} ({len(cards)} cards)")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -665,8 +776,17 @@ def main():
     o.add_argument("--root", required=True)
     o.add_argument("--preds", required=True)
     o.add_argument("--label", default="label_ceiling")
+    q = sub.add_parser("gallery", help="local HTML of a model's test FPs / misses / TPs (untracked)")
+    q.add_argument("--root", required=True)
+    q.add_argument("--preds", required=True)
+    q.add_argument("--scores", required=True, help="the score --out dir (for the threshold)")
+    q.add_argument("--label", required=True)
+    q.add_argument("--threshold", type=float, default=None)
+    q.add_argument("--n", type=int, default=60)
+    q.add_argument("--out", required=True)
     a = ap.parse_args()
-    {"infer": cmd_infer, "score": cmd_score, "figures": cmd_figures, "oracle": cmd_oracle}[a.cmd](a)
+    {"infer": cmd_infer, "score": cmd_score, "figures": cmd_figures, "oracle": cmd_oracle,
+     "gallery": cmd_gallery}[a.cmd](a)
 
 
 def cmd_oracle(a):
