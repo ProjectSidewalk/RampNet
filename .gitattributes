@@ -148,3 +148,7 @@ analysis_out/pano_tilt/** text eol=lf
 
 # Lyon audit results (#159): written LF and checked byte for byte by lyon_review_159.py.
 analysis_out/lyon_review_159/** text eol=lf
+
+# #150 dataset cards: export_dataset_cards.py --check compares these renders byte for byte with a
+# fresh LF render, so an autocrlf=true clone must not rewrite their line endings.
+docs/data/hf_cards/*.md text eol=lf

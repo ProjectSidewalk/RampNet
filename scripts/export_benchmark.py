@@ -67,7 +67,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hf_export_common import (  # noqa: E402
-    clear_build_dir, git_commit, hf_features_metadata, hf_value, sha256_bytes)
+    clear_build_dir, git_commit, hf_features_metadata, hf_value, sha256_bytes, size_category)
 
 Image.MAX_IMAGE_PIXELS = None          # benchmark natives reach 16384x8192; not a decompression bomb
 
@@ -685,6 +685,25 @@ def reviewed_rows(benchmark, city):
     return len(json.loads(path.read_text(encoding="utf-8")).get("panos", {}))
 
 
+def split_table(extents):
+    """The card's per-split table (#150): imagery source, reviewed panoramas, capture months.
+
+    `extents` are rows shaped like Croissant's `split_extents` record set (keys `split`,
+    `imagery_source`, `num_panoramas`, `capture_date_min`, `capture_date_max`). render_card
+    derives them from the committed bundles with validate_croissant.derive_split_extents, the
+    function the Croissant validator re-derives that record set with; export_dataset_cards.py
+    reads them from croissant/rampnet-benchmark.json. Either way they are the same numbers.
+    """
+    lines = ["| split | imagery | reviewed panoramas | capture months |",
+             "| :--- | :--- | ---: | :--- |"]
+    for row in sorted(extents, key=lambda r: r["split"]):
+        lines.append("| `{}` | {} | {:,} | {} to {} |".format(
+            row["split"], row["imagery_source"], row["num_panoramas"],
+            row["capture_date_min"], row["capture_date_max"]))
+    lines.append("| **total** | | **{:,}** | |".format(sum(r["num_panoramas"] for r in extents)))
+    return "\n".join(lines)
+
+
 def render_card(out, benchmark, repo_id, index):
     # A split counts once it has ground truth; imagery is counted separately, because the two
     # differ while any split is records-only (see records_only_splits).
@@ -692,6 +711,8 @@ def render_card(out, benchmark, repo_id, index):
     imagery = sorted(set(sum((index.get(c, []) for c in IMAGERY_CONFIGS), [])))
     total = package_bytes(out, index)
     overlap_md, overlap_counts = overlap_listing(benchmark, cities)
+    from validate_croissant import derive_split_extents     # stdlib only; the Croissant rule
+    extents = derive_split_extents(cities, benchmark)
     card_text = TEMPLATE.read_text(encoding="utf-8").format(
         configs_yaml=configs_yaml(index),
         git_commit=git_commit(),
@@ -708,6 +729,8 @@ def render_card(out, benchmark, repo_id, index):
         bend_unseen_rows=reviewed_rows(benchmark, "bend") - overlap_counts.get("bend", 0),
         split_date_range=split_date_range(benchmark, cities),
         total_gb="{:.2f}".format(total / 1e9),
+        split_table=split_table(extents),
+        size_category=size_category(sum(r["num_panoramas"] for r in extents)),
     )
     (out / "README.md").write_text(card_text, encoding="utf-8")
     return total
