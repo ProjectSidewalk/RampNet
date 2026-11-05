@@ -738,25 +738,58 @@ def crop_card(img, it, half_w=0.08, out_w=480):
         return lx * s, (py * H - y0) * s
 
     r_match = RADIUS * W * s      # the matcher's radius is RADIUS pano widths in x and in y (y counts half of H)
+    sx, sy = it["x"], it["y"]
     for px, py in it["ignore"]:
         lx, ly = local(px, py)
         d.ellipse((lx - 5, ly - 5, lx + 5, ly + 5), outline=(160, 160, 160), width=2)
     for px, py in it["gt"]:
         lx, ly = local(px, py)
-        d.ellipse((lx - 7, ly - 7, lx + 7, ly + 7), outline=(40, 220, 60), width=3)
+        big = it["kind"] == "fn" and (px, py) == (sx, sy)          # the card's subject when it is a miss
+        r, w = (12, 5) if big else (7, 2)
+        d.ellipse((lx - r, ly - r, lx + r, ly + r), outline=(40, 220, 60), width=w)
     for px, py, c in it["dets"]:
         lx, ly = local(px, py)
-        d.line((lx - 7, ly, lx + 7, ly), fill=(255, 40, 40), width=3)
-        d.line((lx, ly - 7, lx, ly + 7), fill=(255, 40, 40), width=3)
-    lx, ly = local(it["x"], it["y"])
+        if it["kind"] != "fn" and (px, py) == (sx, sy):
+            continue                                                # the subject is drawn last, large
+        d.line((lx - 5, ly, lx + 5, ly), fill=(255, 90, 90), width=1)
+        d.line((lx, ly - 5, lx, ly + 5), fill=(255, 90, 90), width=1)
+    lx, ly = local(sx, sy)
+    if it["kind"] != "fn":                                          # the card's subject detection: outlined, ringed
+        for col, w in (((255, 255, 255), 7), ((230, 0, 0), 3)):
+            d.line((lx - 11, ly, lx + 11, ly), fill=col, width=w)
+            d.line((lx, ly - 11, lx, ly + 11), fill=col, width=w)
+        d.ellipse((lx - 16, ly - 16, lx + 16, ly + 16), outline=(255, 255, 255), width=2)
     d.ellipse((lx - r_match, ly - r_match, lx + r_match, ly + r_match), outline=(255, 220, 0), width=1)
     buf = io.BytesIO()
     crop.save(buf, "JPEG", quality=82)
     return buf.getvalue()
 
 
+VERDICTS = {   # per card kind: (code, button text); keys 1-3 pick them in order
+    "fp": (("crosswalk", "Crosswalk: label gap"), ("not_crosswalk", "Not a crosswalk"), ("unsure", "Unsure")),
+    "fn": (("real_miss", "Crosswalk: real miss"), ("no_crosswalk", "No crosswalk: label wrong"),
+           ("unsure", "Unsure")),
+    "tp": (("crosswalk", "Crosswalk"), ("not_crosswalk", "Not a crosswalk"), ("unsure", "Unsure")),
+}
+
+
+def card_id(it):
+    """Stable id of one card: kind, pano and the subject point to 3 decimals (as the caption prints it).
+
+    >>> card_id({"kind": "fp", "pano_id": "abc", "x": 0.41049, "y": 0.5512})
+    'fp:abc:0.410:0.551'
+    """
+    return f"{it['kind']}:{it['pano_id']}:{it['x']:.3f}:{it['y']:.3f}"
+
+
 def cmd_gallery(a):
-    """Local HTML (untracked: it embeds imagery) of a model's test FPs, misses and a sample of TPs."""
+    """Local rating page (untracked: it embeds imagery) of a model's test items, one card per item.
+
+    A card's subject is ONE detection (FP/TP: the large outlined cross) or ONE labelled point (miss: the large
+    green ring); other marks on the crop are context. Every FP is shown, plus seeded samples of misses and TPs
+    (the same seeded misses as the first, view-only gallery). Verdicts save in the browser and export as CSV;
+    --prefill seeds verdicts from such a CSV (columns card_id, verdict, note).
+    """
     import base64
     import html
     from PIL import Image
@@ -766,9 +799,14 @@ def cmd_gallery(a):
     items = card_items(anns, load_preds(a.preds, a.label, "test", anns), t)
     rng = random.Random(BOOT_SEED)
     pick = []
-    for kind, n in (("fp", a.n), ("fn", a.n), ("tp", a.n // 2)):
+    for kind, n in (("fp", a.n), ("fn", a.n), ("tp", a.n_tp)):
         group = [it for it in items if it["kind"] == kind]
-        pick += sorted(rng.sample(group, min(n, len(group))), key=lambda it: -it["conf"])
+        sample = rng.sample(group, min(n, len(group)))   # drawn even for fp, so the miss sample stays the same
+        pick += sorted(group if kind == "fp" else sample, key=lambda it: -it["conf"])
+    prefill = {}
+    if a.prefill:
+        with open(a.prefill, encoding="utf-8", newline="") as f:
+            prefill = {r["card_id"]: {"verdict": r["verdict"], "note": r.get("note", "")} for r in csv.DictReader(f)}
     os.makedirs(a.out, exist_ok=True)
     cache = {}
     cards = []
@@ -777,27 +815,109 @@ def cmd_gallery(a):
             cache.clear()
             cache[it["pano_id"]] = Image.open(os.path.join(a.root, "test", f"{it['pano_id']}.jpg")).convert("RGB")
         b64 = base64.b64encode(crop_card(cache[it["pano_id"]], it)).decode("ascii")
+        cid = card_id(it)
         cap = (f"{it['kind'].upper()} conf {it['conf']:.2f} · {it['city']} · {it['mode']} · {it['year']} · "
                f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})")
-        cards.append(f'<figure class="{it["kind"]}"><img src="data:image/jpeg;base64,{b64}" '
-                     f'alt="{html.escape(cap)}"><figcaption>{html.escape(cap)}</figcaption></figure>')
+        subject = "this miss (large green ring)" if it["kind"] == "fn" else "this detection (large outlined cross)"
+        btns = "".join(f'<button type="button" data-v="{v}" aria-pressed="false">{k + 1}. {html.escape(txt)}'
+                       f'</button>' for k, (v, txt) in enumerate(VERDICTS[it["kind"]]))
+        meta = json.dumps({"card_id": cid, "kind": it["kind"], "pano_id": it["pano_id"], "x": round(it["x"], 4),
+                           "y": round(it["y"], 4), "conf": round(it["conf"], 3), "city": it["city"],
+                           "mode": it["mode"], "year": it["year"]})
+        cards.append(f'<figure class="card {it["kind"]}" tabindex="0" data-meta="{html.escape(meta)}">'
+                     f'<img src="data:image/jpeg;base64,{b64}" alt="{html.escape(cap)}">'
+                     f'<figcaption>{html.escape(cap)}</figcaption>'
+                     f'<div class="rate" role="group" aria-label="Verdict on {subject}">{btns}</div>'
+                     f'<label>Note <input type="text" class="note" placeholder="e.g. bus lane, stop bar"></label>'
+                     f'</figure>')
     counts = {k: sum(1 for it in items if it["kind"] == k) for k in ("fp", "fn", "tp")}
+    shown = {k: sum(1 for it in pick if it["kind"] == k) for k in ("fp", "fn", "tp")}
+    store_key = f"cw274-rate-{a.label}"
     page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1"><title>{html.escape(a.label)} test cards</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>{html.escape(a.label)} rating</title>
 <style>body{{font:14px system-ui,sans-serif;margin:16px;background:#fff;color:#222}}
-figure{{display:inline-block;margin:6px;width:480px;vertical-align:top}}img{{width:100%;display:block}}
-figcaption{{font-size:12px}}.fp{{border-top:4px solid #d33}}.fn{{border-top:4px solid #e90}}
-.tp{{border-top:4px solid #2a2}}</style></head><body>
-<h1>{html.escape(a.label)}: test cards at threshold {t:.2f}</h1>
-<p>All test-split items: {counts['fp']} false positives (complete panos), {counts['fn']} missed positives,
-{counts['tp']} true positives. Shown: a seeded sample of up to {a.n} FP, {a.n} misses and {a.n // 2} TP.
-Green ring = labelled positive, red cross = detection at or above the threshold, grey ring = ignore point,
-yellow ellipse = the match radius around the card's item. A miss's "conf" is the best peak within the radius.</p>
-{''.join(cards)}</body></html>"""
-    path = os.path.join(a.out, f"gallery_{a.label}.html")
+.bar{{position:sticky;top:0;background:#fff;padding:8px 0;border-bottom:1px solid #ccc;z-index:1}}
+figure{{display:inline-block;margin:6px;width:480px;vertical-align:top;padding-bottom:6px}}
+img{{width:100%;display:block}}figcaption{{font-size:12px}}
+.fp{{border-top:4px solid #d33}}.fn{{border-top:4px solid #e90}}.tp{{border-top:4px solid #2a2}}
+figure:focus{{outline:3px solid #36f;outline-offset:2px}}figure.done{{opacity:.55}}
+.rate button{{margin:4px 4px 0 0;font:inherit;padding:3px 8px;border:1px solid #888;background:#f4f4f4;border-radius:4px}}
+.rate button[aria-pressed=true]{{background:#225;color:#fff;border-color:#225}}
+label{{display:block;margin-top:4px;font-size:12px}}.note{{width:380px;font:inherit}}
+h2{{margin-top:24px}}</style></head><body>
+<h1>{html.escape(a.label)}: rate test items at threshold {t:.2f}</h1>
+<p>Each card rates <strong>one</strong> item. On a red (FP) or green-bar (TP) card that is the
+<strong>large outlined cross</strong>; on an orange (miss) card it is the <strong>large green ring</strong>.
+Small thin crosses are the model's other detections and small green rings other labels, shown for context
+only; each has its own card if it is an FP or miss. Grey ring = ignore point; yellow ellipse = match radius.</p>
+<p>Keys: click or Tab to a card, then <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> to rate (jumps to the next card),
+<kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em> when done.
+Test split has {counts['fp']} FPs (all shown), {counts['fn']} misses ({shown['fn']} sampled),
+{counts['tp']} TPs ({shown['tp']} sampled).</p>
+<div class="bar"><span id="prog"></span> &nbsp;
+<label style="display:inline"><input type="checkbox" id="hide"> hide rated</label> &nbsp;
+<button type="button" id="exp">Export CSV</button></div>
+{''.join(cards)}
+<script>
+const KEY = {json.dumps(store_key)}, PREFILL = {json.dumps(prefill)};
+let state = {{}};
+try {{ state = JSON.parse(localStorage.getItem(KEY) || "{{}}"); }} catch (e) {{}}
+for (const [k, v] of Object.entries(PREFILL)) if (!state[k]) state[k] = {{...v, rated_at: "prefill"}};
+const cards = [...document.querySelectorAll("figure.card")];
+const save = () => {{ try {{ localStorage.setItem(KEY, JSON.stringify(state)); }} catch (e) {{}} }};
+const meta = c => JSON.parse(c.dataset.meta);
+function paint(c) {{
+  const s = state[meta(c).card_id] || {{}};
+  c.querySelectorAll(".rate button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === s.verdict)));
+  c.querySelector(".note").value = s.note || "";
+  c.classList.toggle("done", !!s.verdict);
+  c.hidden = document.getElementById("hide").checked && !!s.verdict;
+}}
+function progress() {{
+  const by = {{}};
+  for (const c of cards) {{ const m = meta(c); by[m.kind] = by[m.kind] || [0, 0]; by[m.kind][1]++;
+    if ((state[m.card_id] || {{}}).verdict) by[m.kind][0]++; }}
+  const name = {{fp: "FPs", fn: "misses", tp: "TPs"}};
+  document.getElementById("prog").textContent = "Rated: " +
+    Object.entries(by).map(([k, [d, n]]) => `${{name[k]}} ${{d}}/${{n}}`).join(" · ");
+}}
+function setVerdict(c, v) {{
+  const id = meta(c).card_id, s = state[id] || {{}};
+  state[id] = {{...s, verdict: s.verdict === v ? "" : v, rated_at: new Date().toISOString()}};
+  save(); paint(c); progress();
+}}
+for (const c of cards) {{
+  c.querySelectorAll(".rate button").forEach(b => b.addEventListener("click", () => setVerdict(c, b.dataset.v)));
+  c.querySelector(".note").addEventListener("input", e => {{
+    const id = meta(c).card_id; state[id] = {{...(state[id] || {{}}), note: e.target.value}}; save(); }});
+  c.addEventListener("keydown", e => {{
+    if (e.target.tagName === "INPUT") return;
+    const btns = c.querySelectorAll(".rate button"), k = Number(e.key);
+    if (k >= 1 && k <= btns.length) {{
+      setVerdict(c, btns[k - 1].dataset.v);
+      const nxt = cards.slice(cards.indexOf(c) + 1).find(x => !x.hidden); if (nxt) nxt.focus();
+    }} else if (e.key === "n") {{
+      const nxt = cards.find(x => !(state[meta(x).card_id] || {{}}).verdict); if (nxt) nxt.focus();
+    }}
+  }});
+  paint(c);
+}}
+document.getElementById("hide").addEventListener("change", () => cards.forEach(paint));
+document.getElementById("exp").addEventListener("click", () => {{
+  const cols = ["card_id", "kind", "pano_id", "x", "y", "conf", "city", "mode", "year", "verdict", "note", "rated_at"];
+  const q = v => `"${{String(v ?? "").replace(/"/g, '""')}}"`;
+  const rows = cards.map(c => {{ const m = meta(c), s = state[m.card_id] || {{}};
+    return cols.map(k => q(k in m ? m[k] : s[k])).join(","); }});
+  const blob = new Blob([[cols.join(","), ...rows].join("\\n") + "\\n"], {{type: "text/csv"}});
+  const u = URL.createObjectURL(blob), el = document.createElement("a");
+  el.href = u; el.download = "ratings_{a.label}.csv"; el.click(); URL.revokeObjectURL(u);
+}});
+progress();
+</script></body></html>"""
+    path = os.path.join(a.out, f"rate_{a.label}.html")
     with open(path, "w", encoding="utf-8") as f:
         f.write(page)
-    log(f"gallery -> {path} ({len(cards)} cards)")
+    log(f"rating page -> {path} ({len(cards)} cards, {len(prefill)} prefilled)")
 
 
 def main():
@@ -834,7 +954,9 @@ def main():
     q.add_argument("--scores", required=True, help="the score --out dir (for the threshold)")
     q.add_argument("--label", required=True)
     q.add_argument("--threshold", type=float, default=None)
-    q.add_argument("--n", type=int, default=60)
+    q.add_argument("--n", type=int, default=60, help="misses sampled (every FP is shown)")
+    q.add_argument("--n-tp", type=int, default=30, help="TPs sampled")
+    q.add_argument("--prefill", default=None, help="CSV of earlier verdicts: card_id, verdict, note")
     q.add_argument("--out", required=True)
     b = sub.add_parser("bprime-sample", help="(b') stratified Seattle node sample + the store panos to fetch")
     b.add_argument("--root", required=True)
