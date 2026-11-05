@@ -771,11 +771,11 @@ def crop_card(img, it, half_w=0.08, out_w=480):
     return buf.getvalue()
 
 
-VERDICTS = {   # per card kind: (code, button text); keys 1-3 pick them in order
+VERDICTS = {   # per card kind: (code, button text); keys 1-4 pick them in order
     "fp": (("crosswalk", "Correct: it is a crosswalk"), ("not_crosswalk", "Wrong: not a crosswalk"),
            ("unsure", "Unsure")),
     "fn": (("real_miss", "Real crosswalk, model missed it"), ("no_crosswalk", "No crosswalk here: label wrong"),
-           ("unsure", "Unsure")),
+           ("unsure", "Unsure"), ("found_same", "Model did find it: a cross is on this crosswalk")),
     "tp": (("crosswalk", "Correct: it is a crosswalk"), ("not_crosswalk", "Wrong: not a crosswalk"),
            ("unsure", "Unsure")),
 }
@@ -785,7 +785,8 @@ SECTION_HEAD = {   # section title and the one question its cards ask
            "Ignore labels elsewhere on the crop."),
     "fn": ("Misses", "A label no detection was matched to. <strong>Is there a crosswalk at the large green ring?</strong> "
            "If yes, it is a real miss even when the model found the intersection's other crosswalks; each label is "
-           "one crosswalk. \"Best unclaimed peak\" is the strongest model response inside the yellow circle that "
+           "one crosswalk. If a small cross already sits on that same crosswalk (another label on it took the match: a "
+           "duplicate label), press 4. \"Best unclaimed peak\" is the strongest model response inside the yellow circle that "
            "another label did not already take (0.00 = nothing there)."),
     "tp": ("True positives", "The model matched a label. <strong>Is the outlined cross on a crosswalk?</strong>"),
 }
@@ -905,7 +906,7 @@ label. Is the large cross on a crosswalk?</li>
 <li>{LEGEND_GLYPHS['ignore']} ignore point: detections here are not scored</li>
 <li>{LEGEND_GLYPHS['radius']} match radius: a detection and a label inside it can pair up</li>
 </ul>
-<p>Keys: click or Tab to a card, then <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> to rate (jumps to the next card),
+<p>Keys: click or Tab to a card, then <kbd>1</kbd>-<kbd>4</kbd> to rate (jumps to the next card),
 <kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em> when done.
 Test split has {counts['fp']} FPs (all shown), {counts['fn']} misses ({shown['fn']} sampled),
 {counts['tp']} TPs ({shown['tp']} sampled).</p>
