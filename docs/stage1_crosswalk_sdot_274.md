@@ -114,6 +114,35 @@ then held to the reading below that applies to it.
 - **(c) Phase 1 GT** (Jon's blind ratings across four cities, none of it trained on). Pre-registered separately
   once the ratings are in. The ratings are not looked at before then.
 
+### Scoring implementation (fixed 2026-11-04, after training, before any score was read)
+
+`scripts/analysis/stage1_crosswalk_sdot_274/score_274.py`. The text above left these choices open. They are fixed
+here, in the commit that adds the scorer, before it read any model output.
+1. **Peaks.** RampNet's frozen benchmark extractor (`operating_point_curve.py extract` via `threshold_sweep`):
+   - resize to 2048×4096, ImageNet normalisation, fp32, no flip-TTA (the deployed labeler runs none);
+   - `peak_local_max(min_distance=10, exclude_border=False)` down to a 0.05 floor, argmax decode, no seam NMS.
+2. **Ignore regions.** Matching gives GT priority. An unmatched detection on a complete pano is ignored when
+   either:
+   - it is within the match radius (0.05) of an ignore point, as `detection_eval.score_pano` does; or
+   - it falls inside one of the pano's `ignore_boxes`.
+3. **Precision counts only complete panos**, TPs included. A TP on a `sparse` pano counts toward recall only.
+4. **Threshold.**
+   - Picked on a 0.05–0.95 grid in steps of 0.01, by F1 on val; ties go to the lowest threshold.
+   - Each model gets its own val-chosen threshold, the released curb-ramp floor included.
+5. **(b) geometry.**
+   - Detections at the model's val threshold are inverted through the pilot's B1 projection (`pilot.project`,
+     a round trip pinned by a doctest).
+   - Pano position and heading come from streetlevel (`crowd_meta.jsonl`, the frame the SDOT arm projected in),
+     else Project Sidewalk's record (`ps_meta.jsonl`, `negatives/neg_meta.jsonl`).
+   - Node coordinates come from the Phase 0 census tiles that `baseline_nodes.csv` was built from.
+   - "Untagged" means `osm_class == unknown`.
+   - A node bootstrap of the F1 difference is reported as exploratory and is not part of the pass rule.
+6. **A label-ceiling row.** The training labels themselves, scored as detections (`score_274.py oracle`), show
+   what the geometry allows. Checked on the plumbing run:
+   - pixels P = R = 1;
+   - nodes F1 0.914 against `osm_marked_signal`'s 0.898, on the same 463 Seattle test nodes (315 true).
+   So (b)'s bar sits 0.016 below the best a perfect pixel detector could score through this geometry.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
