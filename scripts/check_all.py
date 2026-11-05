@@ -34,8 +34,9 @@ Entry fields:
                        never runs against nothing.
   * ``nothing_verified`` -- a function of the entry's output returning a reason when the
                        script exited 0 without comparing anything; that is a FAIL.
-  * ``slow``        -- runs only with ``--all``. One entry is slow: ``benchmark_power_135``
-                       (about 11 minutes; see the doc).
+  * ``slow``        -- runs only with ``--all``. Three entries are slow: ``benchmark_power_135``
+                       (about 11 minutes; see the doc), ``aug_finetune_82`` and
+                       ``control_arm_263`` (minutes of paired bootstrap each, #251).
 
 Placeholders in an argv: ``{tmp}`` (a fresh scratch directory per entry, deleted
 afterwards) and ``{local_root}`` (``--local-root``, default the repo root).
@@ -206,7 +207,9 @@ REGISTRY: list = [
             "benchmark/lyon/verdicts.json")),
     E("per_ramp_recall_38", (AN + "per_ramp_recall_38.py", "check"),
       "per-ramp recall results.json + ramps_other_views.csv re-derive byte-identical from #48 captures (#38)",
-      pins=("analysis_out/per_ramp_recall_38/", "analysis_out/multiview_48/captures_R25.csv")),
+      pins=("analysis_out/per_ramp_recall_38/", "analysis_out/multiview_48/captures_R25.csv",
+            "analysis_out/multiview_48/captures_R25_hit8.csv",
+            "analysis_out/multiview_48/residual_misses.json")),
     E("two_scale_197", (AN + "two_scale_197.py", "report", "--check"),
       "two-scale results.json/.md regenerate byte-identical from the committed #196 caches (#197)",
       pins=("analysis_out/two_scale_197/results.json", "analysis_out/two_scale_197/results.md",
@@ -220,6 +223,62 @@ REGISTRY: list = [
     ), "SHA256SUMS holds; r2048 reproduces op_cache; check + report regenerate to the pinned hashes (#25)",
         pins=("analysis_out/input_res_sweep_25/", "analysis_out/op_cache/",
               "benchmark/*/records.jsonl")),
+    # -- registered by #251 (scripts that had a check mode and no entry) ---------------------
+    E("validate_croissant", ("scripts/validate_croissant.py",),
+      "the Croissant files' structure, pinned links and derived numbers (split extents, city "
+      "boxes, record counts) hold against the committed bundles and location data (#150, #190)",
+      pins=("croissant/", "docs/data_provenance.md", "stage_one/dataset_generation/location_data/")
+      + GT),
+    Entry("bayonne_159", (
+        (AN + "bayonne_159.py", "verify"),
+        (AN + "bayonne_159.py", "firing", "--check"),
+        (AN + "bayonne_159.py", "frame", "--check"),
+        (AN + "bayonne_159.py", "candidates", "--check"),
+        (AN + "bayonne_159.py", "paid-estimate", "--check"),
+        (AN + "bayonne_159.py", "checks", "--check"),
+        (AN + "bayonne_159.py", "preread-summary", "--check"),
+    ), "Bayonne bundle record-level integrity holds and its six GT-free reads re-derive "
+       "byte-identical from committed caches, detections and the ledger; not the nadir band (#159)",
+        pins=("benchmark/bayonne/", "analysis_out/bayonne_159/", "analysis_out/op_cache/",
+              "benchmark/model_detections/", "analysis_out/usage_log.jsonl") + GT),
+    Entry("juneau_254", (
+        (AN + "juneau_254.py", "verify"),
+        (AN + "juneau_254.py", "checks"),
+    ), "Juneau bundle record-level integrity holds and checks.json (replication control + "
+       "parity) re-derives byte-identical (#254)",
+        pins=("benchmark/juneau/", "analysis_out/juneau_254/", "analysis_out/op_cache/")),
+    Entry("lyon_review_159", (
+        (AN + "lyon_review_159.py", "verify", "--records-only"),
+        (AN + "lyon_review_159.py", "plan"),
+        (AN + "lyon_review_159.py", "score"),
+        (AN + "lyon_review_159.py", "elevation"),
+    ), "Lyon audit bundle's committed files are consistent, and audit_plan.json, score.json and "
+       "recall_by_elevation.json re-derive byte-identical (#159, #263)",
+        pins=("benchmark/lyon/", "analysis_out/lyon_review_159/")),
+    E("open_rig_misses_258", (AN + "open_rig_misses_258.py", "--check"),
+      "the open-rig miss buckets JSON and the doc's generated tables re-derive byte-identical "
+      "from op_cache and the bundles (#258, #263)",
+      pins=("analysis_out/open_rig_misses_258.json", "docs/open_rig_misses_258.md",
+            "analysis_out/op_cache/") + GT),
+    E("eval_protocol_150", (AN + "eval_protocol_150.py", "--check"),
+      "rampnet.eval.score_split re-derives every scoreboard.json cell and every YOLO "
+      "benchmark_eval number, and reproduction.json is current (#150)",
+      pins=("analysis_out/eval_protocol_150/", "analysis_out/scoreboard.json",
+            "analysis_out/op_cache/", "benchmark/model_detections/", "manual_labels/",
+            "scripts/model_comparison/yolo_baseline/benchmark_eval/",
+            "benchmark/*/imagery_manifest.json") + GT),
+    E("crop_decode_221", (AN + "crop_decode_221.py", "--check"),
+      "every crop-model sub-cell decode results_*.json/.md re-derives byte-identical from the "
+      "committed coarse-map extracts (#221)",
+      pins=("analysis_out/crop_decode_221/",)),
+    Entry("aug_probe_82", (
+        (AN + "aug_probe_82.py", "check", "--out", "{tmp}/instrument_check.json"),
+        (AN + "aug_probe_82.py", "report", "--check"),
+    ), "the probe's untransformed arm reproduces the #25 r2048 caches, and probe_results.json "
+       "re-derives from the committed arm caches and stats.json (#82)",
+        pins=("analysis_out/aug_transfer_82/probe/", "analysis_out/aug_transfer_82/stats.json",
+              "analysis_out/aug_transfer_82/probe_results.json",
+              "analysis_out/input_res_sweep_25/cache/r2048/") + GT),
     E("yolo_rescore_benchmark_eval",
       ("scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py", "--check"),
       "yolo_baseline/benchmark_eval/ matches the current scorer over the committed detections",
@@ -239,6 +298,21 @@ REGISTRY: list = [
       # parallel with pytest (8-9 min) and stays well inside its 30 min guard.
       pins=("analysis_out/cascade_cost_35/", "analysis_out/op_cache/",
             "analysis_out/cascade_gate_op030.json", "benchmark/model_detections/") + GT),
+    # Slow (#251): minutes of paired pano bootstrap each, so --all only, like the next one.
+    E("aug_finetune_82", (AN + "aug_finetune_82.py", "--check"),
+      "the #82 fine-tune screen's finetune_results.json/.md re-derive from the committed "
+      "per-checkpoint caches and the #151 pairs (#82)",
+      pins=("analysis_out/aug_transfer_82/finetune/",
+            "analysis_out/aug_transfer_82/finetune_results.json",
+            "analysis_out/aug_transfer_82/finetune_results.md",
+            "analysis_out/laurens_paired_151.json"),
+      slow=True),
+    E("control_arm_263", (AN + "control_arm_263.py", "--check"),
+      "the #263 control arm's results.json/.md re-derive from the committed caches, the #82 "
+      "controls and op_cache (#263)",
+      pins=("analysis_out/control_arm_263/", "analysis_out/aug_transfer_82/finetune/",
+            "analysis_out/op_cache/", "benchmark/*/verdicts.json"),
+      slow=True),
     # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
     E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),
       "the default command regenerates docs/data/benchmark_power_135.json byte-identical, or "
