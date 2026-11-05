@@ -169,6 +169,15 @@ def fmt(value):
     return str(value)
 
 
+def appears_bounded(value, text):
+    """True if `value` occurs in `text` as a whole token: not inside a longer number, word or
+    hash. "12" does not match "12,345", "123", "0.12", "2026-01-12" or a sha; it does match
+    "12 other cities". The limit: a short value can still match an unrelated occurrence of the
+    same token elsewhere in the file (#150 review)."""
+    pattern = r"(?<![\w.,\-/])" + re.escape(value) + r"(?![\w]|[.,]\d)"
+    return re.search(pattern, text) is not None
+
+
 def load_facts(card, croissant_text, facts_path=FACTS):
     """{key: printed value} for one card, after checking each in_croissant fact is there."""
     facts = load_json(facts_path).get(card, {})
@@ -180,7 +189,7 @@ def load_facts(card, croissant_text, facts_path=FACTS):
         values = list(value.values()) if isinstance(value, dict) else [value]
         if entry.get("in_croissant"):
             for v in values:
-                if fmt(v) not in croissant_text:
+                if not appears_bounded(fmt(v), croissant_text):
                     raise RenderError(
                         "fact {}.{} = {!r} is marked in_croissant but does not appear in the "
                         "Croissant file; fix the fact or the Croissant record".format(card, key, fmt(v)))
@@ -352,6 +361,9 @@ def benchmark_context(doc, facts, benchmark=BENCHMARK):
         split_date_range=eb.split_date_range(benchmark, cities),
         total_gb="{:.2f}".format(sum(b for _, b in manifest_rows(doc)) / 1e9),
         split_table=eb.split_table(extents),
+        strata_table=eb.strata_table(benchmark, cities),
+        paper_cite_as=eb.croissant_citations(CROISSANT)[0],
+        cite_as=doc["citeAs"],
         size_category=size_category(sum(r["num_panoramas"] for r in extents)),
     )
     return ctx

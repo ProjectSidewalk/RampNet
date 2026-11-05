@@ -1,5 +1,5 @@
 {
-  "_about": "Facts the dataset cards quote that croissant/*.json does not carry as structured fields. Read by scripts/export_dataset_cards.py (#150). Every entry has a value and the committed source it was read from. in_croissant: true means the value, formatted as the card prints it, must also appear somewhere in that card's Croissant file; the renderer refuses to render if it does not, so the card and the Croissant record cannot disagree on it. Integers are printed with thousands separators; strings are printed verbatim.",
+  "_about": "Facts the dataset cards quote that croissant/*.json does not carry as structured fields. Read by scripts/export_dataset_cards.py (#150). Every entry has a value and the committed source it was read from. in_croissant: true means the value, formatted as the card prints it, must also appear somewhere in that card's Croissant file; the renderer refuses to render if it does not, so the card cannot quote a value the Croissant file does not contain as a whole token (presence, not meaning: a short value can still match an unrelated occurrence). Integers are printed with thousands separators; strings are printed verbatim.",
   "dataset": {
     "placeholder_rows_per_split": {
       "value": 3,

@@ -140,9 +140,10 @@ usually the camera family too, so a split measures a place and a capture rig tog
 **Sampling within a split.** Each split samples a run of the auto-labeler over the city in three
 strata, recorded per row in `review_group`: `top` (the 5 panoramas with the most detections,
 always included), `random`, and `empty` (panoramas with no detection). The **unbiased subset** is
-`random` + `empty`; quote it when you want a number that generalises to the city. The usual design
-is 5 + 95 + 25 = 125; Bend has 10 empty panoramas and Richmond 94 random ones, and splits added
-later record their own sizes in git.
+`random` + `empty`; quote it when you want a number that generalises to the city. Panoramas per
+stratum, counted from each split's review (the rows' `review_group`):
+
+{strata_table}
 
 ### Configs
 
@@ -399,27 +400,16 @@ being evaluated**, and please make clear that the evaluation set is post-publica
 the paper's own:
 
 ```bibtex
-@inproceedings{{omeara2025rampnet,
-  author    = {{John S. O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon E. Froehlich}},
-  title     = {{{{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}}}},
-  booktitle = {{{{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}}}},
-  year      = {{2025}},
-  doi       = {{10.48550/arXiv.2508.09415}},
-  url       = {{https://cv4a11y.github.io/ICCV2025/index.html}},
-}}
+{paper_cite_as}
 ```
 
-To cite the benchmark itself (the DOI is not yet minted):
+The `doi` field is the arXiv preprint's DOI; `note = {{DOI: forthcoming}}` refers to the
+workshop proceedings DOI, which has not been issued yet.
+
+To cite the benchmark itself (the DOI is not yet minted; the `note` says so):
 
 ```bibtex
-@misc{{projectsidewalk2026rampnetbenchmark,
-  author       = {{{{Project Sidewalk}}}},
-  title        = {{{{rampnet-benchmark: a post-publication, human-verified curb ramp detection benchmark}}}},
-  year         = {{2026}},
-  publisher    = {{Hugging Face}},
-  howpublished = {{\url{{https://huggingface.co/datasets/{repo_id}}}}},
-  note         = {{DOI: forthcoming}}
-}}
+{cite_as}
 ```
 
 **APA:**

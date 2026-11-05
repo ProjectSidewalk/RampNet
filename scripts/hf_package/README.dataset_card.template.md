@@ -305,7 +305,8 @@ someone planning a route.
 
 - **City mix.** Three US cities, dominated by one: New York City supplies {nyc_share_pct} of the
   government records. No rural area and no non-US city.
-- **Imagery provider.** Google Street View only, one camera family per era, mounted on a car.
+- **Imagery provider.** Google Street View only, from Google's own car-mounted rigs, which vary
+  by capture year.
 - **Capture years.** The rows carry no capture date, so the year mix is unknown. The install-date
   filter admits only ramps built before capture, so recently built ramps are under-represented.
   TODO(Jon): a capture-year histogram would need a metadata lookup for every panorama id; none has
@@ -363,6 +364,9 @@ evaluation number.
 ```bibtex
 {cite_as}
 ```
+
+The `doi` field is the arXiv preprint's DOI; `note = {{DOI: forthcoming}}` refers to the
+workshop proceedings DOI, which has not been issued yet.
 
 **BibTeX** (this dataset; the DOI is not yet minted):
 

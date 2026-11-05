@@ -244,3 +244,47 @@ def test_the_renderer_cannot_upload():
     assert "--push" not in source and "--upload" not in source
     with pytest.raises(SystemExit):
         cards.main(["--push"])
+
+
+# ------------------------------------------------------------------------ review fixes (#282)
+
+def test_a_short_in_croissant_value_must_match_a_whole_token(tmp_path):
+    """"13" occurs inside 13,357, dates and shas; none of those may satisfy the guard."""
+    path = _facts_with(tmp_path, "dataset", "crop_model_cities", "13")
+    with pytest.raises(cards.RenderError, match="crop_model_cities"):
+        cards.render("dataset", facts_path=path)
+    assert cards.appears_bounded("12", "from 12 other cities")
+    for text in ("13,357", "a 2026-01-13 date", "0.13", "x13y", "sha 4f13c2", "13.5"):
+        assert not cards.appears_bounded("13", text), text
+
+
+@pytest.mark.parametrize("card", sorted(cards.CARDS))
+def test_each_card_prints_its_own_croissant_citation(rendered, croissant, card):
+    assert croissant[card]["citeAs"] in rendered[card]
+    # the paper entry, on both cards, is the dataset record's citeAs, not a hand-kept copy
+    assert croissant["dataset"]["citeAs"] in rendered[card]
+
+
+def test_strata_table_matches_the_bundles_and_the_split_counts(rendered, croissant):
+    rows = dict((r[0].strip("`"), r) for r in table_rows(rendered["benchmark"], "| split | `top` |"))
+    extents = cards.record_set(croissant["benchmark"], "split_extents")["data"]
+    for row in extents:
+        split = row["split_extents/split"]
+        verdicts = json.loads((REPO_ROOT / "benchmark" / split / "verdicts.json")
+                              .read_text(encoding="utf-8"))["panos"]
+        want = [sum(1 for v in verdicts.values() if v.get("group") == g)
+                for g in ("top", "random", "empty")]
+        assert [int(x) for x in rows[split][1:4]] == want
+        assert int(rows[split][4]) == row["split_extents/num_panoramas"]
+    assert rows["bend"][1:4] == ["5", "95", "10"] and rows["richmond"][1:4] == ["5", "94", "25"]
+
+
+def test_the_doc_states_the_fact_counts_correctly():
+    facts = json.loads(cards.FACTS.read_text(encoding="utf-8"))
+    counts = dict((card, (len(facts[card]), sum(1 for v in facts[card].values()
+                                                 if v.get("in_croissant"))))
+                  for card in cards.CARDS)
+    doc = " ".join((REPO_ROOT / "docs" / "dataset_cards_150.md").read_text(encoding="utf-8").split())
+    (n_ds, k_ds), (n_b, k_b) = counts["dataset"], counts["benchmark"]
+    assert "{} of the {} dataset facts, and {} of the {} benchmark facts".format(
+        k_ds, n_ds, k_b, n_b) in doc

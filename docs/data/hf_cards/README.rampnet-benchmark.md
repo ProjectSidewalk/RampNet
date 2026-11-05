@@ -230,9 +230,20 @@ usually the camera family too, so a split measures a place and a capture rig tog
 **Sampling within a split.** Each split samples a run of the auto-labeler over the city in three
 strata, recorded per row in `review_group`: `top` (the 5 panoramas with the most detections,
 always included), `random`, and `empty` (panoramas with no detection). The **unbiased subset** is
-`random` + `empty`; quote it when you want a number that generalises to the city. The usual design
-is 5 + 95 + 25 = 125; Bend has 10 empty panoramas and Richmond 94 random ones, and splits added
-later record their own sizes in git.
+`random` + `empty`; quote it when you want a number that generalises to the city. Panoramas per
+stratum, counted from each split's review (the rows' `review_group`):
+
+| split | `top` | `random` | `empty` | reviewed |
+| :--- | ---: | ---: | ---: | ---: |
+| `annapolis` | 5 | 95 | 25 | 125 |
+| `bend` | 5 | 95 | 10 | 110 |
+| `budapest_district5` | 5 | 95 | 25 | 125 |
+| `clovis` | 5 | 95 | 25 | 125 |
+| `gainesville` | 5 | 95 | 25 | 125 |
+| `morgantown` | 5 | 95 | 25 | 125 |
+| `paterson` | 5 | 95 | 25 | 125 |
+| `richmond` | 5 | 94 | 25 | 124 |
+| `sao_paulo` | 5 | 95 | 25 | 125 |
 
 ### Configs
 
@@ -501,10 +512,14 @@ the paper's own:
   year      = {2025},
   doi       = {10.48550/arXiv.2508.09415},
   url       = {https://cv4a11y.github.io/ICCV2025/index.html},
+  note      = {DOI: forthcoming}
 }
 ```
 
-To cite the benchmark itself (the DOI is not yet minted):
+The `doi` field is the arXiv preprint's DOI; `note = {DOI: forthcoming}` refers to the
+workshop proceedings DOI, which has not been issued yet.
+
+To cite the benchmark itself (the DOI is not yet minted; the `note` says so):
 
 ```bibtex
 @misc{projectsidewalk2026rampnetbenchmark,
@@ -513,7 +528,7 @@ To cite the benchmark itself (the DOI is not yet minted):
   year         = {2026},
   publisher    = {Hugging Face},
   howpublished = {\url{https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark}},
-  note         = {DOI: forthcoming}
+  note         = {Revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5. DOI-NOT-YET-MINTED (issue #150): replace with the DataCite DOI once minted}
 }
 ```
 

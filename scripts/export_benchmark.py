@@ -704,6 +704,38 @@ def split_table(extents):
     return "\n".join(lines)
 
 
+STRATA = ("top", "random", "empty")
+
+
+def strata_table(benchmark, cities):
+    """The card's per-split sampling strata (#150 review), counted from each split's
+    verdicts.json `group` -- the value build_records writes as `review_group` on every row."""
+    lines = ["| split | `top` | `random` | `empty` | reviewed |", "| :--- | ---: | ---: | ---: | ---: |"]
+    for city in cities:
+        path = Path(benchmark) / city / "verdicts.json"
+        panos = json.loads(path.read_text(encoding="utf-8")).get("panos", {}) if path.is_file() else {}
+        counts = dict((g, 0) for g in STRATA)
+        for verdict in panos.values():
+            group = verdict.get("group")
+            if group not in counts:
+                raise ValueError("{}: unexpected review group {!r}".format(city, group))
+            counts[group] += 1
+        lines.append("| `{}` | {} | {} | {} | {} |".format(
+            city, counts["top"], counts["random"], counts["empty"], sum(counts.values())))
+    return "\n".join(lines)
+
+
+CROISSANT_DIR = REPO_ROOT / "croissant"
+
+
+def croissant_citations(croissant_dir=CROISSANT_DIR):
+    """(paper BibTeX, benchmark BibTeX): the `citeAs` of the dataset and benchmark Croissant
+    records, so the card prints the citations the record of truth holds (#150 review)."""
+    def cite(name):
+        return json.loads((Path(croissant_dir) / name).read_text(encoding="utf-8"))["citeAs"]
+    return cite("rampnet-dataset.json"), cite("rampnet-benchmark.json")
+
+
 def render_card(out, benchmark, repo_id, index):
     # A split counts once it has ground truth; imagery is counted separately, because the two
     # differ while any split is records-only (see records_only_splits).
@@ -731,6 +763,9 @@ def render_card(out, benchmark, repo_id, index):
         total_gb="{:.2f}".format(total / 1e9),
         split_table=split_table(extents),
         size_category=size_category(sum(r["num_panoramas"] for r in extents)),
+        strata_table=strata_table(benchmark, cities),
+        paper_cite_as=croissant_citations()[0],
+        cite_as=croissant_citations()[1],
     )
     (out / "README.md").write_text(card_text, encoding="utf-8")
     return total

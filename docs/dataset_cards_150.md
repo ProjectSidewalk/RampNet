@@ -28,7 +28,10 @@ every other card template in `scripts/hf_package/` is filled, from three committ
    agreement figures, which Croissant has only inside prose). Every entry has a `source`. An entry marked
    `in_croissant` must also appear, exactly as the card prints it, somewhere in that card's
    Croissant file; if it does not, rendering stops with an error naming the fact. 27 of the 39
-   dataset facts, and 1 of the 2 benchmark facts, are marked this way.
+   dataset facts, and 1 of the 2 benchmark facts, are marked this way. The match is on a whole
+   token (not inside a longer number, word, date or hash), so "12" is not satisfied by "12,345" or
+   a sha. The remaining limit: a short value can still match an unrelated occurrence of the same
+   token elsewhere in the Croissant file, so the guard proves presence, not meaning.
 3. **For the benchmark card only, the committed bundles**, read through the helpers
    `scripts/export_benchmark.py` already uses for its card: the review-confidence table and
    Budapest's value from `benchmark/<split>/verdicts.json`, and the training-overlap listing and
@@ -51,7 +54,10 @@ does not import `huggingface_hub`; a test asserts both.
 publishes it with a `records` or `card` push. That renderer fills the same placeholders from the
 built package and the committed bundles, plus two new ones added here: `{split_table}` (from
 `validate_croissant.derive_split_extents`, the function the Croissant validator re-derives the
-`split_extents` record set with) and `{size_category}`. A test renders the split table both ways
+`split_extents` record set with), `{size_category}`, `{strata_table}` (per-split `top` / `random` /
+`empty` counts from each split's `verdicts.json` `group`, the value written to `review_group`),
+and `{paper_cite_as}` / `{cite_as}` (the `citeAs` of the dataset and benchmark Croissant records,
+so neither card keeps a hand-copied BibTeX). A test renders the split table both ways
 and requires the same table. `tests/test_train_overlap.py::test_rendered_card_agrees_with_the_built_records`
 renders the template through `export_benchmark.render_card` and still passes.
 
@@ -135,8 +141,10 @@ Arrow sizes that no committed source records.
   overlap listing); nothing was duplicated. The new Bias and Recommendations sections point at them.
 - **Two fixes from [`fair_metadata_150.md`](fair_metadata_150.md) §6 applied:** the `source` row now
   says `launch` (Google Street View) or `mapillary`, which is what the data holds, rather than
-  `gsv`; and the paper BibTeX's `doi` is the bare DOI `10.48550/arXiv.2508.09415` (it held a URL)
-  with the `url` field the dataset card's entry has.
+  `gsv`; and the paper BibTeX is no longer a hand-kept copy (which held a URL in `doi`): both
+  cards print the dataset Croissant record's `citeAs`, and the benchmark card prints its own
+  record's `citeAs` for the benchmark entry, so the citations cannot drift from Croissant. A line
+  under each paper entry explains `note = {DOI: forthcoming}` beside the arXiv DOI.
 - **Title** is now "Dataset Card for RampNet Benchmark Imagery", the template's H1 with the
   existing name.
 
