@@ -87,6 +87,14 @@ def test_nan_equals_nan_and_infinities_are_exact():
     assert compare_json(b'[Infinity]\n', b'[1e308]\n', rel=1.0).status == "differs"
 
 
-def test_bytes_inputs_and_absolute_tolerance():
+def test_abs_tol_defaults_to_zero_so_a_near_zero_drift_fails():
+    """Pins the #251 choice: no absolute tolerance by default. 0.0 vs 1e-17 has infinite
+    relative difference, so it "differs" at the default and is "within" only when a caller
+    opts into abs_tol. docs/data/benchmark_power_135.json holds 45 float leaves that are
+    exactly 0.0 (of 2,827 floats; the farfield result holds none of its 44); a platform that
+    wrote ~1e-17 for one of them would still fail its check, deliberately."""
+    import inspect
+    assert inspect.signature(compare_json).parameters["abs_tol"].default == 0.0
+    assert inspect.signature(assert_json_equal_within).parameters["abs_tol"].default == 0.0
     assert compare_json(b"[0.0]\n", b"[1e-17]\n").status == "differs"
     assert compare_json(b"[0.0]\n", b"[1e-17]\n", abs_tol=1e-15).status == "within"
