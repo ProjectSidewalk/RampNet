@@ -241,7 +241,8 @@ REGISTRY: list = [
             "analysis_out/cascade_gate_op030.json", "benchmark/model_detections/") + GT),
     # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
     E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),
-      "the default command regenerates docs/data/benchmark_power_135.json byte-identical (#135, #236)",
+      "the default command regenerates docs/data/benchmark_power_135.json byte-identical, or "
+      "with only float leaves moved <= 1e-12 relative, which it reports (#135, #236, #251)",
       pins=("docs/data/benchmark_power_135.json", "manual_labels/", "benchmark/model_detections/",
             "docs/data/run_a_84_detections/", "docs/data/run_a_84_manual_gold/summary.csv",
             "analysis_out/op_cache/") + GT,
