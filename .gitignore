@@ -73,6 +73,14 @@ analysis_out/cascade_cost_35/transfer/*
 # fetch, so committing it keeps the 5j table checkable from a clean checkout.
 !analysis_out/stage1_bearing_residual.json
 
+# The 360-seam reads (#132, docs/seam.md): a few KB each, committed with the scripts that
+# write them (stage1_seam_scan.py, seam_response.py, seam_roll_diagnostic.py) but never
+# carved out, so a regenerated copy was silently refused by `git add` (#251)
+!analysis_out/stage1_seam_scan.json
+!analysis_out/seam_response.json
+!analysis_out/seam_roll_diagnostic.json
+!analysis_out/seam_roll_diagnostic_centre.json
+
 # E1's result (#59): a few KB, and committing it makes the label-ceiling numbers
 # checkable without re-running the Hub fetch the script needs to regenerate them.
 !analysis_out/e1_stage1_label_recall.json
@@ -343,6 +351,11 @@ analysis_out/crossview_align_48/fresh/predictions/*
 !analysis_out/crossview_align_48/fresh/logs/
 analysis_out/crossview_align_48/fresh/logs/*
 !analysis_out/crossview_align_48/fresh/logs/gpu_times.txt
+# the matching family's summary report (a6b3908); tracked since it was written, carved out
+# here so a regenerated copy can be `git add`ed (#251)
+!analysis_out/crossview_align_48/matching/
+analysis_out/crossview_align_48/matching/*
+!analysis_out/crossview_align_48/matching/report.json
 # Cross-view #48 depth arms: per-click monocular depth rows and their summaries.
 !analysis_out/crossview_align_48/depth/
 # ... and the 3D viewer bundles: their JSON is committed; the scene .ply files live on
