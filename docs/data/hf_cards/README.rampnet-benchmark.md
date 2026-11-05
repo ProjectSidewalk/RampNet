@@ -190,7 +190,7 @@ panoramas.
 - **Curb ramp point detection** (`object-detection`). Predictions are (x, y) points, normalized to
   the panorama, with an optional confidence. They match ground truth one-to-one within 0.022 of the
   panorama width (in a 1024 x 512 space), with x wrapping across the seam; `unsure` points are
-  ignore regions; recall counts only panoramas whose reviewer confirmed a complete scan.
+  ignore regions; recall counts only recall-confirmed panoramas (see "Glossary").
 - **Leaderboard:** planned in [#150](https://github.com/ProjectSidewalk/RampNet/issues/150), not
   yet live. The committed scoreboard of every model run so far is
   [`docs/model_scoreboard.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/docs/model_scoreboard.md).
@@ -451,8 +451,8 @@ Each split's reviewer notes, confidence and caveats are on its rows (see above).
 
 #### Who are the annotators?
 
-Members of the Project Sidewalk research team. Where a split recorded review notes, the reviewer
-is in its `reviewer` column; splits without review notes did not record a reviewer. TODO(Jon):
+One reviewer per split. Where a split recorded review notes, the reviewer is in its `reviewer`
+column; splits without review notes did not record a reviewer. TODO(Jon):
 confirm and record the reviewer of the splits whose `reviewer` is null.
 
 #### Personal and Sensitive Information
