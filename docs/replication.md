@@ -525,6 +525,7 @@ data are skipped unless `--allow local-cache` is given.
 |---|---|---|---|---:|
 | `manifests_sha256` | `scripts/verify_sha256sums.py` | every committed `SHA256SUMS` / `*.sha256` manifest (found with `git ls-files`) matches the files present. A manifest whose listed files are all absent is a counted skip; a partly present manifest (a committed file deleted or renamed) fails, any mismatch fails, and nothing-present fails | committed only | 2.9 |
 | `sourcing_tables` | `sourcing_tables.py --check` | the generated tables in the data-sourcing docs re-render identical from committed files (#145) | committed only | 0.1 |
+| `dataset_cards_150` | `scripts/export_dataset_cards.py --check` | the `rampnet-dataset` and `rampnet-benchmark` Hugging Face cards re-render byte-identical to `docs/data/hf_cards/` from `croissant/*.json`, `scripts/hf_package/cards_facts.json`, the two card templates and the committed `verdicts.json` / `train_overlap.json`, and every fact marked `in_croissant` still appears in its Croissant file ([`dataset_cards_150.md`](dataset_cards_150.md), #150). Its seconds are from a standalone run on the desktop (2026-11-05), not from `latest.json` | committed only | 0.2 |
 | `yolo_warmup_dip_72` | `yolo_warmup_dip_72.py --check` | the pinned facts of the YOLO warm-up LR dip hold on the committed curves (#72) | committed only | 0.1 |
 | `seam_pairs_248` | `seam_pairs_248.py --check` | the seam straddling-pair counts (114 / 72 / 58 at 0.05 / 0.30 / 0.55) re-derive from the committed Run A peaks in `docs/data/run_a_84_detections/` (#248) | committed only | 1.1 |
 | `yolo_geometry_51` | `yolo_geometry_51.py --check` | the YOLO control leg reproduces its scoreboard row, and `docs/data/yolo_geometry_51.json` matches a fresh read (#51) | committed only | 0.1 |
@@ -558,7 +559,7 @@ listed:
 - `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `cascade_transfer_35`, `cascade_cost_35`, `benchmark_power_135`
 - `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `cascade_transfer_35`
 - `benchmark/model_detections/`: `laurens_paired_151`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`, `export_model_cache_verify`
-- `benchmark/<split>/verdicts.json`: `da3_calibration_101`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
+- `benchmark/<split>/verdicts.json`: `dataset_cards_150`, `da3_calibration_101`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
 - `docs/data/benchmark_power_135.json`: `run_b_gate_135`, `benchmark_power_135`
 - `docs/data/run_a_84_manual_gold/summary.csv`: `run_b_gate_135`, `benchmark_power_135`
 - `analysis_out/pano_tilt/lyon.json`: `pano_tilt_159`, `lyon_elevation_tilt_159`

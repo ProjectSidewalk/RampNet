@@ -224,8 +224,8 @@ Every split is a test split. As of this export (reviewed panoramas only):
 
 **City-held-out by design.** Each split is a city, or a district of one, that RampNet's Stage 1
 data does not contain, so a score on it measures transfer to a new place; Bend is the one
-exception, kept as an in-distribution reference. Imagery provider and camera are fixed within a
-split and differ between splits, so a split measures a place and a capture rig together.
+exception, kept as an in-distribution reference. The imagery provider is fixed within a split, and
+usually the camera family too, so a split measures a place and a capture rig together.
 
 **Sampling within a split.** Each split samples a run of the auto-labeler over the city in three
 strata, recorded per row in `review_group`: `top` (the 5 panoramas with the most detections,
