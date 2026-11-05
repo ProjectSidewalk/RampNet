@@ -190,7 +190,7 @@ Proposed next test: (b′) below, pending Jon's approval.
 
 ### Human audit of the (a) test cards (2026-11-05, post hoc)
 
-Jon rated every test false positive, the seeded sample of 60 misses and 30 sampled true positives in
+Jon rated every test false positive, the seeded sample of 60 misses and the 30 sampled true positives in
 `score_274.py gallery`'s rating page. Each card asked about one item. The verdicts are in
 `analysis_out/stage1_crosswalk_detector_274/ratings_jon_2026-11-05.csv`. These numbers explain (a); they do not
 replace its pre-registered result.
@@ -200,7 +200,7 @@ replace its pre-registered result.
   beside a crosswalk, and one with no paint. These are the hard negatives to add next.
 - **The misses are real.** 57 of 60 are real crosswalks the model missed, and 3 are unsure (all far away). None
   is a wrong label. Some are very faded.
-- **True positives:** 28 of 29 rated are crosswalks, and 1 is unsure (between two crosswalks).
+- **True positives:** 29 of 30 are crosswalks, and 1 is unsure (between two crosswalks).
 - **Recall 0.761 → about 0.79–0.80 once duplicate labels are merged.** One crosswalk often carries two or three
   labels, and only one of them can match. Merging labels within 0.01 / 0.015 / 0.02 of each other leaves
   1,132 / 1,114 / 1,097 crosswalks, with recall 0.786 / 0.798 / 0.808. In 9 of the 60 sampled misses, a twin

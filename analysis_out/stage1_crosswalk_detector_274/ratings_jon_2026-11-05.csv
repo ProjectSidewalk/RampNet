@@ -132,7 +132,7 @@ card_id,kind,pano_id,x,y,conf,city,mode,year,verdict,note,rated_at
 "tp:5P3vJgl0sM_dJI4PQ3G3Gg:0.269:0.602","tp","5P3vJgl0sM_dJI4PQ3G3Gg","0.2686","0.6016","0.822","seattle-wa","dense_ignore","2019-2022","crosswalk","","2026-11-05T18:14:39.998Z"
 "tp:fcCqsRbxqIIokGvmSbTkMA:0.465:0.521","tp","fcCqsRbxqIIokGvmSbTkMA","0.4648","0.5215","0.79","seattle-wa","dense_ignore","2023+","unsure","The red crosshair is sort of floating right between the two east-west crosswalks, but probably closer to the nearest one","2026-11-05T18:15:25.495Z"
 "tp:2J3y3mi4449LerXnpkZdNA:0.043:0.523","tp","2J3y3mi4449LerXnpkZdNA","0.043","0.5234","0.769","seattle-wa","dense_ignore","2019-2022","crosswalk","","2026-11-05T18:14:36.993Z"
-"tp:85b1UAXqaOnXWFXZ8UPN-Q:0.355:0.553","tp","85b1UAXqaOnXWFXZ8UPN-Q","0.3555","0.5527","0.768","seattle-wa","dense_ignore","2023+","","",""
+"tp:85b1UAXqaOnXWFXZ8UPN-Q:0.355:0.553","tp","85b1UAXqaOnXWFXZ8UPN-Q","0.3555","0.5527","0.768","seattle-wa","dense_ignore","2023+","crosswalk","","2026-11-05T18:21:23.638Z"
 "tp:llkl4LD5jM8stObkrL-yQA:0.965:0.523","tp","llkl4LD5jM8stObkrL-yQA","0.9648","0.5234","0.759","seattle-wa","dense_ignore","2023+","crosswalk","","2026-11-05T18:14:48.248Z"
 "tp:i0Rb-8sYZW_vKo2_GWzmpg:0.198:0.568","tp","i0Rb-8sYZW_vKo2_GWzmpg","0.1982","0.5684","0.737","amsterdam","sparse","2019-2022","crosswalk","","2026-11-05T18:15:27.337Z"
 "tp:PTA0pdBlyyKA5XtV0Kqi3Q:0.222:0.570","tp","PTA0pdBlyyKA5XtV0Kqi3Q","0.2217","0.5703","0.72","seattle-wa","dense_ignore","<=2018","crosswalk","","2026-11-05T18:15:28.994Z"
