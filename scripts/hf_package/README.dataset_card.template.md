@@ -33,8 +33,8 @@ from **{paper_title}** (O'Meara et al., ICCV'25 workshop,
 > precision {stage1_precision} / recall {stage1_recall}, not the published {stage1_precision_published} /
 > {stage1_recall_published}. This dataset's files did not change; only how it was scored.
 
-This card describes Hub revision `{revision}` ({date_modified}), the revision
-[`croissant/rampnet-dataset.json`](https://github.com/ProjectSidewalk/RampNet/blob/main/croissant/rampnet-dataset.json)
+The data files this card describes are those at Hub revision `{revision}` ({date_modified}), the
+revision [`croissant/rampnet-dataset.json`](https://github.com/ProjectSidewalk/RampNet/blob/main/croissant/rampnet-dataset.json)
 pins. That file is the machine-readable record (Croissant 1.1, GeoCroissant 1.0 and RAI) and this
 card is rendered from it; where they could disagree, the Croissant file is the record of truth.
 

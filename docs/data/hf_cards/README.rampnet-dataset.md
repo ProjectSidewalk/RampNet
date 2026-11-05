@@ -33,8 +33,8 @@ from **RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in St
 > precision 0.9152 / recall 0.9275, not the published 0.9403 /
 > 0.9245. This dataset's files did not change; only how it was scored.
 
-This card describes Hub revision `ee882e3f3c779dc13182f307bca616e50d9b8c5c` (2025-08-15), the revision
-[`croissant/rampnet-dataset.json`](https://github.com/ProjectSidewalk/RampNet/blob/main/croissant/rampnet-dataset.json)
+The data files this card describes are those at Hub revision `ee882e3f3c779dc13182f307bca616e50d9b8c5c` (2025-08-15), the
+revision [`croissant/rampnet-dataset.json`](https://github.com/ProjectSidewalk/RampNet/blob/main/croissant/rampnet-dataset.json)
 pins. That file is the machine-readable record (Croissant 1.1, GeoCroissant 1.0 and RAI) and this
 card is rendered from it; where they could disagree, the Croissant file is the record of truth.
 

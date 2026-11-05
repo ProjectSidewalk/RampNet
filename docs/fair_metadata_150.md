@@ -14,6 +14,11 @@ and validated with `mlcroissant`:
 **Nothing has been uploaded to Hugging Face and no DOI has been minted.** These files are in the
 repo only. Uploading them to the Hub records and minting the DOI are separate steps (§6).
 
+**The dataset cards (the second checkbox of #150) are rendered from these two files** by
+`scripts/export_dataset_cards.py`; see [`dataset_cards_150.md`](dataset_cards_150.md). A change
+here that a card quotes shows up in that script's `--check` (`check_all.py` entry
+`dataset_cards_150`).
+
 ## 1. What the files contain
 
 Both files declare `conformsTo` Croissant 1.1, Croissant RAI 1.0 and GeoCroissant 1.0.
@@ -353,8 +358,10 @@ during the synthetic-shard load, and 1,109 times during `--load` and `--load-hub
 - **Persistent identifier:** mint the DOIs, replace the placeholder in both files and in both
   `citeAs` notes (and add a `doi` field to the benchmark's), set the version, and bump
   `dateModified`.
-- **Dataset cards:** the RAI text here can seed the cards' bias, limitation and use sections. Two
-  card fixes surfaced by this work, for Jon to decide (the cards were not edited here):
+- **Dataset cards:** done in [`dataset_cards_150.md`](dataset_cards_150.md) (2026-11-05): both
+  cards follow the Hugging Face template and are rendered from these files, so every count they
+  print is the Croissant value. Nothing is uploaded. The two card fixes below are applied in the
+  benchmark template there:
   - The published benchmark card's `records` table says `source` is `gsv` or `mapillary`; the data
     holds `launch` or `mapillary` (the template is
     `scripts/hf_package/README.benchmark_card.template.md`, the `source` row of its `records`
@@ -372,7 +379,7 @@ during the synthetic-shard load, and 1,109 times during `--load` and `--load-hub
 - The version label, settled with the DOI.
 - Whether to tag the Hub revisions and switch `contentUrl` to `tree/refs%2Ftags%2F<version>` (§1).
 - Who is listed as the benchmark `creator` (§3).
-- The two card fixes above.
+- The two card fixes above (now applied in the benchmark template by `dataset_cards_150.md`; revert there if unwanted).
 - Whether the Croissant upload goes before or after the #127 records push. Before: the files
   describe the Hub as it is now, and must be regenerated and re-uploaded after the push. After:
   regenerate once (§2), then upload.

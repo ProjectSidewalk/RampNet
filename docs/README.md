@@ -34,7 +34,7 @@ Supporting directories (not indexed row by row):
   `crop_window_eval.md` and `sam2_extent_83.md`.
 - [`data/`](data/): committed inputs and outputs too small for `analysis_out/` or pinned beside the
   doc that reads them (the paper run's Stage 1 and Stage 2 logs, `sacct` dumps, seed-variance and
-  epoch-curve detections, the Vertex minute series).
+  epoch-curve detections, the Vertex minute series, the #150 rendered dataset cards in `hf_cards/`).
 - [`figures/`](figures/): the PNG/JPG figures the documents embed (scoreboard, operating point,
   epoch curve, recall misses, `multiview_48/`, `sidewalk_width_217/`).
 
@@ -80,6 +80,7 @@ Supporting directories (not indexed row by row):
 | [`data_scaling_59.md`](data_scaling_59.md) | #59 | negative result | final | Would more training data buy recall? E1: the harm hypothesis is NOT supported (verdict FLAT: the model's distance cliff is ~2.5× steeper than Stage 1's label recall), plus the miss buckets. | `scripts/analysis/stage1_label_recall.py` (no check), `scripts/analysis/miss_decomposition.py` (no check), `scripts/analysis/silent_activation.py` (no check) |
 | [`location_precision_assessment_96.md`](location_precision_assessment_96.md) | #96, #103 | result | final | The location-precision assessment, city by city, that gates every route to 500k: the temporal gate, the Stage 1 tolerance curve, Denver (Good under our own stated threshold, not the paper's), Seattle's offset, and the street-level review instrument. | `scripts/analysis/stage1_offset_tolerance.py` (no check), `scripts/analysis/temporal_gap.py` (no check), `scripts/analysis/inventory_review_summary.py` (no check), `scripts/analysis/sourcing_tables.py` (check) |
 | [`fair_metadata_150.md`](fair_metadata_150.md) | #150 | how-to | in progress (awaiting Jon's decisions: DOI, version label, benchmark creator; nothing uploaded to the Hub) | Hand-written Croissant 1.1 + GeoCroissant 1.0 + RAI metadata for the dataset and the benchmark, each pinned to a Hub revision, what every field came from, what is left blank and why, and how to validate them; the DOI is a placeholder that `--release` refuses. | `scripts/validate_croissant.py` (no check) validates both files offline by default; `--mlcroissant`, `--hub` and `--release` add the stricter passes |
+| [`dataset_cards_150.md`](dataset_cards_150.md) | #150, #127 | how-to | in progress (awaiting Jon's decisions: funding line, imagery terms, named labellers and reviewers; nothing uploaded to the Hub) | Hugging Face dataset cards for `rampnet-dataset` and `rampnet-benchmark`, rendered from the Croissant records: both carry all 24 headings of the HF template, every count is Croissant's (214,385 Hub rows = 214,376 usable panoramas + 9 placeholder rows; 1,109 benchmark panoramas), and the #127 reviewer notes stay on the benchmark card. | `scripts/export_dataset_cards.py` (check) |
 
 ## Recall & geometry analyses
 
