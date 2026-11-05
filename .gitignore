@@ -572,3 +572,7 @@ analysis_out/control_arm_263/trainlogs/*
 benchmark/*/cluster_review/crops/
 benchmark/*/cluster_review/aerial/
 benchmark/*/cluster_review/gallery/
+
+# Rendered Hugging Face dataset cards (scripts/export_dataset_cards.py, #150). The reviewed
+# renders are committed under docs/data/hf_cards/; this is the scratch output.
+hf_export/

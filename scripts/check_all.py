@@ -134,6 +134,13 @@ REGISTRY: list = [
       "generated tables in the data-sourcing docs re-render identical from committed files (#145)",
       pins=("docs/location_precision_assessment_96.md", "docs/curb_ramp_data_sourcing.md",
             "analysis_out/stage1_offset_tolerance.json", "data/inventories/")),
+    E("dataset_cards_150", ("scripts/export_dataset_cards.py", "--check"),
+      "the two Hugging Face dataset cards re-render byte-identical from croissant/*.json, "
+      "cards_facts.json and the committed bundles (#150)",
+      pins=("docs/data/hf_cards/", "croissant/", "scripts/hf_package/cards_facts.json",
+            "scripts/hf_package/README.dataset_card.template.md",
+            "scripts/hf_package/README.benchmark_card.template.md",
+            "benchmark/train_overlap.json", "benchmark/*/verdicts.json")),
     E("yolo_warmup_dip_72", (AN + "yolo_warmup_dip_72.py", "--check"),
       "pinned facts of the YOLO warm-up LR dip hold on the committed curves (#72)",
       pins=("scripts/model_comparison/yolo_baseline/runs/", "docs/data/seed_variance_51_135/")),

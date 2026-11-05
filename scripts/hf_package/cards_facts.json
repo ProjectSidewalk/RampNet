@@ -1,0 +1,203 @@
+{
+  "_about": "Facts the dataset cards quote that croissant/*.json does not carry as structured fields. Read by scripts/export_dataset_cards.py (#150). Every entry has a value and the committed source it was read from. in_croissant: true means the value, formatted as the card prints it, must also appear somewhere in that card's Croissant file; the renderer refuses to render if it does not, so the card cannot quote a value the Croissant file does not contain as a whole token (presence, not meaning: a short value can still match an unrelated occurrence). Integers are printed with thousands separators; strings are printed verbatim.",
+  "dataset": {
+    "placeholder_rows_per_split": {
+      "value": 3,
+      "source": "docs/restage_263.md, 'The nine placeholder rows': pano_id file_1, file_2, file_3 in each of train/validation/test, each a 19-byte image blob that no decoder opens"
+    },
+    "card_labels": {
+      "value": 849895,
+      "source": "the live dataset card's summary table (Hub revision ee882e3); croissant/rampnet-dataset.json description",
+      "in_croissant": true
+    },
+    "scan_labels": {
+      "value": 849904,
+      "source": "docs/seam.md section 3 (analysis_out/stage1_seam_scan.json, all 384 shards)",
+      "in_croissant": true
+    },
+    "panos_written_log": {
+      "value": 214599,
+      "source": "docs/rampnet1_findings.md section 1 (the generation log); croissant rai:dataCollectionMissingData",
+      "in_croissant": true
+    },
+    "gov_records_committed": {
+      "value": 276071,
+      "source": "docs/data_provenance.md section 3 (re-derived by scripts/validate_croissant.py)",
+      "in_croissant": true
+    },
+    "gov_records_table1": {
+      "value": 276615,
+      "source": "the paper's Table 1; the 544-record difference is reconciled in docs/data_provenance.md section 3.3",
+      "in_croissant": true
+    },
+    "gov_records_by_city": {
+      "value": {
+        "New York City, NY, USA": 217679,
+        "Portland, OR, USA": 45035,
+        "Bend, OR, USA": 13357
+      },
+      "source": "docs/data_provenance.md section 3 (nyc.csv, portland.geojson, bend.geojson); keys are the spatialCoverage place names in croissant/rampnet-dataset.json",
+      "in_croissant": true
+    },
+    "nyc_share_pct": {
+      "value": "78.8%",
+      "source": "217,679 / 276,071, re-derived by scripts/validate_croissant.py",
+      "in_croissant": true
+    },
+    "unlabelled_records": {
+      "value": 119359,
+      "source": "docs/data_provenance.md section 3.1",
+      "in_croissant": true
+    },
+    "unlabelled_pct": {
+      "value": "43.23%",
+      "source": "docs/data_provenance.md section 3.1",
+      "in_croissant": true
+    },
+    "panos_not_written": {
+      "value": 4571,
+      "source": "docs/stage1_generation_cost.md",
+      "in_croissant": true
+    },
+    "panos_intended": {
+      "value": 219170,
+      "source": "docs/stage1_generation_cost.md",
+      "in_croissant": true
+    },
+    "panos_not_written_pct": {
+      "value": "2.09%",
+      "source": "docs/stage1_generation_cost.md",
+      "in_croissant": true
+    },
+    "generation_finished": {
+      "value": "2025-06-17",
+      "source": "docs/stage1_generation_cost.md; croissant rai:dataCollectionTimeframe (completion date only, no start date is recorded)",
+      "in_croissant": true
+    },
+    "discovery_radius": {
+      "value": "10 m",
+      "source": "DISCOVERY_DISTANCE_THRESHOLD in stage_one/dataset_generation/generate_dataset_meta.py",
+      "in_croissant": true
+    },
+    "inclusion_radius": {
+      "value": "35 m",
+      "source": "INCLUSION_DISTANCE_THRESHOLD in stage_one/dataset_generation/generate_dataset_meta.py",
+      "in_croissant": true
+    },
+    "negative_share": {
+      "value": "about 20%",
+      "source": "CLAUDE.md pipeline order, step 3; croissant geocr:samplingStrategy",
+      "in_croissant": true
+    },
+    "peak_rule": {
+      "value": "min_distance 40 px, threshold 0.4",
+      "source": "stage_one/dataset_generation/download_dataset.py (peak_local_max on the 4096x2048 composite)",
+      "in_croissant": true
+    },
+    "crop_model_cities": {
+      "value": "12",
+      "source": "docs/data_provenance.md section 1 (the Project Sidewalk servers queried by download_data.py)",
+      "in_croissant": true
+    },
+    "crop_pretrain_crops": {
+      "value": 20698,
+      "source": "the live dataset card's summary table (Project Sidewalk crop pre-training set)"
+    },
+    "crop_pretrain_labels": {
+      "value": 27704,
+      "source": "the live dataset card's summary table (Project Sidewalk crop pre-training set)"
+    },
+    "crop_manual_crops": {
+      "value": 312,
+      "source": "the live dataset card's summary table (manual crop model training set, projectsidewalk/rampnet-crop-model-dataset)"
+    },
+    "crop_manual_labels": {
+      "value": 1212,
+      "source": "the live dataset card's summary table (manual crop model training set)"
+    },
+    "gold_panos": {
+      "value": 1000,
+      "source": "manual_labels/ (1,000 YOLO label files); docs/seam.md section 2",
+      "in_croissant": true
+    },
+    "gold_marks": {
+      "value": 3919,
+      "source": "docs/seam.md section 2 (3,919 marks); the live dataset card's summary table"
+    },
+    "stage1_precision": {
+      "value": "0.9152",
+      "source": "README.md erratum; docs/rampnet1_findings.md section 1 (corrected one-to-one matching)",
+      "in_croissant": true
+    },
+    "stage1_recall": {
+      "value": "0.9275",
+      "source": "README.md erratum; docs/rampnet1_findings.md section 1",
+      "in_croissant": true
+    },
+    "stage1_precision_published": {
+      "value": "0.9403",
+      "source": "docs/rampnet1_findings.md section 1 (the paper's matching rule, withdrawn by the v1.1-corrected-eval erratum)",
+      "in_croissant": true
+    },
+    "stage1_recall_published": {
+      "value": "0.9245",
+      "source": "docs/rampnet1_findings.md section 1",
+      "in_croissant": true
+    },
+    "seam_pairs": {
+      "value": 8361,
+      "source": "docs/seam.md section 3 (analysis_out/stage1_seam_scan.json)",
+      "in_croissant": true
+    },
+    "seam_label_pct": {
+      "value": "0.98%",
+      "source": "docs/seam.md section 3",
+      "in_croissant": true
+    },
+    "seam_panos": {
+      "value": 7987,
+      "source": "docs/seam.md section 3 (panoramas with at least one seam-crossing pair)"
+    },
+    "seam_pano_pct": {
+      "value": "3.7%",
+      "source": "docs/seam.md section 3",
+      "in_croissant": true
+    },
+    "seam_gold_duplicates": {
+      "value": "10",
+      "source": "docs/seam.md section 2 (adjudicated in benchmark/manual_gold/seam_verdicts__jon.json; merge not yet applied)"
+    },
+    "crop_decode_argmax_px": {
+      "value": "3.961",
+      "source": "docs/crop_decode_221.md section 1 (round-2 test, deduplicated, single pass)"
+    },
+    "crop_decode_gaussian_px": {
+      "value": "2.964",
+      "source": "docs/crop_decode_221.md section 1"
+    },
+    "funding": {
+      "value": "TODO(Jon): the funding acknowledgement for the RampNet paper (the NSF FAIROS award #2623243 named on issue #150 funds this FAIR packaging; whether it or another award funded the dataset itself is not in any committed document)",
+      "source": "not in any committed document"
+    },
+    "card_authors": {
+      "value": "Project Sidewalk, Makeability Lab, University of Washington. TODO(Jon): name the individual card authors, if any should be listed.",
+      "source": "croissant publisher; individual names not in any committed document"
+    },
+    "contact": {
+      "value": "https://github.com/ProjectSidewalk/RampNet/issues",
+      "source": "croissant rai:dataReleaseMaintenancePlan",
+      "in_croissant": true
+    }
+  },
+  "benchmark": {
+    "export_git_commit": {
+      "value": "d7aeda4-dirty",
+      "source": "build_manifest.json in the Hub repository at revision 63d5ffd, as quoted in docs/fair_metadata_150.md section 1 (the Croissant record names the file but not the commit); the rendered card describes that revision's export"
+    },
+    "export_date": {
+      "value": "2026-08-17",
+      "source": "build_manifest.json at revision 63d5ffd; croissant dateModified",
+      "in_croissant": true
+    }
+  }
+}

@@ -1,5 +1,6 @@
 ---
 license: mit
+pretty_name: "RampNet Benchmark Imagery"
 task_categories:
 - object-detection
 tags:
@@ -8,11 +9,20 @@ tags:
 - streetscape
 - benchmark
 - evaluation
+- out-of-distribution
+size_categories:
+- {size_category}
+language:
+- en
+annotations_creators:
+- expert-generated
+source_datasets:
+- original
 configs:
 {configs_yaml}
 ---
 
-# RampNet Benchmark Imagery
+# Dataset Card for RampNet Benchmark Imagery
 
 > ### ⚠️ This benchmark is **not** part of the RampNet paper
 >
@@ -48,7 +58,94 @@ whether the panorama is also in RampNet's training data — see the two sections
 before treating a verdict as self-explanatory, and `benchmark/README.md` before quoting a
 precision figure, because several splits carry caveats the numbers alone do not show.
 
-## Configs
+## Dataset Details
+
+### Dataset Description
+
+A curb ramp detection benchmark in which every detection of the published RampNet model on a
+sample of panoramas was judged by a human reviewer, and every ramp the model missed was marked, so
+that precision, recall and AP can be measured for any point detector. Each split is one city (or
+district) on one imagery provider. Curb ramps are labelled as points on equirectangular
+panoramas.
+
+- **Curated by:** Project Sidewalk (Makeability Lab, University of Washington). The reviewer of a
+  split, where recorded, is in that split's `reviewer` column. TODO(Jon): which people to list as
+  the benchmark's creators (decided with the DOI record; `docs/fair_metadata_150.md` §3).
+- **Funded by:** TODO(Jon): the funding acknowledgement, if the card should carry one.
+- **Shared by:** Project Sidewalk ([huggingface.co/projectsidewalk](https://huggingface.co/projectsidewalk))
+- **Language(s) (NLP):** English, in the reviewer's free-text fields (`note`, `review_summary`,
+  `review_caveats`). Everything else is images, coordinates and fixed labels.
+- **License:** MIT for the benchmark (`license: mit`). Each record's imagery attribution is in its
+  `copyright` field; Mapillary records name the contributor and the CC BY-SA 4.0 licence.
+  TODO(Jon): decide whether the card should also state the terms Google Street View imagery
+  carries; no committed document records that decision.
+- **Version:** 1.0.0 (proposed; no tag exists on the Hub yet, see "Maintenance and versioning").
+
+### Dataset Sources
+
+- **Repository:** https://github.com/ProjectSidewalk/RampNet, ground truth under
+  [`benchmark/`](https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark)
+- **Paper (the model being evaluated, not this benchmark):** RampNet: A Two-Stage Pipeline for
+  Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata,
+  ICCV'25 workshop, [doi:10.48550/arXiv.2508.09415](https://doi.org/10.48550/arXiv.2508.09415)
+- **Erratum:** [`v1.1-corrected-eval`](https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.1-corrected-eval),
+  which defines the one-to-one matching rule this benchmark is scored with
+- **Machine-readable metadata:** [`croissant/rampnet-benchmark.json`](https://github.com/ProjectSidewalk/RampNet/blob/main/croissant/rampnet-benchmark.json)
+  (Croissant 1.1, GeoCroissant 1.0 and RAI, with every file's size and sha256)
+- **Demo:** none.
+
+## Uses
+
+### Direct Use
+
+- **Out-of-domain evaluation** of curb ramp detectors: precision, recall and AP per city and per
+  imagery provider, on cities RampNet was not trained on (Bend excepted).
+- **Comparing detectors** under one protocol. In a clone of the GitHub repository,
+  `python -m rampnet.eval score --bundle benchmark/<split> --predictions <file>` scores a
+  prediction file with the same matcher and recall gating behind every committed benchmark number
+  ([`docs/eval_protocol_150.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/docs/eval_protocol_150.md)).
+- **Resolution and imagery-fidelity experiments**, with the `native` and `4096x2048` configs.
+
+#### Supported tasks and leaderboards
+
+- **Curb ramp point detection** (`object-detection`). Predictions are (x, y) points, normalized to
+  the panorama, with an optional confidence. They match ground truth one-to-one within 0.022 of the
+  panorama width (in a 1024 x 512 space), with x wrapping across the seam; `unsure` points are
+  ignore regions; recall counts only recall-confirmed panoramas (see "Glossary").
+- **Leaderboard:** planned in [#150](https://github.com/ProjectSidewalk/RampNet/issues/150), not
+  yet live. The committed scoreboard of every model run so far is
+  [`docs/model_scoreboard.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/docs/model_scoreboard.md).
+
+### Out-of-Scope Use
+
+- **Training.** The splits are small, and training on them spends the only held-out cities.
+- **Quoting a number here as the RampNet paper's evaluation** (see the warning above).
+- **Pooling `budapest_district5` with the US splits** without reading its caveats: it was reviewed
+  at low self-rated confidence with a US-derived rubric.
+- **Measuring ramp condition or ADA compliance**, or identifying people or property in the imagery.
+
+## Dataset Structure
+
+### Splits and their rationale
+
+Every split is a test split. As of this export (reviewed panoramas only):
+
+{split_table}
+
+**City-held-out by design.** Each split is a city, or a district of one, that RampNet's Stage 1
+data does not contain, so a score on it measures transfer to a new place; Bend is the one
+exception, kept as an in-distribution reference. The imagery provider is fixed within a split, and
+usually the camera family too, so a split measures a place and a capture rig together.
+
+**Sampling within a split.** Each split samples a run of the auto-labeler over the city in three
+strata, recorded per row in `review_group`: `top` (the 5 panoramas with the most detections,
+always included), `random`, and `empty` (panoramas with no detection). The **unbiased subset** is
+`random` + `empty`; quote it when you want a number that generalises to the city. Panoramas per
+stratum, counted from each split's review (the rows' `review_group`):
+
+{strata_table}
+
+### Configs
 
 | config | what it is | when you want it |
 | :--- | :--- | :--- |
@@ -63,7 +160,7 @@ One row per reviewed panorama, joinable to any imagery config on `pano_id`:
 
 | column | meaning |
 | :--- | :--- |
-| `source` | `gsv` or `mapillary` |
+| `source` | `launch` (Google Street View) or `mapillary`, as the fetcher recorded it |
 | `capture_date`, `lat`, `lng`, `camera_heading`, `width`, `height` | panorama metadata as fetched |
 | **`copyright`** | per-record source attribution, e.g. `© <contributor> / Mapillary (CC BY-SA 4.0)` |
 | `detections` | model detections: `x_normalized`, `y_normalized`, `confidence`, and **`verdict`** |
@@ -100,7 +197,7 @@ Note that `4096x2048` is not uniformly smaller: for splits whose native imagery 
 near model resolution it can be *larger*, because it carries an extra JPEG generation. It is a
 fidelity artifact — it reproduces what a reviewer's eyes were on — not a compression trick.
 
-## Reviewer caveats travel with the rows
+### Reviewer caveats travel with the rows
 
 Each split's reviewer notes are copied onto its rows, so the caveat arrives with the number. As of
 this export:
@@ -116,7 +213,7 @@ for caveat in bp[0]["review_caveats"]:
     print("-", caveat)
 ```
 
-## Training overlap
+### Training overlap
 
 Reviewed panoramas that are also in `rampnet-dataset`'s train/validation splits, by split (Bend
 is one of the paper's three training cities):
@@ -143,7 +240,7 @@ bend = load_dataset("{repo_id}", "records", split="bend")
 unseen = bend.filter(lambda r: not r["train_overlap"])     # {bend_unseen_rows} rows
 ```
 
-## Usage
+### Usage
 
 ```python
 from datasets import load_dataset
@@ -185,7 +282,7 @@ crops = load_dataset("{repo_id}", "galleries", split="paterson")
 mine = [c for c in crops if c["pano_id"] == gt[0]["pano_id"]]
 ```
 
-## Verifying you have the pixels the reviewers judged
+### Verifying you have the pixels the reviewers judged
 
 Same pano id and filename is **not** evidence the bytes are the ones a reviewer saw — a re-fetch
 from Google Street View or Mapillary can return re-stitched or re-compressed imagery. Two
@@ -202,7 +299,145 @@ independent checks exist:
 python scripts/analysis/imagery_manifest.py --verify
 ```
 
-## Provenance
+## Dataset Creation
+
+### Curation Rationale
+
+RampNet's paper evaluated on a gold set drawn from its own three training cities, all imaged by
+Google Street View, so it could not say how the model does anywhere else. This benchmark measures
+that: new cities, including two outside the US, and a second imagery provider (Mapillary) with
+its own cameras. It also gives other detectors, including vision-language models, a common
+ground truth to be compared on.
+
+### Source Data
+
+#### Data Collection and Processing
+
+For each city, ProjectSidewalk/sidewalk-auto-labeler enumerated the panoramas in an area, ran the
+published RampNet model on each, and exported a native-resolution bundle. A stratified sample of
+those panoramas (see "Sampling within a split") was reviewed, and only reviewed panoramas are
+published. The imagery is stored as the exact bytes fetched (`native`) and at the model's input
+size (`4096x2048`); each panorama's sha256 was pinned at review time in
+`benchmark/<city>/imagery_manifest.json`. How a split is built and reviewed, step by step:
+[`docs/adding_a_benchmark_city.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/docs/adding_a_benchmark_city.md).
+
+#### Who are the source data producers?
+
+- **Google Street View** panoramas (`source` = `launch`), captured by Google.
+- **Mapillary** panoramas (`source` = `mapillary`), captured by Mapillary contributors on a range
+  of 360-degree cameras; each record's `copyright` names the contributor. The camera per panorama
+  is in `benchmark/<city>/records.jsonl` (`camera_model`) and is summarised per split in the
+  Croissant record.
+
+No demographic information about the imagery contributors is collected.
+
+### Annotations
+
+#### Annotation process
+
+One reviewer per split, in RampNet's ground-truth gallery
+([`scripts/gt_gallery.py`](https://github.com/ProjectSidewalk/RampNet/blob/main/scripts/gt_gallery.py),
+a static HTML page) at 4096x2048, under the rubric in
+[`benchmark/RUBRICS.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/benchmark/RUBRICS.md)
+§1:
+
+- every model detection is judged `correct`, `incorrect`, `unsure` or `duplicate`;
+- the whole panorama is scanned for ramps the model missed, each marked, optionally as `unsure`;
+- `no_missed` records the attestation that the scan was complete. Recall counts only panoramas
+  whose scan was confirmed this way, or that have at least one missed mark.
+
+**The ground truth is model-anchored.** Reviewers judge RampNet's own detections and then add what
+it missed, so the ground truth is not independent of the model being evaluated, and a detector
+that finds ramps in places RampNet never looked has only the reviewer's missed-ramp scan to be
+credited against. The paper's 1,000-panorama gold set in `rampnet-dataset` is the un-anchored one.
+
+**No second rater yet.** Every split has had one review pass; inter-rater agreement has not been
+measured (a Budapest second rater is [#74](https://github.com/ProjectSidewalk/RampNet/issues/74)).
+Each split's reviewer notes, confidence and caveats are on its rows (see above).
+
+#### Who are the annotators?
+
+One reviewer per split. Where a split recorded review notes, the reviewer is in its `reviewer`
+column; splits without review notes did not record a reviewer. TODO(Jon):
+confirm and record the reviewer of the splits whose `reviewer` is null.
+
+#### Personal and Sensitive Information
+
+Street-level panoramas can show people, faces, vehicles, licence plates and private buildings. The
+images are stored as the exact source bytes, with no redaction added by this release. The
+`copyright` field of Mapillary records names the contributing user account, as the imagery
+licence requires.
+
+## Bias, Risks, and Limitations
+
+- **Not the paper's evaluation.** Different ground truth, cities and matching protocol.
+- **Model-anchored ground truth** (above): a fair comparison between RampNet and a different
+  detector is harder than one between two versions of RampNet.
+- **Provider, camera and city are confounded.** Each split has one provider and usually one camera
+  family, so a difference between two splits cannot be attributed to the place alone.
+- **Capture years differ by split** (the table above), and within a split they can span more than
+  a decade of Street View captures, so a split mixes old and new streetscapes and cameras.
+- **Small splits.** About 110 to 125 panoramas each, so per-split intervals are wide (about ±5
+  points on precision and recall at Bend's counts). Pool, or quote the interval.
+- **Reviewer confidence varies.** Budapest was reviewed at low self-rated confidence with a
+  US-derived rubric; see "Reviewer caveats travel with the rows".
+- **Training overlap.** Bend is a training city, and four of its panoramas are in the training
+  data (flagged, see "Training overlap").
+- **Points only.** No ramp extents, slope or condition.
+
+### Recommendations
+
+Quote the unbiased subset (`random` + `empty`) with a Wilson interval, per split. Read
+`review_caveats` before quoting a split, and do not pool `budapest_district5` with the US splits.
+Drop `train_overlap` rows, or report Bend separately, when you want strictly unseen panoramas.
+Score with the erratum's one-to-one rule (`python -m rampnet.eval`), never with the paper's
+original matcher, and say in any write-up that the benchmark is post-publication.
+
+## Citation
+
+There is no separate publication for this benchmark. Cite the paper for **the pipeline and model
+being evaluated**, and please make clear that the evaluation set is post-publication rather than
+the paper's own:
+
+```bibtex
+{paper_cite_as}
+```
+
+The `doi` field is the arXiv preprint's DOI; `note = {{DOI: forthcoming}}` refers to the
+workshop proceedings DOI, which has not been issued yet.
+
+To cite the benchmark itself (the DOI is not yet minted; the `note` says so):
+
+```bibtex
+{cite_as}
+```
+
+**APA:**
+
+Project Sidewalk. (2026). *rampnet-benchmark: A post-publication, human-verified curb ramp
+detection benchmark* [Data set]. Hugging Face. https://huggingface.co/datasets/{repo_id}
+
+When you quote a number, cite the
+[`v1.1-corrected-eval`](https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.1-corrected-eval)
+erratum for the matching rule.
+
+## Glossary
+
+- **Verdict:** a reviewer's judgment of one model detection: `correct`, `incorrect`, `unsure`
+  (cannot tell from this imagery; an ignore point for scoring) or `duplicate` (a second detection
+  of a ramp already counted; a false positive).
+- **Missed mark:** a ramp the reviewer added where the model found nothing; a ground-truth point
+  for recall, or an ignore point if marked `unsure`.
+- **Recall-confirmed panorama:** one whose reviewer attested a complete scan (`no_missed`) or
+  marked at least one miss; only these count toward recall.
+- **Stratum (`review_group`):** `top`, `random` or `empty`; the **unbiased subset** is `random` +
+  `empty`.
+- **Model-anchored:** ground truth built by judging one model's detections, as here.
+- **`launch`:** the imagery fetcher's name for Google Street View.
+
+## More Information
+
+### Provenance
 
 | Field | Value |
 | :--- | :--- |
@@ -215,18 +450,36 @@ Imagery sources differ by city (Google Street View and Mapillary); per-split pro
 truth precision/recall, and reviewer confidence are documented in
 [`benchmark/README.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/benchmark/README.md).
 
-## Citation
+### Licensing information
 
-There is no separate publication for this benchmark. Cite the paper for **the pipeline and model
-being evaluated**, and please make clear that the evaluation set is post-publication rather than
-the paper's own:
+MIT for the benchmark; per-record imagery attribution in `copyright` (see "Dataset Description"
+for the open question about imagery terms).
 
-```bibtex
-@inproceedings{{omeara2025rampnet,
-  author    = {{John S. O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon E. Froehlich}},
-  title     = {{{{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}}}},
-  booktitle = {{{{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}}}},
-  year      = {{2025}},
-  doi       = {{https://doi.org/10.48550/arXiv.2508.09415}},
-}}
-```
+### Maintenance and versioning
+
+- **Static release per revision.** Verdicts are revised in git and re-exported to the `records`
+  config without touching the image files.
+- **Versioning policy** (proposed in [#150](https://github.com/ProjectSidewalk/RampNet/issues/150)):
+  **a major version on any change to a data file** (a revised verdict included, since it changes
+  a `records` file); **a minor version on a metadata-only change** (this card, the Croissant
+  record). The version label is settled together with the DOI.
+- **Identifier.** A DataCite DOI will be minted per Hub revision; the Croissant record carries a
+  placeholder until then.
+- **New splits** are added only with their training-overlap check committed
+  (`benchmark/train_overlap.json`); the exporter refuses a split without one.
+
+### Contributions
+
+Report a problem with a verdict, or propose a new city, at
+https://github.com/ProjectSidewalk/RampNet/issues. A second rater for any split is especially
+welcome: the per-rater files and the rubric are in git, and the gallery renders the same view the
+first reviewer saw.
+
+## Dataset Card Authors
+
+Project Sidewalk, Makeability Lab, University of Washington. TODO(Jon): name the individual card
+authors, if any should be listed.
+
+## Dataset Card Contact
+
+https://github.com/ProjectSidewalk/RampNet/issues
