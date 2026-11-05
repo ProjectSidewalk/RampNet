@@ -700,6 +700,7 @@ def card_items(anns, preds, threshold):
         cl = classify_pano(kept, ann)
         assign = greedy_match([(q[0], q[1]) for q in kept], gt, RADIUS_SQ, SCALE_X, SCALE_Y, wrap_x=True)
         hit = {k for k, _ in assign if k >= 0}
+        used = {(kept[j][0], kept[j][1]) for j, (k, _) in enumerate(assign) if k >= 0}   # spent on another label
         base = {"pano_id": pid, "city": sup.get("city"), "mode": sup.get("mode"),
                 "year": year_bin(ann.get("capture_date")), "gt": gt, "dets": kept,
                 "ignore": [tuple(q) for q in sup.get("ignore_points", [])]}
@@ -708,8 +709,9 @@ def card_items(anns, preds, threshold):
                 items.append({**base, "kind": kind, "x": q[0], "y": q[1], "conf": conf})
         for k, g in enumerate(gt):
             if k not in hit:
-                near = max([q[2] for q in preds.get(pid, []) if dist_sq(q[0], q[1], g[0], g[1], SCALE_X, SCALE_Y, True)
-                            < RADIUS_SQ] or [0.0])
+                # the best peak in the radius that no other label took (any confidence down to the floor)
+                near = max([q[2] for q in preds.get(pid, []) if (q[0], q[1]) not in used
+                            and dist_sq(q[0], q[1], g[0], g[1], SCALE_X, SCALE_Y, True) < RADIUS_SQ] or [0.0])
                 items.append({**base, "kind": "fn", "x": g[0], "y": g[1], "conf": near})
     order = {"fp": 0, "fn": 1, "tp": 2}
     return sorted(items, key=lambda it: (order[it["kind"]], -it["conf"]))
@@ -774,6 +776,17 @@ VERDICTS = {   # per card kind: (code, button text); keys 1-3 pick them in order
            ("unsure", "Unsure")),
 }
 
+SECTION_HEAD = {   # section title and the one question its cards ask
+    "fp": ("False positives", "The model fired where no label is. <strong>Is the outlined cross on a crosswalk?</strong> "
+           "Ignore labels elsewhere on the crop."),
+    "fn": ("Misses", "A label no detection was matched to. <strong>Is there a crosswalk at the large green ring?</strong> "
+           "If yes, it is a real miss even when the model found the intersection's other crosswalks; each label is "
+           "one crosswalk. \"Best unclaimed peak\" is the strongest model response inside the yellow circle that "
+           "another label did not already take (0.00 = nothing there)."),
+    "tp": ("True positives", "The model matched a label. <strong>Is the outlined cross on a crosswalk?</strong>"),
+}
+
+
 # Inline SVG glyphs for the legend, drawn like crop_card draws them (aria-hidden: the text beside each says it).
 _G = '<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" style="vertical-align:middle;background:#777">'
 LEGEND_GLYPHS = {
@@ -827,13 +840,16 @@ def cmd_gallery(a):
     os.makedirs(a.out, exist_ok=True)
     cache = {}
     cards = []
+    last_kind = None
     for it in pick:
         if it["pano_id"] not in cache:
             cache.clear()
             cache[it["pano_id"]] = Image.open(os.path.join(a.root, "test", f"{it['pano_id']}.jpg")).convert("RGB")
         b64 = base64.b64encode(crop_card(cache[it["pano_id"]], it)).decode("ascii")
         cid = card_id(it)
-        cap = (f"{it['kind'].upper()} conf {it['conf']:.2f} · {it['city']} · {it['mode']} · {it['year']} · "
+        head = (f"MISS · best unclaimed peak {it['conf']:.2f}" if it["kind"] == "fn"
+                else f"{it['kind'].upper()} conf {it['conf']:.2f}")
+        cap = (f"{head} · {it['city']} · {it['mode']} · {it['year']} · "
                f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})")
         subject = "this miss (large green ring)" if it["kind"] == "fn" else "this detection (large outlined cross)"
         btns = "".join(f'<button type="button" data-v="{v}" aria-pressed="false">{k + 1}. {html.escape(txt)}'
@@ -841,6 +857,11 @@ def cmd_gallery(a):
         meta = json.dumps({"card_id": cid, "kind": it["kind"], "pano_id": it["pano_id"], "x": round(it["x"], 4),
                            "y": round(it["y"], 4), "conf": round(it["conf"], 3), "city": it["city"],
                            "mode": it["mode"], "year": it["year"]})
+        if it["kind"] != last_kind:                                 # one section per card kind, with its question
+            last_kind = it["kind"]
+            title, question = SECTION_HEAD[last_kind]
+            n_kind = sum(1 for x in pick if x["kind"] == last_kind)
+            cards.append(f'<h2 id="sec-{last_kind}">{title} ({n_kind} cards)</h2><p class="q">{question}</p>')
         cards.append(f'<figure class="card {it["kind"]}" tabindex="0" data-meta="{html.escape(meta)}">'
                      f'<img src="data:image/jpeg;base64,{b64}" alt="{html.escape(cap)}">'
                      f'<figcaption>{html.escape(cap)}</figcaption>'
@@ -861,7 +882,7 @@ figure:focus{{outline:3px solid #36f;outline-offset:2px}}figure.done{{opacity:.5
 .rate button{{margin:4px 4px 0 0;font:inherit;padding:3px 8px;border:1px solid #888;background:#f4f4f4;border-radius:4px}}
 .rate button[aria-pressed=true]{{background:#225;color:#fff;border-color:#225}}
 label{{display:block;margin-top:4px;font-size:12px}}.note{{width:380px;font:inherit}}
-h2{{margin-top:24px}}.legend{{list-style:none;padding:0;columns:2 420px;margin:8px 0}}
+h2{{margin-top:28px;padding-top:56px;margin-bottom:4px}}.q{{max-width:980px;margin-top:0}}.legend{{list-style:none;padding:0;columns:2 420px;margin:8px 0}}
 .legend li{{margin:3px 0;break-inside:avoid}}.sw{{display:inline-block;width:34px;height:6px;vertical-align:middle}}</style></head><body>
 <h1>{html.escape(a.label)}: rate test items at threshold {t:.2f}</h1>
 <p>Each card asks about <strong>one</strong> item, drawn large. Everything else on the crop is context and,
@@ -884,7 +905,8 @@ label. Is the large cross on a crosswalk?</li>
 <kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em> when done.
 Test split has {counts['fp']} FPs (all shown), {counts['fn']} misses ({shown['fn']} sampled),
 {counts['tp']} TPs ({shown['tp']} sampled).</p>
-<div class="bar"><span id="prog"></span> &nbsp;
+<div class="bar"><nav aria-label="Sections"><a href="#sec-fp">False positives</a> ·
+<a href="#sec-fn">Misses</a> · <a href="#sec-tp">True positives</a></nav><span id="prog"></span> &nbsp;
 <label style="display:inline"><input type="checkbox" id="hide"> hide rated</label> &nbsp;
 <button type="button" id="exp">Export CSV</button></div>
 {''.join(cards)}
@@ -947,7 +969,7 @@ progress();
     path = os.path.join(a.out, f"rate_{a.label}.html")
     with open(path, "w", encoding="utf-8") as f:
         f.write(page)
-    log(f"rating page -> {path} ({len(cards)} cards, {len(prefill)} prefilled)")
+    log(f"rating page -> {path} ({len(pick)} cards, {len(prefill)} prefilled)")
 
 
 def main():
