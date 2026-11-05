@@ -766,10 +766,27 @@ def crop_card(img, it, half_w=0.08, out_w=480):
 
 
 VERDICTS = {   # per card kind: (code, button text); keys 1-3 pick them in order
-    "fp": (("crosswalk", "Crosswalk: label gap"), ("not_crosswalk", "Not a crosswalk"), ("unsure", "Unsure")),
-    "fn": (("real_miss", "Crosswalk: real miss"), ("no_crosswalk", "No crosswalk: label wrong"),
+    "fp": (("crosswalk", "Correct: it is a crosswalk"), ("not_crosswalk", "Wrong: not a crosswalk"),
            ("unsure", "Unsure")),
-    "tp": (("crosswalk", "Crosswalk"), ("not_crosswalk", "Not a crosswalk"), ("unsure", "Unsure")),
+    "fn": (("real_miss", "Real crosswalk, model missed it"), ("no_crosswalk", "No crosswalk here: label wrong"),
+           ("unsure", "Unsure")),
+    "tp": (("crosswalk", "Correct: it is a crosswalk"), ("not_crosswalk", "Wrong: not a crosswalk"),
+           ("unsure", "Unsure")),
+}
+
+# Inline SVG glyphs for the legend, drawn like crop_card draws them (aria-hidden: the text beside each says it).
+_G = '<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" style="vertical-align:middle;background:#777">'
+LEGEND_GLYPHS = {
+    "subject_det": _G + '<g stroke="#fff" stroke-width="7"><line x1="6" y1="17" x2="28" y2="17"/>'
+                   '<line x1="17" y1="6" x2="17" y2="28"/></g><g stroke="#e60000" stroke-width="3">'
+                   '<line x1="6" y1="17" x2="28" y2="17"/><line x1="17" y1="6" x2="17" y2="28"/></g>'
+                   '<circle cx="17" cy="17" r="15" fill="none" stroke="#fff" stroke-width="2"/></svg>',
+    "other_det": _G + '<g stroke="#ff5a5a" stroke-width="1.5"><line x1="12" y1="17" x2="22" y2="17"/>'
+                 '<line x1="17" y1="12" x2="17" y2="22"/></g></svg>',
+    "subject_gt": _G + '<circle cx="17" cy="17" r="12" fill="none" stroke="#28dc3c" stroke-width="5"/></svg>',
+    "other_gt": _G + '<circle cx="17" cy="17" r="7" fill="none" stroke="#28dc3c" stroke-width="2"/></svg>',
+    "ignore": _G + '<circle cx="17" cy="17" r="5" fill="none" stroke="#a0a0a0" stroke-width="2"/></svg>',
+    "radius": _G + '<ellipse cx="17" cy="17" rx="15" ry="15" fill="none" stroke="#ffdc00" stroke-width="1.5"/></svg>',
 }
 
 
@@ -844,12 +861,25 @@ figure:focus{{outline:3px solid #36f;outline-offset:2px}}figure.done{{opacity:.5
 .rate button{{margin:4px 4px 0 0;font:inherit;padding:3px 8px;border:1px solid #888;background:#f4f4f4;border-radius:4px}}
 .rate button[aria-pressed=true]{{background:#225;color:#fff;border-color:#225}}
 label{{display:block;margin-top:4px;font-size:12px}}.note{{width:380px;font:inherit}}
-h2{{margin-top:24px}}</style></head><body>
+h2{{margin-top:24px}}.legend{{list-style:none;padding:0;columns:2 420px;margin:8px 0}}
+.legend li{{margin:3px 0;break-inside:avoid}}.sw{{display:inline-block;width:34px;height:6px;vertical-align:middle}}</style></head><body>
 <h1>{html.escape(a.label)}: rate test items at threshold {t:.2f}</h1>
-<p>Each card rates <strong>one</strong> item. On a red (FP) or green-bar (TP) card that is the
-<strong>large outlined cross</strong>; on an orange (miss) card it is the <strong>large green ring</strong>.
-Small thin crosses are the model's other detections and small green rings other labels, shown for context
-only; each has its own card if it is an FP or miss. Grey ring = ignore point; yellow ellipse = match radius.</p>
+<p>Each card asks about <strong>one</strong> item, drawn large. Everything else on the crop is context and,
+if it is a false positive or a miss, has its own card.</p>
+<ul class="legend">
+<li><span class="sw" style="background:#d33"></span> <strong>False positive card</strong>: the model fired where
+no label is. Is the large cross on a crosswalk?</li>
+<li><span class="sw" style="background:#e90"></span> <strong>Miss card</strong>: a label the model did not
+match. Is there a crosswalk at the large green ring?</li>
+<li><span class="sw" style="background:#2a2"></span> <strong>True positive card</strong>: the model matched a
+label. Is the large cross on a crosswalk?</li>
+<li>{LEGEND_GLYPHS['subject_det']} the detection this card asks about</li>
+<li>{LEGEND_GLYPHS['subject_gt']} the label this card asks about (miss cards)</li>
+<li>{LEGEND_GLYPHS['other_det']} another detection at or above the threshold (context)</li>
+<li>{LEGEND_GLYPHS['other_gt']} another label (context)</li>
+<li>{LEGEND_GLYPHS['ignore']} ignore point: detections here are not scored</li>
+<li>{LEGEND_GLYPHS['radius']} match radius: a detection and a label inside it can pair up</li>
+</ul>
 <p>Keys: click or Tab to a card, then <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> to rate (jumps to the next card),
 <kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em> when done.
 Test split has {counts['fp']} FPs (all shown), {counts['fn']} misses ({shown['fn']} sampled),
