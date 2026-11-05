@@ -188,6 +188,37 @@ Proposed next test: (b′) below, pending Jon's approval.
 
 ![](figures/stage1_crosswalk_detector_274/pr_f1.png)
 
+### Human audit of the (a) test cards (2026-11-05, post hoc)
+
+Jon rated every test false positive, the seeded sample of 60 misses and 30 sampled true positives in
+`score_274.py gallery`'s rating page. Each card asked about one item. The verdicts are in
+`analysis_out/stage1_crosswalk_detector_274/ratings_jon_2026-11-05.csv`. These numbers explain (a); they do not
+replace its pre-registered result.
+
+- **Precision 0.889 → 0.990.** 58 of the 64 false positives are on real crosswalks the labels lack. The 6 real
+  errors are crosswalk look-alikes: red bus lanes (2), a rail track, a hatched no-parking area, the sidewalk
+  beside a crosswalk, and one with no paint. These are the hard negatives to add next.
+- **The misses are real.** 57 of 60 are real crosswalks the model missed, and 3 are unsure (all far away). None
+  is a wrong label. Some are very faded.
+- **True positives:** 28 of 29 rated are crosswalks, and 1 is unsure (between two crosswalks).
+- **Recall 0.761 → about 0.79–0.80 once duplicate labels are merged.** One crosswalk often carries two or three
+  labels, and only one of them can match. Merging labels within 0.01 / 0.015 / 0.02 of each other leaves
+  1,132 / 1,114 / 1,097 crosswalks, with recall 0.786 / 0.798 / 0.808. In 9 of the 60 sampled misses, a twin
+  label on the same crosswalk did match, so the crosswalk was found.
+
+**Why the labels have gaps and duplicates: B2 snap collisions in `crowd_arm.py`.** Crowd labels are never exhaustive
+per pano; a crosswalk labelled in one pano need not be labelled again. Completeness therefore rests on SDOT points
+placed by B2, plus Vistas-unexplained paint as ignore. B2 can snap an SDOT point onto paint that is already labelled,
+by a crowd click or by another SDOT point. That point's own crosswalk then has no label, and its detections score
+as false positives. The paint it lands on gets a duplicate label, which scores as a miss. Across arm C, 63 panos
+have two or more SDOT points snapped together, 33 of them marked complete. SDOT-onto-crowd collisions are not yet
+counted. The same errors are in the training labels, which teach those crosswalks as background.
+
+**Point matching also misreads long and crowded crosswalks.** A detection at one end of a long crosswalk can fall
+outside the 0.05 radius of a label at the other end. At a busy intersection the radius spans neighbouring
+crosswalks, so a detection can match the wrong crosswalk's label. Matching to the crosswalk's paint extent would fix
+both; that would be an open amendment, reported beside the pre-registered numbers.
+
 ### (b′) A representative Seattle node sample (fixed 2026-11-05 before any (b′) inference)
 
 Why: (b)'s nodes came with the test panos, which were picked where the crowd clicked crosswalks. The question (b)
