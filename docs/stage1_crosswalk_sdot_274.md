@@ -188,6 +188,47 @@ Proposed next test: (b′) below, pending Jon's approval.
 
 ![](figures/stage1_crosswalk_detector_274/pr_f1.png)
 
+### (b′) A representative Seattle node sample (DRAFT, fixed 2026-11-05 before any (b′) inference; awaiting Jon)
+
+Why: (b)'s nodes came with the test panos, which were picked where the crowd clicked crosswalks. The question (b)
+asks, whether a street-level detector beats the free map at a Seattle crossing, needs Seattle's nodes as they
+are. This is a new test. It does not re-decide (b), which stands as failed.
+
+- **Population.** A node is eligible when all of these hold:
+  - it is in `baseline_nodes.csv` (inside the regions and inside SDOT coverage);
+  - it is more than 60 m from every Seattle train/val pano;
+  - some Project Sidewalk store pano lies within 25 m of it.
+
+  That leaves 13,550 eligible nodes. Of the 22,020, 6,455 were dropped as near train/val and 2,015 for having no
+  store pano. 27% of the eligible nodes are marked, against 30% city-wide.
+- **Sample.** `score_274.py bprime-sample`, seed 274: 150 nodes per (OSM class × SDOT truth) cell, or all of a
+  smaller cell. Untagged-and-marked has 126.
+  - 876 nodes on 793 panos (`analysis_out/stage1_crosswalk_detector_274/bprime/sample.csv`, `sample.json`).
+  - Each node carries the weight `eligible ÷ sampled` of its cell.
+  - Truth-stratified sampling is valid because the weights restore the population. It gives every cell enough
+    nodes to read both recall and false positives.
+- **Pano.** Each node is scored from one pano: the newest Project Sidewalk store pano within 25 m, ties to the
+  nearest.
+  - Position, heading and date come from `sidewalk_seattle.pano_data`, exported read-only on 2026-11-05.
+  - Pixels are the makelab2 store copy, written at 4096×2048 exactly as the training root was
+    (`bprime-prep` → `export_stage2.write_image`).
+- **Prediction.** The fine-tune at its pre-registered val threshold 0.31 (the released weights at theirs, 0.05),
+  with the frozen extractor. Detections on the node's own pano go through (b)'s B1 inversion (2.5 m, ≤ 25 m).
+  The node is called marked when one lands within 10 m. Truth is a current SDOT point within 10 m, as before.
+- **Metrics.** P, R, F1 and MCC, population-weighted, for:
+  - the detector;
+  - `osm_marked_signal`;
+  - detector OR OSM;
+  - always-yes.
+
+  95% intervals come from a within-cell bootstrap (2,000 draws, seed 274). Also reported: per-cell call rates,
+  and recall on marked nodes by the pano's capture year.
+- **Proposed pass rule (Jon to confirm or change before inference).** Weighted detector F1 ≥ weighted
+  `osm_marked_signal` F1, the same rule as (b). Reported beside it: whether detector OR OSM beats OSM, with its
+  interval excluding 0. That is the "does the detector improve the map" question, the likely product use.
+- **Plumbing check** (a truth oracle, no model output): weighted F1 is 0.854 for OSM (city-wide 0.846) and 0.424
+  for always-yes. The test has headroom where (b) had 0.016.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned

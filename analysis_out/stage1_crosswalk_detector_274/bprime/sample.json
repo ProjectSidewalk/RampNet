@@ -1,0 +1,54 @@
+{
+ "seed": 274,
+ "per_cell": 150,
+ "exclude_m": 60.0,
+ "pano_m": 25.0,
+ "cells": {
+  "marked|0": {
+   "eligible": 747,
+   "sampled": 150,
+   "weight": 4.98
+  },
+  "marked|1": {
+   "eligible": 3224,
+   "sampled": 150,
+   "weight": 21.4933
+  },
+  "unknown|0": {
+   "eligible": 2198,
+   "sampled": 150,
+   "weight": 14.6533
+  },
+  "unknown|1": {
+   "eligible": 126,
+   "sampled": 126,
+   "weight": 1.0
+  },
+  "unmarked|0": {
+   "eligible": 6959,
+   "sampled": 150,
+   "weight": 46.3933
+  },
+  "unmarked|1": {
+   "eligible": 296,
+   "sampled": 150,
+   "weight": 1.9733
+  }
+ },
+ "dropped": {
+  "no_census_coords": 0,
+  "near_train_val": 6455,
+  "no_store_pano": 2015
+ },
+ "nodes": 876,
+ "panos": 793,
+ "train_val_seattle_panos": 3245,
+ "store_panos": 169794,
+ "store_panos_with_position": 168947,
+ "inputs_sha256": {
+  "baseline_nodes": "e8e84ba52e1c418887ab64a96dde11ce924de3b300b591c39ea750c4284537c8",
+  "store_listing": "479891fd5455b156dc2b97c55ff171a9fef2dd823540bb3fd6facc5566cabdbf",
+  "pano_data": "a7decb6b4feb49775a0e0e1d949eaf1fbb90c58198da7a73b4559ebf2f5eeff5"
+ },
+ "drawn_utc": "2026-11-05T13:36:58Z"
+}

@@ -254,8 +254,13 @@ def cmd_infer(a):
     with open(mp, "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=1)
     log(f"{a.label}: sha256 {digest[:12]} on {meta['gpu'] or device.type}")
-    for split in a.splits.split(","):
-        anns = load_split(a.root, split)
+    if a.ids_file:      # (b'): a flat dir of bprime-prep JPEGs, one "split"
+        ids = sorted(l.strip().split("/")[-1][:-4] for l in open(a.ids_file, encoding="utf-8") if l.strip())
+        jobs = [(a.split_name, {pid: os.path.join(a.pano_dir, f"{pid}.jpg") for pid in ids})]
+    else:
+        jobs = [(split, {pid: os.path.join(a.root, split, f"{pid}.jpg") for pid in load_split(a.root, split)})
+                for split in a.splits.split(",")]
+    for split, anns in jobs:
         path = os.path.join(out_dir, f"{split}.jsonl")
         done = {r["pano_id"] for r in read_jsonl(path)}
         todo = [pid for pid in anns if pid not in done]
@@ -263,7 +268,7 @@ def cmd_infer(a):
         t0 = time.time()
         with open(path, "a", encoding="utf-8", newline="\n") as f:
             for i, pid in enumerate(todo, 1):
-                h = ts.heatmap_for(model, device, os.path.join(a.root, split, f"{pid}.jpg"), False)
+                h = ts.heatmap_for(model, device, anns[pid], False)
                 preds = [[round(x, 6), round(y, 6), round(c, 6)]
                          for x, y, c in ts.peaks_to_dets(h, SCORE_FLOOR, MIN_DISTANCE)]
                 f.write(json.dumps({"pano_id": pid, "preds": preds}) + "\n")
@@ -805,6 +810,9 @@ def main():
     i.add_argument("--preds", required=True)
     i.add_argument("--splits", default=",".join(SPLITS))
     i.add_argument("--sha256", default=None, help="refuse unless the checkpoint hashes to this")
+    i.add_argument("--ids-file", default=None, help="(b') pano_files.txt; infer these from --pano-dir instead")
+    i.add_argument("--pano-dir", default=None, help="(b') flat dir of bprime-prep JPEGs")
+    i.add_argument("--split-name", default="bprime")
     s = sub.add_parser("score")
     s.add_argument("--root", required=True)
     s.add_argument("--preds", required=True)
@@ -828,9 +836,263 @@ def main():
     q.add_argument("--threshold", type=float, default=None)
     q.add_argument("--n", type=int, default=60)
     q.add_argument("--out", required=True)
+    b = sub.add_parser("bprime-sample", help="(b') stratified Seattle node sample + the store panos to fetch")
+    b.add_argument("--root", required=True)
+    b.add_argument("--baseline-nodes", required=True)
+    b.add_argument("--census", required=True)
+    b.add_argument("--pano-data", required=True, help="pipe-separated export of sidewalk_seattle.pano_data")
+    b.add_argument("--store-listing", required=True)
+    b.add_argument("--meta-dir", default=os.path.join(REPO, "analysis_out", "stage1_crosswalk_crowd_274"))
+    b.add_argument("--per-cell", type=int, default=BP_PER_CELL)
+    b.add_argument("--out", required=True)
+    b = sub.add_parser("bprime-prep", help="(b') store JPEGs -> 4096x2048 as the training root was written")
+    b.add_argument("--ids-file", required=True)
+    b.add_argument("--store", nargs="+", required=True, help="store roots laid out <id[:2]>/<id>.jpg")
+    b.add_argument("--out-dir", required=True)
+    b = sub.add_parser("bprime-score", help="(b') weighted node scores from the bprime predictions")
+    b.add_argument("--bprime", required=True, help="dir holding sample.csv and preds/<label>/bprime.jsonl")
+    b.add_argument("--scores", required=True, help="the (a)/(b) score dir: thresholds come from its scores.json")
+    b.add_argument("--pano-data", required=True)
+    b.add_argument("--labels", default="crosswalk_s1,released")
     a = ap.parse_args()
     {"infer": cmd_infer, "score": cmd_score, "figures": cmd_figures, "oracle": cmd_oracle,
-     "gallery": cmd_gallery}[a.cmd](a)
+     "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep,
+     "bprime-score": cmd_bprime_score}[a.cmd](a)
+
+
+BP_PER_CELL = 150             # (b') nodes per (osm_class x truth) cell
+BP_EXCLUDE_M = 60.0           # split_dataset.py's grouping distance, from every train/val pano
+BP_PANO_M = 25.0              # a node is scored from one store pano within this range
+
+
+def read_pano_data(path):
+    """pano_id -> (lat, lng, heading_deg, capture_date) from a pipe-separated export of a city's
+    `pano_data` (pano_id|lat|lng|camera_heading|capture_date|has_backup|source|width)."""
+    out = {}
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            p = line.rstrip("\n").split("|")
+            if len(p) >= 5 and p[1] and p[3]:
+                out[p[0]] = (float(p[1]), float(p[2]), float(p[3]), p[4] or None)
+    return out
+
+
+def cmd_bprime_sample(a):
+    """(b') node sample, drawn before any (b') inference: every baseline node with census coordinates, more than
+    BP_EXCLUDE_M from any train/val pano and with a store pano within BP_PANO_M, stratified by
+    (osm_class x SDOT truth), BP_PER_CELL per cell (all of a smaller cell), seed 274. Each node gets the newest
+    store pano within BP_PANO_M (ties: nearest). Weights restore the eligible population's cell sizes."""
+    from pilot import Grid
+    rng = random.Random(BOOT_SEED)
+    pd = read_pano_data(a.pano_data)
+    store = {l.split()[0][:-4] for l in open(a.store_listing, encoding="utf-8") if l.strip()}
+    store_pos = [(v[0], v[1], pid) for pid, v in pd.items() if pid in store]
+    gstore = Grid(store_pos)
+    trainval = []
+    for split in ("train", "val"):
+        ids = [pid for pid, ann in load_split(a.root, split).items()
+               if (ann.get("supervision") or {}).get("city") == SEATTLE]
+        pos = pano_positions(a.meta_dir, ids)
+        for pid in ids:
+            if pid in pos:
+                trainval.append((pos[pid][0], pos[pid][1], pid))
+            elif pid in pd:
+                trainval.append((pd[pid][0], pd[pid][1], pid))
+            else:
+                raise SystemExit(f"train/val pano {pid} has no position")
+    gtv = Grid(trainval)
+    node_xy = census_nodes(a.census)
+    with open(a.baseline_nodes, encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    drop = {"no_census_coords": 0, "near_train_val": 0, "no_store_pano": 0}
+    eligible = {}
+    for r in rows:
+        nid = r["node_id"]
+        if nid not in node_xy:
+            drop["no_census_coords"] += 1
+            continue
+        la, ln = node_xy[nid]
+        if gtv.within(la, ln, BP_EXCLUDE_M):
+            drop["near_train_val"] += 1
+            continue
+        near = gstore.within(la, ln, BP_PANO_M)
+        if not near:
+            drop["no_store_pano"] += 1
+            continue
+        d, (_, _, pid) = max(near, key=lambda t: (pd[t[1][2]][3] or "", -t[0]))
+        eligible.setdefault((r["osm_class"], int(r["truth"])), []).append(
+            {"node_id": nid, "lat": la, "lng": ln, "osm_class": r["osm_class"], "truth": int(r["truth"]),
+             "osm_marked_signal": int(r["osm_marked_signal"]), "pano_id": pid, "pano_dist_m": round(d, 2),
+             "capture_date": pd[pid][3]})
+    sample = []
+    cells = {}
+    for cell in sorted(eligible):
+        pool = sorted(eligible[cell], key=lambda x: x["node_id"])
+        pick = rng.sample(pool, min(a.per_cell, len(pool)))
+        w = len(pool) / len(pick)
+        cells[f"{cell[0]}|{cell[1]}"] = {"eligible": len(pool), "sampled": len(pick), "weight": round(w, 4)}
+        for x in sorted(pick, key=lambda x: x["node_id"]):
+            sample.append({**x, "weight": round(w, 6)})
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "sample.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(sample[0]), lineterminator="\n")
+        w.writeheader()
+        w.writerows(sample)
+    panos = sorted({x["pano_id"] for x in sample})
+    with open(os.path.join(a.out, "pano_files.txt"), "w", encoding="utf-8", newline="\n") as f:
+        f.write("".join(f"./{p[:2]}/{p}.jpg\n" for p in panos))
+    meta = {"seed": BOOT_SEED, "per_cell": a.per_cell, "exclude_m": BP_EXCLUDE_M, "pano_m": BP_PANO_M,
+            "cells": cells, "dropped": drop, "nodes": len(sample), "panos": len(panos),
+            "train_val_seattle_panos": len(trainval), "store_panos": len(store),
+            "store_panos_with_position": len(store_pos),
+            "inputs_sha256": {"baseline_nodes": sha256(a.baseline_nodes), "store_listing": sha256(a.store_listing),
+                              "pano_data": sha256(a.pano_data)},
+            "drawn_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    with open(os.path.join(a.out, "sample.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(meta, f, indent=1)
+    log(f"(b') {len(sample)} nodes on {len(panos)} panos; cells {cells}; dropped {drop}")
+
+
+def cmd_bprime_prep(a):
+    """(b') store JPEGs -> 4096x2048 JPEGs written exactly as export_stage2.write_image wrote the training root,
+    so (b') panos reach the model through the same decode/resize path as the test split."""
+    import export_stage2
+    ids = sorted(l.strip().split("/")[-1][:-4] for l in open(a.ids_file, encoding="utf-8") if l.strip())
+    os.makedirs(a.out_dir, exist_ok=True)
+    missing = []
+    for k, pid in enumerate(ids, 1):
+        dst = os.path.join(a.out_dir, f"{pid}.jpg")
+        if os.path.exists(dst):
+            continue
+        src = next((p for p in (os.path.join(s, pid[:2], f"{pid}.jpg") for s in a.store) if os.path.exists(p)), None)
+        if src is None:
+            missing.append(pid)
+            continue
+        export_stage2.write_image(src, dst + ".tmp.jpg")
+        os.replace(dst + ".tmp.jpg", dst)
+        if k % 100 == 0:
+            log(f"  {k}/{len(ids)}")
+    log(f"(b') prep: {len(ids) - len(missing)} of {len(ids)} panos in {a.out_dir}; missing {len(missing)}")
+    if missing:
+        raise SystemExit(f"missing from every store dir: {missing[:5]}")
+
+
+def weighted_metrics(rows, key):
+    """Population-weighted P/R/F1/MCC of a 0/1 column against `truth`, with each row's `weight`."""
+    tp = sum(r["weight"] for r in rows if r[key] and r["truth"])
+    fp = sum(r["weight"] for r in rows if r[key] and not r["truth"])
+    fn = sum(r["weight"] for r in rows if not r[key] and r["truth"])
+    tn = sum(r["weight"] for r in rows if not r[key] and not r["truth"])
+    p = tp / (tp + fp) if tp + fp else float("nan")
+    rc = tp / (tp + fn) if tp + fn else float("nan")
+    den = math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    return {"precision": p, "recall": rc, "f1": f1(p, rc) if not (math.isnan(p) or math.isnan(rc)) else float("nan"),
+            "mcc": (tp * tn - fp * fn) / den if den else float("nan"), "tp_w": tp, "fp_w": fp, "fn_w": fn, "tn_w": tn}
+
+
+def strat_boot(rows, keys, n=BOOT_N, seed=BOOT_SEED):
+    """Within-cell bootstrap of weighted F1 for each key; returns {key: sorted list of F1}."""
+    rng = random.Random(seed)
+    cells = {}
+    for r in rows:
+        cells.setdefault(r["cell"], []).append(r)
+    out = {k: [] for k in keys}
+    for _ in range(n):
+        s = [rng.choice(c) for c in cells.values() for _ in c]
+        for k in keys:
+            out[k].append(weighted_metrics(s, k)["f1"])
+    return out
+
+
+def cmd_bprime_score(a):
+    """(b'): each sampled node scored from its own pano's detections at the model's val-F1 threshold (from the
+    pre-registered scores.json), B1 inverted at CAMERA_H, kept within MAX_RANGE_M, hit within NODE_MATCH_M."""
+    res = json.load(open(os.path.join(a.scores, "scores.json"), encoding="utf-8"))
+    pd = read_pano_data(a.pano_data)
+    sample = list(csv.DictReader(open(os.path.join(a.bprime, "sample.csv"), encoding="utf-8")))
+    out = {"models": {}, "n_nodes": len(sample), "scored_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    node_rows = []
+    for lab in a.labels.split(","):
+        t = res["models"][lab]["threshold"]
+        preds = {r["pano_id"]: r["preds"] for r in read_jsonl(os.path.join(a.bprime, "preds", lab, "bprime.jsonl"))}
+        rows = []
+        for s in sample:
+            pid = s["pano_id"]
+            if pid not in preds:
+                raise SystemExit(f"{lab}: no (b') prediction for pano {pid}")
+            lat, lng, hd, _ = pd[pid]
+            nla, nln = float(s["lat"]), float(s["lng"])
+            hit = 0
+            for x, y, c in preds[pid]:
+                if c >= t:
+                    g = ground_point(lat, lng, hd, x, y)
+                    if g and haversine_m(g[0], g[1], nla, nln) <= NODE_MATCH_M:
+                        hit = 1
+                        break
+            r = {"node_id": s["node_id"], "cell": f"{s['osm_class']}|{s['truth']}", "osm_class": s["osm_class"],
+                 "truth": int(s["truth"]), "weight": float(s["weight"]), "osm": int(s["osm_marked_signal"]),
+                 "detector": hit, "year": year_bin(s["capture_date"]), "pano_id": pid}
+            r["either"] = int(r["detector"] or r["osm"])
+            r["always_yes"] = 1
+            rows.append(r)
+            node_rows.append({"model": lab, **{k: v for k, v in r.items()}})
+        keys = ("detector", "osm", "either", "always_yes")
+        m = {k: weighted_metrics(rows, k) for k in keys}
+        boot = strat_boot(rows, ("detector", "osm", "either"))
+        diff = sorted(d - o for d, o in zip(boot["detector"], boot["osm"]))
+        diff_or = sorted(e - o for e, o in zip(boot["either"], boot["osm"]))
+        per_cell = {}
+        for r in rows:
+            c = per_cell.setdefault(r["cell"], {"n": 0, "detector_yes": 0, "osm_yes": 0})
+            c["n"] += 1
+            c["detector_yes"] += r["detector"]
+            c["osm_yes"] += r["osm"]
+        by_year = {}
+        for r in rows:
+            if r["truth"]:
+                y = by_year.setdefault(r["year"], {"n_true": 0, "detector_hit": 0})
+                y["n_true"] += 1
+                y["detector_hit"] += r["detector"]
+        out["models"][lab] = {"threshold": t, "weighted": m,
+                              "f1_diff_detector_minus_osm_95": [diff[int(.025 * len(diff))], diff[int(.975 * len(diff)) - 1]],
+                              "f1_diff_or_minus_osm_95": [diff_or[int(.025 * len(diff_or))], diff_or[int(.975 * len(diff_or)) - 1]],
+                              "passes": m["detector"]["f1"] >= m["osm"]["f1"],
+                              "per_cell": per_cell, "true_nodes_by_pano_year": by_year}
+        log(f"(b') {lab}: weighted F1 detector {fmt(m['detector']['f1'])} vs OSM {fmt(m['osm']['f1'])}; "
+            f"OR {fmt(m['either']['f1'])}")
+    with open(os.path.join(a.bprime, "scores.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(out, f, indent=1)
+    with open(os.path.join(a.bprime, "nodes.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(node_rows[0]), lineterminator="\n")
+        w.writeheader()
+        w.writerows(node_rows)
+    L = ["# (b') Seattle node sample: detector vs the map-only baseline (RampNet#274)\n",
+         f"Scored {out['scored_utc']} by `score_274.py bprime-score`; protocol in docs/stage1_crosswalk_sdot_274.md "
+         f"(b'). {len(sample)} nodes, weighted to the eligible population.\n",
+         "| model | threshold | detector P / R / F1 / MCC | OSM P / R / F1 / MCC | OR F1 | always-yes F1 | "
+         "F1 det−OSM 95% | F1 OR−OSM 95% | passes |", "|---|---|---|---|---|---|---|---|---|"]
+    for lab, mm in out["models"].items():
+        d, o, e, y = (mm["weighted"][k] for k in ("detector", "osm", "either", "always_yes"))
+        L.append(f"| {lab} | {mm['threshold']:.2f} | {fmt(d['precision'])} / {fmt(d['recall'])} / {fmt(d['f1'])} / "
+                 f"{fmt(d['mcc'])} | {fmt(o['precision'])} / {fmt(o['recall'])} / {fmt(o['f1'])} / {fmt(o['mcc'])} | "
+                 f"{fmt(e['f1'])} | {fmt(y['f1'])} | [{fmt(mm['f1_diff_detector_minus_osm_95'][0])}, "
+                 f"{fmt(mm['f1_diff_detector_minus_osm_95'][1])}] | [{fmt(mm['f1_diff_or_minus_osm_95'][0])}, "
+                 f"{fmt(mm['f1_diff_or_minus_osm_95'][1])}] | {'**yes**' if mm['passes'] else 'no'} |")
+    L += ["\n## Per cell (unweighted: the share of sampled nodes each predictor calls marked)\n",
+          "| model | OSM class | truth | nodes | detector yes | OSM yes |", "|---|---|---|---|---|---|"]
+    for lab, mm in out["models"].items():
+        for cell, c in sorted(mm["per_cell"].items()):
+            cls, tr = cell.split("|")
+            L.append(f"| {lab} | {cls} | {'marked' if tr == '1' else 'not'} | {c['n']} | "
+                     f"{c['detector_yes'] / c['n']:.3f} | {c['osm_yes'] / c['n']:.3f} |")
+    L += ["\n## Detector recall on marked nodes, by the scored pano's capture year (unweighted)\n",
+          "| model | year | marked nodes | hit |", "|---|---|---|---|"]
+    for lab, mm in out["models"].items():
+        for yb, c in sorted(mm["true_nodes_by_pano_year"].items()):
+            L.append(f"| {lab} | {yb} | {c['n_true']} | {c['detector_hit'] / c['n_true']:.3f} |")
+    with open(os.path.join(a.bprime, "report.md"), "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(L) + "\n")
+    log(f"(b') report -> {os.path.join(a.bprime, 'report.md')}")
 
 
 def cmd_oracle(a):
