@@ -188,7 +188,7 @@ Proposed next test: (b′) below, pending Jon's approval.
 
 ![](figures/stage1_crosswalk_detector_274/pr_f1.png)
 
-### (b′) A representative Seattle node sample (DRAFT, fixed 2026-11-05 before any (b′) inference; awaiting Jon)
+### (b′) A representative Seattle node sample (fixed 2026-11-05 before any (b′) inference)
 
 Why: (b)'s nodes came with the test panos, which were picked where the crowd clicked crosswalks. The question (b)
 asks, whether a street-level detector beats the free map at a Seattle crossing, needs Seattle's nodes as they
@@ -223,9 +223,11 @@ are. This is a new test. It does not re-decide (b), which stands as failed.
 
   95% intervals come from a within-cell bootstrap (2,000 draws, seed 274). Also reported: per-cell call rates,
   and recall on marked nodes by the pano's capture year.
-- **Proposed pass rule (Jon to confirm or change before inference).** Weighted detector F1 ≥ weighted
-  `osm_marked_signal` F1, the same rule as (b). Reported beside it: whether detector OR OSM beats OSM, with its
-  interval excluding 0. That is the "does the detector improve the map" question, the likely product use.
+- **Pass rule (adopted 2026-11-05 with Jon's go-ahead, before any (b′) inference).**
+  - **Primary:** "does the detector improve the map?" Weighted F1 of detector OR `osm_marked_signal` exceeds
+    weighted `osm_marked_signal` F1, and the 95% within-cell bootstrap interval of the difference lies above 0.
+  - **Secondary, reported:** weighted detector F1 ≥ weighted `osm_marked_signal` F1, (b)'s rule.
+  - The thresholds are the pre-registered val picks; nothing is tuned on (b′).
 - **Plumbing check** (a truth oracle, no model output): weighted F1 is 0.854 for OSM (city-wide 0.846) and 0.424
   for always-yes. The test has headroom where (b) had 0.016.
 

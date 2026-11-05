@@ -1056,7 +1056,9 @@ def cmd_bprime_score(a):
         out["models"][lab] = {"threshold": t, "weighted": m,
                               "f1_diff_detector_minus_osm_95": [diff[int(.025 * len(diff))], diff[int(.975 * len(diff)) - 1]],
                               "f1_diff_or_minus_osm_95": [diff_or[int(.025 * len(diff_or))], diff_or[int(.975 * len(diff_or)) - 1]],
-                              "passes": m["detector"]["f1"] >= m["osm"]["f1"],
+                              # primary (adopted before inference): OR beats OSM with the interval above 0
+                              "passes": diff_or[int(.025 * len(diff_or))] > 0 and m["either"]["f1"] > m["osm"]["f1"],
+                              "secondary_detector_ge_osm": m["detector"]["f1"] >= m["osm"]["f1"],
                               "per_cell": per_cell, "true_nodes_by_pano_year": by_year}
         log(f"(b') {lab}: weighted F1 detector {fmt(m['detector']['f1'])} vs OSM {fmt(m['osm']['f1'])}; "
             f"OR {fmt(m['either']['f1'])}")
@@ -1070,14 +1072,16 @@ def cmd_bprime_score(a):
          f"Scored {out['scored_utc']} by `score_274.py bprime-score`; protocol in docs/stage1_crosswalk_sdot_274.md "
          f"(b'). {len(sample)} nodes, weighted to the eligible population.\n",
          "| model | threshold | detector P / R / F1 / MCC | OSM P / R / F1 / MCC | OR F1 | always-yes F1 | "
-         "F1 det−OSM 95% | F1 OR−OSM 95% | passes |", "|---|---|---|---|---|---|---|---|---|"]
+         "F1 det−OSM 95% | F1 OR−OSM 95% | primary: OR beats OSM | secondary: det ≥ OSM |",
+         "|---|---|---|---|---|---|---|---|---|---|"]
     for lab, mm in out["models"].items():
         d, o, e, y = (mm["weighted"][k] for k in ("detector", "osm", "either", "always_yes"))
         L.append(f"| {lab} | {mm['threshold']:.2f} | {fmt(d['precision'])} / {fmt(d['recall'])} / {fmt(d['f1'])} / "
                  f"{fmt(d['mcc'])} | {fmt(o['precision'])} / {fmt(o['recall'])} / {fmt(o['f1'])} / {fmt(o['mcc'])} | "
                  f"{fmt(e['f1'])} | {fmt(y['f1'])} | [{fmt(mm['f1_diff_detector_minus_osm_95'][0])}, "
                  f"{fmt(mm['f1_diff_detector_minus_osm_95'][1])}] | [{fmt(mm['f1_diff_or_minus_osm_95'][0])}, "
-                 f"{fmt(mm['f1_diff_or_minus_osm_95'][1])}] | {'**yes**' if mm['passes'] else 'no'} |")
+                 f"{fmt(mm['f1_diff_or_minus_osm_95'][1])}] | {'**yes**' if mm['passes'] else 'no'} | "
+                 f"{'yes' if mm['secondary_detector_ge_osm'] else 'no'} |")
     L += ["\n## Per cell (unweighted: the share of sampled nodes each predictor calls marked)\n",
           "| model | OSM class | truth | nodes | detector yes | OSM yes |", "|---|---|---|---|---|---|"]
     for lab, mm in out["models"].items():

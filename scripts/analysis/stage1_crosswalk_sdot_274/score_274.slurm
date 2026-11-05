@@ -7,6 +7,7 @@
 #
 # Usage, from the repo root of a checkout at the scorer's commit:
 #   RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 sbatch scripts/analysis/stage1_crosswalk_sdot_274/score_274.slurm
+#   ...add BPRIME=1 for the (b') node sample (panos from `score_274.py bprime-prep`, copied to BPRIME_PANOS).
 #SBATCH -p ckpt-all
 #SBATCH --job-name=cw274_score
 #SBATCH --nodes=1
@@ -44,7 +45,14 @@ echo "job ${SLURM_JOB_ID:-local} restarts ${SLURM_RESTART_COUNT:-0} node ${SLURM
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 S="$REPO/scripts/analysis/stage1_crosswalk_sdot_274/score_274.py"
 status=0
-"$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label crosswalk_s1 --checkpoint "$FT_CKPT" --sha256 "$FT_SHA" || status=1
-"$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label released --checkpoint "$REL_CKPT" --sha256 "$REL_SHA" || status=1
+# BPRIME=1: the (b') node sample instead -- the panos `bprime-prep` wrote, ids from the committed pano_files.txt
+EXTRA=()
+if [ "${BPRIME:-0}" = 1 ]; then
+    PREDS="${BPRIME_PREDS:-/gscratch/scrubbed/$USER/crosswalk274/bprime_preds}"
+    EXTRA=(--ids-file "$REPO/analysis_out/stage1_crosswalk_detector_274/bprime/pano_files.txt"
+           --pano-dir "${BPRIME_PANOS:-/gscratch/scrubbed/$USER/crosswalk274/bprime_4096}")
+fi
+"$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label crosswalk_s1 --checkpoint "$FT_CKPT" --sha256 "$FT_SHA" "${EXTRA[@]}" || status=1
+"$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label released --checkpoint "$REL_CKPT" --sha256 "$REL_SHA" "${EXTRA[@]}" || status=1
 echo "done, status $status"
 exit $status
