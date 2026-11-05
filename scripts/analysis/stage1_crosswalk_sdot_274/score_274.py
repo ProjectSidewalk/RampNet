@@ -401,6 +401,27 @@ def score_nodes(test_anns, preds_by_pano, threshold, positions, nodes_rows, node
     return rows, {"seattle_test_panos": len(sea), "detections": n_det, "placed_within_range": n_placed}
 
 
+def node_exploratory(test_anns, test_preds, positions, node_rows, node_xy, nrows):
+    """POST HOC, not pre-registered: node F1 across thresholds, and how the detector and OSM disagree at the
+    val threshold. Reported to explain (b), never to re-decide it."""
+    sweep = []
+    for t in GRID[::5]:
+        rr, _ = score_nodes(test_anns, test_preds, t, positions, node_rows, node_xy)
+        truth = [r["truth"] for r in rr]
+        d = prf([r["detector"] for r in rr], truth)
+        sweep.append({"threshold": t, "detector_f1": d["f1"], "detector_p": d["precision"],
+                      "detector_r": d["recall"],
+                      "or_f1": prf([int(r["detector"] or r["osm_marked_signal"]) for r in rr], truth)["f1"],
+                      "and_f1": prf([int(r["detector"] and r["osm_marked_signal"]) for r in rr], truth)["f1"]})
+    cells = {}
+    for r in nrows:
+        k = f"det{r['detector']}_osm{r['osm_marked_signal']}_truth{r['truth']}"
+        cells[k] = cells.get(k, 0) + 1
+    truth = [r["truth"] for r in nrows]
+    return {"threshold_sweep": sweep, "agreement": dict(sorted(cells.items(), reverse=True)),
+            "always_yes": prf([1] * len(truth), truth)}
+
+
 def node_summary(rows):
     truth = [r["truth"] for r in rows]
     det = [r["detector"] for r in rows]
@@ -486,6 +507,9 @@ def cmd_score(a):
         test_preds = load_preds(a.preds, lab, "test", anns["test"])
         nrows, ninfo = score_nodes(anns["test"], test_preds, t_star, positions, node_rows, node_xy)
         mres["nodes"] = {**node_summary(nrows), **ninfo}
+        if meta.get("sha256") != "n/a":
+            mres["nodes_exploratory"] = node_exploratory(anns["test"], test_preds, positions, node_rows, node_xy,
+                                                         nrows)
         for r in nrows:
             node_out.append({"model": lab, **r})
         res["models"][lab] = mres
@@ -536,12 +560,13 @@ def write_report(res, out, labels):
           f"{o['tp']} ({o['tp_complete']}) | {o['fp']} | {o['ignored']} | {o['n_gt']} |")
     for key, title in (("city", "per city"), ("mode", "per supervision mode"), ("year", "per capture year")):
         w(f"\n### Test, {title}\n")
-        w("| model | group | panos | precision | recall | F1 | positives |\n|---|---|---|---|---|---|---|")
+        w("| model | group | panos | precision | recall | F1 | FP | positives |\n|---|---|---|---|---|---|---|---|")
         for lab in labels:
             for g, m in res["models"][lab]["split"]["test"]["by"][key].items():
                 w(f"| {lab} | {g} | {m['panos']} | {fmt(m['precision'])} | {fmt(m['recall'])} | {fmt(m['f1'])} | "
-                  f"{m['n_gt']} |")
-    w("\nPrecision is n/a where a group has no complete pano (every non-Seattle city is `sparse`).\n")
+                  f"{m['fp']} | {m['n_gt']} |")
+    w("\nPrecision is n/a where a group has no complete pano (every non-Seattle city is `sparse`), or where a "
+      "complete group drew no detection at all (`verified_empty` with 0 FP).\n")
     w("\n### Val, overall (where the threshold was chosen)\n")
     w("| model | threshold | precision | recall | F1 |\n|---|---|---|---|---|")
     for lab in labels:
@@ -576,6 +601,25 @@ def write_report(res, out, labels):
         w(f"- {lab}: [{fmt(lo)}, {fmt(hi)}]; {n['detections']} detections on {n['seattle_test_panos']} panos, "
           f"{n['placed_within_range']} placed within range")
     w(f"\nHeading source for the Seattle test panos: {res['inputs']['seattle_test_heading_sources']}.\n")
+    w("\n## Exploratory, post hoc (not pre-registered: explains (b), never re-decides it)\n")
+    for lab in labels:
+        ex = res["models"][lab].get("nodes_exploratory")
+        if not ex:
+            continue
+        w(f"### {lab}: node F1 across thresholds (val pick {res['models'][lab]['threshold']:.2f})\n")
+        w("| threshold | detector P / R / F1 | detector OR OSM F1 | detector AND OSM F1 |\n|---|---|---|---|")
+        for r in ex["threshold_sweep"]:
+            w(f"| {r['threshold']:.2f} | {fmt(r['detector_p'])} / {fmt(r['detector_r'])} / {fmt(r['detector_f1'])} | "
+              f"{fmt(r['or_f1'])} | {fmt(r['and_f1'])} |")
+        w(f"\nOSM alone: F1 {fmt(res['models'][lab]['nodes']['osm_marked_signal']['f1'])}. Saying yes at every "
+          f"node: F1 {fmt(ex['always_yes']['f1'])} (its precision is the share of nodes that are marked).\n")
+        w(f"### {lab}: detector vs OSM vs truth at the val threshold (node counts)\n")
+        w("| detector | OSM | truth | nodes |\n|---|---|---|---|")
+        for k, v in ex["agreement"].items():
+            d, o, t = (part[-1] for part in k.split("_"))
+            w(f"| {'yes' if d == '1' else 'no'} | {'yes' if o == '1' else 'no'} | "
+              f"{'marked' if t == '1' else 'not'} | {v} |")
+        w("")
     with open(os.path.join(out, "report.md"), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(L) + "\n")
     log(f"report -> {os.path.join(out, 'report.md')}")

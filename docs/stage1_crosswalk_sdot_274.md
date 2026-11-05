@@ -143,6 +143,51 @@ here, in the commit that adds the scorer, before it read any model output.
    - nodes F1 0.914 against `osm_marked_signal`'s 0.898, on the same 463 Seattle test nodes (315 true).
    So (b)'s bar sits 0.016 below the best a perfect pixel detector could score through this geometry.
 
+### Results (scored 2026-11-05)
+
+The run used the checkpoint `final_step_1000.pth` (sha256 `6f467ff4…`). Inference was klone job 42861556, A100,
+0.63 s per pano. Full tables are in `analysis_out/stage1_crosswalk_detector_274/report.md`.
+
+**(a) Pixels: a large lift over the curb-ramp floor.** Each model is scored on test at its own val-F1 threshold:
+
+| model | threshold | precision (complete panos) | recall (all positives) | F1 |
+|---|---|---|---|---|
+| fine-tune `crosswalk_s1` | 0.31 | 0.889 [0.861, 0.912] | 0.761 [0.736, 0.785] | 0.820 |
+| released curb-ramp weights | 0.05 (grid floor) | 0.198 [0.178, 0.220] | 0.413 [0.386, 0.442] | 0.268 |
+
+- **Per city**, recall is Amsterdam 0.786, Burnaby 0.839, Seattle 0.752 and Teaneck 0.730 (37 positives). Only
+  Seattle has complete panos, so precision exists only there.
+- **By capture year**, F1 is 0.771 for ≤2018 (30 panos), 0.821 for 2019–2022 and 0.823 for 2023+.
+- **On the 31 verified-empty test panos**, the fine-tune makes no detection at all.
+- Test F1 (0.820) is above val F1 (0.778).
+
+**(b) Per node: FAILS as pre-registered.**
+
+| | P / R / F1 |
+|---|---|
+| detector | 0.832 / 0.927 / 0.877 |
+| `osm_marked_signal` | 0.854 / 0.946 / 0.898 |
+| detector OR OSM | F1 0.895 |
+
+- The scores are over 463 Seattle test nodes, 315 of them marked.
+- On the 38 nodes OSM leaves untagged (9 marked), the detector scores 0.889 / 0.889 / 0.889 against OSM's
+  0.625 / 0.556 / 0.588.
+
+**Post hoc, explaining (b) without re-deciding it.**
+- **The node subset is not the city.** 68% of these nodes are marked, against 30% city-wide, and OSM tags 74% of them
+  marked, against 33%. The cause is that the test panos were chosen where the crowd clicked crosswalks, which is
+  OSM's easiest case. Saying yes at every node already scores F1 0.810 here, against 0.459 city-wide.
+- **The ceiling is tight.** The label ceiling is 0.914, so (b) has 0.016 of headroom.
+- **No threshold rescues it.** The detector's node F1 peaks at 0.885, at threshold 0.25.
+- **Where the two disagree** (at the val threshold):
+  - the detector alone is right on 13 marked nodes that OSM misses;
+  - OSM alone is right on 19;
+  - the detector alone says yes on 18 nodes that are not marked, and OSM alone on 10.
+
+Proposed next test: (b′) below, pending Jon's approval.
+
+![](figures/stage1_crosswalk_detector_274/pr_f1.png)
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
@@ -183,6 +228,13 @@ python $P fetch --out $OUT                                                  # ne
 python $P place --out $OUT                                                  # GPU: Vistas, ~25 min on an RTX 3070
 python $P report --out $OUT && python $P figures --out $OUT && python $P gallery --out $OUT
 python -m pytest tests/test_sdot_source_274.py && python -m doctest stage_one/dataset_generation/sdot_source.py
+# first crosswalk detector (scores): inference on klone, then CPU scoring anywhere
+S=scripts/analysis/stage1_crosswalk_sdot_274/score_274.py; D=analysis_out/stage1_crosswalk_detector_274
+RAMPNET_ENV=<conda prefix> sbatch scripts/analysis/stage1_crosswalk_sdot_274/score_274.slurm   # -> $D/preds (committed)
+python $S oracle --root <Stage 2 root> --preds $D/preds
+python $S score --root <Stage 2 root> --preds $D/preds --labels crosswalk_s1,released,label_ceiling     --baseline-nodes <crosswalk-inventory-274>/analysis_out/crosswalk_inventory_274/baseline_nodes.csv     --census <Phase 0 census out> --out $D
+python $S figures --out $D && python $S gallery --root <root> --preds $D/preds --scores $D --label crosswalk_s1 --out <outside the repo>
+python -m doctest $S
 ```
 
 Needs RampNet's environment plus `streetlevel==0.12.10` (its `pyequilib` dependency pulls a newer CPU torch on
@@ -198,5 +250,10 @@ churns, so a fresh `meta` moves the yield numbers.
 | on-paint, B2, shifts, per-year table | `placements.csv`, `report.md` §2–4b |
 | figures | `docs/figures/stage1_crosswalk_sdot_274/` (`yield_hist.png`, `range_hit_rate.png`) via `pilot.py figures` |
 | gallery (local, untracked: it points into `views/`) | `gallery.html` via `pilot.py gallery` |
+| detector predictions (peaks >= 0.05, per pano) | `analysis_out/stage1_crosswalk_detector_274/preds/<label>/{val,test}.jsonl` + `meta.json` (sha256) |
+| (a) thresholds, overall / per-group P-R-F1 | `report.md`, `scores.json`, `threshold_sweep.csv`, `pixel_breakdown.csv` |
+| (b) per-node calls, post-hoc node sweep and agreement | `nodes.csv`, `scores.json` (`nodes`, `nodes_exploratory`) |
+| detector figures | `docs/figures/stage1_crosswalk_detector_274/` via `score_274.py figures` |
+| detector gallery (local, untracked: embeds imagery) | `score_274.py gallery` |
 
 ![](figures/stage1_crosswalk_sdot_274/range_hit_rate.png)
