@@ -210,6 +210,54 @@ class TestFromConstraints:
         """A missing or non-finite SE fails the gate whichever axis it is on (#273 N14)."""
         assert pt.gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], se_pitch, se_roll, 0.5) == [expected]
 
+    @pytest.mark.parametrize("se_pitch, se_roll, amb, expected", [
+        (float("-inf"), 0.06, 0.5, ["se -inf > 0.25"]),
+        (0.06, float("-inf"), 0.5, ["se -inf > 0.25"]),
+        (0.05, 0.06, float("-inf"), ["ambiguity -inf > 0.8"]),
+        (0.05, 0.06, float("inf"), ["ambiguity inf > 0.8"]),
+        (0.05, 0.06, float("nan"), ["ambiguity nan > 0.8"]),
+    ])
+    def test_gate_fails_on_negative_infinity_too(self, se_pitch, se_roll, amb, expected):
+        """-inf used to pass `not (v <= limit)`; the docstring says any non-finite value fails
+        (#279 N15). Real rows cannot hold it, so no committed status depends on this."""
+        assert pt.gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], se_pitch, se_roll, amb) == expected
+
+    def test_se_is_inf_when_the_inverse_has_a_negative_diagonal(self, monkeypatch):
+        """A numerically indefinite inverse means a degenerate fit: SE inf on that axis, not the
+        0 that clipping gave (#279 N16). inv is stubbed so the case is the same on every BLAS."""
+        rng = np.random.default_rng(5)
+        cons = _vertical_constraints(1.0, -2.0, rng.uniform(-180, 180, 30), rng, noise_deg=0.2)
+        u = pt.up_from_pitch_roll(1.0, -2.0)
+        w = np.ones(len(cons["normal"]))
+        finite = pt.pitch_roll_se(cons["normal"], w, u)
+        assert all(0 < v < pt.TiltParams().max_se_deg for v in finite[:2])
+        monkeypatch.setattr(pt.np.linalg, "inv", lambda a: np.array([[-1.0, 0.0], [0.0, 2.0]]))
+        se_p, se_r, rms = pt.pitch_roll_se(cons["normal"], w, u)
+        assert se_p == float("inf") and 0 < se_r < float("inf")
+        assert rms == finite[2]
+        assert pt.gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], se_p, se_r, 0.5) == ["se inf > 0.25"]
+
+    def test_identical_normals_are_singular(self):
+        n = np.tile([1.0, 0.0, 0.0], (10, 1))
+        assert pt.pitch_roll_se(n, np.ones(10), np.array([0.0, 0.0, 1.0]))[:2] == (
+            float("inf"), float("inf"))
+
+    def test_near_identical_normals_never_pass_the_se_test(self):
+        """The #279 review's case: ten normals within 1e-9 of one direction. Before the fix about
+        half came back SE (0, 0) and passed the SE test; now every one fails it."""
+        rng = np.random.default_rng(279)
+        u = np.array([0.0, 0.0, 1.0])
+        limit = pt.TiltParams().max_se_deg
+        for _ in range(200):
+            base = rng.normal(size=3)
+            base -= (base @ u) * u
+            base /= np.linalg.norm(base)
+            n = base + rng.normal(scale=1e-9, size=(10, 3))
+            n /= np.linalg.norm(n, axis=1)[:, None]
+            se_p, se_r, _ = pt.pitch_roll_se(n, np.ones(10), u)
+            assert se_p != 0 and se_r != 0
+            assert pt.gate_reasons(40, [5, 6, 0, 4, 3, 0, 0, 2], se_p, se_r, 0.5), (se_p, se_r)
+
     def test_too_few_segments(self):
         rng = np.random.default_rng(0)
         est = pt.estimate_from_constraints(_vertical_constraints(0, 0, [10.0], rng))
