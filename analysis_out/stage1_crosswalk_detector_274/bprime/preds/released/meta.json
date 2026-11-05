@@ -1,0 +1,14 @@
+{
+ "label": "released",
+ "checkpoint": "/gscratch/scrubbed/jfroehli/aug82/released_rampnet_state_dict.pth",
+ "sha256": "024a987cabed7cc9f70dea9ea4003aef416cf5d8d3ce35a3f0c16c31ef35c4b1",
+ "score_floor": 0.05,
+ "min_distance": 10,
+ "tta": false,
+ "fp16": false,
+ "extractor": "threshold_sweep.heatmap_for + peaks_to_dets",
+ "root": "/gscratch/scrubbed/jfroehli/crosswalk274/root",
+ "device": "cuda",
+ "torch": "2.6.0",
+ "gpu": "NVIDIA L40"
+}

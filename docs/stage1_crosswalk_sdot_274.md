@@ -231,6 +231,46 @@ are. This is a new test. It does not re-decide (b), which stands as failed.
 - **Plumbing check** (a truth oracle, no model output): weighted F1 is 0.854 for OSM (city-wide 0.846) and 0.424
   for always-yes. The test has headroom where (b) had 0.016.
 
+#### (b′) results (klone job 42902924, scored 2026-11-05): FAILS both rules
+
+`analysis_out/stage1_crosswalk_detector_274/bprime/report.md`. Population-weighted, 876 nodes:
+
+| predictor | P | R | F1 | MCC |
+|---|---|---|---|---|
+| `osm_marked_signal` | 0.814 | 0.898 | 0.854 | 0.799 |
+| detector (val threshold 0.31) | 0.745 | 0.636 | 0.686 | 0.586 |
+| detector OR OSM | 0.732 | 0.940 | 0.823 | 0.758 |
+| always-yes | | | 0.424 | |
+
+- **Primary fails:** the OR − OSM F1 difference is −0.031, with 95% interval [−0.059, −0.004].
+- **Secondary fails:** the detector − OSM difference has interval [−0.224, −0.115].
+- **The released curb-ramp weights:** detector F1 0.463.
+
+Per cell (unweighted), the detector finds crosswalks OSM misses:
+- 37% of the marked nodes OSM tags unmarked (OSM: 0%);
+- 63% of the marked untagged nodes (OSM: 40%).
+
+But it also says yes at 6% and 4% of those classes' unmarked nodes. Those classes hold 6,959 and 2,198 unmarked
+nodes, against 296 and 126 marked, so the false alarms outweigh the finds. OSM-marked nodes that SDOT does not
+mark draw a yes 39% of the time.
+
+**Post hoc (explains, never re-decides):**
+- **Using the detector only where OSM is silent.**
+  - OSM, plus a detector yes on untagged nodes: weighted F1 0.850.
+  - The detector's call replacing OSM on untagged nodes: 0.849.
+  - Neither beats OSM alone (0.854).
+- **Recall dropped from (b)'s 0.927 to 0.636. About half of that is the 10 m match, not missed paint.**
+  - Of 192 missed marked nodes, 81 have no detection ≥ 0.31 on the pano.
+  - The other 111 do, but the nearest lands a median 13.2 m from the node (74 within 15 m).
+  - The pano–node distance does not explain the misses (median 6.7 m for misses, 8.3 m for hits).
+- **Recall on marked nodes by pano capture year:** 0.59 for 2019–2022, 0.45 for ≤2018, 0.41 for 2023+ (56
+  nodes).
+
+**Reading.** At Seattle's crossing nodes, OSM is already strong (F1 0.85), and only about 4% of the nodes OSM
+calls unmarked or leaves untagged are marked. Any per-node false alarm therefore costs more than a find gains. So
+this detector does not improve Seattle's map through a node-level rule. Its demonstrated value is per-pano
+labelling, (a).
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned

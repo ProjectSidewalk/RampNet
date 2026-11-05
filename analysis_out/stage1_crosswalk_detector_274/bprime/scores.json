@@ -1,0 +1,208 @@
+{
+ "models": {
+  "crosswalk_s1": {
+   "threshold": 0.31,
+   "weighted": {
+    "detector": {
+     "precision": 0.7447332250239047,
+     "recall": 0.6355860336145375,
+     "f1": 0.6858442836779872,
+     "mcc": 0.5855952282417486,
+     "tp_w": 2317.346615,
+     "fp_w": 794.299995,
+     "fn_w": 1328.653285,
+     "tn_w": 9109.699905
+    },
+    "osm": {
+     "precision": 0.8142715044041708,
+     "recall": 0.8982446625958492,
+     "f1": 0.8541992733607058,
+     "mcc": 0.7987242860298062,
+     "tp_w": 3274.99995,
+     "fp_w": 747.0000000000001,
+     "fn_w": 370.99995,
+     "tn_w": 9156.999899999999
+    },
+    "either": {
+     "precision": 0.7322640146951558,
+     "recall": 0.9395246000966704,
+     "f1": 0.8230467051689032,
+     "mcc": 0.7584003875377328,
+     "tp_w": 3425.506598,
+     "fp_w": 1252.4599950000002,
+     "fn_w": 220.493302,
+     "tn_w": 8651.539905
+    },
+    "always_yes": {
+     "precision": 0.2690774873664573,
+     "recall": 1.0,
+     "f1": 0.42405210090809664,
+     "mcc": NaN,
+     "tp_w": 3645.9999,
+     "fp_w": 9903.9999,
+     "fn_w": 0,
+     "tn_w": 0
+    }
+   },
+   "f1_diff_detector_minus_osm_95": [
+    -0.22404899421967261,
+    -0.11483016172558602
+   ],
+   "f1_diff_or_minus_osm_95": [
+    -0.05930760136186608,
+    -0.004426240333012865
+   ],
+   "passes": false,
+   "secondary_detector_ge_osm": false,
+   "per_cell": {
+    "marked|0": {
+     "n": 150,
+     "detector_yes": 58,
+     "osm_yes": 150
+    },
+    "marked|1": {
+     "n": 150,
+     "detector_yes": 99,
+     "osm_yes": 150
+    },
+    "unknown|0": {
+     "n": 150,
+     "detector_yes": 6,
+     "osm_yes": 0
+    },
+    "unknown|1": {
+     "n": 126,
+     "detector_yes": 79,
+     "osm_yes": 51
+    },
+    "unmarked|0": {
+     "n": 150,
+     "detector_yes": 9,
+     "osm_yes": 0
+    },
+    "unmarked|1": {
+     "n": 150,
+     "detector_yes": 56,
+     "osm_yes": 0
+    }
+   },
+   "true_nodes_by_pano_year": {
+    "2023+": {
+     "n_true": 56,
+     "detector_hit": 23
+    },
+    "2019-2022": {
+     "n_true": 328,
+     "detector_hit": 192
+    },
+    "<=2018": {
+     "n_true": 42,
+     "detector_hit": 19
+    }
+   }
+  },
+  "released": {
+   "threshold": 0.05,
+   "weighted": {
+    "detector": {
+     "precision": 0.3134967901139681,
+     "recall": 0.8880855729041573,
+     "f1": 0.4634088931742717,
+     "mcc": 0.17934501248569268,
+     "tp_w": 3237.95991,
+     "fp_w": 7090.566608,
+     "fn_w": 408.03999,
+     "tn_w": 2813.433292
+    },
+    "osm": {
+     "precision": 0.8142715044041708,
+     "recall": 0.8982446625958492,
+     "f1": 0.8541992733607058,
+     "mcc": 0.7987242860298062,
+     "tp_w": 3274.99995,
+     "fp_w": 747.0000000000001,
+     "fn_w": 370.99995,
+     "tn_w": 9156.999899999999
+    },
+    "either": {
+     "precision": 0.33286232453788706,
+     "recall": 0.9893984283982015,
+     "f1": 0.4981369371199598,
+     "mcc": 0.28748030889355586,
+     "tp_w": 3607.346571,
+     "fp_w": 7230.006608,
+     "fn_w": 38.653329,
+     "tn_w": 2673.993292
+    },
+    "always_yes": {
+     "precision": 0.2690774873664573,
+     "recall": 1.0,
+     "f1": 0.42405210090809664,
+     "mcc": NaN,
+     "tp_w": 3645.9999,
+     "fp_w": 9903.9999,
+     "fn_w": 0,
+     "tn_w": 0
+    }
+   },
+   "f1_diff_detector_minus_osm_95": [
+    -0.41438401820185977,
+    -0.36745163407385084
+   ],
+   "f1_diff_or_minus_osm_95": [
+    -0.37069738421865156,
+    -0.3404679051901053
+   ],
+   "passes": false,
+   "secondary_detector_ge_osm": false,
+   "per_cell": {
+    "marked|0": {
+     "n": 150,
+     "detector_yes": 122,
+     "osm_yes": 150
+    },
+    "marked|1": {
+     "n": 150,
+     "detector_yes": 133,
+     "osm_yes": 150
+    },
+    "unknown|0": {
+     "n": 150,
+     "detector_yes": 53,
+     "osm_yes": 0
+    },
+    "unknown|1": {
+     "n": 126,
+     "detector_yes": 109,
+     "osm_yes": 51
+    },
+    "unmarked|0": {
+     "n": 150,
+     "detector_yes": 123,
+     "osm_yes": 0
+    },
+    "unmarked|1": {
+     "n": 150,
+     "detector_yes": 137,
+     "osm_yes": 0
+    }
+   },
+   "true_nodes_by_pano_year": {
+    "2023+": {
+     "n_true": 56,
+     "detector_hit": 51
+    },
+    "2019-2022": {
+     "n_true": 328,
+     "detector_hit": 292
+    },
+    "<=2018": {
+     "n_true": 42,
+     "detector_hit": 36
+    }
+   }
+  }
+ },
+ "n_nodes": 876,
+ "scored_utc": "2026-11-05T14:52:55Z"
+}
