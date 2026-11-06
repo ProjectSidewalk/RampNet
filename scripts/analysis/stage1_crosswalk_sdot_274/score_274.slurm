@@ -28,6 +28,7 @@ PREDS="${PREDS:-/gscratch/scrubbed/$USER/crosswalk274/score_preds}"
 FT_CKPT="${FT_CKPT:-/gscratch/makelab/jonf/crosswalk274/s1/final_step_1000.pth}"
 FT_SHA="${FT_SHA:-6f467ff4afd7d092e159daa0451f327f755bfd6767769c417a7729f92b6c8c84}"
 FT_LABEL="${FT_LABEL:-crosswalk_s1}"   # a retrain (crosswalk_s2) sets FT_LABEL, FT_CKPT and FT_SHA
+SPLITS="${SPLITS:-val,test}"           # hard-negative mining (#274) sets SPLITS=train with RELEASED=0
 RELEASED="${RELEASED:-1}"             # 0 skips the released-weights floor (already inferred once)
 REL_CKPT="${REL_CKPT:-/gscratch/scrubbed/$USER/aug82/released_rampnet_state_dict.pth}"
 REL_SHA=024a987cabed7cc9f70dea9ea4003aef416cf5d8d3ce35a3f0c16c31ef35c4b1   # Hub 606a119, docs/control_arm_263.md
@@ -48,7 +49,7 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 S="$REPO/scripts/analysis/stage1_crosswalk_sdot_274/score_274.py"
 status=0
 # BPRIME=1: the (b') node sample instead -- the panos `bprime-prep` wrote, ids from the committed pano_files.txt
-EXTRA=()
+EXTRA=(--splits "$SPLITS")
 if [ "${BPRIME:-0}" = 1 ]; then
     PREDS="${BPRIME_PREDS:-/gscratch/scrubbed/$USER/crosswalk274/bprime_preds}"
     EXTRA=(--ids-file "$REPO/analysis_out/stage1_crosswalk_detector_274/bprime/pano_files.txt"
