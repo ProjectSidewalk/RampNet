@@ -724,9 +724,9 @@ def card_items(anns, preds, threshold):
     return sorted(items, key=lambda it: (order[it["kind"]], -it.get("sort_conf", it["conf"])))
 
 
-def crop_card(img, it, half_w=0.08, out_w=480):
+def crop_card(img, it, half_w=0.08, out_w=480, marks=True):
     """A crop centred on the item (seam-wrapped), marks drawn: green GT, red detections above threshold, grey
-    ignore points, the item ringed in yellow. Returns JPEG bytes."""
+    ignore points, the item ringed in yellow. marks=False returns the bare crop. Returns JPEG bytes."""
     import io
     from PIL import ImageDraw
     W, H = img.size
@@ -740,6 +740,10 @@ def crop_card(img, it, half_w=0.08, out_w=480):
     crop = Image.fromarray(arr[y0:y0 + ch][:, cols])
     s = out_w / cw
     crop = crop.resize((out_w, int(ch * s)))
+    if not marks:
+        buf = io.BytesIO()
+        crop.save(buf, "JPEG", quality=85)
+        return buf.getvalue()
     d = ImageDraw.Draw(crop)
 
     def local(px, py):
@@ -902,8 +906,10 @@ def prefill_for(items, rows, r=PREFILL_R):
     return out
 
 
-def card_figure(it, jpeg, cap):
-    """One rating card: the crop, its caption, verdict buttons for the card's kind and a note box."""
+def card_figure(it, jpeg, cap, views=None):
+    """One rating card: the crop, its caption, verdict buttons for the card's kind and a note box. `views`
+    (optional {"big": jpeg, "big_clean": jpeg}) feeds the page's large view: click the image to open it,
+    M toggles the marks."""
     import base64
     import html
     subject = "this miss (large green ring)" if it["kind"] == "fn" else "this detection (large outlined cross)"
@@ -913,7 +919,9 @@ def card_figure(it, jpeg, cap):
                        "y": round(it["y"], 4), "conf": round(it["conf"], 3), "city": it.get("city"),
                        "mode": it.get("mode"), "year": it.get("year"), "stratum": it.get("stratum", "")})
     b64 = base64.b64encode(jpeg).decode("ascii")
-    return (f'<figure class="card {it["kind"]}" tabindex="0" data-meta="{html.escape(meta)}">'
+    extra = "".join(f' data-{k.replace("_", "-")}="data:image/jpeg;base64,{base64.b64encode(v).decode("ascii")}"'
+                    for k, v in (views or {}).items())
+    return (f'<figure class="card {it["kind"]}" tabindex="0" data-meta="{html.escape(meta)}"{extra}>'
             f'<img src="data:image/jpeg;base64,{b64}" alt="{html.escape(cap)}">'
             f'<figcaption>{html.escape(cap)}</figcaption>'
             f'<div class="rate" role="group" aria-label="Verdict on {subject}">{btns}</div>'
@@ -939,13 +947,25 @@ figure:focus{{outline:3px solid #36f;outline-offset:2px}}figure.done{{opacity:.5
 .rate button[aria-pressed=true]{{background:#225;color:#fff;border-color:#225}}
 label{{display:block;margin-top:4px;font-size:12px}}.note{{width:380px;max-width:90%;font:inherit}}
 h2{{margin-top:28px;padding-top:56px;margin-bottom:4px}}.q{{max-width:980px;margin-top:0}}.legend{{list-style:none;padding:0;columns:2 420px;margin:8px 0}}
-.legend li{{margin:3px 0;break-inside:avoid}}.sw{{display:inline-block;width:34px;height:6px;vertical-align:middle}}</style></head><body>
+.legend li{{margin:3px 0;break-inside:avoid}}.sw{{display:inline-block;width:34px;height:6px;vertical-align:middle}}
+figure[data-big] img{{cursor:zoom-in}}
+#lb{{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:10;display:flex;flex-direction:column;align-items:center;
+justify-content:center;padding:12px;color:#fff}}
+#lb img{{max-width:100%;max-height:78vh;display:block}}#lb .lbbar{{margin-top:8px;text-align:center}}
+#lb button{{font:inherit;margin:2px 4px;padding:4px 10px;border-radius:4px;border:1px solid #bbb;background:#333;color:#fff}}
+#lb button[aria-pressed=true]{{background:#fff;color:#111}}</style></head><body>
 <h1>{html.escape(heading)}</h1>
 {intro_html}
 <div class="bar">{nav_html}<span id="prog"></span> &nbsp;
 <label style="display:inline"><input type="checkbox" id="hide"> hide rated</label> &nbsp;
 <button type="button" id="exp">Export CSV</button></div>
 {''.join(cards_html)}
+<div id="lb" role="dialog" aria-modal="true" aria-label="Large view" hidden>
+<img id="lbimg" alt="">
+<div class="lbbar"><span id="lbcap"></span><br>
+<span id="lbrate"></span>
+<button type="button" id="lbmarks" aria-pressed="true">M: marks on</button>
+<button type="button" id="lbclose">Esc: close</button></div></div>
 <script>
 const KEY = {json.dumps(store_key)}, PREFILL = {json.dumps(prefill)};
 let state = {{}};
@@ -991,6 +1011,43 @@ for (const c of cards) {{
   paint(c);
 }}
 document.getElementById("hide").addEventListener("change", () => cards.forEach(paint));
+// Large view (cards built with --big): click an image; 1-3 rate and move on; M toggles marks; arrows; Esc closes.
+const lb = document.getElementById("lb"), lbimg = document.getElementById("lbimg");
+let lbCard = null, lbMarks = true;
+function lbShow(c) {{
+  lbCard = c;
+  lbimg.src = lbMarks ? c.dataset.big : c.dataset.bigClean;
+  lbimg.alt = c.querySelector("figcaption").textContent;
+  document.getElementById("lbcap").textContent = lbimg.alt;
+  const s = state[meta(c).card_id] || {{}};
+  document.getElementById("lbrate").innerHTML = [...c.querySelectorAll(".rate button")].map(b =>
+    `<button type="button" data-v="${{b.dataset.v}}" aria-pressed="${{b.dataset.v === s.verdict}}">${{b.textContent}}</button>`).join("");
+  document.querySelectorAll("#lbrate button").forEach(b => b.addEventListener("click", () => lbRate(b.dataset.v)));
+  const mb = document.getElementById("lbmarks");
+  mb.setAttribute("aria-pressed", String(lbMarks)); mb.textContent = lbMarks ? "M: marks on" : "M: marks off";
+  lb.hidden = false; document.getElementById("lbclose").focus();
+}}
+function lbClose() {{ lb.hidden = true; if (lbCard) lbCard.focus(); lbCard = null; }}
+function lbStep(d) {{
+  const vis = cards.filter(x => !x.hidden && x.dataset.big), i = vis.indexOf(lbCard);
+  if (i + d >= 0 && i + d < vis.length) lbShow(vis[i + d]); else lbClose();
+}}
+function lbRate(v) {{ setVerdict(lbCard, v); lbStep(1); }}
+for (const c of cards) if (c.dataset.big) c.querySelector("img").addEventListener("click", () => lbShow(c));
+document.getElementById("lbclose").addEventListener("click", lbClose);
+document.getElementById("lbmarks").addEventListener("click", () => {{ lbMarks = !lbMarks; lbShow(lbCard); }});
+lb.addEventListener("click", e => {{ if (e.target === lb) lbClose(); }});
+document.addEventListener("keydown", e => {{
+  if (lb.hidden) return;
+  const btns = lbCard.querySelectorAll(".rate button"), k = Number(e.key);
+  if (e.key === "Escape") lbClose();
+  else if (e.key === "m" || e.key === "M") {{ lbMarks = !lbMarks; lbShow(lbCard); }}
+  else if (e.key === "ArrowRight") lbStep(1);
+  else if (e.key === "ArrowLeft") lbStep(-1);
+  else if (k >= 1 && k <= btns.length) lbRate(btns[k - 1].dataset.v);
+  else return;
+  e.preventDefault(); e.stopPropagation();
+}}, true);
 document.getElementById("exp").addEventListener("click", () => {{
   const cols = ["card_id", "kind", "pano_id", "x", "y", "conf", "city", "mode", "year", "stratum", "verdict", "note",
                 "rated_at"];
@@ -1140,7 +1197,11 @@ def cmd_cards(a):
                f"conf {it['conf']:.2f} · {it.get('city') or '?'} · {it.get('mode') or '?'} · {it.get('year') or '?'} · "
                f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})")
         jpeg = crop_card(cache[it["pano_id"]], it, half_w=0.08 / a.zoom)
-        cards.append(card_figure(it, jpeg, cap))
+        views = None
+        if a.big:      # the large view: a wider field at about native resolution, with and without marks
+            views = {"big": crop_card(cache[it["pano_id"]], it, half_w=BIG_HALF_W, out_w=BIG_W),
+                     "big_clean": crop_card(cache[it["pano_id"]], it, half_w=BIG_HALF_W, out_w=BIG_W, marks=False)}
+        cards.append(card_figure(it, jpeg, cap, views))
         if a.crops_out:                       # the same crop, as a file, for a blind pre-screen (no conf in the name)
             crop_index.append({"crop": f"{len(crop_index):05d}.jpg", "card_id": card_id(it)})
             with open(os.path.join(a.crops_out, crop_index[-1]["crop"]), "wb") as f:
@@ -1159,7 +1220,7 @@ context.</p>
 <li>{LEGEND_GLYPHS['radius']} the scorer's match radius</li>
 {NEG_LEGEND if a.neg_disc else ""}
 </ul>
-<p><strong>Crosswalk</strong> means painted pedestrian crossing markings: zebra bars or two parallel lines across a
+<p>{"<strong>Click an image</strong> for a large view (wider, sharper). There: <kbd>1</kbd>-<kbd>3</kbd> rate and move to the next card, <kbd>M</kbd> hides or shows all marks, arrows step, <kbd>Esc</kbd> closes. " if a.big else ""}<strong>Crosswalk</strong> means painted pedestrian crossing markings: zebra bars or two parallel lines across a
 roadway. Bike-lane, bus-lane, parking and rail markings are <em>not</em> crosswalks. Keys: <kbd>1</kbd>-<kbd>3</kbd>
 rate (jumps to the next card), <kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em>
 when done.</p>"""
@@ -1252,6 +1313,7 @@ def cmd_mine(a):
 
 
 AI_VERDICTS = ("crosswalk", "not_crosswalk", "unsure")
+BIG_HALF_W, BIG_W = 0.12, 960   # the large view: 0.24 of the pano width (983 px of a 4096 pano) shown at 960 px
 NEG_LEGEND = ('<li><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" style="vertical-align:middle;'
               'background:#777"><circle cx="17" cy="17" r="13" fill="none" stroke="#00e6ff" stroke-width="3" '
               'stroke-dasharray="4 3"/></svg> <strong>hard-negative disc</strong>: if you answer "not a crosswalk", '
@@ -1548,6 +1610,7 @@ def main():
     c.add_argument("--no-page", action="store_true", help="with --crops-out: write the crops only")
     c.add_argument("--neg-disc", action="store_true", help="draw the background disc a confirmed negative trains")
     c.add_argument("--zoom", type=float, default=1.0, help="crop magnification (1 = the standard 0.16-width crop)")
+    c.add_argument("--big", action="store_true", help="click-to-enlarge view (wider, ~native res) with a marks toggle")
     e = sub.add_parser("select", help="seeded selection of pre-screened candidates not yet rated, for another page")
     e.add_argument("--prescreen", required=True, help="prescreen.csv")
     e.add_argument("--candidates", required=True, help="mine candidates.csv")
