@@ -11,6 +11,8 @@ carry those choices; changing one is an amendment and goes in that doc.
          mode / capture year, for every label; (b) per-OSM-node F1 on Seattle's test panos against the map-only
          baseline -> report.md, scores.json, threshold_sweep.csv, pixel_breakdown.csv, nodes.csv
   figures (CPU) PR / F1-vs-threshold curves and the per-city bars, from scores.json + the preds
+  gallery / cards (CPU) local rating pages (test items / any detection list); bprime-audit the hard-negative
+         plan's Step 0 census of one model's detections on drawn (b') panos
 
   python score_274.py infer --root <Stage 2 root> --checkpoint final_step_1000.pth --label crosswalk_s1 \
       --preds <dir> [--sha256 <expected>]
@@ -779,6 +781,7 @@ VERDICTS = {   # per card kind: (code, button text); keys 1-4 pick them in order
     "tp": (("crosswalk", "Correct: it is a crosswalk"), ("not_crosswalk", "Wrong: not a crosswalk"),
            ("unsure", "Unsure")),
 }
+VERDICTS["det"] = VERDICTS["fp"]   # a detection with no label context (`cards`): the same question as an FP
 
 SECTION_HEAD = {   # section title and the one question its cards ask
     "fp": ("False positives", "The model fired where no label is. <strong>Is the outlined cross on a crosswalk?</strong> "
@@ -789,6 +792,8 @@ SECTION_HEAD = {   # section title and the one question its cards ask
            "duplicate label), press 4. \"Best unclaimed peak\" is the strongest model response inside the yellow circle that "
            "another label did not already take (0.00 = nothing there)."),
     "tp": ("True positives", "The model matched a label. <strong>Is the outlined cross on a crosswalk?</strong>"),
+    "det": ("Detections", "The model fired here. <strong>Is the outlined cross on a crosswalk?</strong> "
+            "Ignore other marks on the crop."),
 }
 
 
@@ -817,110 +822,125 @@ def card_id(it):
     return f"{it['kind']}:{it['pano_id']}:{it['x']:.3f}:{it['y']:.3f}"
 
 
-def cmd_gallery(a):
-    """Local rating page (untracked: it embeds imagery) of a model's test items, one card per item.
+PREFILL_R = 0.01     # a verdict carries to a card on the same pano within this (pano widths): the same paint, peak moved
+VERDICT_FAMILY = {"fp": "det", "tp": "det", "det": "det", "fn": "fn"}   # kinds whose verdicts mean the same thing
 
-    A card's subject is ONE detection (FP/TP: the large outlined cross) or ONE labelled point (miss: the large
-    green ring); other marks on the crop are context. Every FP is shown, plus seeded samples of misses and TPs
-    (the same seeded misses as the first, view-only gallery). Verdicts save in the browser and export as CSV;
-    --prefill seeds verdicts from such a CSV (columns card_id, verdict, note).
+
+def split_card_id(cid):
+    """(kind, pano_id, x, y) from a card id.
+
+    >>> split_card_id('fp:abc:0.410:0.551')
+    ('fp', 'abc', 0.41, 0.551)
     """
+    kind, rest = cid.split(":", 1)
+    pid, x, y = rest.rsplit(":", 2)
+    return kind, pid, float(x), float(y)
+
+
+def wrap_dist(x1, y1, x2, y2):
+    """Plain distance in pano widths with the seam wrapped (x and y in the same normalised units).
+
+    >>> round(wrap_dist(0.995, 0.5, 0.004, 0.5), 3)
+    0.009
+    """
+    dx = abs(x1 - x2)
+    return math.hypot(min(dx, 1.0 - dx), y1 - y2)
+
+
+def load_prefill(path):
+    """Rated rows of an exported ratings CSV (needs card_id and verdict; note optional). Unrated rows are skipped."""
+    if not path:
+        return []
+    rows = []
+    with open(path, encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            if not r.get("verdict"):
+                continue
+            kind, pid, x, y = split_card_id(r["card_id"])
+            rows.append({"card_id": r["card_id"], "family": VERDICT_FAMILY.get(kind, kind), "pano_id": pid,
+                         "x": x, "y": y, "verdict": r["verdict"], "note": r.get("note", "")})
+    return rows
+
+
+def prefill_for(items, rows, r=PREFILL_R):
+    """{card_id: {verdict, note}} for the items that already have a verdict in `rows`.
+
+    An exact card id wins. Otherwise the nearest verdict of the same family (fp/tp/det share their verdicts, fn
+    has its own) on the same pano within `r` carries over, with its source named in the note: a retrained model
+    puts its peak a little off the rated one on the same paint (#274: 20 of 21 such pairs got the same verdict
+    when rated twice).
+
+    >>> rows = [{"card_id": "fp:p:0.500:0.550", "family": "det", "pano_id": "p", "x": 0.5, "y": 0.55,
+    ...          "verdict": "not_crosswalk", "note": "bus lane"}]
+    >>> prefill_for([{"kind": "det", "pano_id": "p", "x": 0.506, "y": 0.552}], rows)
+    {'det:p:0.506:0.552': {'verdict': 'not_crosswalk', 'note': 'carried from fp:p:0.500:0.550: bus lane'}}
+    >>> prefill_for([{"kind": "fn", "pano_id": "p", "x": 0.5, "y": 0.55}], rows)
+    {}
+    """
+    exact = {row["card_id"]: row for row in rows}
+    by = {}
+    for row in rows:
+        by.setdefault((row["pano_id"], row["family"]), []).append(row)
+    out = {}
+    for it in items:
+        cid = card_id(it)
+        if cid in exact:
+            out[cid] = {"verdict": exact[cid]["verdict"], "note": exact[cid]["note"]}
+            continue
+        near = [(wrap_dist(it["x"], it["y"], row["x"], row["y"]), row)
+                for row in by.get((it["pano_id"], VERDICT_FAMILY.get(it["kind"], it["kind"])), [])]
+        near = [(d, row) for d, row in near if d <= r]
+        if near:
+            _, row = min(near, key=lambda t: t[0])
+            note = f"carried from {row['card_id']}" + (f": {row['note']}" if row["note"] else "")
+            out[cid] = {"verdict": row["verdict"], "note": note}
+    return out
+
+
+def card_figure(it, jpeg, cap):
+    """One rating card: the crop, its caption, verdict buttons for the card's kind and a note box."""
     import base64
     import html
-    from PIL import Image
-    res = json.load(open(os.path.join(a.scores, "scores.json"), encoding="utf-8"))
-    t = res["models"][a.label]["threshold"] if a.threshold is None else a.threshold
-    anns = load_split(a.root, "test")
-    items = card_items(anns, load_preds(a.preds, a.label, "test", anns), t)
-    prefill = {}
-    if a.prefill:
-        with open(a.prefill, encoding="utf-8", newline="") as f:
-            prefill = {r["card_id"]: {"verdict": r["verdict"], "note": r.get("note", "")} for r in csv.DictReader(f)}
-    rng = random.Random(BOOT_SEED)
-    pick = []
-    for kind, n in (("fp", a.n), ("fn", a.n), ("tp", a.n_tp)):
-        group = [it for it in items if it["kind"] == kind]
-        sample = rng.sample(group, min(n, len(group)))   # drawn even for fp, so the miss sample stays the same
-        # After a relabel, keep every already-rated card that is still a card of this kind, and top up from the
-        # seeded sample, so only new items need a verdict. The labels changed by removal and new ignore regions,
-        # so still-present rated misses are close to a uniform draw from the new misses (not exactly: see doc).
-        rated = [it for it in group if card_id(it) in prefill]
-        sample = (rated + [it for it in sample if card_id(it) not in prefill])[:max(n, len(rated))]
-        pick += sorted(group if kind == "fp" else sample, key=lambda it: -it["conf"])
-    os.makedirs(a.out, exist_ok=True)
-    cache = {}
-    cards = []
-    last_kind = None
-    for it in pick:
-        if it["pano_id"] not in cache:
-            cache.clear()
-            cache[it["pano_id"]] = Image.open(os.path.join(a.root, "test", f"{it['pano_id']}.jpg")).convert("RGB")
-        b64 = base64.b64encode(crop_card(cache[it["pano_id"]], it)).decode("ascii")
-        cid = card_id(it)
-        head = (f"MISS · best unclaimed peak {it['conf']:.2f}" if it["kind"] == "fn"
-                else f"{it['kind'].upper()} conf {it['conf']:.2f}")
-        cap = (f"{head} · {it['city']} · {it['mode']} · {it['year']} · "
-               f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})")
-        subject = "this miss (large green ring)" if it["kind"] == "fn" else "this detection (large outlined cross)"
-        btns = "".join(f'<button type="button" data-v="{v}" aria-pressed="false">{k + 1}. {html.escape(txt)}'
-                       f'</button>' for k, (v, txt) in enumerate(VERDICTS[it["kind"]]))
-        meta = json.dumps({"card_id": cid, "kind": it["kind"], "pano_id": it["pano_id"], "x": round(it["x"], 4),
-                           "y": round(it["y"], 4), "conf": round(it["conf"], 3), "city": it["city"],
-                           "mode": it["mode"], "year": it["year"]})
-        if it["kind"] != last_kind:                                 # one section per card kind, with its question
-            last_kind = it["kind"]
-            title, question = SECTION_HEAD[last_kind]
-            n_kind = sum(1 for x in pick if x["kind"] == last_kind)
-            cards.append(f'<h2 id="sec-{last_kind}">{title} ({n_kind} cards)</h2><p class="q">{question}</p>')
-        cards.append(f'<figure class="card {it["kind"]}" tabindex="0" data-meta="{html.escape(meta)}">'
-                     f'<img src="data:image/jpeg;base64,{b64}" alt="{html.escape(cap)}">'
-                     f'<figcaption>{html.escape(cap)}</figcaption>'
-                     f'<div class="rate" role="group" aria-label="Verdict on {subject}">{btns}</div>'
-                     f'<label>Note <input type="text" class="note" placeholder="e.g. bus lane, stop bar"></label>'
-                     f'</figure>')
-    counts = {k: sum(1 for it in items if it["kind"] == k) for k in ("fp", "fn", "tp")}
-    shown = {k: sum(1 for it in pick if it["kind"] == k) for k in ("fp", "fn", "tp")}
-    store_key = f"cw274-rate-{a.label}"
-    page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1"><title>{html.escape(a.label)} rating</title>
+    subject = "this miss (large green ring)" if it["kind"] == "fn" else "this detection (large outlined cross)"
+    btns = "".join(f'<button type="button" data-v="{v}" aria-pressed="false">{k + 1}. {html.escape(txt)}'
+                   f'</button>' for k, (v, txt) in enumerate(VERDICTS[it["kind"]]))
+    meta = json.dumps({"card_id": card_id(it), "kind": it["kind"], "pano_id": it["pano_id"], "x": round(it["x"], 4),
+                       "y": round(it["y"], 4), "conf": round(it["conf"], 3), "city": it.get("city"),
+                       "mode": it.get("mode"), "year": it.get("year"), "stratum": it.get("stratum", "")})
+    b64 = base64.b64encode(jpeg).decode("ascii")
+    return (f'<figure class="card {it["kind"]}" tabindex="0" data-meta="{html.escape(meta)}">'
+            f'<img src="data:image/jpeg;base64,{b64}" alt="{html.escape(cap)}">'
+            f'<figcaption>{html.escape(cap)}</figcaption>'
+            f'<div class="rate" role="group" aria-label="Verdict on {subject}">{btns}</div>'
+            f'<label>Note <input type="text" class="note" placeholder="e.g. bus lane, stop bar"></label>'
+            f'</figure>')
+
+
+def rating_page(label, heading, intro_html, nav_html, cards_html, prefill):
+    """The self-contained rating page around `cards_html`: progress, hide-rated, keyboard rating, CSV export.
+    Verdicts live in the browser's localStorage under a key per `label`; `prefill` seeds unrated cards."""
+    import html
+    store_key = f"cw274-rate-{label}"
+    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>{html.escape(label)} rating</title>
 <style>body{{font:14px system-ui,sans-serif;margin:16px;background:#fff;color:#222}}
 .bar{{position:sticky;top:0;background:#fff;padding:8px 0;border-bottom:1px solid #ccc;z-index:1}}
-figure{{display:inline-block;margin:6px;width:480px;vertical-align:top;padding-bottom:6px}}
+figure{{display:inline-block;margin:6px;width:480px;max-width:100%;vertical-align:top;padding-bottom:6px}}
 img{{width:100%;display:block}}figcaption{{font-size:12px}}
-.fp{{border-top:4px solid #d33}}.fn{{border-top:4px solid #e90}}.tp{{border-top:4px solid #2a2}}
+.fp,.det{{border-top:4px solid #d33}}.fn{{border-top:4px solid #e90}}.tp{{border-top:4px solid #2a2}}
 figure:focus{{outline:3px solid #36f;outline-offset:2px}}figure.done{{opacity:.55}}
 [hidden]{{display:none!important}}
 .rate button{{margin:4px 4px 0 0;font:inherit;padding:3px 8px;border:1px solid #888;background:#f4f4f4;border-radius:4px}}
 .rate button[aria-pressed=true]{{background:#225;color:#fff;border-color:#225}}
-label{{display:block;margin-top:4px;font-size:12px}}.note{{width:380px;font:inherit}}
+label{{display:block;margin-top:4px;font-size:12px}}.note{{width:380px;max-width:90%;font:inherit}}
 h2{{margin-top:28px;padding-top:56px;margin-bottom:4px}}.q{{max-width:980px;margin-top:0}}.legend{{list-style:none;padding:0;columns:2 420px;margin:8px 0}}
 .legend li{{margin:3px 0;break-inside:avoid}}.sw{{display:inline-block;width:34px;height:6px;vertical-align:middle}}</style></head><body>
-<h1>{html.escape(a.label)}: rate test items at threshold {t:.2f}</h1>
-<p>Each card asks about <strong>one</strong> item, drawn large. Everything else on the crop is context and,
-if it is a false positive or a miss, has its own card.</p>
-<ul class="legend">
-<li><span class="sw" style="background:#d33"></span> <strong>False positive card</strong>: the model fired where
-no label is. Is the large cross on a crosswalk?</li>
-<li><span class="sw" style="background:#e90"></span> <strong>Miss card</strong>: a label the model did not
-match. Is there a crosswalk at the large green ring?</li>
-<li><span class="sw" style="background:#2a2"></span> <strong>True positive card</strong>: the model matched a
-label. Is the large cross on a crosswalk?</li>
-<li>{LEGEND_GLYPHS['subject_det']} the detection this card asks about</li>
-<li>{LEGEND_GLYPHS['subject_gt']} the label this card asks about (miss cards)</li>
-<li>{LEGEND_GLYPHS['other_det']} another detection at or above the threshold (context)</li>
-<li>{LEGEND_GLYPHS['other_gt']} another label (context)</li>
-<li>{LEGEND_GLYPHS['ignore']} ignore point: detections here are not scored</li>
-<li>{LEGEND_GLYPHS['radius']} match radius: a detection and a label inside it can pair up</li>
-</ul>
-<p>Keys: click or Tab to a card, then <kbd>1</kbd>-<kbd>4</kbd> to rate (jumps to the next card),
-<kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em> when done.
-Test split has {counts['fp']} FPs (all shown), {counts['fn']} misses ({shown['fn']} sampled),
-{counts['tp']} TPs ({shown['tp']} sampled).</p>
-<div class="bar"><nav aria-label="Sections"><a href="#sec-fp">False positives</a> ·
-<a href="#sec-fn">Misses</a> · <a href="#sec-tp">True positives</a></nav><span id="prog"></span> &nbsp;
+<h1>{html.escape(heading)}</h1>
+{intro_html}
+<div class="bar">{nav_html}<span id="prog"></span> &nbsp;
 <label style="display:inline"><input type="checkbox" id="hide"> hide rated</label> &nbsp;
 <button type="button" id="exp">Export CSV</button></div>
-{''.join(cards)}
+{''.join(cards_html)}
 <script>
 const KEY = {json.dumps(store_key)}, PREFILL = {json.dumps(prefill)};
 let state = {{}};
@@ -940,7 +960,7 @@ function progress() {{
   const by = {{}};
   for (const c of cards) {{ const m = meta(c); by[m.kind] = by[m.kind] || [0, 0]; by[m.kind][1]++;
     if ((state[m.card_id] || {{}}).verdict) by[m.kind][0]++; }}
-  const name = {{fp: "FPs", fn: "misses", tp: "TPs"}};
+  const name = {{fp: "FPs", fn: "misses", tp: "TPs", det: "detections"}};
   document.getElementById("prog").textContent = "Rated: " +
     Object.entries(by).map(([k, [d, n]]) => `${{name[k]}} ${{d}}/${{n}}`).join(" · ");
 }}
@@ -967,20 +987,215 @@ for (const c of cards) {{
 }}
 document.getElementById("hide").addEventListener("change", () => cards.forEach(paint));
 document.getElementById("exp").addEventListener("click", () => {{
-  const cols = ["card_id", "kind", "pano_id", "x", "y", "conf", "city", "mode", "year", "verdict", "note", "rated_at"];
+  const cols = ["card_id", "kind", "pano_id", "x", "y", "conf", "city", "mode", "year", "stratum", "verdict", "note",
+                "rated_at"];
   const q = v => `"${{String(v ?? "").replace(/"/g, '""')}}"`;
   const rows = cards.map(c => {{ const m = meta(c), s = state[m.card_id] || {{}};
     return cols.map(k => q(k in m ? m[k] : s[k])).join(","); }});
   const blob = new Blob([[cols.join(","), ...rows].join("\\n") + "\\n"], {{type: "text/csv"}});
   const u = URL.createObjectURL(blob), el = document.createElement("a");
-  el.href = u; el.download = "ratings_{a.label}.csv"; el.click(); URL.revokeObjectURL(u);
+  el.href = u; el.download = "ratings_{label}.csv"; el.click(); URL.revokeObjectURL(u);
 }});
 progress();
 </script></body></html>"""
+
+
+def cmd_gallery(a):
+    """Local rating page (untracked: it embeds imagery) of a model's test items, one card per item.
+
+    A card's subject is ONE detection (FP/TP: the large outlined cross) or ONE labelled point (miss: the large
+    green ring); other marks on the crop are context. Every FP is shown, plus seeded samples of misses and TPs
+    (the same seeded misses as the first, view-only gallery). Verdicts save in the browser and export as CSV;
+    --prefill seeds verdicts from such a CSV (`prefill_for`: exact card id, else the same paint within 0.01).
+    """
+    from PIL import Image
+    res = json.load(open(os.path.join(a.scores, "scores.json"), encoding="utf-8"))
+    t = res["models"][a.label]["threshold"] if a.threshold is None else a.threshold
+    anns = load_split(a.root, "test")
+    items = card_items(anns, load_preds(a.preds, a.label, "test", anns), t)
+    rows = load_prefill(a.prefill)
+    prefill = prefill_for(items, rows)
+    exact = {row["card_id"] for row in rows}   # the sample keeps exact-id semantics; carried verdicts only prefill
+    rng = random.Random(BOOT_SEED)
+    pick = []
+    for kind, n in (("fp", a.n), ("fn", a.n), ("tp", a.n_tp)):
+        group = [it for it in items if it["kind"] == kind]
+        sample = rng.sample(group, min(n, len(group)))   # drawn even for fp, so the miss sample stays the same
+        # After a relabel, keep every already-rated card that is still a card of this kind, and top up from the
+        # seeded sample, so only new items need a verdict. The labels changed by removal and new ignore regions,
+        # so still-present rated misses are close to a uniform draw from the new misses (not exactly: see doc).
+        rated = [it for it in group if card_id(it) in exact]
+        sample = (rated + [it for it in sample if card_id(it) not in exact])[:max(n, len(rated))]
+        pick += sorted(group if kind == "fp" else sample, key=lambda it: -it["conf"])
+    os.makedirs(a.out, exist_ok=True)
+    cache = {}
+    cards = []
+    last_kind = None
+    for it in pick:
+        if it["pano_id"] not in cache:
+            cache.clear()
+            cache[it["pano_id"]] = Image.open(os.path.join(a.root, "test", f"{it['pano_id']}.jpg")).convert("RGB")
+        head = (f"MISS · best unclaimed peak {it['conf']:.2f}" if it["kind"] == "fn"
+                else f"{it['kind'].upper()} conf {it['conf']:.2f}")
+        cap = (f"{head} · {it['city']} · {it['mode']} · {it['year']} · "
+               f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})")
+        if it["kind"] != last_kind:                                 # one section per card kind, with its question
+            last_kind = it["kind"]
+            title, question = SECTION_HEAD[last_kind]
+            n_kind = sum(1 for x in pick if x["kind"] == last_kind)
+            cards.append(f'<h2 id="sec-{last_kind}">{title} ({n_kind} cards)</h2><p class="q">{question}</p>')
+        cards.append(card_figure(it, crop_card(cache[it["pano_id"]], it), cap))
+    counts = {k: sum(1 for it in items if it["kind"] == k) for k in ("fp", "fn", "tp")}
+    shown = {k: sum(1 for it in pick if it["kind"] == k) for k in ("fp", "fn", "tp")}
+    intro = f"""<p>Each card asks about <strong>one</strong> item, drawn large. Everything else on the crop is context and,
+if it is a false positive or a miss, has its own card.</p>
+<ul class="legend">
+<li><span class="sw" style="background:#d33"></span> <strong>False positive card</strong>: the model fired where
+no label is. Is the large cross on a crosswalk?</li>
+<li><span class="sw" style="background:#e90"></span> <strong>Miss card</strong>: a label the model did not
+match. Is there a crosswalk at the large green ring?</li>
+<li><span class="sw" style="background:#2a2"></span> <strong>True positive card</strong>: the model matched a
+label. Is the large cross on a crosswalk?</li>
+<li>{LEGEND_GLYPHS['subject_det']} the detection this card asks about</li>
+<li>{LEGEND_GLYPHS['subject_gt']} the label this card asks about (miss cards)</li>
+<li>{LEGEND_GLYPHS['other_det']} another detection at or above the threshold (context)</li>
+<li>{LEGEND_GLYPHS['other_gt']} another label (context)</li>
+<li>{LEGEND_GLYPHS['ignore']} ignore point: detections here are not scored</li>
+<li>{LEGEND_GLYPHS['radius']} match radius: a detection and a label inside it can pair up</li>
+</ul>
+<p>Keys: click or Tab to a card, then <kbd>1</kbd>-<kbd>4</kbd> to rate (jumps to the next card),
+<kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em> when done.
+Test split has {counts['fp']} FPs (all shown), {counts['fn']} misses ({shown['fn']} sampled),
+{counts['tp']} TPs ({shown['tp']} sampled).</p>"""
+    nav = ('<nav aria-label="Sections"><a href="#sec-fp">False positives</a> · '
+           '<a href="#sec-fn">Misses</a> · <a href="#sec-tp">True positives</a></nav>')
+    page = rating_page(a.label, f"{a.label}: rate test items at threshold {t:.2f}", intro, nav, cards, prefill)
     path = os.path.join(a.out, f"rate_{a.label}.html")
     with open(path, "w", encoding="utf-8") as f:
         f.write(page)
     log(f"rating page -> {path} ({len(pick)} cards, {len(prefill)} prefilled)")
+
+
+def read_candidates(path):
+    """Candidate detections for `cards`: CSV with pano_id, x, y, conf and optional city, mode, year, stratum."""
+    with open(path, encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    return [{**r, "x": float(r["x"]), "y": float(r["y"]), "conf": float(r["conf"])} for r in rows]
+
+
+def cmd_cards(a):
+    """Rating page (untracked: it embeds imagery) for an arbitrary list of detections, one card per detection.
+
+    Used for the (b') deployment audit and for hard-negative candidates (#274). Context marks: the same model's
+    other detections on the pano at or above --threshold (--preds-file), and, with --root/--split, the pano's
+    labels and ignore points. --blind drops confidence, city, mode and year from the captions and shuffles the
+    cards with a fixed seed, so a rater cannot tell which model or stratum a card came from.
+    """
+    from PIL import Image
+    cands = read_candidates(a.candidates)
+    others = {}
+    if a.preds_file and not os.path.exists(a.preds_file):
+        raise SystemExit(f"no {a.preds_file}")
+    if a.preds_file:
+        for r in read_jsonl(a.preds_file):
+            others[r["pano_id"]] = [tuple(q) for q in r["preds"] if q[2] >= a.threshold]
+    anns = load_split(a.root, a.split) if a.root else {}
+    items = []
+    for c in cands:
+        ann = anns.get(c["pano_id"], {})
+        sup = ann.get("supervision") or {}
+        items.append({**c, "kind": "det", "gt": [tuple(q) for q in ann.get("curb_ramp_points_normalized", [])],
+                      "ignore": [tuple(q) for q in sup.get("ignore_points", [])],
+                      "dets": others.get(c["pano_id"], [(c["x"], c["y"], c["conf"])])})
+    if a.blind:
+        random.Random(BOOT_SEED).shuffle(items)
+    else:
+        items.sort(key=lambda it: -it["conf"])
+    prefill = prefill_for(items, load_prefill(a.prefill))
+
+    def image_path(pid):
+        return os.path.join(a.pano_dir, f"{pid}.jpg") if a.pano_dir else os.path.join(a.root, a.split, f"{pid}.jpg")
+
+    os.makedirs(a.out, exist_ok=True)
+    title, question = SECTION_HEAD["det"]
+    cards = [f'<h2 id="sec-det">{title} ({len(items)} cards)</h2><p class="q">{question}</p>']
+    cache = {}
+    for it in items:
+        if it["pano_id"] not in cache:
+            cache.clear()
+            cache[it["pano_id"]] = Image.open(image_path(it["pano_id"])).convert("RGB")
+        cap = (f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})" if a.blind else
+               f"conf {it['conf']:.2f} · {it.get('city') or '?'} · {it.get('mode') or '?'} · {it.get('year') or '?'} · "
+               f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})")
+        cards.append(card_figure(it, crop_card(cache[it["pano_id"]], it), cap))
+    intro = f"""<p>Each card asks about <strong>one</strong> detection: the large outlined cross. Other marks are
+context.</p>
+<ul class="legend">
+<li>{LEGEND_GLYPHS['subject_det']} the detection this card asks about</li>
+<li>{LEGEND_GLYPHS['other_det']} another detection on this pano (context; it may have its own card)</li>
+<li>{LEGEND_GLYPHS['other_gt']} a training label, where the pano has one (context)</li>
+<li>{LEGEND_GLYPHS['radius']} the scorer's match radius</li>
+</ul>
+<p><strong>Crosswalk</strong> means painted pedestrian crossing markings: zebra bars or two parallel lines across a
+roadway. Bike-lane, bus-lane, parking and rail markings are <em>not</em> crosswalks. Keys: <kbd>1</kbd>-<kbd>3</kbd>
+rate (jumps to the next card), <kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em>
+when done.</p>"""
+    page = rating_page(a.label, a.heading or f"{a.label}: rate detections", intro, "", cards, prefill)
+    path = os.path.join(a.out, f"rate_{a.label}.html")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(page)
+    log(f"rating page -> {path} ({len(items)} cards, {len(prefill)} prefilled)")
+
+
+AUDIT_PANOS = 120     # (b') panos drawn for the deployment audit (#274 hard negatives, Step 0)
+
+
+def cmd_bprime_audit(a):
+    """Step 0 of the hard-negative plan (#274): a census of one model's detections on a seeded draw of (b') panos.
+
+    Draws --n-panos of the (b') panos uniformly (seed BOOT_SEED) and lists EVERY detection at or above
+    --threshold on them (stratum `random`), so look-alikes per 100 panos and precision are census figures on
+    that draw. Adds every detection on the panos of the model's node false alarms at nodes SDOT calls unmarked
+    whose OSM class is unmarked or unknown (stratum `node_fa`; a pano in both is `random+node_fa`); those only
+    explain (b')'s false alarms and never enter the per-pano rates. Writes candidates.csv (for `cards`) and
+    panos.csv (every drawn pano, with its detection count and the (b') weights of the nodes it was scored for).
+    """
+    ids = sorted(l.strip().split("/")[-1][:-4] for l in open(a.ids_file, encoding="utf-8") if l.strip())
+    drawn = set(random.Random(BOOT_SEED).sample(ids, a.n_panos))
+    with open(a.nodes, encoding="utf-8", newline="") as f:
+        nodes = [r for r in csv.DictReader(f) if r["model"] == a.label]
+    fa = {r["pano_id"] for r in nodes
+          if r["truth"] == "0" and r["detector"] == "1" and r["osm_class"] in ("unmarked", "unknown")}
+    weights, years = {}, {}
+    with open(a.sample, encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            weights.setdefault(r["pano_id"], []).append(r["weight"])
+            years[r["pano_id"]] = year_bin(r["capture_date"])
+    preds = {r["pano_id"]: r["preds"] for r in read_jsonl(a.preds_file)}
+    missing = (drawn | fa) - set(preds)
+    if missing:
+        raise SystemExit(f"{len(missing)} audit panos have no prediction line in {a.preds_file}")
+    os.makedirs(a.out, exist_ok=True)
+    cand, pano_rows = [], []
+    for pid in sorted(drawn | fa):
+        stratum = "+".join(s for s, inn in (("random", pid in drawn), ("node_fa", pid in fa)) if inn)
+        dets = [q for q in preds[pid] if q[2] >= a.threshold]
+        pano_rows.append({"pano_id": pid, "stratum": stratum, "year": years.get(pid), "n_dets": len(dets),
+                          "node_weights": ";".join(weights.get(pid, []))})
+        for x, y, c in dets:
+            cand.append({"pano_id": pid, "x": x, "y": y, "conf": c, "city": SEATTLE, "mode": "bprime",
+                         "year": years.get(pid), "stratum": stratum})
+    for name, rows in (("candidates.csv", cand), ("panos.csv", pano_rows)):
+        with open(os.path.join(a.out, name), "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows[0]))
+            w.writeheader()
+            w.writerows(rows)
+    meta = {"label": a.label, "threshold": a.threshold, "seed": BOOT_SEED, "n_panos": a.n_panos,
+            "random_panos": len(drawn), "node_fa_panos": len(fa), "node_fa_only_panos": len(fa - drawn),
+            "detections": len(cand), "detections_random": sum(1 for c in cand if "random" in c["stratum"])}
+    with open(os.path.join(a.out, "audit_meta.json"), "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=1)
+    log(json.dumps(meta))
 
 
 def main():
@@ -1021,6 +1236,27 @@ def main():
     q.add_argument("--n-tp", type=int, default=30, help="TPs sampled")
     q.add_argument("--prefill", default=None, help="CSV of earlier verdicts: card_id, verdict, note")
     q.add_argument("--out", required=True)
+    c = sub.add_parser("cards", help="local HTML rating page for any list of detections (untracked)")
+    c.add_argument("--candidates", required=True, help="CSV: pano_id, x, y, conf [, city, mode, year, stratum]")
+    c.add_argument("--label", required=True, help="names the page, its browser storage and the export")
+    c.add_argument("--heading", default=None)
+    c.add_argument("--pano-dir", default=None, help="flat dir of <pano_id>.jpg (else --root/--split)")
+    c.add_argument("--root", default=None, help="Stage 2 root, for labels / ignore points as context")
+    c.add_argument("--split", default="train")
+    c.add_argument("--preds-file", default=None, help="the model's <split>.jsonl, for its other detections")
+    c.add_argument("--threshold", type=float, default=0.21, help="context detections at or above this")
+    c.add_argument("--blind", action="store_true", help="captions without conf/city/mode/year; seeded shuffle")
+    c.add_argument("--prefill", default=None, help="CSV of earlier verdicts: card_id, verdict, note")
+    c.add_argument("--out", required=True)
+    u = sub.add_parser("bprime-audit", help="(#274 hard negatives, Step 0) census of detections on drawn (b') panos")
+    u.add_argument("--ids-file", required=True, help="bprime/pano_files.txt")
+    u.add_argument("--sample", required=True, help="bprime/sample.csv (node weights, capture dates)")
+    u.add_argument("--nodes", required=True, help="the (b') nodes.csv with the model's per-node calls")
+    u.add_argument("--preds-file", required=True, help="the model's bprime.jsonl")
+    u.add_argument("--label", required=True)
+    u.add_argument("--threshold", type=float, required=True)
+    u.add_argument("--n-panos", type=int, default=AUDIT_PANOS)
+    u.add_argument("--out", required=True)
     b = sub.add_parser("bprime-sample", help="(b') stratified Seattle node sample + the store panos to fetch")
     b.add_argument("--root", required=True)
     b.add_argument("--baseline-nodes", required=True)
@@ -1042,7 +1278,7 @@ def main():
     a = ap.parse_args()
     {"infer": cmd_infer, "score": cmd_score, "figures": cmd_figures, "oracle": cmd_oracle,
      "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep,
-     "bprime-score": cmd_bprime_score}[a.cmd](a)
+     "bprime-score": cmd_bprime_score, "cards": cmd_cards, "bprime-audit": cmd_bprime_audit}[a.cmd](a)
 
 
 BP_PER_CELL = 150             # (b') nodes per (osm_class x truth) cell
