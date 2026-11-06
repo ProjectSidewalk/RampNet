@@ -278,6 +278,17 @@ need a verdict:
 
 The kept misses are close to, but not exactly, a uniform draw from the v2 misses.
 
+**Human audit at 0.31 on v2 labels** (`v2_labels/ratings_jon_2026-11-05_t0.31.csv`). Jon rated the 5 new cards
+on 2026-11-05. The other 133 carry his earlier verdicts.
+- **Precision 0.914 → 0.989.** 42 of the 48 false positives are real crosswalks. The 6 real errors are the same
+  look-alikes as before. The new false positive is a crosswalk.
+- **The misses are real.** 57 of 60 are real crosswalks, and 3 are unsure (far away). None is a wrong label, so
+  recall stays 0.775.
+- **True positives:** 29 of 30 are crosswalks, and 1 is unsure.
+- **Duplicates remain.** 67 pairs of test positives still sit within 0.02 of each other, mostly several crowd
+  clicks on one crosswalk. The SDOT fix does not touch these. Merging them or matching by instance is the next
+  amendment.
+
 ### (b′) A representative Seattle node sample (fixed 2026-11-05 before any (b′) inference)
 
 Why: (b)'s nodes came with the test panos, which were picked where the crowd clicked crosswalks. The question (b)
