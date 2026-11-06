@@ -632,3 +632,11 @@ analysis_out/control_arm_263/caches_aug82_controls/*
 !analysis_out/control_arm_263/trainlogs/
 analysis_out/control_arm_263/trainlogs/*
 !analysis_out/control_arm_263/trainlogs/*.txt
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/
+analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/*
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/report.md
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/scores.json
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/nodes.csv
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/
+analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/*
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s2/

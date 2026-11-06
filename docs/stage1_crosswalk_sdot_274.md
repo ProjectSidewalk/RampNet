@@ -422,6 +422,36 @@ above). This run measures what that buys the model. Only the labels change.
   The audited precision and recall are reported beside the as-scored numbers.
 - **Phase 1 GT (c)** stays unread.
 
+#### `crosswalk_s2` results (klone jobs 42951523 train, 42957626 / 42957627 infer; scored 2026-11-05): no change
+
+The run trained cleanly: 1h35m, no requeue, checkpoint sha256 `bfdd0f93…` (in `preds/crosswalk_s2/meta.json`).
+
+| model, v2 labels | val-F1 threshold | val F1 | test P | test R | test F1 | FP |
+|---|---|---|---|---|---|---|
+| `crosswalk_s2` | 0.31 | 0.804 | 0.897 [0.870, 0.918] | 0.807 [0.783, 0.829] | **0.849** | 63 |
+| `crosswalk_s1` | 0.21 | 0.803 | 0.850 [0.820, 0.875] | 0.845 [0.823, 0.865] | 0.847 | 100 |
+
+- **Rule outcome: no change.** 0.849 clears 0.847 by 0.002, under the 0.01 pre-registered as noise.
+  `crosswalk_s1` stays the working model.
+- **The two models trace the same curve.** At matched thresholds (exploratory, `threshold_sweep.csv`) test F1 is
+  0.842 vs 0.847 at 0.21, 0.845 vs 0.854 at 0.25, and 0.849 vs 0.839 at 0.31; neither model leads across the
+  band. `crosswalk_s2` picked a higher threshold on val, which trades recall for precision; that move, not a
+  better model, is where most of the difference between the two rows comes from.
+- **Non-Seattle recall drops** at the picked thresholds: Amsterdam 0.840 → 0.748, Burnaby 0.874 → 0.816, Teaneck
+  0.757 → 0.676. Same threshold effect; the cities are all `sparse` and small (37–131 positives).
+- **(b) still fails:** node F1 0.868 vs OSM 0.898 (`crosswalk_s1` 0.881).
+- **(b′) still fails both rules** (`v2_labels/bprime/`): detector weighted F1 0.727 vs OSM 0.854; detector OR OSM
+  0.841, interval for OR − OSM [−0.037, 0.009]. `crosswalk_s1` at its v2 threshold 0.21 scores 0.716 / OR 0.812
+  here, so on this sample `crosswalk_s2` is the better OR partner, but neither beats the map.
+- **What it means.** Fixing the labels changed what the scorer counts (the amendment above); retraining on them
+  did not measurably change the model. The next lever is data, not label cleanup: hard negatives mined from train
+  panos, or more panos.
+- **Human audit: page built, not yet rated.** `score_274.py gallery --label crosswalk_s2 --threshold 0.31` with all
+  230 earlier verdicts prefilled (`prefill_all.csv`, outside the repo): 154 cards, 83 prefilled, 71 new (52 FP, 19
+  TP). 23 of the new FPs sit within 0.01 of an FP already rated on the `crosswalk_s1` pages: the same paint, with
+  the peak moved, which an exact card id does not carry over. Since the rule did not adopt `crosswalk_s2`, the
+  audit is optional.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
@@ -478,6 +508,14 @@ python $S score --root <root> --preds $D/v2_labels/preds --labels crosswalk_s1,r
 python $S figures --out $D/v2_labels --fig-dir docs/figures/stage1_crosswalk_detector_274/v2_labels
 python $S gallery ... --scores $D/v2_labels --threshold 0.31 --prefill $D/ratings_jon_2026-11-05.csv --out <outside the repo>
 python -m doctest $C
+# retrain on v2 labels (crosswalk_s2): train on klone, infer, then score both models on CPU
+DATA_ROOT=<root_v2> RUNDIR=<rundir> COPY_DEST=<durable dir> SEED=1 EXPECT_TRAIN=3601 EXPECT_VAL=1029 sbatch stage_two/run_finetune_crosswalk_274.slurm
+FT_LABEL=crosswalk_s2 FT_CKPT=<COPY_DEST>/final_step_1000.pth FT_SHA=bfdd0f93… RELEASED=0 ROOT=<root_v2> PREDS=<dir> sbatch scripts/analysis/stage1_crosswalk_sdot_274/score_274.slurm
+...the same with BPRIME=1 for (b′)   # copy each crosswalk_s2/ into $D/v2_labels/preds/ and $D/v2_labels/bprime/preds/
+python $S score --root <root> --preds $D/v2_labels/preds --labels crosswalk_s2,crosswalk_s1,released,label_ceiling <as above> --out $D/v2_labels
+cp $D/bprime/{sample.csv,sample.json,pano_files.txt} $D/v2_labels/bprime/ && cp -r $D/bprime/preds/* $D/v2_labels/bprime/preds/
+python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels --pano-data <seattle_pano_data.psv> --labels crosswalk_s2,crosswalk_s1,released
+python $S gallery ... --scores $D/v2_labels --label crosswalk_s2 --threshold 0.31 --prefill <all verdicts so far> --out <outside the repo>
 ```
 
 Needs RampNet's environment plus `streetlevel==0.12.10` (its `pyequilib` dependency pulls a newer CPU torch on
@@ -501,5 +539,7 @@ churns, so a fresh `meta` moves the yield numbers.
 | human audit verdicts | `analysis_out/stage1_crosswalk_detector_274/ratings_jon_2026-11-05.csv` |
 | v2 labels: collisions, box counts | `analysis_out/stage1_crosswalk_crowd_274/placements.csv` (`collided`), `report.md` §1, `stage2_build/manifest.json` |
 | v2 re-score (amendment) | `analysis_out/stage1_crosswalk_detector_274/v2_labels/` (`report.md`, `scores.json`, `threshold_sweep.csv`), figures in `docs/figures/stage1_crosswalk_detector_274/v2_labels/` |
+| `crosswalk_s2` (retrain) scores, (b) | the same `v2_labels/` files, rows `crosswalk_s2`; predictions in `v2_labels/preds/crosswalk_s2/` |
+| `crosswalk_s2` (b′) | `v2_labels/bprime/` (`report.md`, `scores.json`, `nodes.csv`, `preds/crosswalk_s2/`) |
 
 ![](figures/stage1_crosswalk_sdot_274/range_hit_rate.png)
