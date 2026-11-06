@@ -26,7 +26,9 @@ REPO="${REPO:-${SLURM_SUBMIT_DIR:-$PWD}}"
 ROOT="${ROOT:-/gscratch/scrubbed/$USER/crosswalk274/root}"
 PREDS="${PREDS:-/gscratch/scrubbed/$USER/crosswalk274/score_preds}"
 FT_CKPT="${FT_CKPT:-/gscratch/makelab/jonf/crosswalk274/s1/final_step_1000.pth}"
-FT_SHA=6f467ff4afd7d092e159daa0451f327f755bfd6767769c417a7729f92b6c8c84
+FT_SHA="${FT_SHA:-6f467ff4afd7d092e159daa0451f327f755bfd6767769c417a7729f92b6c8c84}"
+FT_LABEL="${FT_LABEL:-crosswalk_s1}"   # a retrain (crosswalk_s2) sets FT_LABEL, FT_CKPT and FT_SHA
+RELEASED="${RELEASED:-1}"             # 0 skips the released-weights floor (already inferred once)
 REL_CKPT="${REL_CKPT:-/gscratch/scrubbed/$USER/aug82/released_rampnet_state_dict.pth}"
 REL_SHA=024a987cabed7cc9f70dea9ea4003aef416cf5d8d3ce35a3f0c16c31ef35c4b1   # Hub 606a119, docs/control_arm_263.md
 export PYTHONDONTWRITEBYTECODE=1
@@ -52,7 +54,7 @@ if [ "${BPRIME:-0}" = 1 ]; then
     EXTRA=(--ids-file "$REPO/analysis_out/stage1_crosswalk_detector_274/bprime/pano_files.txt"
            --pano-dir "${BPRIME_PANOS:-/gscratch/scrubbed/$USER/crosswalk274/bprime_4096}")
 fi
-"$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label crosswalk_s1 --checkpoint "$FT_CKPT" --sha256 "$FT_SHA" "${EXTRA[@]}" || status=1
-"$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label released --checkpoint "$REL_CKPT" --sha256 "$REL_SHA" "${EXTRA[@]}" || status=1
+"$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label "$FT_LABEL" --checkpoint "$FT_CKPT" --sha256 "$FT_SHA" "${EXTRA[@]}" || status=1
+[ "$RELEASED" = 1 ] && { "$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label released --checkpoint "$REL_CKPT" --sha256 "$REL_SHA" "${EXTRA[@]}" || status=1; }
 echo "done, status $status"
 exit $status

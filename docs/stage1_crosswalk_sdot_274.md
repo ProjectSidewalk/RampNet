@@ -393,6 +393,35 @@ calls unmarked or leaves untagged are marked. Any per-node false alarm therefore
 this detector does not improve Seattle's map through a node-level rule. Its demonstrated value is per-pano
 labelling, (a).
 
+### Retrain on v2 labels, `crosswalk_s2` (pre-registered 2026-11-05, before the job was submitted)
+
+Why: the v2 labels fix SDOT duplicates and stop unlabelled near paint from training as background (amendment
+above). This run measures what that buys the model. Only the labels change.
+
+- **Data.** The v2 root has the same 5,145 panos, splits and images as the first run, with the v2 JSONs: train
+  3,601, val 1,029, test 515. It is staged on klone as `crosswalk274/root_v2`, and its images are hard links to
+  the first root's.
+- **Recipe.** Identical to `crosswalk_s1`: `stage_two/run_finetune_crosswalk_274.slurm`, from the released
+  weights, seed 1, 1,000 steps at global batch 16, LR 1e-5 constant, `--loss-mask --mask-norm pixels`. Only the
+  final checkpoint is scored.
+- **Hard negatives are left out on purpose.** Every look-alike rated so far is a test pano. Mining training
+  look-alikes is a separate, later run.
+- **Scoring.**
+  - `score_274.py` as in (a) and (b), on the v2 labels (`v2_labels/`). Label `crosswalk_s2`, at its own val-F1
+    threshold.
+  - Inference uses `score_274.slurm` with `FT_LABEL=crosswalk_s2`.
+- **Comparison.** (a) test F1 of `crosswalk_s2` against `crosswalk_s1` on the same v2 labels (0.847 at its
+  threshold 0.21).
+  - `crosswalk_s2` becomes the working model if its F1 is ≥ 0.847.
+  - With one seed per model there is no estimate of seed noise, so a difference under 0.01 reads as no change.
+- **Also reported, not deciding:**
+  - per-city / mode / year breakdowns;
+  - (b) node F1 against `osm_marked_signal`;
+  - (b′), with the same weighted rules, from a second inference pass (`BPRIME=1`).
+- **Human audit (post hoc).** A rating page with every earlier verdict prefilled, so only new cards need one.
+  The audited precision and recall are reported beside the as-scored numbers.
+- **Phase 1 GT (c)** stays unread.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
