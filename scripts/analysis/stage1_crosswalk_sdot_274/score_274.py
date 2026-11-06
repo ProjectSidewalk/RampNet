@@ -1198,6 +1198,73 @@ def cmd_bprime_audit(a):
     log(json.dumps(meta))
 
 
+def audit_rates(panos, verdicts):
+    """Census rates on a set of drawn panos. `panos` = [pano_id], `verdicts` = {pano_id: [verdict, ...]} (one per
+    detection; a drawn pano with no detection has none). Unsure counts as an error in `precision` and is left
+    out of `precision_excl_unsure`.
+
+    >>> r = audit_rates(["a", "b", "c", "d"], {"a": ["crosswalk", "not_crosswalk"], "b": ["unsure"]})
+    >>> r["detections"], r["precision"], r["precision_excl_unsure"], r["lookalikes_per_100_panos"]
+    (3, 0.3333333333333333, 0.5, 25.0)
+    """
+    v = [x for p in panos for x in verdicts.get(p, [])]
+    n, ok = len(v), v.count("crosswalk")
+    bad, uns = v.count("not_crosswalk"), v.count("unsure")
+    return {"panos": len(panos), "detections": n, "crosswalk": ok, "not_crosswalk": bad, "unsure": uns,
+            "precision": ok / n if n else float("nan"),
+            "precision_excl_unsure": ok / (ok + bad) if ok + bad else float("nan"),
+            "lookalikes_per_100_panos": 100 * bad / len(panos),
+            "errors_per_100_panos": 100 * (bad + uns) / len(panos)}
+
+
+def cmd_audit_summary(a):
+    """Rates from a rated `bprime-audit` draw: precision and look-alikes per 100 panos on the `random` stratum,
+    with 95% intervals from a bootstrap over panos (detections on one pano are not independent), plus verdict
+    counts on the `node_fa` stratum. Writes audit_summary.json and per_pano.csv to --out."""
+    with open(a.panos, encoding="utf-8", newline="") as f:
+        prow = list(csv.DictReader(f))
+    verdicts, n_rated = {}, 0
+    with open(a.ratings, encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            if not r["verdict"]:
+                raise SystemExit(f"unrated card {r['card_id']}: rate every card before summarising")
+            verdicts.setdefault(r["pano_id"], []).append(r["verdict"])
+            n_rated += 1
+    drawn = [r["pano_id"] for r in prow if "random" in r["stratum"]]
+    fa = [r["pano_id"] for r in prow if "node_fa" in r["stratum"]]
+    want = sum(int(r["n_dets"]) for r in prow)
+    if n_rated != want:
+        raise SystemExit(f"{n_rated} rated cards but panos.csv lists {want} detections")
+    point = audit_rates(drawn, verdicts)
+    rng = random.Random(BOOT_SEED)
+    keys = ("precision", "precision_excl_unsure", "lookalikes_per_100_panos", "errors_per_100_panos")
+    boots = {k: [] for k in keys}
+    for _ in range(BOOT_N):
+        r = audit_rates([rng.choice(drawn) for _ in drawn], verdicts)
+        for k in keys:
+            boots[k].append(r[k])
+    ci = {}
+    for k in keys:
+        b = sorted(x for x in boots[k] if x == x)
+        ci[k] = [b[int(0.025 * len(b))], b[int(0.975 * len(b)) - 1]]
+    fa_v = [x for p in fa for x in verdicts.get(p, [])]
+    out = {"label": a.label, "random": point, "random_ci95_pano_bootstrap": ci, "boot_n": BOOT_N,
+           "boot_seed": BOOT_SEED,
+           "node_fa": {"panos": len(fa), "detections": len(fa_v),
+                       **{k: fa_v.count(k) for k in ("crosswalk", "not_crosswalk", "unsure")}}}
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "audit_summary.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=1)
+    with open(os.path.join(a.out, "per_pano.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["pano_id", "stratum", "year", "detections", "crosswalk", "not_crosswalk", "unsure"])
+        for r in prow:
+            v = verdicts.get(r["pano_id"], [])
+            w.writerow([r["pano_id"], r["stratum"], r["year"], len(v), v.count("crosswalk"),
+                        v.count("not_crosswalk"), v.count("unsure")])
+    log(json.dumps(out, indent=1))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -1257,6 +1324,11 @@ def main():
     u.add_argument("--threshold", type=float, required=True)
     u.add_argument("--n-panos", type=int, default=AUDIT_PANOS)
     u.add_argument("--out", required=True)
+    v = sub.add_parser("audit-summary", help="rates + pano-bootstrap intervals from a rated bprime-audit draw")
+    v.add_argument("--panos", required=True, help="the draw's panos.csv")
+    v.add_argument("--ratings", required=True, help="the exported ratings CSV for the draw's page")
+    v.add_argument("--label", default="crosswalk_s1")
+    v.add_argument("--out", required=True)
     b = sub.add_parser("bprime-sample", help="(b') stratified Seattle node sample + the store panos to fetch")
     b.add_argument("--root", required=True)
     b.add_argument("--baseline-nodes", required=True)
@@ -1278,7 +1350,8 @@ def main():
     a = ap.parse_args()
     {"infer": cmd_infer, "score": cmd_score, "figures": cmd_figures, "oracle": cmd_oracle,
      "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep,
-     "bprime-score": cmd_bprime_score, "cards": cmd_cards, "bprime-audit": cmd_bprime_audit}[a.cmd](a)
+     "bprime-score": cmd_bprime_score, "cards": cmd_cards, "bprime-audit": cmd_bprime_audit,
+     "audit-summary": cmd_audit_summary}[a.cmd](a)
 
 
 BP_PER_CELL = 150             # (b') nodes per (osm_class x truth) cell

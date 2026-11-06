@@ -477,6 +477,57 @@ the 71 new cards on 2026-11-06.
   stays. Retraining on cleaner labels did not remove a single look-alike class, which supports hard negatives as
   the next lever.
 
+### Hard negatives, `crosswalk_s3` (planned 2026-11-06)
+
+**Why.** Every look-alike class survived the label fix. But the test set can barely show a precision gain: audited
+precision at 0.21 is already 0.980, because test panos were crowd-picked intersections. The case for hard negatives
+is deployment, where most panos are not. So Step 0 measures deployment precision first.
+
+**Plan.**
+- **Source A.** `crosswalk_s1`'s own detections on **train** panos where training gives no background signal:
+  `sparse` panos (1,540 in four cities) and the ignore regions of `dense_ignore` panos. Test, val and (b′) are never
+  mined.
+- **Source B, only if A yields under 150 negatives.** Fresh Seattle store panos near OSM rail, bus-lane,
+  surface-parking and cycleway features, at least 60 m from every val, test, (b′) and Phase 1 pano.
+- **Verification.** A blind AI pre-screen, then Jon. Only Jon's "not crosswalk" verdicts become negatives, because
+  most unlabelled "false positives" are real crosswalks (48 of `crosswalk_s2`'s 63).
+- **Trainer.** A new `supervision.negative_points` key: background discs that train in any supervision mode.
+- **Run.** The same recipe as `crosswalk_s1`. The pre-registration is fixed before training.
+
+#### Step 0: deployment baseline on (b′) panos (rated by Jon 2026-11-06)
+
+`score_274.py bprime-audit` drew 120 of the 793 (b′) panos (seed 274). Every `crosswalk_s1` detection at or above
+0.21 on them is a card: 260 cards on 78 panos. The other 42 drawn panos have no detection. The draw's panos were
+picked for their OSM crossing nodes, so they sit at or near intersections, not mid-block.
+
+Jon rated the cards blind: no confidence, city or model on the card, order shuffled. A second stratum, `node_fa`,
+holds every detection on the 21 panos behind `crosswalk_s1`'s (b′) false alarms at nodes SDOT calls unmarked and
+OSM tags unmarked or leaves untagged. That stratum explains the false alarms and never enters the rates.
+
+| `random` stratum, `crosswalk_s1` @ 0.21 | value | 95% interval (bootstrap over panos) |
+|---|---|---|
+| detections: crosswalk / not / unsure | 237 / 16 / 7 | |
+| precision (unsure counted as error) | **0.912** | [0.858, 0.956] |
+| precision (unsure left out) | 0.937 | [0.899, 0.969] |
+| look-alikes per 100 panos | 13.3 | [6.7, 20.8] |
+| errors (not + unsure) per 100 panos | 19.2 | [9.2, 31.7] |
+
+- **Gate passed.** Look-alikes are 16 of 260 detections (6.2%), above the 3% stop line, so the run continues.
+- **Deployment precision is well below test.** It is 0.912 here against 0.980 audited on test, so errors are about
+  4× as common away from crowd-picked panos.
+- **The look-alikes are the familiar classes:**
+  - parking markings (lot stall lines, hatched no-parking zones);
+  - bike-lane lines, parallel or dashed;
+  - tree and lamp shadows, and a stop line.
+- **Near-camera clutter.** One pano (`kK0bPFgBK0uFm2M72rg8yw`) carries 5 of the 23 errors, all near the bottom of the
+  frame (y 0.66–0.76, just above the 49° rig mask), rated "too zoomed in to tell".
+- **`node_fa`: 40 detections, 20 crosswalk / 16 not / 4 unsure.** About half of (b′)'s detector false alarms at
+  SDOT-unmarked nodes are look-alikes, chiefly bike lanes, green bike zebras and parking-lot markings. The other half
+  are real crosswalks the node truth does not count.
+- **What s3 has to beat.** 13.3 look-alikes per 100 panos, with a wide interval: halving it moves the point estimate
+  to about the interval's lower edge. The pre-registration therefore fixes the cut on this same draw, with the same
+  bootstrap, before training.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
@@ -541,6 +592,11 @@ python $S score --root <root> --preds $D/v2_labels/preds --labels crosswalk_s2,c
 cp $D/bprime/{sample.csv,sample.json,pano_files.txt} $D/v2_labels/bprime/ && cp -r $D/bprime/preds/* $D/v2_labels/bprime/preds/
 python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels --pano-data <seattle_pano_data.psv> --labels crosswalk_s2,crosswalk_s1,released
 python $S gallery ... --scores $D/v2_labels --label crosswalk_s2 --threshold 0.31 --prefill <all verdicts so far> --out <outside the repo>
+# hard negatives, Step 0: the (b') deployment audit (CPU; the draw is seeded, so it reproduces exactly)
+H=$D/hardneg/step0_audit
+python $S bprime-audit --ids-file $D/bprime/pano_files.txt --sample $D/bprime/sample.csv --nodes $D/v2_labels/bprime/nodes.csv --preds-file $D/v2_labels/bprime/preds/crosswalk_s1/bprime.jsonl --label crosswalk_s1 --threshold 0.21 --out $H
+python $S cards --candidates $H/candidates.csv --label hardneg_step0 --pano-dir <bprime_4096> --preds-file $D/v2_labels/bprime/preds/crosswalk_s1/bprime.jsonl --threshold 0.21 --blind --out <outside the repo>
+python $S audit-summary --panos $H/panos.csv --ratings $H/ratings_jon_2026-11-06_step0.csv --out $H
 ```
 
 Needs RampNet's environment plus `streetlevel==0.12.10` (its `pyequilib` dependency pulls a newer CPU torch on
@@ -567,5 +623,7 @@ churns, so a fresh `meta` moves the yield numbers.
 | `crosswalk_s2` (retrain) scores, (b) | the same `v2_labels/` files, rows `crosswalk_s2`; predictions in `v2_labels/preds/crosswalk_s2/` |
 | `crosswalk_s2` (b′) | `v2_labels/bprime/` (`report.md`, `scores.json`, `nodes.csv`, `preds/crosswalk_s2/`) |
 | `crosswalk_s2` human audit at 0.31 | `v2_labels/ratings_jon_2026-11-06_s2_t0.31.csv` (audited P = (546 complete TP + 48 real FPs) / (546 + 63)) |
+| hard negatives Step 0: the draw, cards, verdicts | `hardneg/step0_audit/` (`panos.csv`, `candidates.csv`, `audit_meta.json`, `ratings_jon_2026-11-06_step0.csv`) |
+| Step 0 rates and intervals, per-pano counts | `hardneg/step0_audit/audit_summary.json`, `per_pano.csv` |
 
 ![](figures/stage1_crosswalk_sdot_274/range_hit_rate.png)
