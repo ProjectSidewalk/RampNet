@@ -889,6 +889,7 @@ figure{{display:inline-block;margin:6px;width:480px;vertical-align:top;padding-b
 img{{width:100%;display:block}}figcaption{{font-size:12px}}
 .fp{{border-top:4px solid #d33}}.fn{{border-top:4px solid #e90}}.tp{{border-top:4px solid #2a2}}
 figure:focus{{outline:3px solid #36f;outline-offset:2px}}figure.done{{opacity:.55}}
+[hidden]{{display:none!important}}
 .rate button{{margin:4px 4px 0 0;font:inherit;padding:3px 8px;border:1px solid #888;background:#f4f4f4;border-radius:4px}}
 .rate button[aria-pressed=true]{{background:#225;color:#fff;border-color:#225}}
 label{{display:block;margin-top:4px;font-size:12px}}.note{{width:380px;font:inherit}}
