@@ -832,16 +832,21 @@ def cmd_gallery(a):
     t = res["models"][a.label]["threshold"] if a.threshold is None else a.threshold
     anns = load_split(a.root, "test")
     items = card_items(anns, load_preds(a.preds, a.label, "test", anns), t)
+    prefill = {}
+    if a.prefill:
+        with open(a.prefill, encoding="utf-8", newline="") as f:
+            prefill = {r["card_id"]: {"verdict": r["verdict"], "note": r.get("note", "")} for r in csv.DictReader(f)}
     rng = random.Random(BOOT_SEED)
     pick = []
     for kind, n in (("fp", a.n), ("fn", a.n), ("tp", a.n_tp)):
         group = [it for it in items if it["kind"] == kind]
         sample = rng.sample(group, min(n, len(group)))   # drawn even for fp, so the miss sample stays the same
+        # After a relabel, keep every already-rated card that is still a card of this kind, and top up from the
+        # seeded sample, so only new items need a verdict. The labels changed by removal and new ignore regions,
+        # so still-present rated misses are close to a uniform draw from the new misses (not exactly: see doc).
+        rated = [it for it in group if card_id(it) in prefill]
+        sample = (rated + [it for it in sample if card_id(it) not in prefill])[:max(n, len(rated))]
         pick += sorted(group if kind == "fp" else sample, key=lambda it: -it["conf"])
-    prefill = {}
-    if a.prefill:
-        with open(a.prefill, encoding="utf-8", newline="") as f:
-            prefill = {r["card_id"]: {"verdict": r["verdict"], "note": r.get("note", "")} for r in csv.DictReader(f)}
     os.makedirs(a.out, exist_ok=True)
     cache = {}
     cards = []

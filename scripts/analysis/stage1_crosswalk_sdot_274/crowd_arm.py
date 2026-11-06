@@ -13,7 +13,8 @@ Label classes (crowd labels keyed `seattle-wa:<label_id>`; verdict = Phase 0's h
   crowd_conflict  everything else (crowd and SDOT disagree)                                  -> an ignore region
   sdot_b2         a current SDOT crosswalk within INCLUSION_M of the pano with no crowd_pos label on this pano
                   within 10 m of it, placed by B2 (pilot.vistas_at)                          -> a positive point
-  sdot_ignore     the same, but Vistas finds no component within SNAP_R of B1               -> an ignore region
+  sdot_ignore     the same, but Vistas finds no component within SNAP_R of B1, or B2 lands on paint another
+                  mark already labels (`collided` = 1, `sdot_collisions`)                    -> an ignore region
   vistas_unexplained  a crosswalk component of a full-pano Vistas pass (the Phase 0 probe's 6-view rig) that no
                   mark above explains (`explained`)                                          -> an ignore region
 A pano is `complete: false` when, within INCLUSION_M, there is OSM paint (marked or signalised node) that neither
@@ -222,14 +223,16 @@ def cmd_place(a):
         by.setdefault(r["pano_id"], []).append(r)
     pids = sorted(by)
     gal = set(random.Random(SEED).sample(pids, min(GALLERY_N, len(pids))))
+    if a.only:
+        pids = [p for p in pids if p in set(a.only.split(","))]
     if a.limit:
         pids = pids[:a.limit]
-    out_p = os.path.join(a.out, PLACEMENTS)
+    out_p = os.path.join(a.out, a.placements or PLACEMENTS)
     done = set()
     if os.path.exists(out_p):
         done = {r["pano_id"] for r in csv.DictReader(open(out_p, encoding="utf-8", newline=""))}
     fields = ["pano_id", "kind", "id", "capture_date", "x", "y", "range_m", "on_paint", "near_px_dist", "comp_found",
-              "b2_x", "b2_y", "shift", "comp_area_px", "box", "incomplete_reasons"]
+              "b2_x", "b2_y", "shift", "comp_area_px", "box", "collided", "incomplete_reasons"]
     new = not os.path.exists(out_p)
     fh = open(out_p, "a", encoding="utf-8", newline="")
     w = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
@@ -257,12 +260,14 @@ def cmd_place(a):
         reasons = []
         if m.get("found"):
             pos = [(float(r["label_lat"]), float(r["label_lng"])) for r in labs if r["class"] == "crowd_pos"]
+            cand = []
             for d, it in g_cur.within(m["lat"], m["lon"], INCLUSION_M):
                 if any(haversine_m(it[0], it[1], la, ln) <= MATCH_M for la, ln in pos):
                     continue
                 x, y, rng, _ = project(m["lat"], m["lon"], m["heading_deg"], it[0], it[1])
-                v = vistas_at(seg, pano, x, y)
-                kind = "sdot_b2" if v["comp_found"] else "sdot_ignore"
+                cand.append((x, y, rng, it))
+            for (x, y, rng, it), v in zip(cand, place_sdot(seg, pano, cand, out)):
+                kind = "sdot_b2" if v["comp_found"] and not v["collided"] else "sdot_ignore"
                 out.append(({"kind": kind, "id": f"sdot:{it[2]['objectid']}", "x": x, "y": y,
                              "range_m": round(rng, 2)}, v))
             for d, it in g_osm.within(m["lat"], m["lon"], INCLUSION_M):
@@ -280,8 +285,10 @@ def cmd_place(a):
         for view in default_views():
             sg, pr = seg.seg_prob(equirect_to_perspective(pano, view))
             comps += probe.view_components(sg, pr, view, perspective_point_to_equirect)
-        marks = [(row["x"], row["y"]) for row, _ in out]
-        marks += [(v["b2_x"], v["b2_y"]) for _, v in out if v["comp_found"]]
+        # paint is explained only by a mark that export writes at that spot: an SDOT positive at its B2 (not its
+        # B1), everything else at its own point. A crowd click's B2 is not written, and counting it (or an SDOT
+        # B1) let paint with no label of its own pass as explained, so it trained as background (#274 audit).
+        marks = [(v["b2_x"], v["b2_y"]) if row["kind"] == "sdot_b2" else (row["x"], row["y"]) for row, v in out]
         # Unexplained components stay per view (not merged): a near crosswalk splits across overlapping views, and
         # each keeps an approximate pano-space box from its centroid and left/right extreme pixels, so the ignore
         # region covers its extent. Overlapping ignore boxes are harmless.
@@ -298,7 +305,7 @@ def cmd_place(a):
             w.writerow({"pano_id": pid, "capture_date": date, "box": "", **row, "x": round(row["x"], 6), "y": round(row["y"], 6),
                         "on_paint": v["on_paint"], "near_px_dist": v["near_px_dist"], "comp_found": v["comp_found"],
                         "b2_x": v["b2_x"], "b2_y": v["b2_y"], "shift": v["shift"], "comp_area_px": v["comp_area_px"],
-                        "incomplete_reasons": "|".join(reasons)})
+                        "collided": v.get("collided", 0), "incomplete_reasons": "|".join(reasons)})
         fh.flush()
         if pid in gal:
             draw_pano(pano, out, os.path.join(thumbs, pid + ".jpg"))
@@ -309,16 +316,81 @@ def cmd_place(a):
     log(f"placements -> {out_p}")
 
 
-def explained(c, marks, r=SNAP_R, pad_x=0.01, pad_y=0.04):
-    """A per-view Vistas component is explained by a mark within r of its centroid (matcher metric), or by a mark
-    inside its horizontal extent (x_left..x_right, seam-aware, padded) and within pad_y of it vertically: a long
-    near crosswalk's centroid can sit far from the crowd click on one end of it."""
+COLLIDE_R = 0.02   # an SDOT B2 this close (matcher metric) to a mark already placed duplicates that mark's crosswalk
+
+
+def sdot_collisions(sdot, clicks, crowd_b2, r=COLLIDE_R):
+    """Indices of SDOT B2 marks that land on paint another mark already labels (#274 snap collisions).
+
+    B2 snaps an SDOT point to the nearest paint, which is sometimes another crosswalk that a crowd click or an
+    earlier SDOT point already labels. That gives the paint a duplicate label (a forced miss when scoring) and
+    leaves the point's own crosswalk with none (its detections score as false positives and train as background).
+    A collided point becomes `sdot_ignore` at its B1 instead: its own crosswalk is then neither rewarded nor
+    penalised, and its B1 no longer explains paint (see `explained`).
+
+    `sdot` is [(b2_x, b2_y, shift) or None (no paint found)]; `clicks` the crowd_pos click points; `crowd_b2` those
+    clicks' own B2 centroids. SDOT points claim in order of how little B2 moved them. A point collides when its B2
+    is within `r` of a click or of an earlier SDOT B2, or is a click's own component centroid (the same paint).
+
+    r = 0.02 was read off v1's placements (2026-11-05): of 12 collisions inspected near that distance, 11 were
+    the same crosswalk. The other (2pNG5BmRx6bv2-FxQNH6JQ, 0.011) was a point B2 had already moved 0.08 off its
+    B1; as an ignore it costs a label rather than adding a wrong one. A wider rule tried first (claim paint
+    grouped by dilation, then re-snap) merged whole intersections and moved good labels onto other crosswalks.
+
+    >>> sdot_collisions([(0.505, 0.60, 0.01), (0.70, 0.55, 0.02), (0.71, 0.55, 0.03), None, (0.30, 0.6, 0.0)],
+    ...                 clicks=[(0.50, 0.60)], crowd_b2=[(0.30, 0.6)])
+    [0, 2, 4]
+    """
+    order = sorted((i for i, s in enumerate(sdot) if s), key=lambda i: (float(sdot[i][2]), i))
+    taken, hit = list(clicks), []
+    for i in order:
+        bx, by = float(sdot[i][0]), float(sdot[i][1])
+        if any(pano_dist(bx, by, tx, ty) <= r for tx, ty in taken) or \
+                any(pano_dist(bx, by, cx, cy) < 1e-6 for cx, cy in crowd_b2):
+            hit.append(i)
+        else:
+            taken.append((bx, by))
+    return sorted(hit)
+
+
+def place_sdot(seg, pano, cand, crowd_out):
+    """B1/B2 for this pano's SDOT-only crosswalks (`cand` = [(x, y, range_m, item)]), with `collided` = 1 on every
+    point `sdot_collisions` finds duplicating a mark in `crowd_out` or an earlier SDOT mark. Order = `cand`'s."""
+    res = [vistas_at(seg, pano, x, y) for x, y, _, _ in cand]
+    pos = [(row, v) for row, v in crowd_out if row["kind"] == "crowd_pos"]
+    hit = set(sdot_collisions([(v["b2_x"], v["b2_y"], v["shift"]) if v["comp_found"] else None for v in res],
+                              [(row["x"], row["y"]) for row, _ in pos],
+                              [(v["b2_x"], v["b2_y"]) for _, v in pos if v["comp_found"]]))
+    for i, v in enumerate(res):
+        v["collided"] = int(i in hit)
+    return res
+
+
+EXPLAIN_R = 0.01     # a mark this close (pano-width units, ~3.6 deg) to a component's centroid explains it
+EXPLAIN_PAD = 0.01   # ...or one inside the component's own x and y extent, padded by this
+
+
+def explained(c, marks, r=EXPLAIN_R, pad=EXPLAIN_PAD):
+    """A per-view Vistas component is explained by a mark within r of its centroid, or by a mark inside its own
+    extent: x_left..x_right (seam-aware) and the y range of its centroid and extreme pixels, each padded. A long
+    near crosswalk's centroid can sit far from the click on one end of it, and the extent rule covers that.
+
+    Tightened in the #274 audit. It was r = SNAP_R (0.05) with a +-0.04 vertical band, which let a far crosswalk's
+    click explain the near crosswalk on the same heading (the matcher metric halves y), so that unlabelled near
+    paint trained as background. Over-tight only adds ignore regions.
+
+    >>> c = {"x": 0.50, "y": 0.59, "x_left": 0.47, "x_right": 0.53, "y_left": 0.58, "y_right": 0.60}
+    >>> explained(c, [(0.509, 0.556)]), explained(c, [(0.48, 0.585)])
+    (False, True)
+    """
+    ys = (c["y"], c.get("y_left", c["y"]), c.get("y_right", c["y"]))
+    y_lo, y_hi = min(ys) - pad, max(ys) + pad
     for mx, my in marks:
         if pano_dist(mx, my, c["x"], c["y"]) <= r:
             return True
-        lo, hi = c["x_left"] - pad_x, c["x_right"] + pad_x
+        lo, hi = c["x_left"] - pad, c["x_right"] + pad
         inside = (lo <= mx <= hi) if lo <= hi else (mx >= lo or mx <= hi)
-        if inside and abs(my - c["y"]) <= pad_y:
+        if inside and y_lo <= my <= y_hi:
             return True
     return False
 
@@ -556,6 +628,8 @@ def main():
             s.add_argument("--panos", required=True)
         if name == "place":
             s.add_argument("--limit", type=int, default=0)
+            s.add_argument("--only", default="", help="comma list of pano ids (a smoke test)")
+            s.add_argument("--placements", default="", help=f"output file name in --out (default {PLACEMENTS})")
     a = ap.parse_args()
     {"select": cmd_select, "place": cmd_place, "export": cmd_export, "report": cmd_report,
      "gallery": cmd_gallery}[a.cmd](a)

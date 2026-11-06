@@ -24,7 +24,7 @@ shuffled with seed 42, and filled train 70 / val 20 / rest test. Every pano with
   (copy OUT/neg_files.txt from makelab2 read-only, as for arm C)
   python export_stage2.py neg-check --panos <copied negatives> --out OUT               # GPU: Vistas
   python export_stage2.py build --arm <arm C out>=<its panos dir> [--arm ...] --negatives OUT=<negatives dir>
-                                 --phase1-sheet <sheet.csv> --root <Stage 2 root> --out OUT
+                                 --phase1-sheet <sheet.csv> --root <Stage 2 root> --out OUT [--keep-split]
 Writes `manifest.json` (counts per split / mode / city, input sha256s) into OUT; the root itself is untracked.
 """
 import argparse
@@ -278,6 +278,26 @@ def cmd_build(a):
                                    crowd_arm.pano_path(npanos, r["pano_id"]))
             coords[r["pano_id"]] = (m["lat"], m["lon"])
     split = split_groups(coords)
+    kept = {}
+    if a.keep_split:
+        # A relabel must not reshuffle: split_groups fills groups in shuffled order, so one pano more or less moves
+        # every later group. Keep each pano's split as the root already has it; only panos new to the root take the
+        # rule's split, and panos no longer built are removed from the root.
+        for s in ("train", "val", "test"):
+            d = os.path.join(a.root, s)
+            for fn in (os.listdir(d) if os.path.isdir(d) else []):
+                if fn.endswith(".json"):
+                    kept[fn[:-5]] = s
+        moved = {pid: kept[pid] for pid in items if pid in kept and kept[pid] != split[pid]}
+        split.update(moved)
+        gone = sorted(set(kept) - set(items))
+        for pid in gone:
+            for ext in (".json", ".jpg"):
+                p = os.path.join(a.root, kept[pid], pid + ext)
+                if os.path.exists(p):
+                    os.remove(p)
+        log(f"--keep-split: {len(kept)} panos already in the root; {len(moved)} keep a split the rule would move; "
+            f"{sum(1 for p in items if p not in kept)} new; {len(gone)} removed ({','.join(gone[:20])})")
     counts = {}
     for pid, (js, src) in sorted(items.items()):
         s = split[pid]
@@ -292,7 +312,8 @@ def cmd_build(a):
     os.makedirs(a.out, exist_ok=True)
     man = {"root": a.root, "panos": len(items), "counts": dict(sorted(counts.items())), "dropped": dropped,
            "inputs_sha256": inputs, "split": {"rule": "split_dataset.py: 60 m groups, seed 42, 70/20/rest",
-                                              "phase1_exclusion_m": PHASE1_M},
+                                              "phase1_exclusion_m": PHASE1_M,
+                                              "kept_from_root": bool(a.keep_split)},
            "points": sum(len(js["curb_ramp_points_normalized"]) for js, _ in items.values()),
            "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     json.dump(man, open(os.path.join(a.out, "manifest.json"), "w", encoding="utf-8"), indent=1)
@@ -315,6 +336,8 @@ def main():
     s.add_argument("--phase1-sheet")
     s.add_argument("--root", required=True)
     s.add_argument("--out", required=True)
+    s.add_argument("--keep-split", action="store_true",
+                   help="relabel an existing root: keep each pano's split, remove panos no longer built")
     a = ap.parse_args()
     {"neg-pick": cmd_neg_pick, "neg-check": cmd_neg_check, "build": cmd_build}[a.cmd](a)
 

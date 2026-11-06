@@ -27,7 +27,7 @@
   "negative_has_vistas_paint": 55
  },
  "inputs_sha256": {
-  "analysis_out/stage1_crosswalk_crowd_274": "6dcb37f3963525c248953faba6eedb7971f95a2b989bcac96e2903029d8660b4",
+  "analysis_out/stage1_crosswalk_crowd_274": "3aaea81830632f77f69b0b1d606c4e0187bc488e88ddc2f35bd05c8bd762a10d",
   "analysis_out/stage1_crosswalk_crowd_274/cities/teaneck-nj": "f3b0cd3c8e0bd72511c1d1abd51fcd3082dcddc2f6afe024be867e3740826590",
   "analysis_out/stage1_crosswalk_crowd_274/cities/amsterdam": "ee6004d186e5facf57108af8224ca8dea4c54038fbb8b08d763df0be43422b28",
   "analysis_out/stage1_crosswalk_crowd_274/cities/burnaby": "a755eefd577f3f512fb25e92b78917e831658f99f5f4ddddfe38230099a1eeee",
@@ -35,8 +35,9 @@
  },
  "split": {
   "rule": "split_dataset.py: 60 m groups, seed 42, 70/20/rest",
-  "phase1_exclusion_m": 35.0
+  "phase1_exclusion_m": 35.0,
+  "kept_from_root": true
  },
- "points": 10410,
- "built_utc": "2026-11-04T18:52:29Z"
+ "points": 10223,
+ "built_utc": "2026-11-06T00:14:34Z"
 }

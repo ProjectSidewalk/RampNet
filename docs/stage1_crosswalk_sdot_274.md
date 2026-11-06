@@ -211,13 +211,72 @@ per pano; a crosswalk labelled in one pano need not be labelled again. Completen
 placed by B2, plus Vistas-unexplained paint as ignore. B2 can snap an SDOT point onto paint that is already labelled,
 by a crowd click or by another SDOT point. That point's own crosswalk then has no label, and its detections score
 as false positives. The paint it lands on gets a duplicate label, which scores as a miss. Across arm C, 63 panos
-have two or more SDOT points snapped together, 33 of them marked complete. SDOT-onto-crowd collisions are not yet
-counted. The same errors are in the training labels, which teach those crosswalks as background.
+have two or more SDOT points snapped together, 33 of them marked complete. The same errors are in the training
+labels, which teach those crosswalks as background. Fixed and counted (187 points) in the v2 amendment below.
 
 **Point matching also misreads long and crowded crosswalks.** A detection at one end of a long crosswalk can fall
 outside the 0.05 radius of a label at the other end. At a busy intersection the radius spans neighbouring
 crosswalks, so a detection can match the wrong crosswalk's label. Matching to the crosswalk's paint extent would fix
 both; that would be an open amendment, reported beside the pre-registered numbers.
+
+### Amendment: arm C labels v2, snap collisions fixed (2026-11-05)
+
+This amendment re-scores the same model on corrected labels. It sits beside the pre-registered (a) and (b) and
+does not replace them. Nothing was retrained.
+
+**What changed in `crowd_arm.py place`:**
+- **Collisions** (`sdot_collisions`). An SDOT point now becomes `sdot_ignore` at its B1 (`collided = 1`) when its
+  B2 lands on paint that is already labelled. That means its B2 is either:
+  - within `COLLIDE_R` = 0.02 (matcher metric) of a crowd click or of an earlier SDOT B2, or
+  - on the paint component under a crowd click.
+
+  SDOT points claim in order of how little B2 moved them. Its own crosswalk is then neither rewarded nor
+  penalised. 0.02 was read off v1's placements: of 12 collisions inspected near that distance, 11 were the same
+  crosswalk.
+- **A first try was discarded.** It claimed paint grouped by dilation and re-snapped displaced points. That
+  flagged 393 points, 244 of them ≥ 0.02 from every other mark, because grouping merged whole intersections.
+  Good v1 labels moved onto other crosswalks.
+- **`explained()` is tighter.** Paint counts as explained only by a mark that the export writes at that spot:
+  - within 0.01 of the component's centroid, or
+  - inside its own x/y extent, padded by 0.01.
+
+  It used to be within 0.05 of the centroid, or inside the x extent with a ±0.04 vertical band, and a crowd
+  click's B2 or an SDOT B1 also counted as a mark. That let a far crosswalk's click explain the near crosswalk
+  on the same heading. Over-tight only adds ignore regions.
+- **`export_stage2.py build --keep-split`.** Every pano keeps its train/val/test split. None moved, none was
+  added or dropped.
+
+**Label changes:**
+
+| | v1 | v2 |
+|---|---|---|
+| `sdot_b2` positives (all arm C) | 2,837 | 2,650 (187 collided: 108 onto a crowd click, 79 onto another SDOT point; 169 panos) |
+| `sdot_ignore` | 307 | 494 |
+| `vistas_unexplained` ignore boxes | 53,600 | 87,338 (more on 2,710 panos, mostly zebra stripes beside a click) |
+| Stage 2 positives, train / val / test | 7,185 / 2,047 / 1,178 | 7,072 / 1,997 / 1,154 |
+
+Every other mark is identical to v1. Vistas outputs match row for row, and incompleteness reasons are unchanged.
+
+**(a) re-scored on v2 labels** (`analysis_out/stage1_crosswalk_detector_274/v2_labels/`):
+
+| labels | threshold | precision (complete panos) | recall | F1 | FP |
+|---|---|---|---|---|---|
+| v1 (pre-registered) | 0.31 (v1 val pick) | 0.889 | 0.761 | 0.820 | 64 |
+| v2 | 0.31 (same threshold) | 0.914 | 0.775 | 0.839 | 48 |
+| v2 | 0.21 (v2 val pick) | 0.850 [0.820, 0.875] | 0.845 [0.823, 0.865] | 0.847 | 100 |
+
+- Val F1 is nearly flat between the two thresholds: 0.803 at 0.21, 0.801 at 0.31. The new pick is close to a tie.
+- At 0.31, the 17 v1 false positives that v2 no longer counts were all rated "crosswalk" in the human audit.
+  Every rated look-alike (bus lanes, rail, hatching) is still counted.
+- **(b) still fails:** node F1 0.881 at 0.21, against `osm_marked_signal`'s 0.898. The label ceiling stays 0.914.
+- The released curb-ramp floor: 0.220 / 0.370 / 0.276 at its own 0.10.
+
+**Re-rating.** With `--prefill`, the rating page keeps every already-rated card still present, so only new items
+need a verdict:
+- at 0.31: 5 new cards (1 FP, 4 misses);
+- at 0.21: 75 new cards (53 FPs, 22 misses).
+
+The kept misses are close to, but not exactly, a uniform draw from the v2 misses.
 
 ### (b′) A representative Seattle node sample (fixed 2026-11-05 before any (b′) inference)
 
@@ -349,6 +408,15 @@ python $S oracle --root <Stage 2 root> --preds $D/preds
 python $S score --root <Stage 2 root> --preds $D/preds --labels crosswalk_s1,released,label_ceiling     --baseline-nodes <crosswalk-inventory-274>/analysis_out/crosswalk_inventory_274/baseline_nodes.csv     --census <Phase 0 census out> --out $D
 python $S figures --out $D && python $S gallery --root <root> --preds $D/preds --scores $D --label crosswalk_s1 --out <outside the repo>
 python -m doctest $S
+# amendment: arm C labels v2 (snap collisions). The crowd_arm `place` step is GPU (~3 h on an RTX 3070).
+C=scripts/analysis/stage1_crosswalk_sdot_274/crowd_arm.py; A=analysis_out/stage1_crosswalk_crowd_274
+python $C place ... --out $A && python $C export --out $A && python $C report --out $A
+python scripts/analysis/stage1_crosswalk_sdot_274/export_stage2.py build <as above> --root <root> --out $A/stage2_build --keep-split
+cp -r $D/preds/crosswalk_s1 $D/preds/released $D/v2_labels/preds/ && python $S oracle --root <root> --preds $D/v2_labels/preds
+python $S score --root <root> --preds $D/v2_labels/preds --labels crosswalk_s1,released,label_ceiling <as above> --out $D/v2_labels
+python $S figures --out $D/v2_labels --fig-dir docs/figures/stage1_crosswalk_detector_274/v2_labels
+python $S gallery ... --scores $D/v2_labels --threshold 0.31 --prefill $D/ratings_jon_2026-11-05.csv --out <outside the repo>
+python -m doctest $C
 ```
 
 Needs RampNet's environment plus `streetlevel==0.12.10` (its `pyequilib` dependency pulls a newer CPU torch on
@@ -369,5 +437,8 @@ churns, so a fresh `meta` moves the yield numbers.
 | (b) per-node calls, post-hoc node sweep and agreement | `nodes.csv`, `scores.json` (`nodes`, `nodes_exploratory`) |
 | detector figures | `docs/figures/stage1_crosswalk_detector_274/` via `score_274.py figures` |
 | detector gallery (local, untracked: embeds imagery) | `score_274.py gallery` |
+| human audit verdicts | `analysis_out/stage1_crosswalk_detector_274/ratings_jon_2026-11-05.csv` |
+| v2 labels: collisions, box counts | `analysis_out/stage1_crosswalk_crowd_274/placements.csv` (`collided`), `report.md` §1, `stage2_build/manifest.json` |
+| v2 re-score (amendment) | `analysis_out/stage1_crosswalk_detector_274/v2_labels/` (`report.md`, `scores.json`, `threshold_sweep.csv`), figures in `docs/figures/stage1_crosswalk_detector_274/v2_labels/` |
 
 ![](figures/stage1_crosswalk_sdot_274/range_hit_rate.png)
