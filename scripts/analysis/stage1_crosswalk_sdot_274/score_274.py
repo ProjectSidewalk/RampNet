@@ -1093,6 +1093,10 @@ def cmd_cards(a):
     """
     from PIL import Image
     cands = read_candidates(a.candidates)
+    if a.only:
+        with open(a.only, encoding="utf-8", newline="") as f:
+            keep = {r["card_id"] for r in csv.DictReader(f)}
+        cands = [c for c in cands if card_id({**c, "kind": "det"}) in keep]
     others = {}
     if a.preds_file and not os.path.exists(a.preds_file):
         raise SystemExit(f"no {a.preds_file}")
@@ -1119,7 +1123,9 @@ def cmd_cards(a):
     os.makedirs(a.out, exist_ok=True)
     title, question = SECTION_HEAD["det"]
     cards = [f'<h2 id="sec-det">{title} ({len(items)} cards)</h2><p class="q">{question}</p>']
-    cache = {}
+    cache, crop_index = {}, []
+    if a.crops_out:
+        os.makedirs(a.crops_out, exist_ok=True)
     for it in items:
         if it["pano_id"] not in cache:
             cache.clear()
@@ -1127,7 +1133,17 @@ def cmd_cards(a):
         cap = (f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})" if a.blind else
                f"conf {it['conf']:.2f} · {it.get('city') or '?'} · {it.get('mode') or '?'} · {it.get('year') or '?'} · "
                f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})")
-        cards.append(card_figure(it, crop_card(cache[it["pano_id"]], it), cap))
+        jpeg = crop_card(cache[it["pano_id"]], it)
+        cards.append(card_figure(it, jpeg, cap))
+        if a.crops_out:                       # the same crop, as a file, for a blind pre-screen (no conf in the name)
+            crop_index.append({"crop": f"{len(crop_index):05d}.jpg", "card_id": card_id(it)})
+            with open(os.path.join(a.crops_out, crop_index[-1]["crop"]), "wb") as f:
+                f.write(jpeg)
+    if a.crops_out:
+        with open(os.path.join(a.crops_out, "index.csv"), "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=["crop", "card_id"])
+            w.writeheader()
+            w.writerows(crop_index)
     intro = f"""<p>Each card asks about <strong>one</strong> detection: the large outlined cross. Other marks are
 context.</p>
 <ul class="legend">
@@ -1145,6 +1161,84 @@ when done.</p>"""
     with open(path, "w", encoding="utf-8") as f:
         f.write(page)
     log(f"rating page -> {path} ({len(items)} cards, {len(prefill)} prefilled)")
+
+
+MINE_DEDUP = 0.02     # two mined peaks on one pano closer than this (pano widths) are one candidate
+
+
+def mine_candidates(ann, preds, threshold):
+    """Hard-negative candidates on one TRAIN pano (#274): peaks >= threshold where training gives no background
+    signal, more than RADIUS (matcher units) from every positive. `sparse` panos: any such peak (`sparse_bg`, or
+    `sparse_ignore_pt` within RADIUS of an ignore point). `dense_ignore` panos: only peaks inside an ignore point's
+    radius or an ignore box (`dense_ignored`); their other background already trains as "no". `verified_empty`
+    panos train everywhere and give none. Peaks closer than MINE_DEDUP keep the most confident.
+
+    >>> ann = {"curb_ramp_points_normalized": [[0.5, 0.6]], "supervision": {"mode": "dense_ignore",
+    ...        "ignore_points": [[0.2, 0.6]], "ignore_boxes": [[0.7, 0.8, 0.5, 0.7]]}}
+    >>> [(c["x"], c["reason"]) for c in mine_candidates(ann, [[0.51, 0.6, 0.9], [0.21, 0.6, 0.7], [0.75, 0.6, 0.6],
+    ...                                                      [0.76, 0.6, 0.3], [0.9, 0.9, 0.5], [0.3, 0.6, 0.1]], 0.21)]
+    [(0.21, 'dense_ignored'), (0.75, 'dense_ignored')]
+    >>> [c["reason"] for c in mine_candidates({"curb_ramp_points_normalized": [[0.5, 0.6]], "supervision": {
+    ...     "mode": "sparse", "ignore_points": [[0.2, 0.6]]}}, [[0.2, 0.6, 0.5], [0.9, 0.6, 0.4]], 0.21)]
+    ['sparse_ignore_pt', 'sparse_bg']
+    """
+    sup = ann.get("supervision") or {}
+    mode = sup.get("mode")
+    if mode not in ("sparse", "dense_ignore"):
+        return []
+    gt = [tuple(p) for p in ann.get("curb_ramp_points_normalized", [])]
+    ign = [tuple(p) for p in sup.get("ignore_points", [])]
+    boxes = sup.get("ignore_boxes", []) if mode == "dense_ignore" else []
+
+    def near(x, y, pts):
+        return any(dist_sq(x, y, px, py, SCALE_X, SCALE_Y, True) < RADIUS_SQ for px, py in pts)
+
+    out = []
+    for x, y, c in sorted((q for q in preds if q[2] >= threshold), key=lambda q: -q[2]):
+        if near(x, y, gt):
+            continue
+        on_ign = near(x, y, ign)
+        if mode == "sparse":
+            reason = "sparse_ignore_pt" if on_ign else "sparse_bg"
+        elif on_ign or any(in_box(x, y, b) for b in boxes):
+            reason = "dense_ignored"
+        else:
+            continue
+        if any(wrap_dist(x, y, o["x"], o["y"]) < MINE_DEDUP for o in out):
+            continue
+        out.append({"x": x, "y": y, "conf": c, "reason": reason})
+    return out
+
+
+def cmd_mine(a):
+    """Source A of the hard-negative plan (#274): `mine_candidates` over every train pano -> candidates.csv
+    (pano_id, x, y, conf, city, mode, year, stratum = reason) and mine_meta.json with counts."""
+    anns = load_split(a.root, "train")
+    preds = {r["pano_id"]: r["preds"] for r in read_jsonl(a.preds_file)}
+    missing = set(anns) - set(preds)
+    if missing:
+        raise SystemExit(f"{len(missing)} train panos have no prediction line in {a.preds_file}")
+    rows = []
+    for pid, ann in anns.items():
+        sup = ann.get("supervision") or {}
+        for c in mine_candidates(ann, preds[pid], a.threshold):
+            rows.append({"pano_id": pid, "x": c["x"], "y": c["y"], "conf": c["conf"], "city": sup.get("city"),
+                         "mode": sup.get("mode"), "year": year_bin(ann.get("capture_date")), "stratum": c["reason"]})
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "candidates.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w.writeheader()
+        w.writerows(rows)
+    by = {}
+    for r in rows:
+        k = f"{r['city']}/{r['stratum']}"
+        by[k] = by.get(k, 0) + 1
+    meta = {"label": a.label, "threshold": a.threshold, "train_panos": len(anns), "candidates": len(rows),
+            "panos_with_candidates": len({r["pano_id"] for r in rows}), "by_city_reason": dict(sorted(by.items())),
+            "preds_sha256": sha256(a.preds_file), "dedup": MINE_DEDUP, "radius": RADIUS}
+    with open(os.path.join(a.out, "mine_meta.json"), "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=1)
+    log(json.dumps(meta, indent=1))
 
 
 AUDIT_PANOS = 120     # (b') panos drawn for the deployment audit (#274 hard negatives, Step 0)
@@ -1315,6 +1409,14 @@ def main():
     c.add_argument("--blind", action="store_true", help="captions without conf/city/mode/year; seeded shuffle")
     c.add_argument("--prefill", default=None, help="CSV of earlier verdicts: card_id, verdict, note")
     c.add_argument("--out", required=True)
+    c.add_argument("--crops-out", default=None, help="also write each card's crop as <n>.jpg + index.csv here")
+    c.add_argument("--only", default=None, help="CSV with a card_id column: build cards for these candidates only")
+    m = sub.add_parser("mine", help="(#274 hard negatives, Source A) candidate peaks on train panos")
+    m.add_argument("--root", required=True)
+    m.add_argument("--preds-file", required=True, help="the model's train.jsonl")
+    m.add_argument("--label", default="crosswalk_s1")
+    m.add_argument("--threshold", type=float, default=0.21)
+    m.add_argument("--out", required=True)
     u = sub.add_parser("bprime-audit", help="(#274 hard negatives, Step 0) census of detections on drawn (b') panos")
     u.add_argument("--ids-file", required=True, help="bprime/pano_files.txt")
     u.add_argument("--sample", required=True, help="bprime/sample.csv (node weights, capture dates)")
@@ -1351,7 +1453,7 @@ def main():
     {"infer": cmd_infer, "score": cmd_score, "figures": cmd_figures, "oracle": cmd_oracle,
      "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep,
      "bprime-score": cmd_bprime_score, "cards": cmd_cards, "bprime-audit": cmd_bprime_audit,
-     "audit-summary": cmd_audit_summary}[a.cmd](a)
+     "audit-summary": cmd_audit_summary, "mine": cmd_mine}[a.cmd](a)
 
 
 BP_PER_CELL = 150             # (b') nodes per (osm_class x truth) cell

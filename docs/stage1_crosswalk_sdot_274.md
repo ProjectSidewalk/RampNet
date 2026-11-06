@@ -557,6 +557,33 @@ OSM tags unmarked or leaves untagged. That stratum explains the false alarms and
 >
 > 🤖 Generated with [Claude Code](https://claude.com/claude-code) — Opus 5.5, claude-opus-5-5
 
+## Archive (images, checkpoints, logs, rating pages)
+
+The repo holds the code, predictions, scores, verdicts and this doc. Everything else the study needs is archived on
+the lab share, which CSE IT backs up, readable from makelab1 and makelab2:
+
+    /projects/makeabilitylab/RampNet/archives/stage1_crosswalk_detector_274/
+
+`scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py` builds it. Its source table records where each piece
+came from, and `manifest.json` repeats the source, size and sha256 for every file. Staged 2026-11-06: 22,882 files,
+14.7 GB unique, plus 8,691 native store panos (94.8 GB).
+
+| directory | holds | size |
+|---|---|---|
+| `stage2_root/images/<split>/` | the 4096×2048 JPEGs every model trained and was scored on (5,145) | 10.2 GB with labels |
+| `stage2_root/labels_v1/`, `labels_v2/` | each label version's JSONs (v3 joins with `crosswalk_s3`) | |
+| `bprime/images_4096/` | the (b′) panos as inferred (793) | 1.6 GB |
+| `checkpoints/<label>/` | `final_step_1000.pth`, its sha256, TensorBoard `runs/` | 0.7 GB |
+| `logs/slurm/` | every #274 train and score job's stdout/stderr | |
+| `rating_pages/<audit>/` | the HTML pages Jon rated (crops embedded, open offline) and his exports | 50 MB |
+| `work/`, `inputs/` | arm C working files, prefill CSVs, the read-only `pano_data` export, Phase 0 census, store listings | 1.3 GB |
+| `worktree_untracked/` | gitignored #274 outputs at their repo paths (SDOT pilot pixels and views, thumbs, logs) | 1.9 GB |
+| `store_natives/<city>/` | the native PS-store panos the study read, copied on makelab2 from the store and checked against the sha256 of the copy the study read | 94.8 GB |
+
+Verify a copy with `sha256sum -c SHA256SUMS` and `sha256sum -c store_natives.SHA256SUMS`. To rebuild a training
+root, copy `stage2_root/images/<split>/` plus one `labels_*/<split>/` into `root/<split>/`; the archive README has
+the loop. Re-running `archive_274.py stage` adds new artefacts (the s3 run's) and refuses a changed one.
+
 ## Replication
 
 ```bash
@@ -597,6 +624,9 @@ H=$D/hardneg/step0_audit
 python $S bprime-audit --ids-file $D/bprime/pano_files.txt --sample $D/bprime/sample.csv --nodes $D/v2_labels/bprime/nodes.csv --preds-file $D/v2_labels/bprime/preds/crosswalk_s1/bprime.jsonl --label crosswalk_s1 --threshold 0.21 --out $H
 python $S cards --candidates $H/candidates.csv --label hardneg_step0 --pano-dir <bprime_4096> --preds-file $D/v2_labels/bprime/preds/crosswalk_s1/bprime.jsonl --threshold 0.21 --blind --out <outside the repo>
 python $S audit-summary --panos $H/panos.csv --ratings $H/ratings_jon_2026-11-06_step0.csv --out $H
+# archive (staging on D:, then Jon copies it to the lab share)
+A=scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py
+python $A stage --out <staging> && python $A natives --out <staging>
 ```
 
 Needs RampNet's environment plus `streetlevel==0.12.10` (its `pyequilib` dependency pulls a newer CPU torch on
@@ -625,5 +655,6 @@ churns, so a fresh `meta` moves the yield numbers.
 | `crosswalk_s2` human audit at 0.31 | `v2_labels/ratings_jon_2026-11-06_s2_t0.31.csv` (audited P = (546 complete TP + 48 real FPs) / (546 + 63)) |
 | hard negatives Step 0: the draw, cards, verdicts | `hardneg/step0_audit/` (`panos.csv`, `candidates.csv`, `audit_meta.json`, `ratings_jon_2026-11-06_step0.csv`) |
 | Step 0 rates and intervals, per-pano counts | `hardneg/step0_audit/audit_summary.json`, `per_pano.csv` |
+| images, label versions, checkpoints, logs, rating pages, natives | the lab-share archive (section "Archive"); per-file sha256 in its `manifest.json` |
 
 ![](figures/stage1_crosswalk_sdot_274/range_hit_rate.png)
