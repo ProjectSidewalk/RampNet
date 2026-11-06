@@ -1139,7 +1139,7 @@ def cmd_cards(a):
         cap = (f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})" if a.blind else
                f"conf {it['conf']:.2f} · {it.get('city') or '?'} · {it.get('mode') or '?'} · {it.get('year') or '?'} · "
                f"{it['pano_id']} ({it['x']:.3f}, {it['y']:.3f})")
-        jpeg = crop_card(cache[it["pano_id"]], it)
+        jpeg = crop_card(cache[it["pano_id"]], it, half_w=0.08 / a.zoom)
         cards.append(card_figure(it, jpeg, cap))
         if a.crops_out:                       # the same crop, as a file, for a blind pre-screen (no conf in the name)
             crop_index.append({"crop": f"{len(crop_index):05d}.jpg", "card_id": card_id(it)})
@@ -1345,6 +1345,37 @@ def cmd_prescreen_merge(a):
     log(json.dumps(meta))
 
 
+def cmd_select(a):
+    """A seeded draw (BOOT_SEED) of --n pre-screened candidates matching the filters and not in any --exclude
+    ratings file -> a selection CSV for `cards --only`. Records the pool size in <out>.json."""
+    with open(a.prescreen, encoding="utf-8", newline="") as f:
+        ai = {r["card_id"]: r["ai_verdict"] for r in csv.DictReader(f)}
+    done = set()
+    for path in a.exclude:
+        with open(path, encoding="utf-8", newline="") as f:
+            done |= {r["card_id"] for r in csv.DictReader(f)}
+    want_ai = set(a.ai.split(","))
+    strata = set(a.strata.split(",")) if a.strata else None
+    cities = set(a.cities.split(",")) if a.cities else None
+    pool = []
+    with open(a.candidates, encoding="utf-8", newline="") as f:
+        for c in csv.DictReader(f):
+            cid = card_id({**c, "kind": "det", "x": float(c["x"]), "y": float(c["y"])})
+            if (ai[cid] in want_ai and cid not in done and (strata is None or c["stratum"] in strata)
+                    and (cities is None or c["city"] in cities)):
+                pool.append(cid)
+    pick = random.Random(BOOT_SEED).sample(sorted(pool), min(a.n, len(pool)))
+    with open(a.out, "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["card_id", "ai_verdict"])
+        w.writerows([cid, ai[cid]] for cid in pick)
+    meta = {"pool": len(pool), "picked": len(pick), "ai": a.ai, "strata": a.strata, "cities": a.cities,
+            "excluded_rated": len(done), "seed": BOOT_SEED}
+    with open(os.path.splitext(a.out)[0] + ".json", "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=1)
+    log(json.dumps(meta))
+
+
 AUDIT_PANOS = 120     # (b') panos drawn for the deployment audit (#274 hard negatives, Step 0)
 
 
@@ -1516,6 +1547,16 @@ def main():
     c.add_argument("--crops-out", default=None, help="also write each card's crop as <n>.jpg + index.csv here")
     c.add_argument("--no-page", action="store_true", help="with --crops-out: write the crops only")
     c.add_argument("--neg-disc", action="store_true", help="draw the background disc a confirmed negative trains")
+    c.add_argument("--zoom", type=float, default=1.0, help="crop magnification (1 = the standard 0.16-width crop)")
+    e = sub.add_parser("select", help="seeded selection of pre-screened candidates not yet rated, for another page")
+    e.add_argument("--prescreen", required=True, help="prescreen.csv")
+    e.add_argument("--candidates", required=True, help="mine candidates.csv")
+    e.add_argument("--exclude", nargs="*", default=[], help="ratings CSVs whose card_ids are already rated")
+    e.add_argument("--ai", default="not_crosswalk", help="comma list of AI verdicts to draw from")
+    e.add_argument("--strata", default=None, help="comma list of mining reasons (candidates.csv stratum)")
+    e.add_argument("--cities", default=None, help="comma list of cities")
+    e.add_argument("--n", type=int, required=True)
+    e.add_argument("--out", required=True, help="selection CSV (card_id, ai_verdict)")
     h = sub.add_parser("sheets", help="numbered contact sheets of --crops-out crops, for the blind AI pre-screen")
     h.add_argument("--crops", required=True, help="a --crops-out dir (index.csv + <n>.jpg)")
     h.add_argument("--cols", type=int, default=3)
@@ -1575,7 +1616,7 @@ def main():
      "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep,
      "bprime-score": cmd_bprime_score, "cards": cmd_cards, "bprime-audit": cmd_bprime_audit,
      "audit-summary": cmd_audit_summary, "mine": cmd_mine, "sheets": cmd_sheets,
-     "prescreen-merge": cmd_prescreen_merge}[a.cmd](a)
+     "prescreen-merge": cmd_prescreen_merge, "select": cmd_select}[a.cmd](a)
 
 
 BP_PER_CELL = 150             # (b') nodes per (osm_class x truth) cell
