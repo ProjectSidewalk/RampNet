@@ -1,0 +1,10 @@
+card_id,flag,claude_note
+det:zPvmbNz_hRNDEMeok3c9aQ:0.042:0.646,strong,Seattle dense_ignored (Vistas saw crosswalk paint); two parallel bands through the disc look like a parallel-line crosswalk; Jon's note says too zoomed in to tell
+det:5qr8IrQuh4UieBRWJTfG_Q:0.637:0.709,strong,Teaneck; the cross sits between two thick parallel transverse lines: a parallel-line crosswalk seen close up
+det:62Dr65bvZRY0Akl30h3HLw:0.144:0.568,strong,Seattle; a rainbow crosswalk crosses the upper part of the disc behind the green bike lane
+det:1Ekw2suvhD3Mx5inM0Q2Bw:0.582:0.570,medium,Seattle; transverse white lines across the rail tracks inside the disc; the AI called a candidate 0.04 away a crosswalk
+det:WK72sYr_yqOp_X5JEJ4Few:0.925:0.568,weak,Seattle dense_ignored; dashed transverse lines in the upper disc could be faint crosswalk lines
+det:ygy7nEpBm5IPRhI0cLTPBA:0.433:0.537,weak,Seattle dense_ignored at a streetcar platform; paint near the platform edge is unclear
+det:MCWX2KlbMV0DkjcyAj7StQ:0.660:0.537,weak,Seattle; a transverse white line and a short bar right beside the cross could be one side of a crosswalk
+det:s-Ph2jtk2e8de3BSrMkmXg:0.152:0.523,weak,Seattle red bus lane; a zebra crosswalk sits just outside the disc's lower-right edge (about 100 px from the cross against an 88 px disc)
+det:eR06wCR3XBAGOSVOcGjtHA:0.105:0.555,weak,Burnaby; dashed transverse lines in the lower disc; probably lane extensions but unclear
