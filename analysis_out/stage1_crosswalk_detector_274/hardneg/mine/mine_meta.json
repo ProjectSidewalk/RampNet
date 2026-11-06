@@ -1,0 +1,21 @@
+{
+ "label": "crosswalk_s1",
+ "threshold": 0.21,
+ "train_panos": 3601,
+ "candidates": 5485,
+ "panos_with_candidates": 1676,
+ "by_city_reason": {
+  "amsterdam/sparse_bg": 409,
+  "amsterdam/sparse_ignore_pt": 1459,
+  "burnaby/sparse_bg": 425,
+  "burnaby/sparse_ignore_pt": 1238,
+  "seattle-wa/dense_ignored": 521,
+  "seattle-wa/sparse_bg": 65,
+  "seattle-wa/sparse_ignore_pt": 573,
+  "teaneck-nj/sparse_bg": 221,
+  "teaneck-nj/sparse_ignore_pt": 574
+ },
+ "preds_sha256": "431d84dcdb66b2e657f4609b48109e450e43bd61cd53b8744123c34415e24b58",
+ "dedup": 0.02,
+ "radius": 0.05
+}

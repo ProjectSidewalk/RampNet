@@ -48,6 +48,7 @@ from rampnet.metrics import greedy_match  # noqa: E402
 SPLITS = ("val", "test")
 SCORE_FLOOR = 0.05            # the frozen extractor's floor; the threshold grid starts here
 MIN_DISTANCE = 10
+NEG_DISC = 30 / 1024           # a negative point's training disc (train.py add_negative_weight), pano widths
 RADIUS = 0.05                 # Phase 0's crosswalk radius, RampNet matcher units (pano widths, y counts half)
 SCALE_X, SCALE_Y = 1024, 512
 RADIUS_SQ = (RADIUS * SCALE_X) ** 2
@@ -768,6 +769,10 @@ def crop_card(img, it, half_w=0.08, out_w=480):
             d.line((lx, ly - 11, lx, ly + 11), fill=col, width=w)
         d.ellipse((lx - 16, ly - 16, lx + 16, ly + 16), outline=(255, 255, 255), width=2)
     d.ellipse((lx - r_match, ly - r_match, lx + r_match, ly + r_match), outline=(255, 220, 0), width=1)
+    if it.get("neg_disc"):        # the disc a confirmed negative would train as background (train.py: ceil(3*sigma)
+        r_neg = NEG_DISC * W * s  # heatmap px of 1024), drawn dashed in cyan
+        for k in range(0, 360, 12):
+            d.arc((lx - r_neg, ly - r_neg, lx + r_neg, ly + r_neg), k, k + 7, fill=(0, 230, 255), width=3)
     buf = io.BytesIO()
     crop.save(buf, "JPEG", quality=82)
     return buf.getvalue()
@@ -1108,7 +1113,8 @@ def cmd_cards(a):
     for c in cands:
         ann = anns.get(c["pano_id"], {})
         sup = ann.get("supervision") or {}
-        items.append({**c, "kind": "det", "gt": [tuple(q) for q in ann.get("curb_ramp_points_normalized", [])],
+        items.append({**c, "kind": "det", "neg_disc": a.neg_disc,
+                      "gt": [tuple(q) for q in ann.get("curb_ramp_points_normalized", [])],
                       "ignore": [tuple(q) for q in sup.get("ignore_points", [])],
                       "dets": others.get(c["pano_id"], [(c["x"], c["y"], c["conf"])])})
     if a.blind:
@@ -1151,11 +1157,15 @@ context.</p>
 <li>{LEGEND_GLYPHS['other_det']} another detection on this pano (context; it may have its own card)</li>
 <li>{LEGEND_GLYPHS['other_gt']} a training label, where the pano has one (context)</li>
 <li>{LEGEND_GLYPHS['radius']} the scorer's match radius</li>
+{NEG_LEGEND if a.neg_disc else ""}
 </ul>
 <p><strong>Crosswalk</strong> means painted pedestrian crossing markings: zebra bars or two parallel lines across a
 roadway. Bike-lane, bus-lane, parking and rail markings are <em>not</em> crosswalks. Keys: <kbd>1</kbd>-<kbd>3</kbd>
 rate (jumps to the next card), <kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em>
 when done.</p>"""
+    if a.no_page:
+        log(f"{len(crop_index)} crops -> {a.crops_out} (no page)")
+        return
     page = rating_page(a.label, a.heading or f"{a.label}: rate detections", intro, "", cards, prefill)
     path = os.path.join(a.out, f"rate_{a.label}.html")
     with open(path, "w", encoding="utf-8") as f:
@@ -1239,6 +1249,90 @@ def cmd_mine(a):
     with open(os.path.join(a.out, "mine_meta.json"), "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=1)
     log(json.dumps(meta, indent=1))
+
+
+AI_VERDICTS = ("crosswalk", "not_crosswalk", "unsure")
+NEG_LEGEND = ('<li><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" style="vertical-align:middle;'
+              'background:#777"><circle cx="17" cy="17" r="13" fill="none" stroke="#00e6ff" stroke-width="3" '
+              'stroke-dasharray="4 3"/></svg> <strong>hard-negative disc</strong>: if you answer "not a crosswalk", '
+              'everything inside it trains as "no crosswalk". So answer <em>not a crosswalk</em> only when there is '
+              'no crosswalk paint anywhere inside the dashed circle; if some crosswalk paint is inside it, answer '
+              '<em>crosswalk</em>.</li>')
+
+
+def cmd_sheets(a):
+    """Tile --crops-out crops into numbered contact sheets (cols x rows, cell number drawn in each corner) so a
+    blind rater reads a dozen crops per image. sheets.csv maps (sheet, cell) -> crop -> card_id."""
+    from PIL import Image, ImageDraw
+    with open(os.path.join(a.crops, "index.csv"), encoding="utf-8", newline="") as f:
+        idx = list(csv.DictReader(f))
+    os.makedirs(a.out, exist_ok=True)
+    per = a.cols * a.rows
+    rows = []
+    for k in range(0, len(idx), per):
+        chunk = idx[k:k + per]
+        tiles = [Image.open(os.path.join(a.crops, r["crop"])).convert("RGB") for r in chunk]
+        tw, th = tiles[0].size
+        sheet = Image.new("RGB", (a.cols * tw, a.rows * th), (255, 255, 255))
+        d = ImageDraw.Draw(sheet)
+        name = f"sheet_{k // per + 1:04d}.jpg"
+        for i, (r, t) in enumerate(zip(chunk, tiles)):
+            x, y = (i % a.cols) * tw, (i // a.cols) * th
+            sheet.paste(t, (x, y))
+            d.rectangle((x, y, x + 34, y + 24), fill=(255, 255, 255), outline=(0, 0, 0))
+            d.text((x + 6, y + 5), str(i + 1), fill=(0, 0, 0))
+            d.rectangle((x, y, x + tw - 1, y + th - 1), outline=(0, 0, 0), width=2)
+            rows.append({"sheet": name, "cell": i + 1, "crop": r["crop"], "card_id": r["card_id"]})
+        sheet.save(os.path.join(a.out, name), quality=88)
+    with open(os.path.join(a.out, "sheets.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["sheet", "cell", "crop", "card_id"])
+        w.writeheader()
+        w.writerows(rows)
+    log(f"{len(rows)} crops -> {len(rows) // per + (1 if len(rows) % per else 0)} sheets in {a.out}")
+
+
+def cmd_prescreen_merge(a):
+    """Join the AI's per-cell verdicts to card ids (refusing a missing, duplicate or unknown cell), write
+    prescreen.csv, and pick the cards Jon confirms: every AI not/unsure call (or a seeded --max-flagged of them)
+    plus a seeded --n-crosswalk of its crosswalk calls (to measure what the AI misses) -> jon_selection.csv."""
+    with open(os.path.join(a.sheets, "sheets.csv"), encoding="utf-8", newline="") as f:
+        cells = {(r["sheet"], int(r["cell"])): r for r in csv.DictReader(f)}
+    got = {}
+    for path in a.verdicts:
+        with open(path, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                key = (r["sheet"].strip(), int(r["cell"]))
+                v = r["verdict"].strip()
+                if key not in cells or v not in AI_VERDICTS or key in got:
+                    raise SystemExit(f"{path}: bad or duplicate row {r}")
+                got[key] = (v, r.get("reason", "").strip())
+    missing = set(cells) - set(got)
+    if missing:
+        raise SystemExit(f"{len(missing)} cells have no AI verdict, e.g. {sorted(missing)[:3]}")
+    out = [{"card_id": cells[k]["card_id"], "sheet": k[0], "cell": k[1], "ai_verdict": got[k][0],
+            "ai_reason": got[k][1]} for k in sorted(cells)]
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "prescreen.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(out[0]))
+        w.writeheader()
+        w.writerows(out)
+    rng = random.Random(BOOT_SEED)
+    flagged = [r for r in out if r["ai_verdict"] != "crosswalk"]
+    if a.max_flagged and len(flagged) > a.max_flagged:
+        flagged = rng.sample(flagged, a.max_flagged)
+    yes = [r for r in out if r["ai_verdict"] == "crosswalk"]
+    yes = rng.sample(yes, min(a.n_crosswalk, len(yes)))
+    sel = [{"card_id": r["card_id"], "ai_verdict": r["ai_verdict"]} for r in flagged + yes]
+    with open(os.path.join(a.out, "jon_selection.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["card_id", "ai_verdict"])
+        w.writeheader()
+        w.writerows(sel)
+    counts = {v: sum(1 for r in out if r["ai_verdict"] == v) for v in AI_VERDICTS}
+    meta = {"cards": len(out), "ai": counts, "selected_flagged": len(flagged), "selected_crosswalk": len(yes),
+            "seed": BOOT_SEED}
+    with open(os.path.join(a.out, "prescreen_meta.json"), "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=1)
+    log(json.dumps(meta))
 
 
 AUDIT_PANOS = 120     # (b') panos drawn for the deployment audit (#274 hard negatives, Step 0)
@@ -1410,6 +1504,19 @@ def main():
     c.add_argument("--prefill", default=None, help="CSV of earlier verdicts: card_id, verdict, note")
     c.add_argument("--out", required=True)
     c.add_argument("--crops-out", default=None, help="also write each card's crop as <n>.jpg + index.csv here")
+    c.add_argument("--no-page", action="store_true", help="with --crops-out: write the crops only")
+    c.add_argument("--neg-disc", action="store_true", help="draw the background disc a confirmed negative trains")
+    h = sub.add_parser("sheets", help="numbered contact sheets of --crops-out crops, for the blind AI pre-screen")
+    h.add_argument("--crops", required=True, help="a --crops-out dir (index.csv + <n>.jpg)")
+    h.add_argument("--cols", type=int, default=3)
+    h.add_argument("--rows", type=int, default=4)
+    h.add_argument("--out", required=True)
+    g = sub.add_parser("prescreen-merge", help="AI sheet verdicts -> per-card prescreen.csv + the page selection")
+    g.add_argument("--sheets", required=True, help="the sheets dir (sheets.csv)")
+    g.add_argument("--verdicts", required=True, nargs="+", help="AI CSVs: sheet, cell, verdict, reason")
+    g.add_argument("--n-crosswalk", type=int, default=50, help="AI 'crosswalk' calls sampled for Jon (miss rate)")
+    g.add_argument("--max-flagged", type=int, default=0, help="cap on AI not/unsure cards for Jon (0 = all)")
+    g.add_argument("--out", required=True)
     c.add_argument("--only", default=None, help="CSV with a card_id column: build cards for these candidates only")
     m = sub.add_parser("mine", help="(#274 hard negatives, Source A) candidate peaks on train panos")
     m.add_argument("--root", required=True)
@@ -1453,7 +1560,8 @@ def main():
     {"infer": cmd_infer, "score": cmd_score, "figures": cmd_figures, "oracle": cmd_oracle,
      "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep,
      "bprime-score": cmd_bprime_score, "cards": cmd_cards, "bprime-audit": cmd_bprime_audit,
-     "audit-summary": cmd_audit_summary, "mine": cmd_mine}[a.cmd](a)
+     "audit-summary": cmd_audit_summary, "mine": cmd_mine, "sheets": cmd_sheets,
+     "prescreen-merge": cmd_prescreen_merge}[a.cmd](a)
 
 
 BP_PER_CELL = 150             # (b') nodes per (osm_class x truth) cell

@@ -647,3 +647,4 @@ analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.*
 !analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.csv
 !analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.json
 !analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.md
+!analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.jsonl
