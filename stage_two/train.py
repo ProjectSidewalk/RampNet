@@ -353,9 +353,9 @@ def supervision_mode(data, points_normalized):
     if mode not in SUPERVISION_MODES:
         raise ValueError(f"supervision.mode must be one of {SUPERVISION_MODES}, got {mode!r}")
     ignore = _point_list(sup.get('ignore_points', []), 'supervision.ignore_points')
-    if mode == 'sparse' and not points_normalized:
-        raise ValueError("supervision.mode 'sparse' with no positives: the pano would teach "
-                         "nothing")
+    if mode == 'sparse' and not points_normalized and not sup.get('negative_points'):
+        raise ValueError("supervision.mode 'sparse' with no positives and no negative_points: "
+                         "the pano would teach nothing")
     if mode == 'verified_empty' and (points_normalized or ignore):
         raise ValueError(f"supervision.mode 'verified_empty' with {len(points_normalized)} "
                          f"positives and {len(ignore)} ignore points listed")
@@ -384,6 +384,54 @@ def supervision_ignore_boxes(data):
                              f"y_bottom] in [0, 1] with y_top <= y_bottom, got {b!r}")
         out.append(tuple(float(v) for v in b))
     return out
+
+
+#: A verified negative must sit at least this far from every positive (#274 hard negatives), in the
+#: scorer's matcher units: x in pano widths (seam-wrapped), y in pano heights counted half. It is
+#: the crosswalk scorer's match radius, so a negative never sits where a detection would match a label.
+NEGATIVE_MIN_DIST = 0.05
+
+
+def supervision_negative_points(data, points_normalized):
+    """``supervision.negative_points`` of a pano (#274 hard negatives): [x, y] spots a human
+    verified are NOT the label type, as a list of (x, y). Valid in every supervision mode; each
+    trains as background in its own disc (``add_negative_weight``). Raises ValueError on a
+    malformed list or on a negative within NEGATIVE_MIN_DIST of a positive -- a negative on a
+    labelled crosswalk means the label builder and the verdicts disagree.
+
+    >>> supervision_negative_points({'supervision': {'mode': 'sparse',
+    ...                              'negative_points': [[0.2, 0.6]]}}, [(0.5, 0.6)])
+    [(0.2, 0.6)]
+    """
+    sup = data.get('supervision') or {}
+    neg = _point_list(sup.get('negative_points', []), 'supervision.negative_points')
+    for nx, ny in neg:
+        for px, py in points_normalized:
+            dx = abs(nx - px)
+            if math.hypot(min(dx, 1.0 - dx), (ny - py) / 2) < NEGATIVE_MIN_DIST:
+                raise ValueError(f"supervision.negative_points ({nx}, {ny}) is within "
+                                 f"{NEGATIVE_MIN_DIST} of positive ({px}, {py})")
+    return neg
+
+
+def add_negative_weight(weight, points_normalized, negative_points, heatmap_shape=(512, 1024),
+                        sigma=10.0):
+    """Turn on the loss inside each verified negative's disc (radius ceil(3*sigma) heatmap px):
+    the target there is 0, so the pano teaches "not this" at that spot even where its mode would
+    not (a sparse pano's background, an ignore point or box). A pixel nearer a positive than every
+    negative keeps its weight -- positives win ties, as for ignore points. Discs do not wrap the
+    seam, as in the target. Returns a new (1, H, W) float32 tensor.
+
+    >>> import torch
+    >>> w = add_negative_weight(torch.zeros(1, 512, 1024), [], [(0.5, 0.5)])
+    >>> int(w[0, 256, 512]), int(w[0, 256, 560]), int(w.sum())
+    (1, 0, 2821)
+    """
+    radius = int(math.ceil(3 * sigma))
+    d_neg = _nearest_dist_sq(negative_points, heatmap_shape, radius)
+    d_pos = _nearest_dist_sq(points_normalized, heatmap_shape, radius)
+    on = (d_neg <= radius * radius) & (d_neg < d_pos)
+    return torch.maximum(weight, torch.from_numpy(on.astype(np.float32)).unsqueeze(0))
 
 
 def generate_dense_ignore_weight(points_normalized, heatmap_shape=(512, 1024), sigma=10.0,
@@ -613,6 +661,9 @@ class EquiHeatmapDataset(Dataset):
                 mode, ignore_points = 'unknown', []
             # #274: boxes are read only for 'dense_ignore' panos, so no other path calls this.
             ignore_boxes = supervision_ignore_boxes(data) if mode == 'dense_ignore' else []
+            # #274 hard negatives: read only when the JSON lists them, so no other path calls this.
+            has_neg = isinstance(data, dict) and bool((data.get('supervision') or {}).get('negative_points'))
+            negative_points = supervision_negative_points(data, points_normalized) if has_neg else []
         elif isinstance(data, dict) and 'supervision' in data:
             raise ValueError(f"{json_path} carries a 'supervision' block (#263) but "
                              f"--loss-mask is off, so it would train as a dense pano. Pass "
@@ -629,6 +680,7 @@ class EquiHeatmapDataset(Dataset):
                 ignore_points = [(1.0 - x_norm, y_norm) for x_norm, y_norm in ignore_points]
                 # #274: a box mirrors with its edges swapped (a seam-wrapping box stays wrapping).
                 ignore_boxes = [(1.0 - xr, 1.0 - xl, yt, yb) for xl, xr, yt, yb in ignore_boxes]
+                negative_points = [(1.0 - x_norm, y_norm) for x_norm, y_norm in negative_points]
 
         if self.augment is not None:
             # Pixel-wise only, so the points are untouched. Draws come from the
@@ -662,6 +714,9 @@ class EquiHeatmapDataset(Dataset):
                 weight = torch.zeros_like(heatmap)
             else:                                           # dense, verified_empty
                 weight = torch.ones_like(heatmap)
+            if negative_points and mode != 'unknown':
+                weight = add_negative_weight(weight, points_normalized, negative_points,
+                                             heatmap_shape=self.target_heatmap_shape)
             return image, heatmap, weight
 
         return image, heatmap
