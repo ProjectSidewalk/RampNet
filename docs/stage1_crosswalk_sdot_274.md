@@ -289,6 +289,27 @@ on 2026-11-05. The other 133 carry his earlier verdicts.
   clicks on one crosswalk. The SDOT fix does not touch these. Merging them or matching by instance is the next
   amendment.
 
+**Human audit at 0.21 (the v2 val pick) on v2 labels** (`v2_labels/ratings_jon_2026-11-05_t0.21.csv`). Jon rated
+the 71 new cards on 2026-11-05: 52 false positives with confidence 0.21–0.31, and 19 misses.
+
+| threshold | precision, as scored → audited | recall, as scored → audited | F1 audited |
+|---|---|---|---|
+| 0.31 | 0.914 → 0.989 | 0.775 → 0.775 | 0.869 |
+| 0.21 | 0.850 → 0.980 | 0.845 → ≈0.85 | 0.908 |
+
+- **Precision.** Of the 100 false positives at 0.21, 87 are real crosswalks, 11 are look-alikes and 2 are
+  unsure. Audited precision is 652/665, counting the unsure as errors.
+- **New look-alikes in the 0.21–0.31 band:**
+  - parking-lot stall lines that line up like zebra stripes (3, one possibly a sign);
+  - a bike-lane crossing;
+  - a painted rectangle in the road, possibly scooter parking.
+- **Recall.** Of the 60 sampled misses, 52 are real misses, 7 are unsure and 1 is not a crosswalk.
+  - Several unsure or real verdicts note that the crowd click sits on the curb ramp or on a sign beside the
+    crosswalk, not on its paint. That is click placement, not a model error.
+  - One bad label in 60 moves recall by under 0.01.
+- **Reading.** Once the missing labels are counted, the lower threshold costs 0.009 of precision and buys 0.07 of
+  recall. So the val pick of 0.21 is the better operating point.
+
 ### (b′) A representative Seattle node sample (fixed 2026-11-05 before any (b′) inference)
 
 Why: (b)'s nodes came with the test panos, which were picked where the crowd clicked crosswalks. The question (b)
