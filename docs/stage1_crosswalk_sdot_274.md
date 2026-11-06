@@ -446,11 +446,36 @@ The run trained cleanly: 1h35m, no requeue, checkpoint sha256 `bfdd0f93…` (in 
 - **What it means.** Fixing the labels changed what the scorer counts (the amendment above); retraining on them
   did not measurably change the model. The next lever is data, not label cleanup: hard negatives mined from train
   panos, or more panos.
-- **Human audit: page built, not yet rated.** `score_274.py gallery --label crosswalk_s2 --threshold 0.31` with all
-  230 earlier verdicts prefilled (`prefill_all.csv`, outside the repo): 154 cards, 83 prefilled, 71 new (52 FP, 19
-  TP). 23 of the new FPs sit within 0.01 of an FP already rated on the `crosswalk_s1` pages: the same paint, with
-  the peak moved, which an exact card id does not carry over. Since the rule did not adopt `crosswalk_s2`, the
-  audit is optional.
+- **Human audit page.** `score_274.py gallery --label crosswalk_s2 --threshold 0.31` with all 230 earlier
+  verdicts prefilled (`prefill_all.csv`, outside the repo): 154 cards, 83 prefilled, 71 new (52 FP, 19 TP). 23 of
+  the new FPs sit within 0.01 of an FP already rated on the `crosswalk_s1` pages: the same paint, with the peak
+  moved, which an exact card id does not carry over.
+
+**Human audit of `crosswalk_s2` at 0.31 (post hoc)** (`v2_labels/ratings_jon_2026-11-06_s2_t0.31.csv`). Jon rated
+the 71 new cards on 2026-11-06.
+
+| model @ threshold, v2 labels | precision, as scored → audited | recall, as scored → audited | F1 audited |
+|---|---|---|---|
+| `crosswalk_s1` @ 0.31 | 0.914 → 0.989 | 0.775 → 0.775 | 0.869 |
+| `crosswalk_s2` @ 0.31 (its val pick) | 0.897 → 0.975 | 0.807 → ≈0.81 | 0.883 |
+| `crosswalk_s1` @ 0.21 (its val pick) | 0.850 → 0.980 | 0.845 → ≈0.85 | **0.908** |
+
+- **Precision.** Of the 63 false positives, 48 are real crosswalks, 10 are not and 5 are unsure. Audited precision
+  is 594/609, counting the unsure as errors.
+- **The look-alikes are the same kinds as before:**
+  - bus-lane paint (3);
+  - parking markings (3): lot stall lines, a hatched no-parking zone, a scooter-parking box;
+  - a green bike-lane zebra, rail track, sidewalk, and one spot with no marking at all.
+  - The unsure cards are 2 on white stripes running the wrong way for a crosswalk, 2 too far to judge, 1 on a pole.
+- **Recall.** No new miss cards; the 61 sampled misses carry earlier verdicts (53 real, 7 unsure, 1 not a
+  crosswalk), so recall moves by under 0.01.
+- **Rater consistency.** 20 of the 21 new FPs that sit on paint already rated on a `crosswalk_s1` page got the same
+  verdict. The one change is crosswalk → unsure ("too far to see").
+- **Reading.** Audited, at each model's own val pick, `crosswalk_s1` leads by 0.025 F1, the reverse of the
+  as-scored order. At the same threshold `crosswalk_s2` sits further along one curve: more recall, less precision,
+  and 15 real errors against `crosswalk_s1`'s 6. The audit therefore confirms the rule outcome: `crosswalk_s1`
+  stays. Retraining on cleaner labels did not remove a single look-alike class, which supports hard negatives as
+  the next lever.
 
 ## Draft issue for Jon to post (not posted)
 
@@ -541,5 +566,6 @@ churns, so a fresh `meta` moves the yield numbers.
 | v2 re-score (amendment) | `analysis_out/stage1_crosswalk_detector_274/v2_labels/` (`report.md`, `scores.json`, `threshold_sweep.csv`), figures in `docs/figures/stage1_crosswalk_detector_274/v2_labels/` |
 | `crosswalk_s2` (retrain) scores, (b) | the same `v2_labels/` files, rows `crosswalk_s2`; predictions in `v2_labels/preds/crosswalk_s2/` |
 | `crosswalk_s2` (b′) | `v2_labels/bprime/` (`report.md`, `scores.json`, `nodes.csv`, `preds/crosswalk_s2/`) |
+| `crosswalk_s2` human audit at 0.31 | `v2_labels/ratings_jon_2026-11-06_s2_t0.31.csv` (audited P = (546 complete TP + 48 real FPs) / (546 + 63)) |
 
 ![](figures/stage1_crosswalk_sdot_274/range_hit_rate.png)
