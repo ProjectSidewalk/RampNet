@@ -1,0 +1,14 @@
+{
+ "cards": 5485,
+ "ai": {
+  "crosswalk": 1894,
+  "not_crosswalk": 2693,
+  "unsure": 898
+ },
+ "selected_flagged": 409,
+ "selected_crosswalk": 50,
+ "seed": 274,
+ "flag_verdicts": "not_crosswalk",
+ "full_cities": "seattle-wa",
+ "n_other": 200
+}

@@ -1317,8 +1317,17 @@ def cmd_prescreen_merge(a):
         w.writeheader()
         w.writerows(out)
     rng = random.Random(BOOT_SEED)
-    flagged = [r for r in out if r["ai_verdict"] != "crosswalk"]
-    if a.max_flagged and len(flagged) > a.max_flagged:
+    flag = set(a.flag_verdicts.split(","))
+    flagged = [r for r in out if r["ai_verdict"] in flag]
+    if a.candidates:              # every flagged card in --full-cities, a seeded --n-other from the rest
+        with open(a.candidates, encoding="utf-8", newline="") as f:
+            city = {card_id({**c, "kind": "det", "x": float(c["x"]), "y": float(c["y"])}): c["city"]
+                    for c in csv.DictReader(f)}
+        full = set(a.full_cities.split(",")) if a.full_cities else set()
+        keep = [r for r in flagged if city[r["card_id"]] in full]
+        rest = [r for r in flagged if city[r["card_id"]] not in full]
+        flagged = keep + rng.sample(rest, min(a.n_other, len(rest)))
+    elif a.max_flagged and len(flagged) > a.max_flagged:
         flagged = rng.sample(flagged, a.max_flagged)
     yes = [r for r in out if r["ai_verdict"] == "crosswalk"]
     yes = rng.sample(yes, min(a.n_crosswalk, len(yes)))
@@ -1329,7 +1338,8 @@ def cmd_prescreen_merge(a):
         w.writerows(sel)
     counts = {v: sum(1 for r in out if r["ai_verdict"] == v) for v in AI_VERDICTS}
     meta = {"cards": len(out), "ai": counts, "selected_flagged": len(flagged), "selected_crosswalk": len(yes),
-            "seed": BOOT_SEED}
+            "seed": BOOT_SEED, "flag_verdicts": a.flag_verdicts, "full_cities": a.full_cities,
+            "n_other": a.n_other}
     with open(os.path.join(a.out, "prescreen_meta.json"), "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=1)
     log(json.dumps(meta))
@@ -1516,6 +1526,10 @@ def main():
     g.add_argument("--verdicts", required=True, nargs="+", help="AI CSVs: sheet, cell, verdict, reason")
     g.add_argument("--n-crosswalk", type=int, default=50, help="AI 'crosswalk' calls sampled for Jon (miss rate)")
     g.add_argument("--max-flagged", type=int, default=0, help="cap on AI not/unsure cards for Jon (0 = all)")
+    g.add_argument("--flag-verdicts", default="not_crosswalk,unsure", help="AI verdicts that put a card on the page")
+    g.add_argument("--candidates", default=None, help="mine candidates.csv (cities), for --full-cities/--n-other")
+    g.add_argument("--full-cities", default=None, help="comma list: every flagged card from these cities")
+    g.add_argument("--n-other", type=int, default=0, help="seeded sample of flagged cards from the other cities")
     g.add_argument("--out", required=True)
     c.add_argument("--only", default=None, help="CSV with a card_id column: build cards for these candidates only")
     m = sub.add_parser("mine", help="(#274 hard negatives, Source A) candidate peaks on train panos")

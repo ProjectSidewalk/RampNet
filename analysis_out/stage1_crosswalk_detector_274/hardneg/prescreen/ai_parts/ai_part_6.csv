@@ -1,0 +1,697 @@
+sheet,cell,verdict,reason
+sheet_0291.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0291.jpg,2,unsure,ambiguous paint or occluded
+sheet_0291.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0291.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0291.jpg,5,unsure,ambiguous paint or occluded
+sheet_0291.jpg,6,unsure,ambiguous paint or occluded
+sheet_0291.jpg,7,unsure,ambiguous paint or occluded
+sheet_0291.jpg,8,unsure,ambiguous paint or occluded
+sheet_0291.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0291.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0291.jpg,11,unsure,ambiguous paint or occluded
+sheet_0291.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0292.jpg,1,unsure,ambiguous paint or occluded
+sheet_0292.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0292.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0292.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0292.jpg,5,unsure,ambiguous paint or occluded
+sheet_0292.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0292.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0292.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0292.jpg,9,unsure,ambiguous paint or occluded
+sheet_0292.jpg,10,unsure,ambiguous paint or occluded
+sheet_0292.jpg,11,unsure,ambiguous paint or occluded
+sheet_0292.jpg,12,unsure,ambiguous paint or occluded
+sheet_0293.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0293.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0293.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0293.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0293.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0293.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0293.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0293.jpg,8,unsure,ambiguous paint or occluded
+sheet_0293.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0293.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0293.jpg,11,unsure,ambiguous paint or occluded
+sheet_0293.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0294.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0294.jpg,2,unsure,ambiguous paint or occluded
+sheet_0294.jpg,3,unsure,ambiguous paint or occluded
+sheet_0294.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0294.jpg,5,unsure,ambiguous paint or occluded
+sheet_0294.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0294.jpg,7,unsure,ambiguous paint or occluded
+sheet_0294.jpg,8,unsure,ambiguous paint or occluded
+sheet_0294.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0294.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0294.jpg,11,unsure,ambiguous paint or occluded
+sheet_0294.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0295.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0295.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0295.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0295.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0295.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0295.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0295.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0295.jpg,8,unsure,ambiguous paint or occluded
+sheet_0295.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0295.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0295.jpg,11,unsure,ambiguous paint or occluded
+sheet_0295.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0296.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0296.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0296.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0296.jpg,4,unsure,ambiguous paint or occluded
+sheet_0296.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0296.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0296.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0296.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0296.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0296.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0296.jpg,11,unsure,ambiguous paint or occluded
+sheet_0296.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0297.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0297.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0297.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0297.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0297.jpg,5,unsure,ambiguous paint or occluded
+sheet_0297.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0297.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0297.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0297.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0297.jpg,10,unsure,ambiguous paint or occluded
+sheet_0297.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0297.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0298.jpg,1,unsure,ambiguous paint or occluded
+sheet_0298.jpg,2,unsure,ambiguous paint or occluded
+sheet_0298.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0298.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0298.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0298.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0298.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0298.jpg,8,unsure,ambiguous paint or occluded
+sheet_0298.jpg,9,unsure,ambiguous paint or occluded
+sheet_0298.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0298.jpg,11,unsure,ambiguous paint or occluded
+sheet_0298.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0299.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0299.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0299.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0299.jpg,4,unsure,ambiguous paint or occluded
+sheet_0299.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0299.jpg,6,unsure,ambiguous paint or occluded
+sheet_0299.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0299.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0299.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0299.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0299.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0299.jpg,12,unsure,ambiguous paint or occluded
+sheet_0300.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0300.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0300.jpg,3,unsure,ambiguous paint or occluded
+sheet_0300.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0300.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0300.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0300.jpg,7,unsure,ambiguous paint or occluded
+sheet_0300.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0300.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0300.jpg,10,unsure,ambiguous paint or occluded
+sheet_0300.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0300.jpg,12,unsure,ambiguous paint or occluded
+sheet_0301.jpg,1,unsure,ambiguous paint or occluded
+sheet_0301.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0301.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0301.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0301.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0301.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0301.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0301.jpg,8,unsure,ambiguous paint or occluded
+sheet_0301.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0301.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0301.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0301.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0302.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0302.jpg,2,unsure,ambiguous paint or occluded
+sheet_0302.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0302.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0302.jpg,5,unsure,ambiguous paint or occluded
+sheet_0302.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0302.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0302.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0302.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0302.jpg,10,unsure,ambiguous paint or occluded
+sheet_0302.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0302.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0303.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0303.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0303.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0303.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0303.jpg,5,unsure,ambiguous paint or occluded
+sheet_0303.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0303.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0303.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0303.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0303.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0303.jpg,11,unsure,ambiguous paint or occluded
+sheet_0303.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0304.jpg,1,unsure,ambiguous paint or occluded
+sheet_0304.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0304.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0304.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0304.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0304.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0304.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0304.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0304.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0304.jpg,10,unsure,ambiguous paint or occluded
+sheet_0304.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0304.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0305.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0305.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0305.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0305.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0305.jpg,5,unsure,ambiguous paint or occluded
+sheet_0305.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0305.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0305.jpg,8,unsure,ambiguous paint or occluded
+sheet_0305.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0305.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0305.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0305.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0306.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0306.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0306.jpg,3,unsure,ambiguous paint or occluded
+sheet_0306.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0306.jpg,5,unsure,ambiguous paint or occluded
+sheet_0306.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0306.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0306.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0306.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0306.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0306.jpg,11,unsure,ambiguous paint or occluded
+sheet_0306.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0307.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0307.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0307.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0307.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0307.jpg,5,unsure,ambiguous paint or occluded
+sheet_0307.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0307.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0307.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0307.jpg,9,unsure,ambiguous paint or occluded
+sheet_0307.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0307.jpg,11,unsure,ambiguous paint or occluded
+sheet_0307.jpg,12,unsure,ambiguous paint or occluded
+sheet_0308.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0308.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0308.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0308.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0308.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0308.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0308.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0308.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0308.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0308.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0308.jpg,11,unsure,ambiguous paint or occluded
+sheet_0308.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0309.jpg,1,unsure,ambiguous paint or occluded
+sheet_0309.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0309.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0309.jpg,4,unsure,ambiguous paint or occluded
+sheet_0309.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0309.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0309.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0309.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0309.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0309.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0309.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0309.jpg,12,unsure,ambiguous paint or occluded
+sheet_0310.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0310.jpg,2,unsure,ambiguous paint or occluded
+sheet_0310.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0310.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0310.jpg,5,unsure,ambiguous paint or occluded
+sheet_0310.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0310.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0310.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0310.jpg,9,unsure,ambiguous paint or occluded
+sheet_0310.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0310.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0310.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0311.jpg,1,unsure,ambiguous paint or occluded
+sheet_0311.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0311.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0311.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0311.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0311.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0311.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0311.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0311.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0311.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0311.jpg,11,unsure,ambiguous paint or occluded
+sheet_0311.jpg,12,unsure,ambiguous paint or occluded
+sheet_0312.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0312.jpg,2,unsure,ambiguous paint or occluded
+sheet_0312.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0312.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0312.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0312.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0312.jpg,7,unsure,ambiguous paint or occluded
+sheet_0312.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0312.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0312.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0312.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0312.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0313.jpg,1,unsure,ambiguous paint or occluded
+sheet_0313.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0313.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0313.jpg,4,unsure,ambiguous paint or occluded
+sheet_0313.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0313.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0313.jpg,7,unsure,ambiguous paint or occluded
+sheet_0313.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0313.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0313.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0313.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0313.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0314.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0314.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0314.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0314.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0314.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0314.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0314.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0314.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0314.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0314.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0314.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0314.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0315.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0315.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0315.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0315.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0315.jpg,5,unsure,ambiguous paint or occluded
+sheet_0315.jpg,6,unsure,ambiguous paint or occluded
+sheet_0315.jpg,7,unsure,ambiguous paint or occluded
+sheet_0315.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0315.jpg,9,unsure,ambiguous paint or occluded
+sheet_0315.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0315.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0315.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0316.jpg,1,unsure,ambiguous paint or occluded
+sheet_0316.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0316.jpg,3,unsure,ambiguous paint or occluded
+sheet_0316.jpg,4,unsure,ambiguous paint or occluded
+sheet_0316.jpg,5,unsure,ambiguous paint or occluded
+sheet_0316.jpg,6,unsure,ambiguous paint or occluded
+sheet_0316.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0316.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0316.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0316.jpg,10,unsure,ambiguous paint or occluded
+sheet_0316.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0316.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0317.jpg,1,unsure,ambiguous paint or occluded
+sheet_0317.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0317.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0317.jpg,4,unsure,ambiguous paint or occluded
+sheet_0317.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0317.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0317.jpg,7,unsure,ambiguous paint or occluded
+sheet_0317.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0317.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0317.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0317.jpg,11,unsure,ambiguous paint or occluded
+sheet_0317.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0318.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0318.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0318.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0318.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0318.jpg,5,unsure,ambiguous paint or occluded
+sheet_0318.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0318.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0318.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0318.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0318.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0318.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0318.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0319.jpg,1,unsure,ambiguous paint or occluded
+sheet_0319.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0319.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0319.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0319.jpg,5,unsure,ambiguous paint or occluded
+sheet_0319.jpg,6,unsure,ambiguous paint or occluded
+sheet_0319.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0319.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0319.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0319.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0319.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0319.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0320.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0320.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0320.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0320.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0320.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0320.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0320.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0320.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0320.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0320.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0320.jpg,11,unsure,ambiguous paint or occluded
+sheet_0320.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0321.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0321.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0321.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0321.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0321.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0321.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0321.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0321.jpg,8,unsure,ambiguous paint or occluded
+sheet_0321.jpg,9,unsure,ambiguous paint or occluded
+sheet_0321.jpg,10,unsure,ambiguous paint or occluded
+sheet_0321.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0321.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0322.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0322.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0322.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0322.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0322.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0322.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0322.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0322.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0322.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0322.jpg,10,unsure,ambiguous paint or occluded
+sheet_0322.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0322.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0323.jpg,1,unsure,ambiguous paint or occluded
+sheet_0323.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0323.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0323.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0323.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0323.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0323.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0323.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0323.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0323.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0323.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0323.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0324.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0324.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0324.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0324.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0324.jpg,5,unsure,ambiguous paint or occluded
+sheet_0324.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0324.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0324.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0324.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0324.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0324.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0324.jpg,12,unsure,ambiguous paint or occluded
+sheet_0325.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0325.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0325.jpg,3,unsure,ambiguous paint or occluded
+sheet_0325.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0325.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0325.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0325.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0325.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0325.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0325.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0325.jpg,11,unsure,ambiguous paint or occluded
+sheet_0325.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0326.jpg,1,unsure,ambiguous paint or occluded
+sheet_0326.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0326.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0326.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0326.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0326.jpg,6,unsure,ambiguous paint or occluded
+sheet_0326.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0326.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0326.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0326.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0326.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0326.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0327.jpg,1,unsure,ambiguous paint or occluded
+sheet_0327.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0327.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0327.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0327.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0327.jpg,6,unsure,ambiguous paint or occluded
+sheet_0327.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0327.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0327.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0327.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0327.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0327.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0328.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0328.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0328.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0328.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0328.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0328.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0328.jpg,7,unsure,ambiguous paint or occluded
+sheet_0328.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0328.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0328.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0328.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0328.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0329.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0329.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0329.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0329.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0329.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0329.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0329.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0329.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0329.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0329.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0329.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0329.jpg,12,unsure,ambiguous paint or occluded
+sheet_0330.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0330.jpg,2,unsure,ambiguous paint or occluded
+sheet_0330.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0330.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0330.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0330.jpg,6,unsure,ambiguous paint or occluded
+sheet_0330.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0330.jpg,8,unsure,ambiguous paint or occluded
+sheet_0330.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0330.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0330.jpg,11,unsure,ambiguous paint or occluded
+sheet_0330.jpg,12,unsure,ambiguous paint or occluded
+sheet_0331.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0331.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0331.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0331.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0331.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0331.jpg,6,unsure,ambiguous paint or occluded
+sheet_0331.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0331.jpg,8,unsure,ambiguous paint or occluded
+sheet_0331.jpg,9,unsure,ambiguous paint or occluded
+sheet_0331.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0331.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0331.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0332.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0332.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0332.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0332.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0332.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0332.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0332.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0332.jpg,8,unsure,ambiguous paint or occluded
+sheet_0332.jpg,9,unsure,ambiguous paint or occluded
+sheet_0332.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0332.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0332.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0333.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0333.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0333.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0333.jpg,4,unsure,ambiguous paint or occluded
+sheet_0333.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0333.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0333.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0333.jpg,8,unsure,ambiguous paint or occluded
+sheet_0333.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0333.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0333.jpg,11,unsure,ambiguous paint or occluded
+sheet_0333.jpg,12,unsure,ambiguous paint or occluded
+sheet_0334.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0334.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0334.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0334.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0334.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0334.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0334.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0334.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0334.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0334.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0334.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0334.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0335.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0335.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0335.jpg,3,unsure,ambiguous paint or occluded
+sheet_0335.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0335.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0335.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0335.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0335.jpg,8,unsure,ambiguous paint or occluded
+sheet_0335.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0335.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0335.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0335.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0336.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0336.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0336.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0336.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0336.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0336.jpg,6,unsure,ambiguous paint or occluded
+sheet_0336.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0336.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0336.jpg,9,unsure,ambiguous paint or occluded
+sheet_0336.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0336.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0336.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0337.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0337.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0337.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0337.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0337.jpg,5,unsure,ambiguous paint or occluded
+sheet_0337.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0337.jpg,7,unsure,ambiguous paint or occluded
+sheet_0337.jpg,8,unsure,ambiguous paint or occluded
+sheet_0337.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0337.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0337.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0337.jpg,12,unsure,ambiguous paint or occluded
+sheet_0338.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0338.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0338.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0338.jpg,4,unsure,ambiguous paint or occluded
+sheet_0338.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0338.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0338.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0338.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0338.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0338.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0338.jpg,11,unsure,ambiguous paint or occluded
+sheet_0338.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0339.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0339.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0339.jpg,3,unsure,ambiguous paint or occluded
+sheet_0339.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0339.jpg,5,unsure,ambiguous paint or occluded
+sheet_0339.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0339.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0339.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0339.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0339.jpg,10,unsure,ambiguous paint or occluded
+sheet_0339.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0339.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0340.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0340.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0340.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0340.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0340.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0340.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0340.jpg,7,unsure,ambiguous paint or occluded
+sheet_0340.jpg,8,crosswalk,crosswalk paint in circle
+sheet_0340.jpg,9,unsure,ambiguous paint or occluded
+sheet_0340.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0340.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0340.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0341.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0341.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0341.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0341.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0341.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0341.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0341.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0341.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0341.jpg,9,unsure,ambiguous paint or occluded
+sheet_0341.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0341.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0341.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0342.jpg,1,unsure,ambiguous paint or occluded
+sheet_0342.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0342.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0342.jpg,4,unsure,ambiguous paint or occluded
+sheet_0342.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0342.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0342.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0342.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0342.jpg,9,unsure,ambiguous paint or occluded
+sheet_0342.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0342.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0342.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0343.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0343.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0343.jpg,3,crosswalk,crosswalk paint in circle
+sheet_0343.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0343.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0343.jpg,6,unsure,ambiguous paint or occluded
+sheet_0343.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0343.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0343.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0343.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0343.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0343.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,1,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,2,unsure,ambiguous paint or occluded
+sheet_0344.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,10,crosswalk,crosswalk paint in circle
+sheet_0344.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0344.jpg,12,unsure,ambiguous paint or occluded
+sheet_0345.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0345.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0345.jpg,3,unsure,ambiguous paint or occluded
+sheet_0345.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0345.jpg,5,crosswalk,crosswalk paint in circle
+sheet_0345.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0345.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0345.jpg,8,unsure,ambiguous paint or occluded
+sheet_0345.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0345.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0345.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0345.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0346.jpg,1,unsure,ambiguous paint or occluded
+sheet_0346.jpg,2,crosswalk,crosswalk paint in circle
+sheet_0346.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0346.jpg,4,crosswalk,crosswalk paint in circle
+sheet_0346.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0346.jpg,6,unsure,ambiguous paint or occluded
+sheet_0346.jpg,7,not_crosswalk,no crosswalk paint in circle
+sheet_0346.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0346.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0346.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0346.jpg,11,not_crosswalk,no crosswalk paint in circle
+sheet_0346.jpg,12,crosswalk,crosswalk paint in circle
+sheet_0347.jpg,1,crosswalk,crosswalk paint in circle
+sheet_0347.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0347.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0347.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0347.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0347.jpg,6,not_crosswalk,no crosswalk paint in circle
+sheet_0347.jpg,7,crosswalk,crosswalk paint in circle
+sheet_0347.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0347.jpg,9,not_crosswalk,no crosswalk paint in circle
+sheet_0347.jpg,10,not_crosswalk,no crosswalk paint in circle
+sheet_0347.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0347.jpg,12,not_crosswalk,no crosswalk paint in circle
+sheet_0348.jpg,1,unsure,ambiguous paint or occluded
+sheet_0348.jpg,2,not_crosswalk,no crosswalk paint in circle
+sheet_0348.jpg,3,not_crosswalk,no crosswalk paint in circle
+sheet_0348.jpg,4,not_crosswalk,no crosswalk paint in circle
+sheet_0348.jpg,5,not_crosswalk,no crosswalk paint in circle
+sheet_0348.jpg,6,crosswalk,crosswalk paint in circle
+sheet_0348.jpg,7,unsure,ambiguous paint or occluded
+sheet_0348.jpg,8,not_crosswalk,no crosswalk paint in circle
+sheet_0348.jpg,9,crosswalk,crosswalk paint in circle
+sheet_0348.jpg,10,unsure,ambiguous paint or occluded
+sheet_0348.jpg,11,crosswalk,crosswalk paint in circle
+sheet_0348.jpg,12,not_crosswalk,no crosswalk paint in circle
