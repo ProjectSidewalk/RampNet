@@ -1,0 +1,31 @@
+{
+ "src_root": "D:/Git/sal-scratch-keep/crosswalk274-root",
+ "root": "D:/Git/sal-scratch-keep/crosswalk274-root_v3",
+ "rated_cards": 659,
+ "verdicts": {
+  "not_crosswalk": 169,
+  "unsure": 86,
+  "crosswalk": 404
+ },
+ "dropped_disc_rule": 3,
+ "negatives": 166,
+ "left_out_near_positive": [],
+ "trained_negatives": 166,
+ "panos_with_negatives": 145,
+ "negatives_by_split_mode_city": {
+  "train/dense_ignore/seattle-wa": 4,
+  "train/sparse/amsterdam": 73,
+  "train/sparse/burnaby": 19,
+  "train/sparse/seattle-wa": 38,
+  "train/sparse/teaneck-nj": 32
+ },
+ "inputs_sha256": {
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/prescreen/ratings_jon_2026-11-06_confirm.csv": "5805219825180cf0625d7245e96b6dae3ba0cf1b48e7426122cc784cee8c38d2",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/prescreen/ratings_jon_2026-11-06_review9.csv": "45824bc6bd388cd8c7b4fb1d45a88420c5dde4a208421096386af743eac6c2db",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/prescreen/ratings_jon_2026-11-06_confirm2.csv": "263a2dabaa37baf915522ee24223adbc6528afb7e83e57164439aaa9d6b55340",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/prescreen/drop_disc_rule.csv": "4bc6159f9d71ed2574d6f7310f3f9de043cf442c2c2b166a606d5cc16de44fba"
+ },
+ "labels_digest": "005d6f76d15f251a9da21355e2a76c08d24096bc68710ec61be12c44fae89c60",
+ "labels_digest_rule": "sha256 over sorted lines '<split>/<id>.json <sha256 of the file>\\n'",
+ "built_utc": "2026-11-07T00:49:11Z"
+}

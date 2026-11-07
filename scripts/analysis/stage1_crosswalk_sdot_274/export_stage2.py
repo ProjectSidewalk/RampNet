@@ -25,6 +25,8 @@ shuffled with seed 42, and filled train 70 / val 20 / rest test. Every pano with
   python export_stage2.py neg-check --panos <copied negatives> --out OUT               # GPU: Vistas
   python export_stage2.py build --arm <arm C out>=<its panos dir> [--arm ...] --negatives OUT=<negatives dir>
                                  --phase1-sheet <sheet.csv> --root <Stage 2 root> --out OUT [--keep-split]
+  python export_stage2.py add-negatives --ratings <page CSVs, in order> --drop <disc-rule CSV> --src-root <root_v2>
+                                 --root <root_v3> --out OUT     # crosswalk_s3: Jon's negatives on train panos
 Writes `manifest.json` (counts per split / mode / city, input sha256s) into OUT; the root itself is untracked.
 """
 import argparse
@@ -320,6 +322,116 @@ def cmd_build(a):
     log(f"{len(items)} panos -> {a.root}; {counts}; dropped {dropped}")
 
 
+# ---------------------------------------------------------------- hard negatives (crosswalk_s3)
+
+NEGATIVE_MIN_DIST = 0.05   # stage_two/train.py's NEGATIVE_MIN_DIST: it refuses a negative this near a positive
+
+
+def neg_dist(a, b):
+    """stage_two/train.py's distance: x in pano widths with seam wrap, y halved."""
+    dx = abs(a[0] - b[0])
+    return math.hypot(min(dx, 1.0 - dx), (a[1] - b[1]) / 2)
+
+
+def confirmed_negatives(ratings, drops):
+    """Jon's verdicts -> the negatives a root trains. `ratings` are read in order and a later file's verdict on a
+    card replaces an earlier one (so a re-review listed after its page overrides it); a card is a negative when its
+    last verdict is not_crosswalk and its card_id is not in a `drops` file (the disc rule). Returns
+    (rows, counts)."""
+    last = {}
+    for path in ratings:
+        with open(path, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                if r.get("verdict"):
+                    last[r["card_id"]] = r
+    dropped = set()
+    for path in drops:
+        with open(path, encoding="utf-8", newline="") as f:
+            dropped |= {r["card_id"] for r in csv.DictReader(f)}
+    verdicts = {}
+    for r in last.values():
+        verdicts[r["verdict"]] = verdicts.get(r["verdict"], 0) + 1
+    rows = [r for cid, r in sorted(last.items()) if r["verdict"] == "not_crosswalk" and cid not in dropped]
+    unknown = dropped - set(last)
+    if unknown:
+        raise SystemExit(f"drop list names cards no ratings file has: {sorted(unknown)}")
+    return rows, {"rated_cards": len(last), "verdicts": verdicts,
+                  "dropped_disc_rule": sum(1 for c in dropped if last[c]["verdict"] == "not_crosswalk"),
+                  "negatives": len(rows)}
+
+
+def cmd_add_negatives(a):
+    """A new root = --src-root plus `supervision.negative_points` on train panos (#274 hard negatives). JPEGs are
+    hardlinked (no second copy); every JSON is rewritten, unchanged except on the panos that gain negatives. A
+    negative on a val/test pano, or on a pano the source root lacks, stops the build: val and test stay as they
+    were, so s3 scores on the same data as s1. A negative within NEGATIVE_MIN_DIST of one of its pano's positives
+    is left out and counted (the trainer would refuse it)."""
+    rows, counts = confirmed_negatives(a.ratings, a.drop)
+    where = {}
+    for s in ("train", "val", "test"):
+        d = os.path.join(a.src_root, s)
+        for fn in os.listdir(d):
+            if fn.endswith(".json"):
+                where[fn[:-5]] = s
+    per_pano, near_pos, out_rows = {}, [], []
+    for r in rows:
+        pid, xy = r["pano_id"], (float(r["x"]), float(r["y"]))
+        s = where.get(pid)
+        if s != "train":
+            raise SystemExit(f"{r['card_id']}: pano is in {s or 'no split of the source root'}; negatives go on "
+                             f"train panos only")
+        with open(os.path.join(a.src_root, s, pid + ".json"), encoding="utf-8") as f:
+            pos = json.load(f)["curb_ramp_points_normalized"]
+        if any(neg_dist(xy, p) < NEGATIVE_MIN_DIST for p in pos):
+            near_pos.append(r["card_id"])
+            continue
+        per_pano.setdefault(pid, []).append((xy, r["card_id"]))
+        out_rows.append({"card_id": r["card_id"], "pano_id": pid, "x": r["x"], "y": r["y"], "city": r["city"],
+                         "mode": r["mode"], "stratum": r["stratum"], "split": s, "note": r.get("note", "")})
+    counts["left_out_near_positive"] = near_pos
+    by = {}
+    for s in ("train", "val", "test"):
+        src, dst = os.path.join(a.src_root, s), os.path.join(a.root, s)
+        os.makedirs(dst, exist_ok=True)
+        for fn in sorted(os.listdir(src)):
+            sp, dp = os.path.join(src, fn), os.path.join(dst, fn)
+            if fn.endswith(".jpg"):
+                if not os.path.exists(dp):
+                    os.link(sp, dp)
+            elif fn.endswith(".json"):
+                with open(sp, encoding="utf-8") as f:
+                    js = json.load(f)
+                negs = per_pano.get(fn[:-5])
+                if negs:
+                    sup = js.setdefault("supervision", {})
+                    sup["negative_points"] = [[x, y] for (x, y), _ in negs]
+                    sup["negative_ids"] = [cid for _, cid in negs]
+                    key = f"{s}/{sup.get('mode')}/{sup.get('city')}"
+                    by[key] = by.get(key, 0) + len(negs)
+                with open(dp, "w", encoding="utf-8", newline="\n") as f:
+                    json.dump(js, f)
+    labels = hashlib.sha256()
+    for s in ("train", "val", "test"):
+        for fn in sorted(os.listdir(os.path.join(a.root, s))):
+            if fn.endswith(".json"):
+                labels.update(f"{s}/{fn} {sha256(os.path.join(a.root, s, fn))}\n".encode())
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "negatives.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(out_rows[0]), lineterminator="\n")
+        w.writeheader()
+        w.writerows(out_rows)
+    man = {"src_root": a.src_root, "root": a.root, **counts, "trained_negatives": len(out_rows),
+           "panos_with_negatives": len(per_pano), "negatives_by_split_mode_city": dict(sorted(by.items())),
+           "inputs_sha256": {p: sha256(p) for p in [*a.ratings, *a.drop]},
+           "labels_digest": labels.hexdigest(),
+           "labels_digest_rule": "sha256 over sorted lines '<split>/<id>.json <sha256 of the file>\\n'",
+           "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    with open(os.path.join(a.out, "manifest.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(man, f, indent=1)
+    log(f"{len(out_rows)} negatives on {len(per_pano)} train panos -> {a.root}; {len(near_pos)} left out near a "
+        f"positive; labels digest {labels.hexdigest()[:12]}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -338,8 +450,15 @@ def main():
     s.add_argument("--out", required=True)
     s.add_argument("--keep-split", action="store_true",
                    help="relabel an existing root: keep each pano's split, remove panos no longer built")
+    s = sub.add_parser("add-negatives", help="a new root with Jon's confirmed hard negatives on train panos")
+    s.add_argument("--ratings", nargs="+", required=True, help="ratings CSVs in order; a later verdict wins")
+    s.add_argument("--drop", nargs="*", default=[], help="CSVs of card_ids left out (the disc rule)")
+    s.add_argument("--src-root", required=True, help="the root to extend (root_v2)")
+    s.add_argument("--root", required=True, help="the new root (JPEGs hardlinked from --src-root)")
+    s.add_argument("--out", required=True, help="writes negatives.csv + manifest.json here")
     a = ap.parse_args()
-    {"neg-pick": cmd_neg_pick, "neg-check": cmd_neg_check, "build": cmd_build}[a.cmd](a)
+    {"neg-pick": cmd_neg_pick, "neg-check": cmd_neg_check, "build": cmd_build,
+     "add-negatives": cmd_add_negatives}[a.cmd](a)
 
 
 if __name__ == "__main__":

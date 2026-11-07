@@ -528,6 +528,76 @@ OSM tags unmarked or leaves untagged. That stratum explains the false alarms and
   to about the interval's lower edge. The pre-registration therefore fixes the cut on this same draw, with the same
   bootstrap, before training.
 
+#### The negatives (Jon, 2026-11-06)
+
+- **Mined.** `score_274.py mine` took `crosswalk_s1`'s detections at or above 0.21 on train panos where training
+  gives no background signal (`mine/`). A blind AI pre-screen sorted them, using numbered contact sheets
+  (`prescreen/`).
+- **Rated by Jon in two pages**, with the dashed disc a negative trains drawn on every card. The disc rule: a card
+  is "not crosswalk" only if no crosswalk paint lies anywhere inside the disc.
+  - Page 1: 459 cards, plus 9 that Claude flagged for re-review.
+  - Page 2: 200 cards, with a large view on click.
+  - The AI's "not crosswalk" calls held up far less often than expected, so Jon's verdict alone decides.
+- **Assembled** by `export_stage2.py add-negatives`:
+  - the ratings are read in order (page 1, the 9 re-reviews, page 2), and a later verdict wins;
+  - three cards are left out under the disc rule (`drop_disc_rule.csv`).
+- **Result:** 166 negatives on 145 train panos. None is within `NEGATIVE_MIN_DIST` of a positive.
+
+| city, mode | negatives |
+|---|---|
+| Amsterdam, sparse | 73 |
+| Seattle, sparse | 38 |
+| Teaneck, sparse | 32 |
+| Burnaby, sparse | 19 |
+| Seattle, dense_ignore (in ignore regions) | 4 |
+
+- **`root_v3`** is `root_v2` with `supervision.negative_points` on those 145 train JSONs. Every other file is byte
+  for byte v2, val and test included. The JPEGs are hard links.
+  - Label digest: `005d6f76d15f…` (`hardneg/root_v3/manifest.json`).
+  - `check_root_negatives.py` runs every JSON through the trainer's parser and every negative through
+    `EquiHeatmapDataset`: weight 1 and target 0 at each.
+- **Dose.** 1,000 steps at batch 16 is about 4.4 passes over the 3,601 train panos, so each negative trains about
+  four times.
+- **City mismatch.** Only 42 of the 166 negatives are Seattle, but the deployment draw is all Seattle. Whether the
+  learned "not this" transfers across cities is part of what s3 tests.
+
+#### `crosswalk_s3` pre-registration (drafted 2026-11-06, for Jon's OK before the job is submitted)
+
+- **Data.** `root_v3` (above). Splits, images and every val/test label are identical to `root_v2`.
+- **Recipe.** Identical to `crosswalk_s1` and `crosswalk_s2`: released weights, seed 1, 1,000 steps at global batch
+  16, LR 1e-5 constant, `--loss-mask --mask-norm pixels`. Only the final checkpoint is scored. A 20-step smoke run
+  comes first; it is never scored.
+- **Threshold.** `crosswalk_s3`'s own val-F1 pick, as for the earlier runs. Matched-threshold numbers at 0.21 are
+  also reported, but they are exploratory, because `crosswalk_s2` showed that a threshold move can pass for a model
+  change.
+- **Primary: look-alikes on the Step 0 draw.**
+  - Same 120 (b′) panos (seed 274), via `bprime-audit --label crosswalk_s3`.
+  - Every `crosswalk_s3` detection at its threshold is a card. A card within 0.01 of a Step 0 card inherits that
+    verdict; Jon rates the rest blind, on a page built like Step 0's.
+  - The statistic is the **paired difference** in look-alikes per 100 panos, s3 minus s1, on the `random` stratum.
+    Its 95% interval comes from a bootstrap over the 120 panos (2,000 draws, seed 274).
+  - **s3 reduces look-alikes** if the interval's upper end is below 0.
+- **Guards (all must hold for s3 to replace s1):**
+  1. **Test F1.** On the v2 labels, as scored at s3's threshold: ≥ 0.837 (s1's 0.847 minus the 0.01 noise band).
+  2. **Retention on the draw.** Of the 237 Step 0 detections Jon confirmed as crosswalks, at least 95% have a
+     `crosswalk_s3` detection within 0.05 (matcher units). This catches a threshold hike that buys precision with
+     recall.
+  3. **(b′) marked-node recall.** It drops by no more than 0.03 against s1's.
+- **Outcomes.**
+  - Primary met and all guards hold: `crosswalk_s3` becomes the working model.
+  - Point estimate down but the interval reaches 0: **promising, not established**. s1 stays, and the next step is
+    a larger draw or more negatives.
+  - A guard fails: s1 stays, whatever the primary says.
+- **Power, stated before the result.** s1 has 16 look-alikes on this draw. Removing about half of them probably
+  clears the rule, but not certainly. A smaller effect will not.
+- **Also reported, not deciding:**
+  - errors (not crosswalk plus unsure) per 100 panos, and precision on the draw;
+  - the `node_fa` stratum: how many of its 16 look-alikes s3 still fires on;
+  - look-alikes by class;
+  - test audited precision, and per-city recall;
+  - (b) and (b′) F1 against OSM.
+- **Phase 1 GT (c)** stays unread.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
@@ -624,6 +694,20 @@ H=$D/hardneg/step0_audit
 python $S bprime-audit --ids-file $D/bprime/pano_files.txt --sample $D/bprime/sample.csv --nodes $D/v2_labels/bprime/nodes.csv --preds-file $D/v2_labels/bprime/preds/crosswalk_s1/bprime.jsonl --label crosswalk_s1 --threshold 0.21 --out $H
 python $S cards --candidates $H/candidates.csv --label hardneg_step0 --pano-dir <bprime_4096> --preds-file $D/v2_labels/bprime/preds/crosswalk_s1/bprime.jsonl --threshold 0.21 --blind --out <outside the repo>
 python $S audit-summary --panos $H/panos.csv --ratings $H/ratings_jon_2026-11-06_step0.csv --out $H
+# hard negatives: mine train panos, blind AI pre-screen, Jon's pages, root_v3 (crosswalk_s1's train.jsonl from score_274.slurm SPLITS=train)
+N=$D/hardneg
+python $S mine --root <root_v2> --preds-file $N/mine_preds/crosswalk_s1/train.jsonl --out $N/mine
+C="--candidates $N/mine/candidates.csv --root <root_v2> --split train --preds-file $N/mine_preds/crosswalk_s1/train.jsonl --threshold 0.21 --blind"
+python $S cards $C --label hardneg_mine --crops-out <crops> --no-page --out <outside the repo>
+python $S sheets --crops <crops> --out <sheets>      # AI agents read the sheets blind -> $N/prescreen/ai_parts/ai_part_{1..8}.csv
+python $S prescreen-merge --sheets <sheets> --verdicts $N/prescreen/ai_parts/*.csv --flag-verdicts not_crosswalk --candidates $N/mine/candidates.csv --full-cities seattle-wa --n-other 200 --out $N/prescreen
+python $S cards $C --neg-disc --only $N/prescreen/jon_selection.csv --label hardneg_confirm --out <page 1>       # -> ratings_jon_2026-11-06_confirm.csv
+python $S cards $C --neg-disc --only $N/prescreen/claude_review_of_jon_negatives.csv --zoom 1.2 --label hardneg_review9 --out <re-review>   # -> ..._review9.csv
+python $S select --prescreen $N/prescreen/prescreen.csv --candidates $N/mine/candidates.csv --exclude $N/prescreen/ratings_jon_2026-11-06_confirm.csv --ai not_crosswalk --strata sparse_bg --cities amsterdam,burnaby,teaneck-nj --n 200 --out $N/prescreen/jon_selection_2.csv
+python $S cards $C --neg-disc --only $N/prescreen/jon_selection_2.csv --big --label hardneg_confirm2 --out <page 2>   # -> ..._confirm2.csv (a rebuilt card matches the page byte for byte)
+P=$N/prescreen
+python scripts/analysis/stage1_crosswalk_sdot_274/export_stage2.py add-negatives --ratings $P/ratings_jon_2026-11-06_confirm.csv $P/ratings_jon_2026-11-06_review9.csv $P/ratings_jon_2026-11-06_confirm2.csv --drop $P/drop_disc_rule.csv --src-root <root_v2> --root <root_v3> --out $N/root_v3
+python scripts/analysis/stage1_crosswalk_sdot_274/check_root_negatives.py <root_v3>
 # archive (staging on D:, then Jon copies it to the lab share)
 A=scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py
 python $A stage --out <staging> && python $A natives --out <staging>
@@ -655,6 +739,10 @@ churns, so a fresh `meta` moves the yield numbers.
 | `crosswalk_s2` human audit at 0.31 | `v2_labels/ratings_jon_2026-11-06_s2_t0.31.csv` (audited P = (546 complete TP + 48 real FPs) / (546 + 63)) |
 | hard negatives Step 0: the draw, cards, verdicts | `hardneg/step0_audit/` (`panos.csv`, `candidates.csv`, `audit_meta.json`, `ratings_jon_2026-11-06_step0.csv`) |
 | Step 0 rates and intervals, per-pano counts | `hardneg/step0_audit/audit_summary.json`, `per_pano.csv` |
+| mined candidates, counts by city and reason | `hardneg/mine/candidates.csv`, `mine_meta.json`; predictions `hardneg/mine_preds/crosswalk_s1/` |
+| AI pre-screen, page selections | `hardneg/prescreen/` (`prescreen.csv`, `prescreen_meta.json`, `jon_selection*.csv`, `ai_parts/`) |
+| Jon's negative verdicts, disc-rule drops | `hardneg/prescreen/ratings_jon_2026-11-06_{confirm,review9,confirm2}.csv`, `drop_disc_rule.csv` |
+| the 166 negatives, root_v3 counts and label digest | `hardneg/root_v3/negatives.csv`, `manifest.json` |
 | images, label versions, checkpoints, logs, rating pages, natives | the lab-share archive (section "Archive"); per-file sha256 in its `manifest.json` |
 
 ![](figures/stage1_crosswalk_sdot_274/range_hit_rate.png)
