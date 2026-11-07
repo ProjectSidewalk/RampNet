@@ -58,6 +58,14 @@ SOURCES = [
     ("rating_pages/v2_t0.21", f"{SK}/crosswalk274-score/gallery_v2_t0.21", "v2 re-score audit @0.21", None),
     ("rating_pages/s2_t0.31", f"{SK}/crosswalk274-score/gallery_s2_t0.31", "crosswalk_s2 audit @0.31", None),
     ("rating_pages/hardneg_step0", f"{SK}/crosswalk274-score/hardneg_step0", "hard negatives Step 0 (blind)", None),
+    ("rating_pages/hardneg_confirm", f"{SK}/crosswalk274-score/hardneg_confirm", "hard negatives page 1: Jon "
+     "confirms AI-flagged candidates (460 cards)", None),
+    ("rating_pages/hardneg_review9", f"{SK}/crosswalk274-score/hardneg_review9", "the 9 page-1 cards Claude "
+     "flagged, re-rated by Jon", None),
+    ("rating_pages/hardneg_confirm2", f"{SK}/crosswalk274-score/hardneg_confirm2", "hard negatives page 2 (200 "
+     "cards, --big views); partial export (112) and full export (200)", None),
+    ("work/hardneg_mine", f"{SK}/crosswalk274-score/hardneg_mine", "mining crops, numbered contact sheets the AI "
+     "pre-screen read, its per-part verdicts, the full pre-screen page", None),
     ("work/v1", f"{SK}/crosswalk274-score/v1", "v1 arm C working files (crowd_labels, placements, test root)",
      None),
     ("work/v2", f"{SK}/crosswalk274-score/v2", "v2 working files: placements, prefill CSVs, root_v2_json.tar", None),
