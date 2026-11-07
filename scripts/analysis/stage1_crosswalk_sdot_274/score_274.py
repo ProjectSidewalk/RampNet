@@ -1556,6 +1556,80 @@ def cmd_audit_summary(a):
     log(json.dumps(out, indent=1))
 
 
+RETENTION_MIN = 0.95   # crosswalk_s3 guard 2: share of the Step 0 crosswalks the new model still detects
+
+
+def paired_lookalike_diff(panos, base, new, rng, n=BOOT_N):
+    """Paired change in look-alikes per 100 panos, new minus base, on one set of drawn panos.
+
+    `base` and `new` map pano_id -> look-alike count (a pano with none may be absent). The interval resamples
+    panos with replacement and keeps each pano's two counts together, so pano-to-pano variation cancels.
+    Returns (point, [lo, hi]) with a 95% percentile interval.
+
+    >>> import random as _r
+    >>> pt, ci = paired_lookalike_diff(["a", "b", "c", "d"], {"a": 2, "b": 1}, {"a": 1}, _r.Random(0), n=200)
+    >>> pt, ci[1] <= 0
+    (-50.0, True)
+    """
+    d = [new.get(p, 0) - base.get(p, 0) for p in panos]
+    point = 100 * sum(d) / len(d)
+    boots = sorted(100 * sum(rng.choice(d) for _ in d) / len(d) for _ in range(n))
+    return point, [boots[int(0.025 * n)], boots[int(0.975 * n) - 1]]
+
+
+def cmd_audit_compare(a):
+    """The crosswalk_s3 primary and retention guard (docs/stage1_crosswalk_sdot_274.md, pre-registered 2026-11-06).
+
+    --base-* is the rated Step 0 draw of the working model, --new-* the same draw for the retrained one (the
+    same seeded panos, so `bprime-audit` reproduces them). Primary: the paired difference in look-alikes per 100
+    panos on the `random` stratum, with a pano bootstrap (BOOT_N, BOOT_SEED); it is met when the interval's upper
+    end is below 0. Guard 2: of the base model's random-stratum detections rated crosswalk, the share with a new
+    detection at or above --new-threshold within RADIUS (matcher units) on the same pano, at least
+    RETENTION_MIN. Writes audit_compare.json to --out."""
+    def load(panos_csv, ratings_csv):
+        with open(panos_csv, encoding="utf-8", newline="") as f:
+            drawn = sorted(r["pano_id"] for r in csv.DictReader(f) if "random" in r["stratum"])
+        look, uns, cards = {}, {}, []
+        with open(ratings_csv, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                if not r["verdict"]:
+                    raise SystemExit(f"unrated card {r['card_id']} in {ratings_csv}")
+                if r["pano_id"] not in drawn:
+                    continue
+                if r["verdict"] == "not_crosswalk":
+                    look[r["pano_id"]] = look.get(r["pano_id"], 0) + 1
+                elif r["verdict"] == "unsure":
+                    uns[r["pano_id"]] = uns.get(r["pano_id"], 0) + 1
+                cards.append(r)
+        return drawn, look, uns, cards
+    drawn, look_a, uns_a, cards_a = load(a.base_panos, a.base_ratings)
+    drawn_b, look_b, uns_b, _ = load(a.new_panos, a.new_ratings)
+    if drawn != drawn_b:
+        raise SystemExit("the two draws differ: run bprime-audit with the same --ids-file and --n-panos")
+    point, ci = paired_lookalike_diff(drawn, look_a, look_b, random.Random(BOOT_SEED))
+    err_a = {p: look_a.get(p, 0) + uns_a.get(p, 0) for p in drawn}
+    err_b = {p: look_b.get(p, 0) + uns_b.get(p, 0) for p in drawn}
+    e_point, e_ci = paired_lookalike_diff(drawn, err_a, err_b, random.Random(BOOT_SEED))
+    preds = {r["pano_id"]: [q for q in r["preds"] if q[2] >= a.new_threshold] for r in read_jsonl(a.new_preds)}
+    real = [r for r in cards_a if r["verdict"] == "crosswalk"]
+    kept = [r for r in real if any(dist_sq(float(r["x"]), float(r["y"]), q[0], q[1], SCALE_X, SCALE_Y, True)
+                                   < RADIUS_SQ for q in preds.get(r["pano_id"], []))]
+    retention = len(kept) / len(real) if real else float("nan")
+    out = {"base": a.base_label, "new": a.new_label, "new_threshold": a.new_threshold, "panos": len(drawn),
+           "lookalikes_per_100": {"base": 100 * sum(look_a.values()) / len(drawn),
+                                  "new": 100 * sum(look_b.values()) / len(drawn)},
+           "paired_diff_lookalikes_per_100": point, "paired_diff_ci95": ci,
+           "primary_met": ci[1] < 0,
+           "paired_diff_errors_per_100": e_point, "paired_diff_errors_ci95": e_ci,
+           "retention": {"base_crosswalks": len(real), "still_detected": len(kept), "share": retention,
+                         "min": RETENTION_MIN, "met": retention >= RETENTION_MIN},
+           "boot_n": BOOT_N, "boot_seed": BOOT_SEED}
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "audit_compare.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=1)
+    log(json.dumps(out, indent=1))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -1656,6 +1730,15 @@ def main():
     v.add_argument("--ratings", required=True, help="the exported ratings CSV for the draw's page")
     v.add_argument("--label", default="crosswalk_s1")
     v.add_argument("--out", required=True)
+    k = sub.add_parser("audit-compare", help="(#274 crosswalk_s3) paired look-alike change + retention guard")
+    for side in ("base", "new"):
+        k.add_argument(f"--{side}-panos", required=True, help=f"{side} model's bprime-audit panos.csv")
+        k.add_argument(f"--{side}-ratings", required=True, help=f"{side} model's rated cards (exported CSV)")
+    k.add_argument("--new-preds", required=True, help="the new model's bprime.jsonl")
+    k.add_argument("--new-threshold", type=float, required=True, help="the new model's val-F1 threshold")
+    k.add_argument("--base-label", default="crosswalk_s1")
+    k.add_argument("--new-label", default="crosswalk_s3")
+    k.add_argument("--out", required=True)
     b = sub.add_parser("bprime-sample", help="(b') stratified Seattle node sample + the store panos to fetch")
     b.add_argument("--root", required=True)
     b.add_argument("--baseline-nodes", required=True)
@@ -1679,7 +1762,7 @@ def main():
      "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep,
      "bprime-score": cmd_bprime_score, "cards": cmd_cards, "bprime-audit": cmd_bprime_audit,
      "audit-summary": cmd_audit_summary, "mine": cmd_mine, "sheets": cmd_sheets,
-     "prescreen-merge": cmd_prescreen_merge, "select": cmd_select}[a.cmd](a)
+     "prescreen-merge": cmd_prescreen_merge, "select": cmd_select, "audit-compare": cmd_audit_compare}[a.cmd](a)
 
 
 BP_PER_CELL = 150             # (b') nodes per (osm_class x truth) cell

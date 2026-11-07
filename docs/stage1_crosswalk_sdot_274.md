@@ -577,6 +577,9 @@ OSM tags unmarked or leaves untagged. That stratum explains the false alarms and
   - The statistic is the **paired difference** in look-alikes per 100 panos, s3 minus s1, on the `random` stratum.
     Its 95% interval comes from a bootstrap over the 120 panos (2,000 draws, seed 274).
   - **s3 reduces look-alikes** if the interval's upper end is below 0.
+  - The primary and guard 2 are implemented as `score_274.py audit-compare`, committed before training. Run on
+    `crosswalk_s1` against itself, it returns 13.3 look-alikes per 100 panos, a difference of 0 and retention
+    237/237.
 - **Guards (all must hold for s3 to replace s1):**
   1. **Test F1.** On the v2 labels, as scored at s3's threshold: ≥ 0.837 (s1's 0.847 minus the 0.01 noise band).
   2. **Retention on the draw.** Of the 237 Step 0 detections Jon confirmed as crosswalks, at least 95% have a
