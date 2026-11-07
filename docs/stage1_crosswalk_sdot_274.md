@@ -561,7 +561,9 @@ OSM tags unmarked or leaves untagged. That stratum explains the false alarms and
 - **City mismatch.** Only 42 of the 166 negatives are Seattle, but the deployment draw is all Seattle. Whether the
   learned "not this" transfers across cities is part of what s3 tests.
 
-#### `crosswalk_s3` pre-registration (drafted 2026-11-06, for Jon's OK before the job is submitted)
+#### `crosswalk_s3` pre-registration (fixed 2026-11-06: Jon approved it before the job was submitted)
+
+The 20-step smoke run on `root_v3` (job 43016471) completed cleanly and is never scored.
 
 - **Data.** `root_v3` (above). Splits, images and every val/test label are identical to `root_v2`.
 - **Recipe.** Identical to `crosswalk_s1` and `crosswalk_s2`: released weights, seed 1, 1,000 steps at global batch
