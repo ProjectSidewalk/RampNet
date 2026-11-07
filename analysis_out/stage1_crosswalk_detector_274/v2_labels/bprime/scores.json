@@ -1,5 +1,106 @@
 {
  "models": {
+  "crosswalk_s3": {
+   "threshold": 0.29,
+   "weighted": {
+    "detector": {
+     "precision": 0.767473852771098,
+     "recall": 0.7364381096115773,
+     "f1": 0.7516357439109793,
+     "mcc": 0.6630267270592329,
+     "tp_w": 2685.053274,
+     "fp_w": 813.506663,
+     "fn_w": 960.946626,
+     "tn_w": 9090.493237
+    },
+    "osm": {
+     "precision": 0.8142715044041708,
+     "recall": 0.8982446625958492,
+     "f1": 0.8541992733607058,
+     "mcc": 0.7987242860298062,
+     "tp_w": 3274.99995,
+     "fp_w": 747.0000000000001,
+     "fn_w": 370.99995,
+     "tn_w": 9156.999899999999
+    },
+    "either": {
+     "precision": 0.747720572597806,
+     "recall": 0.9446845922842729,
+     "f1": 0.834741135189502,
+     "mcc": 0.7745759036315258,
+     "tp_w": 3444.319929,
+     "fp_w": 1162.106663,
+     "fn_w": 201.679971,
+     "tn_w": 8741.893237
+    },
+    "always_yes": {
+     "precision": 0.2690774873664573,
+     "recall": 1.0,
+     "f1": 0.42405210090809664,
+     "mcc": NaN,
+     "tp_w": 3645.9999,
+     "fp_w": 9903.9999,
+     "fn_w": 0,
+     "tn_w": 0
+    }
+   },
+   "f1_diff_detector_minus_osm_95": [
+    -0.1517762745845418,
+    -0.05955836091552669
+   ],
+   "f1_diff_or_minus_osm_95": [
+    -0.04667043730262643,
+    0.004681092336057291
+   ],
+   "passes": false,
+   "secondary_detector_ge_osm": false,
+   "per_cell": {
+    "marked|0": {
+     "n": 150,
+     "detector_yes": 80,
+     "osm_yes": 150
+    },
+    "marked|1": {
+     "n": 150,
+     "detector_yes": 115,
+     "osm_yes": 150
+    },
+    "unknown|0": {
+     "n": 150,
+     "detector_yes": 3,
+     "osm_yes": 0
+    },
+    "unknown|1": {
+     "n": 126,
+     "detector_yes": 89,
+     "osm_yes": 51
+    },
+    "unmarked|0": {
+     "n": 150,
+     "detector_yes": 8,
+     "osm_yes": 0
+    },
+    "unmarked|1": {
+     "n": 150,
+     "detector_yes": 63,
+     "osm_yes": 0
+    }
+   },
+   "true_nodes_by_pano_year": {
+    "2023+": {
+     "n_true": 56,
+     "detector_hit": 29
+    },
+    "2019-2022": {
+     "n_true": 328,
+     "detector_hit": 218
+    },
+    "<=2018": {
+     "n_true": 42,
+     "detector_hit": 20
+    }
+   }
+  },
   "crosswalk_s2": {
    "threshold": 0.31,
    "weighted": {
@@ -305,5 +406,5 @@
   }
  },
  "n_nodes": 876,
- "scored_utc": "2026-11-06T03:38:57Z"
+ "scored_utc": "2026-11-07T14:07:32Z"
 }

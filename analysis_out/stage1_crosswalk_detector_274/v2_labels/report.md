@@ -1,11 +1,12 @@
 # First crosswalk detector: pre-registered scores (RampNet#274)
 
-Scored 2026-11-06T03:38:37Z by `score_274.py score`. Protocol: `docs/stage1_crosswalk_sdot_274.md`.
+Scored 2026-11-07T14:07:24Z by `score_274.py score`. Protocol: `docs/stage1_crosswalk_sdot_274.md`.
 
 ## Models
 
 | label | sha256 | val-F1 threshold |
 |---|---|---|
+| crosswalk_s3 | `32f9356178faa571…` | 0.29 |
 | crosswalk_s2 | `bfdd0f9375a9e27c…` | 0.31 |
 | crosswalk_s1 | `6f467ff4afd7d092…` | 0.21 |
 | released | `024a987cabed7cc9…` | 0.10 |
@@ -17,6 +18,7 @@ Precision over complete panos (dense_ignore + verified_empty); recall over every
 
 | model | precision | recall | F1 | TP (complete) | FP | ignored | positives |
 |---|---|---|---|---|---|---|---|
+| crosswalk_s3 | 0.858 [0.830, 0.883] | 0.840 [0.817, 0.860] | 0.849 | 969 (569) | 94 | 125 | 1154 |
 | crosswalk_s2 | 0.897 [0.870, 0.918] | 0.807 [0.783, 0.829] | 0.849 | 931 (546) | 63 | 93 | 1154 |
 | crosswalk_s1 | 0.850 [0.820, 0.875] | 0.845 [0.823, 0.865] | 0.847 | 975 (565) | 100 | 118 | 1154 |
 | released | 0.220 [0.197, 0.245] | 0.370 [0.343, 0.398] | 0.276 | 427 (250) | 888 | 258 | 1154 |
@@ -26,6 +28,10 @@ Precision over complete panos (dense_ignore + verified_empty); recall over every
 
 | model | group | panos | precision | recall | F1 | FP | positives |
 |---|---|---|---|---|---|---|---|
+| crosswalk_s3 | amsterdam | 64 | n/a | 0.802 | n/a | 0 | 131 |
+| crosswalk_s3 | burnaby | 49 | n/a | 0.862 | n/a | 0 | 87 |
+| crosswalk_s3 | seattle-wa | 379 | 0.858 | 0.845 | 0.852 | 94 | 899 |
+| crosswalk_s3 | teaneck-nj | 23 | n/a | 0.784 | n/a | 0 | 37 |
 | crosswalk_s2 | amsterdam | 64 | n/a | 0.748 | n/a | 0 | 131 |
 | crosswalk_s2 | burnaby | 49 | n/a | 0.816 | n/a | 0 | 87 |
 | crosswalk_s2 | seattle-wa | 379 | 0.897 | 0.820 | 0.856 | 63 | 899 |
@@ -47,6 +53,9 @@ Precision over complete panos (dense_ignore + verified_empty); recall over every
 
 | model | group | panos | precision | recall | F1 | FP | positives |
 |---|---|---|---|---|---|---|---|
+| crosswalk_s3 | dense_ignore | 257 | 0.858 | 0.848 | 0.853 | 94 | 671 |
+| crosswalk_s3 | sparse | 227 | n/a | 0.828 | n/a | 0 | 483 |
+| crosswalk_s3 | verified_empty | 31 | n/a | n/a | n/a | 0 | 0 |
 | crosswalk_s2 | dense_ignore | 257 | 0.897 | 0.814 | 0.853 | 63 | 671 |
 | crosswalk_s2 | sparse | 227 | n/a | 0.797 | n/a | 0 | 483 |
 | crosswalk_s2 | verified_empty | 31 | n/a | n/a | n/a | 0 | 0 |
@@ -64,6 +73,9 @@ Precision over complete panos (dense_ignore + verified_empty); recall over every
 
 | model | group | panos | precision | recall | F1 | FP | positives |
 |---|---|---|---|---|---|---|---|
+| crosswalk_s3 | 2019-2022 | 318 | 0.838 | 0.843 | 0.841 | 59 | 676 |
+| crosswalk_s3 | 2023+ | 167 | 0.883 | 0.841 | 0.862 | 34 | 428 |
+| crosswalk_s3 | <=2018 | 30 | 0.875 | 0.780 | 0.825 | 1 | 50 |
 | crosswalk_s2 | 2019-2022 | 318 | 0.890 | 0.806 | 0.846 | 36 | 676 |
 | crosswalk_s2 | 2023+ | 167 | 0.902 | 0.815 | 0.856 | 27 | 428 |
 | crosswalk_s2 | <=2018 | 30 | 1.000 | 0.740 | 0.851 | 0 | 50 |
@@ -84,6 +96,7 @@ Precision is n/a where a group has no complete pano (every non-Seattle city is `
 
 | model | threshold | precision | recall | F1 |
 |---|---|---|---|---|
+| crosswalk_s3 | 0.29 | 0.817 | 0.801 | 0.809 |
 | crosswalk_s2 | 0.31 | 0.852 | 0.762 | 0.804 |
 | crosswalk_s1 | 0.21 | 0.800 | 0.806 | 0.803 |
 | released | 0.10 | 0.190 | 0.368 | 0.251 |
@@ -95,6 +108,7 @@ Nodes of `baseline_nodes.csv` within 25 m of a Seattle test pano. A node is pred
 
 | model | nodes (true) | detector P / R / F1 | `osm_marked_signal` P / R / F1 | detector OR OSM F1 | passes (detector F1 ≥ OSM) |
 |---|---|---|---|---|---|
+| crosswalk_s3 | 463 (315) | 0.819 / 0.946 / 0.878 | 0.854 / 0.946 / 0.898 | 0.888 | no |
 | crosswalk_s2 | 463 (315) | 0.814 / 0.930 / 0.868 | 0.854 / 0.946 / 0.898 | 0.889 | no |
 | crosswalk_s1 | 463 (315) | 0.821 / 0.949 / 0.881 | 0.854 / 0.946 / 0.898 | 0.894 | no |
 | released | 463 (315) | 0.727 / 0.965 / 0.829 | 0.854 / 0.946 / 0.898 | 0.840 | no |
@@ -104,6 +118,7 @@ On nodes OSM leaves untagged (`osm_class` unknown):
 
 | model | nodes (true) | detector P / R / F1 | `osm_marked_signal` P / R / F1 |
 |---|---|---|---|
+| crosswalk_s3 | 38 (9) | 0.583 / 0.778 / 0.667 | 0.625 / 0.556 / 0.588 |
 | crosswalk_s2 | 38 (9) | 0.636 / 0.778 / 0.700 | 0.625 / 0.556 / 0.588 |
 | crosswalk_s1 | 38 (9) | 0.667 / 0.889 / 0.762 | 0.625 / 0.556 / 0.588 |
 | released | 38 (9) | 0.375 / 1.000 / 0.545 | 0.625 / 0.556 / 0.588 |
@@ -111,6 +126,7 @@ On nodes OSM leaves untagged (`osm_class` unknown):
 
 Exploratory (not part of the pass rule): a node-bootstrap 95% interval for detector F1 minus OSM F1 (nodes are spatially correlated, so it is too narrow):
 
+- crosswalk_s3: [-0.040, 0.001]; 1161 detections on 379 panos, 1049 placed within range
 - crosswalk_s2: [-0.051, -0.009]; 1046 detections on 379 panos, 928 placed within range
 - crosswalk_s1: [-0.039, 0.005]; 1156 detections on 379 panos, 1028 placed within range
 - released: [-0.094, -0.043]; 1920 detections on 379 panos, 1744 placed within range
@@ -120,6 +136,45 @@ Heading source for the Seattle test panos: {'ps': 152, 'streetlevel': 196, 'ps_n
 
 
 ## Exploratory, post hoc (not pre-registered: explains (b), never re-decides it)
+
+### crosswalk_s3: node F1 across thresholds (val pick 0.29)
+
+| threshold | detector P / R / F1 | detector OR OSM F1 | detector AND OSM F1 |
+|---|---|---|---|
+| 0.05 | 0.795 / 0.971 / 0.874 | 0.876 | 0.896 |
+| 0.10 | 0.801 / 0.959 / 0.873 | 0.881 | 0.890 |
+| 0.15 | 0.810 / 0.959 / 0.878 | 0.886 | 0.890 |
+| 0.20 | 0.811 / 0.956 / 0.878 | 0.887 | 0.888 |
+| 0.25 | 0.818 / 0.956 / 0.881 | 0.888 | 0.891 |
+| 0.30 | 0.819 / 0.946 / 0.878 | 0.888 | 0.887 |
+| 0.35 | 0.819 / 0.933 / 0.872 | 0.889 | 0.880 |
+| 0.40 | 0.821 / 0.930 / 0.872 | 0.889 | 0.880 |
+| 0.45 | 0.834 / 0.927 / 0.878 | 0.890 | 0.885 |
+| 0.50 | 0.834 / 0.892 / 0.862 | 0.892 | 0.867 |
+| 0.55 | 0.838 / 0.851 / 0.844 | 0.894 | 0.845 |
+| 0.60 | 0.837 / 0.813 / 0.824 | 0.896 | 0.824 |
+| 0.65 | 0.834 / 0.768 / 0.800 | 0.898 | 0.795 |
+| 0.70 | 0.847 / 0.667 / 0.746 | 0.902 | 0.735 |
+| 0.75 | 0.846 / 0.559 / 0.673 | 0.903 | 0.660 |
+| 0.80 | 0.833 / 0.460 / 0.593 | 0.899 | 0.583 |
+| 0.85 | 0.823 / 0.324 / 0.465 | 0.896 | 0.457 |
+| 0.90 | 0.848 / 0.248 / 0.383 | 0.897 | 0.378 |
+| 0.95 | 0.842 / 0.152 / 0.258 | 0.895 | 0.255 |
+
+OSM alone: F1 0.898. Saying yes at every node: F1 0.810 (its precision is the share of nodes that are marked).
+
+### crosswalk_s3: detector vs OSM vs truth at the val threshold (node counts)
+
+| detector | OSM | truth | nodes |
+|---|---|---|---|
+| yes | yes | marked | 287 |
+| yes | yes | not | 45 |
+| yes | no | marked | 11 |
+| yes | no | not | 21 |
+| no | yes | marked | 11 |
+| no | yes | not | 6 |
+| no | no | marked | 6 |
+| no | no | not | 76 |
 
 ### crosswalk_s2: node F1 across thresholds (val pick 0.31)
 

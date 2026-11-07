@@ -1,0 +1,14 @@
+{
+ "label": "crosswalk_s3",
+ "checkpoint": "/gscratch/makelab/jonf/crosswalk274/v3_s1/final_step_1000.pth",
+ "sha256": "32f9356178faa571b6c6a86a9c0d291949b2d8829567960246b43d816a675e9c",
+ "score_floor": 0.05,
+ "min_distance": 10,
+ "tta": false,
+ "fp16": false,
+ "extractor": "threshold_sweep.heatmap_for + peaks_to_dets",
+ "root": "/gscratch/scrubbed/jfroehli/crosswalk274/root_v3",
+ "device": "cuda",
+ "torch": "2.6.0",
+ "gpu": "NVIDIA L40S"
+}
