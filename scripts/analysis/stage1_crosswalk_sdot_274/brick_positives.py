@@ -15,6 +15,7 @@ confirmed by Jon before it becomes a training positive (the arm C confirmer cann
   score_274.py sheets --crops <crops> --out <sheets>    # blind AI readers -> OUT/ai_parts/ai_part_{1..4}.csv
   python brick_positives.py prescreen --out OUT        # -> OUT/prescreen.csv (needs OUT/sheets.csv from <sheets>)
   python brick_positives.py page --out OUT             # -> OUT/jon_selection.csv, then `cards --only` it
+  python brick_positives.py tally --ratings <Jon's export> --out OUT   # -> OUT/positives.csv, OUT/tally.json
 
 Selection rule (fixed before any image was looked at): tag `brick/cobblestone`, source gsv, not voted incorrect by
 majority (disagree <= agree), city not already in the Stage 2 root's training cities (no split leak), pano not
@@ -181,6 +182,72 @@ def cmd_page(a):
     log(f"page: {len(pick)} cards: " + ", ".join(f"{g} {n}" for g, n in Counter(g for _, g in pick).items()))
 
 
+def trust_styles(sel, prescreen, verdicts):
+    """Apply the rule fixed in `page`: for each sampled style group, the share of the sampled AI crosswalk calls Jon
+    also called crosswalk; the group is trusted when that share is at least TRUST_MIN.
+
+    >>> sel = {"a": "sample_paint", "b": "sample_paint", "c": "ai_unsure"}
+    >>> trust_styles(sel, {}, {"a": "crosswalk", "b": "unsure", "c": "crosswalk"})
+    {'sample_paint': (1, 2, False)}
+    """
+    out = {}
+    for cid, g in sel.items():
+        if g.startswith("sample_"):
+            k, n, _ = out.get(g, (0, 0, False))
+            out[g] = (k + (verdicts[cid] == "crosswalk"), n + 1, False)
+    return {g: (k, n, k / n >= TRUST_MIN) for g, (k, n, _) in sorted(out.items())}
+
+
+def cmd_tally(a):
+    """Jon's ratings + the trust rule -> positives.csv (one row per accepted label) and tally.json. A label is a
+    positive when Jon rated it crosswalk, or when he did not rate it, the AI called it crosswalk, and its style group
+    passed the trust rule. Refuses a ratings file that does not cover jon_selection.csv exactly."""
+    import json
+    from collections import Counter
+    with open(os.path.join(a.out, "prescreen.csv"), encoding="utf-8", newline="") as f:
+        pre = {r["card_id"]: r for r in csv.DictReader(f)}
+    with open(os.path.join(a.out, "jon_selection.csv"), encoding="utf-8", newline="") as f:
+        sel = {r["card_id"]: r["group"] for r in csv.DictReader(f)}
+    with open(a.ratings, encoding="utf-8", newline="") as f:
+        rat = list(csv.DictReader(f))
+    ids = [r["card_id"] for r in rat]
+    if len(ids) != len(set(ids)) or set(ids) != set(sel):
+        raise SystemExit("ratings do not cover jon_selection.csv exactly once")
+    jon = {r["card_id"]: r["verdict"] for r in rat}
+    note = {r["card_id"]: r["note"] for r in rat}
+    trust = trust_styles(sel, pre, jon)
+    group_of = {"brick": "sample_brick", "brick_edge_lines": "sample_brick", "paint": "sample_paint"}
+    rows, why = [], Counter()
+    for cid, p in sorted(pre.items(), key=lambda kv: kv[1]["label_uid"]):
+        if cid in jon:
+            ok, basis = jon[cid] == "crosswalk", f"jon_{jon[cid]}"
+        else:
+            g = group_of.get(p["ai_style"]) if p["ai_verdict"] == "crosswalk" else None
+            ok, basis = bool(g and trust[g][2]), f"ai_trusted_{p['ai_style']}" if g else "ai_untrusted"
+        why[(basis, ok)] += 1
+        if ok:
+            rows.append({"label_uid": p["label_uid"], "city": p["city"], "pano_id": p["pano_id"], "x": p["x"],
+                         "y": p["y"], "basis": basis, "ai_verdict": p["ai_verdict"], "ai_style": p["ai_style"],
+                         "jon_note": note.get(cid, "")})
+    uids = [r["label_uid"] for r in rows]
+    assert len(uids) == len(set(uids)), "label_uid not unique"
+    with open(os.path.join(a.out, "positives.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w.writeheader()
+        w.writerows(rows)
+    cross = Counter((sel[c], jon[c]) for c in sel)
+    summary = {"trust_min": TRUST_MIN, "trust": {g: {"agree": k, "n": n, "trusted": t} for g, (k, n, t) in trust.items()},
+               "jon_by_group": {f"{g}/{v}": n for (g, v), n in sorted(cross.items())},
+               "basis": {f"{b}/{'kept' if ok else 'dropped'}": n for (b, ok), n in sorted(why.items())},
+               "labels": len(pre), "positives": len(rows), "positive_panos": len({r["pano_id"] for r in rows}),
+               "positives_by_city": dict(Counter(r["city"] for r in rows).most_common())}
+    with open(os.path.join(a.out, "tally.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(summary, f, indent=1)
+        f.write("\n")
+    log(f"tally: {len(rows)} of {len(pre)} labels are positives on {summary['positive_panos']} panos; trust "
+        + ", ".join(f"{g} {k}/{n}{' ok' if t else ' FAILED'}" for g, (k, n, t) in trust.items()))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -198,8 +265,12 @@ def main():
     pg.add_argument("--n-brick", type=int, default=120)
     pg.add_argument("--n-paint", type=int, default=40)
     pg.add_argument("--out", required=True)
+    t = sub.add_parser("tally")
+    t.add_argument("--ratings", required=True, help="Jon's export from the brick_confirm page")
+    t.add_argument("--out", required=True)
     a = ap.parse_args()
-    {"select": cmd_select, "candidates": cmd_candidates, "prescreen": cmd_prescreen, "page": cmd_page}[a.cmd](a)
+    {"select": cmd_select, "candidates": cmd_candidates, "prescreen": cmd_prescreen, "page": cmd_page,
+     "tally": cmd_tally}[a.cmd](a)
 
 
 if __name__ == "__main__":

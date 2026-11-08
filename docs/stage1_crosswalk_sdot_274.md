@@ -772,6 +772,23 @@ contact sheets (`hardneg/s4_inputs/brick/ai_parts/`, `prescreen.csv`):
 if Jon agrees with at least 95% of the sampled AI crosswalk calls, that style's unsampled AI crosswalk calls become
 positives without a second look. Otherwise he rates them too.
 
+**Result (Jon rated all 358 on 2026-11-08; `ratings_jon_2026-11-08_brick.csv`, `brick_positives.py tally` ->
+`positives.csv`, `tally.json`).** Both styles pass the trust rule: Jon agreed with 120 of 120 sampled brick calls
+and 39 of 40 sampled paint calls (the one exception he marked unsure: "more on a curb ramp than it is on the
+crosswalk"). So **893 of the 923 labels are positives, on 559 panos**: 328 by Jon's verdict and 565 trusted AI calls
+(377 brick, 188 paint). 30 are dropped (Jon: 10 not a crosswalk, 20 unsure, most "too zoomed in to tell").
+
+| AI call | Jon: crosswalk | not | unsure |
+|---|---|---|---|
+| crosswalk (sample of 160) | 159 | 0 | 1 |
+| unsure (121) | 114 | 0 | 7 |
+| not a crosswalk (77) | 55 | 10 | 12 |
+
+The AI readers were reliable when they said crosswalk but far too strict otherwise: Jon called 55 of their 77
+rejections crosswalks (mostly Cuenca's faded paint on cobblestone). The tag itself is precise: at most 30 of 923
+crowd labels (3%) fail Jon's look. By city: Chicago 424, Cuenca 246, Gainesville 88, Columbus 44, Pittsburgh 39,
+Knox 15, Maywood 11, and 26 more across 12 cities. Positions are the crowd label's.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
