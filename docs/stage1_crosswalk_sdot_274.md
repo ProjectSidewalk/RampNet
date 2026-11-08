@@ -789,6 +789,29 @@ rejections crosswalks (mostly Cuenca's faded paint on cobblestone). The tag itse
 crowd labels (3%) fail Jon's look. By city: Chicago 424, Cuenca 246, Gainesville 88, Columbus 44, Pittsburgh 39,
 Knox 15, Maywood 11, and 26 more across 12 cities. Positions are the crowd label's.
 
+#### Seed replicates (reported, deciding nothing; scored 2026-11-08)
+
+Seeds 2 and 3 of s1 (v1 labels) and s3 (`root_v3`), with the recipe otherwise unchanged. Training ran as klone jobs
+43057106–43057109, and inference as 43063208–43063215. Everything is scored on the v2 labels:
+- `v2_labels/seeds/`: each run at its own val pick.
+- `v2_labels/seeds_matched/`: each s3 run at the recall-matched threshold against the s1 run with the same seed
+  (`match-threshold`).
+
+Seed 1 reproduces the committed scores exactly.
+
+| seed | s1 threshold | s1 test F1 | s1 (b′) F1 | s3 val pick: test F1 / (b′) F1 | s3 recall-matched: threshold, test F1 / (b′) F1 |
+|---|---|---|---|---|---|
+| 1 | 0.21 | 0.847 | 0.716 | 0.29: 0.849 / 0.752 | 0.27: 0.849 / 0.756 |
+| 2 | 0.24 | 0.836 | 0.731 | 0.39: 0.840 / 0.752 | 0.39: 0.840 / 0.752 |
+| 3 | 0.22 | 0.828 | 0.740 | 0.31: 0.824 / 0.708 | 0.24: 0.813 / 0.739 |
+
+**Readings.**
+- **Seed noise on test F1 is about ±0.01**, with a range of 0.019 across the three s1 seeds. That is as large as the
+  0.01 noise band in the test-F1 guards, so two of the three s1 seeds would themselves fail "≥ 0.837".
+- The s3 − s1 test-F1 difference is +0.002, +0.004 and −0.004 by seed at the val pick: within seed noise.
+- On (b′) at the recall-matched threshold, s3 − s1 is +0.040, +0.021 and −0.001: never worse, usually better, but
+  the size varies with the seed.
+
 #### `crosswalk_s4` pre-registration (fixed 2026-11-08: Jon approved this text before any Step A card was built)
 
 **Goal.** Three gaps the confirmation found, fixed in one retrain without losing Seattle:
@@ -885,6 +908,8 @@ never sees a model.
   to crowd-label cards, so the 303 crowd cards (`crowd_candidates.csv`, `brick_positives.py crowd-candidates`;
   Columbia 214, Richmond 89) get their own page, `rate_s4_crowd.html`. The Laurens cards follow, with `--neg-disc`,
   after `crosswalk_s1`'s inference on the 300 panos (klone job 43063884).
+- **Car-top page** (`laurens_mine/`, `bprime-audit --draw-seed 276 --city laurens-ia --mode laurens_mine` at 0.21):
+  124 cards on 96 of the 300 panos, rated on `rate_s4_carTop.html` with `--neg-disc`.
 
 ## Draft issue for Jon to post (not posted)
 
