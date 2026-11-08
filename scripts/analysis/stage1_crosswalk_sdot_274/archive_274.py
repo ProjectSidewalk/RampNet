@@ -98,6 +98,12 @@ SOURCES = [
      "live PS Crosswalk labels in Laurens and Juneau (read 2026-11-08), native res", None),
     ("confirm_s3/ps_label_probe/panos_4096", f"{SK}/crosswalk274-confirm/ps_label_4096", "the same, 4096x2048 as "
      "inferred", None),
+    ("s4_brick/store_natives", f"{SK}/brick-store/store", "brick-tagged crowd crosswalk panos as streamed read-only "
+     "from the PS store (<city>/<id[:2]>/<id>.jpg; brick_store.tar sha256 in the repo)", "jpg"),
+    ("s4_brick/panos_4096", f"{SK}/brick-store/prep_4096", "the same, 4096x2048 as the training root", None),
+    ("s4_brick/crops", f"{SK}/brick-store/crops", "pre-screen crops (index.csv maps crop -> card)", None),
+    ("s4_brick/sheets", f"{SK}/brick-store/sheets", "the 77 numbered contact sheets the blind AI readers saw", None),
+    ("rating_pages/brick_confirm", f"{SK}/brick-store/page", "Jon's brick confirmation page (+ his export)", None),
     ("confirm_s3/draw_records", f"{SK}/crosswalk274-confirm", "the city draws' labeler records (input to "
      "export_benchmark.py)", "jsonl"),
     ("worktree_untracked/stage1-label-type-274", f"{WT}/stage1-label-type-274", "gitignored #274 outputs at "

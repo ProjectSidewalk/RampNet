@@ -752,6 +752,26 @@ and PS has a tag for them. The Crosswalk tag is `brick/cobblestone`. Across 58 l
 - **Validators often disagree:** Columbus 112 of 156 brick labels, Amsterdam 81 of 85. The tag may mark a
   cobblestone road surface rather than a brick crosswalk, so the positives need a human look before training.
 
+**s4 step 1: brick-crosswalk positives (2026-11-08).** `brick_positives.py select` takes the census's Crosswalk
+labels tagged `brick/cobblestone` (gsv; not voted incorrect by majority; outside the root's cities and every audit
+draw): 923 labels on 584 panos (Chicago 259, Cuenca 155, Gainesville 68, Columbus 33, Pittsburgh 26, ...). The panos
+were streamed read-only from the PS store and prepped like the training root. Four blind AI readers sorted the 77
+contact sheets (`hardneg/s4_inputs/brick/ai_parts/`, `prescreen.csv`):
+
+| AI call | labels |
+|---|---|
+| crosswalk, brick band with white edge lines | 431 |
+| crosswalk, brick band without edge lines | 66 |
+| crosswalk, paint (Cuenca's cobblestone zebras, mostly) | 228 |
+| unsure | 121 |
+| not a crosswalk (a cobblestone road, plaza or sidewalk) | 77 (50 in Cuenca) |
+
+**Jon's confirmation page, rule fixed before he rates** (`brick_positives.py page`, seed 274; `cards
+--definition paint_brick`). It shows every AI not/unsure card (198) plus a seeded sample of the AI's crosswalk calls:
+120 brick-styled and 40 painted, 358 cards in all. Only Jon's "crosswalk" verdicts become positives. For each style,
+if Jon agrees with at least 95% of the sampled AI crosswalk calls, that style's unsampled AI crosswalk calls become
+positives without a second look. Otherwise he rates them too.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
