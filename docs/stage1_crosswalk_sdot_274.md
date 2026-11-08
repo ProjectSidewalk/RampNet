@@ -740,6 +740,18 @@ in the training cities, where Seattle's ladder and zebra paint dominates. Whethe
 "marked" for this detector is a definition question for Jon. The page's rule so far is "painted pedestrian crossing
 markings".
 
+**Brick crosswalks on PS (2026-11-08, read-only prod census).** Jon (2026-11-08): brick-style positives matter,
+and PS has a tag for them. The Crosswalk tag is `brick/cobblestone`. Across 58 live city schemas
+(`hardneg/s4_inputs/brick_crosswalk_census_2026-11-08.csv`, from `prod_brick_census.sh`):
+
+- **Labels:** Chicago 530, Cuenca 372, Columbia 261, Columbus 156, Gainesville 150, Amsterdam 85, Seattle 65,
+  Pittsburgh 56; every other city has fewer than 30.
+- **Crowd-validated with a stored pano (agree > disagree, `prod_brick_backups.sh`):** Chicago 172 panos,
+  Columbia 102, Cuenca 87, Seattle 22, Gainesville 22, Columbus 15, Pittsburgh 15, Knox 7, Maywood 8, Oradell 6.
+  That is about 450 panos in all.
+- **Validators often disagree:** Columbus 112 of 156 brick labels, Amsterdam 81 of 85. The tag may mark a
+  cobblestone road surface rather than a brick crosswalk, so the positives need a human look before training.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
