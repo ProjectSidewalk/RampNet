@@ -2868,3 +2868,34 @@ def test_the_276_dev_split_is_committed_and_reproducible():
     gold = json.load(open(S.MANUAL_GOLD_250, encoding="utf-8"))
     assert len(gold["panos"]) == 250 and gold["panos"] == sorted(gold["panos"])
     assert S.main(["--check"]) == 0
+
+
+def test_gemini_debug_dump_is_per_model_and_records_the_call(tmp_path):
+    """Two legs in one run share --gemini-debug-dump; each numbers its calls from 1, so
+    without a per-model subdirectory the second leg overwrote the first (seen on the
+    first Step 1 diagnostic run)."""
+    pytest.importorskip("google.genai")
+    from PIL import Image
+
+    class _FR:
+        name = "STOP"
+
+    class _Models:
+        def generate_content(self, **kw):
+            cand = type("C", (), {"finish_reason": _FR()})()
+            return type("R", (), {"candidates": [cand], "text": '[{"box_2d": [1, 2, 3, 4], "label": "x"}]',
+                                  "parsed": None, "usage_metadata": None,
+                                  "model_version": "gemini-4-argon-001"})()
+
+    dumps = []
+    for mid in ("gemini-4-argon", "gemini-3.8-flash"):
+        det = GeminiDetector(model_id=mid, debug_dump=str(tmp_path / "dump"))
+        det._client = type("Client", (), {"models": _Models()})()
+        det._ensure_ready()
+        boxes = det._raw_detect(Image.new("RGB", (8, 8)))
+        assert boxes == [{"box_2d": [1, 2, 3, 4], "label": "x"}]
+        dumps.append(sorted(p.name for p in (tmp_path / "dump" / mid).iterdir()))
+    assert dumps == [["00001.jpg", "00001.json"]] * 2
+    rec = json.loads((tmp_path / "dump" / "gemini-3.8-flash" / "00001.json").read_text())
+    assert rec["finish_reason"] == "STOP" and rec["n_boxes"] == 1
+    assert rec["model_version"] == "gemini-4-argon-001" and rec["model_id"] == "gemini-3.8-flash"

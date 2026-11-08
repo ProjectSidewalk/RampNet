@@ -729,7 +729,8 @@ def build_parser():
                          "above ~12 in flight across processes (the retry covers them).")
     ap.add_argument("--gemini-debug-dump", metavar="DIR",
                     help="Write every Gemini call's raw text, finish reason, build and "
-                         "token counts (plus the view as JPEG) under DIR. Diagnostic only.")
+                         "token counts (plus the view as JPEG) under DIR/<model_id>/. "
+                         "Diagnostic only.")
     ap.add_argument("--claude-model", default=_D["claude_model"],
                     help="Claude model id, served via Vertex + ADC (same credentials "
                          "as the Gemini legs). Each model must be enabled separately "

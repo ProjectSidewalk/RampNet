@@ -849,6 +849,7 @@ class GeminiDetector(_VLMDetector):
                              f"not {thinking_level!r}")
         self.thinking_level = thinking_level
         self.debug_dump = debug_dump
+        self._dump_dir = None     # set in _ensure_ready, per model id
         self._dump_n = 0
         self._exemplar_items = (load_exemplars(exemplars, prompt_opt_dir)
                                 if exemplars is not None else None)
@@ -902,6 +903,11 @@ class GeminiDetector(_VLMDetector):
             raise ImportError(
                 "GeminiDetector needs the `google-genai` package "
                 "(pip install -r requirements-vlm.txt)") from e
+        if self.debug_dump:
+            # One subdirectory per model: two legs in one compare.py run share the
+            # flag, and each detector numbers its calls from 1.
+            self._dump_dir = os.path.join(self.debug_dump, self.model_id.replace("/", "_"))
+            os.makedirs(self._dump_dir, exist_ok=True)
         if self._client is not None:
             return
         # Explicit retry policy for the ~hundreds of calls a full-city run makes:
@@ -924,8 +930,6 @@ class GeminiDetector(_VLMDetector):
                 "set GOOGLE_GENAI_USE_VERTEXAI=true and GOOGLE_CLOUD_PROJECT (plus optional "
                 "GOOGLE_CLOUD_LOCATION) in a git-ignored .env, and run "
                 "`gcloud auth application-default login`. Otherwise set GOOGLE_API_KEY.")
-        if self.debug_dump:
-            os.makedirs(self.debug_dump, exist_ok=True)
 
     def response_schema(self):
         """The as-run pydantic schema, or the scored JSON schema when ``confidence``
@@ -995,7 +999,7 @@ class GeminiDetector(_VLMDetector):
         with self._usage_lock:
             self._dump_n += 1
             n = self._dump_n
-        stem = os.path.join(self.debug_dump, f"{n:05d}")
+        stem = os.path.join(self._dump_dir, f"{n:05d}")
         cands = getattr(resp, "candidates", None) or []
         fr = getattr(cands[0], "finish_reason", None) if cands else None
         um = getattr(resp, "usage_metadata", None)
