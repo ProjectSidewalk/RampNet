@@ -635,6 +635,52 @@ draw, s3 also finds 10 crosswalks that s1 had no detection near. Any re-test at 
 pre-registration on fresh panos, because the Step 0 draw has now been used to see this result. At 0.21, s3 makes 44
 more detections on the draw than at 0.29, and none of them has been rated.
 
+#### `crosswalk_s3` confirmation pre-registration (DRAFT 2026-11-08, awaiting Jon's OK; nothing rated yet)
+
+Jon asked (2026-11-08) for the strongest detector, so s3 is re-tested rather than dropped. The Step 0 draw is
+spent: it showed the retention failure, so a threshold chosen on it would be circular. Everything below is fixed
+before any card is rated and before s3's test or (b′) numbers at the new threshold are computed.
+
+- **Models and thresholds.**
+  - `crosswalk_s1` at 0.21, its val-F1 pick, unchanged.
+  - `crosswalk_s3` at **0.27**, by a rule that uses val only: the highest grid threshold at which s3's val recall
+    is at least s1's val recall at s1's pick (`score_274.py match-threshold`; s3 0.810 at 0.27 against s1 0.806 at
+    0.21). s3's val F1 is flat there (0.807 at 0.27, 0.809 at its 0.29 pick).
+  - Scored with `score --fixed-threshold crosswalk_s3=0.27` into `v2_labels/s3_t027/`, so the val-pick results
+    stay as committed.
+- **Seattle draw (decides).** 120 (b′) panos, draw seed 275, from the 654 panos in no earlier draw (Step 0 and
+  the s3 audit), `draw --exclude-panos`. No `node_fa` stratum.
+- **City draws (report only, Jon 2026-11-08).** Same seed 275, drawn from each run's processed panos:
+  - Juneau: 120 of 5,333 (Mapillary: 4,999 Trimble MX7 from the original run, 334 GoPro Max from the 2026-11
+    expansion).
+  - Laurens, Mapillary arm: 80 of 4,495 (GoPro Max, 2025-11).
+  - Laurens, GSV arm: 80 of 2,137 (2024-09), the same footprint as the Mapillary arm.
+  - Panos fetched by `export_benchmark.py --out`, then made 4096×2048 by `bprime-prep` exactly as the training root.
+- **One blind page.** Each model's detections on each draw (`bprime-audit`) are merged by `merge-cards`: two
+  detections within 0.01 on the same pano are one card. Captions are blind, and Seattle, Juneau and Laurens cards
+  are shuffled together, so the rater cannot tell model or city from the page. `carry` turns the export back into
+  one ratings file per model and draw. None of these panos has been rated before, so nothing is prefilled.
+- **Primary.** On the Seattle draw, the paired difference in look-alikes per 100 panos, s3 − s1, with a 95%
+  bootstrap over the 120 panos (2,000 draws, seed 274). Met if the interval's upper end is below 0
+  (`audit-compare`).
+- **Guards (all must hold):**
+  1. Test F1 on the v2 labels at 0.27: ≥ 0.837.
+  2. Retention on the Seattle draw: at least 95% of the s1 detections Jon confirms as crosswalks have an s3
+     detection at ≥ 0.27 within 0.05 (matcher units).
+  3. (b′) weighted marked-node recall at 0.27: drops by no more than 0.03 against s1's.
+- **Outcomes.** Primary met and all guards hold: `crosswalk_s3` at 0.27 becomes the working model. Point estimate
+  down but the interval reaches 0: promising, not established; s1 stays. A guard fails: s1 stays.
+- **Power, stated before the result.** On Step 0, s3 at 0.29 removed 8.3 look-alikes per 100 panos [3.3, 14.2].
+  At 0.27 s3 makes somewhat more detections, so the expected cut is a little smaller; a cut of about half of s1's
+  look-alikes probably clears the rule on 120 panos.
+- **Reported per city, deciding nothing:** look-alikes per 100 panos, errors per 100 panos, precision, the paired
+  s3 − s1 difference with its interval, and retention, for each of Juneau, Laurens Mapillary and Laurens GSV. The
+  two Laurens arms compare the camera on the same streets. Recall in Juneau and Laurens comes later, from an
+  intersection page (OSM road graph, not OSM crossing tags; Jon 2026-11-08).
+- **Seed replicates (reported, deciding nothing).** Seeds 2 and 3 of s1 (v1 labels) and s3 (`root_v3`), klone
+  jobs 43057106–43057109: test F1 and (b′) detector F1 per run, at each run's val pick and at its recall-matched
+  threshold, to show how much of the s1/s3 difference is seed noise.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned

@@ -52,8 +52,10 @@ status=0
 EXTRA=(--splits "$SPLITS")
 if [ "${BPRIME:-0}" = 1 ]; then
     PREDS="${BPRIME_PREDS:-/gscratch/scrubbed/$USER/crosswalk274/bprime_preds}"
-    EXTRA=(--ids-file "$REPO/analysis_out/stage1_crosswalk_detector_274/bprime/pano_files.txt"
-           --pano-dir "${BPRIME_PANOS:-/gscratch/scrubbed/$USER/crosswalk274/bprime_4096}")
+    # IDS_FILE / SPLIT_NAME: another flat set of prepped panos (the s3 confirmation's city draws, #274)
+    EXTRA=(--ids-file "${IDS_FILE:-$REPO/analysis_out/stage1_crosswalk_detector_274/bprime/pano_files.txt}"
+           --pano-dir "${BPRIME_PANOS:-/gscratch/scrubbed/$USER/crosswalk274/bprime_4096}"
+           --split-name "${SPLIT_NAME:-bprime}")
 fi
 "$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label "$FT_LABEL" --checkpoint "$FT_CKPT" --sha256 "$FT_SHA" "${EXTRA[@]}" || status=1
 [ "$RELEASED" = 1 ] && { "$PY" "$S" infer --root "$ROOT" --preds "$PREDS" --label released --checkpoint "$REL_CKPT" --sha256 "$REL_SHA" "${EXTRA[@]}" || status=1; }

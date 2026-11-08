@@ -466,6 +466,9 @@ def fmt(v, nd=3):
 def cmd_score(a):
     import pilot  # noqa: F401  (Grid, GEOD: imported lazily below; fail fast if pyproj is missing)
     labels = a.labels.split(",")
+    fixed = {k: float(v) for k, v in (x.split("=", 1) for x in a.fixed_threshold)}
+    if set(fixed) - set(labels):
+        raise SystemExit(f"--fixed-threshold names labels not scored: {sorted(set(fixed) - set(labels))}")
     anns = {s: load_split(a.root, s) for s in SPLITS}
     os.makedirs(a.out, exist_ok=True)
     with open(a.baseline_nodes, encoding="utf-8") as f:
@@ -487,6 +490,9 @@ def cmd_score(a):
             pr = load_preds(a.preds, lab, s, anns[s])
             cls[s] = {pid: (anns[s][pid], classify_pano(pr[pid], anns[s][pid])) for pid in anns[s]}
         t_star, sweep = pick_threshold(list(cls["val"].values()))
+        rule = "val_f1"
+        if lab in fixed:      # a pre-registered fixed threshold (e.g. s3's recall-matched 0.27) instead of the pick
+            t_star, rule = fixed[lab], "fixed"
         for s in SPLITS:
             for t in GRID:
                 m = metrics_from(counts_at(list(cls[s].values()), t))
@@ -494,7 +500,8 @@ def cmd_score(a):
                                    "recall": m["recall"], "f1": m["f1"], "tp": m["tp"],
                                    "tp_complete": m["tp_complete"], "fp": m["fp"], "ignored": m["ignored"],
                                    "unscored": m["unscored"], "n_gt": m["n_gt"]})
-        mres = {"sha256": meta["sha256"], "checkpoint": meta["checkpoint"], "threshold": t_star, "split": {}}
+        mres = {"sha256": meta["sha256"], "checkpoint": meta["checkpoint"], "threshold": t_star,
+                "threshold_rule": rule, "split": {}}
         for s in SPLITS:
             rows = list(cls[s].values())
             mres["split"][s] = {"overall": metrics_from(counts_at(rows, t_star)), "by": {}}
@@ -1451,17 +1458,19 @@ def cmd_bprime_audit(a):
     explain (b')'s false alarms and never enter the per-pano rates. Writes candidates.csv (for `cards`) and
     panos.csv (every drawn pano, with its detection count and the (b') weights of the nodes it was scored for).
     """
-    ids = sorted(l.strip().split("/")[-1][:-4] for l in open(a.ids_file, encoding="utf-8") if l.strip())
-    drawn = set(random.Random(BOOT_SEED).sample(ids, a.n_panos))
-    with open(a.nodes, encoding="utf-8", newline="") as f:
-        nodes = [r for r in csv.DictReader(f) if r["model"] == a.label]
-    fa = {r["pano_id"] for r in nodes
-          if r["truth"] == "0" and r["detector"] == "1" and r["osm_class"] in ("unmarked", "unknown")}
+    drawn = set(draw_panos(a.ids_file, a.n_panos, a.draw_seed, a.exclude_panos))
+    fa = set()
+    if a.nodes:
+        with open(a.nodes, encoding="utf-8", newline="") as f:
+            nodes = [r for r in csv.DictReader(f) if r["model"] == a.label]
+        fa = {r["pano_id"] for r in nodes
+              if r["truth"] == "0" and r["detector"] == "1" and r["osm_class"] in ("unmarked", "unknown")}
     weights, years = {}, {}
-    with open(a.sample, encoding="utf-8", newline="") as f:
-        for r in csv.DictReader(f):
-            weights.setdefault(r["pano_id"], []).append(r["weight"])
-            years[r["pano_id"]] = year_bin(r["capture_date"])
+    if a.sample:
+        with open(a.sample, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                weights.setdefault(r["pano_id"], []).append(r["weight"])
+                years[r["pano_id"]] = year_bin(r["capture_date"])
     preds = {r["pano_id"]: r["preds"] for r in read_jsonl(a.preds_file)}
     missing = (drawn | fa) - set(preds)
     if missing:
@@ -1474,14 +1483,17 @@ def cmd_bprime_audit(a):
         pano_rows.append({"pano_id": pid, "stratum": stratum, "year": years.get(pid), "n_dets": len(dets),
                           "node_weights": ";".join(weights.get(pid, []))})
         for x, y, c in dets:
-            cand.append({"pano_id": pid, "x": x, "y": y, "conf": c, "city": SEATTLE, "mode": "bprime",
+            cand.append({"pano_id": pid, "x": x, "y": y, "conf": c, "city": a.city, "mode": a.mode,
                          "year": years.get(pid), "stratum": stratum})
+    fields = {"candidates.csv": ["pano_id", "x", "y", "conf", "city", "mode", "year", "stratum"],
+              "panos.csv": ["pano_id", "stratum", "year", "n_dets", "node_weights"]}
     for name, rows in (("candidates.csv", cand), ("panos.csv", pano_rows)):
         with open(os.path.join(a.out, name), "w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=list(rows[0]))
+            w = csv.DictWriter(f, fieldnames=fields[name])
             w.writeheader()
             w.writerows(rows)
-    meta = {"label": a.label, "threshold": a.threshold, "seed": BOOT_SEED, "n_panos": a.n_panos,
+    meta = {"label": a.label, "threshold": a.threshold, "seed": a.draw_seed, "n_panos": a.n_panos,
+            "excluded_from": a.exclude_panos, "city": a.city,
             "random_panos": len(drawn), "node_fa_panos": len(fa), "node_fa_only_panos": len(fa - drawn),
             "detections": len(cand), "detections_random": sum(1 for c in cand if "random" in c["stratum"])}
     with open(os.path.join(a.out, "audit_meta.json"), "w", encoding="utf-8") as f:
@@ -1554,6 +1566,128 @@ def cmd_audit_summary(a):
             w.writerow([r["pano_id"], r["stratum"], r["year"], len(v), v.count("crosswalk"),
                         v.count("not_crosswalk"), v.count("unsure")])
     log(json.dumps(out, indent=1))
+
+
+def read_ids(path):
+    """Pano ids from a file of `<id>.jpg` lines (paths allowed), as (b')'s pano_files.txt lists them."""
+    return sorted(l.strip().split("/")[-1][:-4] for l in open(path, encoding="utf-8") if l.strip())
+
+
+def draw_panos(ids_file, n, seed=BOOT_SEED, exclude=()):
+    """The seeded audit draw: `n` ids sampled from `ids_file` minus every pano listed in the `exclude` panos.csv
+    files. With the defaults it is Step 0's draw exactly (seed 274, nothing excluded)."""
+    ids = read_ids(ids_file)
+    if exclude:
+        gone = set()
+        for p in exclude:
+            with open(p, encoding="utf-8", newline="") as f:
+                gone |= {r["pano_id"] for r in csv.DictReader(f)}
+        ids = [i for i in ids if i not in gone]
+    if n > len(ids):
+        raise SystemExit(f"cannot draw {n} of {len(ids)} panos")
+    return random.Random(seed).sample(ids, n)
+
+
+def cmd_draw(a):
+    """Write the seeded draw (one `<id>.jpg` per line) before any imagery or prediction exists for it, so the panos
+    to fetch and infer are fixed first; `bprime-audit` with the same arguments redraws the identical set."""
+    drawn = sorted(draw_panos(a.ids_file, a.n_panos, a.draw_seed, a.exclude_panos))
+    with open(a.out, "w", encoding="utf-8", newline="\n") as f:
+        f.writelines(f"{p}.jpg\n" for p in drawn)
+    log(f"draw: {len(drawn)} panos (seed {a.draw_seed}) -> {a.out}")
+
+
+def recall_matched_threshold(sweep, base, new, split="val"):
+    """The highest grid threshold at which `new`'s recall on `split` is at least `base`'s at base's own val-F1
+    pick. `sweep` = rows of threshold_sweep.csv; base's pick is the threshold maximising its val F1 (lowest on a
+    tie, as pick_threshold does).
+
+    >>> rows = [{"model": m, "split": "val", "threshold": t, "f1": f, "recall": r} for m, t, f, r in [
+    ...     ("a", "0.2", "0.80", "0.81"), ("a", "0.3", "0.79", "0.78"),
+    ...     ("b", "0.2", "0.80", "0.84"), ("b", "0.3", "0.81", "0.80")]]
+    >>> recall_matched_threshold(rows, "a", "b")
+    0.2
+    """
+    def mine(m):
+        return sorted(((float(r["threshold"]), float(r["f1"]), float(r["recall"])) for r in sweep
+                       if r["model"] == m and r["split"] == split), key=lambda q: q[0])
+    t_b, _, r_b = max(mine(base), key=lambda q: (q[1], -q[0]))
+    ok = [t for t, _, r in mine(new) if r >= r_b]
+    if not ok:
+        raise SystemExit(f"{new} never reaches {base}'s val recall {r_b}")
+    return max(ok)
+
+
+def cmd_match_threshold(a):
+    with open(a.sweep, encoding="utf-8", newline="") as f:
+        t = recall_matched_threshold(list(csv.DictReader(f)), a.base, a.new)
+    print(t)
+
+
+def merge_candidates(lists, r=PREFILL_R):
+    """One card per paint across several models' candidate lists: a candidate within `r` (pano widths, seam
+    wrapped) of an earlier card on the same pano is that card, so the rater sees it once. Returns the union rows
+    (the first list's copy of each card), each with a `models` column naming every list it came from.
+
+    >>> a = [{"pano_id": "p", "x": 0.500, "y": 0.55, "conf": 0.3}]
+    >>> b = [{"pano_id": "p", "x": 0.506, "y": 0.55, "conf": 0.4}, {"pano_id": "p", "x": 0.7, "y": 0.55, "conf": 0.5}]
+    >>> [(u["x"], u["models"]) for u in merge_candidates([("s1", a), ("s3", b)])]
+    [(0.5, 's1;s3'), (0.7, 's3')]
+    """
+    out = []
+    for lab, rows in lists:
+        for c in rows:
+            near = [u for u in out
+                    if u["pano_id"] == c["pano_id"] and wrap_dist(u["x"], u["y"], c["x"], c["y"]) <= r]
+            if near:
+                u = min(near, key=lambda u: wrap_dist(u["x"], u["y"], c["x"], c["y"]))
+                if lab not in u["models"].split(";"):
+                    u["models"] += ";" + lab
+            else:
+                out.append({**c, "models": lab})
+    return out
+
+
+def cmd_merge_cards(a):
+    """Union of several models' `bprime-audit` candidates (and several draws) for ONE blind page: `--candidates`
+    takes label=path pairs. Writes candidates.csv (with `models`) and context.jsonl (every union card on its pano,
+    for `cards --preds-file ... --threshold 0`, so the context marks name no model)."""
+    lists = []
+    for spec in a.candidates:
+        lab, path = spec.split("=", 1)
+        lists.append((lab, read_candidates(path)))
+    union = merge_candidates(lists)
+    os.makedirs(a.out, exist_ok=True)
+    cols = ["pano_id", "x", "y", "conf", "city", "mode", "year", "stratum", "models"]
+    with open(os.path.join(a.out, "candidates.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(union)
+    by = {}
+    for u in union:
+        by.setdefault(u["pano_id"], []).append([u["x"], u["y"], 1.0])
+    with open(os.path.join(a.out, "context.jsonl"), "w", encoding="utf-8", newline="\n") as f:
+        for pid in sorted(by):
+            f.write(json.dumps({"pano_id": pid, "preds": by[pid]}) + "\n")
+    log(f"merge-cards: {sum(len(l) for _, l in lists)} candidates -> {len(union)} cards -> {a.out}")
+
+
+def cmd_carry(a):
+    """One model's rated cards from a merged page's export: each of its candidates takes the verdict of its own
+    card (exact id, or the nearest card on the pano within PREFILL_R, as `merge-cards` grouped them). Refuses if
+    any candidate has no rated card. The output feeds `audit-summary` and `audit-compare` unchanged."""
+    items = [{**c, "kind": "det"} for c in read_candidates(a.candidates)]
+    got = prefill_for(items, load_prefill(a.ratings))
+    miss = [card_id(it) for it in items if card_id(it) not in got]
+    if miss:
+        raise SystemExit(f"{len(miss)} candidates have no rated card, e.g. {miss[:3]}")
+    cols = ["card_id", "kind", "pano_id", "x", "y", "conf", "city", "mode", "year", "stratum", "verdict", "note"]
+    with open(a.out, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w.writeheader()
+        for it in items:
+            w.writerow({**it, "card_id": card_id(it), **got[card_id(it)]})
+    log(f"carry: {len(items)} cards -> {a.out}")
 
 
 RETENTION_MIN = 0.95   # crosswalk_s3 guard 2: share of the Step 0 crosswalks the new model still detects
@@ -1650,6 +1784,8 @@ def main():
     s.add_argument("--baseline-nodes", required=True)
     s.add_argument("--census", required=True)
     s.add_argument("--meta-dir", default=os.path.join(REPO, "analysis_out", "stage1_crosswalk_crowd_274"))
+    s.add_argument("--fixed-threshold", nargs="*", default=[],
+                   help="label=t: score that label at t instead of its val-F1 pick (recorded as threshold_rule)")
     s.add_argument("--out", required=True)
     g = sub.add_parser("figures")
     g.add_argument("--out", required=True)
@@ -1720,13 +1856,35 @@ def main():
     m.add_argument("--out", required=True)
     u = sub.add_parser("bprime-audit", help="(#274 hard negatives, Step 0) census of detections on drawn (b') panos")
     u.add_argument("--ids-file", required=True, help="bprime/pano_files.txt")
-    u.add_argument("--sample", required=True, help="bprime/sample.csv (node weights, capture dates)")
-    u.add_argument("--nodes", required=True, help="the (b') nodes.csv with the model's per-node calls")
+    u.add_argument("--sample", default=None, help="bprime/sample.csv (node weights, capture dates); omit for a city")
+    u.add_argument("--nodes", default=None, help="the (b') nodes.csv with the model's per-node calls; omit for no "
+                                                 "node_fa stratum")
+    u.add_argument("--draw-seed", type=int, default=BOOT_SEED)
+    u.add_argument("--exclude-panos", nargs="*", default=[], help="panos.csv of earlier draws: never redrawn")
+    u.add_argument("--city", default=SEATTLE)
+    u.add_argument("--mode", default="bprime")
     u.add_argument("--preds-file", required=True, help="the model's bprime.jsonl")
     u.add_argument("--label", required=True)
     u.add_argument("--threshold", type=float, required=True)
     u.add_argument("--n-panos", type=int, default=AUDIT_PANOS)
     u.add_argument("--out", required=True)
+    d = sub.add_parser("draw", help="the seeded audit draw as an ids file, fixed before fetching or inference")
+    d.add_argument("--ids-file", required=True)
+    d.add_argument("--n-panos", type=int, default=AUDIT_PANOS)
+    d.add_argument("--draw-seed", type=int, default=BOOT_SEED)
+    d.add_argument("--exclude-panos", nargs="*", default=[])
+    d.add_argument("--out", required=True)
+    t = sub.add_parser("match-threshold", help="highest threshold where NEW's val recall >= BASE's at its pick")
+    t.add_argument("--sweep", required=True, help="threshold_sweep.csv from `score`")
+    t.add_argument("--base", default="crosswalk_s1")
+    t.add_argument("--new", default="crosswalk_s3")
+    mc = sub.add_parser("merge-cards", help="one blind page's cards from several models' candidates")
+    mc.add_argument("--candidates", nargs="+", required=True, help="label=candidates.csv, one per model and draw")
+    mc.add_argument("--out", required=True)
+    cr = sub.add_parser("carry", help="one model's rated cards from a merged page's export")
+    cr.add_argument("--ratings", required=True)
+    cr.add_argument("--candidates", required=True)
+    cr.add_argument("--out", required=True)
     v = sub.add_parser("audit-summary", help="rates + pano-bootstrap intervals from a rated bprime-audit draw")
     v.add_argument("--panos", required=True, help="the draw's panos.csv")
     v.add_argument("--ratings", required=True, help="the exported ratings CSV for the draw's page")
@@ -1752,19 +1910,22 @@ def main():
     b.add_argument("--out", required=True)
     b = sub.add_parser("bprime-prep", help="(b') store JPEGs -> 4096x2048 as the training root was written")
     b.add_argument("--ids-file", required=True)
-    b.add_argument("--store", nargs="+", required=True, help="store roots laid out <id[:2]>/<id>.jpg")
+    b.add_argument("--store", nargs="+", required=True, help="store roots laid out <id[:2]>/<id>.jpg, or flat dirs")
     b.add_argument("--out-dir", required=True)
     b = sub.add_parser("bprime-score", help="(b') weighted node scores from the bprime predictions")
     b.add_argument("--bprime", required=True, help="dir holding sample.csv and preds/<label>/bprime.jsonl")
     b.add_argument("--scores", required=True, help="the (a)/(b) score dir: thresholds come from its scores.json")
     b.add_argument("--pano-data", required=True)
     b.add_argument("--labels", default="crosswalk_s1,released")
+    b.add_argument("--out", default=None, help="where scores/nodes/report go (default: --bprime)")
     a = ap.parse_args()
     {"infer": cmd_infer, "score": cmd_score, "figures": cmd_figures, "oracle": cmd_oracle,
      "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep,
      "bprime-score": cmd_bprime_score, "cards": cmd_cards, "bprime-audit": cmd_bprime_audit,
      "audit-summary": cmd_audit_summary, "mine": cmd_mine, "sheets": cmd_sheets,
-     "prescreen-merge": cmd_prescreen_merge, "select": cmd_select, "audit-compare": cmd_audit_compare}[a.cmd](a)
+     "prescreen-merge": cmd_prescreen_merge, "select": cmd_select, "audit-compare": cmd_audit_compare,
+     "draw": cmd_draw, "match-threshold": cmd_match_threshold, "merge-cards": cmd_merge_cards,
+     "carry": cmd_carry}[a.cmd](a)
 
 
 BP_PER_CELL = 150             # (b') nodes per (osm_class x truth) cell
@@ -1871,7 +2032,8 @@ def cmd_bprime_prep(a):
         dst = os.path.join(a.out_dir, f"{pid}.jpg")
         if os.path.exists(dst):
             continue
-        src = next((p for p in (os.path.join(s, pid[:2], f"{pid}.jpg") for s in a.store) if os.path.exists(p)), None)
+        src = next((p for s in a.store for p in (os.path.join(s, pid[:2], f"{pid}.jpg"), os.path.join(s, f"{pid}.jpg"))
+                    if os.path.exists(p)), None)     # the PS store's <id[:2]>/ layout, or a flat dir (export_benchmark)
         if src is None:
             missing.append(pid)
             continue
@@ -1915,6 +2077,8 @@ def cmd_bprime_score(a):
     """(b'): each sampled node scored from its own pano's detections at the model's val-F1 threshold (from the
     pre-registered scores.json), B1 inverted at CAMERA_H, kept within MAX_RANGE_M, hit within NODE_MATCH_M."""
     res = json.load(open(os.path.join(a.scores, "scores.json"), encoding="utf-8"))
+    out_dir = a.out or a.bprime
+    os.makedirs(out_dir, exist_ok=True)
     pd = read_pano_data(a.pano_data)
     sample = list(csv.DictReader(open(os.path.join(a.bprime, "sample.csv"), encoding="utf-8")))
     out = {"models": {}, "n_nodes": len(sample), "scored_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
@@ -1969,9 +2133,9 @@ def cmd_bprime_score(a):
                               "per_cell": per_cell, "true_nodes_by_pano_year": by_year}
         log(f"(b') {lab}: weighted F1 detector {fmt(m['detector']['f1'])} vs OSM {fmt(m['osm']['f1'])}; "
             f"OR {fmt(m['either']['f1'])}")
-    with open(os.path.join(a.bprime, "scores.json"), "w", encoding="utf-8", newline="\n") as f:
+    with open(os.path.join(out_dir, "scores.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(out, f, indent=1)
-    with open(os.path.join(a.bprime, "nodes.csv"), "w", encoding="utf-8", newline="") as f:
+    with open(os.path.join(out_dir, "nodes.csv"), "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(node_rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(node_rows)
@@ -2001,9 +2165,9 @@ def cmd_bprime_score(a):
     for lab, mm in out["models"].items():
         for yb, c in sorted(mm["true_nodes_by_pano_year"].items()):
             L.append(f"| {lab} | {yb} | {c['n_true']} | {c['detector_hit'] / c['n_true']:.3f} |")
-    with open(os.path.join(a.bprime, "report.md"), "w", encoding="utf-8", newline="\n") as f:
+    with open(os.path.join(out_dir, "report.md"), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(L) + "\n")
-    log(f"(b') report -> {os.path.join(a.bprime, 'report.md')}")
+    log(f"(b') report -> {os.path.join(out_dir, 'report.md')}")
 
 
 def cmd_oracle(a):
