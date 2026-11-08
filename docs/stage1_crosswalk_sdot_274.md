@@ -789,7 +789,7 @@ rejections crosswalks (mostly Cuenca's faded paint on cobblestone). The tag itse
 crowd labels (3%) fail Jon's look. By city: Chicago 424, Cuenca 246, Gainesville 88, Columbus 44, Pittsburgh 39,
 Knox 15, Maywood 11, and 26 more across 12 cities. Positions are the crowd label's.
 
-#### `crosswalk_s4` pre-registration (DRAFT 2026-11-08, awaiting Jon's OK; nothing below has been run)
+#### `crosswalk_s4` pre-registration (fixed 2026-11-08: Jon approved this text before any Step A card was built)
 
 **Goal.** Three gaps the confirmation found, fixed in one retrain without losing Seattle:
 - brick and paver crosswalks (0 of 16 Laurens labels hit);
@@ -806,7 +806,8 @@ Knox 15, Maywood 11, and 26 more across 12 cities. Positions are the crowd label
 definition `paint_brick`, and the question "Is the outlined cross on a crosswalk?" for every card:
 1. **Columbia SC brick (the test set, never trained on):** all 214 kept labels. Only Jon's "crosswalk" verdicts
    count as ground truth.
-2. **Richmond Mapillary (training positives):** all 91 labels. Only Jon's "crosswalk" verdicts become positives.
+2. **Richmond Mapillary (training positives):** the 89 labels on 49 panos not voted incorrect by majority (the
+   same rule as Columbia; 2 of the 91 are). Only Jon's "crosswalk" verdicts become positives.
 3. **Laurens car-top mining (training negatives):** 300 Laurens Mapillary panos, draw seed 276. They are drawn
    from the run's 4,495 panos minus the confirmation draw's 80 and the 11 panos with PS Crosswalk labels.
    - Natives come read-only from the run's archive, prepped like the root.
@@ -870,6 +871,20 @@ never sees a model.
 - Recall on the 25 held-out Laurens and Juneau PS labels, and on Bayonne's 9 Panoramax labels.
 - Test per city, and (b′) F1 against OSM.
 - The seed replicates, for scale.
+
+**Step A inputs (2026-11-08, `hardneg/s4_inputs/stepA/`).**
+- `ps_s4_labels_2026-11-08.csv`, from `prod_s4_labels.sh` (read-only):
+  - Columbia: 214 labels on 131 panos, all with a stored image.
+  - Richmond Mapillary: 89 labels on 49 panos. 80 labels have a stored image.
+- `laurens_mine_draw.txt`: the 300 Laurens panos (`score_274.py draw --draw-seed 276`, excluding the confirmation
+  draw and the PS-labelled panos). All 4,495 run panos are in the PS store.
+- `store_list.txt`: the 480 store paths, streamed read-only from makelab2 as one tar (sha256 `5ef58f52fb28…`).
+  All 480 are present, including the 9 Richmond labels' panos that prod lists without a backup flag.
+- **Two pages, not one (amended before any card was rated).** The car-top cards need the dashed disc that a
+  negative trains, as in s3 ("not crosswalk" only if no crosswalk lies inside the disc). That rule must not apply
+  to crowd-label cards, so the 303 crowd cards (`crowd_candidates.csv`, `brick_positives.py crowd-candidates`;
+  Columbia 214, Richmond 89) get their own page, `rate_s4_crowd.html`. The Laurens cards follow, with `--neg-disc`,
+  after `crosswalk_s1`'s inference on the 300 panos (klone job 43063884).
 
 ## Draft issue for Jon to post (not posted)
 

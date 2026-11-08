@@ -16,6 +16,7 @@ confirmed by Jon before it becomes a training positive (the arm C confirmer cann
   python brick_positives.py prescreen --out OUT        # -> OUT/prescreen.csv (needs OUT/sheets.csv from <sheets>)
   python brick_positives.py page --out OUT             # -> OUT/jon_selection.csv, then `cards --only` it
   python brick_positives.py tally --ratings <Jon's export> --out OUT   # -> OUT/positives.csv, OUT/tally.json
+  python brick_positives.py crowd-candidates --labels <ps_s4_labels.csv> --out <candidates.csv>   # s4 Step A
 
 Selection rule (fixed before any image was looked at): tag `brick/cobblestone`, source gsv, not voted incorrect by
 majority (disagree <= agree), city not already in the Stage 2 root's training cities (no split leak), pano not
@@ -248,6 +249,32 @@ def cmd_tally(a):
         + ", ".join(f"{g} {k}/{n}{' ok' if t else ' FAILED'}" for g, (k, n, t) in trust.items()))
 
 
+CROWD_MODE = {"columbia-sc": "s4_test_brick", "richmond-va": "s4_train_mapillary"}
+
+
+def cmd_crowd_candidates(a):
+    """s4 Step A: the PS labels from prod_s4_labels.sh as cards (one per label, stratum = label_uid). Refuses a
+    label_uid or card position (pano, x and y at 3 decimals, the card id) that is not unique."""
+    with open(a.labels, encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    out = []
+    for r in rows:
+        out.append({"pano_id": r["pano_id"], "x": round(float(r["pano_x"]) / float(r["width"]), 4),
+                    "y": round(float(r["pano_y"]) / float(r["height"]), 4), "conf": 1.0, "city": r["city"],
+                    "mode": CROWD_MODE[r["city"]], "year": (r["capture_date"] or "")[:4],
+                    "stratum": f"{r['city']}:{r['label_id']}"})
+    uids = [o["stratum"] for o in out]
+    cards = [f"{o['pano_id']}:{o['x']:.3f}:{o['y']:.3f}" for o in out]
+    assert len(uids) == len(set(uids)), "label_uid not unique"
+    assert len(cards) == len(set(cards)), "two labels share a card position"
+    with open(a.out, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(out[0]))
+        w.writeheader()
+        w.writerows(out)
+    from collections import Counter
+    log(f"crowd-candidates: {len(out)} cards: " + ", ".join(f"{m} {n}" for m, n in Counter(o['mode'] for o in out).items()))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -268,9 +295,12 @@ def main():
     t = sub.add_parser("tally")
     t.add_argument("--ratings", required=True, help="Jon's export from the brick_confirm page")
     t.add_argument("--out", required=True)
+    cc = sub.add_parser("crowd-candidates")
+    cc.add_argument("--labels", required=True, help="ps_s4_labels_<date>.csv from prod_s4_labels.sh")
+    cc.add_argument("--out", required=True, help="candidates.csv")
     a = ap.parse_args()
     {"select": cmd_select, "candidates": cmd_candidates, "prescreen": cmd_prescreen, "page": cmd_page,
-     "tally": cmd_tally}[a.cmd](a)
+     "tally": cmd_tally, "crowd-candidates": cmd_crowd_candidates}[a.cmd](a)
 
 
 if __name__ == "__main__":
