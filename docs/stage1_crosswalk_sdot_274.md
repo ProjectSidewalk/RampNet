@@ -789,6 +789,88 @@ rejections crosswalks (mostly Cuenca's faded paint on cobblestone). The tag itse
 crowd labels (3%) fail Jon's look. By city: Chicago 424, Cuenca 246, Gainesville 88, Columbus 44, Pittsburgh 39,
 Knox 15, Maywood 11, and 26 more across 12 cities. Positions are the crowd label's.
 
+#### `crosswalk_s4` pre-registration (DRAFT 2026-11-08, awaiting Jon's OK; nothing below has been run)
+
+**Goal.** Three gaps the confirmation found, fixed in one retrain without losing Seattle:
+- brick and paver crosswalks (0 of 16 Laurens labels hit);
+- the GoPro Max car top (41 look-alikes per 100 Laurens Mapillary panos);
+- too little open imagery in training (every positive so far is GSV).
+
+**Inputs on PS prod (read-only, 2026-11-08, `s4_prod_probe.sh`).**
+- Crosswalk labels on non-GSV panos: Richmond, Mapillary 91 on 51 panos; Laurens, Mapillary 20 on 11; Juneau,
+  Mapillary 5 on 3; Bayonne, Panoramax 9 on 6. The two infra3d cities are not open imagery and are not used.
+- Columbia SC, `brick/cobblestone` Crosswalk labels: 261 on 157 panos, of which 214 on 131 panos are not voted
+  incorrect by majority. All 131 panos have a stored image. They were captured 2014-09 to 2025-10, all GSV.
+
+**Step A: label pages, rated by Jon before any s4 checkpoint exists.** One blind page, with cards shuffled,
+definition `paint_brick`, and the question "Is the outlined cross on a crosswalk?" for every card:
+1. **Columbia SC brick (the test set, never trained on):** all 214 kept labels. Only Jon's "crosswalk" verdicts
+   count as ground truth.
+2. **Richmond Mapillary (training positives):** all 91 labels. Only Jon's "crosswalk" verdicts become positives.
+3. **Laurens car-top mining (training negatives):** 300 Laurens Mapillary panos, draw seed 276. They are drawn
+   from the run's 4,495 panos minus the confirmation draw's 80 and the 11 panos with PS Crosswalk labels.
+   - Natives come read-only from the run's archive, prepped like the root.
+   - Every `crosswalk_s1` detection at ≥ 0.21 on them is a card (about 125 expected).
+   - Only Jon's "not crosswalk" verdicts become negatives, under the disc rule of s3.
+- About 430 cards in all. No AI pre-screen: it was wrong on 55 of 77 rejections in step 1, and Jon rates every
+  card anyway.
+
+**Training data, `root_v4`.** `root_v3`, plus new train panos only. Every val, test and (b′) file stays byte for
+byte the same.
+- The 893 brick positives on 559 panos (above), as `sparse`.
+- Jon's confirmed Richmond Mapillary positives, as `sparse`.
+- Jon's car-top negatives, as `supervision.negative_points` on their Laurens panos, which carry no positives.
+- **Excluded and kept for testing:** Columbia SC, the four confirmation draws, the 14 Laurens and Juneau panos
+  with PS labels, and Bayonne. A new pano within 35 m of a Phase 1 GT node is dropped, as for the root.
+- `export_stage2.py` gets an `add-panos` step. `check_root_negatives.py` is extended to every new JSON.
+
+**Recipe.** Identical to s1 and s3: released weights, seed 1, 1,000 steps at batch 16, LR 1e-5,
+`--loss-mask --mask-norm pixels`, final checkpoint only, and a 20-step smoke run first.
+- The train set grows by about 20%, so each pano trains about 3.7 times instead of 4.4. The step count is kept,
+  so only the data changes.
+
+**Threshold.** The recall-matched rule of the confirmation, computed on val only: the highest grid threshold at
+which s4's val recall is at least s1's at 0.21. s4's own val pick is also reported.
+
+**Comparison.** s4 against `crosswalk_s1` at 0.21, the working model. s3 at 0.27 is reported alongside.
+
+**Primaries.** Two, so each interval is 97.5% (Bonferroni), bootstrapped over panos with 2,000 draws and seed 274.
+- **P1, brick recall on Columbia SC.** Over the labels Jon confirms in Step A, a label is hit when the model has a
+  detection at its threshold within 0.05. The statistic is the paired difference s4 − s1. Met if the interval's
+  lower end is above 0.
+- **P2, car-top look-alikes on the Laurens Mapillary confirmation draw** (80 panos). This is the paired difference
+  in look-alikes per 100 panos, s4 − s1, via `audit-compare`. Met if the interval's upper end is below 0.
+  - s4 cards within 0.01 of an already rated card inherit its verdict. Jon rates the rest blind (Step B).
+
+**Guards (all must hold).**
+1. Test F1 on the v2 labels at s4's threshold: at least 0.837.
+2. **Seattle, on the confirmation draw** (120 panos, prefilled as in P2):
+   - retention: at least 95% of s1's 216 confirmed crosswalks have an s4 detection within 0.05;
+   - look-alikes: the paired s4 − s1 point estimate is no more than +2.5 per 100 panos, which is 3 extra
+     look-alikes.
+3. (b′) weighted marked-node recall: drops by no more than 0.03 against s1's.
+
+**Outcomes.**
+- **Adopt:** all guards hold and at least one primary is met. s4 becomes the working model, and both primaries are
+  reported.
+- **Promising, not established:** both point estimates move the right way, but neither interval clears. s1 stays.
+- **s1 stays:** any guard fails, whatever the primaries say.
+
+**Step B, after inference: one blind page.** It holds s4's new cards on the Seattle, Juneau, Laurens Mapillary and
+Laurens GSV confirmation draws, merged and blind as before. The cards from Step A come first, so P1's ground truth
+never sees a model.
+
+**Power, stated before the result.**
+- **P1** has about 200 labels on about 130 panos. On Laurens, s1 hit 0 of 16 brick and faded crosswalks, so a lift
+  to about 0.3 would clear. A small lift would not.
+- **P2:** s1 has 33 look-alikes on the 80 panos. Removing half of them clears the rule.
+
+**Reported, deciding nothing:**
+- Juneau and Laurens GSV draws, on the same metrics as the confirmation.
+- Recall on the 25 held-out Laurens and Juneau PS labels, and on Bayonne's 9 Panoramax labels.
+- Test per city, and (b′) F1 against OSM.
+- The seed replicates, for scale.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned

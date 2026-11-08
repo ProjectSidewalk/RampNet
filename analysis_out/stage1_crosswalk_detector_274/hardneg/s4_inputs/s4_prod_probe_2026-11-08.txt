@@ -1,0 +1,10 @@
+== non-GSV crosswalk labels: schema|source|labels|panos|agree>disagree|disagree>agree
+sidewalk_bayonne_fr|panoramax|9|6|1|0
+sidewalk_juneau_ak|mapillary|5|3|0|0
+sidewalk_laurens_ia|mapillary|20|11|2|0
+sidewalk_richmond|mapillary|91|51|22|2
+sidewalk_winterthur_infra3d|infra3d|99|82|20|1
+sidewalk_zurich_infra3d|infra3d|1816|1177|38|3
+== columbia brick: labels|panos|kept(disagree<=agree)|kept_panos|kept_panos_with_backup|min_year|max_year
+schemas: sidewalk_columbia
+sidewalk_columbia|261|157|214|131|131|2014-09|2025-10|gsv
