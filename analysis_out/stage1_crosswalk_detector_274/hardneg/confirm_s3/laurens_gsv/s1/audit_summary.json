@@ -1,0 +1,41 @@
+{
+ "label": "crosswalk_s1",
+ "random": {
+  "panos": 80,
+  "detections": 10,
+  "crosswalk": 0,
+  "not_crosswalk": 10,
+  "unsure": 0,
+  "precision": 0.0,
+  "precision_excl_unsure": 0.0,
+  "lookalikes_per_100_panos": 12.5,
+  "errors_per_100_panos": 12.5
+ },
+ "random_ci95_pano_bootstrap": {
+  "precision": [
+   0.0,
+   0.0
+  ],
+  "precision_excl_unsure": [
+   0.0,
+   0.0
+  ],
+  "lookalikes_per_100_panos": [
+   6.25,
+   20.0
+  ],
+  "errors_per_100_panos": [
+   6.25,
+   20.0
+  ]
+ },
+ "boot_n": 2000,
+ "boot_seed": 274,
+ "node_fa": {
+  "panos": 0,
+  "detections": 0,
+  "crosswalk": 0,
+  "not_crosswalk": 0,
+  "unsure": 0
+ }
+}

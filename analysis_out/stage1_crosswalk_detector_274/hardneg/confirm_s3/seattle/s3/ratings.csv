@@ -1,0 +1,231 @@
+card_id,kind,pano_id,x,y,conf,city,mode,year,stratum,verdict,note
+det:-JMDIMbPnDR7QsQOh_EPBw:0.011:0.539,det,-JMDIMbPnDR7QsQOh_EPBw,0.010742,0.539062,0.627243,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:-QJo3neRa47p4Zt0IVkxAw:0.199:0.568,det,-QJo3neRa47p4Zt0IVkxAw,0.199219,0.568359,0.683631,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:-QJo3neRa47p4Zt0IVkxAw:0.206:0.568
+det:-QJo3neRa47p4Zt0IVkxAw:0.035:0.568,det,-QJo3neRa47p4Zt0IVkxAw,0.035156,0.568359,0.624091,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:-QJo3neRa47p4Zt0IVkxAw:0.840:0.600,det,-QJo3neRa47p4Zt0IVkxAw,0.839844,0.599609,0.490174,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:-QJo3neRa47p4Zt0IVkxAw:0.839:0.602
+det:-QJo3neRa47p4Zt0IVkxAw:0.543:0.648,det,-QJo3neRa47p4Zt0IVkxAw,0.542969,0.648438,0.333074,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:-QJo3neRa47p4Zt0IVkxAw:0.347:0.631,det,-QJo3neRa47p4Zt0IVkxAw,0.34668,0.630859,0.311464,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:0VBOru-exKPK0ZRcydr27g:0.277:0.586,det,0VBOru-exKPK0ZRcydr27g,0.277344,0.585938,0.722915,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:0VBOru-exKPK0ZRcydr27g:0.026:0.615,det,0VBOru-exKPK0ZRcydr27g,0.026367,0.615234,0.551402,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:0igUnFvObbcA0b4-Ixjcgg:0.043:0.633,det,0igUnFvObbcA0b4-Ixjcgg,0.042969,0.632812,0.632136,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:0igUnFvObbcA0b4-Ixjcgg:0.035:0.633
+det:0uu-Ozz51foFjz3-0f39aA:0.862:0.602,det,0uu-Ozz51foFjz3-0f39aA,0.862305,0.601562,0.673662,seattle-wa,bprime,2023+,random,crosswalk,carried from det:0uu-Ozz51foFjz3-0f39aA:0.863:0.602
+det:0uu-Ozz51foFjz3-0f39aA:0.808:0.584,det,0uu-Ozz51foFjz3-0f39aA,0.807617,0.583984,0.47875,seattle-wa,bprime,2023+,random,crosswalk,carried from det:0uu-Ozz51foFjz3-0f39aA:0.809:0.586
+det:1gqK8qWroYgAs7TgXa7e7Q:0.573:0.537,det,1gqK8qWroYgAs7TgXa7e7Q,0.573242,0.537109,1.006546,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:1gqK8qWroYgAs7TgXa7e7Q:0.573:0.539
+det:1gqK8qWroYgAs7TgXa7e7Q:0.425:0.586,det,1gqK8qWroYgAs7TgXa7e7Q,0.424805,0.585938,0.503271,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:1gqK8qWroYgAs7TgXa7e7Q:0.714:0.568,det,1gqK8qWroYgAs7TgXa7e7Q,0.713867,0.568359,0.471283,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:1gqK8qWroYgAs7TgXa7e7Q:0.715:0.570
+det:1gqK8qWroYgAs7TgXa7e7Q:0.355:0.617,det,1gqK8qWroYgAs7TgXa7e7Q,0.355469,0.617188,0.363394,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:1gqK8qWroYgAs7TgXa7e7Q:0.777:0.584,det,1gqK8qWroYgAs7TgXa7e7Q,0.777344,0.583984,0.327648,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:7MqitJKSn_Uc3Mfexv-SjQ:0.487:0.570,det,7MqitJKSn_Uc3Mfexv-SjQ,0.487305,0.570312,0.673533,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:7MqitJKSn_Uc3Mfexv-SjQ:0.487:0.568
+det:87nE3YtioQ_wBATjlwpmrg:0.503:0.553,det,87nE3YtioQ_wBATjlwpmrg,0.50293,0.552734,0.781461,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:87nE3YtioQ_wBATjlwpmrg:0.504:0.553
+det:87nE3YtioQ_wBATjlwpmrg:0.354:0.584,det,87nE3YtioQ_wBATjlwpmrg,0.354492,0.583984,0.389975,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:87nE3YtioQ_wBATjlwpmrg:0.362:0.586
+det:87nE3YtioQ_wBATjlwpmrg:0.683:0.584,det,87nE3YtioQ_wBATjlwpmrg,0.682617,0.583984,0.358043,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:87nE3YtioQ_wBATjlwpmrg:0.676:0.584
+det:87nE3YtioQ_wBATjlwpmrg:0.292:0.602,det,87nE3YtioQ_wBATjlwpmrg,0.291992,0.601562,0.296418,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:9gQbudtNqseEWWDSGYKCjw:0.276:0.555,det,9gQbudtNqseEWWDSGYKCjw,0.276367,0.554688,0.80161,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:9gQbudtNqseEWWDSGYKCjw:0.472:0.570,det,9gQbudtNqseEWWDSGYKCjw,0.47168,0.570312,0.636161,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:9gQbudtNqseEWWDSGYKCjw:0.120:0.631,det,9gQbudtNqseEWWDSGYKCjw,0.120117,0.630859,0.476418,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:9gQbudtNqseEWWDSGYKCjw:0.121:0.631
+det:ATGTW1dkP7E89wpWJxfyag:0.472:0.570,det,ATGTW1dkP7E89wpWJxfyag,0.47168,0.570312,0.716027,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:ATGTW1dkP7E89wpWJxfyag:0.479:0.570
+det:ATGTW1dkP7E89wpWJxfyag:0.245:0.555,det,ATGTW1dkP7E89wpWJxfyag,0.245117,0.554688,0.668363,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:ATGTW1dkP7E89wpWJxfyag:0.246:0.553
+det:ATGTW1dkP7E89wpWJxfyag:0.012:0.584,det,ATGTW1dkP7E89wpWJxfyag,0.011719,0.583984,0.576426,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:ATGTW1dkP7E89wpWJxfyag:0.801:0.586,det,ATGTW1dkP7E89wpWJxfyag,0.800781,0.585938,0.539834,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:ATGTW1dkP7E89wpWJxfyag:0.753:0.586,det,ATGTW1dkP7E89wpWJxfyag,0.75293,0.585938,0.45363,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:B8mI6vFenwVNf_sMJw7EUw:0.285:0.568,det,B8mI6vFenwVNf_sMJw7EUw,0.285156,0.568359,0.83771,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:B8mI6vFenwVNf_sMJw7EUw:0.284:0.568
+det:B8mI6vFenwVNf_sMJw7EUw:0.473:0.568,det,B8mI6vFenwVNf_sMJw7EUw,0.472656,0.568359,0.691868,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:B8mI6vFenwVNf_sMJw7EUw:0.472:0.568
+det:B8mI6vFenwVNf_sMJw7EUw:0.691:0.617,det,B8mI6vFenwVNf_sMJw7EUw,0.691406,0.617188,0.538314,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:B8mI6vFenwVNf_sMJw7EUw:0.690:0.615
+det:B8mI6vFenwVNf_sMJw7EUw:0.745:0.633,det,B8mI6vFenwVNf_sMJw7EUw,0.745117,0.632812,0.424721,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:BPunY3UjDSK0M5nnXtcWqw:0.011:0.521,det,BPunY3UjDSK0M5nnXtcWqw,0.010742,0.521484,0.325335,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:BPunY3UjDSK0M5nnXtcWqw:0.011:0.523
+det:Blv5qGXQftwbhxpzQBGySQ:0.605:0.615,det,Blv5qGXQftwbhxpzQBGySQ,0.605469,0.615234,0.577271,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:Blv5qGXQftwbhxpzQBGySQ:0.448:0.617,det,Blv5qGXQftwbhxpzQBGySQ,0.448242,0.617188,0.375216,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:Buxd4ZoT7GzBQ7IcGElBgQ:0.434:0.648,det,Buxd4ZoT7GzBQ7IcGElBgQ,0.433594,0.648438,0.297279,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:Buxd4ZoT7GzBQ7IcGElBgQ:0.425:0.648
+det:Buxd4ZoT7GzBQ7IcGElBgQ:0.410:0.646,det,Buxd4ZoT7GzBQ7IcGElBgQ,0.410156,0.646484,0.276911,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:DPpPTxmjZoe5Mg4vpwDvUw:0.465:0.586,det,DPpPTxmjZoe5Mg4vpwDvUw,0.464844,0.585938,0.801227,seattle-wa,bprime,2023+,random,crosswalk,carried from det:DPpPTxmjZoe5Mg4vpwDvUw:0.472:0.586
+det:DPpPTxmjZoe5Mg4vpwDvUw:0.058:0.646,det,DPpPTxmjZoe5Mg4vpwDvUw,0.057617,0.646484,0.619973,seattle-wa,bprime,2023+,random,crosswalk,
+det:DPpPTxmjZoe5Mg4vpwDvUw:0.292:0.586,det,DPpPTxmjZoe5Mg4vpwDvUw,0.291992,0.585938,0.574789,seattle-wa,bprime,2023+,random,crosswalk,carried from det:DPpPTxmjZoe5Mg4vpwDvUw:0.293:0.586
+det:DPpPTxmjZoe5Mg4vpwDvUw:0.691:0.631,det,DPpPTxmjZoe5Mg4vpwDvUw,0.691406,0.630859,0.499887,seattle-wa,bprime,2023+,random,crosswalk,carried from det:DPpPTxmjZoe5Mg4vpwDvUw:0.684:0.631
+det:DPpPTxmjZoe5Mg4vpwDvUw:0.668:0.633,det,DPpPTxmjZoe5Mg4vpwDvUw,0.667969,0.632812,0.43369,seattle-wa,bprime,2023+,random,crosswalk,
+det:FAJu6lV_xU2O-ELD5jOVFA:0.901:0.537,det,FAJu6lV_xU2O-ELD5jOVFA,0.901367,0.537109,0.663309,seattle-wa,bprime,2023+,random,crosswalk,
+det:FAJu6lV_xU2O-ELD5jOVFA:0.089:0.555,det,FAJu6lV_xU2O-ELD5jOVFA,0.088867,0.554688,0.407607,seattle-wa,bprime,2023+,random,crosswalk,carried from det:FAJu6lV_xU2O-ELD5jOVFA:0.082:0.553
+det:FAJu6lV_xU2O-ELD5jOVFA:0.269:0.586,det,FAJu6lV_xU2O-ELD5jOVFA,0.268555,0.585938,0.339321,seattle-wa,bprime,2023+,random,crosswalk,
+det:FAJu6lV_xU2O-ELD5jOVFA:0.315:0.662,det,FAJu6lV_xU2O-ELD5jOVFA,0.31543,0.662109,0.316224,seattle-wa,bprime,2023+,random,crosswalk,carried from det:FAJu6lV_xU2O-ELD5jOVFA:0.315:0.664
+det:FJEwGavKkMMugIxbi_meWA:0.573:0.553,det,FJEwGavKkMMugIxbi_meWA,0.573242,0.552734,0.78225,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:FJEwGavKkMMugIxbi_meWA:0.574:0.553
+det:FJEwGavKkMMugIxbi_meWA:0.362:0.602,det,FJEwGavKkMMugIxbi_meWA,0.362305,0.601562,0.520185,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:FJEwGavKkMMugIxbi_meWA:0.792:0.600,det,FJEwGavKkMMugIxbi_meWA,0.791992,0.599609,0.51491,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:FJEwGavKkMMugIxbi_meWA:0.785:0.600
+det:GRs3wThUusCIBRA5y33WMg:0.574:0.537,det,GRs3wThUusCIBRA5y33WMg,0.574219,0.537109,0.790445,seattle-wa,bprime,<=2018,random,crosswalk,
+det:GRs3wThUusCIBRA5y33WMg:0.434:0.537,det,GRs3wThUusCIBRA5y33WMg,0.433594,0.537109,0.753072,seattle-wa,bprime,<=2018,random,crosswalk,
+det:GRs3wThUusCIBRA5y33WMg:0.487:0.555,det,GRs3wThUusCIBRA5y33WMg,0.487305,0.554688,0.606759,seattle-wa,bprime,<=2018,random,crosswalk,
+det:GRs3wThUusCIBRA5y33WMg:0.519:0.568,det,GRs3wThUusCIBRA5y33WMg,0.518555,0.568359,0.49749,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:GRs3wThUusCIBRA5y33WMg:0.526:0.568
+det:GhGwkIbqHEu8froq8-z15Q:0.207:0.602,det,GhGwkIbqHEu8froq8-z15Q,0.207031,0.601562,0.57021,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:GhGwkIbqHEu8froq8-z15Q:0.206:0.602
+det:Hi9paDWHkQpGDa-53kbIFg:0.035:0.584,det,Hi9paDWHkQpGDa-53kbIFg,0.035156,0.583984,0.719345,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:Hi9paDWHkQpGDa-53kbIFg:0.456:0.602,det,Hi9paDWHkQpGDa-53kbIFg,0.456055,0.601562,0.555191,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:Hi9paDWHkQpGDa-53kbIFg:0.402:0.586,det,Hi9paDWHkQpGDa-53kbIFg,0.402344,0.585938,0.327617,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:HyvlZIiO-YovxGPQyMbScA:0.753:0.570,det,HyvlZIiO-YovxGPQyMbScA,0.75293,0.570312,0.687604,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:HyvlZIiO-YovxGPQyMbScA:0.754:0.570
+det:HyvlZIiO-YovxGPQyMbScA:0.479:0.568,det,HyvlZIiO-YovxGPQyMbScA,0.479492,0.568359,0.641734,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:HyvlZIiO-YovxGPQyMbScA:0.261:0.568,det,HyvlZIiO-YovxGPQyMbScA,0.260742,0.568359,0.617155,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:HyvlZIiO-YovxGPQyMbScA:0.042:0.584,det,HyvlZIiO-YovxGPQyMbScA,0.041992,0.583984,0.560682,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:JI69YR18Ea5DZv9YDWlgjQ:0.934:0.693,det,JI69YR18Ea5DZv9YDWlgjQ,0.933594,0.693359,0.494734,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:JI69YR18Ea5DZv9YDWlgjQ:0.582:0.521,det,JI69YR18Ea5DZv9YDWlgjQ,0.582031,0.521484,0.464929,seattle-wa,bprime,2019-2022,random,not_crosswalk,Shadows
+det:JI69YR18Ea5DZv9YDWlgjQ:0.012:0.678,det,JI69YR18Ea5DZv9YDWlgjQ,0.011719,0.677734,0.404907,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:K5yDdqN4fs4z3a_YcE3LJg:0.684:0.553,det,K5yDdqN4fs4z3a_YcE3LJg,0.683594,0.552734,0.825972,seattle-wa,bprime,2023+,random,crosswalk,carried from det:K5yDdqN4fs4z3a_YcE3LJg:0.684:0.555
+det:K5yDdqN4fs4z3a_YcE3LJg:0.862:0.553,det,K5yDdqN4fs4z3a_YcE3LJg,0.862305,0.552734,0.703275,seattle-wa,bprime,2023+,random,crosswalk,carried from det:K5yDdqN4fs4z3a_YcE3LJg:0.870:0.553
+det:K5yDdqN4fs4z3a_YcE3LJg:0.433:0.631,det,K5yDdqN4fs4z3a_YcE3LJg,0.432617,0.630859,0.290567,seattle-wa,bprime,2023+,random,crosswalk,
+det:L953c4xj2GmBH5pdQsiFNQ:0.894:0.570,det,L953c4xj2GmBH5pdQsiFNQ,0.893555,0.570312,0.915309,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:L953c4xj2GmBH5pdQsiFNQ:0.160:0.555,det,L953c4xj2GmBH5pdQsiFNQ,0.160156,0.554688,0.801371,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:L953c4xj2GmBH5pdQsiFNQ:0.011:0.553,det,L953c4xj2GmBH5pdQsiFNQ,0.010742,0.552734,0.77357,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:L953c4xj2GmBH5pdQsiFNQ:0.065:0.553,det,L953c4xj2GmBH5pdQsiFNQ,0.06543,0.552734,0.446625,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:L953c4xj2GmBH5pdQsiFNQ:0.066:0.553
+det:L953c4xj2GmBH5pdQsiFNQ:0.223:0.602,det,L953c4xj2GmBH5pdQsiFNQ,0.222656,0.601562,0.373829,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:L953c4xj2GmBH5pdQsiFNQ:0.206:0.662,det,L953c4xj2GmBH5pdQsiFNQ,0.206055,0.662109,0.365863,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:LXp3iEId0Xw-7qNtpa_nGg:0.026:0.568,det,LXp3iEId0Xw-7qNtpa_nGg,0.026367,0.568359,0.71846,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:LXp3iEId0Xw-7qNtpa_nGg:0.027:0.568
+det:LXp3iEId0Xw-7qNtpa_nGg:0.222:0.600,det,LXp3iEId0Xw-7qNtpa_nGg,0.22168,0.599609,0.608741,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:LXp3iEId0Xw-7qNtpa_nGg:0.824:0.600,det,LXp3iEId0Xw-7qNtpa_nGg,0.824219,0.599609,0.483931,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:LXp3iEId0Xw-7qNtpa_nGg:0.831:0.600
+det:LXp3iEId0Xw-7qNtpa_nGg:0.808:0.602,det,LXp3iEId0Xw-7qNtpa_nGg,0.807617,0.601562,0.476157,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:LXp3iEId0Xw-7qNtpa_nGg:0.816:0.600
+det:LXp3iEId0Xw-7qNtpa_nGg:0.503:0.617,det,LXp3iEId0Xw-7qNtpa_nGg,0.50293,0.617188,0.282041,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:LXp3iEId0Xw-7qNtpa_nGg:0.495:0.617
+det:NE0cCsBCDnVBrPziCrMKgw:0.941:0.539,det,NE0cCsBCDnVBrPziCrMKgw,0.941406,0.539062,0.996435,seattle-wa,bprime,<=2018,random,crosswalk,
+det:NE0cCsBCDnVBrPziCrMKgw:0.105:0.537,det,NE0cCsBCDnVBrPziCrMKgw,0.105469,0.537109,0.809546,seattle-wa,bprime,<=2018,random,crosswalk,
+det:NE0cCsBCDnVBrPziCrMKgw:0.051:0.584,det,NE0cCsBCDnVBrPziCrMKgw,0.050781,0.583984,0.63214,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:NE0cCsBCDnVBrPziCrMKgw:0.050:0.584
+det:NE0cCsBCDnVBrPziCrMKgw:0.019:0.523,det,NE0cCsBCDnVBrPziCrMKgw,0.018555,0.523438,0.430348,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:NE0cCsBCDnVBrPziCrMKgw:0.026:0.523
+det:NE0cCsBCDnVBrPziCrMKgw:0.996:0.586,det,NE0cCsBCDnVBrPziCrMKgw,0.996094,0.585938,0.393342,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:NE0cCsBCDnVBrPziCrMKgw:0.988:0.586
+det:OjCdIp99ToJKSf-zKOVA6w:0.184:0.680,det,OjCdIp99ToJKSf-zKOVA6w,0.183594,0.679688,0.318174,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:R-NX-QZeSwV-vXpI6xiBRw:0.512:0.664,det,R-NX-QZeSwV-vXpI6xiBRw,0.511719,0.664062,0.530814,seattle-wa,bprime,<=2018,random,crosswalk,
+det:R-NX-QZeSwV-vXpI6xiBRw:0.605:0.662,det,R-NX-QZeSwV-vXpI6xiBRw,0.605469,0.662109,0.369267,seattle-wa,bprime,<=2018,random,crosswalk,
+det:R-NX-QZeSwV-vXpI6xiBRw:0.558:0.664,det,R-NX-QZeSwV-vXpI6xiBRw,0.557617,0.664062,0.289525,seattle-wa,bprime,<=2018,random,crosswalk,
+det:RcHscHa-rvgsy7NOdHSO-w:0.012:0.568,det,RcHscHa-rvgsy7NOdHSO-w,0.011719,0.568359,0.696822,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:RcHscHa-rvgsy7NOdHSO-w:0.176:0.586,det,RcHscHa-rvgsy7NOdHSO-w,0.175781,0.585938,0.523168,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:RcHscHa-rvgsy7NOdHSO-w:0.175:0.586
+det:RcHscHa-rvgsy7NOdHSO-w:0.190:0.600,det,RcHscHa-rvgsy7NOdHSO-w,0.19043,0.599609,0.520463,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:RcHscHa-rvgsy7NOdHSO-w:0.198:0.600
+det:SdpJBa6K59Jz1pCNJOaPEg:0.277:0.568,det,SdpJBa6K59Jz1pCNJOaPEg,0.277344,0.568359,0.441954,seattle-wa,bprime,2019-2022,random,not_crosswalk,
+det:TPg9KXsr4DGwL9035c39XA:0.754:0.586,det,TPg9KXsr4DGwL9035c39XA,0.753906,0.585938,0.694141,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:TPg9KXsr4DGwL9035c39XA:0.292:0.553,det,TPg9KXsr4DGwL9035c39XA,0.291992,0.552734,0.592922,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:TPg9KXsr4DGwL9035c39XA:0.043:0.570,det,TPg9KXsr4DGwL9035c39XA,0.042969,0.570312,0.588754,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:TPg9KXsr4DGwL9035c39XA:0.722:0.600,det,TPg9KXsr4DGwL9035c39XA,0.72168,0.599609,0.494867,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:TPg9KXsr4DGwL9035c39XA:0.434:0.568,det,TPg9KXsr4DGwL9035c39XA,0.433594,0.568359,0.437738,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:TPg9KXsr4DGwL9035c39XA:0.394:0.555,det,TPg9KXsr4DGwL9035c39XA,0.393555,0.554688,0.384509,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:TPg9KXsr4DGwL9035c39XA:0.824:0.600,det,TPg9KXsr4DGwL9035c39XA,0.824219,0.599609,0.304666,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:TXGIe6Yux-VsJAFzXsNdQA:0.910:0.584,det,TXGIe6Yux-VsJAFzXsNdQA,0.910156,0.583984,0.706808,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:TXGIe6Yux-VsJAFzXsNdQA:0.473:0.664,det,TXGIe6Yux-VsJAFzXsNdQA,0.472656,0.664062,0.335814,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:UaiJY7tPWlju4vq4qU3v8w:0.354:0.520,det,UaiJY7tPWlju4vq4qU3v8w,0.354492,0.519531,1.017361,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:UaiJY7tPWlju4vq4qU3v8w:0.354:0.521
+det:UaiJY7tPWlju4vq4qU3v8w:0.426:0.537,det,UaiJY7tPWlju4vq4qU3v8w,0.425781,0.537109,0.782708,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:UaiJY7tPWlju4vq4qU3v8w:0.285:0.539,det,UaiJY7tPWlju4vq4qU3v8w,0.285156,0.539062,0.685677,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:UaiJY7tPWlju4vq4qU3v8w:0.292:0.539
+det:UaiJY7tPWlju4vq4qU3v8w:0.065:0.615,det,UaiJY7tPWlju4vq4qU3v8w,0.06543,0.615234,0.534072,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:UaiJY7tPWlju4vq4qU3v8w:0.066:0.615
+det:UaiJY7tPWlju4vq4qU3v8w:0.605:0.584,det,UaiJY7tPWlju4vq4qU3v8w,0.605469,0.583984,0.373697,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:UaiJY7tPWlju4vq4qU3v8w:0.012:0.600,det,UaiJY7tPWlju4vq4qU3v8w,0.011719,0.599609,0.330121,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:UbzsSsyjLwkGoA21E8NqKQ:0.480:0.570,det,UbzsSsyjLwkGoA21E8NqKQ,0.480469,0.570312,0.726652,seattle-wa,bprime,2023+,random,crosswalk,carried from det:UbzsSsyjLwkGoA21E8NqKQ:0.487:0.570
+det:UbzsSsyjLwkGoA21E8NqKQ:0.745:0.602,det,UbzsSsyjLwkGoA21E8NqKQ,0.745117,0.601562,0.490824,seattle-wa,bprime,2023+,random,crosswalk,carried from det:UbzsSsyjLwkGoA21E8NqKQ:0.738:0.602
+det:UbzsSsyjLwkGoA21E8NqKQ:0.715:0.600,det,UbzsSsyjLwkGoA21E8NqKQ,0.714844,0.599609,0.490316,seattle-wa,bprime,2023+,random,crosswalk,carried from det:UbzsSsyjLwkGoA21E8NqKQ:0.707:0.600
+det:UbzsSsyjLwkGoA21E8NqKQ:0.965:0.584,det,UbzsSsyjLwkGoA21E8NqKQ,0.964844,0.583984,0.33575,seattle-wa,bprime,2023+,random,crosswalk,
+det:UbzsSsyjLwkGoA21E8NqKQ:0.012:0.584,det,UbzsSsyjLwkGoA21E8NqKQ,0.011719,0.583984,0.306072,seattle-wa,bprime,2023+,random,crosswalk,
+det:V-N6gWwfWb74eTsKHN7AXA:0.253:0.570,det,V-N6gWwfWb74eTsKHN7AXA,0.25293,0.570312,0.911951,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:V-N6gWwfWb74eTsKHN7AXA:0.253:0.568
+det:V-N6gWwfWb74eTsKHN7AXA:0.472:0.586,det,V-N6gWwfWb74eTsKHN7AXA,0.47168,0.585938,0.809049,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:V-N6gWwfWb74eTsKHN7AXA:0.012:0.570,det,V-N6gWwfWb74eTsKHN7AXA,0.011719,0.570312,0.711338,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:V-N6gWwfWb74eTsKHN7AXA:0.019:0.570
+det:V-N6gWwfWb74eTsKHN7AXA:0.754:0.600,det,V-N6gWwfWb74eTsKHN7AXA,0.753906,0.599609,0.646732,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:V-N6gWwfWb74eTsKHN7AXA:0.761:0.600
+det:Vsl2VfKbTKTDupGgJGuV4w:0.034:0.586,det,Vsl2VfKbTKTDupGgJGuV4w,0.03418,0.585938,0.560134,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:Vsl2VfKbTKTDupGgJGuV4w:0.027:0.586
+det:WAbB558sw32WZ9fcTRcUrw:0.019:0.555,det,WAbB558sw32WZ9fcTRcUrw,0.018555,0.554688,0.920311,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:WAbB558sw32WZ9fcTRcUrw:0.020:0.555
+det:WAbB558sw32WZ9fcTRcUrw:0.862:0.584,det,WAbB558sw32WZ9fcTRcUrw,0.862305,0.583984,0.651478,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:WAbB558sw32WZ9fcTRcUrw:0.167:0.584,det,WAbB558sw32WZ9fcTRcUrw,0.166992,0.583984,0.566757,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:WAbB558sw32WZ9fcTRcUrw:0.168:0.584
+det:WAbB558sw32WZ9fcTRcUrw:0.284:0.678,det,WAbB558sw32WZ9fcTRcUrw,0.28418,0.677734,0.370151,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:XD-uSoXumBR1DM5AHIc4RQ:0.407:0.537,det,XD-uSoXumBR1DM5AHIc4RQ,0.407227,0.537109,1.001207,seattle-wa,bprime,2023+,random,crosswalk,carried from det:XD-uSoXumBR1DM5AHIc4RQ:0.409:0.539
+det:XD-uSoXumBR1DM5AHIc4RQ:0.465:0.539,det,XD-uSoXumBR1DM5AHIc4RQ,0.464844,0.539062,0.958061,seattle-wa,bprime,2023+,random,crosswalk,
+det:XD-uSoXumBR1DM5AHIc4RQ:0.331:0.539,det,XD-uSoXumBR1DM5AHIc4RQ,0.331055,0.539062,0.853008,seattle-wa,bprime,2023+,random,crosswalk,carried from det:XD-uSoXumBR1DM5AHIc4RQ:0.332:0.539
+det:XD-uSoXumBR1DM5AHIc4RQ:0.565:0.602,det,XD-uSoXumBR1DM5AHIc4RQ,0.56543,0.601562,0.53581,seattle-wa,bprime,2023+,random,crosswalk,
+det:XD-uSoXumBR1DM5AHIc4RQ:0.293:0.631,det,XD-uSoXumBR1DM5AHIc4RQ,0.292969,0.630859,0.371488,seattle-wa,bprime,2023+,random,crosswalk,carried from det:XD-uSoXumBR1DM5AHIc4RQ:0.300:0.633
+det:XqzyCJWquoBoUqkcCrQUoA:0.034:0.602,det,XqzyCJWquoBoUqkcCrQUoA,0.03418,0.601562,0.685898,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:Yv47YMmHqFqgjD3giP2oQA:0.949:0.539,det,Yv47YMmHqFqgjD3giP2oQA,0.949219,0.539062,0.767209,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:Yv47YMmHqFqgjD3giP2oQA:0.441:0.600,det,Yv47YMmHqFqgjD3giP2oQA,0.441406,0.599609,0.652172,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:Yv47YMmHqFqgjD3giP2oQA:0.104:0.584,det,Yv47YMmHqFqgjD3giP2oQA,0.104492,0.583984,0.591588,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:Yv47YMmHqFqgjD3giP2oQA:0.105:0.584
+det:Yv47YMmHqFqgjD3giP2oQA:0.190:0.584,det,Yv47YMmHqFqgjD3giP2oQA,0.19043,0.583984,0.471804,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:Yv47YMmHqFqgjD3giP2oQA:0.183:0.586
+det:Yv47YMmHqFqgjD3giP2oQA:0.715:0.568,det,Yv47YMmHqFqgjD3giP2oQA,0.714844,0.568359,0.443822,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:Yv47YMmHqFqgjD3giP2oQA:0.401:0.600,det,Yv47YMmHqFqgjD3giP2oQA,0.401367,0.599609,0.304605,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:ZDTuAMFcJPQUy738Q38nEg:0.300:0.584,det,ZDTuAMFcJPQUy738Q38nEg,0.299805,0.583984,0.494952,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:ZDTuAMFcJPQUy738Q38nEg:0.293:0.584
+det:ZDTuAMFcJPQUy738Q38nEg:0.503:0.570,det,ZDTuAMFcJPQUy738Q38nEg,0.50293,0.570312,0.482026,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:ZDTuAMFcJPQUy738Q38nEg:0.746:0.586,det,ZDTuAMFcJPQUy738Q38nEg,0.746094,0.585938,0.466808,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:ZDTuAMFcJPQUy738Q38nEg:0.753:0.586
+det:ZDTuAMFcJPQUy738Q38nEg:0.237:0.586,det,ZDTuAMFcJPQUy738Q38nEg,0.237305,0.585938,0.45327,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:ZDTuAMFcJPQUy738Q38nEg:0.792:0.586,det,ZDTuAMFcJPQUy738Q38nEg,0.791992,0.585938,0.337725,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:ZDTuAMFcJPQUy738Q38nEg:0.534:0.570,det,ZDTuAMFcJPQUy738Q38nEg,0.53418,0.570312,0.290526,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:a8FSkNNbUyyBq_JIV7GEww:0.753:0.631,det,a8FSkNNbUyyBq_JIV7GEww,0.75293,0.630859,0.693055,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:a8FSkNNbUyyBq_JIV7GEww:0.754:0.631
+det:aTRWRmRnxTcex0Uh5j9zKQ:0.987:0.539,det,aTRWRmRnxTcex0Uh5j9zKQ,0.987305,0.539062,0.866442,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:aTRWRmRnxTcex0Uh5j9zKQ:0.988:0.539
+det:aTRWRmRnxTcex0Uh5j9zKQ:0.190:0.602,det,aTRWRmRnxTcex0Uh5j9zKQ,0.19043,0.601562,0.633384,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:aTRWRmRnxTcex0Uh5j9zKQ:0.034:0.553,det,aTRWRmRnxTcex0Uh5j9zKQ,0.03418,0.552734,0.624054,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:bNRc4Ao46_t1b6KGr3gnGQ:0.104:0.553,det,bNRc4Ao46_t1b6KGr3gnGQ,0.104492,0.552734,0.718145,seattle-wa,bprime,2019-2022,random,not_crosswalk,carried from det:bNRc4Ao46_t1b6KGr3gnGQ:0.112:0.553: This is a bike path
+det:bNRc4Ao46_t1b6KGr3gnGQ:0.362:0.602,det,bNRc4Ao46_t1b6KGr3gnGQ,0.362305,0.601562,0.481025,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:ezX4FojuZfnyY4Y40ujvkA:0.973:0.523,det,ezX4FojuZfnyY4Y40ujvkA,0.972656,0.523438,0.38112,seattle-wa,bprime,2019-2022,random,unsure,"carried from det:ezX4FojuZfnyY4Y40ujvkA:0.979:0.523: Too far from camera, unclear"
+det:f9TdbgFJ-7a6qXB0JJ01Pg:0.065:0.523,det,f9TdbgFJ-7a6qXB0JJ01Pg,0.06543,0.523438,0.913096,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:f9TdbgFJ-7a6qXB0JJ01Pg:0.066:0.523
+det:f9TdbgFJ-7a6qXB0JJ01Pg:0.019:0.521,det,f9TdbgFJ-7a6qXB0JJ01Pg,0.018555,0.521484,0.599888,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:f9TdbgFJ-7a6qXB0JJ01Pg:0.020:0.523
+det:f9TdbgFJ-7a6qXB0JJ01Pg:0.987:0.523,det,f9TdbgFJ-7a6qXB0JJ01Pg,0.987305,0.523438,0.370246,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:f9TdbgFJ-7a6qXB0JJ01Pg:0.996:0.523
+det:f9TdbgFJ-7a6qXB0JJ01Pg:0.301:0.555,det,f9TdbgFJ-7a6qXB0JJ01Pg,0.300781,0.554688,0.280096,seattle-wa,bprime,<=2018,random,not_crosswalk,
+det:frMNcSelVHUWdpOukJbdiA:0.520:0.555,det,frMNcSelVHUWdpOukJbdiA,0.519531,0.554688,0.506618,seattle-wa,bprime,2019-2022,random,not_crosswalk,carried from det:frMNcSelVHUWdpOukJbdiA:0.526:0.553: No marked crosswalk here even though it's a pedestrian crossing
+det:g03flV38-WlZOy41O1Y_Yw:0.637:0.584,det,g03flV38-WlZOy41O1Y_Yw,0.636719,0.583984,0.559876,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:gbFZRROcVuD9iEgyJy2vnQ:0.050:0.602,det,gbFZRROcVuD9iEgyJy2vnQ,0.049805,0.601562,0.459133,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:gbFZRROcVuD9iEgyJy2vnQ:0.043:0.602
+det:gkAo5o-8i5OZeI9He7KnpQ:0.964:0.523,det,gkAo5o-8i5OZeI9He7KnpQ,0.963867,0.523438,0.989819,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:gkAo5o-8i5OZeI9He7KnpQ:0.965:0.523
+det:gkAo5o-8i5OZeI9He7KnpQ:0.261:0.570,det,gkAo5o-8i5OZeI9He7KnpQ,0.260742,0.570312,0.960694,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:gkAo5o-8i5OZeI9He7KnpQ:0.261:0.568
+det:gkAo5o-8i5OZeI9He7KnpQ:0.035:0.555,det,gkAo5o-8i5OZeI9He7KnpQ,0.035156,0.554688,0.637286,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jJiAvVx_qQVsBlNRnPdeQA:0.917:0.537,det,jJiAvVx_qQVsBlNRnPdeQA,0.916992,0.537109,1.025076,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:jJiAvVx_qQVsBlNRnPdeQA:0.918:0.539
+det:jJiAvVx_qQVsBlNRnPdeQA:0.207:0.553,det,jJiAvVx_qQVsBlNRnPdeQA,0.207031,0.552734,0.736705,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jJiAvVx_qQVsBlNRnPdeQA:0.027:0.537,det,jJiAvVx_qQVsBlNRnPdeQA,0.027344,0.537109,0.683327,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jJiAvVx_qQVsBlNRnPdeQA:0.980:0.537,det,jJiAvVx_qQVsBlNRnPdeQA,0.980469,0.537109,0.305083,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jJiAvVx_qQVsBlNRnPdeQA:0.293:0.553,det,jJiAvVx_qQVsBlNRnPdeQA,0.292969,0.552734,0.274116,seattle-wa,bprime,2019-2022,random,unsure,This is right on a curb ramp but there is a crosswalk here well within the yellow circle
+det:jgKvQ2DjJlWeLQUilgvSUw:0.144:0.539,det,jgKvQ2DjJlWeLQUilgvSUw,0.143555,0.539062,0.963103,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jgKvQ2DjJlWeLQUilgvSUw:0.410:0.584,det,jgKvQ2DjJlWeLQUilgvSUw,0.410156,0.583984,0.53868,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jgKvQ2DjJlWeLQUilgvSUw:0.034:0.586,det,jgKvQ2DjJlWeLQUilgvSUw,0.03418,0.585938,0.469832,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jgKvQ2DjJlWeLQUilgvSUw:0.331:0.539,det,jgKvQ2DjJlWeLQUilgvSUw,0.331055,0.539062,0.428308,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jgKvQ2DjJlWeLQUilgvSUw:0.965:0.602,det,jgKvQ2DjJlWeLQUilgvSUw,0.964844,0.601562,0.395622,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jxblCdtfTelIE09wa9Yb5A:0.605:0.555,det,jxblCdtfTelIE09wa9Yb5A,0.605469,0.554688,0.61606,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jxblCdtfTelIE09wa9Yb5A:0.354:0.537,det,jxblCdtfTelIE09wa9Yb5A,0.354492,0.537109,0.5202,seattle-wa,bprime,2019-2022,random,not_crosswalk,carried from det:jxblCdtfTelIE09wa9Yb5A:0.362:0.537
+det:jxblCdtfTelIE09wa9Yb5A:0.270:0.633,det,jxblCdtfTelIE09wa9Yb5A,0.269531,0.632812,0.438904,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:jxblCdtfTelIE09wa9Yb5A:0.987:0.615,det,jxblCdtfTelIE09wa9Yb5A,0.987305,0.615234,0.378496,seattle-wa,bprime,2019-2022,random,not_crosswalk,This is like a no parking area
+det:jxblCdtfTelIE09wa9Yb5A:0.426:0.521,det,jxblCdtfTelIE09wa9Yb5A,0.425781,0.521484,0.367121,seattle-wa,bprime,2019-2022,random,not_crosswalk,carried from det:jxblCdtfTelIE09wa9Yb5A:0.434:0.521
+det:k26WJRRXZ9OSgnbyo11djg:0.503:0.615,det,k26WJRRXZ9OSgnbyo11djg,0.50293,0.615234,0.555992,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:k26WJRRXZ9OSgnbyo11djg:0.495:0.615
+det:m-xi908eSALmJC4dbfkH3g:0.496:0.553,det,m-xi908eSALmJC4dbfkH3g,0.496094,0.552734,0.823039,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:m-xi908eSALmJC4dbfkH3g:0.590:0.568,det,m-xi908eSALmJC4dbfkH3g,0.589844,0.568359,0.811738,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:o2G97N5XafDfJ3vh7lsXPA:0.363:0.537,det,o2G97N5XafDfJ3vh7lsXPA,0.363281,0.537109,0.929514,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:o2G97N5XafDfJ3vh7lsXPA:0.316:0.553,det,o2G97N5XafDfJ3vh7lsXPA,0.316406,0.552734,0.81468,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:oEkpije58hX5N4B86KcPIw:0.480:0.537,det,oEkpije58hX5N4B86KcPIw,0.480469,0.537109,0.899752,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:oEkpije58hX5N4B86KcPIw:0.378:0.553,det,oEkpije58hX5N4B86KcPIw,0.37793,0.552734,0.850224,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:oEkpije58hX5N4B86KcPIw:0.690:0.600,det,oEkpije58hX5N4B86KcPIw,0.69043,0.599609,0.550958,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:oEkpije58hX5N4B86KcPIw:0.659:0.586,det,oEkpije58hX5N4B86KcPIw,0.65918,0.585938,0.445484,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:oEkpije58hX5N4B86KcPIw:0.660:0.584
+det:owmCVsaR7GP7hW5kMDYJPw:0.129:0.523,det,owmCVsaR7GP7hW5kMDYJPw,0.128906,0.523438,0.858501,seattle-wa,bprime,<=2018,random,crosswalk,
+det:owmCVsaR7GP7hW5kMDYJPw:0.012:0.568,det,owmCVsaR7GP7hW5kMDYJPw,0.011719,0.568359,0.573357,seattle-wa,bprime,<=2018,random,crosswalk,
+det:owmCVsaR7GP7hW5kMDYJPw:0.418:0.648,det,owmCVsaR7GP7hW5kMDYJPw,0.417969,0.648438,0.535744,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:owmCVsaR7GP7hW5kMDYJPw:0.425:0.648
+det:owmCVsaR7GP7hW5kMDYJPw:0.269:0.539,det,owmCVsaR7GP7hW5kMDYJPw,0.268555,0.539062,0.521303,seattle-wa,bprime,<=2018,random,crosswalk,carried from det:owmCVsaR7GP7hW5kMDYJPw:0.262:0.539
+det:owmCVsaR7GP7hW5kMDYJPw:0.980:0.600,det,owmCVsaR7GP7hW5kMDYJPw,0.980469,0.599609,0.447358,seattle-wa,bprime,<=2018,random,crosswalk,
+det:owmCVsaR7GP7hW5kMDYJPw:0.238:0.523,det,owmCVsaR7GP7hW5kMDYJPw,0.238281,0.523438,0.446187,seattle-wa,bprime,<=2018,random,crosswalk,
+det:s4SIXw8Kcbv2x6ymmBeu4Q:0.027:0.584,det,s4SIXw8Kcbv2x6ymmBeu4Q,0.027344,0.583984,0.536313,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:s4SIXw8Kcbv2x6ymmBeu4Q:0.026:0.584
+det:sbIHQvHUa-qlbPfOcoe8UA:0.293:0.615,det,sbIHQvHUa-qlbPfOcoe8UA,0.292969,0.615234,0.49913,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:sbIHQvHUa-qlbPfOcoe8UA:0.300:0.617
+det:t0od_nsfeCcENpW_jD1uQw:0.729:0.602,det,t0od_nsfeCcENpW_jD1uQw,0.729492,0.601562,0.566638,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:t0od_nsfeCcENpW_jD1uQw:0.058:0.568,det,t0od_nsfeCcENpW_jD1uQw,0.057617,0.568359,0.558886,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:t0od_nsfeCcENpW_jD1uQw:0.253:0.553,det,t0od_nsfeCcENpW_jD1uQw,0.25293,0.552734,0.548661,seattle-wa,bprime,2019-2022,random,unsure,carried from det:t0od_nsfeCcENpW_jD1uQw:0.254:0.553: This is right between the green bike zebra and the crosswalk zebra
+det:t0od_nsfeCcENpW_jD1uQw:0.441:0.584,det,t0od_nsfeCcENpW_jD1uQw,0.441406,0.583984,0.340042,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:t0od_nsfeCcENpW_jD1uQw:0.402:0.570,det,t0od_nsfeCcENpW_jD1uQw,0.402344,0.570312,0.332984,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:t0od_nsfeCcENpW_jD1uQw:0.426:0.570,det,t0od_nsfeCcENpW_jD1uQw,0.425781,0.570312,0.329398,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:t0od_nsfeCcENpW_jD1uQw:0.488:0.600,det,t0od_nsfeCcENpW_jD1uQw,0.488281,0.599609,0.293053,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:u5rPd8yZfXUxZDFKP9DJCA:0.112:0.537,det,u5rPd8yZfXUxZDFKP9DJCA,0.112305,0.537109,1.012062,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:u5rPd8yZfXUxZDFKP9DJCA:0.115:0.537
+det:u5rPd8yZfXUxZDFKP9DJCA:0.058:0.553,det,u5rPd8yZfXUxZDFKP9DJCA,0.057617,0.552734,0.959467,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:u5rPd8yZfXUxZDFKP9DJCA:0.059:0.553
+det:u5rPd8yZfXUxZDFKP9DJCA:0.269:0.523,det,u5rPd8yZfXUxZDFKP9DJCA,0.268555,0.523438,0.843992,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:u5rPd8yZfXUxZDFKP9DJCA:0.262:0.523
+det:u5rPd8yZfXUxZDFKP9DJCA:0.011:0.553,det,u5rPd8yZfXUxZDFKP9DJCA,0.010742,0.552734,0.752544,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:u5rPd8yZfXUxZDFKP9DJCA:0.785:0.568,det,u5rPd8yZfXUxZDFKP9DJCA,0.785156,0.568359,0.64492,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:u5rPd8yZfXUxZDFKP9DJCA:0.792:0.568
+det:u5rPd8yZfXUxZDFKP9DJCA:0.395:0.523,det,u5rPd8yZfXUxZDFKP9DJCA,0.394531,0.523438,0.625972,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:u5rPd8yZfXUxZDFKP9DJCA:0.401:0.523
+det:u5rPd8yZfXUxZDFKP9DJCA:0.987:0.553,det,u5rPd8yZfXUxZDFKP9DJCA,0.987305,0.552734,0.432911,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:uEFKyL-1oOg482hm3m9Rlw:0.495:0.551,det,uEFKyL-1oOg482hm3m9Rlw,0.495117,0.550781,1.020689,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:uEFKyL-1oOg482hm3m9Rlw:0.495:0.553
+det:uEFKyL-1oOg482hm3m9Rlw:0.746:0.555,det,uEFKyL-1oOg482hm3m9Rlw,0.746094,0.554688,0.863639,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:uEFKyL-1oOg482hm3m9Rlw:0.745:0.555
+det:uMJgGx9zQ78UN1pk5oZIXg:0.340:0.568,det,uMJgGx9zQ78UN1pk5oZIXg,0.339844,0.568359,0.595994,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:uWk3sfYWJvbaphbn8bbzIw:0.449:0.537,det,uWk3sfYWJvbaphbn8bbzIw,0.449219,0.537109,0.701214,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:uWk3sfYWJvbaphbn8bbzIw:0.253:0.539,det,uWk3sfYWJvbaphbn8bbzIw,0.25293,0.539062,0.604926,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:uWk3sfYWJvbaphbn8bbzIw:0.597:0.584,det,uWk3sfYWJvbaphbn8bbzIw,0.59668,0.583984,0.567766,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:uWk3sfYWJvbaphbn8bbzIw:0.129:0.570,det,uWk3sfYWJvbaphbn8bbzIw,0.128906,0.570312,0.449622,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:uWk3sfYWJvbaphbn8bbzIw:0.043:0.615,det,uWk3sfYWJvbaphbn8bbzIw,0.042969,0.615234,0.413267,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:viWAiRt70jltxsaNCPZPgQ:0.487:0.553,det,viWAiRt70jltxsaNCPZPgQ,0.487305,0.552734,0.915668,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:wwNWoJLMiRS4eR7sc1zpJw:0.987:0.537,det,wwNWoJLMiRS4eR7sc1zpJw,0.987305,0.537109,0.844278,seattle-wa,bprime,2023+,random,crosswalk,
+det:wwNWoJLMiRS4eR7sc1zpJw:0.011:0.537,det,wwNWoJLMiRS4eR7sc1zpJw,0.010742,0.537109,0.517888,seattle-wa,bprime,2023+,random,crosswalk,carried from det:wwNWoJLMiRS4eR7sc1zpJw:0.012:0.537
+det:wwNWoJLMiRS4eR7sc1zpJw:0.229:0.555,det,wwNWoJLMiRS4eR7sc1zpJw,0.229492,0.554688,0.466602,seattle-wa,bprime,2023+,random,crosswalk,
+det:wwNWoJLMiRS4eR7sc1zpJw:0.190:0.555,det,wwNWoJLMiRS4eR7sc1zpJw,0.19043,0.554688,0.437791,seattle-wa,bprime,2023+,random,crosswalk,
+det:wwNWoJLMiRS4eR7sc1zpJw:0.277:0.631,det,wwNWoJLMiRS4eR7sc1zpJw,0.277344,0.630859,0.369106,seattle-wa,bprime,2023+,random,crosswalk,
+det:xDsZzys9iCmw_iD2o0U-yA:0.488:0.555,det,xDsZzys9iCmw_iD2o0U-yA,0.488281,0.554688,0.978401,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:xDsZzys9iCmw_iD2o0U-yA:0.487:0.553
+det:xDsZzys9iCmw_iD2o0U-yA:0.605:0.600,det,xDsZzys9iCmw_iD2o0U-yA,0.605469,0.599609,0.677897,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:xIMKWIZtf_RX4M2_Z4H6PA:0.448:0.555,det,xIMKWIZtf_RX4M2_Z4H6PA,0.448242,0.554688,0.339486,seattle-wa,bprime,2019-2022,random,not_crosswalk,
+det:xfmPYZcgXrArCIaAFPlokA:0.176:0.537,det,xfmPYZcgXrArCIaAFPlokA,0.175781,0.537109,0.770528,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:xfmPYZcgXrArCIaAFPlokA:0.183:0.537
+det:xfmPYZcgXrArCIaAFPlokA:0.347:0.537,det,xfmPYZcgXrArCIaAFPlokA,0.34668,0.537109,0.72978,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:xfmPYZcgXrArCIaAFPlokA:0.565:0.615,det,xfmPYZcgXrArCIaAFPlokA,0.56543,0.615234,0.451556,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:xfmPYZcgXrArCIaAFPlokA:0.558:0.615
+det:xfmPYZcgXrArCIaAFPlokA:0.604:0.631,det,xfmPYZcgXrArCIaAFPlokA,0.604492,0.630859,0.442391,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:xfmPYZcgXrArCIaAFPlokA:0.551:0.615,det,xfmPYZcgXrArCIaAFPlokA,0.550781,0.615234,0.437704,seattle-wa,bprime,2019-2022,random,crosswalk,carried from det:xfmPYZcgXrArCIaAFPlokA:0.558:0.615
+det:y6lQ9euFddTZqj6P5jNkMA:0.926:0.553,det,y6lQ9euFddTZqj6P5jNkMA,0.925781,0.552734,0.667704,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:y6lQ9euFddTZqj6P5jNkMA:0.136:0.664,det,y6lQ9euFddTZqj6P5jNkMA,0.135742,0.664062,0.353425,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:yj3_XBpFVD6sXRb6GemafA:0.495:0.570,det,yj3_XBpFVD6sXRb6GemafA,0.495117,0.570312,0.676937,seattle-wa,bprime,2023+,random,crosswalk,carried from det:yj3_XBpFVD6sXRb6GemafA:0.496:0.568
+det:zSoxJ19UWHy-bTAqzGXzDA:0.495:0.537,det,zSoxJ19UWHy-bTAqzGXzDA,0.495117,0.537109,0.981276,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:zSoxJ19UWHy-bTAqzGXzDA:0.348:0.568,det,zSoxJ19UWHy-bTAqzGXzDA,0.347656,0.568359,0.731297,seattle-wa,bprime,2019-2022,random,crosswalk,
+det:zSoxJ19UWHy-bTAqzGXzDA:0.628:0.570,det,zSoxJ19UWHy-bTAqzGXzDA,0.62793,0.570312,0.7245,seattle-wa,bprime,2019-2022,random,crosswalk,

@@ -641,6 +641,8 @@ analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/*
 analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/*
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s2/
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s3/
+# s3 at its pre-registered fixed threshold 0.27 (confirmation guards 1 and 3): every output is small text
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s3_t027/
 # #274 hard negatives: CSV/JSON/MD outputs at any depth (no imagery is written here)
 !analysis_out/stage1_crosswalk_detector_274/hardneg/
 analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.*

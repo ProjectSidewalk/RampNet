@@ -75,6 +75,27 @@ SOURCES = [
     ("inputs/phase0_census", f"{SK}/phase0-census-2026-10-28", "Phase 0 census (rawLabels pulls, assets)", None),
     ("inputs/store_listings", f"{SK}/crowd-stores", "PS-store listings read for the crowd arms", "txt"),
     ("inputs/store_listings/seattle", f"{SK}/arm-c-seattle-store", "Seattle PS-store listing", "txt"),
+    # crosswalk_s3 (hard negatives) and its confirmation, added 2026-11-08
+    ("stage2_root/labels_v3", f"{SK}/crosswalk274-root_v3", "v3 label JSONs: v2 plus Jon's 166 hard negatives "
+     "(export_stage2.py add-negatives; labels digest 005d6f76...)", "json"),
+    ("checkpoints/crosswalk_s3", f"{SK}/crosswalk274-klone/x3/ckpts/v3_s1", "crosswalk_s3 final checkpoint "
+     "(sha256 32f93561...) + TensorBoard runs/ (klone .../crosswalk274/v3_s1; tar sha256 e28ac298...)", None),
+    ("logs/slurm_2026-11-08", f"{SK}/crosswalk274-klone/x3/logs/logs", "s3 smoke + training, s3 val/test/(b') "
+     "inference, confirmation city inference (tar sha256 2e8ac6ef...)", None),
+    ("rating_pages/hardneg_s3", f"{SK}/crosswalk274-score/hardneg_s3", "s3 audit of the Step 0 draw (blind, Step 0 "
+     "verdicts prefilled, --big) + Jon's export", None),
+    ("rating_pages/confirm_s3", f"{SK}/crosswalk274-confirm/page", "s3 confirmation: ONE blind page of s1 (0.21) and "
+     "s3 (0.27) cards on the fresh Seattle draw + Juneau + Laurens Mapillary/GSV draws, + Jon's export", None),
+    ("confirm_s3/panos_4096", f"{SK}/crosswalk274-confirm/page_panos", "every pano on the confirmation page, "
+     "4096x2048 as inferred (the --pano-dir that rebuilds the page)", None),
+    ("confirm_s3/natives/juneau", f"{SK}/crosswalk274-confirm/juneau_native", "Juneau draw, native res as fetched "
+     "by export_benchmark.py --out (Mapillary; index.csv)", None),
+    ("confirm_s3/natives/laurens_mly", f"{SK}/crosswalk274-confirm/laurens_mly_native", "Laurens Mapillary draw, "
+     "native res (GoPro Max)", None),
+    ("confirm_s3/natives/laurens_gsv", f"{SK}/crosswalk274-confirm/laurens_gsv_native", "Laurens GSV draw, native "
+     "res", None),
+    ("confirm_s3/draw_records", f"{SK}/crosswalk274-confirm", "the city draws' labeler records (input to "
+     "export_benchmark.py)", "jsonl"),
     ("worktree_untracked/stage1-label-type-274", f"{WT}/stage1-label-type-274", "gitignored #274 outputs at "
      "their repo paths (SDOT pilot pixels/views, arm C thumbs, logs, galleries)", "ignored"),
     ("worktree_untracked/crosswalk-inventory-274", f"{WT}/crosswalk-inventory-274", "gitignored inventory inputs",
@@ -289,6 +310,26 @@ and manifest.json repeats it per file.
   `sidewalk_seattle.pano_data`).
 - `worktree_untracked/<worktree>/<repo path>`: gitignored outputs, at the paths the scripts expect.
 - `store_natives/<city>/<id[:2]>/<id>.jpg`: the native PS-store panos the study read (store_natives.csv).
+- `confirm_s3/`: the s3 confirmation's imagery. `panos_4096/` is every pano on its rating page as inferred;
+  `natives/` the Juneau and Laurens draws at native resolution as fetched; `draw_records/` the labeler records
+  they were fetched from.
+
+## A second rater
+
+Every rating page rebuilds from the repo plus this archive, so another person can rate the same cards blind.
+For the s3 confirmation page (the card list and context marks are committed under
+`analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/page/`):
+
+    python scripts/analysis/stage1_crosswalk_sdot_274/score_274.py cards \
+        --candidates analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/page/candidates.csv \
+        --preds-file analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/page/context.jsonl --threshold 0 \
+        --pano-dir <archive>/confirm_s3/panos_4096 --blind --label confirm_s3_rater2 --out <dir>
+
+A new `--label` gives the page its own browser storage, and no `--prefill` means nothing is pre-rated. The card
+ids are the same as on Jon's page, so `carry` and `audit-compare` run on the second rater's export unchanged, and
+two exports join on `card_id` for agreement. The Step 0 and s3 audit pages rebuild the same way from
+`hardneg/step0_audit/` and `hardneg/s3_audit/` with `--pano-dir <archive>/bprime/images_4096` (the study doc's
+Replication section has each page's exact flags).
 
 ## Rebuild a training root and re-score
 
