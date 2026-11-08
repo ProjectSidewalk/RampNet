@@ -94,6 +94,10 @@ SOURCES = [
      "native res (GoPro Max)", None),
     ("confirm_s3/natives/laurens_gsv", f"{SK}/crosswalk274-confirm/laurens_gsv_native", "Laurens GSV draw, native "
      "res", None),
+    ("confirm_s3/ps_label_probe/natives", f"{SK}/crosswalk274-confirm/ps_label_native", "the 13 panos carrying "
+     "live PS Crosswalk labels in Laurens and Juneau (read 2026-11-08), native res", None),
+    ("confirm_s3/ps_label_probe/panos_4096", f"{SK}/crosswalk274-confirm/ps_label_4096", "the same, 4096x2048 as "
+     "inferred", None),
     ("confirm_s3/draw_records", f"{SK}/crosswalk274-confirm", "the city draws' labeler records (input to "
      "export_benchmark.py)", "jsonl"),
     ("worktree_untracked/stage1-label-type-274", f"{WT}/stage1-label-type-274", "gitignored #274 outputs at "

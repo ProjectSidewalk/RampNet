@@ -635,7 +635,7 @@ draw, s3 also finds 10 crosswalks that s1 had no detection near. Any re-test at 
 pre-registration on fresh panos, because the Step 0 draw has now been used to see this result. At 0.21, s3 makes 44
 more detections on the draw than at 0.29, and none of them has been rated.
 
-#### `crosswalk_s3` confirmation pre-registration (DRAFT 2026-11-08, awaiting Jon's OK; nothing rated yet)
+#### `crosswalk_s3` confirmation pre-registration (fixed 2026-11-08: Jon rated the page against this text, unchanged)
 
 Jon asked (2026-11-08) for the strongest detector, so s3 is re-tested rather than dropped. The Step 0 draw is
 spent: it showed the retention failure, so a threshold chosen on it would be circular. Everything below is fixed
@@ -680,6 +680,48 @@ before any card is rated and before s3's test or (b′) numbers at the new thres
 - **Seed replicates (reported, deciding nothing).** Seeds 2 and 3 of s1 (v1 labels) and s3 (`root_v3`), klone
   jobs 43057106–43057109: test F1 and (b′) detector F1 per run, at each run's val pick and at its recall-matched
   threshold, to show how much of the s1/s3 difference is seed noise.
+
+#### `crosswalk_s3` confirmation result (2026-11-08): promising, not established; `crosswalk_s1` stays
+
+Jon rated all 446 cards blind (`hardneg/confirm_s3/page/ratings_jon_2026-11-08_confirm.csv`, 71 with notes);
+`carry` gives each model its cards. Seattle decides:
+
+| Seattle draw (120 fresh panos) | `crosswalk_s1` (0.21) | `crosswalk_s3` (0.27) | rule | |
+|---|---|---|---|---|
+| **Primary**: look-alikes per 100 panos | 10.0 [4.2, 18.3] | 7.5 [2.5, 15.0] | paired diff upper end < 0 | **not met**: −2.5 [−7.5, 1.7] |
+| Guard 1: test F1 (v2 labels) | 0.847 | 0.849 | ≥ 0.837 | holds |
+| Guard 2: retention of s1's 216 confirmed crosswalks | — | 207 / 216 = 0.958 | ≥ 0.95 | holds |
+| Guard 3: (b′) weighted marked-node recall | 0.720 | 0.750 | drop ≤ 0.03 | holds |
+
+The point estimate is down and the interval reaches 0: by the pre-registered rule, **promising, not established**,
+and `crosswalk_s1` stays the working model. Precision on the draw is 0.935 (s1) and 0.948 (s3); errors per 100 panos
+fall by 2.5 [−7.5, 2.5]. Across the two Seattle draws s3 had fewer look-alikes both times (16 → 6 at 0.29 on
+Step 0, 12 → 9 at 0.27 here), and the effect shrank on fresh panos; the two draws are not pooled, because no pooled
+test was pre-registered.
+
+**Cities (report only).**
+
+| draw | panos | model | detections | crosswalk | look-alikes | unsure | precision | look-alikes / 100 panos |
+|---|---|---|---|---|---|---|---|---|
+| Juneau (Mapillary) | 120 | s1 | 70 | 59 | 7 | 4 | 0.843 | 5.8 [1.7, 10.8] |
+| | | s3 | 64 | 58 | 3 | 3 | 0.906 | 2.5 [0.0, 5.8] |
+| Laurens, Mapillary (GoPro Max) | 80 | s1 | 33 | 0 | 33 | 0 | 0.000 | 41.2 [27.5, 56.2] |
+| | | s3 | 38 | 0 | 38 | 0 | 0.000 | 47.5 [32.5, 62.5] |
+| Laurens, GSV | 80 | s1 | 10 | 0 | 10 | 0 | 0.000 | 12.5 [6.2, 20.0] |
+| | | s3 | 5 | 0 | 5 | 0 | 0.000 | 6.2 [1.2, 12.5] |
+
+- **Juneau** (109 of the 120 panos are Trimble MX7) works about as well as Seattle, and s3 is cleaner there
+  (paired diff −3.3 [−9.2, 1.7]). Retention 52/59.
+- **Laurens Mapillary: a new false-positive class, the top of the capture car** (Jon's finding). 50 of the 54
+  Laurens Mapillary cards carry his note "top of the capture car"; the rest are shadows and parking-lot lines.
+  Every car-top card is a GoPro Max pano, including the 3 in Juneau's GoPro expansion area; none of Juneau's
+  109 Trimble panos has one. The car tops sit at y 0.52–0.79, so the labeler's curb-ramp nadir mask
+  (`NADIR_MASK_DEG` 49°, y > 0.772) would remove only 6 of them. s3 does not help here (41 → 48 per 100 panos):
+  its hard negatives came from GSV-style panos only.
+- **Laurens has no true positive on either arm.** The town has few marked crosswalks, and the random 80 panos
+  missed most of them. PS prod holds 20 live Crosswalk labels in Laurens (Jon 18, Mikey 2) on 10 Mapillary panos,
+  and 5 in Juneau on 3 panos (`hardneg/confirm_s3/ps_labels/`, read-only, 2026-11-08). One of the Laurens panos
+  is in the draw, and neither model has any peak, even at the 0.05 score floor, near its 3 labeled crosswalks.
 
 ## Draft issue for Jon to post (not posted)
 
