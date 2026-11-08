@@ -697,22 +697,29 @@ python $S gallery ... --scores $D/v2_labels --label crosswalk_s2 --threshold 0.3
 # hard negatives, Step 0: the (b') deployment audit (CPU; the draw is seeded, so it reproduces exactly)
 H=$D/hardneg/step0_audit
 python $S bprime-audit --ids-file $D/bprime/pano_files.txt --sample $D/bprime/sample.csv --nodes $D/v2_labels/bprime/nodes.csv --preds-file $D/v2_labels/bprime/preds/crosswalk_s1/bprime.jsonl --label crosswalk_s1 --threshold 0.21 --out $H
-python $S cards --candidates $H/candidates.csv --label hardneg_step0 --pano-dir <bprime_4096> --preds-file $D/v2_labels/bprime/preds/crosswalk_s1/bprime.jsonl --threshold 0.21 --blind --out <outside the repo>
+python $S cards --candidates $H/candidates.csv --label hardneg_step0 --pano-dir <bprime_4096> --preds-file $D/v2_labels/bprime/preds/crosswalk_s1/bprime.jsonl --threshold 0.21 --blind --no-big --out <outside the repo>
 python $S audit-summary --panos $H/panos.csv --ratings $H/ratings_jon_2026-11-06_step0.csv --out $H
 # hard negatives: mine train panos, blind AI pre-screen, Jon's pages, root_v3 (crosswalk_s1's train.jsonl from score_274.slurm SPLITS=train)
 N=$D/hardneg
 python $S mine --root <root_v2> --preds-file $N/mine_preds/crosswalk_s1/train.jsonl --out $N/mine
 C="--candidates $N/mine/candidates.csv --root <root_v2> --split train --preds-file $N/mine_preds/crosswalk_s1/train.jsonl --threshold 0.21 --blind"
-python $S cards $C --label hardneg_mine --crops-out <crops> --no-page --out <outside the repo>
+python $S cards $C --no-big --label hardneg_mine --crops-out <crops> --no-page --out <outside the repo>
 python $S sheets --crops <crops> --out <sheets>      # AI agents read the sheets blind -> $N/prescreen/ai_parts/ai_part_{1..8}.csv
 python $S prescreen-merge --sheets <sheets> --verdicts $N/prescreen/ai_parts/*.csv --flag-verdicts not_crosswalk --candidates $N/mine/candidates.csv --full-cities seattle-wa --n-other 200 --out $N/prescreen
-python $S cards $C --neg-disc --only $N/prescreen/jon_selection.csv --label hardneg_confirm --out <page 1>       # -> ratings_jon_2026-11-06_confirm.csv
-python $S cards $C --neg-disc --only $N/prescreen/claude_review_of_jon_negatives.csv --zoom 1.2 --label hardneg_review9 --out <re-review>   # -> ..._review9.csv
+python $S cards $C --neg-disc --no-big --only $N/prescreen/jon_selection.csv --label hardneg_confirm --out <page 1>       # -> ratings_jon_2026-11-06_confirm.csv
+python $S cards $C --neg-disc --only $N/prescreen/claude_review_of_jon_negatives.csv --no-big --zoom 1.2 --label hardneg_review9 --out <re-review>   # -> ..._review9.csv
 python $S select --prescreen $N/prescreen/prescreen.csv --candidates $N/mine/candidates.csv --exclude $N/prescreen/ratings_jon_2026-11-06_confirm.csv --ai not_crosswalk --strata sparse_bg --cities amsterdam,burnaby,teaneck-nj --n 200 --out $N/prescreen/jon_selection_2.csv
-python $S cards $C --neg-disc --only $N/prescreen/jon_selection_2.csv --big --label hardneg_confirm2 --out <page 2>   # -> ..._confirm2.csv (a rebuilt card matches the page byte for byte)
+python $S cards $C --neg-disc --only $N/prescreen/jon_selection_2.csv --label hardneg_confirm2 --out <page 2>   # -> ..._confirm2.csv (a rebuilt card matches the page byte for byte)
 P=$N/prescreen
 python scripts/analysis/stage1_crosswalk_sdot_274/export_stage2.py add-negatives --ratings $P/ratings_jon_2026-11-06_confirm.csv $P/ratings_jon_2026-11-06_review9.csv $P/ratings_jon_2026-11-06_confirm2.csv --drop $P/drop_disc_rule.csv --src-root <root_v2> --root <root_v3> --out $N/root_v3
 python scripts/analysis/stage1_crosswalk_sdot_274/check_root_negatives.py <root_v3>
+# crosswalk_s3: train, infer, score, then the Step 0 draw re-audited at s3's val pick (0.29)
+DATA_ROOT=<root_v3> RUNDIR=<rundir> COPY_DEST=<durable dir> SEED=1 EXPECT_TRAIN=3601 EXPECT_VAL=1029 sbatch --job-name=crosswalk274_s3 stage_two/run_finetune_crosswalk_274.slurm
+FT_LABEL=crosswalk_s3 FT_CKPT=<COPY_DEST>/final_step_1000.pth FT_SHA=32f93561… RELEASED=0 ROOT=<root_v3> PREDS=<dir> [BPRIME=1 BPRIME_PREDS=<dir>] sbatch scripts/analysis/stage1_crosswalk_sdot_274/score_274.slurm
+python $S score --root <root_v2> --preds $D/v2_labels/preds --labels crosswalk_s3,crosswalk_s2,crosswalk_s1,released,label_ceiling <as above> --out $D/v2_labels
+python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels --pano-data <seattle_pano_data.psv> --labels crosswalk_s3,crosswalk_s2,crosswalk_s1,released
+python $S bprime-audit <as Step 0> --preds-file $D/v2_labels/bprime/preds/crosswalk_s3/bprime.jsonl --label crosswalk_s3 --threshold 0.29 --out $N/s3_audit
+python $S cards --candidates $N/s3_audit/candidates.csv --label hardneg_s3 --pano-dir <bprime_4096> --preds-file $D/v2_labels/bprime/preds/crosswalk_s3/bprime.jsonl --threshold 0.29 --blind --prefill $N/step0_audit/ratings_jon_2026-11-06_step0.csv --out <outside the repo>
 # archive (staging on D:, then Jon copies it to the lab share)
 A=scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py
 python $A stage --out <staging> && python $A natives --out <staging>

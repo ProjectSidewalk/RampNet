@@ -1011,7 +1011,7 @@ for (const c of cards) {{
   paint(c);
 }}
 document.getElementById("hide").addEventListener("change", () => cards.forEach(paint));
-// Large view (cards built with --big): click an image; 1-3 rate and move on; M toggles marks; arrows; Esc closes.
+// Large view (cards built with --big, the default): click an image; 1-3 rate and move on; M toggles marks; arrows; Esc closes.
 const lb = document.getElementById("lb"), lbimg = document.getElementById("lbimg");
 let lbCard = null, lbMarks = true;
 function lbShow(c) {{
@@ -1684,7 +1684,9 @@ def main():
     c.add_argument("--no-page", action="store_true", help="with --crops-out: write the crops only")
     c.add_argument("--neg-disc", action="store_true", help="draw the background disc a confirmed negative trains")
     c.add_argument("--zoom", type=float, default=1.0, help="crop magnification (1 = the standard 0.16-width crop)")
-    c.add_argument("--big", action="store_true", help="click-to-enlarge view (wider, ~native res) with a marks toggle")
+    c.add_argument("--big", action=argparse.BooleanOptionalAction, default=True,
+                   help="click-to-enlarge view (wider, ~native res) with a marks toggle; on by default (Jon, 2026-11-08), "
+                        "--no-big rebuilds the pages made before that")
     e = sub.add_parser("select", help="seeded selection of pre-screened candidates not yet rated, for another page")
     e.add_argument("--prescreen", required=True, help="prescreen.csv")
     e.add_argument("--candidates", required=True, help="mine candidates.csv")
