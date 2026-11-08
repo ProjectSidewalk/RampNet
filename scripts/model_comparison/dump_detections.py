@@ -183,6 +183,14 @@ def main():
     # this overlay reproduces exactly what compare.py cached rather than a near-miss.
     _D = roster.PROVIDER_DEFAULTS
     ap.add_argument("--gemini-model", default=_D["gemini_model"])
+    # #276 knobs, as in compare.py: None = as-run, a set value is a different leg.
+    ap.add_argument("--gemini-temperature", type=float, default=_D["gemini_temperature"])
+    ap.add_argument("--gemini-definition", default=_D["gemini_definition"])
+    ap.add_argument("--gemini-confidence", action="store_const", const=True,
+                    default=_D["gemini_confidence"])
+    ap.add_argument("--gemini-exemplars", default=_D["gemini_exemplars"])
+    ap.add_argument("--gemini-thinking-level", default=_D["gemini_thinking_level"],
+                    choices=["minimal", "low", "medium", "high"])
     ap.add_argument("--claude-model", default=_D["claude_model"])
     ap.add_argument("--claude-effort", default=_D["claude_effort"],
                     choices=["low", "medium", "high", "xhigh", "max"])

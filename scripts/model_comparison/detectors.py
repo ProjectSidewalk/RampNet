@@ -30,7 +30,9 @@ import importlib.util
 import json
 import os
 import re
+import threading
 from collections import Counter, namedtuple
+from concurrent.futures import ThreadPoolExecutor
 
 # A pano to run a detector on. image_path points at the native-res JPEG in the
 # bundle's (git-ignored) panos/ dir; RampNet-from-bundle never opens it.
@@ -84,7 +86,14 @@ def boxes_from_gemini_response(resp):
     SDK returned parsed schema objects (``resp.parsed``) or raw JSON text."""
     parsed = getattr(resp, "parsed", None)
     if parsed:
-        return [{"box_2d": list(b.box_2d), "label": getattr(b, "label", "")} for b in parsed]
+        out = []
+        for b in parsed:
+            d = {"box_2d": list(b.box_2d), "label": getattr(b, "label", "")}
+            score = getattr(b, "score", None)
+            if score is not None:          # only the scored schema (#276) has one
+                d["score"] = score
+            out.append(d)
+        return out
     text = getattr(resp, "text", None)
     if not text:
         return []
@@ -95,13 +104,17 @@ def boxes_from_gemini_response(resp):
 def gemini_boxes_to_points(items):
     """Gemini returns ``box_2d = [ymin, xmin, ymax, xmax]`` normalized to 0-1000.
     Reduce each box to its normalized [0,1] center point. Confidence is None
-    (Gemini bbox detection carries no calibrated score)."""
+    unless the box carries an elicited integer ``score`` 0-100 (the ``confidence``
+    knob, #276), which maps to [0, 1]. It is a self-report, not a calibrated
+    probability -- it exists so a chat model gets an operating range at all."""
     points = []
     for it in items:
         ymin, xmin, ymax, xmax = it["box_2d"]
         cx = (xmin + xmax) / 2.0 / 1000.0
         cy = (ymin + ymax) / 2.0 / 1000.0
-        points.append((cx, cy, None))
+        score = it.get("score") if isinstance(it, dict) else None
+        conf = None if score is None else max(0.0, min(1.0, float(score) / 100.0))
+        points.append((cx, cy, conf))
     return points
 
 
@@ -497,11 +510,20 @@ CURB_RAMP_DEFINITION = (
     "corner or crossing that lets a wheelchair or stroller roll from sidewalk to street."
 )
 
-DETECTION_PROMPT = (
-    "Detect every curb ramp in this street-level image. " + CURB_RAMP_DEFINITION +
-    " Return one tight bounding box per curb ramp. Do not box driveways, stairs, or "
-    "crosswalk paint. If there are no curb ramps, return an empty list."
-)
+
+
+def detection_prompt_for(definition):
+    """The detection instruction around a class definition. ``DETECTION_PROMPT`` is
+    this applied to ``CURB_RAMP_DEFINITION``; a #276 optimized definition is the same
+    frame around a different middle, so the two legs differ in exactly one thing."""
+    return (
+        "Detect every curb ramp in this street-level image. " + definition +
+        " Return one tight bounding box per curb ramp. Do not box driveways, stairs, or "
+        "crosswalk paint. If there are no curb ramps, return an empty list."
+    )
+
+
+DETECTION_PROMPT = detection_prompt_for(CURB_RAMP_DEFINITION)
 
 # Gemini gets its output shape from a response_schema; an open model has to be
 # told in the prompt. Same detection task, so the two stay word-for-word identical
@@ -543,12 +565,20 @@ class _VLMDetector:
     max_edge = 1536       # whole-pano downscale cap
     source_max_edge = 4096  # cap on the pano fed to reprojection (native can be 16k)
 
-    def __init__(self, model_id, max_edge=None, tile=True, views=None):
+    def __init__(self, model_id, max_edge=None, tile=True, views=None, concurrency=1):
         self.model_id = model_id
         if max_edge:
             self.max_edge = max_edge
         self.tile = tile
         self._views = views  # None -> equirect_tiling.default_views()
+        # How many of a pano's views are in flight at once (#276). Hosted providers
+        # only; local GPU models serialize on the device anyway. NOT in signature():
+        # the views are collected in view order whatever the schedule, so the
+        # detections are the same -- it is recorded in the usage log instead.
+        self.concurrency = max(1, int(concurrency or 1))
+        # Serializes the per-call bookkeeping (usage, build, stop reasons) when
+        # views run concurrently. The sequential path takes it uncontended.
+        self._usage_lock = threading.Lock()
         # Paid providers accumulate per-call token usage here so every run's
         # cost is recorded (compare.py --usage-log); None = provider doesn't
         # report usage (local GPU models are free in API terms).
@@ -629,10 +659,22 @@ class _VLMDetector:
 
         pano = load_pano_image(sample.image_path, self.source_max_edge)
         views = self._views or default_views()
+
+        def run_view(view):
+            return self._raw_detect(equirect_to_perspective(pano, view))
+
+        if self.concurrency > 1 and len(views) > 1:
+            # map() yields in submission order, so the points below come out in
+            # VIEW order exactly as the sequential loop produces them. That matters:
+            # dedup_points is a stable sort, and with no confidences (the as-run
+            # Gemini legs) view order decides which of two overlapping detections
+            # survives. The first exception propagates as it would sequentially.
+            with ThreadPoolExecutor(max_workers=min(self.concurrency, len(views))) as pool:
+                raws = list(pool.map(run_view, views))
+        else:
+            raws = [run_view(view) for view in views]
         points = []
-        for view in views:
-            view_img = equirect_to_perspective(pano, view)
-            raw = self._raw_detect(view_img)
+        for view, raw in zip(views, raws):
             # _parse returns points normalized WITHIN the view; map each back to the pano.
             for (u, v, conf) in self._parse(raw, view.width, view.height):
                 x, y = perspective_point_to_equirect(u, v, view)
@@ -667,13 +709,114 @@ class _VLMDetector:
         }
 
 
+# --- Gemini run knobs (#276) -------------------------------------------------
+
+# As-run values of every published Gemini leg. A knob enters the signature only when
+# it deviates from these (the Claude rule, CLAUDE_AS_RUN_*): recording an unchanged
+# default would rewrite the key of every paid detection already in the cache.
+GEMINI_AS_RUN_TEMPERATURE = 0.0
+
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Where the #276 prompt-optimization artifacts live. A definition or an exemplar set
+# is pinned by SHORT NAME, never by path, so a published leg is reproducible from the
+# registry alone; the name resolves to a committed file under this directory.
+PROMPT_OPT_DIR = os.path.join(_REPO_ROOT, "benchmark", "prompt_opt_276")
+_PIN_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+# Appended to the prompt when per-box scores are elicited; the schema alone does not
+# say what the number means. Part of the prompt, so part of the signature.
+CONFIDENCE_INSTRUCTION = (
+    " For each box, also give a score from 0 to 100 for how confident you are that it "
+    "is a curb ramp. Use the whole range: 50 means you are unsure."
+)
+# JSON schema for the scored answer. Passed to the SDK as a dict (not a pydantic
+# class) so the schema text that reaches the provider is exactly what the signature
+# records. ``propertyOrdering`` puts the score AFTER the box, so the model commits to
+# a location before it rates it.
+GEMINI_SCORED_BOX_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "box_2d": {"type": "array", "items": {"type": "integer"},
+                       "description": "[ymin, xmin, ymax, xmax], normalized 0-1000"},
+            "label": {"type": "string"},
+            "score": {"type": "integer", "minimum": 0, "maximum": 100},
+        },
+        "required": ["box_2d", "label", "score"],
+        "propertyOrdering": ["box_2d", "label", "score"],
+    },
+}
+# The text frame around in-context exemplars. Constants, but they reach the model,
+# so the signature records them beside the image hashes.
+EXEMPLAR_INTRO = ("Here are labeled example images. Each is followed by a caption "
+                  "saying what the marked region is.")
+EXEMPLAR_QUERY_LEAD = "Now the image to analyze:"
+GEMINI_THINKING_LEVELS = ("minimal", "low", "medium", "high")
+
+
+def _check_pin_name(kind, name):
+    if not isinstance(name, str) or not _PIN_NAME_RE.match(name):
+        raise ValueError(
+            f"{kind} must be a short name resolving under {PROMPT_OPT_DIR} "
+            f"(letters, digits, '.', '_', '-'), not a path: {name!r}")
+
+
+def load_definition(name, root=None):
+    """The committed class definition ``benchmark/prompt_opt_276/definitions/<name>.txt``,
+    whitespace-normalized to one paragraph so an editor re-wrap does not change the
+    signature. The name is the pin a leg is registered under."""
+    _check_pin_name("gemini definition", name)
+    path = os.path.join(root or PROMPT_OPT_DIR, "definitions", name + ".txt")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"no committed definition {name!r}: expected {path}")
+    with open(path, encoding="utf-8") as f:
+        text = " ".join(f.read().split())
+    if not text:
+        raise ValueError(f"definition {name!r} is empty: {path}")
+    return text
+
+
+def load_exemplars(name, root=None):
+    """The committed exemplar set ``benchmark/prompt_opt_276/exemplars/<name>.json``:
+    a list of ``{"image": <file beside the json>, "caption": <text>}`` in the order
+    they are shown. Returns ``[(file, sha256, caption, bytes, mime)]``. The bytes are
+    sent exactly as committed (no re-encoding), so the hash in the signature is the
+    hash of what the model saw."""
+    _check_pin_name("gemini exemplars", name)
+    path = os.path.join(root or PROMPT_OPT_DIR, "exemplars", name + ".json")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"no committed exemplar set {name!r}: expected {path}")
+    with open(path, encoding="utf-8") as f:
+        spec = json.load(f)
+    if not isinstance(spec, list) or not spec:
+        raise ValueError(f"exemplar set {name!r} must be a non-empty list: {path}")
+    items = []
+    for i, it in enumerate(spec):
+        fname, caption = it.get("image"), it.get("caption")
+        if not fname or not caption:
+            raise ValueError(f"exemplar {i} of {name!r} needs 'image' and 'caption'")
+        ipath = os.path.join(os.path.dirname(path), fname)
+        with open(ipath, "rb") as f:
+            data = f.read()
+        ext = os.path.splitext(fname)[1].lower().lstrip(".")
+        mime = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png",
+                "webp": "image/webp"}.get(ext)
+        if mime is None:
+            raise ValueError(f"exemplar {fname!r}: unsupported image type {ext!r}")
+        items.append((fname, hashlib.sha256(data).hexdigest(), caption, data, mime))
+    return items
+
+
 class GeminiDetector(_VLMDetector):
     name = "gemini"
     max_edge = 1568  # Gemini tiles internally; a modest cap keeps token cost sane
 
     def __init__(self, model_id="gemini-3.6-flash", api_key=None, max_edge=None, tile=True,
-                 use_vertex=None, project=None, location=None):
-        super().__init__(model_id, max_edge, tile=tile)
+                 use_vertex=None, project=None, location=None, temperature=None,
+                 definition=None, confidence=None, exemplars=None, thinking_level=None,
+                 concurrency=1, debug_dump=None, prompt_opt_dir=None):
+        super().__init__(model_id, max_edge, tile=tile, concurrency=concurrency)
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
         # Vertex AI + Application Default Credentials is the path for orgs that
         # disallow API keys. Driven by the standard google-genai env vars unless
@@ -689,6 +832,67 @@ class GeminiDetector(_VLMDetector):
         self._client = None
         self.init_usage()
         self._usage_warned = False   # warn once per run, not once per call
+        # How each call ended (finish_reason), tallied like ClaudeDetector's so
+        # compare.py prints anything abnormal. A SAFETY or MAX_TOKENS answer parses
+        # as "no ramps" otherwise, silently (#276 Step 1).
+        self.stop_reasons = Counter()
+        self.empty_calls = 0   # calls that returned zero boxes, for the recall diagnostic
+
+        # --- #276 knobs. Each defaults to None = as-run, and enters signature()
+        # only when set, so every paid detection already cached keeps its key.
+        self.temperature = temperature
+        self.definition = definition
+        self.confidence = True if confidence else None
+        self.exemplars = exemplars
+        if thinking_level is not None and thinking_level not in GEMINI_THINKING_LEVELS:
+            raise ValueError(f"thinking_level must be one of {GEMINI_THINKING_LEVELS}, "
+                             f"not {thinking_level!r}")
+        self.thinking_level = thinking_level
+        self.debug_dump = debug_dump
+        self._dump_n = 0
+        self._exemplar_items = (load_exemplars(exemplars, prompt_opt_dir)
+                                if exemplars is not None else None)
+        prompt = (DETECTION_PROMPT if definition is None
+                  else detection_prompt_for(load_definition(definition, prompt_opt_dir)))
+        if self.confidence:
+            prompt += CONFIDENCE_INSTRUCTION
+        self.prompt = prompt   # instance override of the class attribute
+
+    def signature(self):
+        """The prompt (and so the definition and the confidence instruction) is
+        already in the base signature. The rest follows the deviation-only rule:
+        present only when set, absent at the as-run defaults, so the key of every
+        paid cached detection is unchanged (test_gemini_cache_key_is_frozen and the
+        two #276 frozen keys guard that). ``concurrency`` and ``debug_dump`` do not
+        change the detections and are not here."""
+        sig = super().signature()
+        if self.temperature is not None and self.temperature != GEMINI_AS_RUN_TEMPERATURE:
+            sig["temperature"] = self.temperature
+        if self.confidence:
+            sig["confidence"] = True
+            sig["response_schema"] = json.dumps(GEMINI_SCORED_BOX_SCHEMA, sort_keys=True)
+        if self._exemplar_items is not None:
+            sig["exemplars"] = {
+                "intro": EXEMPLAR_INTRO, "lead": EXEMPLAR_QUERY_LEAD,
+                "items": [{"sha256": h, "caption": c}
+                          for (_, h, c, _, _) in self._exemplar_items],
+            }
+        if self.thinking_level is not None:
+            sig["thinking_level"] = self.thinking_level
+        return sig
+
+    def run_notes(self):
+        """What the usage log records about HOW the leg ran, beyond the signature:
+        the schedule and the pins by name, plus the empty-answer count."""
+        return {
+            "concurrency": self.concurrency,
+            "definition": self.definition,
+            "exemplars": self.exemplars,
+            "thinking_level": self.thinking_level,
+            "temperature": (GEMINI_AS_RUN_TEMPERATURE if self.temperature is None
+                            else self.temperature),
+            "empty_calls": self.empty_calls,
+        }
 
     def _ensure_ready(self):
         try:
@@ -720,59 +924,147 @@ class GeminiDetector(_VLMDetector):
                 "set GOOGLE_GENAI_USE_VERTEXAI=true and GOOGLE_CLOUD_PROJECT (plus optional "
                 "GOOGLE_CLOUD_LOCATION) in a git-ignored .env, and run "
                 "`gcloud auth application-default login`. Otherwise set GOOGLE_API_KEY.")
+        if self.debug_dump:
+            os.makedirs(self.debug_dump, exist_ok=True)
 
-    def _raw_detect(self, image):
-        from google.genai import types
+    def response_schema(self):
+        """The as-run pydantic schema, or the scored JSON schema when ``confidence``
+        is set. The as-run path is unchanged byte for byte: it is what every cached
+        Gemini detection was produced with."""
+        if self.confidence:
+            return GEMINI_SCORED_BOX_SCHEMA
         from pydantic import BaseModel
 
         class BoundingBox(BaseModel):
             box_2d: list[int]   # [ymin, xmin, ymax, xmax], normalized 0-1000
             label: str
 
+        return list[BoundingBox]
+
+    def build_contents(self, image, image_part=None):
+        """The request body: ``[image, prompt]`` as run, or with exemplars
+        ``[intro, ex_image, caption, ..., lead, image, prompt]`` -- examples first,
+        the query image LAST, immediately before the instruction. ``image_part``
+        wraps committed bytes into a provider part; the default is the SDK's, and a
+        test passes its own so the ordering is checkable without google-genai."""
+        if not self._exemplar_items:
+            return [image, self.prompt]
+        if image_part is None:
+            from google.genai import types
+
+            def image_part(data, mime):
+                return types.Part.from_bytes(data=data, mime_type=mime)
+        parts = [EXEMPLAR_INTRO]
+        for (_, _, caption, data, mime) in self._exemplar_items:
+            parts.append(image_part(data, mime))
+            parts.append(caption)
+        parts.append(EXEMPLAR_QUERY_LEAD)
+        parts.extend([image, self.prompt])
+        return parts
+
+    def _raw_detect(self, image):
+        from google.genai import types
+
+        config = types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=self.response_schema(),
+            temperature=(GEMINI_AS_RUN_TEMPERATURE if self.temperature is None
+                         else self.temperature),
+        )
+        if self.thinking_level is not None:
+            config.thinking_config = types.ThinkingConfig(
+                thinking_level=self.thinking_level.upper())
         resp = self._client.models.generate_content(
             model=self.model_id,
-            contents=[image, self.prompt],
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=list[BoundingBox],
-                temperature=0.0,
-            ),
+            contents=self.build_contents(image),
+            config=config,
         )
         self._record_usage(resp)
-        return boxes_from_gemini_response(resp)
+        boxes = boxes_from_gemini_response(resp)
+        if not boxes:
+            with self._usage_lock:
+                self.empty_calls += 1
+        if self.debug_dump:
+            self._dump_call(image, resp, boxes)
+        return boxes
+
+    def _dump_call(self, image, resp, boxes):
+        """One JSON (+ the view as JPEG) per call: finish reason, build, token counts,
+        the raw text. For reading what a model actually answered when its recall
+        looks wrong (#276 Step 1); never on by default."""
+        with self._usage_lock:
+            self._dump_n += 1
+            n = self._dump_n
+        stem = os.path.join(self.debug_dump, f"{n:05d}")
+        cands = getattr(resp, "candidates", None) or []
+        fr = getattr(cands[0], "finish_reason", None) if cands else None
+        um = getattr(resp, "usage_metadata", None)
+        rec = {
+            "call": n, "model_id": self.model_id,
+            "model_version": getattr(resp, "model_version", None),
+            "finish_reason": (getattr(fr, "name", None) or str(fr)) if fr is not None else None,
+            "prompt_tokens": getattr(um, "prompt_token_count", None) if um else None,
+            "candidates_tokens": getattr(um, "candidates_token_count", None) if um else None,
+            "thoughts_tokens": getattr(um, "thoughts_token_count", None) if um else None,
+            "n_boxes": len(boxes), "boxes": boxes,
+            "text": getattr(resp, "text", None),
+        }
+        with open(stem + ".json", "w", encoding="utf-8") as f:
+            json.dump(rec, f, indent=1)
+        try:
+            image.save(stem + ".jpg", quality=85)
+        except Exception as e:  # the record matters more than the picture
+            print(f"[{self.model_id}] debug dump: could not save {stem}.jpg: {e}")
+
+    def _tally_finish(self, resp):
+        """Count how the call ended. A response with no candidate at all (a blocked
+        prompt) is its own bucket; a fake without the attribute is not counted."""
+        if not hasattr(resp, "candidates"):
+            return
+        cands = resp.candidates or []
+        if not cands:
+            self.stop_reasons["NO_CANDIDATES"] += 1
+            return
+        fr = getattr(cands[0], "finish_reason", None)
+        if fr is None:
+            return
+        self.stop_reasons[getattr(fr, "name", None) or str(fr)] += 1
 
     def _record_usage(self, resp):
         """Accumulate this call's token counts so the run's cost is a recorded
         fact, not a reconstruction. Thinking tokens are billed as output, so
         output_tokens already includes them; thoughts_tokens is kept separately
         because it is invisible in the response text and dominates output cost.
-        Cached panos make no call, so this reflects what THIS run actually paid."""
-        # Before the usage_metadata guard: a response can carry the resolved build
-        # without carrying usage, and the build is the half we cannot back-fill.
-        self.record_model_version(getattr(resp, "model_version", None))
-        um = getattr(resp, "usage_metadata", None)
-        if um is None:
-            return
-        thoughts = getattr(um, "thoughts_token_count", None) or 0
-        prompt = um.prompt_token_count or 0
-        candidates = um.candidates_token_count or 0
-        # The whole cost figure turns on candidates_token_count EXCLUDING thinking,
-        # which is what google-genai reports today and what makes
-        # total = prompt + candidates + thoughts hold. If a future SDK folds
-        # thinking into candidates instead, every thinking model's output silently
-        # doubles (~$20 on the 3.6-flash leg alone) with no other symptom -- and a
-        # unit test against a hand-built fake cannot catch that. So check it
-        # against the provider's own total, once, and say so loudly if it breaks.
-        total = getattr(um, "total_token_count", None)
-        if total and not self._usage_warned:
-            expected = prompt + candidates + thoughts
-            if abs(total - expected) > max(4, 0.02 * total):
-                self._usage_warned = True
-                print(f"[{self.model_id}] WARNING: usage_metadata does not add up "
-                      f"(total {total} vs prompt {prompt} + candidates {candidates} "
-                      f"+ thoughts {thoughts} = {expected}). The cost estimate may "
-                      f"double-count thinking; check the SDK's field semantics.")
-        self.accumulate_usage(prompt, candidates + thoughts, thoughts)
+        Cached panos make no call, so this reflects what THIS run actually paid.
+        Under the lock: with per-view concurrency several calls finish at once."""
+        with self._usage_lock:
+            # Before the usage_metadata guard: a response can carry the resolved build
+            # without carrying usage, and the build is the half we cannot back-fill.
+            self.record_model_version(getattr(resp, "model_version", None))
+            self._tally_finish(resp)
+            um = getattr(resp, "usage_metadata", None)
+            if um is None:
+                return
+            thoughts = getattr(um, "thoughts_token_count", None) or 0
+            prompt = um.prompt_token_count or 0
+            candidates = um.candidates_token_count or 0
+            # The whole cost figure turns on candidates_token_count EXCLUDING thinking,
+            # which is what google-genai reports today and what makes
+            # total = prompt + candidates + thoughts hold. If a future SDK folds
+            # thinking into candidates instead, every thinking model's output silently
+            # doubles (~$20 on the 3.6-flash leg alone) with no other symptom -- and a
+            # unit test against a hand-built fake cannot catch that. So check it
+            # against the provider's own total, once, and say so loudly if it breaks.
+            total = getattr(um, "total_token_count", None)
+            if total and not self._usage_warned:
+                expected = prompt + candidates + thoughts
+                if abs(total - expected) > max(4, 0.02 * total):
+                    self._usage_warned = True
+                    print(f"[{self.model_id}] WARNING: usage_metadata does not add up "
+                          f"(total {total} vs prompt {prompt} + candidates {candidates} "
+                          f"+ thoughts {thoughts} = {expected}). The cost estimate may "
+                          f"double-count thinking; check the SDK's field semantics.")
+            self.accumulate_usage(prompt, candidates + thoughts, thoughts)
 
     def _parse(self, raw, img_w, img_h):
         return gemini_boxes_to_points(raw)
@@ -2020,7 +2312,17 @@ def build_detector(provider, model_id, records, args):
     tile = getattr(args, "tiling", "perspective") != "none"
     if provider == "gemini":
         mid = model_id or args.gemini_model
-        return mid, GeminiDetector(model_id=mid, tile=tile)
+        # The #276 knobs default to None (as-run) in every parser; see
+        # roster.PROVIDER_DEFAULTS. concurrency and debug_dump are run-only.
+        return mid, GeminiDetector(
+            model_id=mid, tile=tile,
+            temperature=getattr(args, "gemini_temperature", None),
+            definition=getattr(args, "gemini_definition", None),
+            confidence=getattr(args, "gemini_confidence", None),
+            exemplars=getattr(args, "gemini_exemplars", None),
+            thinking_level=getattr(args, "gemini_thinking_level", None),
+            concurrency=getattr(args, "gemini_concurrency", None) or 1,
+            debug_dump=getattr(args, "gemini_debug_dump", None))
     if provider == "claude":
         mid = model_id or args.claude_model
         return mid, ClaudeDetector(

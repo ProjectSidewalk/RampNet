@@ -141,6 +141,37 @@ A model that can't run (missing credentials, missing client lib, remote code tha
 on this transformers version) is skipped with a clear note rather than crashing the run — so
 one broken model can't cost you the models that already ran.
 
+### Subsets and the Gemini prompt-experiment knobs (#276)
+
+`--limit N` takes the FIRST N panos of the bundle. For anything that must be reproducible
+(a dev split, a budgeted subset) use `--pano-list` instead: a text file of ids, or a JSON
+list, or one list out of a dict as `FILE@KEY`. An id not in the bundle is an error, not a
+silent shrink, and the ledger row records the list's path, size and digest. The committed
+lists live in `benchmark/prompt_opt_276/` (`scripts/analysis/prompt_opt_276_splits.py
+--check` proves they still rebuild from the seed):
+
+```bash
+# the sao_paulo dev split: dev_train 60 / dev_select 65 (seed 276)
+python scripts/model_comparison/compare.py benchmark/sao_paulo --models gemini:gemini-4-argon \
+    --pano-list benchmark/prompt_opt_276/sao_paulo_split.json@dev_select --gemini-concurrency 6
+
+# a leg at a different setting is a DIFFERENT leg (new cache key), registered with that pin:
+#   --gemini-temperature 1.0            sampling temperature (as-run 0.0 is absent from the key)
+#   --gemini-definition NAME            benchmark/prompt_opt_276/definitions/NAME.txt replaces
+#                                       the curb-ramp definition inside the prompt
+#   --gemini-confidence                 integer 0-100 score per box -> a PR curve, --sweep works
+#   --gemini-exemplars NAME             benchmark/prompt_opt_276/exemplars/NAME.json shown first
+#   --gemini-thinking-level low|...     Gemini 3 thinking level
+# Run-time only, never in the key: --gemini-concurrency N (views in flight per pano, results
+# in view order so detections are identical) and --gemini-debug-dump DIR (raw text, finish
+# reason, build and tokens per call, for reading what a model actually answered).
+```
+
+Every one of those flags exists with the same default in `export_model_cache.py`,
+`dump_detections.py` and `null_recall.py` (`fp_taxonomy._compare_args` reads
+`roster.PROVIDER_DEFAULTS` directly), so an export or an analysis of a pinned leg is run with
+the pin and finds its cache.
+
 ## Running the open-weight models on Hyak
 
 Benchmark runs go on the cluster, not the dev box — Qwen3-VL-8B is ~16 GB in bf16 (32B

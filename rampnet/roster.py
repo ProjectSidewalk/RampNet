@@ -413,6 +413,18 @@ WITNESS_POOL_46 = (
 #: the cache key and every lookup silently misses.
 PROVIDER_DEFAULTS = {
     "gemini_model": "gemini-3.6-flash",
+    # The #276 prompt-experiment knobs. ``None`` is as-run and keeps each OUT of the
+    # detection signature (GeminiDetector.signature records a knob only when set), so
+    # every paid Gemini detection keeps its cache key. A leg that sets one is a
+    # different leg and is registered with that knob in ``pins``. ``definition`` and
+    # ``exemplars`` are SHORT NAMES resolving under benchmark/prompt_opt_276/, never
+    # paths. (--gemini-concurrency and --gemini-debug-dump are run-time only, not
+    # signature fields, and so not here.)
+    "gemini_temperature": None,
+    "gemini_definition": None,
+    "gemini_confidence": None,
+    "gemini_exemplars": None,
+    "gemini_thinking_level": None,
     "claude_model": "claude-sonnet-5",
     "claude_effort": "low",
     "claude_tool_choice": "auto",

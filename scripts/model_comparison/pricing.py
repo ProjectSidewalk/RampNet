@@ -29,6 +29,17 @@ which pulls the project's real token counts from Cloud Monitoring.
 # https://cloud.google.com/vertex-ai/generative-ai/pricing and stamp a new
 # `as_of` — the token counts are the durable measurement, not the dollars.
 PRICING = {
+    # Round-1 #276 legs (2026-11-08). Source: https://ai.google.dev/gemini-api/docs/pricing
+    # (redirects to aistudio.google.com/docs/pricing), Standard tab, read 2026-11-08. Same
+    # Vertex-vs-Developer-API caveat as the rows below. Batch is exactly 50% of these.
+    "gemini-4-argon": {
+        "input_per_m": 2.00, "output_per_m": 10.00, "as_of": "2026-11-08",
+        "note": "$2.00/$10.00 through 2026-11-30; $4.00/$20.00 from 2026-12-01",
+    },
+    "gemini-3.8-flash": {
+        "input_per_m": 0.75, "output_per_m": 3.75, "as_of": "2026-11-08",
+        "note": "$0.75/$3.75 through 2026-12-31; $1.50/$7.50 from 2027-01-01",
+    },
     "gemini-3.7-flash": {
         "input_per_m": 0.75, "output_per_m": 3.75, "as_of": "2026-08-15",
         "note": "introductory through 2026-12-31; $1.50/$7.50 from 2027-01-01",

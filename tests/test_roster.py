@@ -517,3 +517,20 @@ def test_seed_of_names_a_registered_non_seed_leg():
         assert not BY_PUBLISHED[c.seed_of].seed_of, (c.published_as, c.seed_of)
         assert not c.standing, c.published_as
 
+
+
+def test_provider_defaults_match_the_exporters_parser():
+    """export_model_cache.py rebuilds a leg's signature from its own flags to find the
+    cache. Any signature-feeding flag it exposes must default exactly as the registry
+    says, or an export at the defaults looks for a key no run ever wrote (#276 added
+    the Gemini knobs there; before that only the Claude and vistas pins existed)."""
+    import sys
+    sys.path.insert(0, str(REPO / "scripts" / "analysis"))
+    sys.path.insert(0, str(REPO / "scripts" / "model_comparison"))
+    import export_model_cache  # noqa: E402
+
+    defaults = {a.dest: a.default for a in export_model_cache.build_parser()._actions}
+    shared = [k for k in defaults if k in roster.PROVIDER_DEFAULTS]
+    assert len(shared) >= 7, shared      # the Claude pins, vistas_input_size, the Gemini knobs
+    for key in shared:
+        assert defaults[key] == roster.PROVIDER_DEFAULTS[key], key
