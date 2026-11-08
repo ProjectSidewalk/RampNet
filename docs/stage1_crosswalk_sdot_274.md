@@ -603,6 +603,38 @@ The 20-step smoke run on `root_v3` (job 43016471) completed cleanly and is never
   - (b) and (b′) F1 against OSM.
 - **Phase 1 GT (c)** stays unread.
 
+#### `crosswalk_s3` result (2026-11-08): primary met, retention guard failed, so `crosswalk_s1` stays
+
+Training job 43017597 (1,000 optimizer steps, 1 h 14 min); final checkpoint `32f93561…`. Inference ran as jobs
+43035893 (val/test) and 43035894 (b′). Jon rated the 65 new cards on the s3 page blind; 189 cards carried his Step 0
+verdicts. Ratings: `hardneg/s3_audit/ratings_jon_2026-11-08_s3.csv`.
+
+| | `crosswalk_s1` (0.21) | `crosswalk_s3` (0.29) | rule | |
+|---|---|---|---|---|
+| **Primary**: look-alikes per 100 panos, Step 0 draw | 13.3 | 5.0 | paired diff upper end < 0 | **met**: −8.3 [−14.2, −3.3] |
+| Guard 1: test F1 (v2 labels) | 0.847 | 0.849 | ≥ 0.837 | holds |
+| Guard 2: retention of the 237 Step 0 crosswalks | — | 224 / 237 = 0.945 | ≥ 0.95 | **fails** (226 needed) |
+| Guard 3: (b′) weighted marked-node recall | 0.720 | 0.736 | drop ≤ 0.03 | holds |
+
+By the pre-registered rule a failed guard keeps `crosswalk_s1` as the working model, whatever the primary says.
+
+**Also reported, not deciding:**
+
+- Errors (not crosswalk plus unsure) per 100 panos: s1 19.2, s3 6.7; paired difference −12.5 [−23.3, −4.2].
+- Precision on the draw: s1 0.912 [0.858, 0.956], s3 0.966 [0.941, 0.987].
+- `node_fa` stratum: s1 had 16 look-alikes on 21 panos; s3 has 7 on 11 panos (20 detections, 11 crosswalk, 2 unsure).
+- (b′): detector F1 s3 0.752, s2 0.727, s1 0.716 vs OSM 0.854. False alarms at unmarked crossings fall from 7.3%
+  to 5.3% of sampled nodes, and at unknown-class crossings from 6.7% to 2.0%.
+- Test: precision 0.858 vs 0.850, recall 0.840 vs 0.845.
+
+**Why retention failed (exploratory).** All 13 crosswalks s3 drops at 0.29 were among s1's weakest detections (s1
+confidence 0.21–0.25). s3 still produces a peak on every one of them, at 0.15–0.29, just under its own threshold.
+Retention by s3 threshold: 0.945 at 0.29, 0.983 at 0.25, 0.987 at 0.21, 1.000 at 0.15. This is the "threshold hike
+buys precision with recall" pattern the guard was written to catch: s3's val-F1 pick sits 0.08 above s1's. On the
+draw, s3 also finds 10 crosswalks that s1 had no detection near. Any re-test at a lower s3 threshold is a new
+pre-registration on fresh panos, because the Step 0 draw has now been used to see this result. At 0.21, s3 makes 44
+more detections on the draw than at 0.29, and none of them has been rated.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
