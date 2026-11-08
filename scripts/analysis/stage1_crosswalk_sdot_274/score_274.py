@@ -799,6 +799,16 @@ VERDICTS = {   # per card kind: (code, button text); keys 1-4 pick them in order
 }
 VERDICTS["det"] = VERDICTS["fp"]   # a detection with no label context (`cards`): the same question as an FP
 
+DEFINITIONS = {    # what "crosswalk" means on a page (`cards --definition`); paint is every page before s4
+    "paint": "<strong>Crosswalk</strong> means painted pedestrian crossing markings: zebra bars or two parallel lines "
+             "across a\nroadway.",
+    "paint_brick": "<strong>Crosswalk</strong> means a marked pedestrian crossing across a roadway: painted markings "
+                   "(zebra bars or two parallel lines, on any road surface, cobblestone included) <em>or</em> a brick, "
+                   "paver, stamped or coloured band laid across the road as a crossing, with or without white edge "
+                   "lines (Jon, 2026-11-08). A cobblestone or brick <em>road</em>, plaza or sidewalk with no crossing "
+                   "band is not a crosswalk.",
+}
+
 SECTION_HEAD = {   # section title and the one question its cards ask
     "fp": ("False positives", "The model fired where no label is. <strong>Is the outlined cross on a crosswalk?</strong> "
            "Ignore labels elsewhere on the crop."),
@@ -1192,6 +1202,8 @@ def cmd_cards(a):
 
     os.makedirs(a.out, exist_ok=True)
     title, question = SECTION_HEAD["det"]
+    if a.question:
+        question = a.question
     cards = [f'<h2 id="sec-det">{title} ({len(items)} cards)</h2><p class="q">{question}</p>']
     cache, crop_index = {}, []
     if a.crops_out:
@@ -1227,8 +1239,7 @@ context.</p>
 <li>{LEGEND_GLYPHS['radius']} the scorer's match radius</li>
 {NEG_LEGEND if a.neg_disc else ""}
 </ul>
-<p>{"<strong>Click an image</strong> for a large view (wider, sharper). There: <kbd>1</kbd>-<kbd>3</kbd> rate and move to the next card, <kbd>M</kbd> hides or shows all marks, arrows step, <kbd>Esc</kbd> closes. " if a.big else ""}<strong>Crosswalk</strong> means painted pedestrian crossing markings: zebra bars or two parallel lines across a
-roadway. Bike-lane, bus-lane, parking and rail markings are <em>not</em> crosswalks. Keys: <kbd>1</kbd>-<kbd>3</kbd>
+<p>{"<strong>Click an image</strong> for a large view (wider, sharper). There: <kbd>1</kbd>-<kbd>3</kbd> rate and move to the next card, <kbd>M</kbd> hides or shows all marks, arrows step, <kbd>Esc</kbd> closes. " if a.big else ""}{DEFINITIONS[a.definition]} Bike-lane, bus-lane, parking and rail markings are <em>not</em> crosswalks. Keys: <kbd>1</kbd>-<kbd>3</kbd>
 rate (jumps to the next card), <kbd>n</kbd> = next unrated. Verdicts save in this browser; press <em>Export CSV</em>
 when done.</p>"""
     if a.no_page:
@@ -1820,6 +1831,9 @@ def main():
     c.add_argument("--no-page", action="store_true", help="with --crops-out: write the crops only")
     c.add_argument("--neg-disc", action="store_true", help="draw the background disc a confirmed negative trains")
     c.add_argument("--zoom", type=float, default=1.0, help="crop magnification (1 = the standard 0.16-width crop)")
+    c.add_argument("--definition", choices=sorted(DEFINITIONS), default="paint",
+                   help="what counts as a crosswalk on the page (paint_brick from s4 on)")
+    c.add_argument("--question", default=None, help="replace the section's question (e.g. for crowd-label cards)")
     c.add_argument("--big", action=argparse.BooleanOptionalAction, default=True,
                    help="click-to-enlarge view (wider, ~native res) with a marks toggle; on by default (Jon, 2026-11-08), "
                         "--no-big rebuilds the pages made before that")
