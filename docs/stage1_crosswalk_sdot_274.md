@@ -723,6 +723,23 @@ test was pre-registered.
   and 5 in Juneau on 3 panos (`hardneg/confirm_s3/ps_labels/`, read-only, 2026-11-08). One of the Laurens panos
   is in the draw, and neither model has any peak, even at the 0.05 score floor, near its 3 labeled crosswalks.
 
+**Recall probe on PS prod's crosswalk labels (exploratory, 2026-11-08).** Both models were run on the 13 panos
+carrying live Crosswalk labels in Laurens and Juneau (one Laurens pano, `859136893217435`, is not in our run and was
+not fetched). A label is hit when the model has a detection at its threshold within 0.05
+(`hardneg/confirm_s3/ps_labels/probe_hits.csv`):
+
+| | labels | `crosswalk_s1` (0.21) | `crosswalk_s3` (0.27) |
+|---|---|---|---|
+| Juneau (Trimble MX7) | 5 | 5 | 4 (one at 0.23) |
+| Laurens (GoPro Max) | 16 | 0 | 0 |
+
+On the Laurens panos neither model puts a peak of even 0.05 within 0.05 of 15 of the 16 labels; their only
+detections there are car tops. Two crops show why the miss is not only the camera. One is a **brick
+(paver) crosswalk** with no white paint; the other is two **faded parallel lines on concrete**. Both styles are rare
+in the training cities, where Seattle's ladder and zebra paint dominates. Whether brick crosswalks count as
+"marked" for this detector is a definition question for Jon. The page's rule so far is "painted pedestrian crossing
+markings".
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
