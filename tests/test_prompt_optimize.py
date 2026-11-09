@@ -126,6 +126,21 @@ def test_trajectory_picks_the_best_accepted_definition(tmp_path, monkeypatch):
     assert P.short_name(m) == "argon" and P.short_name("gemini-3.8-flash") == "flash38"
 
 
+def test_rewrite_acts_on_the_latest_picked_iteration_not_the_trajectory(tmp_path, monkeypatch):
+    # Before the first evaluation the trajectory holds only the seed row; the picked
+    # iteration is known from its iter_NN/candidates.json, not from the trajectory.
+    monkeypatch.setattr(P, "OPT_DIR", tmp_path)
+    m = "gemini-4-argon"
+    assert P.latest_iteration(m) == 1
+    P.append_trajectory(m, {"kind": "seed", "train_f1": 0.60})
+    for k in (1, 2):
+        d = P.iter_dir(m, k)
+        d.mkdir(parents=True)
+        (d / "candidates.json").write_text("{}", encoding="utf-8")
+    P.iter_dir(m, 3).mkdir()                      # picked nothing yet: no candidates.json
+    assert P.latest_iteration(m) == 2
+
+
 def test_a_candidate_definition_is_never_overwritten(tmp_path, monkeypatch):
     monkeypatch.setattr(P, "DEFINITIONS_DIR", tmp_path)
     path = P.write_definition("def276-argon-r1", "  A curb ramp is X.  ")

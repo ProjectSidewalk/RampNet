@@ -137,6 +137,17 @@ def iter_dir(model, k):
     return state_dir(model) / f"iter_{k:02d}"
 
 
+def latest_iteration(model):
+    """The most recently picked iteration: the highest ``iter_NN/`` holding candidates.json.
+
+    ``rewrite`` and ``evaluate`` act on it. Before the first evaluation the trajectory holds
+    only the seed row, so deriving it from the trajectory gave 0 (2026-11-09).
+    """
+    ks = [int(p.name[5:]) for p in state_dir(model).glob("iter_[0-9][0-9]")
+          if (p / "candidates.json").exists()]
+    return max(ks) if ks else 1
+
+
 # --------------------------------------------------------------------------- #
 # data
 # --------------------------------------------------------------------------- #
@@ -527,7 +538,7 @@ def cmd_pick(args):
 
 def cmd_rewrite(args):
     model = args.model
-    k = args.iteration or (next_iteration(model) - 1 if read_trajectory(model) else 1)
+    k = args.iteration or latest_iteration(model)
     out = iter_dir(model, k)
     with open(out / "candidates.json", encoding="utf-8") as f:
         cand = json.load(f)
@@ -577,7 +588,7 @@ def cmd_rewrite(args):
 
 def cmd_evaluate(args):
     model = args.model
-    k = args.iteration or (next_iteration(model) - 1 if read_trajectory(model) else 1)
+    k = args.iteration or latest_iteration(model)
     out = iter_dir(model, k)
     with open(out / "rewrite.json", encoding="utf-8") as f:
         rw = json.load(f)
