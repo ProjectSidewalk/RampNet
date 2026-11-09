@@ -572,3 +572,10 @@ analysis_out/control_arm_263/trainlogs/*
 benchmark/*/cluster_review/crops/
 benchmark/*/cluster_review/aerial/
 benchmark/*/cluster_review/gallery/
+
+# #276 prompt experiments: the Step 3 table regenerated from the caches
+# (scripts/analysis/prompt_276_results.py), JSON + Markdown only.
+!analysis_out/prompt_opt_276/
+analysis_out/prompt_opt_276/*
+!analysis_out/prompt_opt_276/*.json
+!analysis_out/prompt_opt_276/*.md

@@ -1,0 +1,45 @@
+# #276 Step 3: prompt battery on the dev splits (regenerated)
+
+Bundle `benchmark/sao_paulo`, splits `benchmark/prompt_opt_276/sao_paulo_split.json`, match radius 0.022. P/R with 95% Wilson intervals; F1 at the operating point. A pending leg has uncached panos (count shown) and no number. Regenerate with `python scripts/analysis/prompt_276_results.py`.
+
+## gemini-3.8-flash
+
+| leg | split | panos | P | R | F1 | tp/fp/n_gt | notes |
+|---|---|---|---|---|---|---|---|
+| seed | dev_train | 60 | 0.717 (0.592-0.815) | 0.277 (0.213-0.353) | **0.400** | 43/17/155 |  |
+| seed_repeat | dev_train | 60 | 0.719 (0.592-0.819) | 0.265 (0.201-0.339) | **0.387** | 41/16/155 | cache `.model_cache_rep1` |
+| seed | dev_select | 65 | 0.524 (0.377-0.666) | 0.175 (0.118-0.250) | **0.262** | 22/20/126 |  |
+| para1 | dev_select | 65 | 0.509 (0.379-0.639) | 0.214 (0.152-0.294) | **0.302** | 27/26/126 |  |
+| para2 | dev_select | 65 | 0.583 (0.443-0.712) | 0.222 (0.159-0.302) | **0.322** | 28/20/126 |  |
+| para3 | dev_select | 65 | 0.630 (0.486-0.755) | 0.230 (0.165-0.311) | **0.337** | 29/17/126 |  |
+| expert | dev_select | 65 | 0.661 (0.530-0.771) | 0.294 (0.221-0.378) | **0.407** | 37/19/126 |  |
+| expert-long | dev_select | 65 | 0.605 (0.456-0.736) | 0.206 (0.145-0.285) | **0.308** | 26/17/126 |  |
+| zs_conf | all | 125 | 0.659 (0.557-0.749) | 0.213 (0.170-0.265) | **0.323** | 60/31/281 | 92 boxes, 17 distinct scores |
+
+## gemini-4-argon
+
+| leg | split | panos | P | R | F1 | tp/fp/n_gt | notes |
+|---|---|---|---|---|---|---|---|
+| seed | dev_train | 60 | 0.852 (0.776-0.906) | 0.632 (0.554-0.704) | **0.726** | 98/17/155 |  |
+| seed_repeat | dev_train | 60 | 0.883 (0.807-0.932) | 0.587 (0.508-0.662) | **0.705** | 91/12/155 | cache `.model_cache_rep1` |
+| seed | dev_select | 65 | 0.743 (0.649-0.818) | 0.595 (0.508-0.677) | **0.661** | 75/26/126 |  |
+| para1 | dev_select | 65 | 0.755 (0.659-0.831) | 0.564 (0.476-0.647) | **0.645** | 71/23/126 |  |
+| para2 | dev_select | 65 | 0.765 (0.674-0.837) | 0.619 (0.532-0.699) | **0.684** | 78/24/126 |  |
+| para3 | dev_select | 65 | 0.806 (0.717-0.872) | 0.627 (0.540-0.707) | **0.705** | 79/19/126 |  |
+| expert | dev_select | 65 | | | | | pending (0/65 cached) |
+| expert-long | dev_select | 65 | | | | | pending (0/65 cached) |
+| zs_conf | all | 125 | | | | | pending (67/125 cached) |
+
+## Qwen/Qwen3-VL-32B-Instruct
+
+| leg | split | panos | P | R | F1 | tp/fp/n_gt | notes |
+|---|---|---|---|---|---|---|---|
+| seed | dev_train | 60 | 0.551 (0.413-0.681) | 0.174 (0.123-0.242) | **0.265** | 27/22/155 |  |
+| seed_repeat | dev_train | 60 | 0.551 (0.413-0.681) | 0.174 (0.123-0.242) | **0.265** | 27/22/155 | cache `.model_cache_rep1` |
+| seed | dev_select | 65 | 0.429 (0.265-0.609) | 0.095 (0.055-0.159) | **0.156** | 12/16/126 |  |
+| para1 | dev_select | 65 | 0.400 (0.246-0.577) | 0.095 (0.055-0.159) | **0.154** | 12/18/126 |  |
+| para2 | dev_select | 65 | 0.355 (0.211-0.530) | 0.087 (0.049-0.150) | **0.140** | 11/20/126 |  |
+| para3 | dev_select | 65 | 0.462 (0.316-0.614) | 0.143 (0.092-0.214) | **0.218** | 18/21/126 |  |
+| expert | dev_select | 65 | 0.231 (0.110-0.420) | 0.048 (0.022-0.100) | **0.079** | 6/20/126 |  |
+| expert-long | dev_select | 65 | 0.342 (0.212-0.501) | 0.103 (0.061-0.169) | **0.159** | 13/25/126 |  |
+
