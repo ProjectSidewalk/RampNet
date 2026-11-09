@@ -185,7 +185,8 @@ def main():
     ap.add_argument("--gemini-model", default=_D["gemini_model"])
     # #276 knobs, as in compare.py: None = as-run, a set value is a different leg.
     ap.add_argument("--gemini-temperature", type=float, default=_D["gemini_temperature"])
-    ap.add_argument("--gemini-definition", default=_D["gemini_definition"])
+    ap.add_argument("--definition", "--gemini-definition", dest="definition",
+                    default=_D["definition"])
     ap.add_argument("--gemini-confidence", action="store_const", const=True,
                     default=_D["gemini_confidence"])
     ap.add_argument("--gemini-exemplars", default=_D["gemini_exemplars"])

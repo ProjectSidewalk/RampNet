@@ -545,11 +545,18 @@ OWLV2_QUERY = "a photo of a curb ramp"
 GDINO_QUERY = "curb ramp."
 
 # Molmo points instead of boxing, so the same definition gets a pointing verb.
-MOLMO_PROMPT = (
-    "Point to every curb ramp in this street-level image. " + CURB_RAMP_DEFINITION +
-    " Put one point at the center of each curb ramp. Do not point at driveways, stairs, "
-    "or crosswalk paint. If there are no curb ramps, say so."
-)
+def molmo_prompt_for(definition):
+    """Molmo's pointing frame around a class definition; ``MOLMO_PROMPT`` is this
+    applied to ``CURB_RAMP_DEFINITION``, so a #276 definition reaches Molmo in the
+    frame its published leg ran under."""
+    return (
+        "Point to every curb ramp in this street-level image. " + definition +
+        " Put one point at the center of each curb ramp. Do not point at driveways, stairs, "
+        "or crosswalk paint. If there are no curb ramps, say so."
+    )
+
+
+MOLMO_PROMPT = molmo_prompt_for(CURB_RAMP_DEFINITION)
 
 
 class _VLMDetector:
@@ -566,14 +573,25 @@ class _VLMDetector:
 
     name = "vlm"
     prompt = DETECTION_PROMPT  # subclasses override when the provider needs more
+    # What a provider appends to the detection frame (Qwen: the JSON shape). Kept
+    # apart from the frame so a #276 definition is re-framed with the same suffix.
+    prompt_suffix = ""
     max_edge = 1536       # whole-pano downscale cap
     source_max_edge = 4096  # cap on the pano fed to reprojection (native can be 16k)
 
-    def __init__(self, model_id, max_edge=None, tile=True, views=None, concurrency=1):
+    def __init__(self, model_id, max_edge=None, tile=True, views=None, concurrency=1,
+                 definition=None, prompt_opt_dir=None):
         self.model_id = model_id
         if max_edge:
             self.max_edge = max_edge
         self.tile = tile
+        # --definition NAME (#276): the committed benchmark/prompt_opt_276/definitions/
+        # NAME.txt replaces the curb-ramp definition inside this provider's prompt frame.
+        # None leaves the class prompt untouched, so every published leg keeps its key;
+        # a set definition changes the prompt text, which the base signature() hashes.
+        self.definition = definition
+        if definition is not None:
+            self.prompt = self.prompt_for_definition(load_definition(definition, prompt_opt_dir))
         self._views = views  # None -> equirect_tiling.default_views()
         # How many of a pano's views are in flight at once (#276). Hosted providers
         # only; local GPU models serialize on the device anyway. NOT in signature():
@@ -594,6 +612,13 @@ class _VLMDetector:
         # and re-bill the run (test_gemini_cache_key_is_frozen guards exactly
         # that). None = provider reports no build. See #121.
         self.model_versions = None
+
+    def prompt_for_definition(self, definition_text):
+        """This provider's prompt around a replacement definition. The default is the
+        shared detection frame plus the provider's suffix; Molmo overrides it with its
+        pointing frame. ``prompt_for_definition(CURB_RAMP_DEFINITION)`` must equal the
+        class ``prompt`` for every subclass (test_definition_frames_reproduce_the_as_run_prompts)."""
+        return detection_prompt_for(definition_text) + self.prompt_suffix
 
     # The key contract for `usage`, in one place. Every paid provider reports
     # input and output; almost none report thinking separately, so a reader must
@@ -776,7 +801,7 @@ def load_definition(name, root=None):
         # the variants so the write-up can quote them from one place. It is not a pin: the
         # seed leg is the one with no definition set, and naming it here would give the
         # same prompt a second cache key.
-        raise ValueError("the seed is the default definition; omit --gemini-definition")
+        raise ValueError("the seed is the default definition; omit --definition")
     path = os.path.join(root or PROMPT_OPT_DIR, "definitions", name + ".txt")
     if not os.path.exists(path):
         raise FileNotFoundError(f"no committed definition {name!r}: expected {path}")
@@ -857,7 +882,8 @@ class GeminiDetector(_VLMDetector):
                  use_vertex=None, project=None, location=None, temperature=None,
                  definition=None, confidence=None, exemplars=None, thinking_level=None,
                  concurrency=1, debug_dump=None, prompt_opt_dir=None):
-        super().__init__(model_id, max_edge, tile=tile, concurrency=concurrency)
+        super().__init__(model_id, max_edge, tile=tile, concurrency=concurrency,
+                         definition=definition, prompt_opt_dir=prompt_opt_dir)
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
         # Vertex AI + Application Default Credentials is the path for orgs that
         # disallow API keys. Driven by the standard google-genai env vars unless
@@ -882,7 +908,6 @@ class GeminiDetector(_VLMDetector):
         # --- #276 knobs. Each defaults to None = as-run, and enters signature()
         # only when set, so every paid detection already cached keeps its key.
         self.temperature = temperature
-        self.definition = definition
         self.confidence = True if confidence else None
         self.exemplars = exemplars
         if thinking_level is not None and thinking_level not in GEMINI_THINKING_LEVELS:
@@ -894,11 +919,9 @@ class GeminiDetector(_VLMDetector):
         self._dump_n = 0
         self._exemplar_items = (load_exemplars(exemplars, prompt_opt_dir)
                                 if exemplars is not None else None)
-        prompt = (DETECTION_PROMPT if definition is None
-                  else detection_prompt_for(load_definition(definition, prompt_opt_dir)))
         if self.confidence:
-            prompt += CONFIDENCE_INSTRUCTION
-        self.prompt = prompt   # instance override of the class attribute
+            # instance override of the (possibly re-defined) prompt
+            self.prompt = self.prompt + CONFIDENCE_INSTRUCTION
 
     def signature(self):
         """The prompt (and so the definition and the confidence instruction) is
@@ -1359,8 +1382,9 @@ class ClaudeDetector(_VLMDetector):
                  views=None, image_format=CLAUDE_AS_RUN_IMAGE_FORMAT,
                  temperature=CLAUDE_AS_RUN_TEMPERATURE,
                  max_tokens=CLAUDE_AS_RUN_MAX_TOKENS,
-                 serving_path=CLAUDE_AS_RUN_SERVING_PATH):
-        super().__init__(model_id, max_edge, tile=tile, views=views)
+                 serving_path=CLAUDE_AS_RUN_SERVING_PATH, definition=None, prompt_opt_dir=None):
+        super().__init__(model_id, max_edge, tile=tile, views=views,
+                         definition=definition, prompt_opt_dir=prompt_opt_dir)
         if serving_path not in CLAUDE_SERVING_PATHS:
             raise ValueError(f"unknown serving_path {serving_path!r} "
                              f"(choose from: {', '.join(CLAUDE_SERVING_PATHS)})")
@@ -1713,11 +1737,13 @@ class QwenDetector(_VLMDetector):
 
     name = "qwen"
     prompt = QWEN_PROMPT
+    prompt_suffix = QWEN_JSON_INSTRUCTION
     max_edge = 2048  # whole-pano mode only; tiled views are rendered at 1024
 
     def __init__(self, model_id="Qwen/Qwen3-VL-8B-Instruct", max_edge=None, tile=True,
-                 coord_space=None, max_new_tokens=1024):
-        super().__init__(model_id, max_edge, tile=tile)
+                 coord_space=None, max_new_tokens=1024, definition=None, prompt_opt_dir=None):
+        super().__init__(model_id, max_edge, tile=tile, definition=definition,
+                         prompt_opt_dir=prompt_opt_dir)
         self.coord_space = coord_space or infer_qwen_coord_space(model_id)
         self.max_new_tokens = max_new_tokens
         self._model = None
@@ -1929,13 +1955,18 @@ class MolmoDetector(_VLMDetector):
     max_edge = 2048       # whole-pano mode only; tiled views render at 1024
 
     def __init__(self, model_id="allenai/Molmo2-8B", max_edge=None, tile=True,
-                 coord_scale=None, mode=None, max_new_tokens=512):
-        super().__init__(model_id, max_edge, tile=tile)
+                 coord_scale=None, mode=None, max_new_tokens=512, definition=None,
+                 prompt_opt_dir=None):
+        super().__init__(model_id, max_edge, tile=tile, definition=definition,
+                         prompt_opt_dir=prompt_opt_dir)
         self.coord_scale = float(coord_scale) if coord_scale else None
         self.mode = mode or infer_molmo_mode(model_id)
         self.max_new_tokens = max_new_tokens
         self._model = None
         self._processor = None
+
+    def prompt_for_definition(self, definition_text):
+        return molmo_prompt_for(definition_text)
 
     def _ensure_ready(self):
         if self._model is not None:
@@ -2362,7 +2393,7 @@ def build_detector(provider, model_id, records, args):
         return mid, GeminiDetector(
             model_id=mid, tile=tile,
             temperature=getattr(args, "gemini_temperature", None),
-            definition=getattr(args, "gemini_definition", None),
+            definition=getattr(args, "definition", None),
             confidence=getattr(args, "gemini_confidence", None),
             exemplars=getattr(args, "gemini_exemplars", None),
             thinking_level=getattr(args, "gemini_thinking_level", None),
@@ -2371,7 +2402,7 @@ def build_detector(provider, model_id, records, args):
     if provider == "claude":
         mid = model_id or args.claude_model
         return mid, ClaudeDetector(
-            model_id=mid, tile=tile,
+            model_id=mid, tile=tile, definition=getattr(args, "definition", None),
             effort=getattr(args, "claude_effort", None) or _D("claude_effort"),
             tool_choice=getattr(args, "claude_tool_choice", None) or _D("claude_tool_choice"),
             image_format=(getattr(args, "claude_image_format", None)
@@ -2385,6 +2416,7 @@ def build_detector(provider, model_id, records, args):
         mid = model_id or args.qwen_model
         coord_space = getattr(args, "qwen_coord_space", "auto")
         return mid, QwenDetector(model_id=mid, tile=tile,
+                                 definition=getattr(args, "definition", None),
                                  coord_space=None if coord_space == "auto" else coord_space)
     if provider == "owlv2":
         mid = model_id or getattr(args, "owlv2_model", None) or _D("owlv2_model")
@@ -2401,6 +2433,7 @@ def build_detector(provider, model_id, records, args):
         mid = model_id or getattr(args, "molmo_model", None) or _D("molmo_model")
         scale = getattr(args, "molmo_coord_scale", "auto")
         return mid, MolmoDetector(model_id=mid, tile=tile,
+                                  definition=getattr(args, "definition", None),
                                   coord_scale=None if scale in (None, "auto") else float(scale))
     if provider == "yolo":
         # model_id (from yolo:<path>) or --yolo-model is a trained weights path, not

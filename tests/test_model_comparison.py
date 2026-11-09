@@ -2908,6 +2908,34 @@ def test_gemini_debug_dump_is_per_model_and_records_the_call(tmp_path):
     assert rec["model_version"] == "gemini-4-argon-001" and rec["model_id"] == "gemini-3.8-flash"
 
 
+def test_definition_frames_reproduce_the_as_run_prompts(tmp_path):
+    """--definition applies to every prompted detector through its own frame. With the
+    seed text each frame must rebuild the class prompt byte for byte (so no published
+    key moves), and with another definition only the middle changes."""
+    from detectors import ClaudeDetector, MolmoDetector, QwenDetector, molmo_prompt_for
+    root = _write_prompt_opt_dir(tmp_path)
+    cases = [
+        (GeminiDetector, dict(model_id="gemini-4-argon"), DETECTION_PROMPT),
+        (ClaudeDetector, dict(model_id="claude-opus-5"), DETECTION_PROMPT),
+        (QwenDetector, dict(model_id="Qwen/Qwen3-VL-32B-Instruct"), detectors.QWEN_PROMPT),
+        (MolmoDetector, dict(model_id="allenai/Molmo2-8B"), MOLMO_PROMPT),
+    ]
+    other = detectors.load_definition("def276-test", root)
+    for cls, kw, as_run in cases:
+        plain = cls(**kw)
+        assert plain.prompt == as_run and plain.definition is None, cls.__name__
+        assert plain.prompt_for_definition(CURB_RAMP_DEFINITION) == as_run, cls.__name__
+        pinned = cls(definition="def276-test", prompt_opt_dir=str(root), **kw)
+        assert pinned.definition == "def276-test"
+        assert other in pinned.prompt and CURB_RAMP_DEFINITION not in pinned.prompt
+        assert pinned.signature() != plain.signature(), cls.__name__
+        assert pinned.signature()["prompt"] == pinned.prompt
+    assert molmo_prompt_for(CURB_RAMP_DEFINITION) == MOLMO_PROMPT
+    assert QwenDetector(model_id="Qwen/Qwen3-VL-8B-Instruct",
+                        definition="def276-test", prompt_opt_dir=str(root)).prompt.endswith(
+        detectors.QWEN_JSON_INSTRUCTION)
+
+
 def test_definition_normalization_keeps_bullets_and_paragraphs_but_not_wrapping():
     """A re-wrapped single paragraph is the same definition (same signature); a blank line
     and a '- ' bullet are structure the author meant, so they survive (#276 expert arm)."""
@@ -2928,11 +2956,11 @@ def test_every_committed_276_definition_loads_and_differs_from_the_seed():
     paths = sorted(glob.glob(os.path.join(detectors.PROMPT_OPT_DIR, "definitions", "*.txt")))
     assert paths, "no committed definitions"
     # definitions/seed.txt is the record of the constant, not a pin: byte-for-byte the
-    # same text once normalized, and refused as a --gemini-definition name.
+    # same text once normalized, and refused as a --definition name.
     seed_path = os.path.join(detectors.PROMPT_OPT_DIR, "definitions", "seed.txt")
     with open(seed_path, encoding="utf-8") as f:
         assert " ".join(f.read().split()) == CURB_RAMP_DEFINITION
-    with pytest.raises(ValueError, match="omit --gemini-definition"):
+    with pytest.raises(ValueError, match="omit --definition"):
         detectors.load_definition("seed")
     paths.remove(seed_path)
     seen = {CURB_RAMP_DEFINITION}

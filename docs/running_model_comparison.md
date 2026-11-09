@@ -157,7 +157,7 @@ python scripts/model_comparison/compare.py benchmark/sao_paulo --models gemini:g
 
 # a leg at a different setting is a DIFFERENT leg (new cache key), registered with that pin:
 #   --gemini-temperature 1.0            sampling temperature (as-run 0.0 is absent from the key)
-#   --gemini-definition NAME            benchmark/prompt_opt_276/definitions/NAME.txt replaces
+#   --definition NAME                   benchmark/prompt_opt_276/definitions/NAME.txt replaces
 #                                       the curb-ramp definition inside the prompt
 #   --gemini-confidence                 integer 0-100 score per box -> a PR curve, --sweep works
 #   --gemini-exemplars NAME             benchmark/prompt_opt_276/exemplars/NAME.json shown first
@@ -197,7 +197,7 @@ reviewer's verdict decides which crops the critic sees; a pick nobody confirmed 
 both panos and is re-picked with `--force`. `alternative` asks for an image-free rewording
 of the best candidate (the DetPO GenerateAlternative step). Every pick, verdict, rewrite
 and score is a line in `optimize/<model>/trajectory.jsonl`; the selection among candidates
-is then ordinary `compare.py --gemini-definition NAME --pano-list ...@dev_select` runs.
+is then ordinary `compare.py --definition NAME --pano-list ...@dev_select` runs.
 The detector runs go through `compare.score_model`, so they hit the same cache and write
 the same ledger rows as a `compare.py` leg with the same pins.
 

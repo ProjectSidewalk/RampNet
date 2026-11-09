@@ -6,7 +6,7 @@ confirm they really are one ("really not a ramp" / "really a ramp"), show them t
 model with the current definition and ask for a rewrite, keep the rewrite only if
 ``dev_train`` F1 improves by at least the seed-repeat spread, and select among the
 accepted candidates on ``dev_select`` once (that last step is ordinary ``compare.py``
-runs with ``--gemini-definition``). Everything is written under
+runs with ``--definition``). Everything is written under
 ``benchmark/prompt_opt_276/optimize/<model>/`` so the trajectory is a committed record.
 
 One iteration is three commands, because the human check sits in the middle::
@@ -33,7 +33,7 @@ best candidate (DetPO's GenerateAlternative), to be selected against on dev_sele
 
 Nothing here reads a held-out split. Nothing here changes the detector; a candidate
 definition is a file under ``definitions/`` and a leg that uses it is
-``--gemini-definition <name>``.
+``--definition <name>``.
 """
 import argparse
 import base64
@@ -165,7 +165,7 @@ def load_veto_points():
 def compare_args(cache_dir, definition, confidence=True, concurrency=6, debug_dump=None):
     from fp_taxonomy import _compare_args
     ns = _compare_args(str(cache_dir))
-    ns.gemini_definition = definition
+    ns.definition = definition
     ns.gemini_confidence = True if confidence else None
     ns.gemini_concurrency = concurrency
     ns.gemini_debug_dump = debug_dump

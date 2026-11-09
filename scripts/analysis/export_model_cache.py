@@ -473,7 +473,8 @@ def build_parser():
     # matched on them, so the filename comes from the roster.
     _D = roster.PROVIDER_DEFAULTS
     p.add_argument("--gemini-temperature", type=float, default=_D["gemini_temperature"])
-    p.add_argument("--gemini-definition", default=_D["gemini_definition"], metavar="NAME")
+    p.add_argument("--definition", "--gemini-definition", dest="definition",
+                   default=_D["definition"], metavar="NAME")
     p.add_argument("--gemini-confidence", action="store_const", const=True,
                    default=_D["gemini_confidence"])
     p.add_argument("--gemini-exemplars", default=_D["gemini_exemplars"], metavar="NAME")
@@ -540,7 +541,7 @@ def main(argv=None):
                  "claude_tool_choice": args.claude_tool_choice,
                  "vistas_input_size": args.vistas_input_size,
                  "gemini_temperature": args.gemini_temperature,
-                 "gemini_definition": args.gemini_definition,
+                 "definition": args.definition,
                  "gemini_confidence": args.gemini_confidence,
                  "gemini_exemplars": args.gemini_exemplars,
                  "gemini_thinking_level": args.gemini_thinking_level,

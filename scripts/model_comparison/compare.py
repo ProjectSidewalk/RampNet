@@ -702,10 +702,14 @@ def build_parser():
                     help="Sampling temperature. The published legs ran 0.0 (greedy); "
                          "Google's Gemini 3 guidance is the provider default 1.0. A "
                          "value other than 0.0 is a cache-key change.")
-    ap.add_argument("--gemini-definition", default=_D["gemini_definition"], metavar="NAME",
-                    help="Replace the curb-ramp definition inside the prompt with the "
-                         "committed benchmark/prompt_opt_276/definitions/NAME.txt (#276). "
-                         "A short name, never a path. Changes the prompt and so the key.")
+    ap.add_argument("--definition", "--gemini-definition", dest="definition",
+                    default=_D["definition"], metavar="NAME",
+                    help="Replace the curb-ramp definition inside the prompt of EVERY "
+                         "prompted detector in --models (Gemini, Claude, Qwen, Molmo; each "
+                         "keeps its own frame) with the committed "
+                         "benchmark/prompt_opt_276/definitions/NAME.txt (#276). A short "
+                         "name, never a path. Changes the prompt and so the key. "
+                         "--gemini-definition is the older spelling of the same flag.")
     ap.add_argument("--gemini-confidence", action="store_const", const=True,
                     default=_D["gemini_confidence"],
                     help="Elicit an integer 0-100 score per box (scored schema + an "

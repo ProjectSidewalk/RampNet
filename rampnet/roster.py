@@ -434,7 +434,9 @@ PROVIDER_DEFAULTS = {
     # paths. (--gemini-concurrency and --gemini-debug-dump are run-time only, not
     # signature fields, and so not here.)
     "gemini_temperature": None,
-    "gemini_definition": None,
+    # --definition applies to every prompted detector (Gemini, Claude, Qwen, Molmo):
+    # the same committed file, each provider's own frame around it.
+    "definition": None,
     "gemini_confidence": None,
     "gemini_exemplars": None,
     "gemini_thinking_level": None,

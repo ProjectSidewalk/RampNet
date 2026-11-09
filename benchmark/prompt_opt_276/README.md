@@ -1,6 +1,6 @@
 # prompt_opt_276 — artifacts of the VLM prompt experiments (#276)
 
-Everything a `--gemini-definition`, `--gemini-exemplars` or `--pano-list` run reads lives
+Everything a `--definition`, `--gemini-exemplars` or `--pano-list` run reads lives
 here, committed, so a leg is reproducible from its registry pins alone. The plan and the
 write-up are `docs/vlm_prompt_276.md` (lands with the results).
 
@@ -14,7 +14,7 @@ write-up are `docs/vlm_prompt_276.md` (lands with the results).
 Rule: `dev_train` feeds the optimizer its exemplars; `dev_select` picks among candidates and
 thresholds, once; nothing else is looked at before the frozen held-out run.
 
-## Definitions (`--gemini-definition NAME` → `definitions/NAME.txt`)
+## Definitions (`--definition NAME`, every prompted detector; → `definitions/NAME.txt`)
 
 The file replaces only the middle of the prompt (`detectors.detection_prompt_for`); the
 instruction around it is unchanged. Whitespace is normalized on load, so wrapping is free; blank lines and `- ` bullets are kept, so a structured definition reaches the model as written.
@@ -25,7 +25,7 @@ The whole text a model receives, once per 1024x1024 view, is:
 > no curb ramps, return an empty list.
 
 and the seed `[DEFINITION]` (`definitions/seed.txt`, the record of
-`detectors.CURB_RAMP_DEFINITION`; not a pin, so `--gemini-definition seed` is refused) is:
+`detectors.CURB_RAMP_DEFINITION`; not a pin, so `--definition seed` is refused) is:
 
 > A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street.
 
