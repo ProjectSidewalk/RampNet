@@ -19,6 +19,13 @@
 # LEGS overrides the list (space-separated names from the set above). Detections come
 # home with `rsync klone:RampNet/.model_cache/ .model_cache/` and
 # `rsync klone:RampNet/.model_cache_rep1/ .model_cache_rep1/`; scoring needs no GPU.
+#
+# PYTHON must point at an env PINNED to what the published Qwen3-VL-32B column ran under
+# (klone, 2026-10-19): torch 2.13.0+cu126, torchvision 0.28.0, transformers 5.14.1,
+# accelerate 1.14.0. An unpinned rebuild (torch 2.14.1+cu126, transformers 5.22.2) loaded
+# the 32B shards fine and then failed EVERY pano on 2x L40S with
+# "RuntimeError: CUDA driver error: invalid argument" (job 43076700, 2026-11-09), so the
+# comparison would have mixed library versions even if it had run.
 #SBATCH -p gpu-l40s
 #SBATCH --job-name=qwen276_prompt_battery
 #SBATCH --time=12:00:00
