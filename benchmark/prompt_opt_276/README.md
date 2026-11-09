@@ -18,10 +18,24 @@ thresholds, once; nothing else is looked at before the frozen held-out run.
 
 The file replaces only the middle of the prompt (`detectors.detection_prompt_for`); the
 instruction around it is unchanged. Whitespace is normalized on load, so wrapping is free.
+The whole text a model receives, once per 1024x1024 view, is:
+
+> Detect every curb ramp in this street-level image. **[DEFINITION]** Return one tight
+> bounding box per curb ramp. Do not box driveways, stairs, or crosswalk paint. If there are
+> no curb ramps, return an empty list.
+
+and the seed `[DEFINITION]` (`definitions/seed.txt`, the record of
+`detectors.CURB_RAMP_DEFINITION`; not a pin, so `--gemini-definition seed` is refused) is:
+
+> A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street.
+
+With `--gemini-confidence` one sentence asking for a 0-100 score per box follows the prompt
+and the response schema gains that field. Rewriting the instruction sentences themselves is
+a different experiment (a whole-prompt arm), kept separate from the definition arms here.
 
 | name | what | provenance |
 |---|---|---|
-| *(none)* | the seed, `detectors.CURB_RAMP_DEFINITION`, shared by every prompted model on the board | 2026-07 |
+| *(none)* | the seed, `detectors.CURB_RAMP_DEFINITION` (recorded as `seed.txt`), shared by every prompted model on the board | 2026-07 |
 | `para1`, `para2`, `para3` | meaning-preserving paraphrases of the seed: the "best of K prompts" null for Step 3 | written 2026-11-09 before any model error from the Step 2 runs was looked at |
 | `expert` | Jon's definition, written blind to the model's errors | Step 3 (pending) |
 | `def276-<model>-r<k>` | the optimizer's candidates, one per accepted iteration; `trajectory.jsonl` beside them records the exemplar panos, the human verdicts and the dev_train score of each | Step 4 |

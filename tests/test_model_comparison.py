@@ -2908,6 +2908,14 @@ def test_every_committed_276_definition_loads_and_differs_from_the_seed():
     import glob
     paths = sorted(glob.glob(os.path.join(detectors.PROMPT_OPT_DIR, "definitions", "*.txt")))
     assert paths, "no committed definitions"
+    # definitions/seed.txt is the record of the constant, not a pin: byte-for-byte the
+    # same text once normalized, and refused as a --gemini-definition name.
+    seed_path = os.path.join(detectors.PROMPT_OPT_DIR, "definitions", "seed.txt")
+    with open(seed_path, encoding="utf-8") as f:
+        assert " ".join(f.read().split()) == CURB_RAMP_DEFINITION
+    with pytest.raises(ValueError, match="omit --gemini-definition"):
+        detectors.load_definition("seed")
+    paths.remove(seed_path)
     seen = {CURB_RAMP_DEFINITION}
     for p in paths:
         name = os.path.splitext(os.path.basename(p))[0]

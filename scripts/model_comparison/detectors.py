@@ -767,6 +767,12 @@ def load_definition(name, root=None):
     whitespace-normalized to one paragraph so an editor re-wrap does not change the
     signature. The name is the pin a leg is registered under."""
     _check_pin_name("gemini definition", name)
+    if name == "seed":
+        # definitions/seed.txt is the committed record of CURB_RAMP_DEFINITION, kept beside
+        # the variants so the write-up can quote them from one place. It is not a pin: the
+        # seed leg is the one with no definition set, and naming it here would give the
+        # same prompt a second cache key.
+        raise ValueError("the seed is the default definition; omit --gemini-definition")
     path = os.path.join(root or PROMPT_OPT_DIR, "definitions", name + ".txt")
     if not os.path.exists(path):
         raise FileNotFoundError(f"no committed definition {name!r}: expected {path}")
