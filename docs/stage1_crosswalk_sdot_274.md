@@ -1008,6 +1008,63 @@ What the reported draws show (Jon's notes):
   rig the Laurens negatives did not cover. Juneau decides nothing under the pre-registration, but it is the first
   thing to fix before s4 labels go live anywhere.
 
+#### `crosswalk_s5` pre-registration (DRAFT 2026-11-09, awaiting Jon's approval; nothing trains before it)
+
+**Goal.** Fix the one regression s4's confirmation found: Juneau look-alikes rose from 5.8 to 20.8 per 100 panos
+(capture-car top, brick and plain sidewalk, curb ramps, turn lanes). Keep everything s4 gained.
+
+**Done before any s4 detection on them existed (2026-11-09, `hardneg/s5_inputs/`).**
+- **Mining draw:** 300 Juneau panos, `score_274.py draw --draw-seed 277` over the run's 5,333, excluding the
+  Juneau confirmation draw (120) and the 14 panos with live PS Crosswalk labels (`juneau_mine_draw.txt`).
+  Streamed read-only from the PS store (`store_list.txt`, tar sha256 in `juneau_store.tar.sha256`).
+- **Fresh Juneau test draw:** 120 panos, draw seed 278, excluding the same panos, the mining draw, and every pano
+  within 30 m of a mining pano (`juneau_near_mine_30m.csv`, 3,471 of 5,333, measured from the run records'
+  positions), so no test pano sees a corner s5 trained on (`juneau_eval_draw.txt`). The confirmation draw found
+  the problem, so it would flatter any fix (regression to the mean); it is reported, not decisive.
+
+**Mining page, rated by Jon before s5 exists.** Every `crosswalk_s4` detection at ≥ 0.23 on the 300 mining panos
+is a card. The page is blind, uses the `paint_brick` definition and the s3 disc rule (`--neg-disc`: "not a
+crosswalk" only if no crosswalk lies inside the disc). No AI pre-screen.
+
+**Training data, `root_v5`.** `root_v4`, plus the mined Juneau panos as new train panos only; every val, test and
+(b′) file stays byte for byte the same.
+- Jon's "not crosswalk" verdicts become `supervision.negative_points` (the s3/s4 disc rule).
+- Jon's "crosswalk" verdicts become `sparse` positives, as Richmond's did in s4: they are the first Juneau and
+  Trimble positives, and they keep the negatives from teaching "no crosswalks in Juneau".
+- "Unsure" verdicts are left out. `check_root_negatives.py` runs on every new JSON.
+
+**Recipe.** s4's exactly: released weights, seeds 1, 2 and 3, 1,000 steps at batch 16, LR 1e-5,
+`--loss-mask --mask-norm pixels`, `TRIM_EPOCH=1`, final checkpoint only, a 20-step smoke run first. Time limit
+cut to 3 h so the jobs can run before the 2026-11-10 09:00 maintenance reservation (s4 seeds took 1.2–1.6 h).
+
+**Threshold.** Recall-matched on val, each s5 seed to the s4 seed with the same number at its threshold (0.23,
+0.30, 0.13). s5's own val pick is reported.
+
+**Comparison.** s5 seed 1 against `crosswalk_s4` seed 1 at 0.23, the adopted model.
+
+**Primary (one, so 95% intervals, pano bootstrap, 2,000 draws, seed 274).** Look-alikes per 100 panos on the
+fresh Juneau test draw, paired s5 − s4 (`audit-compare`). Met if the interval's upper end is below 0.
+- Power: s4 had 25 look-alikes on the 120-pano confirmation draw. If the fresh draw is similar, removing about
+  half clears the rule; a small cut will not.
+
+**Guards (all must hold).**
+1. Mean test F1 of the three s5 seeds on the v2 labels ≥ 0.826 (s4's three-seed mean 0.836 − 0.01).
+2. Seattle confirmation draw: s5 keeps ≥ 95% of s4's confirmed crosswalks (234) within 0.05, and the paired
+   look-alike point estimate is ≤ +2.5 per 100 panos.
+3. Columbia SC brick recall (P1 of s4): the paired s5 − s4 point estimate is ≥ −0.03.
+4. Laurens Mapillary car tops (P2 of s4): the paired look-alike point estimate is ≤ +2.5 per 100 panos.
+5. Fresh Juneau draw: s5 keeps ≥ 90% of s4's confirmed crosswalks there (90%, not 95%, because n is about 70).
+6. (b′) weighted marked-node recall drops by ≤ 0.03 against s4's.
+
+**Outcomes.** Adopt: all guards hold and the primary is met. Promising, not established: the point estimate
+falls but the interval does not clear; s4 stays. s4 stays: any guard fails.
+
+**Step B, after inference: one blind page.** s4's and s5's cards on the fresh Juneau draw, plus s5's cards on the
+four confirmation draws; a card within 0.01 of an already rated card inherits its verdict.
+
+**Reported, deciding nothing.** The old Juneau confirmation draw and Laurens GSV; the PS-label and Bayonne
+probes; s5's own val pick; the seeds.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned

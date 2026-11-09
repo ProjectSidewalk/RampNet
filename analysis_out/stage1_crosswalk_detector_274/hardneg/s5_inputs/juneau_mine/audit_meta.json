@@ -1,0 +1,13 @@
+{
+ "label": "crosswalk_s4",
+ "threshold": 0.23,
+ "seed": 277,
+ "n_panos": 300,
+ "excluded_from": [],
+ "city": "juneau-ak",
+ "random_panos": 300,
+ "node_fa_panos": 0,
+ "node_fa_only_panos": 0,
+ "detections": 279,
+ "detections_random": 279
+}
