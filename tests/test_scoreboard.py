@@ -1191,8 +1191,8 @@ def test_check_fails_on_stale_prose(tmp_path):
     """The tables can be current while a sentence beside them is not (#171)."""
     with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
         doc = fh.read()
-    assert doc.count("Twenty-three model legs") == 1, "the mutation target is gone"
-    doc = doc.replace("Twenty-three model legs", "Eighteen model legs", 1)
+    assert doc.count("Twenty-four model legs") == 1, "the mutation target is gone"
+    doc = doc.replace("Twenty-four model legs", "Eighteen model legs", 1)
     stale = tmp_path / "model_scoreboard.md"
     stale.write_text(doc, encoding="utf-8", newline="")
     done = _run_scoreboard("--check", "--doc", str(stale))

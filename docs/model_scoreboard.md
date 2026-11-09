@@ -1,6 +1,6 @@
 # Scoreboard: every model, one table
 
-Twenty-three model legs, fourteen splits (nine of them pooled), one page. This is the summary
+Twenty-four model legs, fourteen splits (nine of them pooled), one page. This is the summary
 view of the curb-ramp benchmark — **rows are models, columns are metrics** — for the
 question "which model is best, and by how much".
 
@@ -61,6 +61,7 @@ model, and the reasons are in "How to read this" below.
 | Claude Fable 5.1 (low, anthropic) | chat VLM | no score | 0.645 | 0.582 | 0.607 | -0.186 | – | 0.8 | 0.49–0.67 |
 | Gemini 3.1 Pro | chat VLM | no score | 0.632 | 0.531 | 0.571 | -0.222 | – | 0.7 | 0.34–0.68 |
 | Gemini 3.7 Flash | chat VLM | no score | 0.686 | 0.453 | 0.538 | -0.255 | – | 0.5 | 0.28–0.66 |
+| gemini-3.8-flash | chat VLM | no score | 0.778 | 0.409 | 0.527 | -0.266 | – | 0.3 | 0.25–0.66 |
 | Gemini 3.6 Flash | chat VLM | no score | 0.567 | 0.502 | 0.525 | -0.268 | – | 0.9 | 0.28–0.63 |
 | Qwen3-VL-32B | chat VLM | no score | 0.612 | 0.224 | 0.322 | -0.471 | – | 0.3 | 0.07–0.43 |
 | Qwen3-VL-8B | chat VLM | no score | 0.303 | 0.334 | 0.314 | -0.479 | – | 1.9 | 0.21–0.41 |
@@ -106,7 +107,7 @@ the splits are pooled:
    is still what the keypoint architecture adds.
 2. **RampNet is stable across eight of the nine pooled cities, not all nine.** Over the
    nine its F1 spans 0.543–0.855, a range of 0.311, and every challenger with full pooled
-   coverage scoring above 0.1 spans 0.174 (Claude Opus 5.5) to 0.384 (Gemini 3.7 Flash), so RampNet
+   coverage scoring above 0.1 spans 0.174 (Claude Opus 5.5) to 0.403 (Gemini 3.8 Flash), so RampNet
    is not the most stable strong model on this board. Most of its range (0.258 of 0.311) is
    `laurens_mapillary` (0.543): over the other eight cities it spans 0.801–0.855, a range of
    0.053, against 0.121 (Claude Fable 5.1) to 0.313 (YOLO11x) for the challengers on the same eight.
@@ -284,6 +285,7 @@ numbers are directly above them in `model_comparison.md`:
 | Claude Fable 5.1 (low, anthropic) | 0.628 | 0.626 | 0.552 | 0.661 | 0.610 | 0.666 | 0.553 | 0.493 | 0.673 | 0.607 | 0.415 | 0.393 | 0.503 | 0.540 | 0.638 |
 | Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.542 | 0.571 | 0.279 | 0.381 | 0.454 | 0.431 | – |
 | Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.281 | 0.528 | 0.538 | 0.261 | 0.338 | 0.358 | 0.351 | 0.527 |
+| gemini-3.8-flash | 0.655 | 0.634 | 0.461 | 0.597 | 0.526 | 0.611 | 0.515 | 0.252 | 0.490 | 0.527 | 0.164 | 0.262 | 0.339 | 0.288 | 0.504 |
 | Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.504 | 0.525 | 0.274 | 0.336 | 0.346 | 0.393 | – |
 | Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.066 | 0.341 | 0.322 | 0.018 | 0.079 | 0.218 | – | 0.285 |
 | Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.210 | 0.251 | 0.314 | 0.161 | 0.169 | 0.219 | 0.173 | 0.386 |
@@ -338,7 +340,7 @@ Three things this matrix settles that no single-number ranking can:
   confidence, so it has no AP to compare, and neither does Fable 5.1. Every other split has
   RampNet on top.
 - **No single city is hardest for everyone.** `laurens_mapillary` is the worst pooled city
-  for 7 of the 15 models with full pooled coverage, annapolis for 2 (YOLO11x and YOLO26),
+  for 8 of the 16 models with full pooled coverage, annapolis for 2 (YOLO11x and YOLO26),
   clovis (2018 GoPro Fusion) for 4 (the two open-vocabulary detectors, Claude Opus 5.5 and
   Mask2Former Vistas (curb cut, 1024)),
   juneau for 1 (YOLO11l) and gainesville for 1 (Molmo2-8B). "Difficulty" here is not a property of the imagery alone — it is an

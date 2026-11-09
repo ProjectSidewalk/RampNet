@@ -206,6 +206,19 @@ ROSTER = (
              "boxes/pano over 2,109 panos, against gemini-3.6-flash's 2.34 and "
              "OWLv2's 72.77."),
 
+    # #276 round 1: the two current Gemini legs, run zero-shot at the as-run settings
+    # on all fourteen splits (2026-11-08/09) as the baseline every prompt arm is
+    # measured against. standing=False until BOTH are published and the board is
+    # regenerated once, so every table moves in one commit.
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-11-09",
+        note="Zero-shot, 14 splits, published 2026-11-09 (#276 Step 2). Density "
+             "measured off the published detections: 1.39 boxes/pano over 2,539 "
+             "panos. Recall is the low side of the roster (0.10-0.55 by split) at "
+             "precision 0.50-0.97; every call ended STOP, so that is the model, not "
+             "a parse or truncation artefact (#276 Step 1 diagnostics)."),
+
     # The supervised YOLO baseline (#51). Ten splits each, scored under the
     # pre-registered #71 protocol and written up in their own table in
     # docs/model_comparison.md -- so they are published and scored, but not in the
