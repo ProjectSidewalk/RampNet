@@ -648,6 +648,10 @@ analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/*
 # seed replicates (#274, report only): scores at each run's val pick and at the recall-matched threshold
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/seeds/
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/seeds_matched/
+# crosswalk_s4 (#274): scores at the val picks and at the recall-matched thresholds, and seed 1's (b') preds
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s4/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s4_matched/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s4/
 # #274 hard negatives: CSV/JSON/MD outputs at any depth (no imagery is written here)
 !analysis_out/stage1_crosswalk_detector_274/hardneg/
 analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.*

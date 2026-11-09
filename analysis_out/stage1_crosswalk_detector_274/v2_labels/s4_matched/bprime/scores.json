@@ -1,0 +1,410 @@
+{
+ "models": {
+  "crosswalk_s4": {
+   "threshold": 0.23,
+   "weighted": {
+    "detector": {
+     "precision": 0.7939532685669777,
+     "recall": 0.7278442171652282,
+     "f1": 0.7594628071656518,
+     "mcc": 0.677252663349251,
+     "tp_w": 2653.719943,
+     "fp_w": 688.6933300000001,
+     "fn_w": 992.279957,
+     "tn_w": 9215.30657
+    },
+    "osm": {
+     "precision": 0.8142715044041708,
+     "recall": 0.8982446625958492,
+     "f1": 0.8541992733607058,
+     "mcc": 0.7987242860298062,
+     "tp_w": 3274.99995,
+     "fp_w": 747.0000000000001,
+     "fn_w": 370.99995,
+     "tn_w": 9156.999899999999
+    },
+    "either": {
+     "precision": 0.7655824133071083,
+     "recall": 0.9425342910733486,
+     "f1": 0.8448927117615916,
+     "mcc": 0.7879800284105103,
+     "tp_w": 3436.479931,
+     "fp_w": 1052.23333,
+     "fn_w": 209.519969,
+     "tn_w": 8851.76657
+    },
+    "always_yes": {
+     "precision": 0.2690774873664573,
+     "recall": 1.0,
+     "f1": 0.42405210090809664,
+     "mcc": NaN,
+     "tp_w": 3645.9999,
+     "fp_w": 9903.9999,
+     "fn_w": 0,
+     "tn_w": 0
+    }
+   },
+   "f1_diff_detector_minus_osm_95": [
+    -0.14129980720598678,
+    -0.05069152911453745
+   ],
+   "f1_diff_or_minus_osm_95": [
+    -0.03313373187253421,
+    0.011511166349087998
+   ],
+   "passes": false,
+   "secondary_detector_ge_osm": false,
+   "per_cell": {
+    "marked|0": {
+     "n": 150,
+     "detector_yes": 77,
+     "osm_yes": 150
+    },
+    "marked|1": {
+     "n": 150,
+     "detector_yes": 114,
+     "osm_yes": 150
+    },
+    "unknown|0": {
+     "n": 150,
+     "detector_yes": 5,
+     "osm_yes": 0
+    },
+    "unknown|1": {
+     "n": 126,
+     "detector_yes": 91,
+     "osm_yes": 51
+    },
+    "unmarked|0": {
+     "n": 150,
+     "detector_yes": 5,
+     "osm_yes": 0
+    },
+    "unmarked|1": {
+     "n": 150,
+     "detector_yes": 57,
+     "osm_yes": 0
+    }
+   },
+   "true_nodes_by_pano_year": {
+    "2023+": {
+     "n_true": 56,
+     "detector_hit": 32
+    },
+    "2019-2022": {
+     "n_true": 328,
+     "detector_hit": 209
+    },
+    "<=2018": {
+     "n_true": 42,
+     "detector_hit": 21
+    }
+   }
+  },
+  "crosswalk_s1": {
+   "threshold": 0.21,
+   "weighted": {
+    "detector": {
+     "precision": 0.712265564385122,
+     "recall": 0.719842753698375,
+     "f1": 0.71603411384085,
+     "mcc": 0.6107544643379051,
+     "tp_w": 2624.546608,
+     "fp_w": 1060.239993,
+     "fn_w": 1021.453292,
+     "tn_w": 8843.759907
+    },
+    "osm": {
+     "precision": 0.8142715044041708,
+     "recall": 0.8982446625958492,
+     "f1": 0.8541992733607058,
+     "mcc": 0.7987242860298062,
+     "tp_w": 3274.99995,
+     "fp_w": 747.0000000000001,
+     "fn_w": 370.99995,
+     "tn_w": 9156.999899999999
+    },
+    "either": {
+     "precision": 0.7107919920834885,
+     "recall": 0.9463229173429215,
+     "f1": 0.8118190811586619,
+     "mcc": 0.7441630767745553,
+     "tp_w": 3450.293262,
+     "fp_w": 1403.859993,
+     "fn_w": 195.706638,
+     "tn_w": 8500.139907
+    },
+    "always_yes": {
+     "precision": 0.2690774873664573,
+     "recall": 1.0,
+     "f1": 0.42405210090809664,
+     "mcc": NaN,
+     "tp_w": 3645.9999,
+     "fp_w": 9903.9999,
+     "fn_w": 0,
+     "tn_w": 0
+    }
+   },
+   "f1_diff_detector_minus_osm_95": [
+    -0.18764861448364967,
+    -0.09125045227339224
+   ],
+   "f1_diff_or_minus_osm_95": [
+    -0.07158760514651796,
+    -0.014555081610720721
+   ],
+   "passes": false,
+   "secondary_detector_ge_osm": false,
+   "per_cell": {
+    "marked|0": {
+     "n": 150,
+     "detector_yes": 81,
+     "osm_yes": 150
+    },
+    "marked|1": {
+     "n": 150,
+     "detector_yes": 112,
+     "osm_yes": 150
+    },
+    "unknown|0": {
+     "n": 150,
+     "detector_yes": 10,
+     "osm_yes": 0
+    },
+    "unknown|1": {
+     "n": 126,
+     "detector_yes": 91,
+     "osm_yes": 51
+    },
+    "unmarked|0": {
+     "n": 150,
+     "detector_yes": 11,
+     "osm_yes": 0
+    },
+    "unmarked|1": {
+     "n": 150,
+     "detector_yes": 64,
+     "osm_yes": 0
+    }
+   },
+   "true_nodes_by_pano_year": {
+    "2023+": {
+     "n_true": 56,
+     "detector_hit": 30
+    },
+    "2019-2022": {
+     "n_true": 328,
+     "detector_hit": 216
+    },
+    "<=2018": {
+     "n_true": 42,
+     "detector_hit": 21
+    }
+   }
+  },
+  "crosswalk_s3": {
+   "threshold": 0.27,
+   "weighted": {
+    "detector": {
+     "precision": 0.7631767039668145,
+     "recall": 0.7495849371800587,
+     "f1": 0.7563197613426362,
+     "mcc": 0.6677619527233106,
+     "tp_w": 2732.986606,
+     "fp_w": 848.079996,
+     "fn_w": 913.013294,
+     "tn_w": 9055.919904
+    },
+    "osm": {
+     "precision": 0.8142715044041708,
+     "recall": 0.8982446625958492,
+     "f1": 0.8541992733607058,
+     "mcc": 0.7987242860298062,
+     "tp_w": 3274.99995,
+     "fp_w": 747.0000000000001,
+     "fn_w": 370.99995,
+     "tn_w": 9156.999899999999
+    },
+    "either": {
+     "precision": 0.7455668691094883,
+     "recall": 0.9457670569327223,
+     "f1": 0.8338182929899167,
+     "mcc": 0.7734505141734024,
+     "tp_w": 3448.266595,
+     "fp_w": 1176.759996,
+     "fn_w": 197.733305,
+     "tn_w": 8727.239904
+    },
+    "always_yes": {
+     "precision": 0.2690774873664573,
+     "recall": 1.0,
+     "f1": 0.42405210090809664,
+     "mcc": NaN,
+     "tp_w": 3645.9999,
+     "fp_w": 9903.9999,
+     "fn_w": 0,
+     "tn_w": 0
+    }
+   },
+   "f1_diff_detector_minus_osm_95": [
+    -0.14458414001919584,
+    -0.05518705592680995
+   ],
+   "f1_diff_or_minus_osm_95": [
+    -0.04769832847615041,
+    0.0045268150795220174
+   ],
+   "passes": false,
+   "secondary_detector_ge_osm": false,
+   "per_cell": {
+    "marked|0": {
+     "n": 150,
+     "detector_yes": 84,
+     "osm_yes": 150
+    },
+    "marked|1": {
+     "n": 150,
+     "detector_yes": 117,
+     "osm_yes": 150
+    },
+    "unknown|0": {
+     "n": 150,
+     "detector_yes": 4,
+     "osm_yes": 0
+    },
+    "unknown|1": {
+     "n": 126,
+     "detector_yes": 90,
+     "osm_yes": 51
+    },
+    "unmarked|0": {
+     "n": 150,
+     "detector_yes": 8,
+     "osm_yes": 0
+    },
+    "unmarked|1": {
+     "n": 150,
+     "detector_yes": 65,
+     "osm_yes": 0
+    }
+   },
+   "true_nodes_by_pano_year": {
+    "2023+": {
+     "n_true": 56,
+     "detector_hit": 29
+    },
+    "2019-2022": {
+     "n_true": 328,
+     "detector_hit": 222
+    },
+    "<=2018": {
+     "n_true": 42,
+     "detector_hit": 21
+    }
+   }
+  },
+  "released": {
+   "threshold": 0.1,
+   "weighted": {
+    "detector": {
+     "precision": 0.3328926295602588,
+     "recall": 0.868769427283857,
+     "f1": 0.4813448797569884,
+     "mcc": 0.22097635830818546,
+     "tp_w": 3167.533245,
+     "fp_w": 6347.646616999999,
+     "fn_w": 478.466655,
+     "tn_w": 3556.353283
+    },
+    "osm": {
+     "precision": 0.8142715044041708,
+     "recall": 0.8982446625958492,
+     "f1": 0.8541992733607058,
+     "mcc": 0.7987242860298062,
+     "tp_w": 3274.99995,
+     "fp_w": 747.0000000000001,
+     "fn_w": 370.99995,
+     "tn_w": 9156.999899999999
+    },
+    "either": {
+     "precision": 0.35592700631763097,
+     "recall": 0.9877674173825403,
+     "f1": 0.5232932333512678,
+     "mcc": 0.33627751882562046,
+     "tp_w": 3601.3999049999998,
+     "fp_w": 6516.966617,
+     "fn_w": 44.599995,
+     "tn_w": 3387.0332829999998
+    },
+    "always_yes": {
+     "precision": 0.2690774873664573,
+     "recall": 1.0,
+     "f1": 0.42405210090809664,
+     "mcc": NaN,
+     "tp_w": 3645.9999,
+     "fp_w": 9903.9999,
+     "fn_w": 0,
+     "tn_w": 0
+    }
+   },
+   "f1_diff_detector_minus_osm_95": [
+    -0.4007011527754265,
+    -0.3457766850460252
+   ],
+   "f1_diff_or_minus_osm_95": [
+    -0.34941795877542015,
+    -0.31219425179793703
+   ],
+   "passes": false,
+   "secondary_detector_ge_osm": false,
+   "per_cell": {
+    "marked|0": {
+     "n": 150,
+     "detector_yes": 116,
+     "osm_yes": 150
+    },
+    "marked|1": {
+     "n": 150,
+     "detector_yes": 130,
+     "osm_yes": 150
+    },
+    "unknown|0": {
+     "n": 150,
+     "detector_yes": 36,
+     "osm_yes": 0
+    },
+    "unknown|1": {
+     "n": 126,
+     "detector_yes": 107,
+     "osm_yes": 51
+    },
+    "unmarked|0": {
+     "n": 150,
+     "detector_yes": 113,
+     "osm_yes": 0
+    },
+    "unmarked|1": {
+     "n": 150,
+     "detector_yes": 135,
+     "osm_yes": 0
+    }
+   },
+   "true_nodes_by_pano_year": {
+    "2023+": {
+     "n_true": 56,
+     "detector_hit": 51
+    },
+    "2019-2022": {
+     "n_true": 328,
+     "detector_hit": 286
+    },
+    "<=2018": {
+     "n_true": 42,
+     "detector_hit": 35
+    }
+   }
+  }
+ },
+ "n_nodes": 876,
+ "scored_utc": "2026-11-09T17:31:35Z"
+}

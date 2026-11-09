@@ -1,0 +1,62 @@
+{
+ "labels": 9,
+ "panos": 6,
+ "base": "crosswalk_s1",
+ "new": "crosswalk_s4",
+ "ci_level": 0.95,
+ "boot_n": 2000,
+ "boot_seed": 274,
+ "radius": 0.05,
+ "models": {
+  "crosswalk_s1": {
+   "preds": "analysis_out/stage1_crosswalk_detector_274/hardneg/s4_eval/bayonne/preds/crosswalk_s1/bayonne.jsonl",
+   "sha256": "c1b45e25cf20bb65a0ebccdf1046b7eb8225c5000480d2673947151ceb964d5e",
+   "threshold": 0.21,
+   "hits": 9,
+   "recall": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ]
+  },
+  "crosswalk_s4": {
+   "preds": "analysis_out/stage1_crosswalk_detector_274/hardneg/s4_eval/bayonne/preds/crosswalk_s4/bayonne.jsonl",
+   "sha256": "e435242d8186a1f340a7a642a3d3ed17fe611e7904ddbca6233b569b6aba9be3",
+   "threshold": 0.23,
+   "hits": 9,
+   "recall": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ]
+  },
+  "crosswalk_s3": {
+   "preds": "analysis_out/stage1_crosswalk_detector_274/hardneg/s4_eval/bayonne/preds/crosswalk_s3/bayonne.jsonl",
+   "sha256": "3846913a82f629371b82a4c65b0348f9acf2ff94d5fcf16ffb59d7a0038147de",
+   "threshold": 0.27,
+   "hits": 8,
+   "recall": 0.8888888888888888,
+   "ci95": [
+    0.625,
+    1.0
+   ]
+  }
+ },
+ "paired": {
+  "crosswalk_s4 - crosswalk_s1": {
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "crosswalk_s3 - crosswalk_s1": {
+   "diff": -0.11111111111111116,
+   "ci95": [
+    -0.375,
+    0.0
+   ]
+  }
+ },
+ "primary_met": false
+}

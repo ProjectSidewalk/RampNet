@@ -1,0 +1,16 @@
+{
+ "label": "crosswalk_s4",
+ "threshold": 0.23,
+ "seed": 275,
+ "n_panos": 120,
+ "excluded_from": [
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/step0_audit/panos.csv",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/s3_audit/panos.csv"
+ ],
+ "city": "seattle-wa",
+ "random_panos": 120,
+ "node_fa_panos": 0,
+ "node_fa_only_panos": 0,
+ "detections": 245,
+ "detections_random": 245
+}

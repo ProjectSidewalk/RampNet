@@ -939,6 +939,45 @@ never sees a model.
 - **Car-top page** (`laurens_mine/`, `bprime-audit --draw-seed 276 --city laurens-ia --mode laurens_mine` at 0.21):
   124 cards on 96 of the 300 panos, rated on `rate_s4_carTop.html` with `--neg-disc`.
 
+#### `crosswalk_s4` results so far (2026-11-09; P2 and guard 2 wait on Step B)
+
+**Runs.** Training: klone jobs 43075000 (20-step smoke) and 43075001–43075003 (seeds 1–3), all 1,000 steps with no
+restarts. Final checkpoints are in `/gscratch/makelab/jonf/crosswalk274/v4_s{1,2,3}/`, sha256 `ebad379b…`,
+`48a9928f…` and `6f143e48…`. Inference: 43076556–43076564 and 43076586–43076588.
+
+**Thresholds** (`match-threshold` on `v2_labels/s4/threshold_sweep.csv`): each s4 seed against the s1 seed with
+the same number gives 0.23 (s1 0.21), 0.30 (s1 0.24) and 0.13 (s1 0.22). s4's own val picks are 0.33, 0.31 and
+0.24 (`v2_labels/s4/`). Seed 1 runs at **0.23** for everything below.
+
+| | `crosswalk_s1` (0.21) | `crosswalk_s4` (0.23) | rule | |
+|---|---|---|---|---|
+| **P1**: Columbia brick recall, 210 labels on 127 panos | 164 = 0.781 | 183 = 0.871 | paired diff, 97.5% lower end > 0 | **met**: +0.090 [0.041, 0.149] |
+| P2: Laurens Mapillary look-alikes per 100 panos | 41.2 | — | paired diff, 97.5% upper end < 0 | waits on Step B |
+| Guard 1: mean test F1 of three seeds (v2 labels) | 0.837 | 0.836 (0.830, 0.840, 0.837) | ≥ 0.827 | holds |
+| Guard 2: Seattle retention / look-alikes | — | — | ≥ 95% / ≤ +2.5 per 100 | waits on Step B |
+| Guard 3: (b′) weighted marked-node recall | 0.720 | 0.728 | drop ≤ 0.03 | holds |
+
+- P1 (`hardneg/s4_eval/columbia/`, `label-recall`): s3 at 0.27 is −0.029 [−0.075, 0.016] against s1.
+- Guard 1 (`v2_labels/s4_matched/`): at 0.23, seed 1's test P is 0.815 and R 0.846 (s1: 0.850, 0.845).
+- Guard 3 (`v2_labels/s4_matched/bprime/`): (b′) detector F1 rises from 0.716 to 0.759, mostly on precision
+  (0.712 → 0.794). s3 at 0.27 scores 0.756.
+
+**Reported, deciding nothing** (`label-recall --ci 0.95`; a label is hit by a detection at the model's threshold
+within 0.05):
+- PS prod's live Crosswalk labels (`hardneg/s4_eval/ps_labels/`): Laurens GoPro Max 3 of 16 for s4, against 0 for
+  s1 and s3; Juneau Trimble 5 of 5 (s1 5, s3 4).
+- Bayonne Panoramax, 9 live labels on 6 panos (`hardneg/s4_bayonne/`, pulled read-only with
+  `prod_bayonne_labels.sh`; panos streamed read-only from the store): s4 9 of 9, s1 9, s3 8
+  (`hardneg/s4_eval/bayonne/`).
+
+**Step B page** (`hardneg/s4_stepB/`). `bprime-audit` with the s3 confirmation's arguments, checked to reproduce s3's
+committed audits byte for byte, gives s4 at 0.23 245 detections on the Seattle draw, 103 on Juneau, 10 on Laurens
+Mapillary and 11 on Laurens GSV (`confirm_s3/<draw>/s4/`). `merge-cards` makes 369 cards. 200 lie within 0.01 of a
+card Jon rated on the confirmation page and inherit its verdict. The other 169 are rated blind on `rate_s4_stepB.html`
+(Seattle 93, Juneau 55, Laurens GSV 11, Laurens Mapillary 10). The page uses the `paint_brick` definition, the s4
+definition, because a brick crossing that s4 finds must not count as a look-alike. None of the inherited verdicts'
+notes mention brick.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
@@ -1058,6 +1097,21 @@ python $S score --root <root_v2> --preds $D/v2_labels/preds --labels crosswalk_s
 python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels --pano-data <seattle_pano_data.psv> --labels crosswalk_s3,crosswalk_s2,crosswalk_s1,released
 python $S bprime-audit <as Step 0> --preds-file $D/v2_labels/bprime/preds/crosswalk_s3/bprime.jsonl --label crosswalk_s3 --threshold 0.29 --out $N/s3_audit
 python $S cards --candidates $N/s3_audit/candidates.csv --label hardneg_s3 --pano-dir <bprime_4096> --preds-file $D/v2_labels/bprime/preds/crosswalk_s3/bprime.jsonl --threshold 0.29 --blind --prefill $N/step0_audit/ratings_jon_2026-11-06_step0.csv --out <outside the repo>
+# crosswalk_s4: three seeds on root_v4, inference, then guard 1, P1, guard 3 and the Step B page
+DATA_ROOT=<root_v4> RUNDIR=<rundir> COPY_DEST=<durable dir> SEED=<1|2|3> EXPECT_TRAIN=4294 EXPECT_VAL=1029 TRIM_EPOCH=1 sbatch stage_two/run_finetune_crosswalk_274.slurm
+FT_LABEL=crosswalk_s4[_seed2|_seed3] FT_CKPT=<COPY_DEST>/final_step_1000.pth FT_SHA=<its .sha256> RELEASED=0 ROOT=<root_v4> PREDS=<dir> sbatch scripts/analysis/stage1_crosswalk_sdot_274/score_274.slurm
+...seed 1 also with BPRIME=1, and BPRIME=1 IDS_FILE=<ids> BPRIME_PANOS=<prepped dir> SPLIT_NAME=<cities|ps_labels|columbia|bayonne>
+L=crosswalk_s4,crosswalk_s4_seed2,crosswalk_s4_seed3,crosswalk_s1,crosswalk_s1_seed2,crosswalk_s1_seed3,crosswalk_s3,released,label_ceiling
+python $S score --root <root_v2> --preds $D/v2_labels/preds --labels $L <as above> --out $D/v2_labels/s4
+python $S match-threshold --sweep $D/v2_labels/s4/threshold_sweep.csv --base crosswalk_s1[_seedN] --new crosswalk_s4[_seedN]   # 0.23, 0.3, 0.13
+python $S score ... --labels $L --fixed-threshold crosswalk_s4=0.23 crosswalk_s4_seed2=0.3 crosswalk_s4_seed3=0.13 crosswalk_s3=0.27 --out $D/v2_labels/s4_matched
+python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels/s4_matched --pano-data <seattle_pano_data.psv> --labels crosswalk_s4,crosswalk_s1,crosswalk_s3,released --out $D/v2_labels/s4_matched/bprime
+E=$N/s4_eval
+python $S label-recall --labels $N/s4_inputs/stepA/columbia_gt.csv --base crosswalk_s1=$E/columbia/preds/crosswalk_s1/columbia.jsonl@0.21 --new crosswalk_s4=$E/columbia/preds/crosswalk_s4/columbia.jsonl@0.23 --also crosswalk_s3=$E/columbia/preds/crosswalk_s3/columbia.jsonl@0.27 --out $E/columbia
+python $S label-recall --ci 0.95 --labels $N/confirm_s3/ps_labels/labels.csv ... --out $E/ps_labels   # and --labels $N/s4_bayonne/labels.csv ... --out $E/bayonne
+python $S bprime-audit <the s3 confirmation's arguments, per draw> --preds-file <s4 preds> --label crosswalk_s4 --threshold 0.23 --out $N/confirm_s3/<draw>/s4
+python $S merge-cards --candidates sea_s4=... jun_s4=... lmly_s4=... lgsv_s4=... --out $N/s4_stepB
+python $S cards --candidates $N/s4_stepB/candidates.csv --label s4_stepB --pano-dir <page panos> --preds-file $N/s4_stepB/context.jsonl --threshold 0 --blind --prefill $N/confirm_s3/page/ratings_jon_2026-11-08_confirm.csv --definition paint_brick --out <outside the repo>
 # archive (staging on D:, then Jon copies it to the lab share)
 A=scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py
 python $A stage --out <staging> && python $A natives --out <staging>
