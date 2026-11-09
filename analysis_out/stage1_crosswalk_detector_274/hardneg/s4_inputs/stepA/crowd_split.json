@@ -1,0 +1,12 @@
+{
+  "s4_test_brick": {
+    "crosswalk": 210,
+    "file": "columbia_gt.csv",
+    "not_crosswalk": 3,
+    "unsure": 1
+  },
+  "s4_train_mapillary": {
+    "crosswalk": 89,
+    "file": "richmond_positives.csv"
+  }
+}

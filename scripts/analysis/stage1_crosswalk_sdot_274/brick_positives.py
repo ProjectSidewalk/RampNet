@@ -17,6 +17,7 @@ confirmed by Jon before it becomes a training positive (the arm C confirmer cann
   python brick_positives.py page --out OUT             # -> OUT/jon_selection.csv, then `cards --only` it
   python brick_positives.py tally --ratings <Jon's export> --out OUT   # -> OUT/positives.csv, OUT/tally.json
   python brick_positives.py crowd-candidates --labels <ps_s4_labels.csv> --out <candidates.csv>   # s4 Step A
+  python brick_positives.py crowd-split --candidates <candidates.csv> --ratings <Jon's export> --out OUT
 
 Selection rule (fixed before any image was looked at): tag `brick/cobblestone`, source gsv, not voted incorrect by
 majority (disagree <= agree), city not already in the Stage 2 root's training cities (no split leak), pano not
@@ -26,6 +27,7 @@ and is kept for a held-out brick test.
 import argparse
 import csv
 import glob
+import json
 import os
 import sys
 
@@ -275,6 +277,30 @@ def cmd_crowd_candidates(a):
     log(f"crowd-candidates: {len(out)} cards: " + ", ".join(f"{m} {n}" for m, n in Counter(o['mode'] for o in out).items()))
 
 
+def cmd_crowd_split(a):
+    """s4 Step A, after Jon rates the crowd page: Columbia labels he called crosswalk become the P1 GT
+    (columbia_gt.csv), Richmond labels he called crosswalk become training positives (richmond_positives.csv).
+    Refuses ratings that do not cover candidates.csv exactly once. Writes crowd_split.json (the verdict table)."""
+    import pandas as pd
+    cand = pd.read_csv(a.candidates, dtype=str, keep_default_na=False)
+    rat = pd.read_csv(a.ratings, dtype=str, keep_default_na=False)
+    assert rat.stratum.is_unique and cand.stratum.is_unique, "label_uid not unique"
+    assert set(rat.stratum) == set(cand.stratum), "ratings do not cover candidates.csv exactly"
+    assert (rat.verdict != "").all(), "unrated cards"
+    m = cand.merge(rat[["stratum", "verdict", "note", "rated_at"]], on="stratum", validate="one_to_one")
+    m = m.rename(columns={"stratum": "label_uid"})
+    cols = ["label_uid", "city", "pano_id", "x", "y", "year", "note"]
+    out = {}
+    for mode, name in (("s4_test_brick", "columbia_gt.csv"), ("s4_train_mapillary", "richmond_positives.csv")):
+        keep = m[(m["mode"] == mode) & (m.verdict == "crosswalk")][cols]
+        keep.to_csv(os.path.join(a.out, name), index=False)
+        out[mode] = {"crosswalk": int(len(keep)), "file": name,
+                     **{v: int(n) for v, n in m[m["mode"] == mode].verdict.value_counts().items()}}
+    with open(os.path.join(a.out, "crowd_split.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2)
+    log(f"crowd-split: {out}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -298,9 +324,13 @@ def main():
     cc = sub.add_parser("crowd-candidates")
     cc.add_argument("--labels", required=True, help="ps_s4_labels_<date>.csv from prod_s4_labels.sh")
     cc.add_argument("--out", required=True, help="candidates.csv")
+    cs = sub.add_parser("crowd-split")
+    cs.add_argument("--candidates", required=True, help="crowd_candidates.csv")
+    cs.add_argument("--ratings", required=True, help="Jon's export from the s4_crowd page")
+    cs.add_argument("--out", required=True)
     a = ap.parse_args()
     {"select": cmd_select, "candidates": cmd_candidates, "prescreen": cmd_prescreen, "page": cmd_page,
-     "tally": cmd_tally, "crowd-candidates": cmd_crowd_candidates}[a.cmd](a)
+     "tally": cmd_tally, "crowd-candidates": cmd_crowd_candidates, "crowd-split": cmd_crowd_split}[a.cmd](a)
 
 
 if __name__ == "__main__":
