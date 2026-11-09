@@ -26,8 +26,8 @@ Bundle `benchmark/sao_paulo`, splits `benchmark/prompt_opt_276/sao_paulo_split.j
 | para1 | dev_select | 65 | 0.755 (0.659-0.831) | 0.564 (0.476-0.647) | **0.645** | 71/23/126 |  |
 | para2 | dev_select | 65 | 0.765 (0.674-0.837) | 0.619 (0.532-0.699) | **0.684** | 78/24/126 |  |
 | para3 | dev_select | 65 | 0.806 (0.717-0.872) | 0.627 (0.540-0.707) | **0.705** | 79/19/126 |  |
-| expert | dev_select | 65 | | | | | pending (2/65 cached) |
-| expert-long | dev_select | 65 | | | | | pending (0/65 cached) |
+| expert | dev_select | 65 | 0.690 (0.600-0.768) | 0.619 (0.532-0.699) | **0.653** | 78/35/126 |  |
+| expert-long | dev_select | 65 | 0.723 (0.634-0.798) | 0.643 (0.556-0.721) | **0.681** | 81/31/126 |  |
 | zs_conf | all | 125 | 0.700 (0.645-0.750) | 0.715 (0.660-0.765) | **0.708** | 201/86/281 | 322 boxes, 57 distinct scores |
 
 ## Qwen/Qwen3-VL-32B-Instruct

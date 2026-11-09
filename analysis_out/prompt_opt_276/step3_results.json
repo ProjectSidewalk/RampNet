@@ -420,8 +420,23 @@
    "confidence": false,
    "cache": ".model_cache",
    "n_panos": 65,
-   "n_cached": 2,
-   "status": "pending"
+   "n_cached": 65,
+   "status": "scored",
+   "precision": 0.6903,
+   "recall": 0.619,
+   "f1": 0.6527,
+   "precision_ci": [
+    0.5999,
+    0.7681
+   ],
+   "recall_ci": [
+    0.5319,
+    0.6991
+   ],
+   "tp": 78,
+   "fp": 35,
+   "n_gt": 126,
+   "n_pred": 124
   },
   {
    "model": "gemini-4-argon",
@@ -432,8 +447,23 @@
    "confidence": false,
    "cache": ".model_cache",
    "n_panos": 65,
-   "n_cached": 0,
-   "status": "pending"
+   "n_cached": 65,
+   "status": "scored",
+   "precision": 0.7232,
+   "recall": 0.6429,
+   "f1": 0.6807,
+   "precision_ci": [
+    0.634,
+    0.7976
+   ],
+   "recall_ci": [
+    0.5561,
+    0.7212
+   ],
+   "tp": 81,
+   "fp": 31,
+   "n_gt": 126,
+   "n_pred": 123
   },
   {
    "model": "gemini-4-argon",
