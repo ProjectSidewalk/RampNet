@@ -27,6 +27,10 @@ shuffled with seed 42, and filled train 70 / val 20 / rest test. Every pano with
                                  --phase1-sheet <sheet.csv> --root <Stage 2 root> --out OUT [--keep-split]
   python export_stage2.py add-negatives --ratings <page CSVs, in order> --drop <disc-rule CSV> --src-root <root_v2>
                                  --root <root_v3> --out OUT     # crosswalk_s3: Jon's negatives on train panos
+  python export_stage2.py add-panos --src-root <root_v3> --root <root_v4> --positives <csv>=<jpgs> ...
+                                 --negatives <ratings>=<jpgs> --positions <prod_s4_pano_positions.sh out>
+                                 --phase1-sheet <sheet.csv> --census-rawlabels <census out/rawlabels>
+                                 --exclude <draw lists> --out OUT   # crosswalk_s4: new sparse train panos
 Writes `manifest.json` (counts per split / mode / city, input sha256s) into OUT; the root itself is untracked.
 """
 import argparse
@@ -432,6 +436,154 @@ def cmd_add_negatives(a):
         f"positive; labels digest {labels.hexdigest()[:12]}")
 
 
+# ---------------------------------------------------------------- new train panos (crosswalk_s4)
+
+def _ids(path):
+    """Pano ids from a draw list (`<id>.jpg` per line) or any CSV with a pano_id column."""
+    with open(path, encoding="utf-8", newline="") as f:
+        if path.endswith(".csv"):
+            return {r["pano_id"] for r in csv.DictReader(f)}
+        return {ln.strip()[:-4] if ln.strip().endswith(".jpg") else ln.strip() for ln in f if ln.strip()}
+
+
+def census_crosswalk_points(rawlabels_dir, panos):
+    """{pano_id: [(label_uid, x, y)]}: every Crosswalk label in the Phase 0 census on `panos`, any vote."""
+    out = {}
+    for path in sorted(os.listdir(rawlabels_dir)):
+        if not path.endswith("_Crosswalk.csv"):
+            continue
+        city = path[:-len("_Crosswalk.csv")]
+        with open(os.path.join(rawlabels_dir, path), encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                if r["pano_id"] in panos:
+                    out.setdefault(r["pano_id"], []).append(
+                        (f"{city}:{r['label_id']}", float(r["pano_x"]) / float(r["pano_width"]),
+                         float(r["pano_y"]) / float(r["pano_height"])))
+    return out
+
+
+def cmd_add_panos(a):
+    """A new root = --src-root plus new TRAIN panos (crosswalk_s4, pre-registered in docs/stage1_crosswalk_sdot_274.md):
+    Jon-confirmed positives as `sparse` panos, and car-top negatives as `sparse` panos with only
+    `supervision.negative_points`. Every source-root file is carried over byte for byte (JPEGs hardlinked, JSONs
+    copied), so val, test and the s3 train set are unchanged. Every other census Crosswalk label on a new positive
+    pano becomes an ignore point (it is unconfirmed, and sparse training would otherwise teach background near it).
+    Stops on: a new pano already in the source root or in an --exclude list, a pano with no prod position, a
+    negative within NEGATIVE_MIN_DIST of a positive. Drops (and counts) a pano within PHASE1_M of a Phase 1 GT node,
+    measured from the pano's own position in prod (prod_s4_pano_positions.sh), never from a label's."""
+    where = {}
+    for s in ("train", "val", "test"):
+        for fn in os.listdir(os.path.join(a.src_root, s)):
+            if fn.endswith(".json"):
+                where[fn[:-5]] = s
+    excluded = set()
+    for p in a.exclude:
+        excluded |= _ids(p)
+    pos_by, img = {}, {}
+    for spec in a.positives:
+        path, d = spec.split("=", 1)
+        with open(path, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                pos_by.setdefault(r["pano_id"], {"city": r["city"], "pts": []})["pts"].append(
+                    (r["label_uid"], float(r["x"]), float(r["y"])))
+                img[r["pano_id"]] = os.path.join(d, r["pano_id"] + ".jpg")
+    neg_by = {}
+    for spec in a.negatives:
+        path, d = spec.split("=", 1)
+        with open(path, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                if r["verdict"] != "not_crosswalk":
+                    continue
+                neg_by.setdefault(r["pano_id"], {"city": r["city"], "pts": []})["pts"].append(
+                    (r["card_id"], float(r["x"]), float(r["y"])))
+                img.setdefault(r["pano_id"], os.path.join(d, r["pano_id"] + ".jpg"))
+    new = set(pos_by) | set(neg_by)
+    clash = sorted(p for p in new if p in where)
+    if clash:
+        raise SystemExit(f"{len(clash)} new panos are already in the source root: {clash[:10]}")
+    clash = sorted(new & excluded)
+    if clash:
+        raise SystemExit(f"{len(clash)} new panos are in an --exclude list: {clash[:10]}")
+    pos_at = {}
+    with open(a.positions, encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            if r["pano_id"] in new:
+                pos_at[r["pano_id"]] = (float(r["lat"]), float(r["lng"]), r["capture_date"] or None)
+    missing = sorted(new - set(pos_at))
+    if missing:
+        raise SystemExit(f"{len(missing)} new panos have no prod position: {missing[:10]}")
+    p1 = [(float(r["node_lat"]), float(r["node_lng"]), r["gt_id"])
+          for r in csv.DictReader(open(a.phase1_sheet, encoding="utf-8", newline=""))]
+    g_p1 = Grid(p1, lat0=40.0)
+    near_p1 = sorted(p for p in new if g_p1.within(pos_at[p][0], pos_at[p][1], PHASE1_M))
+    new -= set(near_p1)
+    others = census_crosswalk_points(a.census_rawlabels, new)
+    # copy the source root unchanged
+    for s in ("train", "val", "test"):
+        src, dst = os.path.join(a.src_root, s), os.path.join(a.root, s)
+        os.makedirs(dst, exist_ok=True)
+        for fn in sorted(os.listdir(src)):
+            dp = os.path.join(dst, fn)
+            if fn.endswith(".jpg") and not os.path.exists(dp):
+                os.link(os.path.join(src, fn), dp)
+            elif fn.endswith(".json"):
+                with open(os.path.join(src, fn), "rb") as fi, open(dp, "wb") as fo:
+                    fo.write(fi.read())
+    counts, rows = {}, []
+    for pid in sorted(new):
+        p, n = pos_by.get(pid), neg_by.get(pid)
+        city = (p or n)["city"]
+        pts = [(x, y) for _, x, y in (p["pts"] if p else [])]
+        mine = {u for u, _, _ in (p["pts"] if p else [])}
+        ignore = [[round(x, 6), round(y, 6)] for u, x, y in others.get(pid, []) if u not in mine]
+        sup = {"city": city, "label_type": "Crosswalk", "mode": "sparse",
+               "sources": ["ps_crowd_jon_confirmed"] * len(pts),
+               "point_ids": [u for u, _, _ in p["pts"]] if p else [], "ignore_points": ignore}
+        if n:
+            for cid, nx, ny in n["pts"]:
+                if any(neg_dist((nx, ny), q) < NEGATIVE_MIN_DIST for q in pts):
+                    raise SystemExit(f"{cid}: negative within {NEGATIVE_MIN_DIST} of a positive on {pid}")
+            sup["negative_points"] = [[x, y] for _, x, y in n["pts"]]
+            sup["negative_ids"] = [c for c, _, _ in n["pts"]]
+        lat, lng, date = pos_at[pid]
+        js = {"pano_id": pid, "curb_ramp_points_normalized": [[x, y] for x, y in pts], "pano_coord": [lat, lng],
+              "capture_date": date, "supervision": sup}
+        d = os.path.join(a.root, "train")
+        jp = os.path.join(d, pid + ".jpg")
+        if not os.path.exists(jp):
+            os.link(img[pid], jp)          # already written by bprime-prep = write_image, as the root's JPEGs
+        with open(os.path.join(d, pid + ".json"), "w", encoding="utf-8", newline="\n") as f:
+            json.dump(js, f)
+        kind = "positives" if p else "negatives_only"
+        key = f"train/{kind}/{city}"
+        counts[key] = counts.get(key, 0) + 1
+        rows.append({"pano_id": pid, "city": city, "kind": kind, "positives": len(pts),
+                     "negatives": len(n["pts"]) if n else 0, "ignore_points": len(ignore)})
+    labels = hashlib.sha256()
+    for s in ("train", "val", "test"):
+        for fn in sorted(os.listdir(os.path.join(a.root, s))):
+            if fn.endswith(".json"):
+                labels.update(f"{s}/{fn} {sha256(os.path.join(a.root, s, fn))}\n".encode())
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "new_panos.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
+        w.writeheader()
+        w.writerows(rows)
+    man = {"src_root": a.src_root, "root": a.root, "new_panos": len(rows), "panos_by_kind_city": dict(sorted(counts.items())),
+           "positives": sum(r["positives"] for r in rows), "negatives": sum(r["negatives"] for r in rows),
+           "ignore_points": sum(r["ignore_points"] for r in rows),
+           "dropped_near_phase1_gt": near_p1, "phase1_exclusion_m": PHASE1_M,
+           "inputs_sha256": {p.split("=", 1)[0]: sha256(p.split("=", 1)[0])
+                             for p in [*a.positives, *a.negatives, a.positions, a.phase1_sheet, *a.exclude]},
+           "labels_digest": labels.hexdigest(),
+           "labels_digest_rule": "sha256 over sorted lines '<split>/<id>.json <sha256 of the file>\\n'",
+           "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    with open(os.path.join(a.out, "manifest.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(man, f, indent=1)
+    log(f"{len(rows)} new train panos -> {a.root}; {counts}; {len(near_p1)} dropped near Phase 1 GT; "
+        f"labels digest {labels.hexdigest()[:12]}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -456,9 +608,21 @@ def main():
     s.add_argument("--src-root", required=True, help="the root to extend (root_v2)")
     s.add_argument("--root", required=True, help="the new root (JPEGs hardlinked from --src-root)")
     s.add_argument("--out", required=True, help="writes negatives.csv + manifest.json here")
+    s = sub.add_parser("add-panos", help="crosswalk_s4: a new root with new sparse train panos")
+    s.add_argument("--src-root", required=True, help="the root to extend (root_v3)")
+    s.add_argument("--root", required=True, help="the new root (root_v4)")
+    s.add_argument("--positives", nargs="+", default=[],
+                   help="<csv with label_uid,city,pano_id,x,y>=<dir of 4096x2048 JPEGs>")
+    s.add_argument("--negatives", nargs="*", default=[],
+                   help="<ratings CSV; not_crosswalk rows become negatives>=<dir of 4096x2048 JPEGs>")
+    s.add_argument("--positions", required=True, help="prod_s4_pano_positions.sh output")
+    s.add_argument("--phase1-sheet", required=True)
+    s.add_argument("--census-rawlabels", required=True, help="Phase 0 census out/rawlabels")
+    s.add_argument("--exclude", nargs="*", default=[], help="draw lists / panos CSVs that must not be added")
+    s.add_argument("--out", required=True, help="writes new_panos.csv + manifest.json here")
     a = ap.parse_args()
     {"neg-pick": cmd_neg_pick, "neg-check": cmd_neg_check, "build": cmd_build,
-     "add-negatives": cmd_add_negatives}[a.cmd](a)
+     "add-negatives": cmd_add_negatives, "add-panos": cmd_add_panos}[a.cmd](a)
 
 
 if __name__ == "__main__":

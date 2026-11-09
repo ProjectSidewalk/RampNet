@@ -847,6 +847,17 @@ byte the same.
 - **Excluded and kept for testing:** Columbia SC, the four confirmation draws, the 14 Laurens and Juneau panos
   with PS labels, and Bayonne. A new pano within 35 m of a Phase 1 GT node is dropped, as for the root.
 - `export_stage2.py` gets an `add-panos` step. `check_root_negatives.py` is extended to every new JSON.
+- **Built 2026-11-09** (`hardneg/root_v4/manifest.json`, `new_panos.csv`). There are 693 new train panos:
+  - 548 brick panos (11 of the 559 dropped within 35 m of a Phase 1 GT node, in Chicago and Columbus);
+  - 49 Richmond panos;
+  - 96 Laurens negative-only panos.
+
+  They carry 962 positives and 124 negatives, plus 680 ignore points. The ignore points are every other census
+  Crosswalk label on a new positive pano. Each Phase 1 distance is measured from the pano's own position in
+  prod (`prod_s4_pano_positions.sh` → `s4_inputs/pano_positions_2026-11-09.csv`), never from a label's.
+  - All 5,145 `root_v3` JSONs are byte-identical in `root_v4`: train 3,601 → 4,294, val 1,029, test 515.
+  - `check_root_negatives.py <root_v4> new_panos.csv` passes: 290 negatives at weight 1 with target about 0, and
+    962 positives at weight 1 with target ≥ 0.9.
 
 **Recipe.** Identical to s1 and s3: released weights, seed 1, 1,000 steps at batch 16, LR 1e-5,
 `--loss-mask --mask-norm pixels`, final checkpoint only, and a 20-step smoke run first.

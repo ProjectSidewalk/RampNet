@@ -6,7 +6,10 @@ train pano that carries negatives goes through `EquiHeatmapDataset.__getitem__` 
 each negative's heatmap pixel the weight must be 1 and the target about 0. The functions are lifted from train.py
 as the tests do (it parses arguments and sets up CUDA on import). CPU only.
 
-  python scripts/analysis/stage1_crosswalk_sdot_274/check_root_negatives.py <root>
+  python scripts/analysis/stage1_crosswalk_sdot_274/check_root_negatives.py <root> [<new_panos.csv>]
+
+With `new_panos.csv` (export_stage2.py add-panos, crosswalk_s4) every pano it lists also goes through the dataset,
+negatives or not, and at each of its positives the weight must be 1 and the target at least 0.9.
 """
 import glob
 import json
@@ -32,6 +35,11 @@ SHAPE = (512, 1024)
 
 def main():
     root = sys.argv[1]
+    new = set()
+    if len(sys.argv) > 2:
+        import csv
+        with open(sys.argv[2], encoding="utf-8", newline="") as f:
+            new = {r["pano_id"] for r in csv.DictReader(f)}
     mod = load_from_train_py(
         "EquiHeatmapDataset", "generate_heatmap_from_points", "generate_weight_from_points",
         "generate_dense_ignore_weight", "supervision_ignore_boxes", "supervision_negative_points",
@@ -55,20 +63,34 @@ def main():
                                 transform_input=transforms.ToTensor(),
                                 points_to_heatmap_transform_fn=mod.generate_heatmap_from_points,
                                 apply_horizontal_flip=False, loss_mask=True)
-    checked = 0
+    checked = checked_pos = seen_new = 0
     for i, jp in enumerate(ds.json_paths):
         with open(jp, encoding="utf-8") as f:
-            negs = (json.load(f).get("supervision") or {}).get("negative_points")
-        if not negs:
+            d = json.load(f)
+        negs = (d.get("supervision") or {}).get("negative_points")
+        is_new = os.path.basename(jp)[:-5] in new
+        if not negs and not is_new:
             continue
         _, hm, w = ds[i]
         hm, w = hm.numpy()[0], w.numpy()[0]
+        if is_new:
+            seen_new += 1
+            for x, y in d["curb_ramp_points_normalized"]:
+                r, c = min(int(y * SHAPE[0]), SHAPE[0] - 1), min(int(x * SHAPE[1]), SHAPE[1] - 1)
+                if not (w[r, c] == 1 and hm[r, c] >= 0.9):
+                    raise SystemExit(f"{jp}: positive ({x}, {y}) weight {w[r, c]} target {hm[r, c]}")
+                checked_pos += 1
+        negs = negs or []
         for x, y in negs:
             r, c = min(int(y * SHAPE[0]), SHAPE[0] - 1), min(int(x * SHAPE[1]), SHAPE[1] - 1)
             if not (w[r, c] == 1 and hm[r, c] < 0.05):
                 raise SystemExit(f"{jp}: negative ({x}, {y}) weight {w[r, c]} target {hm[r, c]}")
             checked += 1
     print(f"{checked} negatives through the dataset: weight 1, target ~0 at each")
+    if new:
+        if seen_new != len(new):
+            raise SystemExit(f"{len(new) - seen_new} panos of new_panos.csv are not in {root}/train")
+        print(f"{seen_new} new panos through the dataset; {checked_pos} positives: weight 1, target >= 0.9 at each")
 
 
 if __name__ == "__main__":
