@@ -23,7 +23,7 @@ benchmark/*/heatmap_cache/
 benchmark/*/depth/
 .env
 view_dump/
-.model_cache/
+.model_cache*/
 # Ignore analysis_out/ CONTENTS rather than the directory itself: git cannot re-include a
 # file whose parent directory is excluded, and one thing in here must be tracked.
 analysis_out/*
