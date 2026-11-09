@@ -1704,12 +1704,34 @@ def cmd_carry(a):
 RETENTION_MIN = 0.95   # crosswalk_s3 guard 2: share of the Step 0 crosswalks the new model still detects
 
 
-def paired_lookalike_diff(panos, base, new, rng, n=BOOT_N):
+def pct_interval(boots, level=0.95):
+    """Percentile interval of sorted bootstrap values, at the indices every #274 interval has used at 95%.
+
+    >>> pct_interval(list(range(2000)))
+    [50, 1949]
+    >>> pct_interval(list(range(2000)), 0.975)
+    [25, 1974]
+    """
+    k = int(round((1 - level) / 2 * len(boots)))
+    return [boots[k], boots[len(boots) - k - 1]]
+
+
+def ci_key(level):
+    """Output key suffix for an interval level: 0.95 -> 'ci95' (as written before s4), 0.975 -> 'ci975'.
+
+    >>> ci_key(0.95), ci_key(0.975)
+    ('ci95', 'ci975')
+    """
+    return "ci" + f"{level:g}"[2:]
+
+
+def paired_lookalike_diff(panos, base, new, rng, n=BOOT_N, level=0.95):
     """Paired change in look-alikes per 100 panos, new minus base, on one set of drawn panos.
 
     `base` and `new` map pano_id -> look-alike count (a pano with none may be absent). The interval resamples
     panos with replacement and keeps each pano's two counts together, so pano-to-pano variation cancels.
-    Returns (point, [lo, hi]) with a 95% percentile interval.
+    Returns (point, [lo, hi]) with a `level` percentile interval (95% unless the pre-registration says otherwise;
+    s4's two primaries use 97.5%, Bonferroni).
 
     >>> import random as _r
     >>> pt, ci = paired_lookalike_diff(["a", "b", "c", "d"], {"a": 2, "b": 1}, {"a": 1}, _r.Random(0), n=200)
@@ -1719,7 +1741,7 @@ def paired_lookalike_diff(panos, base, new, rng, n=BOOT_N):
     d = [new.get(p, 0) - base.get(p, 0) for p in panos]
     point = 100 * sum(d) / len(d)
     boots = sorted(100 * sum(rng.choice(d) for _ in d) / len(d) for _ in range(n))
-    return point, [boots[int(0.025 * n)], boots[int(0.975 * n) - 1]]
+    return point, pct_interval(boots, level)
 
 
 def cmd_audit_compare(a):
@@ -1730,7 +1752,8 @@ def cmd_audit_compare(a):
     panos on the `random` stratum, with a pano bootstrap (BOOT_N, BOOT_SEED); it is met when the interval's upper
     end is below 0. Guard 2: of the base model's random-stratum detections rated crosswalk, the share with a new
     detection at or above --new-threshold within RADIUS (matcher units) on the same pano, at least
-    RETENTION_MIN. Writes audit_compare.json to --out."""
+    RETENTION_MIN. `--ci` sets the interval level (s4's primaries: 0.975) for both paired intervals. Writes
+    audit_compare.json to --out."""
     def load(panos_csv, ratings_csv):
         with open(panos_csv, encoding="utf-8", newline="") as f:
             drawn = sorted(r["pano_id"] for r in csv.DictReader(f) if "random" in r["stratum"])
@@ -1751,10 +1774,10 @@ def cmd_audit_compare(a):
     drawn_b, look_b, uns_b, _ = load(a.new_panos, a.new_ratings)
     if drawn != drawn_b:
         raise SystemExit("the two draws differ: run bprime-audit with the same --ids-file and --n-panos")
-    point, ci = paired_lookalike_diff(drawn, look_a, look_b, random.Random(BOOT_SEED))
+    point, ci = paired_lookalike_diff(drawn, look_a, look_b, random.Random(BOOT_SEED), level=a.ci)
     err_a = {p: look_a.get(p, 0) + uns_a.get(p, 0) for p in drawn}
     err_b = {p: look_b.get(p, 0) + uns_b.get(p, 0) for p in drawn}
-    e_point, e_ci = paired_lookalike_diff(drawn, err_a, err_b, random.Random(BOOT_SEED))
+    e_point, e_ci = paired_lookalike_diff(drawn, err_a, err_b, random.Random(BOOT_SEED), level=a.ci)
     preds = {r["pano_id"]: [q for q in r["preds"] if q[2] >= a.new_threshold] for r in read_jsonl(a.new_preds)}
     real = [r for r in cards_a if r["verdict"] == "crosswalk"]
     kept = [r for r in real if any(dist_sq(float(r["x"]), float(r["y"]), q[0], q[1], SCALE_X, SCALE_Y, True)
@@ -1763,14 +1786,115 @@ def cmd_audit_compare(a):
     out = {"base": a.base_label, "new": a.new_label, "new_threshold": a.new_threshold, "panos": len(drawn),
            "lookalikes_per_100": {"base": 100 * sum(look_a.values()) / len(drawn),
                                   "new": 100 * sum(look_b.values()) / len(drawn)},
-           "paired_diff_lookalikes_per_100": point, "paired_diff_ci95": ci,
+           "paired_diff_lookalikes_per_100": point, f"paired_diff_{ci_key(a.ci)}": ci,
            "primary_met": ci[1] < 0,
-           "paired_diff_errors_per_100": e_point, "paired_diff_errors_ci95": e_ci,
+           "paired_diff_errors_per_100": e_point, f"paired_diff_errors_{ci_key(a.ci)}": e_ci,
            "retention": {"base_crosswalks": len(real), "still_detected": len(kept), "share": retention,
                          "min": RETENTION_MIN, "met": retention >= RETENTION_MIN},
            "boot_n": BOOT_N, "boot_seed": BOOT_SEED}
+    if a.ci != 0.95:
+        out["ci_level"] = a.ci
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "audit_compare.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=1)
+    log(json.dumps(out, indent=1))
+
+
+def label_hits(labels, preds, threshold):
+    """Per label: the best confidence of any detection within RADIUS (matcher units, seam wrapped) on its pano,
+    and whether it reaches `threshold`. `labels` are dicts with pano_id, x, y; `preds` maps pano_id -> [[x, y, c]].
+
+    >>> hs = label_hits([{"pano_id": "p", "x": 0.50, "y": 0.55}, {"pano_id": "q", "x": 0.2, "y": 0.6}],
+    ...                 {"p": [[0.52, 0.55, 0.30], [0.9, 0.5, 0.9]]}, 0.21)
+    >>> [(h["best_conf_within_radius"], h["hit"]) for h in hs]
+    [(0.3, 1), (0.0, 0)]
+    """
+    out = []
+    for r in labels:
+        x, y = float(r["x"]), float(r["y"])
+        near = [q[2] for q in preds.get(r["pano_id"], [])
+                if dist_sq(x, y, q[0], q[1], SCALE_X, SCALE_Y, True) < RADIUS_SQ]
+        best = max(near, default=0.0)
+        out.append({**r, "best_conf_within_radius": round(best, 4), "hit": int(best >= threshold)})
+    return out
+
+
+def paired_recall_diff(hits_base, hits_new, rng, n=BOOT_N, level=0.95):
+    """Label recall of two models on the same labels, and new minus base, with a pano bootstrap that keeps every
+    label of a resampled pano and both models' hits on it together. Recall in a resample is hits over labels
+    (a ratio, so a pano with more labels weighs more). `hits_*` are label_hits rows in the same order.
+    Returns {"base": (point, ci), "new": (point, ci), "diff": (point, ci)}.
+
+    >>> base = [{"pano_id": p, "hit": 0} for p in "abcd"]
+    >>> new = [{"pano_id": p, "hit": 1} for p in "abc"] + [{"pano_id": "d", "hit": 0}]
+    >>> r = paired_recall_diff(base, new, random.Random(0), n=200)
+    >>> r["diff"][0], r["base"][0]
+    (0.75, 0.0)
+    """
+    per = {}
+    for hb, hn in zip(hits_base, hits_new):
+        assert hb["pano_id"] == hn["pano_id"]
+        k, b, w = per.get(hb["pano_id"], (0, 0, 0))
+        per[hb["pano_id"]] = (k + 1, b + hb["hit"], w + hn["hit"])
+    rows = [per[p] for p in sorted(per)]
+
+    def rec(rs):
+        k = sum(r[0] for r in rs)
+        return sum(r[1] for r in rs) / k, sum(r[2] for r in rs) / k
+    pb, pn = rec(rows)
+    bb, bn, bd = [], [], []
+    for _ in range(n):
+        b, w = rec([rng.choice(rows) for _ in rows])
+        bb.append(b)
+        bn.append(w)
+        bd.append(w - b)
+    return {"base": (pb, pct_interval(sorted(bb), level)), "new": (pn, pct_interval(sorted(bn), level)),
+            "diff": (pn - pb, pct_interval(sorted(bd), level))}
+
+
+def cmd_label_recall(a):
+    """(#274 crosswalk_s4, P1) Label recall on a fixed set of human-confirmed labels (Columbia SC brick: Jon's 210
+    Step A "crosswalk" verdicts) for a base and a new model at their thresholds: a label is hit when the model has
+    a detection at its threshold within RADIUS. The statistic is the paired difference new - base, bootstrapped
+    over panos (BOOT_N, BOOT_SEED) at `--ci` (s4: 0.975); met when the interval's lower end is above 0. `--also`
+    adds models reported alongside, each paired against base. Every label's pano must have a prediction line in
+    every preds file. Writes label_hits.csv and label_recall.json to --out."""
+    with open(a.labels, encoding="utf-8", newline="") as f:
+        labels = list(csv.DictReader(f))
+    uids = [r["label_uid"] for r in labels]
+    if len(set(uids)) != len(uids):
+        raise SystemExit("label_uid is not unique in --labels")
+
+    def parse(spec):
+        lab, rest = spec.split("=", 1)
+        path, thr = rest.rsplit("@", 1)
+        preds = {r["pano_id"]: r["preds"] for r in read_jsonl(path)}
+        missing = sorted({r["pano_id"] for r in labels} - set(preds))
+        if missing:
+            raise SystemExit(f"{lab}: {len(missing)} label panos have no prediction line, e.g. {missing[:3]}")
+        return lab, path, float(thr), preds
+    models = [parse(s) for s in [a.base, a.new] + list(a.also or [])]
+    hits = {lab: label_hits(labels, preds, thr) for lab, _, thr, preds in models}
+    base, new = models[0][0], models[1][0]
+    out = {"labels": len(labels), "panos": len({r["pano_id"] for r in labels}), "base": base, "new": new,
+           "ci_level": a.ci, "boot_n": BOOT_N, "boot_seed": BOOT_SEED, "radius": RADIUS,
+           "models": {lab: {"preds": path.replace(os.sep, "/"), "sha256": sha256(path), "threshold": thr,
+                            "hits": sum(h["hit"] for h in hits[lab])} for lab, path, thr, _ in models},
+           "paired": {}}
+    for lab, _, _, _ in models[1:]:
+        r = paired_recall_diff(hits[base], hits[lab], random.Random(BOOT_SEED), level=a.ci)
+        out["models"][base]["recall"], out["models"][base][ci_key(a.ci)] = r["base"]
+        out["models"][lab]["recall"], out["models"][lab][ci_key(a.ci)] = r["new"]
+        out["paired"][f"{lab} - {base}"] = {"diff": r["diff"][0], ci_key(a.ci): r["diff"][1]}
+    out["primary_met"] = out["paired"][f"{new} - {base}"][ci_key(a.ci)][0] > 0
+    os.makedirs(a.out, exist_ok=True)
+    cols = ["model", "threshold"] + list(labels[0].keys()) + ["best_conf_within_radius", "hit"]
+    with open(os.path.join(a.out, "label_hits.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w.writeheader()
+        for lab, _, thr, _ in models:
+            w.writerows({"model": lab, "threshold": thr, **h} for h in hits[lab])
+    with open(os.path.join(a.out, "label_recall.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, indent=1)
     log(json.dumps(out, indent=1))
 
@@ -1912,7 +2036,15 @@ def main():
     k.add_argument("--new-threshold", type=float, required=True, help="the new model's val-F1 threshold")
     k.add_argument("--base-label", default="crosswalk_s1")
     k.add_argument("--new-label", default="crosswalk_s3")
+    k.add_argument("--ci", type=float, default=0.95, help="interval level (s4's primaries: 0.975)")
     k.add_argument("--out", required=True)
+    lr = sub.add_parser("label-recall", help="(#274 crosswalk_s4 P1) paired label recall on confirmed labels")
+    lr.add_argument("--labels", required=True, help="CSV with label_uid, pano_id, x, y (e.g. columbia_gt.csv)")
+    lr.add_argument("--base", required=True, help="label=preds.jsonl@threshold")
+    lr.add_argument("--new", required=True, help="label=preds.jsonl@threshold")
+    lr.add_argument("--also", nargs="*", help="more label=preds.jsonl@threshold, reported against base")
+    lr.add_argument("--ci", type=float, default=0.975)
+    lr.add_argument("--out", required=True)
     b = sub.add_parser("bprime-sample", help="(b') stratified Seattle node sample + the store panos to fetch")
     b.add_argument("--root", required=True)
     b.add_argument("--baseline-nodes", required=True)
@@ -1939,7 +2071,7 @@ def main():
      "audit-summary": cmd_audit_summary, "mine": cmd_mine, "sheets": cmd_sheets,
      "prescreen-merge": cmd_prescreen_merge, "select": cmd_select, "audit-compare": cmd_audit_compare,
      "draw": cmd_draw, "match-threshold": cmd_match_threshold, "merge-cards": cmd_merge_cards,
-     "carry": cmd_carry}[a.cmd](a)
+     "carry": cmd_carry, "label-recall": cmd_label_recall}[a.cmd](a)
 
 
 BP_PER_CELL = 150             # (b') nodes per (osm_class x truth) cell
