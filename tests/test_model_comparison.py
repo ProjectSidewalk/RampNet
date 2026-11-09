@@ -2687,6 +2687,13 @@ def test_gemini_scored_boxes_become_scored_points():
     # and a parsed object without a score adds no key (the frozen as-run contract)
     assert boxes_from_gemini_response(_FakeResp(parsed=[_FakeBox([1, 2, 3, 4], "x")])) == [
         {"box_2d": [1, 2, 3, 4], "label": "x"}]
+    # the dict schema: google-genai DOES populate resp.parsed, as plain dicts. The first
+    # zs+conf leg failed every pano with a box here ('dict' has no attribute 'box_2d').
+    resp = _FakeResp(parsed=[{"box_2d": [1, 2, 3, 4], "label": "x", "score": 10},
+                             {"box_2d": (5, 6, 7, 8)}],
+                     text='[{"box_2d": [1, 2, 3, 4], "label": "x", "score": 10}]')
+    assert boxes_from_gemini_response(resp) == [
+        {"box_2d": [1, 2, 3, 4], "label": "x", "score": 10}, {"box_2d": [5, 6, 7, 8], "label": ""}]
 
 
 def _write_prompt_opt_dir(tmp_path):

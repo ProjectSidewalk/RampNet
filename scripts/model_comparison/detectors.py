@@ -88,8 +88,12 @@ def boxes_from_gemini_response(resp):
     if parsed:
         out = []
         for b in parsed:
-            d = {"box_2d": list(b.box_2d), "label": getattr(b, "label", "")}
-            score = getattr(b, "score", None)
+            # A pydantic schema parses to objects; a dict schema (the #276 scored
+            # schema) parses to plain dicts. The first zs+conf leg isolated every pano
+            # with a box as a failure on this line (2026-11-09, $2.32), so both shapes.
+            get = b.get if isinstance(b, dict) else lambda k, default=None: getattr(b, k, default)
+            d = {"box_2d": list(get("box_2d")), "label": get("label", "") or ""}
+            score = get("score")
             if score is not None:          # only the scored schema (#276) has one
                 d["score"] = score
             out.append(d)
