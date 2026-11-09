@@ -31,3 +31,14 @@ instruction around it is unchanged. Whitespace is normalized on load, so wrappin
 A list of `{"image": <file beside the json>, "caption": <text>}` in display order. The
 images are 1024x1024 views with the region boxed, cut from `dev_train` only. The committed
 bytes are what the model sees; the signature records their sha256.
+
+## The optimizer's record (`optimize/<model>/`)
+
+`scripts/model_comparison/prompt_optimize.py` writes here (see
+`docs/running_model_comparison.md`, "Optimizing the definition"). Per model:
+`trajectory.jsonl` (one line per seed score, pick rejection, evaluation and alternative)
+and `iter_<k>/` with `candidates.json` (the picked FP/FN, their panos and coordinates, the
+2x-radius diagnostics), `fp.jpg`/`fn.jpg` and `*_detail.jpg` (the views shown to the critic,
+box added), `review.html` (the local review page), `verdicts.json` (the reviewer's answers,
+saved by hand from the page) and `rewrite.json` (the critic prompt, its raw answer, the
+candidate name). The candidate definitions themselves land in `definitions/`.

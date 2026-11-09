@@ -172,6 +172,35 @@ Every one of those flags exists with the same default in `export_model_cache.py`
 `roster.PROVIDER_DEFAULTS` directly), so an export or an analysis of a pinned leg is run with
 the pin and finds its cache.
 
+#### Optimizing the definition from the model's own errors (#276 Step 4)
+
+`scripts/model_comparison/prompt_optimize.py` is the DetPO recipe (worst false positive +
+worst false negative on `dev_train`, the same model as critic, a conservative update) with
+a human check in the middle, so one iteration is three commands:
+
+```bash
+python scripts/model_comparison/prompt_optimize.py pick     --model gemini-4-argon
+#  -> benchmark/prompt_opt_276/optimize/gemini-4-argon/iter_01/review.html
+#     open it locally, answer both questions, save the JSON it shows as verdicts.json
+python scripts/model_comparison/prompt_optimize.py rewrite  --model gemini-4-argon
+#  -> definitions/def276-argon-r1.txt (the critic call is a ledger row with role: critic)
+python scripts/model_comparison/prompt_optimize.py evaluate --model gemini-4-argon --floor 0.02
+#  -> accepted only if dev_train F1 rises by >= --floor (the Step 3 seed-repeat spread)
+python scripts/model_comparison/prompt_optimize.py status   --model gemini-4-argon
+```
+
+`pick` refuses a false positive within 2x the match radius of any ground-truth, ignore or
+A/U-tagged point (`incremental_fp_tags.json`), so a near-miss or a ramp the GT never marked
+cannot be shown to the model as "not a ramp"; a false negative must have no prediction
+within 2x the radius (a pure miss). Panos already used are never picked again. The
+reviewer's verdict decides which crops the critic sees; a pick nobody confirmed excludes
+both panos and is re-picked with `--force`. `alternative` asks for an image-free rewording
+of the best candidate (the DetPO GenerateAlternative step). Every pick, verdict, rewrite
+and score is a line in `optimize/<model>/trajectory.jsonl`; the selection among candidates
+is then ordinary `compare.py --gemini-definition NAME --pano-list ...@dev_select` runs.
+The detector runs go through `compare.score_model`, so they hit the same cache and write
+the same ledger rows as a `compare.py` leg with the same pins.
+
 ## Running the open-weight models on Hyak
 
 Benchmark runs go on the cluster, not the dev box — Qwen3-VL-8B is ~16 GB in bf16 (32B
