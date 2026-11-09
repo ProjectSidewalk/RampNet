@@ -117,6 +117,34 @@ SOURCES = [
     ("stage2_root/labels_v4", f"{SK}/crosswalk274-root_v4", "v4 label JSONs: v3 plus 693 new sparse train panos "
      "(export_stage2.py add-panos; labels digest 73a588e2...). Their JPEGs are s4_brick/panos_4096 and "
      "s4_stepA/panos_4096, byte for byte", "json"),
+    # crosswalk_s4 training, evaluation and Step B, added 2026-11-09 (klone pull: x4/*.tar, sha256 in the notes)
+    ("checkpoints/crosswalk_s4", f"{SK}/crosswalk274-klone/x4/ckpts/v4_s1", "crosswalk_s4 seed 1, the adopted "
+     "model (sha256 ebad379b...) + TensorBoard runs/ (klone .../crosswalk274/v4_s1; ckpts_274_s4.tar sha256 "
+     "6099896a...)", None),
+    ("checkpoints/crosswalk_s4_seed2", f"{SK}/crosswalk274-klone/x4/ckpts/v4_s2", "crosswalk_s4 seed 2 "
+     "(sha256 48a9928f...), guard 1", None),
+    ("checkpoints/crosswalk_s4_seed3", f"{SK}/crosswalk274-klone/x4/ckpts/v4_s3", "crosswalk_s4 seed 3 "
+     "(sha256 6f143e48...), guard 1", None),
+    ("checkpoints/crosswalk_s1_seed2", f"{SK}/crosswalk274-klone/x4/ckpts/v1_s2", "crosswalk_s1 seed 2 "
+     "(sha256 dcdbd4ee...), guard 1's base and the seed-2 threshold match", None),
+    ("checkpoints/crosswalk_s1_seed3", f"{SK}/crosswalk274-klone/x4/ckpts/v1_s3", "crosswalk_s1 seed 3 "
+     "(sha256 c3126aa6...)", None),
+    ("checkpoints/crosswalk_s3_seed2", f"{SK}/crosswalk274-klone/x4/ckpts/v3_s2", "crosswalk_s3 seed 2 "
+     "(sha256 86a42bfc...)", None),
+    ("checkpoints/crosswalk_s3_seed3", f"{SK}/crosswalk274-klone/x4/ckpts/v3_s3", "crosswalk_s3 seed 3 "
+     "(sha256 5de289f7...)", None),
+    ("logs/slurm_2026-11-09", f"{SK}/crosswalk274-klone/x4/logs/logs", "every #274 slurm .out/.err after the s3 "
+     "pull: s1/s3 seeds, Step A, s4 smoke + 3 seeds, s4 val/test/(b')/cities/PS-label/Columbia/Bayonne inference "
+     "(logs_274_s4.tar sha256 e66c2084...)", None),
+    ("s4_bayonne/store_natives", f"{SK}/s4-bayonne/store", "the 6 Bayonne Panoramax panos with live Crosswalk "
+     "labels, streamed read-only from the PS store (bayonne_store.tar sha256 in the repo)", "jpg"),
+    ("s4_bayonne/panos_4096", f"{SK}/s4-bayonne/prep_4096", "the same, 4096x2048 as inferred", None),
+    ("rating_pages/s4_stepB", f"{SK}/s4-stepB/page", "s4 Step B: blind page of s4 (0.23) cards on the four "
+     "confirmation draws, 200 prefilled from the confirm_s3 export, + Jon's export (2026-11-09)", None),
+    ("s4_stepB/panos_4096", f"{SK}/s4-stepB/page_panos", "every pano on the Step B page, 4096x2048 as inferred "
+     "(the --pano-dir that rebuilds it)", None),
+    ("work/s4_preds", f"{SK}/s4-preds", "local copies of every s4-era prediction file as pulled (s4_preds.tgz "
+     "and unpacked)", None),
     ("confirm_s3/draw_records", f"{SK}/crosswalk274-confirm", "the city draws' labeler records (input to "
      "export_benchmark.py)", "jsonl"),
     ("worktree_untracked/stage1-label-type-274", f"{WT}/stage1-label-type-274", "gitignored #274 outputs at "
