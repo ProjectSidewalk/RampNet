@@ -885,6 +885,17 @@ which s4's val recall is at least s1's at 0.21. s4's own val pick is also report
      look-alikes.
 3. (b′) weighted marked-node recall: drops by no more than 0.03 against s1's.
 
+**Amendment to guard 1 and the recipe (Jon, 2026-11-09, before any s4 training).** The seed replicates (above)
+put seed-to-seed noise on test F1 at about ±0.01, the width of guard 1's band: s1's own seeds 2 and 3 score 0.836
+and 0.828, so they would fail "≥ 0.837". Guard 1 is restated so that it does not turn on one seed's luck:
+- s4 trains at seeds 1, 2 and 3, each with the recipe above.
+- Each s4 seed's threshold is recall-matched on val to the s1 seed with the same number. Those s1 seeds sit at
+  0.21, 0.24 and 0.22, their own val picks.
+- **Guard 1:** the mean test F1 of the three s4 seeds is at least 0.827. That is the mean of s1's three seeds,
+  0.837 (0.847, 0.836, 0.828), minus 0.01.
+- Everything else uses seed 1 only: the primaries, guards 2 and 3, Step B, and the model adopted. Seeds 2 and 3
+  enter guard 1 alone.
+
 **Outcomes.**
 - **Adopt:** all guards hold and at least one primary is met. s4 becomes the working model, and both primaries are
   reported.

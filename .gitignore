@@ -581,6 +581,7 @@ analysis_out/stage1_crosswalk_detector_274/preds/*/*
 !analysis_out/stage1_crosswalk_detector_274/preds/*/
 !analysis_out/stage1_crosswalk_detector_274/preds/*/*.json
 !analysis_out/stage1_crosswalk_detector_274/preds/*/*.jsonl
+!analysis_out/stage1_crosswalk_detector_274/raw_downloads/
 !analysis_out/stage1_crosswalk_detector_274/bprime/
 analysis_out/stage1_crosswalk_detector_274/bprime/*
 !analysis_out/stage1_crosswalk_detector_274/bprime/*.csv

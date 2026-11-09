@@ -1,0 +1,82 @@
+{
+ "sheet": "seattle-wa",
+ "rater": "human",
+ "exported": "2026-11-01T14:53:17.114Z",
+ "verdicts": [
+  {
+   "i": 38,
+   "uid": "seattle-wa:241843",
+   "cls": "marked",
+   "painted": "yes",
+   "label": "yes",
+   "flag": false,
+   "bike": false,
+   "note": "The 2023 aerial image has a very faded crosswalk (same with street view) but 2025 was clearly repainted. Both blue and red circles are right on the crosswalk roughly in the center of its extent.",
+   "ai_p": "unclear",
+   "ai_l": "na",
+   "agree": false,
+   "ts": "2026-11-01T14:51:59.122Z",
+   "imagery": "2023+2025+crop"
+  },
+  {
+   "i": 47,
+   "uid": "seattle-wa:208275",
+   "cls": "unmarked",
+   "painted": "yes",
+   "label": "near",
+   "flag": false,
+   "bike": false,
+   "note": "",
+   "ai_p": "no",
+   "ai_l": "off",
+   "agree": false,
+   "ts": "2026-11-01T14:52:21.361Z",
+   "imagery": "2023+2025+crop"
+  },
+  {
+   "i": 59,
+   "uid": "seattle-wa:237241",
+   "cls": "unmarked",
+   "painted": "unclear",
+   "label": "na",
+   "flag": false,
+   "bike": false,
+   "note": "",
+   "ai_p": "unclear",
+   "ai_l": "na",
+   "agree": true,
+   "ts": "2026-11-01T14:52:29.031Z",
+   "imagery": "2023+2025+crop"
+  },
+  {
+   "i": 114,
+   "uid": "seattle-wa:245305",
+   "cls": "unknown",
+   "painted": "yes",
+   "label": "near",
+   "flag": false,
+   "bike": false,
+   "note": "",
+   "ai_p": "yes",
+   "ai_l": "yes",
+   "agree": false,
+   "ts": "2026-11-01T14:52:51.227Z",
+   "imagery": "2023+2025+crop"
+  },
+  {
+   "i": 115,
+   "uid": "seattle-wa:200635",
+   "cls": "unknown",
+   "painted": "yes",
+   "label": "near",
+   "flag": false,
+   "bike": false,
+   "note": "",
+   "ai_p": "yes",
+   "ai_l": "near",
+   "agree": true,
+   "ts": "2026-11-01T14:52:52.902Z",
+   "imagery": "2023+2025+crop"
+  }
+ ]
+}
