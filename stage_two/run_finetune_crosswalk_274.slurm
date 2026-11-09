@@ -24,6 +24,8 @@
 # USAGE (repo root of a checkout of this branch; logs/ must exist; root staged to scrubbed):
 #   RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 SEED=1 EXPECT_TRAIN=<n> EXPECT_VAL=<n> \
 #       sbatch stage_two/run_finetune_crosswalk_274.slurm
+#   TRIM_EPOCH=1 passes --trim-epoch-to-accum: needed when floor(EXPECT_TRAIN / world) is not a
+#   multiple of the accumulation (crosswalk_s4's root_v4: 4,294 train panos, 1,073 per rank).
 #
 # COST. ckpt-all is FREE and preemptible; ~1.5 h on 4 GPUs for 1000 steps (#263's rate).
 #SBATCH -p ckpt-all
@@ -170,6 +172,7 @@ if [ -z "${EPOCHS:-}" ]; then
         exit 1
     fi
     PER_RANK=$((EXPECT_TRAIN / WORLD_SIZE))
+    if [ -n "${TRIM_EPOCH:-}" ]; then PER_RANK=$((PER_RANK - PER_RANK % ACCUM)); fi
     EPOCHS=$(( (STEPS * ACCUM + PER_RANK - 1) / PER_RANK ))
 fi
 # latest_checkpoint.pth every 100 optimizer steps (~9 min at 4 GPUs): the granularity a
@@ -191,6 +194,7 @@ echo "Data root:   ${DATA_ROOT}"
 echo "Init:        ${INIT}  sha256 $(sha256sum "$INIT" | cut -c1-16)"
 echo "GPUs:        ${SLURM_NNODES} x ${NPROC_PER_NODE} (world ${WORLD_SIZE}) x accum ${ACCUM} = global batch ${GLOBAL_BATCH}"
 echo "Steps:       ${STEPS} optimizer steps over at most ${EPOCHS} epochs, LR ${LR} constant, ckpt every ${CKPT_INTERVAL} micro-batches"
+echo "Epoch trim:  ${TRIM_EPOCH:+on (--trim-epoch-to-accum)}${TRIM_EPOCH:-off}"
 echo "Node list:   ${SLURM_NODELIST}"
 nvidia-smi --query-gpu=name --format=csv,noheader | sort | uniq -c
 echo "----------------------------"
@@ -226,6 +230,7 @@ srun --export=ALL \
              --checkpoint-interval-steps "$CKPT_INTERVAL" \
              --grad-accum "$ACCUM" \
              --max-steps "$STEPS" \
+             ${TRIM_EPOCH:+--trim-epoch-to-accum} \
              --loss-mask --mask-norm pixels
 
 echo "--- Slurm job finished ---"

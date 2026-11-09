@@ -863,6 +863,12 @@ byte the same.
 `--loss-mask --mask-norm pixels`, final checkpoint only, and a 20-step smoke run first.
 - The train set grows by about 20%, so each pano trains about 3.7 times instead of 4.4. The step count is kept,
   so only the data changes.
+- **Epoch trim (added 2026-11-09, before training).** 4,294 train panos give 1,073 per rank at world size 4. That
+  is not a multiple of the 4-step accumulation, and `train.py` refuses such a multi-epoch run. A new opt-in flag,
+  `--trim-epoch-to-accum` (`TRIM_EPOCH=1` in the slurm script), trims each per-rank epoch to 1,072: one
+  micro-batch per rank per epoch is dropped from the end of that epoch's shuffle, so about 4 panos per epoch,
+  a different 4 each time. `drop_last` already dropped 2. It changes nothing for a run the trainer used to accept,
+  s1 and s3 included (900 per rank). `tests/test_resume_skip_sampler.py` pins this.
 
 **Threshold.** The recall-matched rule of the confirmation, computed on val only: the highest grid threshold at
 which s4's val recall is at least s1's at 0.21. s4's own val pick is also reported.
@@ -1004,7 +1010,9 @@ python -m pytest tests/test_sdot_source_274.py && python -m doctest stage_one/da
 S=scripts/analysis/stage1_crosswalk_sdot_274/score_274.py; D=analysis_out/stage1_crosswalk_detector_274
 RAMPNET_ENV=<conda prefix> sbatch scripts/analysis/stage1_crosswalk_sdot_274/score_274.slurm   # -> $D/preds (committed)
 python $S oracle --root <Stage 2 root> --preds $D/preds
-python $S score --root <Stage 2 root> --preds $D/preds --labels crosswalk_s1,released,label_ceiling     --baseline-nodes <crosswalk-inventory-274>/analysis_out/crosswalk_inventory_274/baseline_nodes.csv     --census <Phase 0 census out> --out $D
+python $S score --root <Stage 2 root> --preds $D/preds --labels crosswalk_s1,released,label_ceiling \
+    --baseline-nodes <crosswalk-inventory-274>/analysis_out/crosswalk_inventory_274/baseline_nodes.csv \
+    --census <Phase 0 census out> --out $D
 python $S figures --out $D && python $S gallery --root <root> --preds $D/preds --scores $D --label crosswalk_s1 --out <outside the repo>
 python -m doctest $S
 # amendment: arm C labels v2 (snap collisions). The crowd_arm `place` step is GPU (~3 h on an RTX 3070).

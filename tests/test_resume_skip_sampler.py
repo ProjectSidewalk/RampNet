@@ -194,3 +194,19 @@ def test_resumed_epoch_lands_on_the_same_global_step():
     assert steps[0] == 9001 and steps[-1] == 9378
     assert batch_idxs[-1] == epoch_length
     assert global_step + len(wrapped) == epoch_length
+
+
+def test_trim_epoch_to_accum():
+    """#274 `--trim-epoch-to-accum`: the epoch is the permutation's first floor(n / m) * m
+    indices, a resume skip still slices from the front, and multiple=1 changes nothing."""
+    base = FakeDistributedSampler(1073, seed=3)
+    full = list(base)
+    t = ResumeSkipSampler(FakeDistributedSampler(1073, seed=3), multiple=4)
+    assert t.epoch_length == 1072 and len(t) == 1072
+    assert list(t) == full[:1072]
+    t.skip = 100
+    assert len(t) == 972 and list(t) == full[100:1072]
+    plain = ResumeSkipSampler(FakeDistributedSampler(1073, seed=3), multiple=1)
+    assert plain.epoch_length == 1073 and list(plain) == full
+    even = ResumeSkipSampler(FakeDistributedSampler(900, seed=3), multiple=4)
+    assert even.epoch_length == 900 and list(even) == list(FakeDistributedSampler(900, seed=3))

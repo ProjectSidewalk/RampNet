@@ -98,18 +98,26 @@ class ResumeSkipSampler(Sampler):
     ``latest_checkpoint.pth`` write *before* validation would. Left as a known gap
     rather than fixed here, because the change is to a training script no test on this
     branch exercises end to end and the run it would have helped is finished.
+
+    ``multiple`` (``--trim-epoch-to-accum``, #274) trims each epoch to the largest multiple
+    of it, dropping the last ``len(base) % multiple`` indices of the epoch's permutation, so
+    that a multi-epoch ``--grad-accum`` run never has a group straddle an epoch boundary.
+    The default (1) changes nothing.
     """
 
-    def __init__(self, base):
+    def __init__(self, base, multiple=1):
         self.base = base
         self.skip = 0
-        self.epoch_length = len(base)
+        self.epoch_length = len(base) - len(base) % multiple
+        self._trimmed = self.epoch_length < len(base)
 
     def set_epoch(self, epoch):
         self.base.set_epoch(epoch)
 
     def __iter__(self):
         indices = iter(self.base)
+        if self._trimmed:
+            return itertools.islice(indices, self.skip, self.epoch_length)
         return itertools.islice(indices, self.skip, None) if self.skip else indices
 
     def __len__(self):
@@ -185,6 +193,13 @@ def parse_args():
                              "final_step_<N>.pth (model state_dict) and latest_checkpoint.pth, "
                              "and skip validation. Default: none (run --epochs in full, as "
                              "the recipe does). For the #82 fine-tune screen.")
+    parser.add_argument('--trim-epoch-to-accum', action='store_true',
+                        help="Trim each per-rank epoch to a multiple of --grad-accum (drops at "
+                             "most grad-accum - 1 micro-batches per rank per epoch, from the end "
+                             "of that epoch's shuffle). Lets a multi-epoch --max-steps run use "
+                             "--grad-accum when the per-rank epoch length is not a multiple of "
+                             "it, which is otherwise refused (#274 crosswalk_s4: 4,294 train "
+                             "panos, 1,073 per rank at world size 4). Default off.")
     parser.add_argument('--grad-accum', type=int, default=1,
                         help="Micro-batches per optimizer step (default 1, the recipe). "
                              "Global batch = world size x this, so a job that gets fewer "
@@ -774,7 +789,8 @@ if len(val_dataset) == 0 and rank == 0:
 # since nothing in the logs distinguishes the two.
 train_sampler = ResumeSkipSampler(
     DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=True, drop_last=True,
-                       seed=sampler_seed_for(args.seed)))
+                       seed=sampler_seed_for(args.seed)),
+    multiple=args.grad_accum if args.trim_epoch_to_accum else 1)
 val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False) if len(val_dataset) > 0 else None
 
 train_loader = DataLoader(train_dataset, batch_size=1, sampler=train_sampler, num_workers=4, pin_memory=True)
