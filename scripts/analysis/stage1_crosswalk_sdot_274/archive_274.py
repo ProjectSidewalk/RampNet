@@ -104,6 +104,19 @@ SOURCES = [
     ("s4_brick/crops", f"{SK}/brick-store/crops", "pre-screen crops (index.csv maps crop -> card)", None),
     ("s4_brick/sheets", f"{SK}/brick-store/sheets", "the 77 numbered contact sheets the blind AI readers saw", None),
     ("rating_pages/brick_confirm", f"{SK}/brick-store/page", "Jon's brick confirmation page (+ his export)", None),
+    # crosswalk_s4 Step A and root_v4, added 2026-11-09
+    ("s4_stepA/store_natives", f"{SK}/s4-stepA/store", "Columbia SC brick, Richmond Mapillary and Laurens car-top "
+     "mining panos as streamed read-only from the PS store (<city>/<id[:2]>/<id>.jpg; stepA_store.tar sha256 in the "
+     "repo)", "jpg"),
+    ("s4_stepA/panos_4096", f"{SK}/s4-stepA/prep_4096", "the same, 4096x2048 as the training root (bprime-prep)",
+     None),
+    ("rating_pages/s4_crowd", f"{SK}/s4-stepA/page_crowd", "s4 Step A crowd page: 214 Columbia brick (P1 GT) + 89 "
+     "Richmond Mapillary labels, + Jon's export", None),
+    ("rating_pages/s4_carTop", f"{SK}/s4-stepA/page_cartop", "s4 Step A Laurens car-top mining page (124 cards, "
+     "--neg-disc), + Jon's export", None),
+    ("stage2_root/labels_v4", f"{SK}/crosswalk274-root_v4", "v4 label JSONs: v3 plus 693 new sparse train panos "
+     "(export_stage2.py add-panos; labels digest 73a588e2...). Their JPEGs are s4_brick/panos_4096 and "
+     "s4_stepA/panos_4096, byte for byte", "json"),
     ("confirm_s3/draw_records", f"{SK}/crosswalk274-confirm", "the city draws' labeler records (input to "
      "export_benchmark.py)", "jsonl"),
     ("worktree_untracked/stage1-label-type-274", f"{WT}/stage1-label-type-274", "gitignored #274 outputs at "
