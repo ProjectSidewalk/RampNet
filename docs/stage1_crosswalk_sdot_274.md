@@ -939,7 +939,11 @@ never sees a model.
 - **Car-top page** (`laurens_mine/`, `bprime-audit --draw-seed 276 --city laurens-ia --mode laurens_mine` at 0.21):
   124 cards on 96 of the 300 panos, rated on `rate_s4_carTop.html` with `--neg-disc`.
 
-#### `crosswalk_s4` results so far (2026-11-09; P2 and guard 2 wait on Step B)
+#### `crosswalk_s4` results (2026-11-09): ADOPT
+
+**Outcome: adopt.** All three guards hold and both primaries are met, so under the pre-registered rule
+`crosswalk_s4` replaces `crosswalk_s1` as the crosswalk detector of record, at threshold 0.23. Nothing is deployed;
+this settles which checkpoint the next steps use. Juneau, which decides nothing, got worse (below).
 
 **Runs.** Training: klone jobs 43075000 (20-step smoke) and 43075001–43075003 (seeds 1–3), all 1,000 steps with no
 restarts. Final checkpoints are in `/gscratch/makelab/jonf/crosswalk274/v4_s{1,2,3}/`, sha256 `ebad379b…`,
@@ -952,9 +956,9 @@ the same number gives 0.23 (s1 0.21), 0.30 (s1 0.24) and 0.13 (s1 0.22). s4's ow
 | | `crosswalk_s1` (0.21) | `crosswalk_s4` (0.23) | rule | |
 |---|---|---|---|---|
 | **P1**: Columbia brick recall, 210 labels on 127 panos | 164 = 0.781 | 183 = 0.871 | paired diff, 97.5% lower end > 0 | **met**: +0.090 [0.041, 0.149] |
-| P2: Laurens Mapillary look-alikes per 100 panos | 41.2 | — | paired diff, 97.5% upper end < 0 | waits on Step B |
+| **P2**: Laurens Mapillary look-alikes per 100 panos (80 panos) | 41.2 | 11.2 | paired diff, 97.5% upper end < 0 | **met**: −30.0 [−48.8, −11.2] |
 | Guard 1: mean test F1 of three seeds (v2 labels) | 0.837 | 0.836 (0.830, 0.840, 0.837) | ≥ 0.827 | holds |
-| Guard 2: Seattle retention / look-alikes | — | — | ≥ 95% / ≤ +2.5 per 100 | waits on Step B |
+| Guard 2: Seattle retention of s1's 216 crosswalks / look-alikes per 100 panos | 216 / 10.0 | 206 = 0.954 / 7.5 | ≥ 0.95 / diff ≤ +2.5 | holds (−2.5 [−8.3, +2.5]) |
 | Guard 3: (b′) weighted marked-node recall | 0.720 | 0.728 | drop ≤ 0.03 | holds |
 
 - P1 (`hardneg/s4_eval/columbia/`, `label-recall`): s3 at 0.27 is −0.029 [−0.075, 0.016] against s1.
@@ -977,6 +981,32 @@ card Jon rated on the confirmation page and inherit its verdict. The other 169 a
 (Seattle 93, Juneau 55, Laurens GSV 11, Laurens Mapillary 10). The page uses the `paint_brick` definition, the s4
 definition, because a brick crossing that s4 finds must not count as a look-alike. None of the inherited verdicts'
 notes mention brick.
+
+**Step B ratings.** Jon rated the 169 cards on 2026-11-09
+(`hardneg/s4_stepB/ratings_jon_2026-11-09_s4_stepB.csv`, the raw export, sha256 `12813af2…`; 42 notes on new
+cards). One rule came up while rating and was applied throughout: a card asks about its own cross only, so a cross
+on plain road or sidewalk beside a crossing is "not a crosswalk" even when another detection on the same pano sits on
+the crossing (one Juneau card). `carry` gives each draw its s4 cards (`confirm_s3/<draw>/s4/ratings.csv`), then
+`audit-summary` and `audit-compare` against s1 (`confirm_s3/<draw>/s4/audit_{summary,compare}.json`; P2 at
+`--ci 0.975`, the rest at 0.95).
+
+| draw (panos) | s4 detections | s4 precision | look-alikes per 100: s1 → s4 | paired diff | retention of s1's crosswalks |
+|---|---|---|---|---|---|
+| Seattle (b′) (120) | 245 | 0.955 | 10.0 → 7.5 | −2.5 [−8.3, +2.5] | 206 / 216 = 0.954 |
+| Laurens Mapillary (80) | 10 | 0.10 | 41.2 → 11.2 | −30.0 [−48.8, −11.2] (97.5%) | s1 had none |
+| Laurens GSV (80) | 11 | 0.55 | 12.5 → 6.2 | −6.2 [−16.2, +5.0] | s1 had none |
+| Juneau Mapillary (120) | 103 | 0.73 | 5.8 → 20.8 | **+15.0 [+4.2, +26.7]** | 56 / 59 = 0.949 |
+
+What the reported draws show (Jon's notes):
+- **Laurens GSV:** s4 finds 6 real crosswalks on a draw where s1 found none. Four of its 5 look-alikes are on a
+  brick crossing's pattern where it continues onto the sidewalk or the curb ramp.
+- **Laurens Mapillary:** 7 of s4's 9 look-alikes are still the capture-car top (the other 2 have no note), against
+  s1's 33. s4 also finds 1 real crosswalk there.
+- **Juneau is worse.** Its 25 look-alikes: capture-car top 7, brick or plain sidewalk 6, turn-lane markings 4, curb
+  ramps 3, writing on the road 2, a blue wall with white stripes 2, parking-slot lines 1. 20 of the 25 score below
+  0.40. Brick sidewalks and curb ramps are the expected price of teaching brick crossings; the Juneau car top is a
+  rig the Laurens negatives did not cover. Juneau decides nothing under the pre-registration, but it is the first
+  thing to fix before s4 labels go live anywhere.
 
 ## Draft issue for Jon to post (not posted)
 
@@ -1112,6 +1142,10 @@ python $S label-recall --ci 0.95 --labels $N/confirm_s3/ps_labels/labels.csv ...
 python $S bprime-audit <the s3 confirmation's arguments, per draw> --preds-file <s4 preds> --label crosswalk_s4 --threshold 0.23 --out $N/confirm_s3/<draw>/s4
 python $S merge-cards --candidates sea_s4=... jun_s4=... lmly_s4=... lgsv_s4=... --out $N/s4_stepB
 python $S cards --candidates $N/s4_stepB/candidates.csv --label s4_stepB --pano-dir <page panos> --preds-file $N/s4_stepB/context.jsonl --threshold 0 --blind --prefill $N/confirm_s3/page/ratings_jon_2026-11-08_confirm.csv --definition paint_brick --out <outside the repo>
+R=$N/s4_stepB/ratings_jon_2026-11-09_s4_stepB.csv   # Jon's export
+python $S carry --ratings $R --candidates $N/confirm_s3/<draw>/s4/candidates.csv --out $N/confirm_s3/<draw>/s4/ratings.csv
+python $S audit-summary --panos $N/confirm_s3/<draw>/s4/panos.csv --ratings $N/confirm_s3/<draw>/s4/ratings.csv --label crosswalk_s4 --out $N/confirm_s3/<draw>/s4
+python $S audit-compare --base-panos $N/confirm_s3/<draw>/s1/panos.csv --base-ratings $N/confirm_s3/<draw>/s1/ratings.csv --new-panos $N/confirm_s3/<draw>/s4/panos.csv --new-ratings $N/confirm_s3/<draw>/s4/ratings.csv --new-preds <s4 preds: Seattle v2_labels/bprime/preds/crosswalk_s4/bprime.jsonl, cities confirm_s3/preds/crosswalk_s4/cities.jsonl> --new-threshold 0.23 --base-label crosswalk_s1 --new-label crosswalk_s4 --ci <0.975 for laurens_mly (P2), else 0.95> --out $N/confirm_s3/<draw>/s4
 # archive (staging on D:, then Jon copies it to the lab share)
 A=scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py
 python $A stage --out <staging> && python $A natives --out <staging>
