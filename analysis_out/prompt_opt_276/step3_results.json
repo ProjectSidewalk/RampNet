@@ -420,7 +420,7 @@
    "confidence": false,
    "cache": ".model_cache",
    "n_panos": 65,
-   "n_cached": 0,
+   "n_cached": 2,
    "status": "pending"
   },
   {
@@ -444,8 +444,25 @@
    "confidence": true,
    "cache": ".model_cache",
    "n_panos": 125,
-   "n_cached": 67,
-   "status": "pending"
+   "n_cached": 125,
+   "status": "scored",
+   "precision": 0.7003,
+   "recall": 0.7153,
+   "f1": 0.7077,
+   "precision_ci": [
+    0.645,
+    0.7504
+   ],
+   "recall_ci": [
+    0.6599,
+    0.7649
+   ],
+   "tp": 201,
+   "fp": 86,
+   "n_gt": 281,
+   "n_pred": 322,
+   "n_scored_boxes": 322,
+   "n_distinct_scores": 57
   },
   {
    "model": "Qwen/Qwen3-VL-32B-Instruct",
