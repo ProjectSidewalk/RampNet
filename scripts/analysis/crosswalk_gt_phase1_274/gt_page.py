@@ -39,7 +39,13 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "crosswalk_phase0_274"))
 from cities import CITIES, merc_per_ground  # noqa: E402
 
-RUBRIC_VERSION = "phase1-2026-11-02"
+RUBRIC_VERSION = "phase1-2026-11-03"
+# 11-03 (after the first 39 human rows): Q1 gains T (`raised`: raised/textured crossing, no paint) and two toggles,
+# `nodebike` (node on bike-crossing paint; Q1 is answered for pedestrian paint only) and `croponly` (paint seen only
+# in the street-level crop); Q2's 4 (`off`) now means "on a different crossing" and the new 5 (`stray`) "not on any
+# crossing", which 4 also covered before. The AI pre-rate was made under 11-02, so agreement maps a human answer
+# back to that rubric first (`OLD_RUBRIC`).
+OLD_RUBRIC = {"raised": "no", "stray": "off"}
 PX = 800
 TILE_GROUND_M = 30.0
 ROW_KEYS = ("id", "city", "nlat", "nlng", "llat", "llng", "dist", "node", "uid", "panels", "crop", "pdate", "ldate",
@@ -163,16 +169,20 @@ def merge(a):
     ai = {}
     if a.prerate:
         ai = {r["gt_id"]: r for r in read_csv(a.prerate)}
-    fields = list(sheet[0].keys()) + ["human_painted", "human_label", "human_bike", "human_flag", "human_note",
-                                      "human_rater", "human_ts"] + (["ai_painted", "ai_label", "ai_note"] if ai else [])
+    fields = list(sheet[0].keys()) + ["human_painted", "human_label", "human_bike", "human_node_bike",
+                                      "human_crop_only", "human_flag", "human_note", "human_rater", "human_rubric",
+                                      "human_ts"] + (["ai_painted", "ai_label", "ai_note"] if ai else [])
     with open(a.out, "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         w.writeheader()
         for r in sheet:
             v = vs.get(r["gt_id"], {})
             row = {**r, "human_painted": v.get("painted", ""), "human_label": v.get("label", ""),
-                   "human_bike": "yes" if v.get("bike") else "", "human_flag": "yes" if v.get("flag") else "",
-                   "human_note": v.get("note", ""), "human_rater": v.get("rater", ""), "human_ts": v.get("ts", "")}
+                   "human_bike": "yes" if v.get("bike") else "",
+                   "human_node_bike": "yes" if v.get("nodebike") else "",
+                   "human_crop_only": "yes" if v.get("croponly") else "", "human_flag": "yes" if v.get("flag") else "",
+                   "human_note": v.get("note", ""), "human_rater": v.get("rater", ""),
+                   "human_rubric": v.get("rubric", ""), "human_ts": v.get("ts", "")}
             if ai:
                 x = ai.get(r["gt_id"], {})
                 row.update({"ai_painted": x.get("painted", ""), "ai_label": x.get("label", ""), "ai_note": x.get("note", "")})
@@ -184,8 +194,9 @@ def merge(a):
 def report(sheet, vs, ai):
     """Per city x stratum: Q1 counts (human, and AI on the same rows) and Q2 placement; then agreement."""
     strata = ("marked", "untagged", "unmarked", "osm_only")
-    print("| city | stratum | rated | Q1 yes | R (within 5 m) | no | cannot tell | label on crossing (1/2) | end | off | n/a | bike |")
-    print("|---|---|---|---|---|---|---|---|---|---|---|---|")
+    print("| city | stratum | rated | Q1 yes | R (within 5 m) | no | cannot tell | raised | node on bike paint | "
+          "street view only | label on crossing (1/2) | end | other crossing | no crossing | n/a | bike |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for city in dict.fromkeys(r["city"] for r in sheet):
         for s in strata:
             rs = [vs[r["gt_id"]] for r in sheet if r["city"] == city and r["stratum"] == s and r["gt_id"] in vs]
@@ -193,12 +204,16 @@ def report(sheet, vs, ai):
                 continue
             p = collections.Counter(v["painted"] for v in rs)
             lab = collections.Counter(v["label"] for v in rs if not v.get("bike"))
-            print(f"| {city} | {s} | {len(rs)} | {p['yes']} | {p['ring']} | {p['no']} | {p['unclear']} | "
-                  f"{lab['yes'] + lab['near'] if s != 'osm_only' else '-'} | {lab['end']} | {lab['off']} | {lab['na']} | "
+            print(f"| {city} | {s} | {len(rs)} | {p['yes']} | {p['ring']} | {p['no']} | {p['unclear']} | {p['raised']} | "
+                  f"{sum(bool(v.get('nodebike')) for v in rs)} | {sum(bool(v.get('croponly')) for v in rs)} | "
+                  f"{lab['yes'] + lab['near'] if s != 'osm_only' else '-'} | {lab['end']} | {lab['off']} | {lab['stray']} | "
+                  f"{lab['na']} | "
                   f"{sum(bool(v.get('bike')) for v in rs)} |")
     if not ai:
         return
-    both = [(vs[k], ai[k]) for k in vs if k in ai]
+    old = lambda v: {**v, "painted": OLD_RUBRIC.get(v["painted"], v["painted"]),
+                     "label": OLD_RUBRIC.get(v["label"], v["label"])}
+    both = [(old(vs[k]), ai[k]) for k in vs if k in ai]
     n = len(both)
     if not n:
         return
@@ -209,7 +224,7 @@ def report(sheet, vs, ai):
     lab = [(h, x) for h, x in both if h["label"] != "nolabel"]
     l5 = sum(h["label"] == x["label"] for h, x in lab)
     lon = sum((h["label"] in ON_CROSSING) == (x["label"] in ON_CROSSING) for h, x in lab)
-    print(f"human vs AI on {n} rows: Q1 four-way {p4}/{n} = {p4 / n:.2f}; at the node (Y vs rest) {pyes}/{n} = {pyes / n:.2f}; "
+    print(f"human vs AI on {n} rows (human mapped to the AI's 11-02 rubric: T -> N, 5 -> 4): Q1 four-way {p4}/{n} = {p4 / n:.2f}; at the node (Y vs rest) {pyes}/{n} = {pyes / n:.2f}; "
           f"paint within 5 m (Y or R vs rest) {pany}/{n} = {pany / n:.2f}; Q2 five-way {l5}/{len(lab)}, "
           f"on the crossing (1/2 vs rest) {lon}/{len(lab)}")
     conf = collections.Counter((x["painted"], h["painted"]) for h, x in both)

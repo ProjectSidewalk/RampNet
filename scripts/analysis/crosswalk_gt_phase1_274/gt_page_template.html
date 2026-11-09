@@ -54,6 +54,8 @@ h1{font-size:17px;font-weight:600;margin:0}
 .opt kbd{font-family:var(--mono);font-size:11px;background:var(--soft);padding:0 5px;border-radius:2px;color:var(--fg)}
 .opt.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .opt.sel kbd{background:rgba(255,255,255,.25);color:inherit}
+.opts.toggles{margin-top:6px}
+.opts.toggles .btn{padding:4px 10px;font-size:12.5px}
 .opt:focus-visible,.btn:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .note,.rater{box-sizing:border-box;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:3px}
 .note{width:100%}
@@ -104,14 +106,22 @@ a{color:var(--accent)}
       <i>either</i> ortho year <i>or</i> the crowd's street-level crop. Faded but still visible paint is yes. <b>R</b> =
       painted crossing within the 5 m ring but clearly not at the node (the node sits beside it, or at the junction
       centre). <b>N</b> = no paint within 5 m in any image. <b>U</b> = the images cannot tell (trees, shadow, a vehicle
-      or an imagery seam over the spot). An unmarked crossing (kerb cuts, no paint) is <b>N</b>, not U.</li>
+      or an imagery seam over the spot). An unmarked crossing (kerb cuts, no paint) is <b>N</b>, not U. <b>T</b> = a
+      raised or textured crossing (a brick or stone table, a contrasting paver band) at the node with <i>no</i> paint;
+      if it is also painted, answer Y or R.</li>
+    <li><b>Q1 toggles</b> (record what you see; the scoring decides what counts). <b>C</b>: the node sits on
+      <b>bike</b>-crossing paint (red Dutch surface, block-and-dash cycle markings, shark teeth). Answer Y/R/N for
+      <i>pedestrian</i> paint only, then turn C on. <b>V</b>: the pedestrian paint is visible <i>only</i> in the crowd's
+      street-level crop, in neither ortho year (removed since, or hidden). Q1 is still Y or R by the either-image rule
+      above.</li>
     <li><b>Q2, where the red crowd label sits</b> (rows with a crowd label only). Judge the position ALONG the
       crossing; offset up or down the street is placement error. <b>1</b> on the paint at the centre. <b>2</b> near the
       centre: on or just off the paint, in line with the middle, not toward an end (in Seattle labels 3–5 m off were
-      judged near; about 6 m off was off). <b>3</b> at a curb end of this crossing. <b>4</b> not on this crossing (meant
-      for another crossing or leg, or far from any). <b>0</b> no paint to judge against (unmarked crossing, or no
-      crossing).</li>
-    <li><b>B</b>: the crowd label sits on a green <b>bike</b> crossing, not a pedestrian one (keep the position code
+      judged near; about 6 m off was off). <b>3</b> at a curb end of this crossing. <b>4</b> on a different crossing
+      (another crossing or leg nearby, not the one at the node). <b>5</b> not on any crossing (mid-block, on a sidewalk
+      or corner, far from any). <b>0</b> no paint to judge against (the node's crossing is unmarked, and the label is on
+      it). For a T crossing, judge 1–3 against the raised or textured surface.</li>
+    <li><b>B</b>: the crowd label sits on a <b>bike</b> crossing, not a pedestrian one (keep the position code
       against that bike crossing; the counts set these rows aside).</li>
     <li>Rows with no red label are OSM crossing nodes in a block the crowd audited but did not label there: answer
       Q1 only.</li>
@@ -132,6 +142,11 @@ a{color:var(--accent)}
         <button class="opt" data-f="p" data-v="ring"><kbd>R</kbd> paint within 5 m, not at the node</button>
         <button class="opt" data-f="p" data-v="no"><kbd>N</kbd> no paint</button>
         <button class="opt" data-f="p" data-v="unclear"><kbd>U</kbd> cannot tell</button>
+        <button class="opt" data-f="p" data-v="raised"><kbd>T</kbd> raised or textured, no paint</button>
+      </div>
+      <div class="opts toggles">
+        <button class="btn" id="nodebike" title="the blue node sits on bike-crossing paint (answer Q1 for pedestrian paint only)">Node on bike paint <kbd>C</kbd></button>
+        <button class="btn" id="croponly" title="pedestrian paint shows only in the street-level crop, in neither ortho year">Paint only in street view <kbd>V</kbd></button>
       </div>
     </div>
 
@@ -141,8 +156,12 @@ a{color:var(--accent)}
         <button class="opt" data-f="l" data-v="yes"><kbd>1</kbd> at the center, on the paint</button>
         <button class="opt" data-f="l" data-v="near"><kbd>2</kbd> near the center (not toward an end)</button>
         <button class="opt" data-f="l" data-v="end"><kbd>3</kbd> at a curb end</button>
-        <button class="opt" data-f="l" data-v="off"><kbd>4</kbd> not on this crossing</button>
+        <button class="opt" data-f="l" data-v="off"><kbd>4</kbd> on a different crossing</button>
+        <button class="opt" data-f="l" data-v="stray"><kbd>5</kbd> not on any crossing</button>
         <button class="opt" data-f="l" data-v="na"><kbd>0</kbd> no paint to judge against</button>
+      </div>
+      <div class="opts toggles">
+        <button class="btn" id="bike" title="the crowd label sits on a bike crossing, not a pedestrian crosswalk">Label is on a bike crossing <kbd>B</kbd></button>
       </div>
     </div>
 
@@ -153,7 +172,6 @@ a{color:var(--accent)}
     <div class="actions">
       <button class="btn primary" id="save">Save &amp; next <kbd>Enter</kbd></button>
       <button class="btn" id="flag">Flag for discussion <kbd>F</kbd></button>
-      <button class="btn" id="bike" title="the crowd label sits on a green bike crossing, not a pedestrian crosswalk">Label is on a bike crossing <kbd>B</kbd></button>
       <button class="btn" id="skip">Skip <kbd>S</kbd></button>
       <button class="btn" id="nextUnrated">Next unrated <kbd>.</kbd></button>
       <button class="btn" id="clear" title="delete this row's verdict">Clear</button>
@@ -163,11 +181,12 @@ a{color:var(--accent)}
     <div class="status" id="status" role="status" aria-live="polite"></div>
 
     <div class="keys">
-      <div><kbd>Y</kbd> <kbd>R</kbd> <kbd>N</kbd> <kbd>U</kbd> Q1 · <kbd>1</kbd>–<kbd>4</kbd> <kbd>0</kbd> Q2</div>
+      <div><kbd>Y</kbd> <kbd>R</kbd> <kbd>N</kbd> <kbd>U</kbd> <kbd>T</kbd> Q1 · <kbd>1</kbd>–<kbd>5</kbd> <kbd>0</kbd> Q2</div>
+      <div><kbd>C</kbd> node on bike paint · <kbd>V</kbd> paint only in street view · <kbd>B</kbd> label on bike crossing</div>
       <div><kbd>Enter</kbd> save (needs Q1, and Q2 when there is a red label) and go to the next unrated row</div>
       <div><kbd>←</kbd> <kbd>→</kbd> move without saving · <kbd>.</kbd> next unrated · <kbd>S</kbd> skip</div>
       <div><kbd>Z</kbd> zoom 2x · <kbd>G</kbd> hide / show markers</div>
-      <div><kbd>F</kbd> flag · <kbd>B</kbd> bike crossing · <kbd>/</kbd> note</div>
+      <div><kbd>F</kbd> flag · <kbd>/</kbd> note</div>
     </div>
   </div>
 </div>
@@ -183,8 +202,13 @@ const PX = __PX__;           // tile size in px; every tile is TILE ground metre
 const R = 6378137;
 const merc = (lat,lng) => [R*lng*Math.PI/180, R*Math.log(Math.tan(Math.PI/4 + lat*Math.PI/360))];
 const KEY = "crosswalk_gt." + SHEET;
-const PAINT = {yes:"yes, at the node", ring:"within 5 m, not at the node", no:"no", unclear:"cannot tell"};
-const LABELS = {yes:"at the center", near:"near the center", end:"at a curb end", off:"not on this crossing", na:"no paint to judge against", nolabel:"(no crowd label)"};
+const PAINT = {yes:"yes, at the node", ring:"within 5 m, not at the node", no:"no", unclear:"cannot tell", raised:"raised or textured, no paint"};
+// "off" kept its stored value when 4 was split (rubric phase1-2026-11-03): under the earlier rubric it also
+// covered "not on any crossing", which is now "stray" (5).
+const LABELS = {yes:"at the center", near:"near the center", end:"at a curb end", off:"on a different crossing", stray:"not on any crossing", na:"no paint to judge against", nolabel:"(no crowd label)"};
+const TOGGLES = ["flag", "bike", "nodebike", "croponly"];   // boolean fields; each has a button with the same id
+const blank = () => ({p:null, l:null, flag:false, bike:false, nodebike:false, croponly:false});
+const fromStored = (v, pk, lk) => { const c = blank(); c.p = v[pk]; c.l = v[lk]; for (const t of TOGGLES) c[t] = !!v[t]; return c; };
 
 const $ = id => document.getElementById(id);
 const store = {
@@ -193,11 +217,11 @@ const store = {
 };
 let verdicts = {}, drafts = {}, cleared = {};
 let order = [], pos = 0, zoom = 1, markers = true;
-let cur = {p:null, l:null, flag:false, bike:false};
+let cur = blank();
 const row = () => ROWS[order[pos]];
 
 function persist(){ if (!store.set("", verdicts)) $("status").textContent = "Could not write localStorage; export often."; }
-function saveDraft(){ const r = row(); drafts[r.id] = {p:cur.p, l:cur.l, flag:cur.flag, bike:cur.bike, note:$("note").value, ts:new Date().toISOString()}; store.set(".drafts", drafts); }
+function saveDraft(){ const r = row(); drafts[r.id] = {...cur, note:$("note").value, ts:new Date().toISOString()}; store.set(".drafts", drafts); }
 function edit(){ paintSel(); saveDraft(); }
 function adopt(v){
   const ts = v.ts || "";
@@ -268,16 +292,16 @@ function paintSel(){
     const on = (b.dataset.f === "p" ? cur.p : cur.l) === b.dataset.v;
     b.classList.toggle("sel", on); b.setAttribute("aria-pressed", String(on));
   }
-  $("flag").classList.toggle("primary", cur.flag); $("bike").classList.toggle("primary", cur.bike);
+  for (const t of TOGGLES){ $(t).classList.toggle("primary", cur[t]); $(t).setAttribute("aria-pressed", String(cur[t])); }
 }
 
 function render(){
   const r = row(), v = verdicts[r.id], d = drafts[r.id];
-  cur = v ? {p:v.painted, l:v.label, flag:!!v.flag, bike:!!v.bike} : {p:null, l:null, flag:false, bike:false};
+  cur = v ? fromStored(v, "painted", "label") : blank();
   $("note").value = v ? (v.note || "") : "";
-  if (d){ cur = {p:d.p, l:d.l, flag:!!d.flag, bike:!!d.bike}; $("note").value = d.note || ""; }
+  if (d){ cur = fromStored(d, "p", "l"); $("note").value = d.note || ""; }
   const hasLabel = r.llat !== null;
-  $("q2").classList.toggle("hidden", !hasLabel); $("bike").classList.toggle("hidden", !hasLabel);
+  $("q2").classList.toggle("hidden", !hasLabel); $("croponly").classList.toggle("hidden", !r.crop);
   const sv = r.purl || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${r.nlat},${r.nlng}`;
   const city = CITIES[r.city];
   $("facts").innerHTML = `
@@ -294,12 +318,13 @@ function render(){
 
 function save(){
   const r = row(), hasLabel = r.llat !== null;
-  if (!cur.p){ $("status").textContent = "Answer Q1 (Y / R / N / U) first."; return; }
-  if (hasLabel && !cur.l){ $("status").textContent = "Answer Q2 (1–4 or 0) first."; return; }
+  if (!cur.p){ $("status").textContent = "Answer Q1 (Y / R / N / U / T) first."; return; }
+  if (hasLabel && !cur.l){ $("status").textContent = "Answer Q2 (1–5 or 0) first."; return; }
   const rater = $("rater").value.trim();
   if (!rater){ $("status").textContent = "Type your initials in the rater box first (they are saved with each verdict)."; $("rater").focus(); return; }
   verdicts[r.id] = {id:r.id, city:r.city, uid:r.uid || "", node:r.node, painted:cur.p, label:hasLabel ? cur.l : "nolabel",
-    flag:cur.flag, bike:hasLabel && cur.bike, note:$("note").value.trim(), rater, rubric:RUBRIC, ts:new Date().toISOString()};
+    flag:cur.flag, bike:hasLabel && cur.bike, nodebike:cur.nodebike, croponly:!!r.crop && cur.croponly,
+    note:$("note").value.trim(), rater, rubric:RUBRIC, ts:new Date().toISOString()};
   persist(); delete drafts[r.id]; store.set(".drafts", drafts);
   if (cleared[r.id]){ delete cleared[r.id]; store.set(".cleared", cleared); }
   nextUnrated(); tally();
@@ -315,10 +340,11 @@ function tally(){
   const vs = Object.values(verdicts), body = $("tallyBody");
   const cities = Object.keys(CITIES);
   const cnt = (c, f) => vs.filter(v => v.city === c && f(v)).length;
-  body.innerHTML = `<table><tr><th>city</th><th>rows</th><th>rated</th><th>Q1 yes</th><th>R</th><th>no</th><th>cannot tell</th><th>flagged</th></tr>
+  body.innerHTML = `<table><tr><th>city</th><th>rows</th><th>rated</th><th>Q1 yes</th><th>R</th><th>no</th><th>cannot tell</th><th>raised</th><th>node on bike paint</th><th>street view only</th><th>flagged</th></tr>
     ${cities.map(c => `<tr><td>${CITIES[c].name}</td><td class="n">${ROWS.filter(r => r.city === c).length}</td><td class="n">${cnt(c, () => true)}</td>
       <td class="n">${cnt(c, v => v.painted==="yes")}</td><td class="n">${cnt(c, v => v.painted==="ring")}</td><td class="n">${cnt(c, v => v.painted==="no")}</td>
-      <td class="n">${cnt(c, v => v.painted==="unclear")}</td><td class="n">${cnt(c, v => v.flag)}</td></tr>`).join("")}</table>
+      <td class="n">${cnt(c, v => v.painted==="unclear")}</td><td class="n">${cnt(c, v => v.painted==="raised")}</td>
+      <td class="n">${cnt(c, v => v.nodebike)}</td><td class="n">${cnt(c, v => v.croponly)}</td><td class="n">${cnt(c, v => v.flag)}</td></tr>`).join("")}</table>
     <p class="dis">flagged: ${vs.filter(v => v.flag).sort((a,b) => a.id < b.id ? -1 : 1).map(v => `<a data-id="${v.id}">${v.id}</a>${v.note ? " " + v.note.replace(/</g,"&lt;") : ""}`).join(" · ") || "none"}</p>`;
   for (const a of body.querySelectorAll("a[data-id]")) a.onclick = () => jumpTo(a.dataset.id);
 }
@@ -331,8 +357,7 @@ document.addEventListener("click", e => {
 $("save").onclick = save;
 $("skip").onclick = () => next(1);
 $("nextUnrated").onclick = nextUnrated;
-$("flag").onclick = () => { cur.flag = !cur.flag; edit(); };
-$("bike").onclick = () => { cur.bike = !cur.bike; edit(); };
+for (const t of TOGGLES) $(t).onclick = () => { cur[t] = !cur[t]; edit(); };
 $("clear").onclick = () => { const id = row().id; delete verdicts[id]; persist(); delete drafts[id]; store.set(".drafts", drafts); cleared[id] = new Date().toISOString(); store.set(".cleared", cleared); render(); tally(); };
 $("export").onclick = () => {
   const rater = $("rater").value.trim() || "unnamed";
@@ -362,7 +387,7 @@ document.addEventListener("keydown", e => {
   if (e.target.tagName === "BUTTON"){ if (e.key === "Enter" || e.key === " ") return; e.preventDefault(); e.target.blur(); }
   if (e.repeat && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); return; }
   const k = e.key.toLowerCase(), r = row(), hasLabel = r.llat !== null;
-  const P = {y:"yes", r:"ring", n:"no", u:"unclear"}, L = {"1":"yes","2":"near","3":"end","4":"off","0":"na"};
+  const P = {y:"yes", r:"ring", n:"no", u:"unclear", t:"raised"}, L = {"1":"yes","2":"near","3":"end","4":"off","5":"stray","0":"na"};
   if (k === "enter" || k === " "){ e.preventDefault(); save(); }
   else if (P[k]){ cur.p = P[k]; edit(); }
   else if (L[k] && hasLabel){ cur.l = L[k]; edit(); }
@@ -371,6 +396,8 @@ document.addEventListener("keydown", e => {
   else if (k === ".") nextUnrated();
   else if (k === "f"){ cur.flag = !cur.flag; edit(); }
   else if (k === "b" && hasLabel){ cur.bike = !cur.bike; edit(); }
+  else if (k === "c"){ cur.nodebike = !cur.nodebike; edit(); }
+  else if (k === "v" && r.crop){ cur.croponly = !cur.croponly; edit(); }
   else if (k === "z"){ zoom = zoom === 1 ? 2 : 1; renderImages(r); }
   else if (k === "g"){ markers = !markers; renderImages(r); }
   else if (k === "/"){ e.preventDefault(); $("note").focus(); }
