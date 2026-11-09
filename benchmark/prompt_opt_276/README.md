@@ -17,7 +17,7 @@ thresholds, once; nothing else is looked at before the frozen held-out run.
 ## Definitions (`--gemini-definition NAME` → `definitions/NAME.txt`)
 
 The file replaces only the middle of the prompt (`detectors.detection_prompt_for`); the
-instruction around it is unchanged. Whitespace is normalized on load, so wrapping is free.
+instruction around it is unchanged. Whitespace is normalized on load, so wrapping is free; blank lines and `- ` bullets are kept, so a structured definition reaches the model as written.
 The whole text a model receives, once per 1024x1024 view, is:
 
 > Detect every curb ramp in this street-level image. **[DEFINITION]** Return one tight
@@ -37,7 +37,8 @@ a different experiment (a whole-prompt arm), kept separate from the definition a
 |---|---|---|
 | *(none)* | the seed, `detectors.CURB_RAMP_DEFINITION` (recorded as `seed.txt`), shared by every prompted model on the board | 2026-07 |
 | `para1`, `para2`, `para3` | meaning-preserving paraphrases of the seed: the "best of K prompts" null for Step 3 | written 2026-11-09 before any model error from the Step 2 runs was looked at |
-| `expert` | Jon's definition, written blind to the model's errors | Step 3 (pending) |
+| `expert` | Jon's definition (248 words, one paragraph): three ramp geometries, domes optional, a recall clause, driveway-apron discriminators, missing-ramp and storm-drain exclusions. Written 2026-11-09 blind to any model error (he had seen only the roster-level recall figures) | Step 3 |
+| `expert-long` | the same content as a 515-word structured version (headings and bullets, ADA/PROWAG framing, fuller exclusion list). Exploratory: does the long structured form add anything over `expert`? | Step 3, exploratory |
 | `def276-<model>-r<k>` | the optimizer's candidates, one per accepted iteration; `trajectory.jsonl` beside them records the exemplar panos, the human verdicts and the dev_train score of each | Step 4 |
 
 ## Exemplars (`--gemini-exemplars NAME` → `exemplars/NAME.json`)

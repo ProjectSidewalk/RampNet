@@ -2901,6 +2901,18 @@ def test_gemini_debug_dump_is_per_model_and_records_the_call(tmp_path):
     assert rec["model_version"] == "gemini-4-argon-001" and rec["model_id"] == "gemini-3.8-flash"
 
 
+def test_definition_normalization_keeps_bullets_and_paragraphs_but_not_wrapping():
+    """A re-wrapped single paragraph is the same definition (same signature); a blank line
+    and a '- ' bullet are structure the author meant, so they survive (#276 expert arm)."""
+    one = detectors.normalize_definition("A curb ramp is\n   a short\nramp.\n")
+    assert one == "A curb ramp is a short ramp."
+    assert detectors.normalize_definition(CURB_RAMP_DEFINITION) == CURB_RAMP_DEFINITION
+    structured = detectors.normalize_definition(
+        "Intro line\n  wrapped.\n\nCues:\n- one\n  continued\n- two\n\n\nTail.\n")
+    assert structured == "Intro line wrapped.\n\nCues:\n- one continued\n- two\n\nTail."
+    assert detectors.normalize_definition("  \n\n") == ""
+
+
 def test_every_committed_276_definition_loads_and_differs_from_the_seed():
     """A definition file is a pin: it must load, be one non-empty paragraph, and say
     something other than the seed (a paraphrase that normalizes to the seed would be

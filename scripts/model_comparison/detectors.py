@@ -777,10 +777,41 @@ def load_definition(name, root=None):
     if not os.path.exists(path):
         raise FileNotFoundError(f"no committed definition {name!r}: expected {path}")
     with open(path, encoding="utf-8") as f:
-        text = " ".join(f.read().split())
+        text = normalize_definition(f.read())
     if not text:
         raise ValueError(f"definition {name!r} is empty: {path}")
     return text
+
+
+def normalize_definition(raw):
+    """Collapse an editor re-wrap without flattening structure the author put there.
+
+    Runs of spaces become one space and a wrapped line rejoins its paragraph, as before;
+    but a blank line stays a paragraph break and a line starting with ``- `` starts a new
+    line (a bullet), so a multi-paragraph definition with lists (#276 expert arm) reaches
+    the model as written. A single wrapped paragraph normalizes to the one-line form the
+    seed and the paraphrases always had, so their signatures are unchanged.
+
+    >>> normalize_definition("A curb ramp is\n  short.\n")
+    'A curb ramp is short.'
+    >>> normalize_definition("Cues:\n- one\n  more\n- two\n\nForms:\n- a\n")
+    'Cues:\n- one more\n- two\n\nForms:\n- a'
+    """
+    paragraphs, para, lines = [], [], None
+    for line in raw.splitlines():
+        stripped = " ".join(line.split())
+        if not stripped:
+            if para:
+                paragraphs.append("\n".join(para))
+                para = []
+            continue
+        if stripped.startswith("- ") or not para:
+            para.append(stripped)
+        else:
+            para[-1] = para[-1] + " " + stripped
+    if para:
+        paragraphs.append("\n".join(para))
+    return "\n\n".join(paragraphs)
 
 
 def load_exemplars(name, root=None):
