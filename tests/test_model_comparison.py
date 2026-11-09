@@ -2899,3 +2899,21 @@ def test_gemini_debug_dump_is_per_model_and_records_the_call(tmp_path):
     rec = json.loads((tmp_path / "dump" / "gemini-3.8-flash" / "00001.json").read_text())
     assert rec["finish_reason"] == "STOP" and rec["n_boxes"] == 1
     assert rec["model_version"] == "gemini-4-argon-001" and rec["model_id"] == "gemini-3.8-flash"
+
+
+def test_every_committed_276_definition_loads_and_differs_from_the_seed():
+    """A definition file is a pin: it must load, be one non-empty paragraph, and say
+    something other than the seed (a paraphrase that normalizes to the seed would be
+    the same leg under a new name)."""
+    import glob
+    paths = sorted(glob.glob(os.path.join(detectors.PROMPT_OPT_DIR, "definitions", "*.txt")))
+    assert paths, "no committed definitions"
+    seen = {CURB_RAMP_DEFINITION}
+    for p in paths:
+        name = os.path.splitext(os.path.basename(p))[0]
+        text = detectors.load_definition(name)
+        assert "curb ramp" in text.lower() and text.endswith("."), name
+        assert text not in seen, f"{name} duplicates another definition"
+        seen.add(text)
+        det = GeminiDetector(model_id="gemini-4-argon", definition=name)
+        assert det.signature()["prompt"] == detectors.detection_prompt_for(text)
