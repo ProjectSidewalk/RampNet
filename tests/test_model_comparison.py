@@ -2727,6 +2727,18 @@ def test_gemini_definition_is_a_short_name_resolving_to_a_committed_file(tmp_pat
         load_definition("def276-missing", root)
 
 
+def test_every_provider_names_its_definition_pin_in_the_ledger(tmp_path):
+    # The klone Qwen rows of 2026-11-09 recorded run_options None, so only the prompt
+    # text in the signature said which definition ran. Every provider now names it.
+    root = _write_prompt_opt_dir(tmp_path)
+    qwen = QwenDetector(model_id="Qwen/Qwen3-VL-8B-Instruct", definition="def276-test",
+                        prompt_opt_dir=root)
+    assert qwen.run_notes() == {"definition": "def276-test"}
+    assert QwenDetector(model_id="Qwen/Qwen3-VL-8B-Instruct").run_notes() == {"definition": None}
+    gem = GeminiDetector(model_id="gemini-4-argon", definition="def276-test", prompt_opt_dir=root)
+    assert gem.run_notes()["definition"] == "def276-test" and "concurrency" in gem.run_notes()
+
+
 def test_gemini_exemplars_hash_the_bytes_and_order_the_parts(tmp_path):
     root = _write_prompt_opt_dir(tmp_path)
     items = load_exemplars("ex276-test", root)

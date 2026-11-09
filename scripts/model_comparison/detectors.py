@@ -620,6 +620,12 @@ class _VLMDetector:
         class ``prompt`` for every subclass (test_definition_frames_reproduce_the_as_run_prompts)."""
         return detection_prompt_for(definition_text) + self.prompt_suffix
 
+    def run_notes(self):
+        """What the usage log records about HOW the leg ran, beyond the signature.
+        The base records the definition pin by name (the signature carries only the
+        prompt text); Gemini extends this with its schedule and knobs."""
+        return {"definition": self.definition}
+
     # The key contract for `usage`, in one place. Every paid provider reports
     # input and output; almost none report thinking separately, so a reader must
     # never assume that key exists (compare.py uses .get). Subclasses start the
