@@ -281,6 +281,11 @@ def test_the_annulus_matches_the_miss_taxonomy():
 
 
 def test_the_challenger_roster_is_the_documented_one():
-    assert len(fx.CHALLENGERS) == 7
+    # Seven from 2026-07 until 2026-11-09, when #276 Step 2 promoted the two current Gemini
+    # legs (gemini-3.8-flash, gemini-4-argon) to standing. The committed
+    # analysis_out/fp_taxonomy.json was run over the seven and records its models inside;
+    # a re-run with the default --models now covers nine.
+    assert len(fx.CHALLENGERS) == 9
+    assert any("gemini-4-argon" in s for s in fx.CHALLENGERS)
     assert any("owlv2" in s for s in fx.CHALLENGERS)
     assert any("gdino" in s for s in fx.CHALLENGERS)

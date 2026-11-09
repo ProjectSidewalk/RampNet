@@ -686,7 +686,10 @@ def test_the_annapolis_displacement_does_not_survive_pooling(board):
             and all(s in per[m["model"]] for s in shared)]
     assert gem_key in vlms and opus_key in vlms
     by_recall = sorted(vlms, key=lambda k: -mean(k, "recall"))
-    assert by_recall[:2] == ["claude-opus-5-5-effort-low-anthropic", opus_key]
+    # Since 2026-11-09 gemini-4-argon (#276 Step 2) sits between them on recall over the
+    # shared eight; Opus 5.5 is still first, and the doc still says so.
+    assert by_recall[0] == "claude-opus-5-5-effort-low-anthropic"
+    assert by_recall[1:3] == ["gemini-4-argon", opus_key]
     assert "until Claude Opus 5.5 at low effort ran the same eight" in prose
 
 
@@ -805,15 +808,20 @@ def test_the_newest_ids_legs_are_pooled(board):
     assert _cell(board, fable["model"], "juneau")["f1"] == pytest.approx(0.673, abs=0.0006)
 
     challengers = [m for m in board["models"] if m["complete"] and m["model"] != "rampnet"]
-    assert max(challengers, key=lambda m: m["f1"])["model"] == opus["model"]
+    # Opus 5.5 was the best complete challenger from 2026-10-19 until gemini-4-argon's
+    # zero-shot column was published on 2026-11-09 (#276 Step 2); its own gap is unchanged.
+    best = max(challengers, key=lambda m: m["f1"])
+    assert best["model"] == "gemini-4-argon"
     rampnet = _summary(board, "rampnet")
+    assert rampnet["f1"] - best["f1"] == pytest.approx(0.059, abs=0.0006)
     assert rampnet["f1"] - opus["f1"] == pytest.approx(0.081, abs=0.0006)
     # The models with full pooled coverage, other than the open-vocabulary detectors at
     # their 0.05 floor, whose pooled recall is above RampNet's. Opus 5.5 was the only one
     # until the Vistas parity arm completed the pool on 2026-10-20 (finding 3).
     above = {m["model"] for m in challengers
              if m["recall"] > rampnet["recall"] and m["class"] != "open-vocab"}
-    assert above == {opus["model"], "mask2former-vistas-curb-cut-1024x1024"}
+    # ...and gemini-4-argon since 2026-11-09 (0.690 against 0.686, finding 3 says so).
+    assert above == {opus["model"], "mask2former-vistas-curb-cut-1024x1024", "gemini-4-argon"}
     # Finding 4's test, met: Opus 5.5 leads gemini-3.1-pro on every pooled city.
     gem = {s: _cell(board, opus["model"], s)["f1"] - _cell(board, "gemini-3.1-pro-preview", s)["f1"]
            for s in board["pooled_splits"]}
@@ -822,9 +830,10 @@ def test_the_newest_ids_legs_are_pooled(board):
     with open(sb.DEFAULT_DOC, encoding="utf-8") as f:
         prose = re.sub(r"\s+", " ", f.read())
     assert (f"ahead on all nine by {gem[lo]:.3f} ({lo}) to {gem[hi]:.3f} ({hi})") in prose
-    # Fable 5.1 pools above every YOLO arm and every Gemini leg.
+    # Fable 5.1 pools above every YOLO arm and every Gemini leg but gemini-4-argon, which
+    # took the top challenger place on 2026-11-09 (#276 Step 2).
     assert fable["f1"] > max(m["f1"] for m in challengers
-                             if m["model"] not in (opus["model"], fable["model"]))
+                             if m["model"] not in (opus["model"], fable["model"], "gemini-4-argon"))
     # The splits where any leg beats RampNet: the two Laurens arms and bayonne, which is
     # what "top score in eleven of the fourteen splits" in model_scoreboard.md rests on.
     per = board["per_split"]
@@ -835,7 +844,8 @@ def test_the_newest_ids_legs_are_pooled(board):
     bayonne_winners = {k for k, cells in per.items()
                        if "bayonne" in cells
                        and cells["bayonne"]["f1"] > per["rampnet"]["bayonne"]["f1"]}
-    assert bayonne_winners == {opus["model"], fable["model"]}
+    # gemini-4-argon joined them on 2026-11-09 (0.609 against RampNet's 0.517).
+    assert bayonne_winners == {opus["model"], fable["model"], "gemini-4-argon"}
     # Opus 5.5 beats claude-fable-5-1 on every split both ran.
     for s in board["per_split"][opus["model"]]:
         assert _cell(board, opus["model"], s)["f1"] > _cell(board, fable["model"], s)["f1"], s
@@ -1009,10 +1019,10 @@ def test_the_prose_guard_catches_each_171_sentence(board, stale):
     ("scored on 2026-08-30 on the ten splits registered then",
      "scored on 2026-08-30 on the eleven splits registered then"),
     # values, not counts
-    ("(Claude Opus 5.5) by 0.081 F1", "(Claude Opus 5.5) by 0.082 F1"),
-    ("(Claude Opus 5.5) by 0.081 F1", "(YOLO11l) by 0.081 F1"),
+    ("(Gemini 4 Argon) by 0.059 F1", "(Gemini 4 Argon) by 0.060 F1"),
+    ("(Gemini 4 Argon) by 0.059 F1", "(Claude Opus 5.5) by 0.059 F1"),
     ("0.543–0.855, a range of 0.311", "0.543–0.855, a range of 0.053"),
-    ("0.174 (Claude Opus 5.5)", "0.182 (Claude Opus 5.5)"),
+    ("0.129 (Gemini 4 Argon)", "0.182 (Gemini 4 Argon)"),
     ("Most of its range (0.258 of 0.311)", "The whole of its range (0.311)"),
     ("Most of its range (0.258 of 0.311)", "Most of its range (0.311 of 0.311)"),
     ("0.801–0.855, a range of 0.053", "0.80–0.85, a range of 0.053"),
@@ -1191,8 +1201,8 @@ def test_check_fails_on_stale_prose(tmp_path):
     """The tables can be current while a sentence beside them is not (#171)."""
     with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
         doc = fh.read()
-    assert doc.count("Twenty-four model legs") == 1, "the mutation target is gone"
-    doc = doc.replace("Twenty-four model legs", "Eighteen model legs", 1)
+    assert doc.count("Twenty-five model legs") == 1, "the mutation target is gone"
+    doc = doc.replace("Twenty-five model legs", "Eighteen model legs", 1)
     stale = tmp_path / "model_scoreboard.md"
     stale.write_text(doc, encoding="utf-8", newline="")
     done = _run_scoreboard("--check", "--doc", str(stale))

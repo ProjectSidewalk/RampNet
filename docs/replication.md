@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 33.0 MB (287 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 33.4 MB (301 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -61,14 +61,15 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-11-09 (with the tiles arms, #258, the Vistas 1024 arm on all fourteen splits, and the gemini-3.8-flash leg, #276) that is **287 files, 33.0 MB**, and every one of
+signature recorded inside. As of 2026-11-09 (with the tiles arms, #258, the Vistas 1024 arm on all fourteen splits, and the two #276 Gemini legs) that is **301 files, 33.4 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
 |---|---:|---|
-| the standing zero-shot roster, fourteen splits each (two Gemini legs are absent on `manual_gold`; Molmo2-8B and Qwen3-VL-32B are absent on `bayonne`, #159) | 94 | the roster tables in [`model_comparison.md`](model_comparison.md) |
+| the seven zero-shot roster challengers of 2026-07, fourteen splits each (two Gemini legs are absent on `manual_gold`; Molmo2-8B and Qwen3-VL-32B are absent on `bayonne`, #159); the two #276 Gemini legs promoted to standing on 2026-11-09 are the rows below | 94 | the roster tables in [`model_comparison.md`](model_comparison.md) |
 | `gemini-3.7-flash`, fourteen splits, published ahead of its write-up (#120) | 14 | §below |
 | `gemini-3.8-flash`, fourteen splits, zero-shot at the as-run settings (#276 Step 2, published 2026-11-09 ahead of its write-up) | 14 | [`model_scoreboard.md`](model_scoreboard.md); the write-up lands as `vlm_prompt_276.md` |
+| `gemini-4-argon`, fourteen splits, zero-shot at the as-run settings (#276 Step 2, published 2026-11-09 ahead of its write-up; the best challenger on the board) | 14 | [`model_scoreboard.md`](model_scoreboard.md); the write-up lands as `vlm_prompt_276.md` |
 | the supervised YOLO pano trio, fourteen splits each (#51) | 42 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
 | the supervised YOLO perspective-tiles arms (#51, #135; published under #258 on 2026-10-19): `y11x_tiles` on ten splits, and the six seed-variance legs `y11x_tiles_s1_ep44`, `y11x_tiles_s2_ep44`, `y11x_tiles_s3_ep42`, `y11x_tiles_s1_best`, `y11x_tiles_s2_best`, `y11x_tiles_s3_best` on nine (no `budapest_district5`) | 64 | [`yolo_geometry_51.md`](yolo_geometry_51.md), [`seed_variance_51_135.md`](seed_variance_51_135.md); export commands §below |
 | `claude-opus-5` at `low` effort, eleven splits (#122; the pool by #139, both Laurens arms by #151) | 11 | [`claude_legs_122.md`](claude_legs_122.md) |

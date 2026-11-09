@@ -208,16 +208,26 @@ ROSTER = (
 
     # #276 round 1: the two current Gemini legs, run zero-shot at the as-run settings
     # on all fourteen splits (2026-11-08/09) as the baseline every prompt arm is
-    # measured against. standing=False until BOTH are published and the board is
-    # regenerated once, so every table moves in one commit.
+    # measured against. Both were registered standing=False until both were published,
+    # then promoted together so every table moved in one commit (2026-11-09).
     Challenger(
         spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
-        density="sparse", standing=False, added="2026-11-09",
+        density="sparse", standing=True, added="2026-11-09",
         note="Zero-shot, 14 splits, published 2026-11-09 (#276 Step 2). Density "
              "measured off the published detections: 1.39 boxes/pano over 2,539 "
              "panos. Recall is the low side of the roster (0.10-0.55 by split) at "
              "precision 0.50-0.97; every call ended STOP, so that is the model, not "
              "a parse or truncation artefact (#276 Step 1 diagnostics)."),
+    Challenger(
+        spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
+        density="sparse", standing=True, added="2026-11-09",
+        note="Zero-shot, 14 splits, published 2026-11-09 (#276 Step 2; about $58 of "
+             "Google.org credit, 22-32 s/pano at six views in flight). Density "
+             "measured off the published detections: 2.66 boxes/pano over 2,539 "
+             "panos. Recall 0.35 (budapest_district5) to 0.78 (bend) at precision "
+             "0.51-0.86; manual_gold F1 0.740. 3 of 15,234 views ended MAX_TOKENS "
+             "(clovis 2, laurens_gsv 1) and read as empty; every other call ended "
+             "STOP."),
 
     # The supervised YOLO baseline (#51). Ten splits each, scored under the
     # pre-registered #71 protocol and written up in their own table in

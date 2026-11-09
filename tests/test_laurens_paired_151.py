@@ -119,7 +119,9 @@ def test_committed_artifact_is_lf_rounded_and_hashed(committed):
     # Moved from 6b1376d1... on 2026-11-09, when #276 Step 2 published gemini-3.8-flash on both
     # Laurens arms (one new leg, 180 new score rows). No earlier row changed; labeler_commit is
     # again the checkout it was regenerated from (1e0e96e, was 39afcd4).
-    assert committed["rows_sha256"] == "21e562872f76fe68c40ddb9ee7393a79e028fad79bf25aeb72dc2e2274792aa9"
+    # Moved from 21e56287... later on 2026-11-09, when #276 Step 2 published gemini-4-argon on
+    # both Laurens arms (one new leg, 180 new score rows). No earlier row changed.
+    assert committed["rows_sha256"] == "5610e03951f28142f91991a7122ee8181328ce616322d9557727d6f7850ad874"
     for row in committed["gt"]:
         for key, v in row.items():
             if isinstance(v, float) and key not in ("x", "y"):
