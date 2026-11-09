@@ -1,4 +1,4 @@
-# #276 Step 3: prompt battery on the dev splits (regenerated)
+# #276 dev-split results: Step 3 prompt battery and Step 6 thinking arm (regenerated)
 
 Bundle `benchmark/sao_paulo`, splits `benchmark/prompt_opt_276/sao_paulo_split.json`, match radius 0.022. P/R with 95% Wilson intervals; F1 at the operating point. A pending leg has uncached panos (count shown) and no number. Regenerate with `python scripts/analysis/prompt_276_results.py`.
 
@@ -29,6 +29,8 @@ Bundle `benchmark/sao_paulo`, splits `benchmark/prompt_opt_276/sao_paulo_split.j
 | expert | dev_select | 65 | 0.690 (0.600-0.768) | 0.619 (0.532-0.699) | **0.653** | 78/35/126 |  |
 | expert-long | dev_select | 65 | 0.723 (0.634-0.798) | 0.643 (0.556-0.721) | **0.681** | 81/31/126 |  |
 | zs_conf | all | 125 | 0.700 (0.645-0.750) | 0.715 (0.660-0.765) | **0.708** | 201/86/281 | 322 boxes, 57 distinct scores |
+| thinking_low | dev_select | 65 | 0.683 (0.588-0.764) | 0.564 (0.476-0.647) | **0.617** | 71/33/126 | thinking low |
+| thinking_high | dev_select | 65 | 0.852 (0.759-0.913) | 0.548 (0.461-0.632) | **0.667** | 69/12/126 | thinking high |
 
 ## Qwen/Qwen3-VL-32B-Instruct
 

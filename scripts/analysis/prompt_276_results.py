@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""#276 Step 3 results table, regenerated from the detection caches alone.
+"""#276 dev-split results (Step 3 battery + Step 6 thinking arm), regenerated from the caches.
 
-Every number in docs/vlm_prompt_276.md's Step 3 table comes from here, not from a run log:
+Every number in docs/vlm_prompt_276.md's dev-split tables comes from here, not from a run log:
 for each (model, leg) the script rebuilds the detector exactly as compare.py would, looks
 every pano of the leg up in the cache, and scores the leg only when all of them are there.
 It never calls a model: a leg with uncached panos is reported as pending.
@@ -16,6 +16,11 @@ Legs (the Step 3 protocol of the plan):
     expert          Jon's definition (V4 + V5 recall clause), dev_select
     expert-long     its 515-word structured form, dev_select
     zs_conf         seed + elicited per-box confidence, all 125 panos       (Gemini only)
+    thinking_low    seed prompt at --gemini-thinking-level low, dev_select   (Step 6, Argon only)
+    thinking_high   seed prompt at --gemini-thinking-level high, dev_select  (Step 6, Argon only)
+
+The thinking legs compare against the seed dev_select leg, whose thinking level is the
+model's default (unset, so absent from the signature).
 """
 import argparse
 import json
@@ -45,16 +50,23 @@ MODELS = [
     ("qwen", "Qwen/Qwen3-VL-32B-Instruct", "qwen32b"),
 ]
 DEFINITIONS = ["para1", "para2", "para3", "expert", "expert-long"]
+THINKING_MODELS = {"gemini-4-argon"}      # Step 6 ran the thinking arm on Argon only
+THINKING_LEVELS = ["low", "high"]
 
 
-def legs_for(provider):
-    """(leg, split, definition, confidence, cache) per model; Gemini adds the confidence leg."""
-    legs = [("seed", "dev_train", None, False, "main"),
-            ("seed_repeat", "dev_train", None, False, "rep1"),
-            ("seed", "dev_select", None, False, "main")]
-    legs += [(d, "dev_select", d, False, "main") for d in DEFINITIONS]
+def legs_for(provider, model_id):
+    """(leg, split, definition, confidence, thinking, cache) per model.
+
+    Gemini adds the confidence leg; the thinking-arm models add the two thinking legs.
+    """
+    legs = [("seed", "dev_train", None, False, None, "main"),
+            ("seed_repeat", "dev_train", None, False, None, "rep1"),
+            ("seed", "dev_select", None, False, None, "main")]
+    legs += [(d, "dev_select", d, False, None, "main") for d in DEFINITIONS]
     if provider == "gemini":
-        legs.append(("zs_conf", "all", None, True, "main"))
+        legs.append(("zs_conf", "all", None, True, None, "main"))
+    if model_id in THINKING_MODELS:
+        legs += [("thinking_" + t, "dev_select", None, False, t, "main") for t in THINKING_LEVELS]
     return legs
 
 
@@ -92,12 +104,13 @@ def build(main_cache, rep_cache):
               "rep1": (rep_cache, C.DetectionCache(rep_cache, enabled=True))}
     rows = []
     for provider, model_id, short in MODELS:
-        for leg, which, definition, confidence, cache_name in legs_for(provider):
+        for leg, which, definition, confidence, thinking, cache_name in legs_for(provider, model_id):
             cache_dir, cache = caches[cache_name]
             args = _compare_args(cache_dir)
             args.definition = definition
             if provider == "gemini":
                 args.gemini_confidence = True if confidence else None
+                args.gemini_thinking_level = thinking
             label, det = D.build_detector(provider, model_id, records, args)
             sig = det.signature()
             pids = split_ids(split, records, which)
@@ -105,6 +118,7 @@ def build(main_cache, rep_cache):
             n_cached = sum(1 for v in points.values() if v is not None)
             row = {"model": model_id, "short": short, "leg": leg, "split": which,
                    "definition": definition, "confidence": bool(confidence),
+                   "thinking_level": thinking,
                    "cache": os.path.basename(os.path.normpath(cache_dir)),
                    "n_panos": len(pids), "n_cached": n_cached}
             if n_cached == len(pids):
@@ -118,7 +132,7 @@ def build(main_cache, rep_cache):
 
 
 def render_md(result):
-    lines = ["# #276 Step 3: prompt battery on the dev splits (regenerated)", "",
+    lines = ["# #276 dev-split results: Step 3 prompt battery and Step 6 thinking arm (regenerated)", "",
              "Bundle `benchmark/%s`, splits `%s`, match radius %s. P/R with 95%% Wilson "
              "intervals; F1 at the operating point. A pending leg has uncached panos (count "
              "shown) and no number. Regenerate with "
@@ -139,6 +153,8 @@ def render_md(result):
             if r["confidence"]:
                 note.append("%d boxes, %d distinct scores" % (
                     r.get("n_scored_boxes", 0), r.get("n_distinct_scores", 0)))
+            if r.get("thinking_level"):
+                note.append("thinking %s" % r["thinking_level"])
             if r["cache"] != ".model_cache":
                 note.append("cache `%s`" % r["cache"])
             lines.append("| %s | %s | %d | %.3f (%.3f-%.3f) | %.3f (%.3f-%.3f) | **%.3f** | %d/%d/%d | %s |" % (
