@@ -179,14 +179,14 @@ worst false negative on `dev_train`, the same model as critic, a conservative up
 a human check in the middle, so one iteration is three commands:
 
 ```bash
-python scripts/model_comparison/prompt_optimize.py pick     --model gemini-4-argon
+python scripts/model_comparison/prompt_optimize.py pick --model gemini-4-argon
 #  -> benchmark/prompt_opt_276/optimize/gemini-4-argon/iter_01/review.html
 #     open it locally, answer both questions, save the JSON it shows as verdicts.json
-python scripts/model_comparison/prompt_optimize.py rewrite  --model gemini-4-argon
+python scripts/model_comparison/prompt_optimize.py rewrite --model gemini-4-argon
 #  -> definitions/def276-argon-r1.txt (the critic call is a ledger row with role: critic)
 python scripts/model_comparison/prompt_optimize.py evaluate --model gemini-4-argon --floor 0.02
 #  -> accepted only if dev_train F1 rises by >= --floor (the Step 3 seed-repeat spread)
-python scripts/model_comparison/prompt_optimize.py status   --model gemini-4-argon
+python scripts/model_comparison/prompt_optimize.py status --model gemini-4-argon
 ```
 
 `pick` refuses a false positive within 2x the match radius of any ground-truth, ignore or
