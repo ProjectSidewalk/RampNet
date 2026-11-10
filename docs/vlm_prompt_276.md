@@ -1,9 +1,9 @@
 # VLM prompt experiments, round 1: Gemini and Qwen on the curb-ramp benchmark (#276)
 
-**Status: in progress (2026-11-09).** Steps 0–3 of the plan are done on three model families,
-the Step 2 zero-shot columns are published and on the scoreboard, and the Step 6 thinking arm
-has run. Step 4 (exemplar-driven definition rewrite) is waiting on the reviewer's verdicts for
-the first picked exemplars; Steps 5–7 follow it. Sections marked *pending* are placeholders.
+**Status: in progress (2026-11-10).** Steps 0–4 of the plan are done (Step 3 on three model
+families), the Step 2 zero-shot columns are published and on the scoreboard, and the Step 6
+thinking arm has run. Step 4 is a negative result on both models (the alternative rewording
+passes Flash's gate on the paraphrase effect). Step 5, the frozen held-out run, is next. Sections marked *pending* are placeholders.
 Every dev-split number below regenerates from the detection caches with
 `python scripts/analysis/prompt_276_results.py` (`--check` compares with the committed JSON;
 `scripts/check_all.py --only prompt_276_results --allow local-cache` runs it).
@@ -145,14 +145,46 @@ model family. The in-context-images control (4 `dev_train` exemplars, both model
 *pending* until the exemplars have human verdicts, so that every exemplar in the study is
 reviewer-confirmed.
 
-## Step 4: exemplar-driven definition rewrite — *pending*
+## Step 4: exemplar-driven definition rewrite (DetPO-style), both models: negative
 
-`scripts/model_comparison/prompt_optimize.py` (`pick` → local `review.html` + hand-saved
-`verdicts.json` → `rewrite` → `evaluate --floor`; `alternative`; `status`). Both models' first
-picks are made from the cached zs+confidence legs ($0): Flash dev_train F1 0.367 (P .731 R .245),
-Argon 0.727 (P .761 R .697), each with one worst FP and one pure miss on the review page under
-`benchmark/prompt_opt_276/optimize/<model>/iter_01/`. Gate: ≥ 0.02 F1 over the seed on
-`dev_select`, else the held-out run is skipped and the negative result recorded here.
+`scripts/model_comparison/prompt_optimize.py`: `pick` scores the current definition on
+`dev_train` (confidence on) and takes the single worst false positive (highest-score box with
+no GT, ignore or FP-tag point within 2× radius) and the single worst miss (a GT ramp with no
+prediction within 2× radius); a local review page asks a human to confirm each; `rewrite`
+shows the confirmed crops, boxed, to the same model as critic and asks for a new definition;
+`evaluate` keeps it only if `dev_train` F1 rises by more than the model's seed-repeat floor
+(Flash 0.02, Argon 0.03); two consecutive rejections stop the loop; `alternative` then asks
+for an image-free rewording of the best definition. Jon judged the four pages on
+2026-11-09/10: both first picks confirmed on both models; in round 2 the Argon miss and the
+Flash false positive were "unsure" and dropped, so those rewrites used one exemplar.
+
+| model | seed, dev_train | r1 | r2 | outcome |
+|---|---|---|---|---|
+| Flash 3.8 | 0.367 | 0.375 (+0.008) | 0.358 (−0.009) | both rejected, early stop |
+| Argon | 0.727 | 0.710 (−0.017) | 0.698 (−0.030) | both rejected, early stop |
+
+Neither model's rewrite cleared its floor. Argon's candidates traded recall for precision each
+time (r2: P .778 R .632 vs the seed's .761/.697); Flash's barely moved. The critic's rewrites
+were faithful to the crops (Argon r1 added a storm-drain exclusion and a flush-curb clause for
+exactly the two it saw), which is the DetPO failure mode on a strong model: one pair of
+exemplars does not generalise to the other 58 panos.
+
+**Selection on dev_select** (65 panos; the pre-registered entrants are the seed, the best
+accepted candidate, the final, the alternative and the paraphrase null; gate +0.02 over the
+seed):
+
+| model | seed | alternative | para3 (null) | gate |
+|---|---|---|---|---|
+| Flash 3.8 | 0.262 | **0.337** (P .577 R .238), +0.075 | 0.337 | passes |
+| Argon | 0.661 | 0.633 (P .737 R .556), −0.028 | 0.705 | fails |
+
+Flash's alternative passes the gate and ties para3 exactly. On Flash every rewording of the
+seed scores 0.30–0.34 and the seed 0.26, so the gate detected the paraphrase effect, not
+anything learned from the exemplars. The held-out arm for Flash therefore uses
+`def276-flash38-alt` as pre-registered, and the write-up reads it as a wording result with
+para3 beside it. Argon has no optimized arm. The whole step cost $7.79 and four human
+judgements; the record (trajectories, picks, verdicts, rewrites, crops) is under
+`benchmark/prompt_opt_276/optimize/`.
 
 ## Step 5: frozen held-out run — *pending* (gated on Step 4)
 
@@ -166,10 +198,10 @@ else is exploratory.
 
 | | legs | cost (ledger, list price) |
 |---|---|---|
-| Gemini 3.8 Flash (Steps 1–4, incl. $2.32 lost to the parser incident below) | 29 | $55.76 |
-| Gemini 4 Argon (Steps 1–3, Step 6 thinking) | 28 | $74.08 |
+| Gemini 3.8 Flash (Steps 1–4, incl. $2.32 lost to the parser incident below) | 35 | $59.39 |
+| Gemini 4 Argon (Steps 1–4, Step 6 thinking) | 34 | $78.24 |
 | Qwen3-VL-32B (klone, `gpu-l40s-makelab`) | 6 | $0 |
-| **Total through 2026-11-09 14:31** | | **$129.84** |
+| **Total through 2026-11-10 00:45** | | **$137.63** |
 
 Reconciled against Cloud Monitoring on 2026-11-09 (billed == logged for both models). Argon
 list price doubles on 2026-12-01; the credit expires 2026-12-07.
