@@ -186,11 +186,25 @@ para3 beside it. Argon has no optimized arm. The whole step cost $7.79 and four 
 judgements; the record (trajectories, picks, verdicts, rewrites, crops) is under
 `benchmark/prompt_opt_276/optimize/`.
 
-## Step 5: frozen held-out run — *pending* (gated on Step 4)
+## Step 5: frozen held-out run — *running* (launched 2026-11-09 16:49 PST)
 
-Pre-registered primary endpoint: per model, opt+conf vs zs+conf, macro ΔF1 on the 7-city US
-reference pool, paired pano bootstrap, Holm across the two models. The open pool and everything
-else is exploratory.
+Every arm runs with elicited confidence at concurrency 6 on the 12 held-out splits (1,414
+panos); the zero-shot baseline also runs the full 1,000-pano `manual_gold`, the other arms its
+committed 250-pano subset. Three processes: two Argon chains over disjoint split lists and one
+Flash chain. Expected ≈ $257 and about a day.
+
+| arm | Flash 3.8 | Argon | status in the plan |
+|---|---|---|---|
+| zs + conf (the baseline of every comparison) | yes | yes | pre-registered |
+| opt + conf (`def276-flash38-alt`, passed the gate) | yes | no optimized definition passed | pre-registered primary endpoint (Flash only) |
+| para3 + conf | yes | yes | **amendment, 2026-11-09**: the best paraphrase on all three model families in Step 3; added as a held-out arm before any held-out number was seen |
+| expert + conf | yes | yes | **amendment, 2026-11-09**: Jon's blind definition; +0.145 on Flash dev_select, within Argon's floor (so Argon's is exploratory) |
+
+Pre-registered primary endpoint (unchanged): per model, opt+conf vs zs+conf, macro ΔF1 on the
+7-city US reference pool, paired pano bootstrap, Holm across the two models. With Argon having
+no optimized arm, the primary test is Flash's alone; the para3 and expert comparisons, and the
+open pool, are exploratory and will be reported as such. Thresholds are selected on
+`dev_select` at each frozen definition.
 
 ## Step 7: replicates — *pending*
 
