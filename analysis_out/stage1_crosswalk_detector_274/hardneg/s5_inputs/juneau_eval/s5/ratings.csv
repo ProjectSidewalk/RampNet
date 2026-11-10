@@ -41,7 +41,7 @@ det:309738622209283:0.176:0.695,det,309738622209283,0.175781,0.695312,0.368488,j
 det:330104450121462:0.987:0.586,det,330104450121462,0.987305,0.585938,0.77833,juneau-ak,juneau_eval,,random,crosswalk,carried from det:330104450121462:0.988:0.586
 det:330104450121462:0.011:0.584,det,330104450121462,0.010742,0.583984,0.672053,juneau-ak,juneau_eval,,random,crosswalk,carried from det:330104450121462:0.011:0.586
 det:330104450121462:0.729:0.742,det,330104450121462,0.729492,0.742188,0.391638,juneau-ak,juneau_eval,,random,unsure,Too zoomed in to tell with too many occlusions
-det:330104450121462:0.691:0.740,det,330104450121462,0.691406,0.740234,0.285422,juneau-ak,juneau_eval,,random,not_crosswalk,Too zoomed in to tell with too many occlusions
+det:330104450121462:0.691:0.740,det,330104450121462,0.691406,0.740234,0.285422,juneau-ak,juneau_eval,,random,unsure,Too zoomed in to tell with too many occlusions
 det:330104450121462:0.832:0.584,det,330104450121462,0.832031,0.583984,0.265502,juneau-ak,juneau_eval,,random,not_crosswalk,This is the hood of a vehicle that has a crosswalk like texture
 det:356440160791542:0.511:0.508,det,356440160791542,0.510742,0.507812,0.527768,juneau-ak,juneau_eval,,random,crosswalk,
 det:369579485644134:0.520:0.568,det,369579485644134,0.519531,0.568359,0.637826,juneau-ak,juneau_eval,,random,crosswalk,

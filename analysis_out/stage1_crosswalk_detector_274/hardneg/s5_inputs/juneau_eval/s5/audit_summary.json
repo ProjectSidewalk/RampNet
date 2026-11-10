@@ -4,11 +4,11 @@
   "panos": 120,
   "detections": 91,
   "crosswalk": 64,
-  "not_crosswalk": 22,
-  "unsure": 5,
+  "not_crosswalk": 21,
+  "unsure": 6,
   "precision": 0.7032967032967034,
-  "precision_excl_unsure": 0.7441860465116279,
-  "lookalikes_per_100_panos": 18.333333333333332,
+  "precision_excl_unsure": 0.7529411764705882,
+  "lookalikes_per_100_panos": 17.5,
   "errors_per_100_panos": 22.5
  },
  "random_ci95_pano_bootstrap": {
@@ -17,12 +17,12 @@
    0.7938144329896907
   ],
   "precision_excl_unsure": [
-   0.64,
-   0.8351648351648352
+   0.6506024096385542,
+   0.8395061728395061
   ],
   "lookalikes_per_100_panos": [
    10.0,
-   27.5
+   25.833333333333332
   ],
   "errors_per_100_panos": [
    13.333333333333334,

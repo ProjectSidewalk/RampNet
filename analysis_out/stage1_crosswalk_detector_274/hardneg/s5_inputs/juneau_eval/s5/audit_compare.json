@@ -5,12 +5,12 @@
  "panos": 120,
  "lookalikes_per_100": {
   "base": 20.0,
-  "new": 18.333333333333332
+  "new": 17.5
  },
- "paired_diff_lookalikes_per_100": -1.6666666666666667,
+ "paired_diff_lookalikes_per_100": -2.5,
  "paired_diff_ci95": [
-  -10.0,
-  6.666666666666667
+  -10.833333333333334,
+  5.0
  ],
  "primary_met": false,
  "paired_diff_errors_per_100": -0.8333333333333334,
