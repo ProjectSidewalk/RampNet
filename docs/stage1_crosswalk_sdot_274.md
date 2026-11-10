@@ -1033,6 +1033,27 @@ crosswalk" only if no crosswalk lies inside the disc). No AI pre-screen.
   Trimble positives, and they keep the negatives from teaching "no crosswalks in Juneau".
 - "Unsure" verdicts are left out. `check_root_negatives.py` runs on every new JSON.
 
+**Building `root_v5` (2026-11-09, before any training; `s5_mine_inputs.py`, `hardneg/s5_inputs/root_v5_inputs/`).**
+Jon rated all 279 mining cards (`ratings_jon_2026-11-09_juneauMine.csv`): 207 crosswalk, 58 not, 14 unsure, on
+105 panos. Three rules turn them into training data:
+- Two "crosswalk" cards on one pano closer than 0.05 (the scorer's radius) are merged: the higher-confidence card
+  stays a positive and the other becomes an ignore point, so training never asks for two peaks on one crossing.
+- A negative within 0.05 of any "crosswalk" card is dropped (1), and an "unsure" card within 0.05 of a kept
+  positive becomes an ignore point (3).
+- **Review of every training point (Jon asked for it).** Claude rendered all negatives with their disc and all
+  positives, and re-read every note (`review_overrides_2026-11-09.csv`, each with its reason):
+  - Two negatives contradict their own notes ("the blue disc encompasses the crosswalk") and are dropped.
+  - Two more negatives have a crossing inside the disc that the note does not mention (a brick-coloured band at
+    the disc's edge; a far zebra at its top) and are dropped.
+  - Five positives become ignore points: three crosses sit on asphalt beside a crossing rather than on it, and
+    two sit on transverse dashed lines that may be a bike or lane extension rather than a crosswalk.
+  - Every other note agrees with its verdict.
+
+Result: 102 new train panos (82 with positives, 20 negative-only), 164 positives, 53 negatives, 46 ignore points.
+`check_root_negatives.py` passes (343 negatives at weight 1 and target about 0; 164 positives at target ≥ 0.9).
+Train 4,294 → 4,396; val 1,029 and test 515 unchanged; labels digest `880fc6f5d96d`; new-pano tar sha256
+`906eed99…`.
+
 **Recipe.** s4's exactly: released weights, seeds 1, 2 and 3, 1,000 steps at batch 16, LR 1e-5,
 `--loss-mask --mask-norm pixels`, `TRIM_EPOCH=1`, final checkpoint only, a 20-step smoke run first. Time limit
 cut to 3 h so the jobs can run before the 2026-11-10 09:00 maintenance reservation (s4 seeds took 1.2–1.6 h).

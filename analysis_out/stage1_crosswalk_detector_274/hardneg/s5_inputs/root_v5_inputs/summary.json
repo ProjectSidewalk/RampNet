@@ -1,0 +1,18 @@
+{
+ "cards": 279,
+ "verdicts": {
+  "crosswalk": 207,
+  "not_crosswalk": 58,
+  "unsure": 14
+ },
+ "positives": 164,
+ "negatives": 53,
+ "ignore_points": 46,
+ "positives_merged_to_ignore": 38,
+ "negatives_dropped_near_positive": 1,
+ "unsure_to_ignore": 3,
+ "override_dropped_negatives": 4,
+ "override_positives_to_ignore": 5,
+ "positive_panos": 82,
+ "negative_only_panos": 20
+}

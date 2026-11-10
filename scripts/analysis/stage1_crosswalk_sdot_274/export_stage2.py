@@ -518,6 +518,11 @@ def cmd_add_panos(a):
     near_p1 = sorted(p for p in new if g_p1.within(pos_at[p][0], pos_at[p][1], PHASE1_M))
     new -= set(near_p1)
     others = census_crosswalk_points(a.census_rawlabels, new)
+    for path in a.ignore:          # crosswalk_s5: extra ignore points (pano_id, x, y), e.g. Jon's unsure verdicts
+        with open(path, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                if r["pano_id"] in new:
+                    others.setdefault(r["pano_id"], []).append((r["ignore_id"], float(r["x"]), float(r["y"])))
     # copy the source root unchanged
     for s in ("train", "val", "test"):
         src, dst = os.path.join(a.src_root, s), os.path.join(a.root, s)
@@ -574,7 +579,8 @@ def cmd_add_panos(a):
            "ignore_points": sum(r["ignore_points"] for r in rows),
            "dropped_near_phase1_gt": near_p1, "phase1_exclusion_m": PHASE1_M,
            "inputs_sha256": {p.split("=", 1)[0]: sha256(p.split("=", 1)[0])
-                             for p in [*a.positives, *a.negatives, a.positions, a.phase1_sheet, *a.exclude]},
+                             for p in [*a.positives, *a.negatives, a.positions, a.phase1_sheet, *a.exclude,
+                                       *a.ignore]},
            "labels_digest": labels.hexdigest(),
            "labels_digest_rule": "sha256 over sorted lines '<split>/<id>.json <sha256 of the file>\\n'",
            "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
@@ -619,6 +625,8 @@ def main():
     s.add_argument("--phase1-sheet", required=True)
     s.add_argument("--census-rawlabels", required=True, help="Phase 0 census out/rawlabels")
     s.add_argument("--exclude", nargs="*", default=[], help="draw lists / panos CSVs that must not be added")
+    s.add_argument("--ignore", nargs="*", default=[],
+                   help="CSVs of ignore_id,pano_id,x,y: extra ignore points on new panos (crosswalk_s5)")
     s.add_argument("--out", required=True, help="writes new_panos.csv + manifest.json here")
     a = ap.parse_args()
     {"neg-pick": cmd_neg_pick, "neg-check": cmd_neg_check, "build": cmd_build,

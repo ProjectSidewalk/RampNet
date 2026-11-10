@@ -1,0 +1,54 @@
+card_id,kind,pano_id,x,y,conf,city,mode,year,stratum,verdict,note,rated_at
+det:1159548628426772:0.691:0.680,det,1159548628426772,0.6914,0.6797,0.386,juneau-ak,juneau_mine,,random,not_crosswalk,This is a shadow of a fence that looks a bit like a crosswalk,2026-11-10T00:13:20.312Z
+det:1166471291040702:0.246:0.648,det,1166471291040702,0.2461,0.6484,0.356,juneau-ak,juneau_mine,,random,not_crosswalk,This is a brick sidewalk,2026-11-10T00:22:03.366Z
+det:1189163612516027:0.144:0.537,det,1189163612516027,0.1436,0.5371,0.293,juneau-ak,juneau_mine,,random,not_crosswalk,This is a parking lot. Diagonal stripes.,2026-11-10T00:16:26.610Z
+det:1197032141710425:0.988:0.680,det,1197032141710425,0.9883,0.6797,0.261,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:10:24.768Z
+det:1197032141710425:0.675:0.648,det,1197032141710425,0.6748,0.6484,0.274,juneau-ak,juneau_mine,,random,not_crosswalk,These are shadows on a sidewalk that look like a crosswalk,2026-11-10T00:04:48.371Z
+det:1197032141710425:0.784:0.600,det,1197032141710425,0.7842,0.5996,0.365,juneau-ak,juneau_mine,,random,not_crosswalk,This is a red wall,2026-11-10T00:13:04.356Z
+det:1197032141710425:0.168:0.664,det,1197032141710425,0.168,0.6641,0.24,juneau-ak,juneau_mine,,random,not_crosswalk,This is a curb ramp with a tactile strip,2026-11-10T00:14:46.370Z
+det:1197032141710425:0.737:0.600,det,1197032141710425,0.7373,0.5996,0.509,juneau-ak,juneau_mine,,random,not_crosswalk,This is a red wall with silver'ish horizontal stripes that looks kinda like a crosswalk,2026-11-10T00:05:23.404Z
+det:1197032141710425:0.910:0.568,det,1197032141710425,0.9102,0.5684,0.243,juneau-ak,juneau_mine,,random,not_crosswalk,This is a sidewalk,2026-11-10T00:20:50.557Z
+det:1197032141710425:0.215:0.584,det,1197032141710425,0.2148,0.584,0.348,juneau-ak,juneau_mine,,random,not_crosswalk,This is the sidewalk,2026-11-10T00:21:24.687Z
+det:1201988311145679:0.871:0.584,det,1201988311145679,0.8711,0.584,0.477,juneau-ak,juneau_mine,,random,not_crosswalk,This is a sidewalk in front of a driveway,2026-11-10T00:19:42.410Z
+det:1241866890530395:0.988:0.693,det,1241866890530395,0.9883,0.6934,0.37,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:04:52.627Z
+det:1261293855798560:0.558:0.584,det,1261293855798560,0.5576,0.584,0.297,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car (with a reflection of a tree),2026-11-10T00:03:56.648Z
+det:1261293855798560:0.823:0.695,det,1261293855798560,0.8232,0.6953,0.439,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:04:20.512Z
+det:1402278180477121:0.925:0.600,det,1402278180477121,0.9248,0.5996,0.435,juneau-ak,juneau_mine,,random,not_crosswalk,Shadows that look like a crosswalk,2026-11-10T00:05:30.368Z
+det:1420479858641040:0.848:0.443,det,1420479858641040,0.8477,0.4434,0.323,juneau-ak,juneau_mine,,random,not_crosswalk,This is a mural on a wall,2026-11-10T00:22:17.579Z
+det:1459205168746820:0.823:0.695,det,1459205168746820,0.8232,0.6953,0.257,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:04:22.453Z
+det:1487717542672746:0.020:0.553,det,1487717542672746,0.0195,0.5527,0.256,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:16:36.059Z
+det:1542887729686555:0.230:0.693,det,1542887729686555,0.2305,0.6934,0.246,juneau-ak,juneau_mine,,random,not_crosswalk,This is a brick sidewalk,2026-11-10T00:21:15.449Z
+det:1631653310924950:0.855:0.664,det,1631653310924950,0.8555,0.6641,0.252,juneau-ak,juneau_mine,,random,not_crosswalk,This is a sidewalk in front of an driveway entrance to a business,2026-11-10T00:08:10.831Z
+det:1634835450675644:0.316:0.539,det,1634835450675644,0.3164,0.5391,0.404,juneau-ak,juneau_mine,,random,not_crosswalk,This is a parking lot area,2026-11-10T00:19:29.390Z
+det:1667892940621911:0.199:0.553,det,1667892940621911,0.1992,0.5527,0.561,juneau-ak,juneau_mine,,random,not_crosswalk,These are stairs,2026-11-10T00:13:36.416Z
+det:1845984289652106:0.425:0.602,det,1845984289652106,0.4248,0.6016,0.353,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:06:24.172Z
+det:1845984289652106:0.551:0.600,det,1845984289652106,0.5508,0.5996,0.234,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:07:13.939Z
+det:1845984289652106:0.402:0.615,det,1845984289652106,0.4023,0.6152,0.237,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:07:15.414Z
+det:1936041770272735:0.816:0.711,det,1936041770272735,0.8164,0.7109,0.279,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:04:55.870Z
+det:2887108098132445:0.183:0.678,det,2887108098132445,0.1826,0.6777,0.234,juneau-ak,juneau_mine,,random,not_crosswalk,This is a brick sidewalk,2026-11-10T00:12:07.241Z
+det:2887108098132445:0.183:0.633,det,2887108098132445,0.1826,0.6328,0.238,juneau-ak,juneau_mine,,random,not_crosswalk,This is a brick sidewalk,2026-11-10T00:14:34.464Z
+det:2887108098132445:0.480:0.523,det,2887108098132445,0.4805,0.5234,0.405,juneau-ak,juneau_mine,,random,not_crosswalk,Parking lot stripes,2026-11-10T00:22:38.944Z
+det:313309418495470:0.323:0.709,det,313309418495470,0.3232,0.709,0.473,juneau-ak,juneau_mine,,random,not_crosswalk,This is a brick sidewalk,2026-11-10T00:12:42.912Z
+det:340802635449198:0.979:0.756,det,340802635449198,0.9795,0.7559,0.243,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:06:19.492Z
+det:375817771614992:0.831:0.586,det,375817771614992,0.8311,0.5859,0.47,juneau-ak,juneau_mine,,random,not_crosswalk,This is a sidewalk in front of a driveway,2026-11-10T00:06:11.224Z
+det:375817771614992:0.785:0.602,det,375817771614992,0.7852,0.6016,0.454,juneau-ak,juneau_mine,,random,not_crosswalk,This is a sidewalk in front of a driveway,2026-11-10T00:19:54.187Z
+det:417899007753274:0.362:0.461,det,417899007753274,0.3623,0.4609,0.35,juneau-ak,juneau_mine,,random,not_crosswalk,This is a rooftop,2026-11-10T00:19:59.099Z
+det:417899007753274:0.270:0.445,det,417899007753274,0.2695,0.4453,0.656,juneau-ak,juneau_mine,,random,not_crosswalk,This is a roof that looks kinda like a crosswalk,2026-11-10T00:07:23.776Z
+det:440019778968757:0.980:0.758,det,440019778968757,0.9805,0.7578,0.404,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of a capture car,2026-11-10T00:21:05.286Z
+det:487981966899030:0.988:0.648,det,487981966899030,0.9883,0.6484,0.238,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:20:36.271Z
+det:752379200303894:0.363:0.693,det,752379200303894,0.3633,0.6934,0.254,juneau-ak,juneau_mine,,random,not_crosswalk,This is a brick sidewalk,2026-11-10T00:10:13.910Z
+det:752379200303894:0.988:0.695,det,752379200303894,0.9883,0.6953,0.342,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:05:03.188Z
+det:752379200303894:0.801:0.617,det,752379200303894,0.8008,0.6172,0.288,juneau-ak,juneau_mine,,random,not_crosswalk,This is a brick sidewalk,2026-11-10T00:19:18.367Z
+det:758809496982537:0.832:0.740,det,758809496982537,0.832,0.7402,0.333,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:04:58.306Z
+det:762585329063415:0.316:0.568,det,762585329063415,0.3164,0.5684,0.459,juneau-ak,juneau_mine,,random,not_crosswalk,"This is a disability parking zone with a ""no parking"" area as an access aisle",2026-11-10T00:16:50.323Z
+det:781344950436375:0.988:0.693,det,781344950436375,0.9883,0.6934,0.342,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:04:09.135Z
+det:781344950436375:0.144:0.662,det,781344950436375,0.1436,0.6621,0.234,juneau-ak,juneau_mine,,random,not_crosswalk,This is a brick sidewalk,2026-11-10T00:20:18.051Z
+det:781688874506274:0.980:0.553,det,781688874506274,0.9805,0.5527,0.314,juneau-ak,juneau_mine,,random,not_crosswalk,Top of the capture car,2026-11-10T00:16:03.398Z
+det:8177146959002755:0.308:0.680,det,8177146959002755,0.3076,0.6797,0.299,juneau-ak,juneau_mine,,random,not_crosswalk,This is the sidewalk,2026-11-10T00:11:06.028Z
+det:8177146959002755:0.340:0.664,det,8177146959002755,0.3398,0.6641,0.243,juneau-ak,juneau_mine,,random,not_crosswalk,This is a sidewalk,2026-11-10T00:19:35.221Z
+det:8177146959002755:0.207:0.678,det,8177146959002755,0.207,0.6777,0.282,juneau-ak,juneau_mine,,random,not_crosswalk,This is a sidewalk with a fence shadow that looks kinda like a crosswalk,2026-11-10T00:20:13.255Z
+det:972094814408782:0.988:0.727,det,972094814408782,0.9883,0.7266,0.265,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:05:00.898Z
+det:979305503511324:0.000:0.617,det,979305503511324,0,0.6172,0.522,juneau-ak,juneau_mine,,random,not_crosswalk,This is the top of the capture car,2026-11-10T00:04:24.015Z
+det:984454289498120:0.340:0.662,det,984454289498120,0.3398,0.6621,0.259,juneau-ak,juneau_mine,,random,not_crosswalk,This is a sidewalk in front of a driveway entrance,2026-11-10T00:09:28.673Z
+det:991550989365848:0.496:0.537,det,991550989365848,0.4961,0.5371,0.395,juneau-ak,juneau_mine,,random,not_crosswalk,This is a median,2026-11-10T00:13:31.356Z
+det:991550989365848:0.597:0.539,det,991550989365848,0.5967,0.5391,0.391,juneau-ak,juneau_mine,,random,not_crosswalk,This is a turn lane,2026-11-10T00:15:14.319Z
