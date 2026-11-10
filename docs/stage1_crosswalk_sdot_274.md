@@ -1008,7 +1008,7 @@ What the reported draws show (Jon's notes):
   rig the Laurens negatives did not cover. Juneau decides nothing under the pre-registration, but it is the first
   thing to fix before s4 labels go live anywhere.
 
-#### `crosswalk_s5` pre-registration (DRAFT 2026-11-09, awaiting Jon's approval; nothing trains before it)
+#### `crosswalk_s5` pre-registration (fixed 2026-11-09: Jon approved this text, root_v5 rules included, before any s5 training)
 
 **Goal.** Fix the one regression s4's confirmation found: Juneau look-alikes rose from 5.8 to 20.8 per 100 panos
 (capture-car top, brick and plain sidewalk, curb ramps, turn lanes). Keep everything s4 gained.
@@ -1053,6 +1053,9 @@ Result: 102 new train panos (82 with positives, 20 negative-only), 164 positives
 `check_root_negatives.py` passes (343 negatives at weight 1 and target about 0; 164 positives at target ≥ 0.9).
 Train 4,294 → 4,396; val 1,029 and test 515 unchanged; labels digest `880fc6f5d96d`; new-pano tar sha256
 `906eed99…`.
+
+**Runs.** klone jobs 43086260 (20-step smoke) and 43086644–43086646 (seeds 1–3), submitted together so the seeds
+start before the maintenance reservation; the seeds are cancelled if the smoke run fails.
 
 **Recipe.** s4's exactly: released weights, seeds 1, 2 and 3, 1,000 steps at batch 16, LR 1e-5,
 `--loss-mask --mask-norm pixels`, `TRIM_EPOCH=1`, final checkpoint only, a 20-step smoke run first. Time limit
