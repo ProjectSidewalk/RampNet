@@ -17,7 +17,7 @@ Bundle `benchmark/sao_paulo`, splits `benchmark/prompt_opt_276/sao_paulo_split.j
 | zs_conf | all | 125 | 0.659 (0.557-0.749) | 0.213 (0.170-0.265) | **0.323** | 60/31/281 | 92 boxes, 17 distinct scores |
 | def276-flash38-r1 | dev_train | 60 | 0.736 (0.604-0.836) | 0.252 (0.190-0.325) | **0.375** | 39/14/155 | 54 boxes, 13 distinct scores |
 | def276-flash38-r2 | dev_train | 60 | 0.667 (0.537-0.775) | 0.245 (0.184-0.319) | **0.358** | 38/19/155 | 59 boxes, 13 distinct scores |
-| def276-flash38-alt | dev_select | 65 | | | | | pending (48/65 cached) |
+| def276-flash38-alt | dev_select | 65 | 0.577 (0.442-0.701) | 0.238 (0.172-0.320) | **0.337** | 30/22/126 |  |
 
 ## gemini-4-argon
 
@@ -36,7 +36,7 @@ Bundle `benchmark/sao_paulo`, splits `benchmark/prompt_opt_276/sao_paulo_split.j
 | thinking_high | dev_select | 65 | 0.852 (0.759-0.913) | 0.548 (0.461-0.632) | **0.667** | 69/12/126 | thinking high |
 | def276-argon-r1 | dev_train | 60 | 0.717 (0.641-0.783) | 0.703 (0.627-0.769) | **0.710** | 109/43/155 | 172 boxes, 45 distinct scores |
 | def276-argon-r2 | dev_train | 60 | 0.778 (0.698-0.842) | 0.632 (0.554-0.704) | **0.698** | 98/28/155 | 139 boxes, 40 distinct scores |
-| def276-argon-alt | dev_select | 65 | | | | | pending (0/65 cached) |
+| def276-argon-alt | dev_select | 65 | 0.737 (0.640-0.815) | 0.556 (0.468-0.639) | **0.633** | 70/25/126 |  |
 
 ## Qwen/Qwen3-VL-32B-Instruct
 

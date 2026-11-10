@@ -328,8 +328,23 @@
    "thinking_level": null,
    "cache": ".model_cache",
    "n_panos": 65,
-   "n_cached": 48,
-   "status": "pending"
+   "n_cached": 65,
+   "status": "scored",
+   "precision": 0.5769,
+   "recall": 0.2381,
+   "f1": 0.3371,
+   "precision_ci": [
+    0.4419,
+    0.7013
+   ],
+   "recall_ci": [
+    0.1722,
+    0.3195
+   ],
+   "tp": 30,
+   "fp": 22,
+   "n_gt": 126,
+   "n_pred": 53
   },
   {
    "model": "gemini-4-argon",
@@ -711,8 +726,23 @@
    "thinking_level": null,
    "cache": ".model_cache",
    "n_panos": 65,
-   "n_cached": 0,
-   "status": "pending"
+   "n_cached": 65,
+   "status": "scored",
+   "precision": 0.7368,
+   "recall": 0.5556,
+   "f1": 0.6335,
+   "precision_ci": [
+    0.6403,
+    0.8149
+   ],
+   "recall_ci": [
+    0.4684,
+    0.6394
+   ],
+   "tp": 70,
+   "fp": 25,
+   "n_gt": 126,
+   "n_pred": 105
   },
   {
    "model": "Qwen/Qwen3-VL-32B-Instruct",
