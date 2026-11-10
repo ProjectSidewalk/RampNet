@@ -579,3 +579,6 @@ benchmark/*/cluster_review/gallery/
 analysis_out/prompt_opt_276/*
 !analysis_out/prompt_opt_276/*.json
 !analysis_out/prompt_opt_276/*.md
+
+# #276 optimizer review pages: a view of iter_*/candidates.json + the crops beside it, ~1 MB of base64 each; `prompt_optimize.py pick` rewrites them
+benchmark/prompt_opt_276/optimize/*/iter_*/review.html

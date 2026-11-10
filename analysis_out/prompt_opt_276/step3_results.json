@@ -259,6 +259,79 @@
    "n_distinct_scores": 17
   },
   {
+   "model": "gemini-3.8-flash",
+   "short": "flash38",
+   "leg": "def276-flash38-r1",
+   "split": "dev_train",
+   "definition": "def276-flash38-r1",
+   "confidence": true,
+   "thinking_level": null,
+   "cache": ".model_cache",
+   "n_panos": 60,
+   "n_cached": 60,
+   "status": "scored",
+   "precision": 0.7358,
+   "recall": 0.2516,
+   "f1": 0.375,
+   "precision_ci": [
+    0.6042,
+    0.8356
+   ],
+   "recall_ci": [
+    0.1899,
+    0.3254
+   ],
+   "tp": 39,
+   "fp": 14,
+   "n_gt": 155,
+   "n_pred": 54,
+   "n_scored_boxes": 54,
+   "n_distinct_scores": 13
+  },
+  {
+   "model": "gemini-3.8-flash",
+   "short": "flash38",
+   "leg": "def276-flash38-r2",
+   "split": "dev_train",
+   "definition": "def276-flash38-r2",
+   "confidence": true,
+   "thinking_level": null,
+   "cache": ".model_cache",
+   "n_panos": 60,
+   "n_cached": 60,
+   "status": "scored",
+   "precision": 0.6667,
+   "recall": 0.2452,
+   "f1": 0.3585,
+   "precision_ci": [
+    0.5372,
+    0.7751
+   ],
+   "recall_ci": [
+    0.1841,
+    0.3185
+   ],
+   "tp": 38,
+   "fp": 19,
+   "n_gt": 155,
+   "n_pred": 59,
+   "n_scored_boxes": 59,
+   "n_distinct_scores": 13
+  },
+  {
+   "model": "gemini-3.8-flash",
+   "short": "flash38",
+   "leg": "def276-flash38-alt",
+   "split": "dev_select",
+   "definition": "def276-flash38-alt",
+   "confidence": false,
+   "thinking_level": null,
+   "cache": ".model_cache",
+   "n_panos": 65,
+   "n_cached": 48,
+   "status": "pending"
+  },
+  {
    "model": "gemini-4-argon",
    "short": "argon",
    "leg": "seed",
@@ -567,6 +640,79 @@
    "fp": 12,
    "n_gt": 126,
    "n_pred": 85
+  },
+  {
+   "model": "gemini-4-argon",
+   "short": "argon",
+   "leg": "def276-argon-r1",
+   "split": "dev_train",
+   "definition": "def276-argon-r1",
+   "confidence": true,
+   "thinking_level": null,
+   "cache": ".model_cache",
+   "n_panos": 60,
+   "n_cached": 60,
+   "status": "scored",
+   "precision": 0.7171,
+   "recall": 0.7032,
+   "f1": 0.7101,
+   "precision_ci": [
+    0.6408,
+    0.7827
+   ],
+   "recall_ci": [
+    0.6271,
+    0.7695
+   ],
+   "tp": 109,
+   "fp": 43,
+   "n_gt": 155,
+   "n_pred": 172,
+   "n_scored_boxes": 172,
+   "n_distinct_scores": 45
+  },
+  {
+   "model": "gemini-4-argon",
+   "short": "argon",
+   "leg": "def276-argon-r2",
+   "split": "dev_train",
+   "definition": "def276-argon-r2",
+   "confidence": true,
+   "thinking_level": null,
+   "cache": ".model_cache",
+   "n_panos": 60,
+   "n_cached": 60,
+   "status": "scored",
+   "precision": 0.7778,
+   "recall": 0.6323,
+   "f1": 0.6975,
+   "precision_ci": [
+    0.6976,
+    0.8415
+   ],
+   "recall_ci": [
+    0.554,
+    0.7041
+   ],
+   "tp": 98,
+   "fp": 28,
+   "n_gt": 155,
+   "n_pred": 139,
+   "n_scored_boxes": 139,
+   "n_distinct_scores": 40
+  },
+  {
+   "model": "gemini-4-argon",
+   "short": "argon",
+   "leg": "def276-argon-alt",
+   "split": "dev_select",
+   "definition": "def276-argon-alt",
+   "confidence": false,
+   "thinking_level": null,
+   "cache": ".model_cache",
+   "n_panos": 65,
+   "n_cached": 0,
+   "status": "pending"
   },
   {
    "model": "Qwen/Qwen3-VL-32B-Instruct",

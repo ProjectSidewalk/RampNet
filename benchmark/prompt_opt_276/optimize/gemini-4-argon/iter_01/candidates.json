@@ -1,0 +1,47 @@
+{
+ "iteration": 1,
+ "model": "gemini-4-argon",
+ "definition": null,
+ "train": {
+  "precision": 0.7606,
+  "recall": 0.6968,
+  "f1": 0.7273,
+  "tp": 108,
+  "fp": 34,
+  "n_gt": 155
+ },
+ "diagnostics_2R": {
+  "precision_1R": 0.7606,
+  "recall_1R": 0.6968,
+  "precision_2R": 0.7817,
+  "recall_2R": 0.7161,
+  "n_gt": 155,
+  "n_pred": 142
+ },
+ "fp": {
+  "pano": "_fPo4iIbhE1HLT_ixD57_Q",
+  "x": 0.8788235874751116,
+  "y": 0.6273196609123702,
+  "conf": 0.78,
+  "view_yaw_deg": 120.0,
+  "view_pitch_deg": -30.0,
+  "u": 0.6353,
+  "v": 0.4455,
+  "image": "fp.jpg",
+  "detail": "fp_detail.jpg"
+ },
+ "fn": {
+  "pano": "Cuj3qJDAZnTKnMhQLXy1ig",
+  "x": 0.2961262380745304,
+  "y": 0.6067879461294344,
+  "nearest_pred_px": 349.8025928478323,
+  "view_yaw_deg": 300.0,
+  "view_pitch_deg": -30.0,
+  "u": 0.3861,
+  "v": 0.4093,
+  "image": "fn.jpg",
+  "detail": "fn_detail.jpg"
+ },
+ "picked_at": "2026-11-09T19:11:07Z",
+ "excluded_panos": []
+}

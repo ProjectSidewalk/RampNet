@@ -18,6 +18,9 @@ Legs (the Step 3 protocol of the plan):
     zs_conf         seed + elicited per-box confidence, all 125 panos       (Gemini only)
     thinking_low    seed prompt at --gemini-thinking-level low, dev_select   (Step 6, Argon only)
     thinking_high   seed prompt at --gemini-thinking-level high, dev_select  (Step 6, Argon only)
+    def276-<m>-r<k> the optimizer's k-th candidate on dev_train, confidence on (Step 4, as
+                    prompt_optimize.py evaluate scored it; the trajectory holds the verdict)
+    def276-<m>-alt  the image-free alternative rewording on dev_select            (Step 4)
 
 The thinking legs compare against the seed dev_select leg, whose thinking level is the
 model's default (unset, so absent from the signature).
@@ -52,12 +55,24 @@ MODELS = [
 DEFINITIONS = ["para1", "para2", "para3", "expert", "expert-long"]
 THINKING_MODELS = {"gemini-4-argon"}      # Step 6 ran the thinking arm on Argon only
 THINKING_LEVELS = ["low", "high"]
+DEFINITIONS_DIR = os.path.join(REPO_ROOT, "benchmark", "prompt_opt_276", "definitions")
 
 
-def legs_for(provider, model_id):
+def optimizer_definitions(short):
+    """The committed Step 4 definitions of one model: (name, split, confidence), in order."""
+    import glob
+    names = sorted(os.path.basename(p)[:-4] for p in
+                   glob.glob(os.path.join(DEFINITIONS_DIR, "def276-%s-*.txt" % short)))
+    cands = [n for n in names if n.rsplit("-", 1)[1].startswith("r")]
+    alts = [n for n in names if n.endswith("-alt")]
+    return [(n, "dev_train", True) for n in cands] + [(n, "dev_select", False) for n in alts]
+
+
+def legs_for(provider, model_id, short):
     """(leg, split, definition, confidence, thinking, cache) per model.
 
-    Gemini adds the confidence leg; the thinking-arm models add the two thinking legs.
+    Gemini adds the confidence leg and its Step 4 optimizer legs; the thinking-arm models
+    add the two thinking legs.
     """
     legs = [("seed", "dev_train", None, False, None, "main"),
             ("seed_repeat", "dev_train", None, False, None, "rep1"),
@@ -67,6 +82,8 @@ def legs_for(provider, model_id):
         legs.append(("zs_conf", "all", None, True, None, "main"))
     if model_id in THINKING_MODELS:
         legs += [("thinking_" + t, "dev_select", None, False, t, "main") for t in THINKING_LEVELS]
+    if provider == "gemini":
+        legs += [(n, which, n, conf, None, "main") for n, which, conf in optimizer_definitions(short)]
     return legs
 
 
@@ -104,7 +121,7 @@ def build(main_cache, rep_cache):
               "rep1": (rep_cache, C.DetectionCache(rep_cache, enabled=True))}
     rows = []
     for provider, model_id, short in MODELS:
-        for leg, which, definition, confidence, thinking, cache_name in legs_for(provider, model_id):
+        for leg, which, definition, confidence, thinking, cache_name in legs_for(provider, model_id, short):
             cache_dir, cache = caches[cache_name]
             args = _compare_args(cache_dir)
             args.definition = definition
