@@ -147,6 +147,31 @@ SOURCES = [
      "and unpacked)", None),
     ("confirm_s3/draw_records", f"{SK}/crosswalk274-confirm", "the city draws' labeler records (input to "
      "export_benchmark.py)", "jsonl"),
+    # crosswalk_s5 (Juneau look-alike mining), added 2026-11-10. s5 failed guard 6; s4 stays.
+    ("s5_mine/store_natives", f"{SK}/s5-mine/store", "the 300 Juneau panos drawn for look-alike mining, streamed "
+     "read-only from the PS store (juneau_store.tar sha256 4709a00f... in s5_mine/work)", "jpg"),
+    ("s5_mine/panos_4096", f"{SK}/s5-mine/prep_4096", "the same, 4096x2048 as inferred; the 102 that carry points "
+     "are root_v5's new train JPEGs, byte for byte", None),
+    ("s5_mine/work", f"{SK}/s5-mine", "inference logs and the pulled tars' sha256 files", "log"),
+    ("s5_mine/work", f"{SK}/s5-mine", "sha256 of the pulled store and pano tars", "sha256"),
+    ("work/s5_preds", f"{SK}/s5-mine/preds", "local s4 predictions on the mining and eval draws", None),
+    ("rating_pages/s5_juneauMine", f"{SK}/s5-mine/page", "s5 Juneau mining page (blind, s4 at 0.23) + Jon's "
+     "export (2026-11-09)", None),
+    ("stage2_root/labels_v5", f"{SK}/crosswalk274-root_v5", "v5 label JSONs: v4 plus 102 Juneau mining panos "
+     "(164 positives, 53 negatives); their JPEGs are s5_mine/panos_4096", "json"),
+    ("checkpoints/crosswalk_s5", f"{SK}/crosswalk274-klone/x5/ckpts/v5_s1", "crosswalk_s5 seed 1 (sha256 "
+     "802e12ed...) + TensorBoard runs/ (klone .../crosswalk274/v5_s1)", None),
+    ("checkpoints/crosswalk_s5_seed2", f"{SK}/crosswalk274-klone/x5/ckpts/v5_s2", "crosswalk_s5 seed 2 (sha256 "
+     "67ce6862...)", None),
+    ("checkpoints/crosswalk_s5_seed3", f"{SK}/crosswalk274-klone/x5/ckpts/v5_s3", "crosswalk_s5 seed 3 (sha256 "
+     "93642835...)", None),
+    ("logs/slurm_2026-11-10", f"{SK}/crosswalk274-klone/x5/logs", "s5 smoke + 3 seeds (seed 1 resumed after a ckpt "
+     "preemption) and every s5 inference job, 43093845-54", None),
+    ("s5_eval/store_natives", f"{SK}/s5-mine/eval_store", "the fresh Juneau draw (seed 278, 120 panos), native "
+     "from the PS store", "jpg"),
+    ("s5_eval/panos_4096", f"{SK}/s5-mine/eval_4096", "the same, 4096x2048 as inferred (Step B's --pano-dir)", None),
+    ("rating_pages/s5_stepB", f"{SK}/s5-stepB/page", "s5 Step B: blind page of s4 (0.23) and s5 (0.26) cards on the "
+     "fresh Juneau draw + Jon's first export and his re-export with one card corrected (2026-11-10)", None),
     ("worktree_untracked/stage1-label-type-274", f"{WT}/stage1-label-type-274", "gitignored #274 outputs at "
      "their repo paths (SDOT pilot pixels/views, arm C thumbs, logs, galleries)", "ignored"),
     ("worktree_untracked/crosswalk-inventory-274", f"{WT}/crosswalk-inventory-274", "gitignored inventory inputs",

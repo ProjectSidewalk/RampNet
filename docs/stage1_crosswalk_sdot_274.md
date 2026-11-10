@@ -1208,6 +1208,18 @@ Verify a copy with `sha256sum -c SHA256SUMS` and `sha256sum -c store_natives.SHA
 root, copy `stage2_root/images/<split>/` plus one `labels_*/<split>/` into `root/<split>/`; the archive README has
 the loop. Re-running `archive_274.py stage` adds new artefacts (the s3 run's) and refuses a changed one.
 
+The s5 round was staged on 2026-11-10: 6,832 new files, about 2.7 GB. They are:
+
+- `s5_mine/` and `s5_eval/`: the Juneau mining draw and the fresh eval draw, as native store panos and at 4096 px;
+- `stage2_root/labels_v5/`;
+- `checkpoints/crosswalk_s5{,_seed2,_seed3}/`;
+- `logs/slurm_2026-11-10/`;
+- `rating_pages/s5_juneauMine/` and `rating_pages/s5_stepB/`, both with Jon's exports.
+
+The staging dir now holds 50,528 files, and `SHA256SUMS` has a line for every manifest entry. Hyak's maintenance
+and a makelab routing fault the same day kept the copy to the lab share from running. Jon runs
+`copy_274_archives_s5.sh` once makelab SSH is back, and Claude then checks it read-only with `sha256sum -c`.
+
 ## Replication
 
 ```bash
