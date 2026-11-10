@@ -233,6 +233,14 @@ list price doubles on 2026-12-01; the credit expires 2026-12-07.
   5.22.2) loaded the 32B shards and failed every pano with `CUDA driver error: invalid
   argument`; the published column's pins (torch 2.13.0+cu126, torchvision 0.28.0, transformers
   5.14.1, accelerate 1.14.0) ran clean. `run_qwen_276.slurm` documents them.
+- **Argon manual_gold leg killed by the chain's 12 h per-leg timeout (2026-11-10 13:00 PST).**
+  The Step 5 runner wrapped each leg in `timeout 43200`. Argon on the full 1,000-pano manual_gold
+  ran at ~50 s/pano with three processes sharing the Vertex quota (25–31 s/pano on the city
+  legs; 26.8 s/pano alone in Step 2) and was killed with 992 of 1,000 panos in the cache. The
+  cache kept the work; the relaunch (`LEG_TIMEOUT=86400`) called only the 8 missing panos. The
+  ledger therefore has **no row for the 992 killed calls (≈ $23)**; the relaunch's row records
+  `panos_called: 8`. `vertex_usage.py --reconcile` will show the gap, and the cost table counts it
+  from the billed side.
 - **Qwen is deterministic** under its greedy decode: the seed repeat reproduced every box, so
   a fresh cache dir measures no floor for it. The Gemini floors came from the same procedure.
 
