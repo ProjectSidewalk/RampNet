@@ -1116,8 +1116,38 @@ By the pre-registered outcome rule ("s4 stays: any guard fails"), s4 stays whate
 **Reported, deciding nothing.** (b′) weighted F1 is 0.720 for s5 against 0.759 for s4, with precision 0.770
 against 0.794. On the fresh Juneau draw, before any rating, s5 makes **more** detections than s4: 91 on 39 of
 120 panos at 0.26, against 71 on 34 panos at 0.23. The Juneau training points were 164 positives and 53
-negatives, so s5 mostly learned more Juneau crosswalks rather than more Juneau background. Whether its extra
-detections are real crosswalks or look-alikes needs ratings.
+negatives, so s5 mostly learned more Juneau crosswalks rather than more Juneau background.
+
+**Step B, exploratory (Jon agreed to rate it after the guard failed).** One blind page of the fresh Juneau draw:
+126 cards, 36 shared by both models, 35 from s4 only and 55 from s5 only. Jon rated all 126 on 2026-11-10
+(`hardneg/s5_stepB/ratings_jon_2026-11-10_s5_stepB.csv`, sha256 `4007a5de…`): 76 crosswalk, 42 not, 8 unsure.
+Results are in `hardneg/s5_inputs/juneau_eval/<s4|s5>/` (`audit_summary.json`, and `audit_compare.json` in `s5/`).
+
+| fresh Juneau draw, 120 panos | s4 at 0.23 | s5 at 0.26 |
+|---|---|---|
+| detections | 71 | 91 |
+| real crosswalks | 43 | **64** |
+| look-alikes | 24 | 22 |
+| unsure | 4 | 5 |
+| precision (unsure counted wrong) | 0.606 | 0.703 |
+| look-alikes per 100 panos | 20.0 | 18.3 |
+
+- **Primary, would not have been met:** look-alikes per 100 panos, s5 − s4, is −1.7 [−10.0, +6.7].
+- **Guard 5 would have held:** s5 still finds 42 of s4's 43 crosswalks (0.977).
+- **What s5 actually changed in Juneau is recall, not look-alikes.** It finds 21 more real crosswalks (+49%) at
+  about the same look-alike rate. That fits its training points, which were three positives per negative. The
+  same model loses (b′) marked-node recall in Seattle (guard 6), so the gain did not carry over across cities.
+- **Look-alikes left in Juneau, from Jon's notes on the 42 "not a crosswalk" cards (both models together):**
+  brick sidewalks (8), the top of the capture car (6), turn-lane markings (6), curb ramps (5), driveway aprons (3),
+  writing on the street (3), no-parking markings (2), and one each of a plain sidewalk, a right-turn corner,
+  parking-lot lines, fence shadows, a fence, stairs, a vehicle hood and the mis-click below; one card has no note.
+  Brick sidewalks and curb ramps lie right beside crossings, so they are near-misses as much as look-alikes.
+  The capture-car tops are the Laurens failure again. The labeler's 49° camera-rig mask (`NADIR_MASK_DEG`,
+  sidewalk-auto-labeler) would catch none of the six: they sit at y 0.57–0.74, above its cut at y 0.77.
+- **One verdict that may be a mis-click:** `det:330104450121462:0.691:0.740` is rated "not a crosswalk" with the
+  note "Too zoomed in to tell with too many occlusions". The card next to it has the same note and is rated
+  "unsure". It is an s5-only card. Rated unsure, s5's look-alikes would be 21 (17.5 per 100), which changes
+  nothing above. The verdict is kept as exported.
 
 ## Draft issue for Jon to post (not posted)
 
@@ -1264,6 +1294,12 @@ python $S match-threshold --sweep $D/v2_labels/s5/threshold_sweep.csv --base cro
 python $S score ... --labels $L --fixed-threshold crosswalk_s5=0.26 crosswalk_s5_seed2=0.33 crosswalk_s5_seed3=0.31 crosswalk_s4=0.23 crosswalk_s4_seed2=0.3 crosswalk_s4_seed3=0.13 --out $D/v2_labels/s5_matched
 python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels/s5_matched --pano-data <seattle_pano_data.psv> --labels crosswalk_s5,crosswalk_s4,released --out $D/v2_labels/s5_matched/bprime
 python $S label-recall --labels $N/s4_inputs/stepA/columbia_gt.csv --base crosswalk_s4=$E/columbia/preds/crosswalk_s4/columbia.jsonl@0.23 --new crosswalk_s5=$N/s5_eval/columbia/preds/crosswalk_s5/columbia.jsonl@0.26 --out $N/s5_eval/columbia
+J=$N/s5_inputs/juneau_eval; R=$N/s5_stepB/ratings_jon_2026-11-10_s5_stepB.csv
+python $S bprime-audit --ids-file $N/s5_inputs/juneau_eval_draw.txt --draw-seed 278 --n-panos 120 --city juneau-ak --mode juneau_eval --preds-file $N/s5_eval/juneau_eval/preds/crosswalk_s5/juneau_eval.jsonl --label crosswalk_s5 --threshold 0.26 --out $J/s5   # s4: the same at 0.23 -> $J/s4
+python $S merge-cards --candidates jev_s4=$J/s4/candidates.csv jev_s5=$J/s5/candidates.csv --out $N/s5_stepB
+python $S cards --candidates $N/s5_stepB/candidates.csv --label s5_stepB --pano-dir <juneau eval_4096> --preds-file $N/s5_stepB/context.jsonl --threshold 0 --blind --definition paint_brick --out <outside the repo>
+python $S carry --ratings $R --candidates $J/<s4|s5>/candidates.csv --out $J/<s4|s5>/ratings.csv && python $S audit-summary --panos $J/<s4|s5>/panos.csv --ratings $J/<s4|s5>/ratings.csv --label crosswalk_<s4|s5> --out $J/<s4|s5>
+python $S audit-compare --base-panos $J/s4/panos.csv --base-ratings $J/s4/ratings.csv --new-panos $J/s5/panos.csv --new-ratings $J/s5/ratings.csv --new-preds $N/s5_eval/juneau_eval/preds/crosswalk_s5/juneau_eval.jsonl --new-threshold 0.26 --base-label crosswalk_s4 --new-label crosswalk_s5 --ci 0.95 --out $J/s5
 # archive (staging on D:, then Jon copies it to the lab share)
 A=scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py
 python $A stage --out <staging> && python $A natives --out <staging>

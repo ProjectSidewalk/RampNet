@@ -1,0 +1,72 @@
+card_id,kind,pano_id,x,y,conf,city,mode,year,stratum,verdict,note
+det:1007069030317823:0.519:0.523,det,1007069030317823,0.518555,0.523438,0.926352,juneau-ak,juneau_eval,,random,crosswalk,
+det:1128359665110685:0.011:0.523,det,1128359665110685,0.010742,0.523438,0.672251,juneau-ak,juneau_eval,,random,crosswalk,
+det:1141747780305924:0.520:0.523,det,1141747780305924,0.519531,0.523438,0.913077,juneau-ak,juneau_eval,,random,crosswalk,
+det:1141747780305924:0.988:0.523,det,1141747780305924,0.988281,0.523438,0.504222,juneau-ak,juneau_eval,,random,crosswalk,
+det:1143169340290710:0.316:0.695,det,1143169340290710,0.316406,0.695312,0.368113,juneau-ak,juneau_eval,,random,not_crosswalk,This is a brick sidewalk
+det:1143169340290710:0.301:0.695,det,1143169340290710,0.300781,0.695312,0.36653,juneau-ak,juneau_eval,,random,not_crosswalk,This is a brick sidewalk
+det:1143169340290710:0.339:0.693,det,1143169340290710,0.338867,0.693359,0.352428,juneau-ak,juneau_eval,,random,not_crosswalk,Brick sidewalk
+det:1143169340290710:0.245:0.711,det,1143169340290710,0.245117,0.710938,0.288771,juneau-ak,juneau_eval,,random,not_crosswalk,This is a brick sidewalk
+det:1149530022860577:0.604:0.537,det,1149530022860577,0.604492,0.537109,1.000109,juneau-ak,juneau_eval,,random,crosswalk,
+det:1149530022860577:0.683:0.508,det,1149530022860577,0.682617,0.507812,0.803615,juneau-ak,juneau_eval,,random,crosswalk,
+det:1149530022860577:0.479:0.695,det,1149530022860577,0.479492,0.695312,0.609877,juneau-ak,juneau_eval,,random,crosswalk,
+det:1149530022860577:0.863:0.553,det,1149530022860577,0.863281,0.552734,0.299873,juneau-ak,juneau_eval,,random,not_crosswalk,Turn lane
+det:1171635497202847:0.979:0.553,det,1171635497202847,0.979492,0.552734,0.84084,juneau-ak,juneau_eval,,random,crosswalk,
+det:1171635497202847:0.520:0.508,det,1171635497202847,0.519531,0.507812,0.659086,juneau-ak,juneau_eval,,random,crosswalk,
+det:1333658381743459:0.370:0.537,det,1333658381743459,0.370117,0.537109,0.86309,juneau-ak,juneau_eval,,random,crosswalk,
+det:1333658381743459:0.457:0.521,det,1333658381743459,0.457031,0.521484,0.782171,juneau-ak,juneau_eval,,random,crosswalk,
+det:1499781417624405:0.519:0.521,det,1499781417624405,0.518555,0.521484,0.915453,juneau-ak,juneau_eval,,random,crosswalk,
+det:1499781417624405:0.988:0.521,det,1499781417624405,0.988281,0.521484,0.356255,juneau-ak,juneau_eval,,random,not_crosswalk,This is a turn lane
+det:1499781417624405:0.000:0.521,det,1499781417624405,0.0,0.521484,0.300638,juneau-ak,juneau_eval,,random,unsure,Crosshair is right over a turn lane and intersects with a crosswalk
+det:1515220232535195:0.526:0.539,det,1515220232535195,0.526367,0.539062,0.814542,juneau-ak,juneau_eval,,random,crosswalk,
+det:1634587627379781:0.902:0.586,det,1634587627379781,0.902344,0.585938,0.387647,juneau-ak,juneau_eval,,random,not_crosswalk,This is a curb ramp
+det:1634587627379781:0.254:0.740,det,1634587627379781,0.253906,0.740234,0.278039,juneau-ak,juneau_eval,,random,not_crosswalk,This is a brick sidewalk
+det:1634587627379781:0.363:0.695,det,1634587627379781,0.363281,0.695312,0.237376,juneau-ak,juneau_eval,,random,not_crosswalk,This is a sidewalk
+det:1889343678204004:0.526:0.646,det,1889343678204004,0.526367,0.646484,0.315366,juneau-ak,juneau_eval,,random,not_crosswalk,Text written on street
+det:1889343678204004:0.512:0.646,det,1889343678204004,0.511719,0.646484,0.3129,juneau-ak,juneau_eval,,random,not_crosswalk,This is writing on the street
+det:2026234161116062:0.551:0.584,det,2026234161116062,0.550781,0.583984,0.395988,juneau-ak,juneau_eval,,random,not_crosswalk,This is the top of a capture car
+det:294224007088999:0.354:0.693,det,294224007088999,0.354492,0.693359,0.383759,juneau-ak,juneau_eval,,random,not_crosswalk,This is a brick sidewalk
+det:309738622209283:0.495:0.523,det,309738622209283,0.495117,0.523438,0.327636,juneau-ak,juneau_eval,,random,crosswalk,
+det:309738622209283:0.988:0.508,det,309738622209283,0.988281,0.507812,0.233301,juneau-ak,juneau_eval,,random,unsure,Too far to tell
+det:330104450121462:0.988:0.586,det,330104450121462,0.988281,0.585938,0.763735,juneau-ak,juneau_eval,,random,crosswalk,
+det:330104450121462:0.011:0.586,det,330104450121462,0.010742,0.585938,0.418266,juneau-ak,juneau_eval,,random,crosswalk,
+det:330104450121462:0.000:0.600,det,330104450121462,0.0,0.599609,0.418215,juneau-ak,juneau_eval,,random,crosswalk,
+det:369579485644134:0.520:0.568,det,369579485644134,0.519531,0.568359,0.568879,juneau-ak,juneau_eval,,random,crosswalk,
+det:3721336794805907:0.027:0.539,det,3721336794805907,0.027344,0.539062,0.684462,juneau-ak,juneau_eval,,random,crosswalk,
+det:3721336794805907:0.996:0.537,det,3721336794805907,0.996094,0.537109,0.26734,juneau-ak,juneau_eval,,random,crosswalk,
+det:376386715445474:0.495:0.523,det,376386715445474,0.495117,0.523438,0.567109,juneau-ak,juneau_eval,,random,crosswalk,
+det:422642557320806:0.136:0.523,det,422642557320806,0.135742,0.523438,0.602836,juneau-ak,juneau_eval,,random,not_crosswalk,"This is a ""no parking"" marking"
+det:422642557320806:0.238:0.602,det,422642557320806,0.238281,0.601562,0.467081,juneau-ak,juneau_eval,,random,crosswalk,
+det:422642557320806:0.996:0.521,det,422642557320806,0.996094,0.521484,0.460942,juneau-ak,juneau_eval,,random,crosswalk,
+det:422642557320806:0.573:0.648,det,422642557320806,0.573242,0.648438,0.347574,juneau-ak,juneau_eval,,random,crosswalk,
+det:442484928532989:0.511:0.615,det,442484928532989,0.510742,0.615234,0.808053,juneau-ak,juneau_eval,,random,crosswalk,
+det:442484928532989:0.996:0.521,det,442484928532989,0.996094,0.521484,0.340413,juneau-ak,juneau_eval,,random,crosswalk,
+det:450468617932216:0.996:0.508,det,450468617932216,0.996094,0.507812,0.778885,juneau-ak,juneau_eval,,random,crosswalk,
+det:450468617932216:0.012:0.521,det,450468617932216,0.011719,0.521484,0.76282,juneau-ak,juneau_eval,,random,crosswalk,
+det:450468617932216:0.520:0.521,det,450468617932216,0.519531,0.521484,0.443593,juneau-ak,juneau_eval,,random,unsure,Too far away
+det:450468617932216:0.987:0.742,det,450468617932216,0.987305,0.742188,0.256543,juneau-ak,juneau_eval,,random,not_crosswalk,Top of the capture car
+det:464425882701743:0.512:0.537,det,464425882701743,0.511719,0.537109,0.929139,juneau-ak,juneau_eval,,random,crosswalk,
+det:468280855706660:0.269:0.693,det,468280855706660,0.268555,0.693359,0.31202,juneau-ak,juneau_eval,,random,not_crosswalk,This is a sidewalk in front of a driveway
+det:468280855706660:0.644:0.633,det,468280855706660,0.643555,0.632812,0.303395,juneau-ak,juneau_eval,,random,unsure,
+det:468280855706660:0.315:0.680,det,468280855706660,0.31543,0.679688,0.286096,juneau-ak,juneau_eval,,random,not_crosswalk,Sidewalk in front of a driveway
+det:476861378065435:0.511:0.521,det,476861378065435,0.510742,0.521484,0.607852,juneau-ak,juneau_eval,,random,crosswalk,
+det:476861378065435:0.395:0.523,det,476861378065435,0.394531,0.523438,0.332345,juneau-ak,juneau_eval,,random,not_crosswalk,These are stairs
+det:476861378065435:0.629:0.631,det,476861378065435,0.628906,0.630859,0.233181,juneau-ak,juneau_eval,,random,not_crosswalk,This is a brick sidewalk
+det:481880617525577:0.488:0.537,det,481880617525577,0.488281,0.537109,0.379134,juneau-ak,juneau_eval,,random,crosswalk,
+det:661626023662993:0.581:0.617,det,661626023662993,0.581055,0.617188,0.314033,juneau-ak,juneau_eval,,random,not_crosswalk,This is the top of the capture car
+det:661626023662993:0.566:0.617,det,661626023662993,0.566406,0.617188,0.312285,juneau-ak,juneau_eval,,random,not_crosswalk,Top of the capture car
+det:745570980820491:0.996:0.555,det,745570980820491,0.996094,0.554688,0.626481,juneau-ak,juneau_eval,,random,crosswalk,
+det:754063500141197:0.487:0.555,det,754063500141197,0.487305,0.554688,1.008605,juneau-ak,juneau_eval,,random,crosswalk,
+det:754063500141197:0.559:0.617,det,754063500141197,0.558594,0.617188,0.892166,juneau-ak,juneau_eval,,random,crosswalk,
+det:754063500141197:0.348:0.508,det,754063500141197,0.347656,0.507812,0.249867,juneau-ak,juneau_eval,,random,crosswalk,
+det:760228396188303:0.504:0.521,det,760228396188303,0.503906,0.521484,0.579436,juneau-ak,juneau_eval,,random,crosswalk,
+det:760228396188303:0.988:0.521,det,760228396188303,0.988281,0.521484,0.409198,juneau-ak,juneau_eval,,random,crosswalk,
+det:764247395859574:0.559:0.646,det,764247395859574,0.558594,0.646484,0.485123,juneau-ak,juneau_eval,,random,crosswalk,
+det:783984073887257:0.925:0.537,det,783984073887257,0.924805,0.537109,0.858754,juneau-ak,juneau_eval,,random,crosswalk,
+det:783984073887257:0.081:0.555,det,783984073887257,0.081055,0.554688,0.824789,juneau-ak,juneau_eval,,random,crosswalk,
+det:783984073887257:0.121:0.537,det,783984073887257,0.121094,0.537109,0.342871,juneau-ak,juneau_eval,,random,not_crosswalk,This is a turn lane marking
+det:783984073887257:0.151:0.537,det,783984073887257,0.151367,0.537109,0.316545,juneau-ak,juneau_eval,,random,not_crosswalk,This is a right-turn curb/corner
+det:951285150126043:0.479:0.537,det,951285150126043,0.479492,0.537109,0.831153,juneau-ak,juneau_eval,,random,crosswalk,
+det:951285150126043:0.535:0.570,det,951285150126043,0.535156,0.570312,0.62482,juneau-ak,juneau_eval,,random,crosswalk,
+det:967370745179953:0.871:0.584,det,967370745179953,0.871094,0.583984,0.278035,juneau-ak,juneau_eval,,random,crosswalk,
+det:988003959715120:0.112:0.662,det,988003959715120,0.112305,0.662109,0.338381,juneau-ak,juneau_eval,,random,not_crosswalk,Fence shadows
