@@ -1089,6 +1089,36 @@ four confirmation draws; a card within 0.01 of an already rated card inherits it
 **Reported, deciding nothing.** The old Juneau confirmation draw and Laurens GSV; the PS-label and Bayonne
 probes; s5's own val pick; the seeds.
 
+## `crosswalk_s5` results (2026-11-09): s4 STAYS (guard 6 fails)
+
+**Runs.** All three seeds finished 1,000 optimizer steps (4,000 micro-batches) on `root_v5`, with validation
+loss 0.0006 for each, as for s4. Seed 1 (43086644) was preempted twice on `ckpt-all` and resumed from its
+latest checkpoint at micro-batch 2,000 (`Resumed training from epoch 1, global_step 2000, batch_idx 904`). The
+trainer supports that, but the run is not bit-identical to an uninterrupted one. Final sha256: seed 1
+`802e12ed…`, seed 2 `67ce6862…`, seed 3 `93642835…`. Inference: klone jobs 43093845–43093854.
+s4 run on klone and on the local RTX 3070 gives the same peaks on the fresh Juneau draw (largest confidence
+difference 3e-5).
+
+**Thresholds** (`match-threshold --base-threshold`, on `v2_labels/s5/threshold_sweep.csv`): s5 against s4 at
+its adopted thresholds gives 0.26, 0.33 and 0.31. s5's own val-F1 picks are 0.30, 0.40 and 0.37.
+`--base-threshold` was added for this run: without it, the command matches the base model's own val-F1 pick
+(s4's 0.33, 0.31 and 0.24), not the thresholds s4 was adopted at, which the pre-registration names.
+
+| check | s5 | s4 | rule | holds? |
+|---|---|---|---|---|
+| Guard 1: mean test F1, three seeds (`v2_labels/s5_matched/`) | 0.829 (0.836, 0.835, 0.817) | 0.836 | ≥ 0.826 | yes |
+| Guard 6: (b′) weighted marked-node recall (`v2_labels/s5_matched/bprime/`) | 0.676 | 0.728 | drop ≤ 0.03 | **no (−0.052)** |
+| Guard 3: Columbia brick recall (`hardneg/s5_eval/columbia/`) | 0.890 | 0.871 | s5 − s4 ≥ −0.03 | yes (+0.019 [−0.024, +0.066]) |
+| Guards 2, 4, 5 and the primary | need Jon's Step B ratings | | | not rated |
+
+By the pre-registered outcome rule ("s4 stays: any guard fails"), s4 stays whatever the primary shows.
+
+**Reported, deciding nothing.** (b′) weighted F1 is 0.720 for s5 against 0.759 for s4, with precision 0.770
+against 0.794. On the fresh Juneau draw, before any rating, s5 makes **more** detections than s4: 91 on 39 of
+120 panos at 0.26, against 71 on 34 panos at 0.23. The Juneau training points were 164 positives and 53
+negatives, so s5 mostly learned more Juneau crosswalks rather than more Juneau background. Whether its extra
+detections are real crosswalks or look-alikes needs ratings.
+
 ## Draft issue for Jon to post (not posted)
 
 > **Title:** Stage 1 pano discovery is broken: `GeoPhotoService.SingleImageSearch` has been decommissioned
@@ -1227,6 +1257,13 @@ R=$N/s4_stepB/ratings_jon_2026-11-09_s4_stepB.csv   # Jon's export
 python $S carry --ratings $R --candidates $N/confirm_s3/<draw>/s4/candidates.csv --out $N/confirm_s3/<draw>/s4/ratings.csv
 python $S audit-summary --panos $N/confirm_s3/<draw>/s4/panos.csv --ratings $N/confirm_s3/<draw>/s4/ratings.csv --label crosswalk_s4 --out $N/confirm_s3/<draw>/s4
 python $S audit-compare --base-panos $N/confirm_s3/<draw>/s1/panos.csv --base-ratings $N/confirm_s3/<draw>/s1/ratings.csv --new-panos $N/confirm_s3/<draw>/s4/panos.csv --new-ratings $N/confirm_s3/<draw>/s4/ratings.csv --new-preds <s4 preds: Seattle v2_labels/bprime/preds/crosswalk_s4/bprime.jsonl, cities confirm_s3/preds/crosswalk_s4/cities.jsonl> --new-threshold 0.23 --base-label crosswalk_s1 --new-label crosswalk_s4 --ci <0.975 for laurens_mly (P2), else 0.95> --out $N/confirm_s3/<draw>/s4
+# crosswalk_s5: three seeds on root_v5 (EXPECT_TRAIN=4396), inference as for s4, then guards 1, 6 and 3
+L=crosswalk_s5,crosswalk_s5_seed2,crosswalk_s5_seed3,crosswalk_s4,crosswalk_s4_seed2,crosswalk_s4_seed3,released,label_ceiling
+python $S score --root <root_v2> --preds $D/v2_labels/preds --labels $L <as above> --out $D/v2_labels/s5
+python $S match-threshold --sweep $D/v2_labels/s5/threshold_sweep.csv --base crosswalk_s4[_seedN] --new crosswalk_s5[_seedN] --base-threshold <0.23|0.30|0.13>   # 0.26, 0.33, 0.31
+python $S score ... --labels $L --fixed-threshold crosswalk_s5=0.26 crosswalk_s5_seed2=0.33 crosswalk_s5_seed3=0.31 crosswalk_s4=0.23 crosswalk_s4_seed2=0.3 crosswalk_s4_seed3=0.13 --out $D/v2_labels/s5_matched
+python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels/s5_matched --pano-data <seattle_pano_data.psv> --labels crosswalk_s5,crosswalk_s4,released --out $D/v2_labels/s5_matched/bprime
+python $S label-recall --labels $N/s4_inputs/stepA/columbia_gt.csv --base crosswalk_s4=$E/columbia/preds/crosswalk_s4/columbia.jsonl@0.23 --new crosswalk_s5=$N/s5_eval/columbia/preds/crosswalk_s5/columbia.jsonl@0.26 --out $N/s5_eval/columbia
 # archive (staging on D:, then Jon copies it to the lab share)
 A=scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py
 python $A stage --out <staging> && python $A natives --out <staging>

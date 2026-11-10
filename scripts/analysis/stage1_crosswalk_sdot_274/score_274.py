@@ -1608,21 +1608,30 @@ def cmd_draw(a):
     log(f"draw: {len(drawn)} panos (seed {a.draw_seed}) -> {a.out}")
 
 
-def recall_matched_threshold(sweep, base, new, split="val"):
+def recall_matched_threshold(sweep, base, new, split="val", base_threshold=None):
     """The highest grid threshold at which `new`'s recall on `split` is at least `base`'s at base's own val-F1
-    pick. `sweep` = rows of threshold_sweep.csv; base's pick is the threshold maximising its val F1 (lowest on a
-    tie, as pick_threshold does).
+    pick, or at `base_threshold` when given (s5 matches s4 at its adopted, itself recall-matched, thresholds).
+    `sweep` = rows of threshold_sweep.csv; base's pick is the threshold maximising its val F1 (lowest on a tie,
+    as pick_threshold does).
 
     >>> rows = [{"model": m, "split": "val", "threshold": t, "f1": f, "recall": r} for m, t, f, r in [
     ...     ("a", "0.2", "0.80", "0.81"), ("a", "0.3", "0.79", "0.78"),
     ...     ("b", "0.2", "0.80", "0.84"), ("b", "0.3", "0.81", "0.80")]]
     >>> recall_matched_threshold(rows, "a", "b")
     0.2
+    >>> recall_matched_threshold(rows, "a", "b", base_threshold=0.3)
+    0.3
     """
     def mine(m):
         return sorted(((float(r["threshold"]), float(r["f1"]), float(r["recall"])) for r in sweep
                        if r["model"] == m and r["split"] == split), key=lambda q: q[0])
-    t_b, _, r_b = max(mine(base), key=lambda q: (q[1], -q[0]))
+    if base_threshold is None:
+        t_b, _, r_b = max(mine(base), key=lambda q: (q[1], -q[0]))
+    else:
+        at = [q for q in mine(base) if abs(q[0] - base_threshold) < 1e-9]
+        if not at:
+            raise SystemExit(f"{base_threshold} is not on {base}'s {split} sweep grid")
+        t_b, _, r_b = at[0]
     ok = [t for t, _, r in mine(new) if r >= r_b]
     if not ok:
         raise SystemExit(f"{new} never reaches {base}'s val recall {r_b}")
@@ -1631,7 +1640,7 @@ def recall_matched_threshold(sweep, base, new, split="val"):
 
 def cmd_match_threshold(a):
     with open(a.sweep, encoding="utf-8", newline="") as f:
-        t = recall_matched_threshold(list(csv.DictReader(f)), a.base, a.new)
+        t = recall_matched_threshold(list(csv.DictReader(f)), a.base, a.new, base_threshold=a.base_threshold)
     print(t)
 
 
@@ -2016,6 +2025,7 @@ def main():
     t.add_argument("--sweep", required=True, help="threshold_sweep.csv from `score`")
     t.add_argument("--base", default="crosswalk_s1")
     t.add_argument("--new", default="crosswalk_s3")
+    t.add_argument("--base-threshold", type=float, help="match BASE's val recall at this threshold, not its pick")
     mc = sub.add_parser("merge-cards", help="one blind page's cards from several models' candidates")
     mc.add_argument("--candidates", nargs="+", required=True, help="label=candidates.csv, one per model and draw")
     mc.add_argument("--out", required=True)
