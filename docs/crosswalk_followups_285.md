@@ -128,7 +128,7 @@ python scripts/analysis/stage1_crosswalk_sdot_274/cartop_mask.py score
 python scripts/analysis/stage1_crosswalk_sdot_274/cartop_mask.py figures
 ```
 
-## C. Missed-crosswalk check, Juneau and Laurens (page built 2026-11-10, awaiting Jon's marks)
+## C. Missed-crosswalk check, Juneau and Laurens (page built 2026-11-10, rated 2026-11-11)
 
 **Question, per view.** Of the marked crosswalks a person can see in a pano within 25 m, what share does
 s4 at 0.23 detect? This is not per-crosswalk recall across views, and it does not cover mid-block
@@ -167,6 +167,46 @@ y ≥ 0.532 (25 m from a 2.5 m camera); marks beyond it and unsure marks are rep
 per city and per camera with a pano bootstrap. s4's predictions on the 175 panos are already in
 `analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4/` (local RTX 3070, checkpoint sha256
 `ebad379b5f7c…`). No pass bar: this is a measurement.
+
+### Results (Jon rated all 175 panos, 2026-11-10 to 11-11)
+
+Jon marked 162 crosswalks on 55 panos (11 of them unsure) and confirmed none on 119 panos. One further
+pano carries only an unsure mark. Of the 151 sure marks, 121 are within 25 m and 30 are beyond it.
+
+| Group | Panos with a sure mark within 25 m | Marks within 25 m | s4 finds (radius 0.05) | Recall | 95% interval (pano bootstrap) | Radius 0.03 | Radius 0.08 |
+|---|---|---|---|---|---|---|---|
+| Juneau, all | 48 | 110 | 63 | **0.57** | 0.47 to 0.67 | 0.51 | 0.63 |
+| Juneau, Trimble MX7 | 44 | 104 | 59 | 0.57 | 0.46 to 0.67 | 0.51 | 0.63 |
+| Juneau, GoPro Max | 4 | 6 | 4 | 0.67 | 0.25 to 1.00 | 0.50 | 0.67 |
+| Juneau, within 30 m of an s5 mining pano | 36 | 89 | 46 | 0.52 | not computed | | |
+| Juneau, not within 30 m | 12 | 21 | 17 | 0.81 | 0.60 to 0.96 | 0.76 | 0.86 |
+| Laurens (all GoPro Max) | 3 | 11 | 1 | **0.09** | 0.00 to 0.25 | 0.00 | 0.09 |
+
+- **Beyond 25 m (Juneau only):** s4 finds 11 of 30.
+- **Unsure marks:** 4 of the 11 have an s4 detection within 0.05.
+- **Laurens has few crosswalks at intersections:** 92 of 95 intersection panos show none, and the 11
+  marks sit on 3 panos, so its recall is a count (1 of 11), not a rate to compare. It agrees with the
+  earlier 3 of 16 on the PS-label panos.
+- **Juneau recall is lowest for the nearest crosswalks.** By mark height, at radius 0.05:
+
+| Mark height (y) | Roughly | Marks | Found at 0.03 | Found at 0.05 | Found at 0.08 |
+|---|---|---|---|---|---|
+| 0.532 to 0.58 | 10 to 25 m | 36 | 25 | 26 | 27 |
+| 0.58 to 0.63 | 6 to 10 m | 45 | 25 | 27 | 28 |
+| 0.63 and above | nearer than 6 m | 29 | 6 | 10 | 14 |
+
+  The near band moves most with the radius (6, 10, 14), so part of its gap is a large crosswalk whose
+  detection peak is far from the clicked centre, and part is real misses. The two were not separated.
+- **Detections on the panos Jon confirmed empty** (a by-product, not the page's purpose): Laurens 25
+  detections on 18 of 92 panos; Juneau 4 on 4 of 27. Every one is a false alarm by construction.
+- The split by distance to an s5 mining pano is descriptive for s4 (it never trained on Juneau); the
+  mining panos were drawn downtown, where crosswalks are denser.
+- s5 was not scored on these panos.
+
+Ratings: `analysis_out/crosswalk_followups_285/recall/ratings/recall285_verdicts_jon_2026-11-11.json`.
+Scores: `analysis_out/crosswalk_followups_285/recall/score/crosswalk_s4/{marks.csv,recall.json}`. The
+height-band table and the empty-pano counts were computed from `marks.csv`, the ratings and the s4
+predictions with ad hoc code; they are not yet a `recall_check.py` command.
 
 **Earlier, smaller reading (already in the s4 results):** on the 13 panos with live PS labels, s4 finds
 3 of 16 in Laurens and 5 of 5 in Juneau.
