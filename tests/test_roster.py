@@ -194,6 +194,30 @@ def test_a_run_that_sets_two_opt_in_knobs_resolves_to_the_leg_pinning_both():
     assert roster.opt_in_knobs_for("yolo") == []
     b = _Args()
     assert roster.leg_for("gemini:gemini-4-argon", b).published_as is None   # the bare leg
+    b.gemini_temperature = 0.0                       # the as-run value, spelled out
+    assert roster.leg_for("gemini:gemini-4-argon", b).published_as is None   # still bare
+    assert roster.set_opt_in_knobs(b, roster.legs_of("gemini:gemini-4-argon")) == []
+    b.gemini_temperature = 1.0
+    assert roster.leg_for("gemini:gemini-4-argon", b) is None
+
+
+def test_as_run_values_match_the_detectors():
+    """``AS_RUN_VALUES`` is what lets ``--gemini-temperature 0.0`` export as the bare leg;
+    the detector decides what stays out of the signature, so the two must agree, or an
+    explicit as-run value is refused (#286 re-review) or, worse, a deviating one reads
+    as bare."""
+    import sys
+    sys.path.insert(0, str(REPO / "scripts" / "model_comparison"))
+    import detectors  # noqa: E402
+
+    assert roster.AS_RUN_VALUES == {
+        "gemini_temperature": detectors.GEMINI_AS_RUN_TEMPERATURE,
+        "claude_image_format": detectors.CLAUDE_AS_RUN_IMAGE_FORMAT,
+        "claude_max_tokens": detectors.CLAUDE_AS_RUN_MAX_TOKENS,
+    }
+    assert detectors.CLAUDE_AS_RUN_TEMPERATURE is None     # None is "unset" already
+    for k in roster.AS_RUN_VALUES:
+        assert roster.is_opt_in_pin(k), k
 
 
 def test_the_parity_leg_is_reached_only_with_its_pin_and_in_every_spelling():

@@ -73,7 +73,7 @@ Both legs: the as-run prompt, 6 views, temperature 0.0, no confidence, concurren
 with `export_model_cache.py --verify` (14 of 14 splits identical to the cache) and registered
 `standing=True` in `rampnet/roster.py` in the same commits (`e00b4325` Flash, `0833e205` Argon).
 
-| leg | panos | pooled F1 (9 US cities) | P | R | manual_gold F1 | cost | s/pano |
+| leg | panos | macro F1 (9 US cities) | P | R | manual_gold F1 | cost | s/pano |
 |---|---|---|---|---|---|---|---|
 | Gemini 3.8 Flash | 2,539 | 0.527 | 0.778 | 0.409 | 0.504 | ≈ $44 | 10–14 |
 | Gemini 4 Argon | 2,539 | **0.734** | 0.790 | 0.690 | 0.740 | ≈ $58 | 27–47 |
@@ -328,8 +328,9 @@ the recovered row is counted). Argon list price doubles on 2026-12-01; the credi
   counted as a retryable failure, and every view was re-billed on the re-run (which then
   succeeded). The Qwen parser had always dropped a malformed item and kept the rest; the Gemini
   path now does the same (`well_formed_gemini_boxes`), counting the drops as `malformed_boxes`
-  in the ledger row's `run_options`. Cached raw entries are unaffected (`--check` reproduces
-  every committed table).
+  in the ledger row's `run_options`. The cache holds parsed points, and a pano with a
+  malformed box never reached it (it raised first), so no cached detection changes (`--check`
+  reproduces every committed table).
 - **Klone, twice.** The scrubbed purge had removed the Hugging Face blob store but left the
   snapshot symlinks, so `snapshot_download` saw a complete cache and `du -sh models--X` read 13
   MB; use `du -shL snapshots/*/`. Then an unpinned rebuild (torch 2.14.1+cu126, transformers

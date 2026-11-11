@@ -166,8 +166,11 @@ def fetch_series(project, filter_, start, end, alignment_period, group_by,
     return series
 
 
-def fetch_token_series(project, days):
-    """Daily-aligned token counts per (model_user_id, type) over the last ``days``.
+def fetch_token_series(project, window):
+    """Daily-aligned token counts per (model_user_id, type) over ``window``, the
+    ``(start, end)`` of ``billing_window``. ``main`` computes it once and hands the same
+    one to ``--reconcile``: computed twice, a UTC midnight between the paginated fetch
+    and the ledger filter would move the ledger a day ahead of the bill.
 
     The buckets end at the next UTC midnight, not at the query time-of-day. Measured
     2026-11-11: with buckets ending at 01:50 UTC the 3-day sum for gemini-3.8-flash read
@@ -176,7 +179,7 @@ def fetch_token_series(project, days):
     3600 s alignment, both summed to the ledger's figure. ALIGN_DELTA over a 24 h period
     that straddles the metric's native day boundary over-counts, so align to it.
     """
-    start, end = billing_window(days)
+    start, end = window
     return fetch_series(
         project, f'metric.type = "{TOKEN_METRIC}"',
         start.isoformat(), end.isoformat(), "86400s",
@@ -191,6 +194,8 @@ def billing_window(days, now=None):
     end = ((now or datetime.now(timezone.utc)) + timedelta(days=1)).replace(
         hour=0, minute=0, second=0, microsecond=0)
     return end - timedelta(days=days), end
+
+
 def ledger_totals_by_model(rows, since=None):
     """Per-model token totals from usage_log.jsonl rows, for reconciliation.
 
@@ -352,7 +357,8 @@ def main():
 
     daily = defaultdict(lambda: defaultdict(float))   # (day, model) -> type -> tokens
     totals = defaultdict(lambda: defaultdict(float))  # model -> type -> tokens
-    for ts in fetch_token_series(args.project, args.days):
+    window = billing_window(args.days)
+    for ts in fetch_token_series(args.project, window):
         model = ts["resource"]["labels"].get("model_user_id", "?")
         typ = ts["metric"]["labels"].get("type", "?")
         for p in ts.get("points", []):
@@ -434,7 +440,7 @@ def main():
         if rows is None:
             print(f"\ncannot reconcile: no ledger at {os.path.abspath(log_path)}")
             return
-        since = billing_window(args.days)[0].date().isoformat()
+        since = window[0].date().isoformat()
         print(f"(ledger: {os.path.abspath(log_path)}, rows stamped >= {since})")
         print_reconciliation(reconcile({m: dict(t) for m, t in totals.items()},
                                        ledger_totals_by_model(rows, since)))

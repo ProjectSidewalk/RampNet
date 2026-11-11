@@ -163,11 +163,14 @@ def publication_name(spec, cargs, publish_as=None):
             + (", ".join(f"{k}={v}" for k, v in c.pins) or "(bare: every opt-in knob unset)")
             for c in candidates)
         set_knobs = roster.set_opt_in_knobs(cargs, candidates)
+        pinned = {k for c in candidates for k, _ in c.pins}
         actual = ", ".join(
-            f"{k}={getattr(cargs, k, None)}"
-            for k in sorted({k for c in candidates for k, _ in c.pins} | set(set_knobs)))
-        why = (f"this run sets {', '.join(set_knobs)} to a value no leg registers, so "
-               f"it is not the bare leg either" if set_knobs
+            f"{k}={getattr(cargs, k, None)}" for k in sorted(pinned | set(set_knobs)))
+        unregistered = [k for k in set_knobs if k not in pinned]
+        why = (f"this run sets {', '.join(unregistered)}, which no leg of it pins, so "
+               f"it is not the bare leg either" if unregistered
+               else f"this run sets {', '.join(set_knobs)}, a combination no leg pins, "
+                    f"so it is not the bare leg either" if set_knobs
                else "every leg of it is pinned and none matches this run")
         raise ValueError(
             f"{spec!r} is registered, but {why} ({actual}). Refusing to publish it "

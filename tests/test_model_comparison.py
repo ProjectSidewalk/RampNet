@@ -2876,7 +2876,7 @@ def test_apply_pano_list_keeps_order_and_refuses_unknown_ids():
     assert list(new) == ["a"] and det == ["u"]
     # In the bundle, unscored, and not in the unjudged set either (a judged pano the
     # ground-truth filter dropped): refused, never silently left out (#286 review).
-    with pytest.raises(SystemExit, match="neither scored nor unjudged"):
+    with pytest.raises(SystemExit, match="neither scored nor in the unjudged set"):
         apply_pano_list(["u", "a"], gts, records, [], True)
 
 
@@ -3026,6 +3026,9 @@ def test_a_malformed_gemini_box_is_dropped_and_counted_not_a_pano_failure(tmp_pa
              "not a dict"]
     kept, dropped = well_formed_gemini_boxes(items)
     assert [b["label"] for b in kept] == ["ok", "scored"] and dropped == 5
+    nonfinite = [{"box_2d": [1, 2, 3, float("nan")]}, {"box_2d": [1, 2, 3, 4], "score": float("inf")},
+                 {"box_2d": [1, 2, 3, 4], "score": "40"}]
+    assert well_formed_gemini_boxes(nonfinite) == ([], 3)    # NaN/inf/string: dropped
     assert gemini_boxes_to_points(items) == [(0.003, 0.002, None), (0.003, 0.002, 0.4)]
     # the parsed path no longer trips over a missing box_2d either
     assert boxes_from_gemini_response(_FakeResp(parsed=[{"label": "x"}])) == [

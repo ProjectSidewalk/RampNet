@@ -176,14 +176,17 @@ def apply_pano_list(ids, gts, records, detect_only, detect_unjudged):
         raise SystemExit(f"--pano-list: {len(unjudged)} id(s) have no ground truth here "
                          f"(first: {unjudged[0]}); pass --detect-unjudged to run them "
                          f"unscored, or take them off the list.")
-    # An id that is in the bundle but neither scored nor in the unjudged set (a judged
-    # pano this run's ground-truth filter dropped) would otherwise vanish from the run
-    # without a word, the shrink the first check exists to refuse (#286 review).
+    # An id that is in the bundle but neither scored nor in the unjudged set would
+    # otherwise vanish from the run without a word, the shrink the first check exists
+    # to refuse (#286 review). No CLI path reaches it today: every verdict becomes a
+    # ground truth, and --limit (the one thing that slices either set) is exclusive
+    # with --pano-list. It guards a future filter, or a caller that slices first.
     neither = [p for p in unjudged if p not in detect_only]
     if neither:
         raise SystemExit(f"--pano-list: {len(neither)} id(s) are in this bundle but are "
-                         f"neither scored nor unjudged here (first: {neither[0]}); take "
-                         f"them off the list.")
+                         f"neither scored nor in the unjudged set this run built "
+                         f"(first: {neither[0]}); something sliced the bundle before the "
+                         f"list was applied. Take them off the list, or drop the slice.")
     return new_gts, list(unjudged)
 
 
@@ -498,6 +501,10 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
     if abnormal:
         print(f"[{label}] ABNORMAL stop reasons: "
               + ", ".join(f"{k}={v:,}" for k, v in sorted(abnormal.items())))
+    malformed = getattr(detector, "malformed_boxes", 0)
+    if malformed:
+        print(f"[{label}] {malformed:,} malformed box(es) dropped (counted in the ledger "
+              f"row's run_options.malformed_boxes)")
     rec = {
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "bundle": city,

@@ -173,9 +173,10 @@ def paired_bootstrap(counts_a, counts_b, rng):
 
 
 def fmt_p(p):
-    """A bootstrap p of exactly 0 means no draw crossed zero, and the resolution is
-    1/DRAWS, so it is reported as a bound rather than as ``0.000``."""
-    return "<%.3f" % (1.0 / DRAWS) if p == 0 else "%.3f" % p
+    """A bootstrap p of exactly 0 means no draw crossed zero. The p is two-sided
+    (``2 * min(...)``), so the smallest non-zero value is 2/DRAWS, and that is the bound
+    reported instead of ``0.000``."""
+    return "<%.3f" % (2.0 / DRAWS) if p == 0 else "%.3f" % p
 
 
 def holm(tests):

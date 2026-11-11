@@ -623,6 +623,20 @@ def pin_token(value):
     return str(value)
 
 
+#: The as-run value of each opt-in knob whose detector leaves it OUT of the signature
+#: when it is set to exactly this (``GEMINI_AS_RUN_TEMPERATURE``, ``CLAUDE_AS_RUN_*`` in
+#: detectors.py; ``tests/test_roster.py`` pins the parity). A run that passes the as-run
+#: value explicitly (``--gemini-temperature 0.0``) has the bare leg's signature, so it
+#: IS the bare leg and ``set_opt_in_knobs`` does not count the knob as set (#286
+#: re-review: it was refused as an unregistered leg). Knobs absent here count as set
+#: at any non-``None`` value.
+AS_RUN_VALUES = {
+    "gemini_temperature": 0.0,
+    "claude_image_format": "jpeg",
+    "claude_max_tokens": 4096,
+}
+
+
 def is_opt_in_pin(key):
     """A pin whose default is ``None``, i.e. a knob that is ABSENT from the detection
     signature unless it is set.
@@ -909,9 +923,9 @@ def set_opt_in_knobs(cargs, candidates):
     leg, whatever the value -- ``vistas_input_size=[512, 512]`` is a leg nobody has
     registered, not the 384 arm, and ``leg_for`` must answer ``None`` so the exporter
     refuses rather than writing ``mask2former-vistas-curb-cut__richmond.json`` with
-    ``input_size: [512, 512]`` inside and ``pins: {}`` (PR #167 review, M2). A value
-    some sibling does register was matched before this is consulted, so by the time
-    it runs every set knob is, for this run, unregistered. Sorted, for the message.
+    ``input_size: [512, 512]`` inside and ``pins: {}`` (PR #167 review, M2). Sorted,
+    for the message. A knob set to its detector's as-run value (``AS_RUN_VALUES``) is
+    not in the signature and so not set here.
     A pinned leg claims a run only if it pins every knob in this set (``leg_for``,
     #276 Step 5), so a run with a definition AND confidence is the definition leg,
     not the confidence-only sibling.
@@ -929,7 +943,9 @@ def set_opt_in_knobs(cargs, candidates):
     knobs = {k for c in candidates for k, _ in c.pins if is_opt_in_pin(k)}
     for provider in {c.provider for c in candidates}:
         knobs.update(opt_in_knobs_for(provider))
-    return sorted(k for k in knobs if getattr(cargs, k, None) is not None)
+    return sorted(k for k in knobs
+                  if getattr(cargs, k, None) is not None
+                  and getattr(cargs, k) != AS_RUN_VALUES.get(k, object()))
 
 
 def density_of(spec):

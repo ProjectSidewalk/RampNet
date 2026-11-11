@@ -28,6 +28,7 @@ model-agnostic ground truth (see ``rampnet/detection_eval.py``).
 import hashlib
 import importlib.util
 import json
+import math
 import os
 import re
 import threading
@@ -114,17 +115,20 @@ def well_formed_gemini_boxes(items):
     comply: Gemini 3.1 Pro returned a five-element ``box_2d`` on one manual_gold pano
     (2026-11-11), and unpacking it failed the whole pano, a retryable failure that
     re-bills all six views. The Qwen parser has always dropped such an item and kept
-    the rest (``boxes_from_qwen_text``); Gemini now does the same, and the caller
-    counts the drops (``GeminiDetector.malformed_boxes``, ``run_options`` in the ledger
-    row)."""
+    the rest (``boxes_from_qwen_text``); Gemini now drops too, and the caller counts
+    the drops (``GeminiDetector.malformed_boxes``, ``run_options`` in the ledger row).
+    Stricter than Qwen's ``float()`` coercion: a numeric string, a bool, NaN or an
+    infinity is malformed here (the schema asks for integers, and ``min(1.0, nan)`` is
+    1.0, so a NaN score would have scored a box at full confidence)."""
+    def num(v):
+        return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
     kept, dropped = [], 0
     for it in items:
         box = it.get("box_2d") if isinstance(it, dict) else None
         score = it.get("score") if isinstance(it, dict) else None
-        ok = (isinstance(box, (list, tuple)) and len(box) == 4
-              and all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in box)
-              and (score is None
-                   or (isinstance(score, (int, float)) and not isinstance(score, bool))))
+        ok = (isinstance(box, (list, tuple)) and len(box) == 4 and all(num(v) for v in box)
+              and (score is None or num(score)))
         if ok:
             kept.append(it)
         else:
@@ -138,8 +142,8 @@ def gemini_boxes_to_points(items):
     unless the box carries an elicited integer ``score`` 0-100 (the ``confidence``
     knob, #276), which maps to [0, 1]. It is a self-report, not a calibrated
     probability -- it exists so a chat model gets an operating range at all.
-    A malformed item is skipped (``well_formed_gemini_boxes``), so a raw cache entry
-    that holds one still parses."""
+    A malformed item is skipped (``well_formed_gemini_boxes``), so a debug dump or a
+    parsed response that holds one still converts."""
     points = []
     for it in well_formed_gemini_boxes(items)[0]:
         ymin, xmin, ymax, xmax = it["box_2d"]
@@ -1086,16 +1090,19 @@ class GeminiDetector(_VLMDetector):
             config=config,
         )
         self._record_usage(resp)
-        boxes, n_malformed = well_formed_gemini_boxes(boxes_from_gemini_response(resp))
-        if not boxes or n_malformed:
+        answered = boxes_from_gemini_response(resp)
+        boxes, n_malformed = well_formed_gemini_boxes(answered)
+        # "Empty" is a call that answered nothing; a call whose every box was malformed
+        # is counted under malformed_boxes only, so the two ledger counts stay distinct.
+        if not answered or n_malformed:
             with self._usage_lock:
-                self.empty_calls += not boxes
+                self.empty_calls += not answered
                 self.malformed_boxes += n_malformed
         if self.debug_dump:
-            self._dump_call(image, resp, boxes)
+            self._dump_call(image, resp, boxes, n_malformed)
         return boxes
 
-    def _dump_call(self, image, resp, boxes):
+    def _dump_call(self, image, resp, boxes, n_malformed=0):
         """One JSON (+ the view as JPEG) per call: finish reason, build, token counts,
         the raw text. For reading what a model actually answered when its recall
         looks wrong (#276 Step 1); never on by default."""
@@ -1113,7 +1120,7 @@ class GeminiDetector(_VLMDetector):
             "prompt_tokens": getattr(um, "prompt_token_count", None) if um else None,
             "candidates_tokens": getattr(um, "candidates_token_count", None) if um else None,
             "thoughts_tokens": getattr(um, "thoughts_token_count", None) if um else None,
-            "n_boxes": len(boxes), "boxes": boxes,
+            "n_boxes": len(boxes), "n_malformed": n_malformed, "boxes": boxes,
             "text": getattr(resp, "text", None),
         }
         with open(stem + ".json", "w", encoding="utf-8") as f:
