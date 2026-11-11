@@ -229,6 +229,81 @@ ROSTER = (
              "(clovis 2, laurens_gsv 1) and read as empty; every other call ended "
              "STOP."),
 
+    # #276 Step 5: the frozen held-out run (2026-11-09 to 2026-11-11), every arm with
+    # elicited per-box confidence (--gemini-confidence: an integer 0-100 score per box,
+    # in the signature and the published files' points). Registered standing=False:
+    # they are the study's replicable legs, not scoreboard rows, until Jon promotes
+    # any. Thresholds in docs/vlm_prompt_276.md were selected on sao_paulo dev_select,
+    # not on these files. The definition arms were run on the twelve held-out splits
+    # (sao_paulo only on dev_select, manual_gold only on its 250-pano subset), so their
+    # published coverage is twelve splits; the zs+conf legs cover all fourteen.
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11",
+        pins=(("gemini_confidence", True),),
+        published_as="gemini-3.8-flash-confidence-on",
+        note="Zero-shot + confidence, 14 splits (#276 Step 5 baseline). Same prompt and "
+             "views as the standing gemini-3.8-flash leg plus the score field; dev_select "
+             "selected threshold 0.00, i.e. the cut buys nothing on a model whose errors "
+             "are misses. Nine-city pooled F1 0.544 at that threshold (0.527 without "
+             "confidence). All 7,606 calls ended STOP."),
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11",
+        pins=(("definition", "def276-flash38-alt"), ("gemini_confidence", True),),
+        published_as="gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+        note="The #276 Step 4 alternative rewording (the one optimizer candidate to pass the "
+             "dev_select gate) + confidence, 12 held-out splits. The pre-registered "
+             "primary endpoint: -0.011 F1 [-0.027, +0.006] vs zs+conf on the 7-city "
+             "reference pool, p 0.22 -- the gate gain did not transfer."),
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11",
+        pins=(("definition", "para3"), ("gemini_confidence", True),),
+        published_as="gemini-3.8-flash-definition-para3-confidence-on",
+        note="Paraphrase 3 of the seed definition + confidence, 12 held-out splits (#276 Step 5 "
+             "amendment arm). -0.015 F1 vs zs+conf on the reference pool: the best-of-K "
+             "wording on dev_select was selection, not signal."),
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11",
+        pins=(("definition", "expert"), ("gemini_confidence", True),),
+        published_as="gemini-3.8-flash-definition-expert-confidence-on",
+        note="Jon's blind expert definition + confidence, 12 held-out splits (#276 Step 5 "
+             "amendment arm, exploratory). +0.025 F1 [+0.009, +0.041] vs zs+conf on the "
+             "reference pool and +0.068 on the open pool, through recall at unchanged "
+             "precision; leads zs on six of seven reference cities."),
+    Challenger(
+        spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11",
+        pins=(("gemini_confidence", True),),
+        published_as="gemini-4-argon-confidence-on",
+        note="Zero-shot + confidence, 14 splits (#276 Step 5 baseline). Same prompt and views "
+             "as the standing gemini-4-argon leg plus the score field; 50-94 distinct "
+             "scores per split, so AP is a usable curve (0.635 on manual_gold). dev_select "
+             "selected threshold 0.35; nine-city pooled F1 0.736 at it (0.734 without "
+             "confidence): the cut moves the operating point, not the model. 3 views "
+             "ended MAX_TOKENS. The full manual_gold run was killed by a 12 h chain "
+             "timeout 8 panos short and finished on relaunch (ledger: one kind=recovered "
+             "row, one row with panos_called 8)."),
+    Challenger(
+        spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11",
+        pins=(("definition", "para3"), ("gemini_confidence", True),),
+        published_as="gemini-4-argon-definition-para3-confidence-on",
+        note="Paraphrase 3 + confidence, 12 held-out splits (#276 Step 5 amendment arm). -0.010 "
+             "F1 vs zs+conf on the reference pool; null."),
+    Challenger(
+        spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11",
+        pins=(("definition", "expert"), ("gemini_confidence", True),),
+        published_as="gemini-4-argon-definition-expert-confidence-on",
+        note="Jon's blind expert definition + confidence, 12 held-out splits (#276 Step 5 "
+             "amendment arm, exploratory). -0.036 F1 [-0.050, -0.022] vs zs+conf on the "
+             "reference pool: recall rises, precision falls further, and no dev_select "
+             "threshold recovers it (selected 0.00). A recall clause written for a "
+             "low-recall model is a precision tax on a high-recall one."),
+
     # The supervised YOLO baseline (#51). Ten splits each, scored under the
     # pre-registered #71 protocol and written up in their own table in
     # docs/model_comparison.md -- so they are published and scored, but not in the
@@ -531,6 +606,8 @@ def pin_token(value):
     """
     if isinstance(value, (list, tuple)):
         return "x".join(str(v) for v in value)
+    if isinstance(value, bool):                 # a store_const flag: on/off, not True/False
+        return "on" if value else "off"
     return str(value)
 
 
@@ -775,10 +852,18 @@ def leg_for(spec, cargs=None):
     whoever ran it to remember ``--publish-as``.
     """
     candidates = legs_of(spec, cargs)
-    for c in candidates:                      # a pinned leg wins when its pins match
-        if c.pins and pins_match(cargs, c.pins):
-            return c
-    if set_opt_in_knobs(cargs, candidates):   # an opt-in knob is SET: not the bare leg
+    # A pinned leg wins when its pins match AND it pins every opt-in knob the run has
+    # set: a run with a definition AND confidence is the definition leg, not the
+    # confidence-only sibling whose one pin it also satisfies (#276 Step 5 found the
+    # first-match rule exporting the alt arm under the zs+conf name). Among several,
+    # the most specific (most pins) wins.
+    set_knobs = set(set_opt_in_knobs(cargs, candidates))
+    matched = [c for c in candidates
+               if c.pins and pins_match(cargs, c.pins)
+               and set_knobs <= {k for k, _ in c.pins}]
+    if matched:
+        return max(matched, key=lambda c: len(c.pins))
+    if set_knobs:                             # an opt-in knob is SET: not the bare leg
         return None
     for c in candidates:                      # otherwise the leg the bare spec names
         if not c.pins:
@@ -798,6 +883,9 @@ def set_opt_in_knobs(cargs, candidates):
     ``input_size: [512, 512]`` inside and ``pins: {}`` (PR #167 review, M2). A value
     some sibling does register was matched before this is consulted, so by the time
     it runs every set knob is, for this run, unregistered. Sorted, for the message.
+    A pinned leg claims a run only if it pins every knob in this set (``leg_for``,
+    #276 Step 5), so a run with a definition AND confidence is the definition leg,
+    not the confidence-only sibling.
     """
     if cargs is None:
         return []

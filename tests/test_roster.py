@@ -121,6 +121,8 @@ def test_pin_token_spells_a_size_as_a_filename_and_a_scalar_as_itself():
     assert roster.pin_token("low") == "low"
     assert roster.pin_token((1024, 1024)) == "1024x1024"
     assert roster.pin_token([1024, 1024]) == "1024x1024"
+    assert roster.pin_token(True) == "on"          # a store_const flag (#276 --gemini-confidence)
+    assert roster.pin_token(False) == "off"
 
 
 def test_every_leg_of_a_pinned_model_is_qualified():
@@ -147,6 +149,33 @@ def test_every_leg_of_a_pinned_model_is_qualified():
     assert roster.is_opt_in_pin("vistas_input_size")
     assert not roster.is_opt_in_pin("claude_effort")
     assert not roster.is_opt_in_pin("no_such_knob")
+
+
+def test_a_run_that_sets_two_opt_in_knobs_resolves_to_the_leg_pinning_both():
+    """#276 Step 5: ``--gemini-confidence`` alone is the zs+conf leg; with
+    ``--definition expert`` as well it is the expert leg, although the confidence-only
+    sibling's one pin also matches. The first-match rule exported the alt arm under the
+    zs+conf name (refused on the signature collision); the most specific leg wins now.
+    A set opt-in knob that no sibling pins is ignored, as it always was (the M2 guard
+    is about knobs some sibling registers; see the test below)."""
+    class _Args:
+        gemini_confidence = None
+        definition = None
+        gemini_exemplars = None
+        gemini_thinking_level = None
+        gemini_temperature = None
+
+    a = _Args()
+    a.gemini_confidence = True
+    assert roster.leg_for("gemini:gemini-4-argon", a).published_as == "gemini-4-argon-confidence-on"
+    a.definition = "expert"
+    assert (roster.leg_for("gemini:gemini-4-argon", a).published_as
+            == "gemini-4-argon-definition-expert-confidence-on")
+    a.gemini_thinking_level = "high"                 # set, pinned by no registered leg:
+    assert (roster.leg_for("gemini:gemini-4-argon", a).published_as   # ignored, as before
+            == "gemini-4-argon-definition-expert-confidence-on")
+    b = _Args()
+    assert roster.leg_for("gemini:gemini-4-argon", b).published_as is None   # the bare leg
 
 
 def test_the_parity_leg_is_reached_only_with_its_pin_and_in_every_spelling():
@@ -240,7 +269,9 @@ def test_off_roster_entries_are_published_but_not_scored():
     assert roster.OFF_ROSTER, "gemini-3.7-flash should be registered (#120)"
     for c in roster.OFF_ROSTER:
         assert not c.standing
-        assert c.spec not in roster.SCORED_SPECS
+        # By entry, not by spec: a standing=False pinned leg can share its spec with
+        # the standing bare leg of the same model (#276 Step 5's confidence legs).
+        assert c not in roster.SCORED
 
 
 def test_every_entry_records_when_it_joined():
@@ -317,7 +348,10 @@ def test_each_published_file_names_the_leg_it_says_it_is():
         assert payload.get("published_as", entry.label) == roster.published_name(entry), name
         assert payload["signature"]["model_id"] == entry.label, name
         for key, value in entry.pins:
-            sig_key = key.split("_", 1)[1]          # claude_effort -> effort
+            # claude_effort -> effort; a provider-less pin (definition, #276) keeps its
+            # name, and lives in the file's `pins` since the signature carries the
+            # resolved text under `prompt`, not the short name.
+            sig_key = key.split("_", 1)[1] if "_" in key else key
             if sig_key in payload["signature"]:
                 # pin_value: JSON gives the 1024x1024 size back as a list.
                 assert (roster.pin_value(payload["signature"][sig_key])
