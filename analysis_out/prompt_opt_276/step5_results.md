@@ -12,7 +12,7 @@ Match radius 0.022. One threshold per (model, definition), selected on sao_paulo
 | gemini-3.8-flash | expert | expert | 0.00 | 0.296 | 0.296 |
 | gemini-4-argon | zs | seed | 0.35 | 0.705 | 0.686 |
 | gemini-4-argon | para3 | para3 | 0.37 | 0.698 | 0.667 |
-| gemini-4-argon | expert | expert | pending (45/65 cached) | | |
+| gemini-4-argon | expert | expert | 0.00 | 0.651 | 0.651 |
 
 ## Pools (macro F1 at the selected thresholds; raw = no threshold; pooled = one micro F1 over the pool)
 
@@ -24,35 +24,35 @@ Match radius 0.022. One threshold per (model, definition), selected on sao_paulo
 | reference | flash38 | expert | **0.595** | 0.595 | 0.608 |
 | reference | argon | zs | **0.736** | 0.722 | 0.739 |
 | reference | argon | para3 | **0.726** | 0.702 | 0.732 |
-| reference | argon | expert | pending (richmond, bend, clovis, morgantown, annapolis, paterson, gainesville) | | |
+| reference | argon | expert | **0.699** | 0.699 | 0.702 |
 | open | flash38 | zs | **0.256** | 0.256 | 0.274 |
 | open | flash38 | alt | **0.284** | 0.284 | 0.297 |
 | open | flash38 | para3 | **0.267** | 0.267 | 0.275 |
 | open | flash38 | expert | **0.324** | 0.324 | 0.333 |
 | open | argon | zs | **0.658** | 0.657 | 0.653 |
 | open | argon | para3 | **0.671** | 0.667 | 0.665 |
-| open | argon | expert | pending (laurens_mapillary, bayonne) | | |
+| open | argon | expert | **0.678** | 0.678 | 0.659 |
 | us9 | flash38 | zs | **0.516** | 0.516 | 0.544 |
 | us9 | flash38 | alt | **0.511** | 0.511 | 0.532 |
 | us9 | flash38 | para3 | **0.511** | 0.511 | 0.533 |
 | us9 | flash38 | expert | **0.550** | 0.550 | 0.572 |
 | us9 | argon | zs | **0.733** | 0.720 | 0.736 |
 | us9 | argon | para3 | **0.726** | 0.710 | 0.731 |
-| us9 | argon | expert | pending (richmond, bend, clovis, morgantown, annapolis, paterson, gainesville, laurens_mapillary, juneau) | | |
+| us9 | argon | expert | **0.706** | 0.706 | 0.707 |
 | all12 | flash38 | zs | **0.448** | 0.448 | 0.484 |
 | all12 | flash38 | alt | **0.445** | 0.445 | 0.474 |
 | all12 | flash38 | para3 | **0.446** | 0.446 | 0.475 |
 | all12 | flash38 | expert | **0.481** | 0.481 | 0.513 |
 | all12 | argon | zs | **0.705** | 0.694 | 0.708 |
 | all12 | argon | para3 | **0.698** | 0.681 | 0.701 |
-| all12 | argon | expert | pending (richmond, bend, clovis, morgantown, annapolis, paterson, gainesville, laurens_mapillary, bayonne, juneau, laurens_gsv, budapest_district5) | | |
+| all12 | argon | expert | **0.679** | 0.679 | 0.677 |
 | all13 | flash38 | zs | **0.453** | 0.453 | 0.490 |
 | all13 | flash38 | alt | **0.450** | 0.450 | 0.482 |
 | all13 | flash38 | para3 | **0.452** | 0.452 | 0.484 |
 | all13 | flash38 | expert | **0.486** | 0.486 | 0.519 |
 | all13 | argon | zs | **0.709** | 0.698 | 0.717 |
 | all13 | argon | para3 | **0.700** | 0.685 | 0.708 |
-| all13 | argon | expert | pending (richmond, bend, clovis, morgantown, annapolis, paterson, gainesville, laurens_mapillary, bayonne, juneau, laurens_gsv, budapest_district5, manual_gold@250) | | |
+| all13 | argon | expert | **0.684** | 0.684 | 0.691 |
 
 ## Arm minus zs (paired pano bootstrap of the macro ΔF1)
 
@@ -62,22 +62,27 @@ Match radius 0.022. One threshold per (model, definition), selected on sao_paulo
 | reference | flash38 | para3 | -0.015 | [-0.031, +0.000] | 0.052 | 0.052 | exploratory |
 | reference | flash38 | expert | +0.025 | [+0.009, +0.041] | 0.002 | 0.004 | exploratory |
 | reference | argon | para3 | -0.010 | [-0.022, +0.002] | 0.103 | 0.103 | exploratory |
+| reference | argon | expert | -0.036 | [-0.050, -0.022] | 0.000 | 0.000 | exploratory |
 | open | flash38 | alt | +0.028 | [-0.011, +0.068] | 0.160 | 0.320 | exploratory |
 | open | flash38 | para3 | +0.011 | [-0.027, +0.048] | 0.531 | 0.531 | exploratory |
 | open | flash38 | expert | +0.068 | [+0.027, +0.106] | 0.000 | 0.000 | exploratory |
-| open | argon | para3 | +0.013 | [-0.013, +0.041] | 0.345 | 0.345 | exploratory |
+| open | argon | para3 | +0.013 | [-0.013, +0.041] | 0.345 | 0.548 | exploratory |
+| open | argon | expert | +0.019 | [-0.017, +0.055] | 0.274 | 0.548 | exploratory |
 | us9 | flash38 | alt | -0.005 | [-0.019, +0.010] | 0.499 | 0.896 | exploratory |
 | us9 | flash38 | para3 | -0.005 | [-0.018, +0.009] | 0.448 | 0.896 | exploratory |
 | us9 | flash38 | expert | +0.034 | [+0.019, +0.048] | 0.000 | 0.000 | exploratory |
 | us9 | argon | para3 | -0.006 | [-0.018, +0.005] | 0.250 | 0.250 | exploratory |
+| us9 | argon | expert | -0.026 | [-0.039, -0.013] | 0.000 | 0.000 | exploratory |
 | all12 | flash38 | alt | -0.004 | [-0.018, +0.011] | 0.610 | 1.000 | exploratory |
 | all12 | flash38 | para3 | -0.002 | [-0.015, +0.011] | 0.747 | 1.000 | exploratory |
 | all12 | flash38 | expert | +0.033 | [+0.018, +0.048] | 0.000 | 0.000 | exploratory |
 | all12 | argon | para3 | -0.008 | [-0.019, +0.002] | 0.125 | 0.125 | exploratory |
+| all12 | argon | expert | -0.026 | [-0.039, -0.014] | 0.000 | 0.000 | exploratory |
 | all13 | flash38 | alt | -0.004 | [-0.017, +0.010] | 0.602 | 1.000 | exploratory |
 | all13 | flash38 | para3 | -0.001 | [-0.014, +0.011] | 0.804 | 1.000 | exploratory |
 | all13 | flash38 | expert | +0.033 | [+0.019, +0.047] | 0.000 | 0.000 | exploratory |
 | all13 | argon | para3 | -0.008 | [-0.019, +0.001] | 0.085 | 0.085 | exploratory |
+| all13 | argon | expert | -0.025 | [-0.037, -0.013] | 0.000 | 0.000 | exploratory |
 
 ## gemini-3.8-flash, per split
 
@@ -168,3 +173,16 @@ Match radius 0.022. One threshold per (model, definition), selected on sao_paulo
 | para3 | laurens_gsv | 0.37 | 0.817 (0.753-0.867) | 0.650 (0.585-0.710) | **0.724** | 0.593 | 143/32/220 | 0.707 | 54 |
 | para3 | budapest_district5 | 0.37 | 0.521 (0.461-0.581) | 0.450 (0.395-0.507) | **0.483** | 0.259 | 135/124/300 | 0.480 | 66 |
 | para3 | manual_gold@250 | 0.37 | 0.724 (0.696-0.750) | 0.740 (0.712-0.766) | **0.732** | 0.622 | 734/280/992 | 0.729 | 79 |
+| expert | richmond | 0.00 | 0.571 (0.525-0.615) | 0.858 (0.815-0.892) | **0.686** | 0.749 | 266/200/310 | 0.686 | 67 |
+| expert | bend | 0.00 | 0.635 (0.589-0.678) | 0.856 (0.814-0.890) | **0.729** | 0.701 | 280/161/327 | 0.729 | 59 |
+| expert | clovis | 0.00 | 0.534 (0.475-0.591) | 0.769 (0.705-0.823) | **0.630** | 0.599 | 150/131/195 | 0.630 | 48 |
+| expert | morgantown | 0.00 | 0.659 (0.607-0.707) | 0.846 (0.798-0.885) | **0.741** | 0.739 | 226/117/267 | 0.741 | 60 |
+| expert | annapolis | 0.00 | 0.631 (0.583-0.677) | 0.850 (0.805-0.887) | **0.725** | 0.742 | 250/146/294 | 0.725 | 62 |
+| expert | paterson | 0.00 | 0.736 (0.689-0.779) | 0.686 (0.639-0.730) | **0.710** | 0.638 | 271/97/395 | 0.710 | 63 |
+| expert | gainesville | 0.00 | 0.579 (0.529-0.628) | 0.805 (0.754-0.848) | **0.674** | 0.662 | 219/159/272 | 0.674 | 61 |
+| expert | laurens_mapillary | 0.00 | 0.759 (0.703-0.807) | 0.771 (0.715-0.819) | **0.765** | 0.677 | 192/61/249 | 0.765 | 52 |
+| expert | bayonne | 0.00 | 0.485 (0.440-0.530) | 0.754 (0.703-0.799) | **0.590** | 0.564 | 227/241/301 | 0.590 | 74 |
+| expert | juneau | 0.00 | 0.612 (0.563-0.659) | 0.808 (0.759-0.849) | **0.697** | 0.673 | 240/152/297 | 0.697 | 64 |
+| expert | laurens_gsv | 0.00 | 0.672 (0.611-0.728) | 0.736 (0.674-0.790) | **0.703** | 0.658 | 162/79/220 | 0.703 | 58 |
+| expert | budapest_district5 | 0.00 | 0.448 (0.399-0.498) | 0.570 (0.513-0.625) | **0.501** | 0.310 | 171/211/300 | 0.501 | 58 |
+| expert | manual_gold@250 | 0.00 | 0.669 (0.642-0.695) | 0.822 (0.796-0.844) | **0.738** | 0.709 | 815/403/992 | 0.738 | 76 |

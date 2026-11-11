@@ -6,8 +6,8 @@ scoreboard, and the Step 6 thinking arm has run. Step 4 is a negative result on 
 and Step 5, the frozen held-out run, finds the **pre-registered primary endpoint null**: the
 optimized Flash definition does not beat zero-shot on held-out cities. The one wording that
 moves Flash on held-out data is Jon's blind expert definition (an amendment arm, so
-exploratory). Nothing moves Argon. Step 7 replicates and the in-context-images control are
-pending.
+exploratory), and the same definition **hurts Argon** (−0.036 on the reference pool). Step 7
+replicates and the in-context-images control are pending.
 Every dev-split number below regenerates from the detection caches with
 `python scripts/analysis/prompt_276_results.py`, every held-out number with
 `python scripts/analysis/prompt_276_heldout.py` (`--check` compares with the committed JSON;
@@ -219,7 +219,8 @@ pool, the amendment arms and the remaining splits are exploratory, Holm-correcte
 
 **Selected thresholds.** Flash: 0.00 for every definition, i.e. no confidence cut helps a
 model whose errors are misses (dev_select F1 0.267 zs, 0.310 alt, 0.314 para3, 0.296 expert).
-Argon: 0.35 (zs, dev_select F1 0.705), 0.37 (para3, 0.698), expert *pending*.
+Argon: 0.35 (zs, dev_select F1 0.705), 0.37 (para3, 0.698), 0.00 (expert, 0.651: no cut
+recovers what the wording costs).
 
 **Primary endpoint: null.** Flash alt+conf minus zs+conf on the reference pool is
 **−0.011 F1 [−0.027, +0.006], p = 0.22**. The +0.043 (confidence on) / +0.075 (off) that
@@ -232,18 +233,18 @@ raw unthresholded number):
 
 | pool | Flash zs | Flash alt | Flash para3 | Flash expert | Argon zs | Argon para3 | Argon expert |
 |---|---|---|---|---|---|---|---|
-| reference (7 GSV US) | 0.570 | 0.560 | 0.556 | **0.595** | **0.736** | 0.726 | pending |
-| open (Mapillary + Panoramax) | 0.256 | 0.284 | 0.267 | **0.324** | 0.658 | 0.671 | pending |
-| nine-city scoreboard pool | 0.516 | 0.511 | 0.511 | **0.550** | **0.733** | 0.726 | pending |
-| all 12 held-out | 0.448 | 0.445 | 0.446 | **0.481** | **0.705** | 0.698 | pending |
+| reference (7 GSV US) | 0.570 | 0.560 | 0.556 | **0.595** | **0.736** | 0.726 | 0.699 |
+| open (Mapillary + Panoramax) | 0.256 | 0.284 | 0.267 | **0.324** | 0.658 | 0.671 | 0.678 |
+| nine-city scoreboard pool | 0.516 | 0.511 | 0.511 | **0.550** | **0.733** | 0.726 | 0.706 |
+| all 12 held-out | 0.448 | 0.445 | 0.446 | **0.481** | **0.705** | 0.698 | 0.679 |
 
 **Arm minus zs, paired pano bootstrap** (ΔF1 [95% CI], p; Holm within family):
 
 | pool | Flash alt (primary) | Flash para3 | Flash expert | Argon para3 | Argon expert |
 |---|---|---|---|---|---|
-| reference | −0.011 [−0.027, +0.006] p .22 | −0.015 [−0.031, +0.000] p .05 | **+0.025 [+0.009, +0.041] p .002** (Holm .004) | −0.010 [−0.022, +0.002] p .10 | pending |
-| open | +0.028 [−0.011, +0.068] p .16 | +0.011 [−0.027, +0.048] p .53 | **+0.068 [+0.027, +0.106] p < .001** | +0.013 [−0.013, +0.041] p .35 | pending |
-| all 12 | −0.004 [−0.018, +0.011] p .61 | −0.002 [−0.015, +0.011] p .75 | **+0.033 [+0.018, +0.048] p < .001** | −0.008 [−0.019, +0.002] p .13 | pending |
+| reference | −0.011 [−0.027, +0.006] p .22 | −0.015 [−0.031, +0.000] p .05 | **+0.025 [+0.009, +0.041] p .002** (Holm .004) | −0.010 [−0.022, +0.002] p .10 | **−0.036 [−0.050, −0.022] p < .001** |
+| open | +0.028 [−0.011, +0.068] p .16 | +0.011 [−0.027, +0.048] p .53 | **+0.068 [+0.027, +0.106] p < .001** | +0.013 [−0.013, +0.041] p .35 | +0.019 [−0.017, +0.055] p .27 |
+| all 12 | −0.004 [−0.018, +0.011] p .61 | −0.002 [−0.015, +0.011] p .75 | **+0.033 [+0.018, +0.048] p < .001** | −0.008 [−0.019, +0.002] p .13 | **−0.026 [−0.039, −0.014] p < .001** |
 
 **What held and what did not.**
 
@@ -257,7 +258,13 @@ raw unthresholded number):
   pool, through recall (reference-pool mean recall 0.45 → 0.48, precision 0.80 → 0.79). It
   leads zs on six of the seven reference cities (paterson 0.647 vs 0.609, bend 0.668 vs 0.640)
   and trails on gainesville. It is an amendment arm, so this is exploratory, and it is the
-  natural candidate for the Step 7 replicates. On Argon it is *pending*.
+  natural candidate for the Step 7 replicates.
+- *The same expert definition hurts Argon*, −0.036 on the reference pool [−0.050, −0.022],
+  by the opposite route: recall rises (reference-pool mean 0.75 → 0.81) but precision falls
+  further (0.73 → 0.62), and the elicited scores no longer separate the extra calls, so
+  dev_select selects no threshold at all. Its one clear gain is `laurens_mapillary` (0.765 vs
+  0.693), the split where Argon's misses were. A recall clause written for a low-recall model
+  is a precision tax on a high-recall one: the definition arm is model-specific.
 - *Confidence elicitation on Argon moves the operating point, not the model.* Pooled over the
   nine scoreboard cities, zs+conf at its selected threshold scores 0.736 against Step 2's
   0.734 without confidence (same panos, same prompt); the cut is worth +0.013 macro over the
@@ -277,13 +284,14 @@ raw unthresholded number):
 | Gemini 4 Argon, Steps 1–4 and the Step 6 thinking arm | 34 | $78.24 |
 | Qwen3-VL-32B (klone, `gpu-l40s-makelab`) | 6 | $0 |
 | Gemini 3.8 Flash, Step 5 (52 chain legs, 3 threshold legs, 5 one-pano re-runs) | 60 | $153.29 |
-| Gemini 4 Argon, Step 5 (39 chain legs, 2 threshold legs, 1 re-run; expert threshold leg *pending*) | 41 | $115.77 |
-| Argon `manual_gold` run killed by the leg timeout (no ledger row; ≈ 992/1,000 of a $23.26 leg) | | ≈ $23 |
-| **Total through 2026-11-11** | | **≈ $430** |
+| Gemini 4 Argon, Step 5 (39 chain legs, 2 threshold legs, 1 re-run) | 42 | $117.43 |
+| Argon `manual_gold` run killed by the leg timeout: a `kind: recovered` row, billed minus logged | 1 | $24.41 |
+| **Total, 2026-11-08 → 2026-11-11** | 118 | **$432.76** |
 
-Reconciled against Cloud Monitoring on 2026-11-09 (billed == logged for both models); the
-Step 5 reconcile is *pending* the final legs. Argon list price doubles on 2026-12-01; the
-credit expires 2026-12-07.
+Reconciled against Cloud Monitoring on 2026-11-09 and again on 2026-11-11 after Step 5
+(`vertex_usage.py --days 3 --reconcile`: Flash within tolerance, Argon within tolerance once
+the recovered row is counted). Argon list price doubles on 2026-12-01; the credit expires
+2026-12-07.
 
 ## Incidents and traps, recorded
 
