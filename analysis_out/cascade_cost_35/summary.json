@@ -113,6 +113,16 @@
    "split": "bayonne"
   },
   {
+   "challenger": "Qwen/Qwen3-VL-32B-Instruct",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "allenai/Molmo2-8B",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
    "challenger": "google/owlv2-large-patch14-ensemble",
    "reason": "published detections exist but this pair was not run",
    "split": "bayonne"
@@ -836,6 +846,16 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "gemini-3.6-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "gemini-3.1-pro-preview",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
   },
   {
    "challenger": "mask2former-vistas-curb-cut-1024x1024",

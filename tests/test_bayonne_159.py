@@ -347,9 +347,11 @@ def test_candidates_json_rederives():
     want = _committed("candidates.json")
     assert B._dumps(B.build_candidates()) == want
     res = json.loads(want)
-    assert res["n_candidates"] == 11
-    assert res["if_dense_legs_vote"] == {"n_candidates": 579, "n_from_dense_legs_only": 299,
-                                         "n_with_fewer_than_2_non_dense_legs": 568}
+    # 11 until 2026-11-11, when Molmo2-8B joined the voters (its bayonne leg ran on klone);
+    # 94 of the 102 rest on Molmo, 93 on Qwen3-VL-8B (docs/bayonne_split_159.md, candidates).
+    assert res["n_candidates"] == 102
+    assert res["if_dense_legs_vote"] == {"n_candidates": 692, "n_from_dense_legs_only": 266,
+                                         "n_with_fewer_than_2_non_dense_legs": 578}
 
 
 def test_paid_estimate_rederives_from_the_ledger_before_its_cutoff():

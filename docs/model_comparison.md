@@ -50,7 +50,7 @@ a run that hasn't happened, not a result being withheld.
 | juneau | ✅ | ⚠️ full roster except **claude-opus-5** (low): not run yet, waiting on the plan API-credits route being set up (it would bill Anthropic's first-party API, which is the same leg — `serving_path` is not in the cache key); off-roster, `claude-opus-5-5` and `claude-fable-5-1` at low (2026-10-20, `docs/claude_newest_ids.md`) | ❌ not run | ✅ 19% (4/21) | the Annapolis rig (Trimble MX7, 120 of 125) on new streets; a Project Sidewalk deployment city on the same Mapillary imagery; GT single-rater, **medium** confidence; pooled (#254, `docs/juneau_split_254.md`) |
 | budapest_district5 | ✅ | ✅ full roster | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
 | sao_paulo | ✅ | ✅ full roster | ✅ | ✅ **12.5% (6/48) — lowest measured** | second non-US split (GSV, NBR 9050), GT **high** confidence — the budapest recall collapse did not replicate; 4th Qwen-32B caution occurrence, this time at parity not inversion |
-| bayonne | ✅ | ⚠️ partial: Gemini 3.6 Flash, Gemini 3.1 Pro, Gemini 3.7 Flash, Qwen3-VL-8B, OWLv2, Grounding DINO, the three YOLO pano arms; off-roster, `claude-opus-5-5` and `claude-fable-5-1` at low (2026-10-20, `docs/claude_newest_ids.md`). **Not run:** Molmo2-8B (failed on every pano), Qwen3-VL-32B (weights not cached on makelab2), claude-opus-5 (bills a separate account, not authorized; the 2026-10-19 campaign ran only the newest ids) | ❌ not run | ❌ gallery built (40 items), **tags pending** | third non-US split, first Panoramax (GoPro Max); GT single-rater, **medium** confidence; lowest recall in the benchmark (`docs/bayonne_split_159.md`) |
+| bayonne | ✅ | ⚠️ partial: Gemini 3.6 Flash, Gemini 3.1 Pro, Gemini 3.7 Flash, Qwen3-VL-8B, OWLv2, Grounding DINO, the three YOLO pano arms; off-roster, `claude-opus-5-5` and `claude-fable-5-1` at low (2026-10-20, `docs/claude_newest_ids.md`). Molmo2-8B and Qwen3-VL-32B filled on klone 2026-11-11 (the October pass had Molmo failing on makelab2's shared GPU and no 32B weights on makelab2; `bayonne_split_159.md`). **Not run:** claude-opus-5 (bills a separate account, not authorized; the 2026-10-19 campaign ran only the newest ids) | ❌ not run | ❌ gallery built (40 items), **tags pending** | third non-US split, first Panoramax (GoPro Max); GT single-rater, **medium** confidence; lowest recall in the benchmark (`docs/bayonne_split_159.md`) |
 | manual_gold | ✅ | ✅ full roster | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "Full roster" is the standing roster below. It is not a count written into this prose: the
@@ -1034,7 +1034,9 @@ cues, speed bumps vs raised crossings, roundabouts; see `benchmark/README.md`)
 | **rampnet** | **0.831** | 0.375 | **0.517** | 0.344 | 113/23/188 |
 | **gemini-3.1-pro-preview** | 0.469 | 0.399 | **0.431** | – | 120/136/181 |
 | gemini-3.6-flash | 0.371 | 0.419 | 0.393 | – | 126/214/175 |
-| **Qwen3-VL-8B-Instruct** | 0.161 | 0.186 | **0.173** | – | 56/292/245 |
+| **molmo2-8B** (points) | 0.222 | 0.239 | **0.230** | – | 72/253/229 |
+| Qwen3-VL-8B-Instruct | 0.161 | 0.186 | 0.173 | – | 56/292/245 |
+| Qwen3-VL-32B-Instruct | 0.354 | 0.076 | 0.126 | – | 23/42/278 |
 | owlv2-large-patch14-ensemble | 0.034 | **0.950** | 0.065 | 0.092 | 286/8229/15 |
 | grounding-dino-base | 0.025 | 0.824 | 0.048 | 0.025 | 248/9872/53 |
 
@@ -2092,9 +2094,14 @@ sides. RampNet is shown at its published 0.55 operating point (the same detectio
 P 0.723 / R 0.935 / F1 0.815 at the 0.05 export floor); open detectors are shown at their
 0.05 cache floor with tuned operating points noted below.
 
-This table is hand-maintained (#145): the two Gemini rows have no published detections, so
-`scoreboard.py` cannot generate it. Every other row is checked against the scorer by
-`tests/test_scoreboard.py::test_every_number_matches_model_comparison`.
+This table is hand-maintained (#145). Until 2026-11-11 the two Gemini rows had no published
+detections (their July run was never exported), so `scoreboard.py` could not generate it; both
+legs were re-run on the full split on 2026-11-11 (`--gemini-concurrency 6`, same signature,
+$17.78 and $16.07) and published, and every row is now checked against the scorer by
+`tests/test_scoreboard.py::test_every_number_matches_model_comparison`. The unexported July
+numbers were gemini-3.1-pro-preview P 0.653 / R 0.503 / F1 0.568 and gemini-3.6-flash
+0.609 / 0.485 / 0.540: the re-run lands 0.005 and 0.013 F1 lower, a two-month drift of two
+served models that is about the size of a seed repeat and is why the roster records run dates.
 
 **manual_gold** (1,000 panos, 3,919 GT ramps, 207 negative panos — GT labeled with no model
 in the loop)
@@ -2102,8 +2109,8 @@ in the loop)
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** @0.55 | **0.947** | 0.873 | **0.908** | 0.917 | 3420/190/499 |
-| gemini-3.1-pro-preview | 0.653 | 0.503 | 0.568 | – | 1972/1047/1947 |
-| gemini-3.6-flash | 0.609 | 0.485 | 0.540 | – | 1899/1221/2020 |
+| gemini-3.1-pro-preview | 0.648 | 0.498 | 0.563 | – | 1948/1058/1966 |
+| gemini-3.6-flash | 0.590 | 0.477 | 0.527 | – | 1868/1298/2051 |
 | **molmo2-8B** (points) | 0.511 | 0.360 | **0.422** | – | 1409/1346/2510 |
 | Qwen3-VL-8B-Instruct | 0.445 | 0.341 | 0.386 | – | 1338/1667/2581 |
 | Qwen3-VL-32B-Instruct | 0.739 | 0.177 | 0.285 | – | 693/245/3226 |

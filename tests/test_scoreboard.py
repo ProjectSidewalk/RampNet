@@ -235,12 +235,10 @@ _LOG_ROW_NAMES = {
 }
 # (model, split) pairs the log prints and this page deliberately does not carry, each with
 # the reason. Anything else missing is a failure, not an exemption.
-_LOG_ROWS_NOT_ON_THE_BOARD = {
-    ("gemini-3.1-pro-preview", "manual_gold"):
-        "manual_gold detections never published (docs/model_scoreboard.md, 'What is missing')",
-    ("gemini-3.6-flash", "manual_gold"):
-        "manual_gold detections never published (docs/model_scoreboard.md, 'What is missing')",
-}
+# (model, split) log rows the board is allowed to lack, with the reason. Empty since
+# 2026-11-11, when the two Gemini manual_gold legs were re-run and published; the mechanism
+# stays for the next unexported row.
+_LOG_ROWS_NOT_ON_THE_BOARD = {}
 _LOG_TABLE_HEADER = "| model | P | R | F1 | AP | tp/fp/fn |"
 _LOG_SPLIT_HEADING = re.compile(
     r"^(?:\*\*(\w+)\*\*|#+ Result: (\w+)) \(\d[\d,]* (?:reviewed )?panos")
@@ -697,12 +695,14 @@ def test_the_annapolis_displacement_does_not_survive_pooling(board):
 
 
 def test_partial_coverage_is_reported_not_averaged_away(board):
-    """The two Gemini legs have city detections but no published manual_gold.
+    """Coverage travels with the row; a partial mean is never printed as a pooled one.
 
     The failure this guards is the quiet one: an aggregate over four cities printed in
-    the same column as one over seven. Coverage travels with the row instead.
+    the same column as one over seven. The two older Gemini legs are the complete case:
+    every pooled city and, since their 2026-11-11 re-run, a published manual_gold cell
+    (before that the board had to carry them with that cell empty, and this test pinned it).
 
-    The same rule cuts the other way for claude-opus-5 at low effort, which has run eight
+    The rule cuts the other way for claude-opus-5 at low effort, which has run eight
     of the nine pooled cities (no juneau yet): its eight-city mean is computed but it is
     reported as 8/9 and partial, never as a pooled row beside the nine-city ones.
     """
@@ -711,8 +711,8 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
         summary = _summary(board, model)
         assert summary["coverage"] == f"{n}/{n}"
         assert summary["complete"] is True
-        assert summary["manual_gold_f1"] is None
-        assert "manual_gold" not in board["per_split"][model]
+        assert summary["manual_gold_f1"] is not None
+        assert "manual_gold" in board["per_split"][model]
 
     opus = _summary(board, "claude-opus-5-effort-low")
     missing = set(lfs.US_SPLITS) - set(board["per_split"]["claude-opus-5-effort-low"])

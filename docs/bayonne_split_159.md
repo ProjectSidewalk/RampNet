@@ -224,6 +224,16 @@ listed as support and never count as a vote: they are the roster's dense legs. C
 votes, the list would hold 579 candidates, 568 of them resting on fewer than two non-dense
 legs and 299 on the two dense legs alone (`candidates.json`, `if_dense_legs_vote`).
 
+*Regenerated 2026-11-11, after Molmo2-8B's bayonne leg ran (section 10): **102 candidates**,
+the original 11 all still present. 91 of the 91 new ones rest on Molmo2-8B and Qwen3-VL-8B
+agreeing with each other (88 on those two alone), two unscored chat VLMs at 2.66 and 2.84
+points per pano on a split where they score P 0.22 and 0.35. 67 of the 125 panos now carry
+a candidate and 19 candidates sit on a RampNet peak below 0.30. The list is no longer a short
+second sweep, and whether Molmo should count as a vote or, like the dense legs, as support
+only is open (Jon's call; the committed JSON and the test pin the 102 as computed). The
+paragraph below describes the October list of 11, which is the list the gallery was built
+from; `if_dense_legs_vote` is now 692 / 266 / 578.*
+
 **11 candidates, all in the `random` stratum, none in the 25 `empty` panos, none in the band.**
 Six have a RampNet peak in the radius below 0.30 (0.076-0.283). Six are YOLO arms agreeing only
 with each other (three arms of one supervised recipe, so correlated), and five include Qwen.
@@ -457,10 +467,15 @@ been run.
   person cannot obtain from the repo; they are in the makelab2 archive
   (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/bayonne/panos/`), pinned by
   `imagery_manifest.json`.
-- **Qwen3-VL-32B**: not run; its weights are not cached on makelab2, and this pass ran cache
-  hits only.
+- **Qwen3-VL-32B**: not run in this pass; its weights are not cached on makelab2, and the pass
+  ran cache hits only. *Filled 2026-11-11* on klone (job 43134859, two L40S, the pinned
+  `qwenvl276b` env of #276): 125 of 125 panos, 16 min, **F1 0.126** (P 0.354, R 0.076), the
+  lowest of its fourteen splits. Published and on the board.
 - **Molmo2-8B**: ran in its own env on 2026-10-02 and failed on every pano (section 5); not
-  retried, since a retry needs a code or env change and new GPU inference.
+  retried then, since a retry needs a code or env change and new GPU inference. *Filled
+  2026-11-11* on klone (job 43134951, one L40S to itself, a fresh env at the
+  `transformers==4.57.1` pin): 125 of 125 panos, 21 min, **F1 0.230** (P 0.222, R 0.239). A
+  dedicated card was the whole fix; the code is unchanged.
 - **`docs/figures/operating_point_pr.png`**: not regenerated (step 4).
 - **The #35 cascade read and null-recall** for bayonne: not run (out of scope for this pass).
   `analysis_out/cascade_cost_35/summary.json` was regenerated and lists every bayonne pair

@@ -292,13 +292,13 @@ numbers are directly above them in `model_comparison.md`:
 | Gemini 4 Argon | 0.766 | 0.783 | 0.654 | 0.764 | 0.737 | 0.711 | 0.726 | **0.712** | 0.748 | 0.734 | **0.706** | 0.414 | 0.696 | 0.609 | 0.740 |
 | Claude Opus 5.5 (low, anthropic) | 0.738 | 0.720 | 0.610 | 0.785 | 0.720 | 0.742 | 0.684 | 0.679 | 0.727 | 0.712 | 0.701 | 0.451 | 0.646 | **0.619** | 0.722 |
 | Claude Fable 5.1 (low, anthropic) | 0.628 | 0.626 | 0.552 | 0.661 | 0.610 | 0.666 | 0.553 | 0.493 | 0.673 | 0.607 | 0.415 | 0.393 | 0.503 | 0.540 | 0.638 |
-| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.542 | 0.571 | 0.279 | 0.381 | 0.454 | 0.431 | – |
+| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.542 | 0.571 | 0.279 | 0.381 | 0.454 | 0.431 | 0.563 |
 | Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.281 | 0.528 | 0.538 | 0.261 | 0.338 | 0.358 | 0.351 | 0.527 |
 | Gemini 3.8 Flash | 0.655 | 0.634 | 0.461 | 0.597 | 0.526 | 0.611 | 0.515 | 0.252 | 0.490 | 0.527 | 0.164 | 0.262 | 0.339 | 0.288 | 0.504 |
-| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.504 | 0.525 | 0.274 | 0.336 | 0.346 | 0.393 | – |
-| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.066 | 0.341 | 0.322 | 0.018 | 0.079 | 0.218 | – | 0.285 |
+| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.504 | 0.525 | 0.274 | 0.336 | 0.346 | 0.393 | 0.527 |
+| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.066 | 0.341 | 0.322 | 0.018 | 0.079 | 0.218 | 0.126 | 0.285 |
 | Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.210 | 0.251 | 0.314 | 0.161 | 0.169 | 0.219 | 0.173 | 0.386 |
-| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.448 | 0.422 | 0.307 | 0.274 | 0.326 | – | 0.422 |
+| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.448 | 0.422 | 0.307 | 0.274 | 0.326 | 0.230 | 0.422 |
 | OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.066 | 0.065 | 0.055 | 0.062 | 0.052 | 0.065 | 0.088 |
 | Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.050 | 0.053 | 0.054 | 0.042 | 0.049 | 0.048 | 0.082 |
 | YOLO11x (tiles) | 0.667 | 0.750 | 0.712 | 0.728 | 0.640 | 0.595 | 0.576 | – | – | – | – | 0.319 | 0.625 | – | 0.820 |
@@ -576,26 +576,20 @@ log.
 
 Omissions are content, so they are named rather than left as blanks:
 
-- **`gemini-3.1-pro-preview` and `gemini-3.6-flash` have no `manual_gold` row here.** Their
-  city detections are published; their `manual_gold` detections are not. The run did happen:
-  the 2026-07-25 challenger sweep (commit b148f71) scored both on all 1,000 panoramas, and
-  `model_comparison.md` keeps its counts (F1 0.568, tp/fp/fn 1972/1047/1947; F1 0.540,
-  1899/1221/2020). It predates the usage ledger, so it has no cost row. **The detections are
-  lost.** On 2026-10-20 the cache keys were reconstructed (the same probe finds the richmond
-  entries, so the method is sound) and searched for in every model cache on the Windows
-  workstation, on makelab2 (`/homes/gws/jonf`), on klone (home, `/gscratch/makelab`,
-  `/gscratch/scrubbed`) and on Jon's Mac; none holds a single entry. The cache was
-  desktop-local: `model_comparison.md`'s `manual_gold` "Cost and runtime" section (from
-  b148f71) says "Gemini needs no GPU at all — both models ran from a desktop against Vertex";
-  only the GPU legs used klone's `ckpt` queue. Both desktops, the Windows workstation and
-  Jon's Mac, are among the machines searched. `compare.py` keeps its cache inside the checkout
-  it runs from (`--cache-dir` defaults to `<repo>/.model_cache`), so a run from a checkout or
-  worktree that was later removed leaves nothing on either desktop to find.
-  **0.568 and 0.540 are therefore historical: they cannot be re-derived from a clean clone**,
-  the only numbers in this comparison with that status. Not re-run, by decision (Jon,
-  2026-10-20): Opus 5.5 and Gemini 3.7 Flash now cover `manual_gold`, a re-run of a preview id
-  might not reproduce the original, and new VLM baselines are deferred to RampNet 2.0. It is
-  also why both are absent from the generalization figure.
+- **The `gemini-3.1-pro-preview` and `gemini-3.6-flash` `manual_gold` cells are a 2026-11-11
+  re-run, two months after their other splits.** The 2026-07-25 challenger sweep (commit
+  b148f71) scored both on all 1,000 panoramas, but its detections were desktop-local and lost
+  (searched for on 2026-10-20 on the Windows workstation, makelab2, klone and Jon's Mac, none
+  holds an entry), so `model_comparison.md` carried its counts as the only historical numbers
+  on the board (F1 0.568 and 0.540). Jon's 2026-10-20 decision was not to re-run them; on
+  2026-11-11 he reversed it so that every cell of the by-split figure is published and
+  re-derivable, and both legs were re-run on the full split with the same signature
+  (`--gemini-concurrency 6`; $17.78 and $16.07, ledger rows of that date). The re-run scores
+  **0.563 and 0.527**, 0.005 and 0.013 under the July figures: a preview id and a served model
+  do drift, by about a seed repeat's worth. Read those two cells as November's models, not
+  July's; the city cells of both rows are still the July runs. The same date filled Molmo2-8B
+  and Qwen3-VL-32B on `bayonne` (klone; `bayonne_split_159.md`), so the by-split figure has no
+  empty cell.
 - **`gemini-3.7-flash`, the YOLO arms, the Vistas arms and the Claude legs are all on this
   board but `standing=False` in the roster**, so `model_comparison.md`'s roster tables keep
   a consistent 8-model set pending each write-up. Every one of those legs has its

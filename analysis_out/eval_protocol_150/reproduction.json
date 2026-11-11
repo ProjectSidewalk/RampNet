@@ -7652,6 +7652,67 @@
      "rederived": null
     },
     "f1": {
+     "committed": 0.563222,
+     "equal": true,
+     "rederived": 0.563222
+    },
+    "fn": {
+     "committed": 1968,
+     "equal": true,
+     "rederived": 1968
+    },
+    "fp": {
+     "committed": 1058,
+     "equal": true,
+     "rederived": 1058
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.648388,
+     "equal": true,
+     "rederived": 0.648388
+    },
+    "recall": {
+     "committed": 0.497831,
+     "equal": true,
+     "rederived": 0.497831
+    },
+    "tp": {
+     "committed": 1951,
+     "equal": true,
+     "rederived": 1951
+    }
+   },
+   "model": "gemini-3.1-pro-preview",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.1-pro-preview__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
      "committed": 0.664286,
      "equal": true,
      "rederived": 0.664286
@@ -10153,6 +10214,67 @@
      "rederived": null
     },
     "f1": {
+     "committed": 0.527311,
+     "equal": true,
+     "rederived": 0.527311
+    },
+    "fn": {
+     "committed": 2051,
+     "equal": true,
+     "rederived": 2051
+    },
+    "fp": {
+     "committed": 1298,
+     "equal": true,
+     "rederived": 1298
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.590019,
+     "equal": true,
+     "rederived": 0.590019
+    },
+    "recall": {
+     "committed": 0.476652,
+     "equal": true,
+     "rederived": 0.476652
+    },
+    "tp": {
+     "committed": 1868,
+     "equal": true,
+     "rederived": 1868
+    }
+   },
+   "model": "gemini-3.6-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.6-flash__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
      "committed": 0.426914,
      "equal": true,
      "rederived": 0.426914
@@ -10869,6 +10991,67 @@
    "predictions": "benchmark/model_detections/Qwen__Qwen3-VL-32B-Instruct__sao_paulo.json",
    "source": "scoreboard",
    "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.125683,
+     "equal": true,
+     "rederived": 0.125683
+    },
+    "fn": {
+     "committed": 278,
+     "equal": true,
+     "rederived": 278
+    },
+    "fp": {
+     "committed": 42,
+     "equal": true,
+     "rederived": 42
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.353846,
+     "equal": true,
+     "rederived": 0.353846
+    },
+    "recall": {
+     "committed": 0.076412,
+     "equal": true,
+     "rederived": 0.076412
+    },
+    "tp": {
+     "committed": 23,
+     "equal": true,
+     "rederived": 23
+    }
+   },
+   "model": "Qwen/Qwen3-VL-32B-Instruct",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/Qwen__Qwen3-VL-32B-Instruct__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
    "status": "equal"
   },
   {
@@ -12516,6 +12699,67 @@
    "predictions": "benchmark/model_detections/allenai__Molmo2-8B__sao_paulo.json",
    "source": "scoreboard",
    "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.230032,
+     "equal": true,
+     "rederived": 0.230032
+    },
+    "fn": {
+     "committed": 229,
+     "equal": true,
+     "rederived": 229
+    },
+    "fp": {
+     "committed": 253,
+     "equal": true,
+     "rederived": 253
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.221538,
+     "equal": true,
+     "rederived": 0.221538
+    },
+    "recall": {
+     "committed": 0.239203,
+     "equal": true,
+     "rederived": 0.239203
+    },
+    "tp": {
+     "committed": 72,
+     "equal": true,
+     "rederived": 72
+    }
+   },
+   "model": "allenai/Molmo2-8B",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/allenai__Molmo2-8B__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
    "status": "equal"
   },
   {
@@ -18792,10 +19036,10 @@
    "unchecked": 0
   },
   "scoreboard": {
-   "cells": 261,
+   "cells": 265,
    "differs": 0,
-   "equal": 261,
-   "fields_compared": 2610,
+   "equal": 265,
+   "fields_compared": 2650,
    "unchecked": 0
   }
  },
