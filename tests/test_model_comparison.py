@@ -3008,3 +3008,47 @@ def test_the_seven_276_study_legs_signatures_match_their_published_files():
         with open(path, encoding="utf-8") as f:
             published = json.load(f)["signature"]
         assert det.signature() == published, leg.published_as
+
+
+def test_a_malformed_gemini_box_is_dropped_and_counted_not_a_pano_failure(tmp_path):
+    """Gemini 3.1 Pro returned a five-element ``box_2d`` on one manual_gold pano
+    (2026-11-11); unpacking it raised and failed the pano as a retryable failure that
+    re-billed all six views. The Qwen parser has always dropped a malformed item and
+    kept the rest; the Gemini path now does the same and counts the drop into the
+    ledger row (#286 review)."""
+    from detectors import well_formed_gemini_boxes
+    items = [{"box_2d": [1, 2, 3, 4], "label": "ok"},
+             {"box_2d": [1, 2, 3, 4, 5], "label": "five"},
+             {"box_2d": None, "label": "none"},
+             {"box_2d": [1, "x", 3, 4], "label": "string"},
+             {"box_2d": [1, 2, 3, 4], "label": "bad score", "score": "high"},
+             {"box_2d": [1, 2, 3, 4], "label": "scored", "score": 40},
+             "not a dict"]
+    kept, dropped = well_formed_gemini_boxes(items)
+    assert [b["label"] for b in kept] == ["ok", "scored"] and dropped == 5
+    assert gemini_boxes_to_points(items) == [(0.003, 0.002, None), (0.003, 0.002, 0.4)]
+    # the parsed path no longer trips over a missing box_2d either
+    assert boxes_from_gemini_response(_FakeResp(parsed=[{"label": "x"}])) == [
+        {"box_2d": None, "label": "x"}]
+
+    pytest.importorskip("google.genai")
+    from PIL import Image
+
+    class _Models:
+        def generate_content(self, **kw):
+            cand = type("C", (), {"finish_reason": type("F", (), {"name": "STOP"})()})()
+            return type("R", (), {
+                "candidates": [cand], "parsed": None, "usage_metadata": None,
+                "model_version": "gemini-4-argon-001",
+                "text": '[{"box_2d": [1, 2, 3, 4, 5], "label": "x"}, '
+                        '{"box_2d": [1, 2, 3, 4], "label": "y"}]'})()
+
+    det = GeminiDetector(model_id="gemini-4-argon")
+    det._client = type("Client", (), {"models": _Models()})()
+    det._ensure_ready()
+    assert det._raw_detect(Image.new("RGB", (8, 8))) == [{"box_2d": [1, 2, 3, 4], "label": "y"}]
+    assert det.malformed_boxes == 1 and det.empty_calls == 0
+    report_usage(det, "gemini-4-argon", "sao_paulo", 1, str(tmp_path / "u.jsonl"),
+                 timing={"detect_s": 1.0, "panos_called": 1})
+    rows = [json.loads(l) for l in (tmp_path / "u.jsonl").read_text().splitlines()]
+    assert rows[-1]["run_options"]["malformed_boxes"] == 1

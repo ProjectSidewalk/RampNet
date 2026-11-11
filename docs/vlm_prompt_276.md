@@ -323,6 +323,13 @@ the recovered row is counted). Argon list price doubles on 2026-12-01; the credi
   Fixed in `b9e29172`; the leg re-ran clean. The failed run's cache entries were discarded.
 - **Argon `MAX_TOKENS`** on 3 of 15,234 Step 2 views (above). A view that ends that way is an
   empty answer; `stop_reasons` in the ledger row records the count.
+- **A five-element `box_2d` failed a whole pano.** Gemini 3.1 Pro on the manual_gold re-run
+  (2026-11-11) answered one view with `box_2d` of five integers; unpacking it raised, the pano
+  counted as a retryable failure, and every view was re-billed on the re-run (which then
+  succeeded). The Qwen parser had always dropped a malformed item and kept the rest; the Gemini
+  path now does the same (`well_formed_gemini_boxes`), counting the drops as `malformed_boxes`
+  in the ledger row's `run_options`. Cached raw entries are unaffected (`--check` reproduces
+  every committed table).
 - **Klone, twice.** The scrubbed purge had removed the Hugging Face blob store but left the
   snapshot symlinks, so `snapshot_download` saw a complete cache and `du -sh models--X` read 13
   MB; use `du -shL snapshots/*/`. Then an unpinned rebuild (torch 2.14.1+cu126, transformers

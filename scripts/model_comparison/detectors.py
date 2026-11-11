@@ -92,7 +92,10 @@ def boxes_from_gemini_response(resp):
             # schema) parses to plain dicts. The first zs+conf leg isolated every pano
             # with a box as a failure on this line (2026-11-09, $2.32), so both shapes.
             get = b.get if isinstance(b, dict) else lambda k, default=None: getattr(b, k, default)
-            d = {"box_2d": list(get("box_2d")), "label": get("label", "") or ""}
+            box = get("box_2d")
+            # Kept verbatim when it is not a sequence; well_formed_gemini_boxes drops it.
+            d = {"box_2d": list(box) if isinstance(box, (list, tuple)) else box,
+                 "label": get("label", "") or ""}
             score = get("score")
             if score is not None:          # only the scored schema (#276) has one
                 d["score"] = score
@@ -105,18 +108,44 @@ def boxes_from_gemini_response(resp):
     return data if isinstance(data, list) else data.get("boxes", [])
 
 
+def well_formed_gemini_boxes(items):
+    """``(kept, n_dropped)``: the items whose ``box_2d`` is four numbers and whose
+    ``score``, if any, is numeric. The schema says so, but the model does not always
+    comply: Gemini 3.1 Pro returned a five-element ``box_2d`` on one manual_gold pano
+    (2026-11-11), and unpacking it failed the whole pano, a retryable failure that
+    re-bills all six views. The Qwen parser has always dropped such an item and kept
+    the rest (``boxes_from_qwen_text``); Gemini now does the same, and the caller
+    counts the drops (``GeminiDetector.malformed_boxes``, ``run_options`` in the ledger
+    row)."""
+    kept, dropped = [], 0
+    for it in items:
+        box = it.get("box_2d") if isinstance(it, dict) else None
+        score = it.get("score") if isinstance(it, dict) else None
+        ok = (isinstance(box, (list, tuple)) and len(box) == 4
+              and all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in box)
+              and (score is None
+                   or (isinstance(score, (int, float)) and not isinstance(score, bool))))
+        if ok:
+            kept.append(it)
+        else:
+            dropped += 1
+    return kept, dropped
+
+
 def gemini_boxes_to_points(items):
     """Gemini returns ``box_2d = [ymin, xmin, ymax, xmax]`` normalized to 0-1000.
     Reduce each box to its normalized [0,1] center point. Confidence is None
     unless the box carries an elicited integer ``score`` 0-100 (the ``confidence``
     knob, #276), which maps to [0, 1]. It is a self-report, not a calibrated
-    probability -- it exists so a chat model gets an operating range at all."""
+    probability -- it exists so a chat model gets an operating range at all.
+    A malformed item is skipped (``well_formed_gemini_boxes``), so a raw cache entry
+    that holds one still parses."""
     points = []
-    for it in items:
+    for it in well_formed_gemini_boxes(items)[0]:
         ymin, xmin, ymax, xmax = it["box_2d"]
         cx = (xmin + xmax) / 2.0 / 1000.0
         cy = (ymin + ymax) / 2.0 / 1000.0
-        score = it.get("score") if isinstance(it, dict) else None
+        score = it.get("score")
         conf = None if score is None else max(0.0, min(1.0, float(score) / 100.0))
         points.append((cx, cy, conf))
     return points
@@ -910,6 +939,7 @@ class GeminiDetector(_VLMDetector):
         # as "no ramps" otherwise, silently (#276 Step 1).
         self.stop_reasons = Counter()
         self.empty_calls = 0   # calls that returned zero boxes, for the recall diagnostic
+        self.malformed_boxes = 0   # schema-breaking items dropped (well_formed_gemini_boxes)
 
         # --- #276 knobs. Each defaults to None = as-run, and enters signature()
         # only when set, so every paid detection already cached keeps its key.
@@ -954,7 +984,8 @@ class GeminiDetector(_VLMDetector):
 
     def run_notes(self):
         """What the usage log records about HOW the leg ran, beyond the signature:
-        the schedule and the pins by name, plus the empty-answer count."""
+        the schedule and the pins by name, plus the empty-answer and malformed-box
+        counts."""
         return {
             "concurrency": self.concurrency,
             "definition": self.definition,
@@ -963,6 +994,7 @@ class GeminiDetector(_VLMDetector):
             "temperature": (GEMINI_AS_RUN_TEMPERATURE if self.temperature is None
                             else self.temperature),
             "empty_calls": self.empty_calls,
+            "malformed_boxes": self.malformed_boxes,
         }
 
     def _ensure_ready(self):
@@ -1054,10 +1086,11 @@ class GeminiDetector(_VLMDetector):
             config=config,
         )
         self._record_usage(resp)
-        boxes = boxes_from_gemini_response(resp)
-        if not boxes:
+        boxes, n_malformed = well_formed_gemini_boxes(boxes_from_gemini_response(resp))
+        if not boxes or n_malformed:
             with self._usage_lock:
-                self.empty_calls += 1
+                self.empty_calls += not boxes
+                self.malformed_boxes += n_malformed
         if self.debug_dump:
             self._dump_call(image, resp, boxes)
         return boxes
