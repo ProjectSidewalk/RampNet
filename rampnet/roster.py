@@ -255,8 +255,9 @@ ROSTER = (
         note="Zero-shot + confidence, 14 splits (#276 Step 5 baseline). Same prompt and "
              "views as the standing gemini-3.8-flash leg plus the score field; dev_select "
              "selected threshold 0.00, i.e. the cut buys nothing on a model whose errors "
-             "are misses. Nine-city pooled F1 0.544 at that threshold (0.527 without "
-             "confidence). All 7,606 calls ended STOP."),
+             "are misses. Nine-city macro F1 0.516 at that threshold against the standing "
+             "leg's 0.527 (count-pooled micro 0.544): asking for a score costs Flash a "
+             "little. All 7,606 calls ended STOP."),
     Challenger(
         spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
         density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
@@ -291,8 +292,9 @@ ROSTER = (
         note="Zero-shot + confidence, 14 splits (#276 Step 5 baseline). Same prompt and views "
              "as the standing gemini-4-argon leg plus the score field; 50-94 distinct "
              "scores per split, so AP is a usable curve (0.635 on manual_gold). dev_select "
-             "selected threshold 0.35; nine-city pooled F1 0.736 at it (0.734 without "
-             "confidence): the cut moves the operating point, not the model. 3 views "
+             "selected threshold 0.35; nine-city macro F1 0.733 at it against the standing "
+             "leg's 0.734 (count-pooled micro 0.736): the cut moves the operating point, "
+             "not the model. 3 views "
              "ended MAX_TOKENS. The full manual_gold run was killed by a 12 h chain "
              "timeout 8 panos short and finished on relaunch (ledger: one kind=recovered "
              "row, one row with panos_called 8)."),
@@ -884,8 +886,22 @@ def leg_for(spec, cargs=None):
     return None
 
 
+# Opt-in knobs that are not named after one provider. ``definition`` is read by every
+# prompted detector (``build_detector``: gemini, claude, qwen, molmo), so a run that
+# sets it is a different leg for any of them.
+GENERIC_OPT_IN_KNOBS = {"definition": ("gemini", "claude", "qwen", "molmo")}
+
+
+def opt_in_knobs_for(provider):
+    """Every opt-in knob (``is_opt_in_pin``) that enters ``provider``'s signature:
+    the ones named ``<provider>_...`` plus the generic ones that list it."""
+    return sorted(k for k in PROVIDER_DEFAULTS if is_opt_in_pin(k)
+                  and (k.startswith(provider + "_")
+                       or provider in GENERIC_OPT_IN_KNOBS.get(k, ())))
+
+
 def set_opt_in_knobs(cargs, candidates):
-    """The opt-in knobs some candidate leg pins that ``cargs`` has set (non-``None``).
+    """The opt-in knobs of the candidates' provider that ``cargs`` has set (non-``None``).
 
     A bare name means "every opt-in knob unset" (``needs_qualified_name``): the bare
     file's signature carries no such key, and that is what lets it keep its name
@@ -899,11 +915,21 @@ def set_opt_in_knobs(cargs, candidates):
     A pinned leg claims a run only if it pins every knob in this set (``leg_for``,
     #276 Step 5), so a run with a definition AND confidence is the definition leg,
     not the confidence-only sibling.
+
+    The set is every opt-in knob the provider's signature can carry
+    (``opt_in_knobs_for``), not only the ones some sibling happens to pin: a
+    ``--gemini-thinking-level high`` run that no leg registers used to resolve to the
+    expert+confidence leg, whose signature it does not share (#286 review). A knob of
+    another provider (``vistas_input_size`` on a Gemini run) is not in the signature
+    and is ignored. Knobs some sibling pins are kept in the set as well, so a provider
+    whose knobs are not prefixed by its name still gets the M2 guard.
     """
     if cargs is None:
         return []
-    pinned = {k for c in candidates for k, _ in c.pins if is_opt_in_pin(k)}
-    return sorted(k for k in pinned if getattr(cargs, k, None) is not None)
+    knobs = {k for c in candidates for k, _ in c.pins if is_opt_in_pin(k)}
+    for provider in {c.provider for c in candidates}:
+        knobs.update(opt_in_knobs_for(provider))
+    return sorted(k for k in knobs if getattr(cargs, k, None) is not None)
 
 
 def density_of(spec):

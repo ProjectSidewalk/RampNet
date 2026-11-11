@@ -176,8 +176,15 @@ def apply_pano_list(ids, gts, records, detect_only, detect_unjudged):
         raise SystemExit(f"--pano-list: {len(unjudged)} id(s) have no ground truth here "
                          f"(first: {unjudged[0]}); pass --detect-unjudged to run them "
                          f"unscored, or take them off the list.")
-    new_detect_only = [p for p in unjudged if p in detect_only] if detect_unjudged else []
-    return new_gts, new_detect_only
+    # An id that is in the bundle but neither scored nor in the unjudged set (a judged
+    # pano this run's ground-truth filter dropped) would otherwise vanish from the run
+    # without a word, the shrink the first check exists to refuse (#286 review).
+    neither = [p for p in unjudged if p not in detect_only]
+    if neither:
+        raise SystemExit(f"--pano-list: {len(neither)} id(s) are in this bundle but are "
+                         f"neither scored nor unjudged here (first: {neither[0]}); take "
+                         f"them off the list.")
+    return new_gts, list(unjudged)
 
 
 def load_dotenv(root):

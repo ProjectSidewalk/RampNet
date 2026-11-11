@@ -162,10 +162,10 @@ def publication_name(spec, cargs, publish_as=None):
             f"{roster.published_name(c)}: "
             + (", ".join(f"{k}={v}" for k, v in c.pins) or "(bare: every opt-in knob unset)")
             for c in candidates)
+        set_knobs = roster.set_opt_in_knobs(cargs, candidates)
         actual = ", ".join(
             f"{k}={getattr(cargs, k, None)}"
-            for k in sorted({k for c in candidates for k, _ in c.pins}))
-        set_knobs = roster.set_opt_in_knobs(cargs, candidates)
+            for k in sorted({k for c in candidates for k, _ in c.pins} | set(set_knobs)))
         why = (f"this run sets {', '.join(set_knobs)} to a value no leg registers, so "
                f"it is not the bare leg either" if set_knobs
                else "every leg of it is pinned and none matches this run")

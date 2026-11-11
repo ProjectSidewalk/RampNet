@@ -176,12 +176,21 @@ def fetch_token_series(project, days):
     3600 s alignment, both summed to the ledger's figure. ALIGN_DELTA over a 24 h period
     that straddles the metric's native day boundary over-counts, so align to it.
     """
-    end = (datetime.now(timezone.utc) + timedelta(days=1)).replace(
-        hour=0, minute=0, second=0, microsecond=0)
+    start, end = billing_window(days)
     return fetch_series(
         project, f'metric.type = "{TOKEN_METRIC}"',
-        (end - timedelta(days=days)).isoformat(), end.isoformat(), "86400s",
+        start.isoformat(), end.isoformat(), "86400s",
         ["resource.labels.model_user_id", "metric.labels.type"])
+
+
+def billing_window(days, now=None):
+    """``(start, end)`` of the fetched window: ``days`` whole UTC days ending at the
+    next UTC midnight. ``--reconcile`` filters the ledger from the same ``start``, so
+    both sides cover the same days (a ledger filtered from ``now - days`` took one
+    extra day and read "over", or hid a missing write behind it; #286 review)."""
+    end = ((now or datetime.now(timezone.utc)) + timedelta(days=1)).replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    return end - timedelta(days=days), end
 def ledger_totals_by_model(rows, since=None):
     """Per-model token totals from usage_log.jsonl rows, for reconciliation.
 
@@ -425,8 +434,7 @@ def main():
         if rows is None:
             print(f"\ncannot reconcile: no ledger at {os.path.abspath(log_path)}")
             return
-        since = (datetime.now(timezone.utc)
-                 - timedelta(days=args.days)).date().isoformat()
+        since = billing_window(args.days)[0].date().isoformat()
         print(f"(ledger: {os.path.abspath(log_path)}, rows stamped >= {since})")
         print_reconciliation(reconcile({m: dict(t) for m, t in totals.items()},
                                        ledger_totals_by_model(rows, since)))

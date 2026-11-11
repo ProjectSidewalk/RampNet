@@ -62,27 +62,27 @@ Match radius 0.022. One threshold per (model, definition), selected on sao_paulo
 | reference | flash38 | para3 | -0.015 | [-0.031, +0.000] | 0.052 | 0.052 | exploratory |
 | reference | flash38 | expert | +0.025 | [+0.009, +0.041] | 0.002 | 0.004 | exploratory |
 | reference | argon | para3 | -0.010 | [-0.022, +0.002] | 0.103 | 0.103 | exploratory |
-| reference | argon | expert | -0.036 | [-0.050, -0.022] | 0.000 | 0.000 | exploratory |
+| reference | argon | expert | -0.036 | [-0.050, -0.022] | <0.001 | <0.001 | exploratory |
 | open | flash38 | alt | +0.028 | [-0.011, +0.068] | 0.160 | 0.320 | exploratory |
 | open | flash38 | para3 | +0.011 | [-0.027, +0.048] | 0.531 | 0.531 | exploratory |
-| open | flash38 | expert | +0.068 | [+0.027, +0.106] | 0.000 | 0.000 | exploratory |
+| open | flash38 | expert | +0.068 | [+0.027, +0.106] | <0.001 | <0.001 | exploratory |
 | open | argon | para3 | +0.013 | [-0.013, +0.041] | 0.345 | 0.548 | exploratory |
 | open | argon | expert | +0.019 | [-0.017, +0.055] | 0.274 | 0.548 | exploratory |
 | us9 | flash38 | alt | -0.005 | [-0.019, +0.010] | 0.499 | 0.896 | exploratory |
 | us9 | flash38 | para3 | -0.005 | [-0.018, +0.009] | 0.448 | 0.896 | exploratory |
-| us9 | flash38 | expert | +0.034 | [+0.019, +0.048] | 0.000 | 0.000 | exploratory |
+| us9 | flash38 | expert | +0.034 | [+0.019, +0.048] | <0.001 | <0.001 | exploratory |
 | us9 | argon | para3 | -0.006 | [-0.018, +0.005] | 0.250 | 0.250 | exploratory |
-| us9 | argon | expert | -0.026 | [-0.039, -0.013] | 0.000 | 0.000 | exploratory |
+| us9 | argon | expert | -0.026 | [-0.039, -0.013] | <0.001 | <0.001 | exploratory |
 | all12 | flash38 | alt | -0.004 | [-0.018, +0.011] | 0.610 | 1.000 | exploratory |
 | all12 | flash38 | para3 | -0.002 | [-0.015, +0.011] | 0.747 | 1.000 | exploratory |
-| all12 | flash38 | expert | +0.033 | [+0.018, +0.048] | 0.000 | 0.000 | exploratory |
+| all12 | flash38 | expert | +0.033 | [+0.018, +0.048] | <0.001 | <0.001 | exploratory |
 | all12 | argon | para3 | -0.008 | [-0.019, +0.002] | 0.125 | 0.125 | exploratory |
-| all12 | argon | expert | -0.026 | [-0.039, -0.014] | 0.000 | 0.000 | exploratory |
+| all12 | argon | expert | -0.026 | [-0.039, -0.014] | <0.001 | <0.001 | exploratory |
 | all13 | flash38 | alt | -0.004 | [-0.017, +0.010] | 0.602 | 1.000 | exploratory |
 | all13 | flash38 | para3 | -0.001 | [-0.014, +0.011] | 0.804 | 1.000 | exploratory |
-| all13 | flash38 | expert | +0.033 | [+0.019, +0.047] | 0.000 | 0.000 | exploratory |
+| all13 | flash38 | expert | +0.033 | [+0.019, +0.047] | <0.001 | <0.001 | exploratory |
 | all13 | argon | para3 | -0.008 | [-0.019, +0.001] | 0.085 | 0.085 | exploratory |
-| all13 | argon | expert | -0.025 | [-0.037, -0.013] | 0.000 | 0.000 | exploratory |
+| all13 | argon | expert | -0.025 | [-0.037, -0.013] | <0.001 | <0.001 | exploratory |
 
 ## gemini-3.8-flash, per split
 

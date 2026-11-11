@@ -172,6 +172,12 @@ def paired_bootstrap(counts_a, counts_b, rng):
     return _r(point), _r(lo), _r(hi), _r(min(1.0, p))
 
 
+def fmt_p(p):
+    """A bootstrap p of exactly 0 means no draw crossed zero, and the resolution is
+    1/DRAWS, so it is reported as a bound rather than as ``0.000``."""
+    return "<%.3f" % (1.0 / DRAWS) if p == 0 else "%.3f" % p
+
+
 def holm(tests):
     """Holm step-down over a list of dicts with ``p``; adds ``p_holm`` in place."""
     order = sorted(range(len(tests)), key=lambda i: tests[i]["p"])
@@ -304,9 +310,9 @@ def render_md(res):
     L += ["", "## Arm minus zs (paired pano bootstrap of the macro ΔF1)", "",
           "| pool | model | arm | ΔF1 | 95% CI | p | Holm p | family |", "|---|---|---|---|---|---|---|---|"]
     for t in res["tests"]:
-        L.append("| %s | %s | %s | %+.3f | [%+.3f, %+.3f] | %.3f | %s | %s |" % (
+        L.append("| %s | %s | %s | %+.3f | [%+.3f, %+.3f] | %s | %s | %s |" % (
             t["pool"], t["short"], t["arm"], t["macro_delta_f1"], t["ci95"][0], t["ci95"][1],
-            t["p"], ("%.3f" % t["p_holm"]) if "p_holm" in t else "", t["family"]))
+            fmt_p(t["p"]), fmt_p(t["p_holm"]) if "p_holm" in t else "", t["family"]))
     for model_id, short in MODELS:
         L += ["", "## %s, per split" % model_id, "",
               "| arm | split | thr | P | R | F1 | AP | tp/fp/n_gt | raw F1 | distinct scores |",
@@ -361,9 +367,9 @@ def main(argv=None):
                                          else "pending " + ",".join(p["missing"])))
     for t in res["tests"]:
         if t["pool"] in ("reference", "open"):
-            print("%-10s %-8s %-7s vs zs  dF1 %+.3f [%+.3f, %+.3f] p %.3f %s" % (
+            print("%-10s %-8s %-7s vs zs  dF1 %+.3f [%+.3f, %+.3f] p %s %s" % (
                 t["pool"], t["short"], t["arm"], t["macro_delta_f1"], t["ci95"][0], t["ci95"][1],
-                t["p"], t["family"]))
+                fmt_p(t["p"]), t["family"]))
     pend = [r for r in res["legs"] if r["status"] != "scored"]
     if pend:
         print("pending: " + ", ".join("%s/%s/%s %d/%d" % (r["short"], r["arm"], r["split"],

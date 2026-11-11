@@ -2874,6 +2874,10 @@ def test_apply_pano_list_keeps_order_and_refuses_unknown_ids():
         apply_pano_list(["a", "u"], gts, records, ["u"], False)      # unjudged without the flag
     new, det = apply_pano_list(["u", "a"], gts, records, ["u"], True)
     assert list(new) == ["a"] and det == ["u"]
+    # In the bundle, unscored, and not in the unjudged set either (a judged pano the
+    # ground-truth filter dropped): refused, never silently left out (#286 review).
+    with pytest.raises(SystemExit, match="neither scored nor unjudged"):
+        apply_pano_list(["u", "a"], gts, records, [], True)
 
 
 def test_the_276_dev_split_is_committed_and_reproducible():
@@ -2984,3 +2988,23 @@ def test_every_committed_276_definition_loads_and_differs_from_the_seed():
         seen.add(text)
         det = GeminiDetector(model_id="gemini-4-argon", definition=name)
         assert det.signature()["prompt"] == detectors.detection_prompt_for(text)
+
+
+def test_the_seven_276_study_legs_signatures_match_their_published_files():
+    """Each study leg's paid cache sits under a signature that CONFIDENCE_INSTRUCTION,
+    GEMINI_SCORED_BOX_SCHEMA and the committed definition text all feed. The published
+    file records the signature as run, so rebuilding the detector from the leg's roster
+    pins and comparing pins any drift in those three without the local cache (#286
+    review: only export_model_cache --verify caught it, and that needs the cache)."""
+    from rampnet import roster
+    study = [c for c in roster.STUDY_LEGS if c.provider == "gemini"]
+    assert len(study) == 7
+    for leg in study:
+        pins = dict(leg.pins)
+        det = GeminiDetector(model_id=leg.label, confidence=pins.get("gemini_confidence"),
+                             definition=pins.get("definition"))
+        path = os.path.join(REPO_ROOT, "benchmark", "model_detections",
+                            roster.published_filename(leg, "richmond"))
+        with open(path, encoding="utf-8") as f:
+            published = json.load(f)["signature"]
+        assert det.signature() == published, leg.published_as

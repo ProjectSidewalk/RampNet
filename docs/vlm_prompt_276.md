@@ -284,12 +284,16 @@ furthest below the diagonal.
   dev_select selects no threshold at all. Its one clear gain is `laurens_mapillary` (0.765 vs
   0.693), the split where Argon's misses were. A recall clause written for a low-recall model
   is a precision tax on a high-recall one: the definition arm is model-specific.
-- *Confidence elicitation on Argon moves the operating point, not the model.* Pooled over the
-  nine scoreboard cities, zs+conf at its selected threshold scores 0.736 against Step 2's
-  0.734 without confidence (same panos, same prompt); the cut is worth +0.013 macro over the
-  raw zs+conf output (0.733 vs 0.720). Argon's scores spread over 50–60 distinct values per
-  split, so its AP (0.27 on budapest to 0.73 on richmond; 0.635 on full `manual_gold`) is a usable curve. On Flash the
-  cut is worth nothing (threshold 0.00) and zs+conf scores 0.544 pooled against Step 2's 0.527.
+- *Confidence elicitation on Argon moves the operating point, not the model.* Over the nine
+  scoreboard cities, zs+conf at its selected threshold scores 0.733 macro F1 against Step 2's
+  0.734 without confidence (same panos, same views; the prompt gains the score sentence); the
+  cut is worth +0.013 macro over the raw zs+conf output (0.733 vs 0.720). (Count-pooled over
+  the same nine cities, the micro F1 is 0.736; the scoreboard figure is the macro mean, so
+  that is not the like-for-like number.) Argon's scores spread over 50–60 distinct values per
+  split, so its AP (0.27 on budapest to 0.73 on richmond; 0.635 on full `manual_gold`) is a
+  usable curve. On Flash the cut is worth nothing (threshold 0.00), and asking for a score
+  costs it a little: zs+conf scores 0.516 macro over the nine cities against Step 2's 0.527
+  (micro 0.544).
 - *Argon on the full `manual_gold`*: 0.741 at the threshold (0.737 raw) against Step 2's
   0.740. Flash: 0.490 (0.504 in Step 2).
 

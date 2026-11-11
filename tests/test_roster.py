@@ -156,14 +156,17 @@ def test_a_run_that_sets_two_opt_in_knobs_resolves_to_the_leg_pinning_both():
     ``--definition expert`` as well it is the expert leg, although the confidence-only
     sibling's one pin also matches. The first-match rule exported the alt arm under the
     zs+conf name (refused on the signature collision); the most specific leg wins now.
-    A set opt-in knob that no sibling pins is ignored, as it always was (the M2 guard
-    is about knobs some sibling registers; see the test below)."""
+    A set opt-in knob that NO sibling pins is a leg nobody registered, so the answer
+    is ``None`` (the #286 review found a thinking-level run resolving to the
+    expert+confidence leg, whose signature it does not share); a knob of another
+    provider is not in the signature and is ignored."""
     class _Args:
         gemini_confidence = None
         definition = None
         gemini_exemplars = None
         gemini_thinking_level = None
         gemini_temperature = None
+        vistas_input_size = None
 
     a = _Args()
     a.gemini_confidence = True
@@ -171,9 +174,24 @@ def test_a_run_that_sets_two_opt_in_knobs_resolves_to_the_leg_pinning_both():
     a.definition = "expert"
     assert (roster.leg_for("gemini:gemini-4-argon", a).published_as
             == "gemini-4-argon-definition-expert-confidence-on")
-    a.gemini_thinking_level = "high"                 # set, pinned by no registered leg:
-    assert (roster.leg_for("gemini:gemini-4-argon", a).published_as   # ignored, as before
+    a.vistas_input_size = [512, 512]                 # another provider's knob: ignored
+    assert (roster.leg_for("gemini:gemini-4-argon", a).published_as
             == "gemini-4-argon-definition-expert-confidence-on")
+    a.gemini_thinking_level = "high"                 # set, pinned by no registered leg
+    assert roster.leg_for("gemini:gemini-4-argon", a) is None
+    assert roster.set_opt_in_knobs(a, roster.legs_of("gemini:gemini-4-argon")) == [
+        "definition", "gemini_confidence", "gemini_thinking_level"]
+    for knob, value in (("gemini_temperature", 1.0), ("gemini_exemplars", "ex1"),
+                        ("gemini_thinking_level", "high"), ("definition", "expert")):
+        c = _Args()
+        setattr(c, knob, value)                      # alone, on a model with no such leg
+        assert roster.leg_for("gemini:gemini-3.6-flash", c) is None, knob
+    assert roster.opt_in_knobs_for("gemini") == [
+        "definition", "gemini_confidence", "gemini_exemplars", "gemini_temperature",
+        "gemini_thinking_level"]
+    assert roster.opt_in_knobs_for("vistas") == ["vistas_input_size", "vistas_revision"]
+    assert "definition" in roster.opt_in_knobs_for("qwen")
+    assert roster.opt_in_knobs_for("yolo") == []
     b = _Args()
     assert roster.leg_for("gemini:gemini-4-argon", b).published_as is None   # the bare leg
 
