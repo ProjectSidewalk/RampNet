@@ -317,6 +317,10 @@ shown because omitting them would be worse, not because they belong in the headl
 
 ![F1 by model and split](figures/scoreboard_by_split.png)
 
+[`scoreboard_by_split_full.png`](figures/scoreboard_by_split_full.png) is the same figure
+without the partial-coverage group: a full matrix over the pooled cities, the version to
+paste into a slide or a message. The rows it keeps are the same rows in the same order.
+
 The figure orders its rows differently from the table above, which groups by model class.
 Its **Pooled mean** column, framed and set right of the pooled cities, is the same pooled
 F1 the headline quotes (read from the board, and checked against the mean of the cells
@@ -714,4 +718,4 @@ anything this page does not tabulate.
 Files: [`scripts/analysis/scoreboard.py`](../scripts/analysis/scoreboard.py) (scoring),
 [`scripts/analysis/scoreboard_render.py`](../scripts/analysis/scoreboard_render.py) (tables
 and the splice), [`scripts/analysis/scoreboard_figures.py`](../scripts/analysis/scoreboard_figures.py)
-(the five figures).
+(the figures).
