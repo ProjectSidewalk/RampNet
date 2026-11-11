@@ -662,3 +662,11 @@ analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.*
 !analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.jsonl
 !analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.txt
 !analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.sha256
+# #285 follow-ups (car-top rule, recall page, OSM placer checks): CSV/JSON/MD outputs at any depth (no imagery)
+!analysis_out/crosswalk_followups_285/
+analysis_out/crosswalk_followups_285/**/*.*
+!analysis_out/crosswalk_followups_285/**/
+!analysis_out/crosswalk_followups_285/**/*.csv
+!analysis_out/crosswalk_followups_285/**/*.json
+!analysis_out/crosswalk_followups_285/**/*.md
+!analysis_out/crosswalk_followups_285/**/*.txt

@@ -1,0 +1,216 @@
+{
+ "nadir_mask_y": 0.7722,
+ "seed": 285,
+ "boot_n": 2000,
+ "density_k": 2.0,
+ "boxes": {
+  "gopro max|juneau-ak": {
+   "x_centre": 0.825,
+   "x_half_width": 0.03,
+   "y_min": 0.64
+  },
+  "gopro max|laurens-ia": {
+   "x_centre": 0.5,
+   "x_half_width": 0.03,
+   "y_min": 0.56
+  },
+  "trimble mx7|juneau-ak": {
+   "x_centre": 0.0,
+   "x_half_width": 0.03,
+   "y_min": 0.61
+  }
+ },
+ "fit_cards": 402,
+ "test_cards": 440,
+ "labels": 119,
+ "fit_by_mount": {
+  "gopro max|laurens-ia": 124,
+  "trimble mx7|juneau-ak": 249,
+  "gopro max|juneau-ak": 29
+ },
+ "test_by_mount": {
+  "gsv|seattle-wa": 245,
+  "trimble mx7|juneau-ak": 161,
+  "gopro max|juneau-ak": 13,
+  "gopro max|laurens-ia": 10,
+  "gsv|laurens-ia": 11
+ },
+ "test_vehicle_note_by_mount": {
+  "trimble mx7|juneau-ak": 8,
+  "gopro max|juneau-ak": 4,
+  "gopro max|laurens-ia": 7
+ },
+ "test_vehicle_note_cards": [
+  {
+   "draw": "juneau_confirm",
+   "pano_id": "1021945196130654",
+   "x": 0.0,
+   "y": 0.617188,
+   "mount": "trimble mx7|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "juneau_confirm",
+   "pano_id": "1095037398234330",
+   "x": 0.996094,
+   "y": 0.708984,
+   "mount": "trimble mx7|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "juneau_confirm",
+   "pano_id": "1095037398234330",
+   "x": 0.456055,
+   "y": 0.755859,
+   "mount": "trimble mx7|juneau-ak",
+   "verdict": "unsure",
+   "note": "This is both the top of the capture car and a crosswalk by it, I think?"
+  },
+  {
+   "draw": "juneau_confirm",
+   "pano_id": "1127626118514446",
+   "x": 0.972656,
+   "y": 0.742188,
+   "mount": "trimble mx7|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "juneau_confirm",
+   "pano_id": "1127626118514446",
+   "x": 0.987305,
+   "y": 0.740234,
+   "mount": "trimble mx7|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "juneau_confirm",
+   "pano_id": "391769483185586",
+   "x": 0.956055,
+   "y": 0.757812,
+   "mount": "trimble mx7|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "juneau_confirm",
+   "pano_id": "761172279990675",
+   "x": 0.010742,
+   "y": 0.539062,
+   "mount": "gopro max|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "juneau_confirm",
+   "pano_id": "964133465207570",
+   "x": 0.550781,
+   "y": 0.757812,
+   "mount": "trimble mx7|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "laurens_mly_confirm",
+   "pano_id": "1368903798268610",
+   "x": 0.644531,
+   "y": 0.851562,
+   "mount": "gopro max|laurens-ia",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "laurens_mly_confirm",
+   "pano_id": "1548748269637648",
+   "x": 0.0,
+   "y": 0.882812,
+   "mount": "gopro max|laurens-ia",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "laurens_mly_confirm",
+   "pano_id": "712628838068605",
+   "x": 0.636719,
+   "y": 0.851562,
+   "mount": "gopro max|laurens-ia",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "laurens_mly_confirm",
+   "pano_id": "740136985012870",
+   "x": 0.582031,
+   "y": 0.898438,
+   "mount": "gopro max|laurens-ia",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "laurens_mly_confirm",
+   "pano_id": "745517931916661",
+   "x": 0.550781,
+   "y": 0.896484,
+   "mount": "gopro max|laurens-ia",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "laurens_mly_confirm",
+   "pano_id": "745517931916661",
+   "x": 0.652344,
+   "y": 0.849609,
+   "mount": "gopro max|laurens-ia",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "laurens_mly_confirm",
+   "pano_id": "858081853743118",
+   "x": 0.65918,
+   "y": 0.867188,
+   "mount": "gopro max|laurens-ia",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "juneau_eval",
+   "pano_id": "2026234161116062",
+   "x": 0.550781,
+   "y": 0.583984,
+   "mount": "gopro max|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of a capture car"
+  },
+  {
+   "draw": "juneau_eval",
+   "pano_id": "450468617932216",
+   "x": 0.987305,
+   "y": 0.742188,
+   "mount": "trimble mx7|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "Top of the capture car"
+  },
+  {
+   "draw": "juneau_eval",
+   "pano_id": "661626023662993",
+   "x": 0.581055,
+   "y": 0.617188,
+   "mount": "gopro max|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "This is the top of the capture car"
+  },
+  {
+   "draw": "juneau_eval",
+   "pano_id": "661626023662993",
+   "x": 0.566406,
+   "y": 0.617188,
+   "mount": "gopro max|juneau-ak",
+   "verdict": "not_crosswalk",
+   "note": "Top of the capture car"
+  }
+ ]
+}
