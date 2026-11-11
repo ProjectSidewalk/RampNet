@@ -256,6 +256,15 @@ raw unthresholded number):
 | open | +0.028 [−0.011, +0.068] p .16 | +0.011 [−0.027, +0.048] p .53 | **+0.068 [+0.027, +0.106] p < .001** | +0.013 [−0.013, +0.041] p .35 | +0.019 [−0.017, +0.055] p .27 |
 | all 12 | −0.004 [−0.018, +0.011] p .61 | −0.002 [−0.015, +0.011] p .75 | **+0.033 [+0.018, +0.048] p < .001** | −0.008 [−0.019, +0.002] p .13 | **−0.026 [−0.039, −0.014] p < .001** |
 
+![Held-out gain of each arm over zero-shot, per pool](figures/prompt_276/arm_vs_zs.png)
+
+The same rows as a picture (Holm-corrected p on the markers). The second figure is the
+selection story: each arm's dev_select gain, the number the gate and the "best of K" pick
+saw, against what it became on the reference pool. The one arm that passed the gate sits
+furthest below the diagonal.
+
+![dev_select gain vs held-out gain, per arm](figures/prompt_276/dev_to_heldout.png)
+
 **What held and what did not.**
 
 - *Exemplar-derived rewriting (Step 4) is a null on held-out data for both models*: Argon's
@@ -341,6 +350,7 @@ the recovered row is counted). Argon list price doubles on 2026-12-01; the credi
 | every dev-split P/R/F1, tp/fp/n_gt, distinct-score counts | `analysis_out/prompt_opt_276/step3_results.{json,md}` | `prompt_276_results.py` (`--check`) |
 | Step 5: selected thresholds and sweeps, every held-out split at them, pool macro/pooled F1, paired-bootstrap Δ rows | `analysis_out/prompt_opt_276/step5_results.{json,md}` | `prompt_276_heldout.py` (`--check`) |
 | the Step 5 detections themselves (88 files) | `benchmark/model_detections/*-confidence-on__*.json` | `export_model_cache.py --verify` with the leg's flags |
+| the two figures | `docs/figures/prompt_276/{arm_vs_zs,dev_to_heldout}.png` | `prompt_276_figures.py`, from `step5_results.json` alone |
 | the manual_gold 250-pano subset | `benchmark/prompt_opt_276/manual_gold_250.json` | `prompt_opt_276_splits.py --check` |
 | Step 2 pooled / per-split rows, scoreboard effects | `analysis_out/scoreboard.json`, `docs/model_scoreboard.md` | `scoreboard.py --check` |
 | Laurens paired Argon row | `analysis_out/laurens_paired_151.{json,md}` | `laurens_paired_151.py` |
@@ -355,5 +365,7 @@ The published Step 2 detections re-score from `benchmark/model_detections/` on a
 (`scoreboard.py --check`). The dev-split legs live in the local `.model_cache` and
 `.model_cache_rep1` until the PR exports them; the Step 5 held-out legs are published;
 `check_all.py --only prompt_276_results,prompt_276_heldout --allow local-cache` verifies both
-committed tables against those caches. Re-running any paid leg needs
-Vertex access to `rampnet`; the Qwen legs need klone's `gpu-l40s` and the pinned env.
+committed tables against those caches. The two figures regenerate from the committed
+`step5_results.json` with `python scripts/analysis/prompt_276_figures.py` (no cache needed).
+Re-running any paid leg needs Vertex access to `rampnet`; the Qwen legs need klone's
+`gpu-l40s` and the pinned env.
