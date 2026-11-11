@@ -208,6 +208,55 @@ Scores: `analysis_out/crosswalk_followups_285/recall/score/crosswalk_s4/{marks.c
 height-band table and the empty-pano counts were computed from `marks.csv`, the ratings and the s4
 predictions with ad hoc code; they are not yet a `recall_check.py` command.
 
+### Region matching (exploratory, added 2026-11-11 after the radius results were seen)
+
+Jon's observations after rating: about a fifth of the crosswalks reach the pano seam, perhaps 10 to 15%
+are partly hidden by the capture vehicle (mostly the nearest ones), and a long thin crosswalk is hard to
+reduce to one click. The marks agree on the seam (22 of the 110 Juneau marks are within 0.10 of it) and
+s4 does not miss those more often (14 of 22 found against 49 of 88 elsewhere). Occlusion was not tagged
+on the page, so it cannot be measured.
+
+The one-click problem can be tested without new rating. `recall_region.py` gives each mark a *region*:
+the Vistas crosswalk component nearest the click (within 0.05, the placer's own snap rule), after a
+15 px closing that joins zebra stripes, in a 90 degree view centred on the click. A mark is found if a
+detection is on the region or within 0.022 of it; a mark with no region keeps the 0.05 radius rule.
+Matching stays one-to-one.
+
+| Juneau marks within 25 m | Marks | Radius 0.05 | Region rule | Recall, region rule (95% interval) |
+|---|---|---|---|---|
+| All | 110 | 63 | 66 | 0.60 (0.49 to 0.71) |
+| 10 to 25 m | 36 | 26 | 26 | 0.72 |
+| 6 to 10 m | 45 | 27 | 27 | 0.60 |
+| Nearer than 6 m | 29 | 10 | 13 | 0.45 |
+| Segmenter sees a region at the click | 89 | 56 | 59 | 0.66 |
+| Segmenter sees no region | 21 | 7 | 7 (radius rule) | 0.33 |
+
+- **The click is a small part of the gap.** Region matching adds 5 marks and drops 2 that only the
+  radius found; counting a mark found under either rule gives 68 of 110 (0.62). The misses are mostly
+  real.
+- **It matters only for the nearest crosswalks** (10 to 13 of 29); the two farther bands do not change.
+  The regions are wide (median 0.14 of the pano width, 69% wider than 0.10), so the unchanged far bands
+  are not for lack of room.
+- **s4 misses what the segmenter misses.** Where the segmenter sees no crosswalk at Jon's click, s4
+  finds 7 of 21; where it does, 59 of 89. In Laurens the segmenter sees a region at 2 of the 11 marks,
+  and s4 finds 1 of 11. s4's positives were placed by this segmenter, so this is consistent with the
+  detector inheriting its label source's blind spots. It is an association on 110 marks, not a test.
+- Limits: the region is confined to a 90 degree view, so a crosswalk wider than that, or one split by
+  the seam or the vehicle, is still several regions; the closing size and the 0.022 tolerance were
+  chosen once and not tuned.
+
+```bash
+python scripts/analysis/stage1_crosswalk_sdot_274/recall_region.py pairs --verdicts <ratings>.json \
+    --preds analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4/{laurens-ia,juneau-ak}.jsonl \
+    --cities laurens-ia juneau-ak --native "laurens-ia=<keep>/recall285/laurens-ia_native" \
+    "juneau-ak=<keep>/recall285/juneau-ak_native" --label crosswalk_s4 --threshold 0.23   # RTX 3070, 2 min
+python scripts/analysis/stage1_crosswalk_sdot_274/recall_region.py score --label crosswalk_s4
+```
+
+Numbers: `analysis_out/crosswalk_followups_285/recall/score/crosswalk_s4/{region_pairs.csv,
+region_marks.csv,region_recall.json}`. The seam counts and the either-rule count are ad hoc reads of
+`marks.csv` and `region_marks.csv`.
+
 **Earlier, smaller reading (already in the s4 results):** on the 13 panos with live PS labels, s4 finds
 3 of 16 in Laurens and 5 of 5 in Juneau.
 
