@@ -241,6 +241,13 @@ list price doubles on 2026-12-01; the credit expires 2026-12-07.
   ledger therefore has **no row for the 992 killed calls (≈ $23)**; the relaunch's row records
   `panos_called: 8`. `vertex_usage.py --reconcile` will show the gap, and the cost table counts it
   from the billed side.
+- **Isolated pano failures, `WinError 10038` (6 of 97 Step 5 legs).** One pano per affected leg
+  failed every retry with `ReadError: [WinError 10038] An operation was attempted on something
+  that is not a socket` (Flash alt on annapolis, gainesville, laurens_gsv; Flash expert on
+  annapolis; Flash para3 on dev_select; Argon expert on manual_gold-250). `compare.py` isolates
+  such a pano, scores the leg without it and leaves it uncached, so the regenerator reported
+  those legs pending. Each leg was re-run, which calls only the missing pano; the re-run's
+  ledger row records `panos_called: 1`.
 - **Qwen is deterministic** under its greedy decode: the seed repeat reproduced every box, so
   a fresh cache dir measures no floor for it. The Gemini floors came from the same procedure.
 
