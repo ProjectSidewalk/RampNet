@@ -27,7 +27,8 @@ This round asks three questions, in the order prompt-engineering practice sugges
 3. **Does an exemplar-driven rewrite of the class definition beat that null?** DetPO-style:
    the model's own worst false positive and worst miss on `dev_train`, each confirmed by a
    human, drive a rewrite; selection on `dev_select`; a frozen held-out run only if the
-   dev_select gate passes. (Steps 4–5, *pending*.)
+   dev_select gate passes. (Steps 4–5, done; the gate passed on Flash only, and the held-out
+   result is null.)
 
 The literature behind the design: naive visual few-shot often hurts chat VLMs, while rewriting
 the class description from the worst FP and FN helps a little and reliably (DetPO, 2026);
