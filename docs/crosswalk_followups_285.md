@@ -7,8 +7,8 @@ is the detector of record throughout. Plan approved by Jon on 2026-11-10 after a
 | Part | Question | Status |
 |---|---|---|
 | B | Does a rule on image position remove capture-vehicle false alarms without losing crosswalks? | done, below (exploratory) |
-| C | What share of visible marked crosswalks does s4 miss in Juneau and Laurens? | TODO: page not built |
-| A | Can OSM marked crossings plus the Vistas snap label many cities (#285)? | TODO: city count and placer checks |
+| C | What share of visible marked crosswalks does s4 miss in Juneau and Laurens? | sample drawn, blind page built, awaiting ratings |
+| A | Can OSM marked crossings plus the Vistas snap label many cities (#285)? | first city count and two placer checks done; pilot not started |
 
 ## B. A position rule for capture-vehicle false alarms (exploratory, 2026-11-10)
 
@@ -128,13 +128,187 @@ python scripts/analysis/stage1_crosswalk_sdot_274/cartop_mask.py score
 python scripts/analysis/stage1_crosswalk_sdot_274/cartop_mask.py figures
 ```
 
-## C. Missed-crosswalk check, Juneau and Laurens
+## C. Missed-crosswalk check, Juneau and Laurens (page built 2026-11-10, awaiting Jon's marks)
 
-TODO. Design is in the approved plan: one pano per OSM road-graph intersection (all 99 in Laurens, 80
-in Juneau), a blind marking page with no detections drawn, one-to-one matching at radius 0.05, marks
-within 25 m as the primary population. A 10-pano timing pilot comes first.
+**Question, per view.** Of the marked crosswalks a person can see in a pano within 25 m, what share does
+s4 at 0.23 detect? This is not per-crosswalk recall across views, and it does not cover mid-block
+crossings or parking lots.
 
-## A. OSM marked crossings as a label source (#285)
+**Sample, fixed before any page was built** (`recall_check.py draw`, seed 285):
 
-TODO. First city count and the two placer checks (non-GSV geometry against known clicks; Vistas
-component-exists by crossing style on brick and faded crosswalks).
+| | Laurens (Mapillary) | Juneau main area (Mapillary) |
+|---|---|---|
+| Intersections in the OSM road graph (3 or more segments, nodes within 20 m merged) | 101 | 152 |
+| With a usable pano within 15 m | 95 | 134 |
+| No pano within 15 m | 6 | 17 |
+| Every pano within 15 m is in an earlier draw | 0 | 1 |
+| Drawn | **95** (all) | **80** (all 11 GoPro Max, 69 of the Trimble MX7) |
+| Drawn pano is not the nearest one (the nearest was in an earlier draw) | 12 | 12 |
+| Sequences | 18 | 28 |
+
+- Intersections come from the labeler's cached street query, never from OSM crossing tags.
+- Excluded by draw membership, not by whether a model fired: the confirmation draws
+  (`confirm_s3/cities_draw.txt`), the Laurens and Juneau mining draws, the Juneau s5 evaluation draw, and
+  the 13 panos that carry live PS Crosswalk labels.
+- 59 of the 80 Juneau panos are within 30 m of an s5 mining pano. That does not matter for s4, which
+  never trained on Juneau. They are flagged, and any s5 number is read on the other 21 only.
+- Pixels: fetched from Mapillary through the labeler (`export_benchmark.py --out`), 175 of 175 verified.
+
+**Page.** `recall_check.py page` builds a bundle with every detection stripped and runs `gt_gallery.py`
+over it, then swaps the gallery's curb-ramp wording for crosswalk wording and replaces its instructions.
+The reviewer clicks the centre of each marked crosswalk (brick and paver count) or confirms none. The
+page is local HTML outside the repo: `D:/Git/sal-scratch-keep/recall285/page/index.html`. Checked so
+far: 175 entries, none with a detection crop, and the page's JavaScript parses. It has not been opened
+in a browser by the author.
+
+**Scoring, fixed before rating** (`recall_check.py score`): one-to-one matching of marks to detections
+at or above 0.23, radius 0.05 (0.03 and 0.08 as sensitivity); primary population is marks at
+y ≥ 0.532 (25 m from a 2.5 m camera); marks beyond it and unsure marks are reported separately; recall
+per city and per camera with a pano bootstrap. s4's predictions on the 175 panos are already in
+`analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4/` (local RTX 3070, checkpoint sha256
+`ebad379b5f7c…`). No pass bar: this is a measurement.
+
+**Earlier, smaller reading (already in the s4 results):** on the 13 panos with live PS labels, s4 finds
+3 of 16 in Laurens and 5 of 5 in Juneau.
+
+```bash
+python scripts/analysis/stage1_crosswalk_sdot_274/recall_check.py draw --city laurens-ia \
+    --streets <labeler>/runs/laurens/osm_streets.json --records <labeler>/runs/laurens/results.raw.jsonl \
+    --exclude <hardneg>/confirm_s3/cities_draw.txt <hardneg>/s4_inputs/stepA/laurens_mine_draw.txt \
+              <hardneg>/confirm_s3/ps_labels/panos.txt --take all
+python scripts/analysis/stage1_crosswalk_sdot_274/recall_check.py draw --city juneau-ak \
+    --streets <sal-juneau>/runs/juneau/osm_streets.json --records <sal-juneau>/runs/juneau/results.jsonl \
+    --exclude <hardneg>/confirm_s3/cities_draw.txt <hardneg>/s5_inputs/juneau_mine_draw.txt \
+              <hardneg>/s5_inputs/juneau_eval_draw.txt <hardneg>/confirm_s3/ps_labels/panos.txt \
+    --flag <hardneg>/s5_inputs/juneau_near_mine_30m.csv --take 80 --all-of "GoPro Max"
+python scripts/analysis/stage1_crosswalk_sdot_274/recall_check.py page --draw \
+    "laurens-ia=<keep>/recall285/laurens-ia_draw_records.jsonl::<keep>/recall285/laurens-ia_native" \
+    "juneau-ak=<keep>/recall285/juneau-ak_draw_records.jsonl::<keep>/recall285/juneau-ak_native" \
+    --bundle <keep>/recall285/recall285 --out <keep>/recall285/page
+python scripts/analysis/stage1_crosswalk_sdot_274/recall_check.py score --verdicts <export>.json \
+    --preds analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4/{laurens-ia,juneau-ak}.jsonl \
+    --cities laurens-ia juneau-ak --label crosswalk_s4 --threshold 0.23
+```
+
+Numbers: `analysis_out/crosswalk_followups_285/recall/<city>/{intersections.csv,draw.txt,draw_meta.json}`.
+
+## A. OSM marked crossings as a label source (#285): first local checks (2026-11-10)
+
+The #285 placer is B2 from the Seattle pilot: project an OSM crossing into a pano (B1), then snap it to
+the nearest Vistas crosswalk component within 0.05 of the pano width. No component means an ignore
+region. Three things were checked locally before any city is fetched.
+
+### A0. Which cities have both fresh open imagery and tagged crossings
+
+Street-walk coverage is from the streetscape tracker (`streetwalks.json.gz`, generated 2026-11-10; 360°
+coverage by street length and median age of covered streets). OSM counts are one Overpass `out count`
+query per city by boundary name on 2026-11-10; the tag columns overlap.
+
+| City | Mapillary 360 | GSV | Crossing nodes | `crossing=marked/zebra` | `crossing:markings` set, not `no` | `crossing=unmarked` |
+|---|---|---|---|---|---|---|
+| Sacramento CA | 87.2%, 1.0 y (3,872 km) | 96.1%, 1.6 y | 11,013 | 1,111 | 3,195 | 1,948 |
+| Coral Gables FL | 97.0%, 11.7 y | 98.4%, 2.2 y | 3,227 | 18 | 2,050 | 296 |
+| Kaysville UT | 85.0%, 1.1 y (Panoramax 57.7%) | 93.1%, 3.9 y | 1,346 | 62 | 97 | 1,089 |
+| Los Altos CA | 86.7%, 1.4 y | 95.1%, 3.5 y | 960 | 34 | 216 | 440 |
+| Miami Gardens FL | 91.8%, 11.6 y | 95.3%, 1.0 y | 935 | 14 | 451 | 87 |
+| Juneau AK (held out) | 84.2%, 2.4 y | none | 562 | 99 | 254 | 163 |
+| Hamtramck MI | 99.5%, 4.6 y | none | 117 | 18 | 10 | 26 |
+| Westport WA | 96.1%, 6.1 y | 91.3%, 2.4 y | 44 | 0 | 33 | 5 |
+| Laurens IA (held out) | 91.6%, 1.0 y | none | 12 | 0 | 1 | 3 |
+| Seattle WA (reference) | 35.0%, 3.5 y | 98.5%, 1.1 y | 46,328 | 3,630 | 8,563 | 26,443 |
+
+- The marking information is in `crossing:markings` more than in `crossing=marked`, so the positive
+  set has to read both (as `pilot.osm_marked_nodes` does).
+- **Sacramento is the one fresh Mapillary city with thousands of tagged crossings.** The Florida cities'
+  Mapillary imagery is 11 years old. Hamtramck, Westport and Laurens are too small to matter.
+- Not counted yet: Foothill Farms and Orangevale (census-designated places that did not resolve by
+  name), and the other large fresh Mapillary cities the tracker lists (Fresno 77.9%, 1.5 y; Honolulu
+  69.7%, 1.0 y; Bogotá 64.6%, 0.8 y; Brussels 85.2%, 2.9 y). Lyon and Bayonne matched two boundaries
+  each and overcount, so they are left out of the table. The next count runs on run or tracker polygons.
+- A count ranks cities; it does not qualify one. Phase 0 found that 36% of crowd labels that sit on an
+  OSM node sit on an untagged or unmarked one.
+
+### A2 check 2. Does Vistas see brick and faded crosswalks? Mostly yes
+
+`osm_arm.py style-check` runs the same snap at human-confirmed crosswalk clicks, where the answer should
+be "paint here". A style Vistas cannot see can never become an OSM + Vistas positive.
+
+| Label set | Imagery | Style (PS tags) | Labels | Click exactly on a component | Component within 0.05 (B2 would place) |
+|---|---|---|---|---|---|
+| Columbia SC, Jon-confirmed | GSV | brick or paver | 210 | 0.56 | **0.81** [0.76, 0.86] |
+| Richmond, Jon-confirmed | Mapillary | untagged or other | 49 | 0.94 | 1.00 [0.93, 1.00] |
+| Richmond, Jon-confirmed | Mapillary | paint fading | 31 | 0.87 | 0.97 [0.84, 0.99] |
+| Richmond, Jon-confirmed | Mapillary | brick or paver | 9 | 0.67 | 0.78 [0.45, 0.94] |
+| Bayonne, live PS labels | Panoramax | tags not pulled | 9 | 1.00 | 1.00 [0.70, 1.00] |
+| Juneau, live PS labels | Mapillary | tags not pulled | 5 | 1.00 | 1.00 [0.57, 1.00] |
+| Laurens, live PS labels | Mapillary | tags not pulled | 16 | 0.31 | **0.44** [0.23, 0.67] |
+
+Brackets are Wilson 95% intervals. For reference, crowd clicks in Seattle were on a component in about
+0.73 of cases.
+
+- Brick is not a blind spot: Vistas gives a component at about four in five brick crossings. Faded
+  paint is fine in Richmond.
+- Laurens is the exception (7 of 16): brick pavers and two faded lines on concrete, seen from a GoPro
+  roof mount. That is the same city where the detector's recall is lowest, so OSM + Vistas would not
+  have supplied those positives either. Small-town, low-contrast crossings stay a gap for this route.
+
+### A2 check 1. Projection and snap on Mapillary and Panoramax panos
+
+**Short answer:** the bearing is loose, the snap is needed, and this check cannot say whether the snap
+picks the right crosswalk.
+
+`osm_arm.py geometry-check` projects every OSM crossing node within 25 m of a labelled pano (camera
+height 2.6 m, the stored position and compass heading), snaps it, and compares with the human clicks.
+Only panos with a labeler record could be used (Richmond 17 of 49 label panos). The rows below are nodes
+whose projected point is within 0.10 of a click, taken to be that click's crossing.
+
+| City | Imagery | Clicks | Clicks with an OSM node projected within 0.10 | Nodes on a clicked crossing | B1 within 0.022 of the click | Component found | B2 within 0.022 / 0.05 of the click | Median B1 → click | Median B2 → click |
+|---|---|---|---|---|---|---|---|---|---|
+| Richmond | Mapillary | 32 | 29 (0.91) | 52 | 4 (0.08) | 48 (0.92) | 16 / 24 of 48 | 0.062 | 0.050 |
+| Bayonne | Panoramax | 8 | 7 | 7 | 2 | 7 | 5 / 5 of 7 | 0.034 | 0.013 |
+| Laurens | Mapillary | 16 | 10 | 12 | 4 | 6 | 3 / 4 of 6 | 0.043 | 0.042 |
+
+(Juneau's 5 labels have no cached OSM pull and were not scored.)
+
+- **B1 alone is worse than on Seattle GSV.** In Richmond the projected point is within the matcher
+  radius of the click for 8% of nodes, and the median miss is 0.062 of the pano width (about 22° of
+  bearing). Stored Mapillary positions and headings are looser than GSV's.
+- **A component is nearly always there in Richmond and Bayonne** (92% and 7 of 7), as in Seattle (0.83).
+- **Whether B2 lands on the right crosswalk is not settled by this check.** Only half of Richmond's snaps
+  end within 0.05 of a click. Clicks are not exhaustive, so some of those snaps are on a real crosswalk
+  nobody clicked, and some are on the neighbouring crosswalk because B1 started 20° off. Telling these
+  apart needs eyes: that is the per-city precision page (step A3 of the plan), and this result is the
+  reason it cannot be skipped for open imagery.
+- Samples are small (17, 5 and 10 panos). Richmond's other 32 label panos need a metadata fetch first.
+
+### What this means for the #285 plan
+
+1. The route is viable for style coverage: Vistas sees brick and faded crosswalks in most places.
+2. On open imagery the projection is loose enough that the snap may pick a neighbour. Before any
+   training, each city needs the rated precision sample; a tighter snap radius or a heading correction
+   per sequence are the things to try if a city fails it.
+3. Auto-labelled panos train only inside discs around their positives, so this route adds crosswalk
+   styles and cities (recall). It cannot reduce look-alikes by itself.
+4. Sacramento is the natural first open-imagery pilot.
+
+### Where each number lives, and replication
+
+| Number | File (under `analysis_out/crosswalk_followups_285/osm_arm/`) |
+|---|---|
+| Style check, per label | `style_check_labels.csv` |
+| Style check, per set and style | `style_check_summary.csv` |
+| Geometry check, per projected node and per click | `geometry_nodes.csv`, `geometry_clicks.csv` |
+| Geometry check, per city | `geometry_summary.json` |
+
+```bash
+# GPU (RTX 3070, Vistas fp16): about 2.5 minutes and 1 minute
+python scripts/analysis/stage1_crosswalk_sdot_274/osm_arm.py style-check --keep <keep>
+python scripts/analysis/stage1_crosswalk_sdot_274/osm_arm.py geometry-check --keep <keep> \
+    --census <phase0 census>/out --records <labeler>/runs/richmond/results.jsonl \
+    <labeler>/runs/bayonne/results.jsonl <keep>/crosswalk274-confirm/ps_label_panos_records.jsonl
+```
+
+`<keep>` is the local scratch root with the 4096-px pano dirs (`s4-stepA/prep_4096`,
+`crosswalk274-confirm/ps_label_4096`, `s4-bayonne/prep_4096`), which are archived on the lab share with
+the #274 study. The tracker table was read from the public `streetwalks.json.gz`; the OSM counts are
+not yet scripted in the repo.

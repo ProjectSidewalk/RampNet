@@ -1,0 +1,293 @@
+{
+ "camera_height_m": 2.6,
+ "node_range_m": 25.0,
+ "same_crossing_r": 0.1,
+ "panos_with_record_and_image": {
+  "richmond-va": "17 of 49",
+  "juneau-ak": "3 of 3",
+  "laurens-ia": "10 of 10",
+  "bayonne-fr": "5 of 6"
+ },
+ "cities": {
+  "bayonne-fr": {
+   "clicks": 8,
+   "clicks_with_an_osm_node_b1_within_0.10": {
+    "k": 7,
+    "n": 8,
+    "share": 0.875,
+    "ci95": [
+     0.529,
+     0.978
+    ]
+   },
+   "clicks_with_a_b2_within_0.05": {
+    "k": 5,
+    "n": 8,
+    "share": 0.625,
+    "ci95": [
+     0.306,
+     0.863
+    ]
+   },
+   "clicks_with_a_b2_within_0.022": {
+    "k": 5,
+    "n": 8,
+    "share": 0.625,
+    "ci95": [
+     0.306,
+     0.863
+    ]
+   },
+   "nodes_projected": 13,
+   "nodes_on_a_clicked_crossing": 7,
+   "of_those_b1_within_0.022_of_click": {
+    "k": 2,
+    "n": 7,
+    "share": 0.286,
+    "ci95": [
+     0.082,
+     0.641
+    ]
+   },
+   "of_those_component_found": {
+    "k": 7,
+    "n": 7,
+    "share": 1.0,
+    "ci95": [
+     0.646,
+     1.0
+    ]
+   },
+   "of_snapped_b2_within_0.022_of_click": {
+    "k": 5,
+    "n": 7,
+    "share": 0.714,
+    "ci95": [
+     0.359,
+     0.918
+    ]
+   },
+   "of_snapped_b2_within_0.05_of_click": {
+    "k": 5,
+    "n": 7,
+    "share": 0.714,
+    "ci95": [
+     0.359,
+     0.918
+    ]
+   },
+   "median_b1_to_click": 0.034,
+   "median_b2_to_click": 0.0127
+  },
+  "juneau-ak": {
+   "clicks": 5,
+   "clicks_with_an_osm_node_b1_within_0.10": {
+    "k": 0,
+    "n": 5,
+    "share": 0.0,
+    "ci95": [
+     -0.0,
+     0.434
+    ]
+   },
+   "clicks_with_a_b2_within_0.05": {
+    "k": 0,
+    "n": 5,
+    "share": 0.0,
+    "ci95": [
+     -0.0,
+     0.434
+    ]
+   },
+   "clicks_with_a_b2_within_0.022": {
+    "k": 0,
+    "n": 5,
+    "share": 0.0,
+    "ci95": [
+     -0.0,
+     0.434
+    ]
+   },
+   "nodes_projected": 0,
+   "nodes_on_a_clicked_crossing": 0,
+   "of_those_b1_within_0.022_of_click": {
+    "k": 0,
+    "n": 0,
+    "share": "",
+    "ci95": [
+     "",
+     ""
+    ]
+   },
+   "of_those_component_found": {
+    "k": 0,
+    "n": 0,
+    "share": "",
+    "ci95": [
+     "",
+     ""
+    ]
+   },
+   "of_snapped_b2_within_0.022_of_click": {
+    "k": 0,
+    "n": 0,
+    "share": "",
+    "ci95": [
+     "",
+     ""
+    ]
+   },
+   "of_snapped_b2_within_0.05_of_click": {
+    "k": 0,
+    "n": 0,
+    "share": "",
+    "ci95": [
+     "",
+     ""
+    ]
+   },
+   "median_b1_to_click": "",
+   "median_b2_to_click": ""
+  },
+  "laurens-ia": {
+   "clicks": 16,
+   "clicks_with_an_osm_node_b1_within_0.10": {
+    "k": 10,
+    "n": 16,
+    "share": 0.625,
+    "ci95": [
+     0.386,
+     0.815
+    ]
+   },
+   "clicks_with_a_b2_within_0.05": {
+    "k": 3,
+    "n": 16,
+    "share": 0.188,
+    "ci95": [
+     0.066,
+     0.43
+    ]
+   },
+   "clicks_with_a_b2_within_0.022": {
+    "k": 3,
+    "n": 16,
+    "share": 0.188,
+    "ci95": [
+     0.066,
+     0.43
+    ]
+   },
+   "nodes_projected": 22,
+   "nodes_on_a_clicked_crossing": 12,
+   "of_those_b1_within_0.022_of_click": {
+    "k": 4,
+    "n": 12,
+    "share": 0.333,
+    "ci95": [
+     0.138,
+     0.609
+    ]
+   },
+   "of_those_component_found": {
+    "k": 6,
+    "n": 12,
+    "share": 0.5,
+    "ci95": [
+     0.254,
+     0.746
+    ]
+   },
+   "of_snapped_b2_within_0.022_of_click": {
+    "k": 3,
+    "n": 6,
+    "share": 0.5,
+    "ci95": [
+     0.188,
+     0.812
+    ]
+   },
+   "of_snapped_b2_within_0.05_of_click": {
+    "k": 4,
+    "n": 6,
+    "share": 0.667,
+    "ci95": [
+     0.3,
+     0.903
+    ]
+   },
+   "median_b1_to_click": 0.0429,
+   "median_b2_to_click": 0.0418
+  },
+  "richmond-va": {
+   "clicks": 32,
+   "clicks_with_an_osm_node_b1_within_0.10": {
+    "k": 29,
+    "n": 32,
+    "share": 0.906,
+    "ci95": [
+     0.758,
+     0.968
+    ]
+   },
+   "clicks_with_a_b2_within_0.05": {
+    "k": 21,
+    "n": 32,
+    "share": 0.656,
+    "ci95": [
+     0.483,
+     0.796
+    ]
+   },
+   "clicks_with_a_b2_within_0.022": {
+    "k": 11,
+    "n": 32,
+    "share": 0.344,
+    "ci95": [
+     0.204,
+     0.517
+    ]
+   },
+   "nodes_projected": 83,
+   "nodes_on_a_clicked_crossing": 52,
+   "of_those_b1_within_0.022_of_click": {
+    "k": 4,
+    "n": 52,
+    "share": 0.077,
+    "ci95": [
+     0.03,
+     0.182
+    ]
+   },
+   "of_those_component_found": {
+    "k": 48,
+    "n": 52,
+    "share": 0.923,
+    "ci95": [
+     0.818,
+     0.97
+    ]
+   },
+   "of_snapped_b2_within_0.022_of_click": {
+    "k": 16,
+    "n": 48,
+    "share": 0.333,
+    "ci95": [
+     0.217,
+     0.475
+    ]
+   },
+   "of_snapped_b2_within_0.05_of_click": {
+    "k": 24,
+    "n": 48,
+    "share": 0.5,
+    "ci95": [
+     0.364,
+     0.636
+    ]
+   },
+   "median_b1_to_click": 0.0617,
+   "median_b2_to_click": 0.0504
+  }
+ }
+}

@@ -670,3 +670,4 @@ analysis_out/crosswalk_followups_285/**/*.*
 !analysis_out/crosswalk_followups_285/**/*.json
 !analysis_out/crosswalk_followups_285/**/*.md
 !analysis_out/crosswalk_followups_285/**/*.txt
+!analysis_out/crosswalk_followups_285/**/*.jsonl

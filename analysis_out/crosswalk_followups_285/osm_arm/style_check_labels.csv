@@ -1,0 +1,330 @@
+set,source,city,label_uid,pano_id,x,y,tags,tags_known,style,pano_found,on_paint,near_px_dist,paint_within_tol,comp_found,shift,comp_area_px
+ps_labels,mapillary,juneau-ak,juneau-ak:4826,1102408674196807,0.9437,0.6028,,0,tags_unknown,1,1,0.00023,1,1,0.02063,28736
+ps_labels,mapillary,juneau-ak,juneau-ak:4828,1102408674196807,0.7551,0.58,,0,tags_unknown,1,1,0.00022,1,1,0.00643,19584
+ps_labels,mapillary,juneau-ak,juneau-ak:4831,1102408674196807,0.2687,0.6275,,0,tags_unknown,1,1,0.00023,1,1,0.00879,110112
+ps_labels,mapillary,laurens-ia,laurens-ia:1143,1161067935615505,0.3839,0.6021,,0,tags_unknown,1,0,,0,0,,
+ps_labels,mapillary,laurens-ia,laurens-ia:1146,1161067935615505,0.2398,0.5781,,0,tags_unknown,1,0,,0,0,,
+ps_labels,mapillary,laurens-ia,laurens-ia:1523,1374668754308970,0.8396,0.5951,,0,tags_unknown,1,0,0.04516,0,1,0.07349,4960
+ps_labels,mapillary,laurens-ia,laurens-ia:1527,1374668754308970,0.0243,0.5712,,0,tags_unknown,1,1,0.00022,1,1,0.00089,16
+ps_labels,mapillary,laurens-ia,laurens-ia:1531,1374668754308970,0.1821,0.5788,,0,tags_unknown,1,1,0.00022,1,1,0.01303,2688
+ps_labels,mapillary,laurens-ia,laurens-ia:1546,1389404312754104,0.9274,0.5844,,0,tags_unknown,1,0,,0,0,,
+ps_labels,mapillary,laurens-ia,laurens-ia:1547,1389404312754104,0.1679,0.5677,,0,tags_unknown,1,0,,0,0,,
+ps_labels,mapillary,laurens-ia,laurens-ia:2835,1986090458623957,0.1033,0.6337,,0,tags_unknown,1,0,0.02979,0,1,0.03182,80
+ps_labels,mapillary,laurens-ia,laurens-ia:2833,2018969712232383,0.0502,0.6003,,0,tags_unknown,1,1,0.00023,1,1,0.01686,10384
+ps_labels,mapillary,laurens-ia,laurens-ia:2763,2216283218865860,0.4611,0.5781,,0,tags_unknown,1,1,0.00022,1,1,0.00289,17072
+ps_labels,mapillary,laurens-ia,laurens-ia:1139,2265874547230834,0.6056,0.5885,,0,tags_unknown,1,0,0.10493,0,0,,
+ps_labels,mapillary,laurens-ia,laurens-ia:2765,24953931374228079,0.2839,0.5781,,0,tags_unknown,1,0,0.06333,0,0,,
+ps_labels,mapillary,juneau-ak,juneau-ak:1,335351962991856,0.7244,0.5877,,0,tags_unknown,1,1,0.00022,1,1,0.00565,20896
+ps_labels,mapillary,juneau-ak,juneau-ak:4836,777142801238342,0.1552,0.5487,,0,tags_unknown,1,1,0.00022,1,1,0.00435,2288
+ps_labels,mapillary,laurens-ia,laurens-ia:1131,823242090674332,0.8564,0.5785,,0,tags_unknown,1,0,,0,0,,
+ps_labels,mapillary,laurens-ia,laurens-ia:1132,823242090674332,0.2682,0.7372,,0,tags_unknown,1,0,0.10752,0,0,,
+ps_labels,mapillary,laurens-ia,laurens-ia:1133,823242090674332,0.1507,0.5795,,0,tags_unknown,1,0,,0,0,,
+ps_labels,mapillary,laurens-ia,laurens-ia:1518,862599029557550,0.0505,0.6257,,0,tags_unknown,1,1,0.00023,1,1,0.01704,36544
+bayonne_labels,panoramax,bayonne-fr,bayonne-fr:81,7c4c4c2f-8d96-432f-ad89-00fbdbb769f0,0.0647,0.7005,,0,tags_unknown,1,1,0.00025,1,1,0.05826,121328
+bayonne_labels,panoramax,bayonne-fr,bayonne-fr:21,80995a74-a8a0-4b22-9e73-0866e81f39ab,0.0366,0.5487,,0,tags_unknown,1,1,0.00022,1,1,0.01434,6032
+bayonne_labels,panoramax,bayonne-fr,bayonne-fr:22,80995a74-a8a0-4b22-9e73-0866e81f39ab,0.9585,0.5484,,0,tags_unknown,1,1,0.00022,1,1,0.00431,3968
+bayonne_labels,panoramax,bayonne-fr,bayonne-fr:26,80995a74-a8a0-4b22-9e73-0866e81f39ab,0.7076,0.5673,,0,tags_unknown,1,1,0.00022,1,1,0.012,3472
+bayonne_labels,panoramax,bayonne-fr,bayonne-fr:96,955d07df-a684-4d4d-a3b4-24448e6d1ef7,0.7719,0.5975,,0,tags_unknown,1,1,0.00023,1,1,0.01066,10352
+bayonne_labels,panoramax,bayonne-fr,bayonne-fr:97,955d07df-a684-4d4d-a3b4-24448e6d1ef7,0.6611,0.5856,,0,tags_unknown,1,1,0.00022,1,1,0.00305,6992
+bayonne_labels,panoramax,bayonne-fr,bayonne-fr:30,a3efdccf-2e11-435a-8705-760492e11e3f,0.4524,0.5796,,0,tags_unknown,1,1,0.00022,1,1,0.00785,11600
+bayonne_labels,panoramax,bayonne-fr,bayonne-fr:56,b9648bda-47b3-45eb-af76-8015cd2e8008,0.5049,0.6976,,0,tags_unknown,1,1,0.00025,1,1,0.01847,105008
+bayonne_labels,panoramax,bayonne-fr,bayonne-fr:84,c15eb627-f3ab-46ff-a1b7-d019e6c48e64,0.9699,0.6667,,0,tags_unknown,1,1,0.00024,1,1,0.01051,97392
+columbia_gt,gsv,columbia-sc,columbia-sc:29777,-586VZgvfSUO6oYtUtrJxA,0.7753,0.5735,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:28146,-MyAzYNomqEU0X9OSIATgg,0.984,0.5745,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:28212,02CPgKzLLNM2f2dkfeZMzA,0.075,0.6239,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.04104,138400
+columbia_gt,gsv,columbia-sc,columbia-sc:29499,0YboQJpzgO20xO6TLcPpzA,0.587,0.5698,brick/cobblestone,1,brick_or_paver,1,0,0.00144,1,1,0.02302,8992
+columbia_gt,gsv,columbia-sc,columbia-sc:31395,0avihXSRgBwsKZBYvUCLkg,0.4349,0.6149,brick/cobblestone,1,brick_or_paver,1,0,0.05512,0,0,,
+richmond_positives,mapillary,richmond-va,richmond-va:38564,1046065224350714,0.0145,0.618,paint fading;uneven surface,1,paint_fading,1,1,0.00023,1,1,0.00363,58272
+richmond_positives,mapillary,richmond-va,richmond-va:38646,1068870724730325,0.0125,0.5927,paint fading,1,paint_fading,1,0,0.00653,1,1,0.01891,11744
+richmond_positives,mapillary,richmond-va,richmond-va:38609,1073043804328622,0.0476,0.6045,paint fading,1,paint_fading,1,1,0.00023,1,1,0.03138,41424
+richmond_positives,mapillary,richmond-va,richmond-va:38580,1133826814837065,0.8094,0.6462,,1,other_or_untagged,1,1,0.00023,1,1,0.04354,79376
+richmond_positives,mapillary,richmond-va,richmond-va:38583,1133826814837065,0.5033,0.5965,,1,other_or_untagged,1,1,0.00023,1,1,0.00408,16880
+richmond_positives,mapillary,richmond-va,richmond-va:38584,1133826814837065,0.2367,0.6462,,1,other_or_untagged,1,1,0.00023,1,1,0.00887,103552
+richmond_positives,mapillary,richmond-va,richmond-va:38589,1133826814837065,0.0011,0.5951,,1,other_or_untagged,1,1,0.00022,1,1,0.00301,13808
+richmond_positives,mapillary,richmond-va,richmond-va:25234,1149083767237025,0.1176,0.5444,paint fading,1,paint_fading,1,1,0.00022,1,1,0.05913,13584
+richmond_positives,mapillary,richmond-va,richmond-va:25237,1149083767237025,0.0197,0.5905,paint fading,1,paint_fading,1,1,0.00022,1,1,0.02661,24288
+richmond_positives,mapillary,richmond-va,richmond-va:24963,1204943493883058,0.7191,0.6021,paint fading;very long crossing,1,paint_fading,1,1,0.00023,1,1,0.03197,45808
+richmond_positives,mapillary,richmond-va,richmond-va:25147,1234823991457792,0.2156,0.5487,,1,other_or_untagged,1,1,0.00022,1,1,0.10744,135936
+richmond_positives,mapillary,richmond-va,richmond-va:25149,1234823991457792,0.3497,0.5424,paint fading,1,paint_fading,1,1,0.00022,1,1,0.01929,3584
+richmond_positives,mapillary,richmond-va,richmond-va:25152,1234823991457792,0.4809,0.6253,paint fading,1,paint_fading,1,1,0.00023,1,1,0.03898,87392
+richmond_positives,mapillary,richmond-va,richmond-va:25198,1234823991457792,0.103,0.6769,,1,other_or_untagged,1,1,0.00024,1,1,0.01661,87680
+richmond_positives,mapillary,richmond-va,richmond-va:25079,1255268672761893,0.3161,0.5609,,1,other_or_untagged,1,1,0.00022,1,1,0.01721,18080
+richmond_positives,mapillary,richmond-va,richmond-va:25080,1255268672761893,0.4685,0.5456,,1,other_or_untagged,1,1,0.00022,1,1,0.00599,9984
+richmond_positives,mapillary,richmond-va,richmond-va:25081,1255268672761893,0.6503,0.6111,,1,other_or_untagged,1,1,0.00023,1,1,0.00438,45728
+richmond_positives,mapillary,richmond-va,richmond-va:25096,1255810886245900,0.1276,0.6629,paint fading;broken surface,1,paint_fading,1,0,0.00265,1,1,0.02374,90992
+richmond_positives,mapillary,richmond-va,richmond-va:25097,1255810886245900,0.1075,0.5596,,1,other_or_untagged,1,1,0.00022,1,1,0.0056,6496
+richmond_positives,mapillary,richmond-va,richmond-va:25155,1255810886245900,0.0857,0.6767,bumpy;broken surface,1,other_or_untagged,1,1,0.00024,1,1,0.01594,108752
+richmond_positives,mapillary,richmond-va,richmond-va:24953,1259278168309070,0.0694,0.6229,,1,other_or_untagged,1,1,0.00023,1,1,0.03313,27680
+richmond_positives,mapillary,richmond-va,richmond-va:38625,1263000754829188,0.3508,0.5764,,1,other_or_untagged,1,1,0.00022,1,1,0.00412,17888
+richmond_positives,mapillary,richmond-va,richmond-va:38533,1278226860472856,0.4614,0.4507,,1,other_or_untagged,1,1,0.00022,1,1,0.01011,28832
+richmond_positives,mapillary,richmond-va,richmond-va:38632,1303371424368026,0.0408,0.5436,,1,other_or_untagged,1,0,0.00141,1,1,0.01548,2880
+richmond_positives,mapillary,richmond-va,richmond-va:24957,1309156660626617,0.4634,0.5409,very long crossing,1,other_or_untagged,1,1,0.00022,1,1,0.00645,9760
+richmond_positives,mapillary,richmond-va,richmond-va:24958,1309156660626617,0.1952,0.6445,very long crossing;paint fading,1,paint_fading,1,1,0.00023,1,1,0.02403,131296
+richmond_positives,mapillary,richmond-va,richmond-va:24998,1384536952760807,0.0863,0.6793,brick/cobblestone;bumpy,1,brick_or_paver,1,1,0.00024,1,1,0.0417,85312
+richmond_positives,mapillary,richmond-va,richmond-va:25000,1384536952760807,0.3782,0.5565,brick/cobblestone;very long crossing,1,brick_or_paver,1,1,0.00022,1,1,0.07321,65216
+richmond_positives,mapillary,richmond-va,richmond-va:34842,1399321624811449,0.2902,0.5842,very long crossing,1,other_or_untagged,1,1,0.00022,1,1,0.08941,150960
+richmond_positives,mapillary,richmond-va,richmond-va:25051,1421745009019987,0.7052,0.6285,paint fading,1,paint_fading,1,1,0.00023,1,1,0.03989,26768
+richmond_positives,mapillary,richmond-va,richmond-va:38554,1425851318696866,0.6819,0.6172,,1,other_or_untagged,1,1,0.00023,1,1,0.08417,183152
+richmond_positives,mapillary,richmond-va,richmond-va:25184,1464048271698981,0.6798,0.6182,paint fading,1,paint_fading,1,0,0.08292,0,0,,
+richmond_positives,mapillary,richmond-va,richmond-va:25185,1464048271698981,0.2894,0.566,,1,other_or_untagged,1,1,0.00022,1,1,0.02308,24976
+richmond_positives,mapillary,richmond-va,richmond-va:38531,1472801367504834,0.6006,0.5381,,1,other_or_untagged,1,1,0.00022,1,1,0.05989,59008
+richmond_positives,mapillary,richmond-va,richmond-va:38640,1564997787819206,0.495,0.5741,,1,other_or_untagged,1,0,0.00022,1,1,0.02312,29248
+richmond_positives,mapillary,richmond-va,richmond-va:24985,1582796732630361,0.6199,0.7342,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+richmond_positives,mapillary,richmond-va,richmond-va:25200,1618385265475529,0.4435,0.5875,,1,other_or_untagged,1,1,0.00022,1,1,0.02721,57696
+richmond_positives,mapillary,richmond-va,richmond-va:24945,1725939704722738,0.0371,0.606,,1,other_or_untagged,1,1,0.00023,1,1,0.04132,76688
+richmond_positives,mapillary,richmond-va,richmond-va:38643,1875744876489611,0.5898,0.5409,,1,other_or_untagged,1,1,0.00022,1,1,0.01128,16272
+columbia_gt,gsv,columbia-sc,columbia-sc:33484,1K9pL-pYmalJOdEYIsEYhA,0.0435,0.5809,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.0432,24976
+columbia_gt,gsv,columbia-sc,columbia-sc:33489,1K9pL-pYmalJOdEYIsEYhA,0.5392,0.6411,brick/cobblestone,1,brick_or_paver,1,0,0.01094,1,1,0.01156,16
+columbia_gt,gsv,columbia-sc,columbia-sc:29352,1T5aKgFJbyDIWpN6TZAR_Q,0.36,0.5753,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:29453,1sHo_0ywLLn35g0OD591Dg,0.5141,0.6149,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.02063,42832
+richmond_positives,mapillary,richmond-va,richmond-va:24947,2062496257545499,0.0191,0.5904,,1,other_or_untagged,1,1,0.00022,1,1,0.01038,38432
+richmond_positives,mapillary,richmond-va,richmond-va:24950,2062496257545499,0.0948,0.5633,,1,other_or_untagged,1,1,0.00022,1,1,0.00229,3008
+richmond_positives,mapillary,richmond-va,richmond-va:24952,2062496257545499,0.0082,0.5444,,1,other_or_untagged,1,0,0.00518,1,1,0.06635,7104
+richmond_positives,mapillary,richmond-va,richmond-va:38539,2134723797017104,0.6792,0.6431,,1,other_or_untagged,1,1,0.00023,1,1,0.07449,267920
+richmond_positives,mapillary,richmond-va,richmond-va:38541,2134723797017104,0.2043,0.6216,,1,other_or_untagged,1,1,0.00023,1,1,0.02029,105536
+richmond_positives,mapillary,richmond-va,richmond-va:25030,2163793620710887,0.994,0.6476,broken surface;paint fading,1,paint_fading,1,1,0.00023,1,1,0.02684,81536
+richmond_positives,mapillary,richmond-va,richmond-va:25033,2163793620710887,0.2675,0.6091,broken surface;paint fading,1,paint_fading,1,1,0.00023,1,1,0.03958,52336
+richmond_positives,mapillary,richmond-va,richmond-va:25034,2163793620710887,0.7026,0.5933,paint fading,1,paint_fading,1,1,0.00022,1,1,0.00595,21968
+richmond_positives,mapillary,richmond-va,richmond-va:25035,2163793620710887,0.9731,0.6618,paint fading,1,paint_fading,1,1,0.00024,1,1,0.0056,90752
+richmond_positives,mapillary,richmond-va,richmond-va:25041,2163793620710887,0.3119,0.6016,paint fading;broken surface;bumpy,1,paint_fading,1,1,0.00023,1,1,0.03372,63168
+richmond_positives,mapillary,richmond-va,richmond-va:38548,2202965980167724,0.6899,0.6514,,1,other_or_untagged,1,1,0.00023,1,1,0.08077,258448
+richmond_positives,mapillary,richmond-va,richmond-va:38551,2202965980167724,0.4561,0.4546,,1,other_or_untagged,1,1,0.00022,1,1,0.00362,14512
+richmond_positives,mapillary,richmond-va,richmond-va:25125,24209051742022704,0.0432,0.5884,,1,other_or_untagged,1,1,0.00022,1,1,0.05088,38512
+columbia_gt,gsv,columbia-sc,columbia-sc:40390,2FeUDSacPV839gWiePx5dg,0.0314,0.6073,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.05599,82496
+columbia_gt,gsv,columbia-sc,columbia-sc:53665,2FeUDSacPV839gWiePx5dg,0.0209,0.6002,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.06008,79680
+columbia_gt,gsv,columbia-sc,columbia-sc:56794,2cyoyEi6vGpTYjuLfF402w,0.4998,0.6166,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.03401,28208
+richmond_positives,mapillary,richmond-va,richmond-va:25006,3220765548061721,0.6425,0.5865,,1,other_or_untagged,1,1,0.00022,1,1,0.11126,133024
+richmond_positives,mapillary,richmond-va,richmond-va:25009,3220765548061721,0.4573,0.5385,paint fading,1,paint_fading,1,1,0.00022,1,1,0.01613,10496
+columbia_gt,gsv,columbia-sc,columbia-sc:27770,3ITcSTey8NUFhwer9CI5sA,0.0087,0.568,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.02269,7216
+columbia_gt,gsv,columbia-sc,columbia-sc:56958,3fzn1R_kWDd6VSAiMM3hgg,0.0989,0.6294,brick/cobblestone,1,brick_or_paver,1,0,0.0144,1,1,0.05876,50736
+columbia_gt,gsv,columbia-sc,columbia-sc:39857,3qV0n4T3Wet2e8mtaaQRhA,0.1176,0.5771,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.01457,11648
+richmond_positives,mapillary,richmond-va,richmond-va:25174,406111839008166,0.6916,0.6022,,1,other_or_untagged,1,1,0.00023,1,1,0.01732,57680
+richmond_positives,mapillary,richmond-va,richmond-va:25026,4245596185667128,0.9332,0.534,very long crossing,1,other_or_untagged,1,1,0.00022,1,1,0.08709,37872
+columbia_gt,gsv,columbia-sc,columbia-sc:55009,4jueDF-4hu1bf313UgaCBg,0.1094,0.5758,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.072,16512
+richmond_positives,mapillary,richmond-va,richmond-va:24931,511129198087695,0.7349,0.5875,,1,other_or_untagged,1,1,0.00022,1,1,0.01426,17808
+richmond_positives,mapillary,richmond-va,richmond-va:24935,511129198087695,0.9557,0.6155,very long crossing,1,other_or_untagged,1,1,0.00023,1,1,0.03158,54368
+richmond_positives,mapillary,richmond-va,richmond-va:24980,523607383467765,0.8675,0.6128,brick/cobblestone,1,brick_or_paver,1,0,0.01749,1,1,0.06365,25584
+richmond_positives,mapillary,richmond-va,richmond-va:24983,523607383467765,0.4023,0.601,brick/cobblestone,1,brick_or_paver,1,0,0.12205,0,0,,
+richmond_positives,mapillary,richmond-va,richmond-va:25202,557254590580281,0.9967,0.612,,1,other_or_untagged,1,1,0.00023,1,1,0.03228,69184
+richmond_positives,mapillary,richmond-va,richmond-va:25044,560940660419882,0.9855,0.5778,paint fading,1,paint_fading,1,1,0.00022,1,1,0.0088,11136
+richmond_positives,mapillary,richmond-va,richmond-va:25047,560940660419882,0.1429,0.6035,paint fading;broken surface,1,paint_fading,1,1,0.00023,1,1,0.04526,64128
+richmond_positives,mapillary,richmond-va,richmond-va:24991,595414233597984,0.0085,0.6324,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.02234,105536
+columbia_gt,gsv,columbia-sc,columbia-sc:33623,5MgaOXakPPrlzDS5DJ3-Aw,0.5471,0.5521,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00437,2960
+richmond_positives,mapillary,richmond-va,richmond-va:25139,631947679276229,0.0227,0.5796,paint fading,1,paint_fading,1,1,0.00022,1,1,0.00721,17920
+richmond_positives,mapillary,richmond-va,richmond-va:24954,691071020220182,0.4581,0.5749,paint fading;very long crossing,1,paint_fading,1,1,0.00022,1,1,0.01434,50192
+richmond_positives,mapillary,richmond-va,richmond-va:25130,696316566446426,0.0214,0.59,,1,other_or_untagged,1,1,0.00022,1,1,0.00899,38432
+richmond_positives,mapillary,richmond-va,richmond-va:25131,696316566446426,0.2263,0.5685,,1,other_or_untagged,1,1,0.00022,1,1,0.00847,19296
+richmond_positives,mapillary,richmond-va,richmond-va:25135,696316566446426,0.7455,0.6329,,1,other_or_untagged,1,1,0.00023,1,1,0.00581,77328
+columbia_gt,gsv,columbia-sc,columbia-sc:29339,6AcPwU1XQ9HsRLHMoAxaaQ,0.4071,0.6635,brick/cobblestone,1,brick_or_paver,1,0,0.07939,0,0,,
+richmond_positives,mapillary,richmond-va,richmond-va:25101,716799637639882,0.7612,0.6287,paint fading,1,paint_fading,1,0,0.005,1,1,0.00568,16
+richmond_positives,mapillary,richmond-va,richmond-va:25102,716799637639882,0.0134,0.5667,,1,other_or_untagged,1,1,0.00022,1,1,0.01025,13024
+richmond_positives,mapillary,richmond-va,richmond-va:25103,716799637639882,0.1794,0.5682,,1,other_or_untagged,1,1,0.00022,1,1,0.02162,22080
+richmond_positives,mapillary,richmond-va,richmond-va:34833,727371756684361,0.6277,0.5956,,1,other_or_untagged,1,1,0.00023,1,1,0.04733,40208
+richmond_positives,mapillary,richmond-va,richmond-va:34836,727371756684361,0.0184,0.5725,,1,other_or_untagged,1,1,0.00022,1,1,0.00964,12528
+richmond_positives,mapillary,richmond-va,richmond-va:34839,727371756684361,0.199,0.6013,paint fading;very long crossing,1,paint_fading,1,1,0.00023,1,1,0.05366,67376
+richmond_positives,mapillary,richmond-va,richmond-va:24993,728933219605753,0.1204,0.5747,brick/cobblestone;very long crossing,1,brick_or_paver,1,1,0.00022,1,1,0.06486,59360
+richmond_positives,mapillary,richmond-va,richmond-va:24994,728933219605753,0.5465,0.6573,brick/cobblestone,1,brick_or_paver,1,1,0.00024,1,1,0.01764,139296
+richmond_positives,mapillary,richmond-va,richmond-va:24996,728933219605753,0.8266,0.5844,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.05295,29552
+richmond_positives,mapillary,richmond-va,richmond-va:25012,736230892245259,0.7367,0.5822,,1,other_or_untagged,1,1,0.00022,1,1,0.03375,12320
+richmond_positives,mapillary,richmond-va,richmond-va:25004,740833354983438,0.4887,0.5669,,1,other_or_untagged,1,1,0.00022,1,1,0.03131,27984
+columbia_gt,gsv,columbia-sc,columbia-sc:70662,7CihasSQnXHFqsK5Rh0YGQ,0.8782,0.6266,brick/cobblestone;paint fading,1,brick_or_paver,1,0,0.01723,1,1,0.01784,16
+columbia_gt,gsv,columbia-sc,columbia-sc:70666,7CihasSQnXHFqsK5Rh0YGQ,0.3661,0.5948,brick/cobblestone;paint fading,1,brick_or_paver,1,1,0.00022,1,1,0.07563,52816
+columbia_gt,gsv,columbia-sc,columbia-sc:70667,7CihasSQnXHFqsK5Rh0YGQ,0.0594,0.5471,brick/cobblestone;paint fading,1,brick_or_paver,1,1,0.00022,1,1,0.09409,14848
+columbia_gt,gsv,columbia-sc,columbia-sc:32622,7F8S-PnHj9lHaqDBdeGEmw,0.9285,0.5679,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.07581,84640
+columbia_gt,gsv,columbia-sc,columbia-sc:32623,7F8S-PnHj9lHaqDBdeGEmw,0.0776,0.6647,brick/cobblestone,1,brick_or_paver,1,1,0.00024,1,1,0.06533,69488
+columbia_gt,gsv,columbia-sc,columbia-sc:32625,7F8S-PnHj9lHaqDBdeGEmw,0.0797,0.5562,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.01544,5968
+columbia_gt,gsv,columbia-sc,columbia-sc:33574,7JTEB1R14mWdzhB0nc3JOA,0.2883,0.5584,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.05267,6528
+columbia_gt,gsv,columbia-sc,columbia-sc:33576,7JTEB1R14mWdzhB0nc3JOA,0.491,0.5745,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.01007,7024
+columbia_gt,gsv,columbia-sc,columbia-sc:33581,7JTEB1R14mWdzhB0nc3JOA,0.6918,0.5756,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.04621,12896
+columbia_gt,gsv,columbia-sc,columbia-sc:33582,7JTEB1R14mWdzhB0nc3JOA,0.8645,0.5569,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.07803,9632
+columbia_gt,gsv,columbia-sc,columbia-sc:33764,7y9UzXX_COSzSXBtEKESiw,0.7115,0.5548,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00244,5792
+columbia_gt,gsv,columbia-sc,columbia-sc:33769,7y9UzXX_COSzSXBtEKESiw,0.0703,0.5599,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.03796,27520
+columbia_gt,gsv,columbia-sc,columbia-sc:33773,7y9UzXX_COSzSXBtEKESiw,0.2793,0.5438,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.03445,3184
+columbia_gt,gsv,columbia-sc,columbia-sc:127999,80k9AFmdCpxw8ID2tBchCA,0.481,0.6334,brick/cobblestone,1,brick_or_paver,1,0,0.00389,1,1,0.02053,39360
+columbia_gt,gsv,columbia-sc,columbia-sc:128003,80k9AFmdCpxw8ID2tBchCA,0.8218,0.5876,brick/cobblestone,1,brick_or_paver,1,0,0.00146,1,1,0.05672,39648
+columbia_gt,gsv,columbia-sc,columbia-sc:128009,80k9AFmdCpxw8ID2tBchCA,0.0436,0.545,brick/cobblestone,1,brick_or_paver,1,0,0.00885,1,1,0.03484,8848
+richmond_positives,mapillary,richmond-va,richmond-va:38592,814691950774984,0.2726,0.5406,paint fading,1,paint_fading,1,1,0.00022,1,1,0.00774,8432
+richmond_positives,mapillary,richmond-va,richmond-va:38595,814691950774984,0.0778,0.592,paint fading,1,paint_fading,1,1,0.00022,1,1,0.02472,21088
+richmond_positives,mapillary,richmond-va,richmond-va:38598,814691950774984,0.7073,0.5795,paint fading,1,paint_fading,1,1,0.00022,1,1,0.01734,26336
+richmond_positives,mapillary,richmond-va,richmond-va:38602,814691950774984,0.4837,0.5483,paint fading,1,paint_fading,1,1,0.00022,1,1,0.00921,30304
+richmond_positives,mapillary,richmond-va,richmond-va:24965,8423527651042690,0.4892,0.5476,,1,other_or_untagged,1,1,0.00022,1,1,0.00248,9616
+richmond_positives,mapillary,richmond-va,richmond-va:24966,8423527651042690,0.017,0.5222,paint fading,1,paint_fading,1,1,0.00022,1,1,0.00313,4352
+richmond_positives,mapillary,richmond-va,richmond-va:24967,8423527651042690,0.7842,0.5906,very long crossing;paint fading,1,paint_fading,1,1,0.00022,1,1,0.01625,62752
+richmond_positives,mapillary,richmond-va,richmond-va:24970,8423527651042690,0.2984,0.549,very long crossing;paint fading,1,paint_fading,1,1,0.00022,1,1,0.05223,24416
+richmond_positives,mapillary,richmond-va,richmond-va:25070,847534520782573,0.4759,0.5591,,1,other_or_untagged,1,1,0.00022,1,1,0.01348,18176
+columbia_gt,gsv,columbia-sc,columbia-sc:39553,8gNOZhqCAxBQvFGljkvmzw,0.6047,0.5784,brick/cobblestone;paint fading,1,brick_or_paver,1,1,0.00022,1,1,0.04455,37424
+columbia_gt,gsv,columbia-sc,columbia-sc:32605,8xjqkLPMgJBLvD6_8EXzMA,0.6135,0.595,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00762,23344
+columbia_gt,gsv,columbia-sc,columbia-sc:32606,8xjqkLPMgJBLvD6_8EXzMA,0.4016,0.5864,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00699,13952
+columbia_gt,gsv,columbia-sc,columbia-sc:32608,8xjqkLPMgJBLvD6_8EXzMA,0.1323,0.761,brick/cobblestone,1,brick_or_paver,1,1,0.00028,1,1,0.02287,209072
+columbia_gt,gsv,columbia-sc,columbia-sc:32609,8xjqkLPMgJBLvD6_8EXzMA,0.8,0.5803,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00771,10608
+columbia_gt,gsv,columbia-sc,columbia-sc:33800,92fBIFzQj6HVdEXgKfPlFQ,0.9258,0.5358,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:33803,92fBIFzQj6HVdEXgKfPlFQ,0.0032,0.5229,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.00774,352
+columbia_gt,gsv,columbia-sc,columbia-sc:33808,92fBIFzQj6HVdEXgKfPlFQ,0.0884,0.5339,brick/cobblestone,1,brick_or_paver,1,0,0.06928,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:55939,99k4xHM3p9qzmFyzsd82hg,0.1104,0.5638,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.08284,31568
+columbia_gt,gsv,columbia-sc,columbia-sc:55940,99k4xHM3p9qzmFyzsd82hg,0.6912,0.7281,brick/cobblestone,1,brick_or_paver,1,1,0.00026,1,1,0.03137,186752
+columbia_gt,gsv,columbia-sc,columbia-sc:55941,99k4xHM3p9qzmFyzsd82hg,0.392,0.5725,brick/cobblestone,1,brick_or_paver,1,0,0.02547,0,1,0.02593,16
+columbia_gt,gsv,columbia-sc,columbia-sc:29534,C5XOm57xcNfaP5nUkbDbvA,0.6705,0.6021,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:29317,C_Ko1zDZUWBdfPln8GUxbw,0.0522,0.5814,brick/cobblestone,1,brick_or_paver,1,0,0.11655,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:39555,CsR7MJInr2O1DJWrAtQGbA,0.2125,0.5858,brick/cobblestone;paint fading;broken surface,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:39558,CsR7MJInr2O1DJWrAtQGbA,0.588,0.5634,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00638,7328
+columbia_gt,gsv,columbia-sc,columbia-sc:119568,DXcwVlCBbuWOvmleqloEIA,0.0206,0.6002,paint fading;brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.0171,20432
+columbia_gt,gsv,columbia-sc,columbia-sc:119575,DXcwVlCBbuWOvmleqloEIA,0.6731,0.5498,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.05253,8896
+columbia_gt,gsv,columbia-sc,columbia-sc:33498,DuhL129FbR9Nwlo2TMYL2A,0.1121,0.5563,brick/cobblestone,1,brick_or_paver,1,0,0.00265,1,1,0.06476,22368
+columbia_gt,gsv,columbia-sc,columbia-sc:33501,DuhL129FbR9Nwlo2TMYL2A,0.7791,0.5907,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.01021,22784
+columbia_gt,gsv,columbia-sc,columbia-sc:25609,E2F8TktPzsfM0k6TOecE-Q,0.8165,0.571,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:25613,E2F8TktPzsfM0k6TOecE-Q,0.861,0.559,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:41136,EelYwBEpq4NvGXThRLfhfQ,0.6836,0.5882,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.01876,16640
+columbia_gt,gsv,columbia-sc,columbia-sc:31454,EikPg_encprvEH4HZ7f4IA,0.2604,0.5583,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00086,6048
+columbia_gt,gsv,columbia-sc,columbia-sc:53674,EmAucSIHfy5XY90eDmPD8A,0.4361,0.5697,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00213,14144
+columbia_gt,gsv,columbia-sc,columbia-sc:53678,EmAucSIHfy5XY90eDmPD8A,0.6573,0.5905,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.01233,15680
+columbia_gt,gsv,columbia-sc,columbia-sc:53682,EmAucSIHfy5XY90eDmPD8A,0.9214,0.595,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00318,16080
+columbia_gt,gsv,columbia-sc,columbia-sc:55961,FEFRCYjGEX_RGv5-6xi_JA,0.0909,0.5474,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.07317,7696
+columbia_gt,gsv,columbia-sc,columbia-sc:48476,H4jFDQCjGhivCgXF8v5Cwg,0.6097,0.6117,brick/cobblestone;very long crossing,1,brick_or_paver,1,1,0.00023,1,1,0.06962,63968
+columbia_gt,gsv,columbia-sc,columbia-sc:55010,H4jFDQCjGhivCgXF8v5Cwg,0.2707,0.5377,brick/cobblestone,1,brick_or_paver,1,0,0.00265,1,1,0.01906,880
+columbia_gt,gsv,columbia-sc,columbia-sc:41127,IPFxbyIAD1AvxNCUVrdcoA,0.0445,0.5797,brick/cobblestone,1,brick_or_paver,1,0,0.00389,1,1,0.05655,30592
+columbia_gt,gsv,columbia-sc,columbia-sc:41130,IPFxbyIAD1AvxNCUVrdcoA,0.7383,0.5958,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.02387,31936
+columbia_gt,gsv,columbia-sc,columbia-sc:41133,IPFxbyIAD1AvxNCUVrdcoA,0.4586,0.5846,brick/cobblestone,1,brick_or_paver,1,0,0.00761,1,1,0.02657,10896
+columbia_gt,gsv,columbia-sc,columbia-sc:55628,KaQ0Ffta3uZfuZ9RslzxvA,0.5709,0.5675,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.08293,41840
+columbia_gt,gsv,columbia-sc,columbia-sc:28205,L8LAwh89xZ7ollyw_WNcDw,0.6959,0.5798,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00473,7408
+columbia_gt,gsv,columbia-sc,columbia-sc:33540,LkQLb1pMZ492UJpoEhXpLw,0.5035,0.5992,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.08928,259376
+columbia_gt,gsv,columbia-sc,columbia-sc:39639,MLjJLQpxIiEMNe7__AHyDQ,0.017,0.5579,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.09843,41952
+columbia_gt,gsv,columbia-sc,columbia-sc:25615,MbauyJrBMjp72jIOAmyzjA,0.9887,0.547,brick/cobblestone,1,brick_or_paver,1,0,0.02998,0,1,0.03045,16
+columbia_gt,gsv,columbia-sc,columbia-sc:25621,NCXoc8vT3slYMqaG40_B_g,0.0681,0.6598,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:33812,NGbLhT1NyAvTPkGFUvIYgQ,0.4536,0.6083,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:31462,Nk-KLKvxGpj0KkHN8jTVTw,0.4626,0.5765,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:31377,PFn0piQWEcX5LK_kDx5gXQ,0.4203,0.6013,broken surface;brick/cobblestone,1,brick_or_paver,1,0,0.05124,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:25684,PJVxdLAvIrMJeniQdpp-HA,0.5368,0.5503,brick/cobblestone,1,brick_or_paver,1,0,0.00389,1,1,0.06933,5120
+columbia_gt,gsv,columbia-sc,columbia-sc:33625,PRLo0AmDb6axwW-lTbkOaQ,0.9941,0.6285,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.00728,16240
+columbia_gt,gsv,columbia-sc,columbia-sc:56895,QQgHhkk6OA2qzqDiF7ERmA,0.2352,0.5514,brick/cobblestone,1,brick_or_paver,1,0,0.00513,1,1,0.06269,12736
+columbia_gt,gsv,columbia-sc,columbia-sc:39537,QwH90LcFf61bdjAQZ3SdPg,0.2993,0.5822,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.03718,12848
+columbia_gt,gsv,columbia-sc,columbia-sc:25641,RASQrcoOD2WyuQ_Xgd0rrg,0.4609,0.5673,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:25646,RASQrcoOD2WyuQ_Xgd0rrg,0.6741,0.5819,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:39633,RQwtnPV_sPRHVZLGCt7ATQ,0.828,0.6338,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.01983,83424
+columbia_gt,gsv,columbia-sc,columbia-sc:35194,RVTKAhHq53217NFzFlBA-A,0.7069,0.5828,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.05539,36912
+columbia_gt,gsv,columbia-sc,columbia-sc:33612,RaOGNjfNDO982V_UbLkpbA,0.9856,0.5513,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.01493,5024
+columbia_gt,gsv,columbia-sc,columbia-sc:33613,RaOGNjfNDO982V_UbLkpbA,0.3421,0.5699,brick/cobblestone,1,brick_or_paver,1,0,0.02909,0,1,0.05027,896
+columbia_gt,gsv,columbia-sc,columbia-sc:29607,Rdi1bPdfMlLZwUuwHLKA_w,0.2155,0.567,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:29624,Rdi1bPdfMlLZwUuwHLKA_w,0.0213,0.5375,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:33479,SAuWfLv7v533oyxf3F_quA,0.1479,0.6342,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.07029,91808
+columbia_gt,gsv,columbia-sc,columbia-sc:33483,SAuWfLv7v533oyxf3F_quA,0.0055,0.5385,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.0675,149312
+columbia_gt,gsv,columbia-sc,columbia-sc:32597,SYt3buMH8Os3mQIhTZZp5g,0.7208,0.7065,brick/cobblestone,1,brick_or_paver,1,1,0.00025,1,1,0.01212,137296
+columbia_gt,gsv,columbia-sc,columbia-sc:32598,SYt3buMH8Os3mQIhTZZp5g,0.4674,0.5754,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.05515,18144
+columbia_gt,gsv,columbia-sc,columbia-sc:32599,SYt3buMH8Os3mQIhTZZp5g,0.28,0.6001,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.01745,27136
+columbia_gt,gsv,columbia-sc,columbia-sc:32600,SYt3buMH8Os3mQIhTZZp5g,0.0421,0.5975,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.01776,19760
+columbia_gt,gsv,columbia-sc,columbia-sc:32796,TNVP_2_SuVmSPHBealLpbw,0.4622,0.6168,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.00639,52688
+columbia_gt,gsv,columbia-sc,columbia-sc:53671,TR5m25VJ3Q2kFJkilC4WkQ,0.0013,0.5796,brick/cobblestone,1,brick_or_paver,1,0,0.00265,1,1,0.01446,9184
+columbia_gt,gsv,columbia-sc,columbia-sc:37190,TVoZOjJr8T-xrLb9j-34hw,0.0644,0.6011,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.05837,65840
+columbia_gt,gsv,columbia-sc,columbia-sc:39529,TVoZOjJr8T-xrLb9j-34hw,0.0711,0.5994,brick/cobblestone;paint fading,1,brick_or_paver,1,1,0.00023,1,1,0.06465,65424
+columbia_gt,gsv,columbia-sc,columbia-sc:39531,TVoZOjJr8T-xrLb9j-34hw,0.723,0.6589,brick/cobblestone;paint fading,1,brick_or_paver,1,1,0.00024,1,1,0.00516,99280
+columbia_gt,gsv,columbia-sc,columbia-sc:39535,TVoZOjJr8T-xrLb9j-34hw,0.2795,0.5701,brick/cobblestone;paint fading,1,brick_or_paver,1,1,0.00022,1,1,0.00844,22608
+columbia_gt,gsv,columbia-sc,columbia-sc:51191,TVoZOjJr8T-xrLb9j-34hw,0.2725,0.5724,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.0195,20240
+columbia_gt,gsv,columbia-sc,columbia-sc:51192,TVoZOjJr8T-xrLb9j-34hw,0.071,0.6217,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.05927,66736
+columbia_gt,gsv,columbia-sc,columbia-sc:29459,TpcxLRY8XZrBieR6qN0C9Q,0.6687,0.5538,very long crossing;brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.05899,11824
+columbia_gt,gsv,columbia-sc,columbia-sc:39864,TqnTjPc8eqMdCYt35dXX-Q,0.2215,0.6191,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.01451,50800
+columbia_gt,gsv,columbia-sc,columbia-sc:28202,TxMcT2THlWEa3e2jvdqgFg,0.5079,0.5717,brick/cobblestone,1,brick_or_paver,1,0,0.00265,1,1,0.03472,17952
+columbia_gt,gsv,columbia-sc,columbia-sc:28210,TxMcT2THlWEa3e2jvdqgFg,0.2802,0.5509,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.01717,1216
+columbia_gt,gsv,columbia-sc,columbia-sc:29551,U8gcFsYDHTotOBXvDpMRfg,0.684,0.6068,paint fading;brick/cobblestone,1,brick_or_paver,1,0,0.02909,0,1,0.03112,96
+columbia_gt,gsv,columbia-sc,columbia-sc:29478,VER5w6HKo5uC3imTw24iwg,0.5008,0.5685,very long crossing;brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.03761,15648
+columbia_gt,gsv,columbia-sc,columbia-sc:33595,VVJuglLAtuF5QiFSP1pcJg,0.6622,0.6464,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.09951,145328
+columbia_gt,gsv,columbia-sc,columbia-sc:55016,Vs63HT4FWYoqe9SJcXjm9A,0.1273,0.7485,brick/cobblestone,1,brick_or_paver,1,0,0.01903,1,1,0.0196,16
+columbia_gt,gsv,columbia-sc,columbia-sc:25565,Wu_GFouhBFHUJ-Zgj8XGCg,0.2454,0.5522,brick/cobblestone,1,brick_or_paver,1,0,0.07177,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:31388,Wu_GFouhBFHUJ-Zgj8XGCg,0.2571,0.5537,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:33615,XxlFDdqIBK21lqN7IF3-Yw,0.2249,0.5686,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00344,20432
+columbia_gt,gsv,columbia-sc,columbia-sc:33619,XxlFDdqIBK21lqN7IF3-Yw,0.4833,0.5463,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00254,2048
+columbia_gt,gsv,columbia-sc,columbia-sc:56269,YITUQUxpD6mkBTAcJ-2iKA,0.3973,0.6301,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.00596,44080
+columbia_gt,gsv,columbia-sc,columbia-sc:56272,YITUQUxpD6mkBTAcJ-2iKA,0.7358,0.6024,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.04807,77888
+columbia_gt,gsv,columbia-sc,columbia-sc:35196,Ypv8elh3zWYlJkfjhHqlsA,0.4671,0.5798,brick/cobblestone,1,brick_or_paver,1,0,0.00265,1,1,0.06231,43024
+columbia_gt,gsv,columbia-sc,columbia-sc:35199,Ypv8elh3zWYlJkfjhHqlsA,0.7178,0.698,brick/cobblestone,1,brick_or_paver,1,1,0.00025,1,1,0.01551,131792
+columbia_gt,gsv,columbia-sc,columbia-sc:35202,Ypv8elh3zWYlJkfjhHqlsA,0.0491,0.5887,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.0784,33888
+columbia_gt,gsv,columbia-sc,columbia-sc:33490,Z4BflOf45nGmqwDdodCRlQ,0.7764,0.5929,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.0507,42432
+columbia_gt,gsv,columbia-sc,columbia-sc:33492,Z4BflOf45nGmqwDdodCRlQ,0.4258,0.5575,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.08655,13312
+columbia_gt,gsv,columbia-sc,columbia-sc:33496,Z4BflOf45nGmqwDdodCRlQ,0.2375,0.5635,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.05526,9376
+columbia_gt,gsv,columbia-sc,columbia-sc:33497,Z4BflOf45nGmqwDdodCRlQ,0.0707,0.5547,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.07165,8176
+columbia_gt,gsv,columbia-sc,columbia-sc:32593,_Kz2K5yEa4TzYi1FxqBYoQ,0.8813,0.656,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.07226,100528
+columbia_gt,gsv,columbia-sc,columbia-sc:32594,_Kz2K5yEa4TzYi1FxqBYoQ,0.4457,0.6548,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.03831,70128
+columbia_gt,gsv,columbia-sc,columbia-sc:32596,_Kz2K5yEa4TzYi1FxqBYoQ,0.1871,0.5936,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.04088,25984
+columbia_gt,gsv,columbia-sc,columbia-sc:32799,_SvgMMKi4lm3MFc66_fH2Q,0.7108,0.6121,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.01432,27984
+columbia_gt,gsv,columbia-sc,columbia-sc:32801,_SvgMMKi4lm3MFc66_fH2Q,0.0989,0.6942,brick/cobblestone,1,brick_or_paver,1,1,0.00025,1,1,0.04908,139328
+columbia_gt,gsv,columbia-sc,columbia-sc:32802,_SvgMMKi4lm3MFc66_fH2Q,0.2887,0.5676,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00779,7312
+columbia_gt,gsv,columbia-sc,columbia-sc:32803,_SvgMMKi4lm3MFc66_fH2Q,0.48,0.5986,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.00921,24112
+columbia_gt,gsv,columbia-sc,columbia-sc:39647,_W3jnb_PxSIS42qbnajmgw,0.3307,0.5826,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:119462,aKxwKgChLE5OT5-DnJldpA,0.8374,0.6094,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.04063,59728
+columbia_gt,gsv,columbia-sc,columbia-sc:119466,aKxwKgChLE5OT5-DnJldpA,0.4376,0.5554,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.04624,12272
+columbia_gt,gsv,columbia-sc,columbia-sc:119468,aKxwKgChLE5OT5-DnJldpA,0.0699,0.549,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.03336,2880
+columbia_gt,gsv,columbia-sc,columbia-sc:119480,aKxwKgChLE5OT5-DnJldpA,0.2596,0.5452,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.03149,4368
+columbia_gt,gsv,columbia-sc,columbia-sc:55943,aRmEp_7EairpFGs9OS_2uQ,0.9413,0.5972,brick/cobblestone,1,brick_or_paver,1,0,0.04036,0,1,0.04148,32
+columbia_gt,gsv,columbia-sc,columbia-sc:55945,aRmEp_7EairpFGs9OS_2uQ,0.321,0.6372,brick/cobblestone,1,brick_or_paver,1,0,0.08435,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:55608,bPnV4SyBnn8TC102t1WFQA,0.9405,0.558,brick/cobblestone,1,brick_or_paver,1,0,0.05145,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:29594,bU8oTlf1x8s6ow8i7GoIEg,0.2868,0.6526,brick/cobblestone,1,brick_or_paver,1,0,0.0572,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:29504,cCni3RMG4rQW77Na085pgg,0.4913,0.557,brick/cobblestone,1,brick_or_paver,1,0,0.08172,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:70668,cHDpyyEUh0jqZ7S5OeFvqQ,0.4094,0.6593,brick/cobblestone;paint fading,1,brick_or_paver,1,1,0.00024,1,1,0.06456,118016
+columbia_gt,gsv,columbia-sc,columbia-sc:27740,cSIklgyXQdLCYM2T6jxiqw,0.4549,0.5856,brick/cobblestone,1,brick_or_paver,1,0,0.06653,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:39565,cpH4Zs80M12xLXI5YY334g,0.8028,0.6248,broken surface;brick/cobblestone;paint fading,1,brick_or_paver,1,1,0.00023,1,1,0.01896,68496
+columbia_gt,gsv,columbia-sc,columbia-sc:29460,ctzPqLt-xMAjPTRYm6J4CA,0.0398,0.5897,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.02731,20416
+columbia_gt,gsv,columbia-sc,columbia-sc:32617,cvMXYzoIga99BLod_vV9IA,0.4004,0.7052,brick/cobblestone,1,brick_or_paver,1,1,0.00025,1,1,0.07215,126752
+columbia_gt,gsv,columbia-sc,columbia-sc:32618,cvMXYzoIga99BLod_vV9IA,0.3969,0.5608,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.01417,5536
+columbia_gt,gsv,columbia-sc,columbia-sc:127221,dN3txvPVX0vTHP8fc0jzaA,0.0582,0.5938,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.02749,19168
+columbia_gt,gsv,columbia-sc,columbia-sc:25649,e3hNEwWzuBfflgMcUQgbcA,0.4968,0.5684,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:25650,e3hNEwWzuBfflgMcUQgbcA,0.4034,0.5538,brick/cobblestone,1,brick_or_paver,1,0,0.11997,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:56266,eETRpt14udol4dcyPVtlBQ,0.6941,0.5714,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.02974,18752
+columbia_gt,gsv,columbia-sc,columbia-sc:37689,fGjzZgmqAJqLknUtDvHtBw,0.4554,0.5588,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.04044,15312
+columbia_gt,gsv,columbia-sc,columbia-sc:37695,fGjzZgmqAJqLknUtDvHtBw,0.0505,0.5615,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00603,12896
+columbia_gt,gsv,columbia-sc,columbia-sc:32809,fSbd4Tn2p3CPKWdn-6qqZw,0.4543,0.6283,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.03176,41568
+columbia_gt,gsv,columbia-sc,columbia-sc:32816,fSbd4Tn2p3CPKWdn-6qqZw,0.405,0.5538,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.01337,4208
+columbia_gt,gsv,columbia-sc,columbia-sc:32817,fSbd4Tn2p3CPKWdn-6qqZw,0.5615,0.5586,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.00805,4416
+columbia_gt,gsv,columbia-sc,columbia-sc:29068,g-BDsnOu-SAlS8wZJJ8Qew,0.0373,0.6704,brick/cobblestone,1,brick_or_paver,1,1,0.00024,1,1,0.04217,75264
+columbia_gt,gsv,columbia-sc,columbia-sc:39562,gAoyTikxbgoeB39cEN8fyg,0.4586,0.7196,paint fading;brick/cobblestone,1,brick_or_paver,1,1,0.00025,1,1,0.02219,254528
+columbia_gt,gsv,columbia-sc,columbia-sc:127081,hNUKaBlpvePM509V4LfalQ,0.7534,0.5911,paint fading;brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.0212,25936
+columbia_gt,gsv,columbia-sc,columbia-sc:127084,hNUKaBlpvePM509V4LfalQ,0.457,0.5781,paint fading;brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.03143,21808
+columbia_gt,gsv,columbia-sc,columbia-sc:39567,ifadLk0WcIH3GSJxpe08Fg,0.6902,0.5995,brick/cobblestone;paint fading,1,brick_or_paver,1,0,0.00303,1,1,0.03907,71712
+columbia_gt,gsv,columbia-sc,columbia-sc:39570,ifadLk0WcIH3GSJxpe08Fg,0.0209,0.5741,paint fading;brick/cobblestone,1,brick_or_paver,1,0,0.00389,1,1,0.00652,7664
+columbia_gt,gsv,columbia-sc,columbia-sc:39664,is42hIGd_1feUrmfScc4dQ,0.4059,0.5994,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.06135,59920
+columbia_gt,gsv,columbia-sc,columbia-sc:33583,iwdf__02SKvWsiGGiEFsMA,0.2012,0.5665,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.03929,9344
+columbia_gt,gsv,columbia-sc,columbia-sc:33587,iwdf__02SKvWsiGGiEFsMA,0.4378,0.5596,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.01352,4624
+columbia_gt,gsv,columbia-sc,columbia-sc:32828,j0zEV-P51fafr2K2trSy3Q,0.0567,0.6033,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.02993,29568
+columbia_gt,gsv,columbia-sc,columbia-sc:55931,kU99HdlC7dqZeRyPnlEXNg,0.7442,0.6155,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.02165,40560
+columbia_gt,gsv,columbia-sc,columbia-sc:55932,kU99HdlC7dqZeRyPnlEXNg,0.0415,0.6352,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.01904,55168
+columbia_gt,gsv,columbia-sc,columbia-sc:55933,kU99HdlC7dqZeRyPnlEXNg,0.3416,0.5826,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.01224,20336
+columbia_gt,gsv,columbia-sc,columbia-sc:55934,kU99HdlC7dqZeRyPnlEXNg,0.4845,0.5738,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.03479,23488
+columbia_gt,gsv,columbia-sc,columbia-sc:31450,kr0eiRrWgi7SqDpzRahCDw,0.3511,0.5581,brick/cobblestone,1,brick_or_paver,1,0,0.00376,1,1,0.01844,1088
+columbia_gt,gsv,columbia-sc,columbia-sc:55928,l1qrwt5YpFWes_yhwSiRSg,0.2668,0.6675,brick/cobblestone,1,brick_or_paver,1,0,0.0638,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:55930,l1qrwt5YpFWes_yhwSiRSg,0.0298,0.5652,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.09593,273504
+columbia_gt,gsv,columbia-sc,columbia-sc:33567,mASRArBY0OAR9AobseOGow,0.23,0.6542,brick/cobblestone,1,brick_or_paver,1,0,0.05745,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:33571,mASRArBY0OAR9AobseOGow,0.2892,0.5364,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.00818,2144
+columbia_gt,gsv,columbia-sc,columbia-sc:32841,mCBMoHpDzw9k_e8zgXbGSA,0.391,0.5459,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00891,2944
+columbia_gt,gsv,columbia-sc,columbia-sc:32842,mCBMoHpDzw9k_e8zgXbGSA,0.4402,0.6415,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.04035,70432
+columbia_gt,gsv,columbia-sc,columbia-sc:32846,mCBMoHpDzw9k_e8zgXbGSA,0.56,0.5587,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00809,6016
+columbia_gt,gsv,columbia-sc,columbia-sc:29347,mFuE3B6SEJ2p0_H_OYVnSg,0.4657,0.5656,brick/cobblestone,1,brick_or_paver,1,0,0.003,1,1,0.01092,720
+columbia_gt,gsv,columbia-sc,columbia-sc:37687,mgW6x0aUcB7bvN0PvrtyfQ,0.5511,0.5479,brick/cobblestone,1,brick_or_paver,1,0,0.00389,1,1,0.02599,11232
+columbia_gt,gsv,columbia-sc,columbia-sc:25599,mpJTQ83NPaoEmNUV9SnxxA,0.4988,0.5559,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.02004,5344
+columbia_gt,gsv,columbia-sc,columbia-sc:25600,mpJTQ83NPaoEmNUV9SnxxA,0.4523,0.5502,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.03696,3728
+columbia_gt,gsv,columbia-sc,columbia-sc:55078,myvMDsUP1EOMMh9AfRTqkw,0.9816,0.5352,brick/cobblestone,1,brick_or_paver,1,0,0.00513,1,1,0.03298,12400
+columbia_gt,gsv,columbia-sc,columbia-sc:41738,o0Bs8nVfH6ZR0gLuZT0sCg,0.0358,0.6292,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.0949,152528
+columbia_gt,gsv,columbia-sc,columbia-sc:29497,p_6GLqBf1P4YCCyKmtnMWQ,0.4349,0.5681,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00915,19664
+columbia_gt,gsv,columbia-sc,columbia-sc:56793,q99fapjkb1Xm_Yao5Ly9eA,0.0529,0.6421,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.05401,79280
+columbia_gt,gsv,columbia-sc,columbia-sc:55942,r7th4EpNJiq36vUkrZgACA,0.3809,0.5817,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.05038,28384
+columbia_gt,gsv,columbia-sc,columbia-sc:55655,rf4XDWrEcw8TV4aQz4fpbQ,0.5947,0.6454,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.08808,142176
+columbia_gt,gsv,columbia-sc,columbia-sc:29484,rg4dZQmEMd5_JYmo7OUevg,0.6489,0.5485,brick/cobblestone,1,brick_or_paver,1,0,0.00414,1,1,0.00852,2624
+columbia_gt,gsv,columbia-sc,columbia-sc:26307,sAHhDhBsDq4ULtJoc-ZL2g,0.6299,0.5536,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:29756,ug2Ff58bM-W-fCvHY0htdQ,0.06,0.6625,brick/cobblestone,1,brick_or_paver,1,0,0.07192,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:55954,ugFScNOn21ZjVtxPvggNxA,0.0743,0.6028,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.03337,47184
+columbia_gt,gsv,columbia-sc,columbia-sc:55957,ugFScNOn21ZjVtxPvggNxA,0.9147,0.5298,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.06294,50320
+columbia_gt,gsv,columbia-sc,columbia-sc:55960,ugFScNOn21ZjVtxPvggNxA,0.1208,0.5315,brick/cobblestone,1,brick_or_paver,1,0,0.00022,1,1,0.00141,1664
+columbia_gt,gsv,columbia-sc,columbia-sc:37944,usB8ZPV9e8oDVdlpvIM_Mw,0.0365,0.5482,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.01877,4992
+columbia_gt,gsv,columbia-sc,columbia-sc:37951,usB8ZPV9e8oDVdlpvIM_Mw,0.4661,0.5544,broken surface;brick/cobblestone;very long crossing,1,brick_or_paver,1,0,0.00022,1,1,0.00241,224
+columbia_gt,gsv,columbia-sc,columbia-sc:39576,vKVy3n-Vr6pbthR7yPkD5A,0.4778,0.5753,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00829,12176
+columbia_gt,gsv,columbia-sc,columbia-sc:56902,vlytvihvKA0t7ZbbhuIHPw,0.4675,0.698,brick/cobblestone,1,brick_or_paver,1,1,0.00025,1,1,0.03565,116464
+columbia_gt,gsv,columbia-sc,columbia-sc:33566,wETWQp-gfUcFVn7rk1_4Fg,0.4474,0.5829,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.01735,20256
+columbia_gt,gsv,columbia-sc,columbia-sc:29579,wPnsP7pwLbaq_lNf7AD_6g,0.2332,0.5458,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:39540,w_sjxvvcQygmYTMT05S1pQ,0.2234,0.5828,broken surface;paint fading;brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:39543,w_sjxvvcQygmYTMT05S1pQ,0.7009,0.5551,brick/cobblestone;paint fading,1,brick_or_paver,1,0,0.00143,1,1,0.021,1872
+columbia_gt,gsv,columbia-sc,columbia-sc:32804,wnWukrkqQkCVuVweeMEKfw,0.0483,0.6277,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.08556,94704
+columbia_gt,gsv,columbia-sc,columbia-sc:32808,wnWukrkqQkCVuVweeMEKfw,0.4777,0.6543,brick/cobblestone,1,brick_or_paver,1,1,0.00023,1,1,0.10501,135600
+columbia_gt,gsv,columbia-sc,columbia-sc:32821,wnWukrkqQkCVuVweeMEKfw,0.2038,0.5526,brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.01194,5120
+columbia_gt,gsv,columbia-sc,columbia-sc:32824,wnWukrkqQkCVuVweeMEKfw,0.3392,0.5468,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.00873,3616
+columbia_gt,gsv,columbia-sc,columbia-sc:33230,wpdmxtMNyowrfZ1Ljj7U4g,0.6311,0.5438,brick/cobblestone,1,brick_or_paver,1,0,0.11682,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:55006,x6gGUEw_XIzxJtDCmMmW7w,0.7913,0.6575,brick/cobblestone,1,brick_or_paver,1,1,0.00024,1,1,0.01496,87536
+columbia_gt,gsv,columbia-sc,columbia-sc:26296,xtuCnJ01iuT5TtlkfQfbcw,0.7093,0.5736,brick/cobblestone,1,brick_or_paver,1,0,,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:26306,xtuCnJ01iuT5TtlkfQfbcw,0.4009,0.5706,brick/cobblestone,1,brick_or_paver,1,0,0.11577,0,0,,
+columbia_gt,gsv,columbia-sc,columbia-sc:39550,y-hajwfPQKMderbGwX8oCQ,0.2474,0.5953,paint fading;brick/cobblestone,1,brick_or_paver,1,1,0.00022,1,1,0.00126,17104
+columbia_gt,gsv,columbia-sc,columbia-sc:49571,yqCniiu76h7kNHWDoN_N1Q,0.3726,0.6248,brick/cobblestone,1,brick_or_paver,1,0,0.00141,1,1,0.07074,109648
