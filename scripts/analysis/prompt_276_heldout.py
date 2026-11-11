@@ -70,7 +70,8 @@ REFERENCE_POOL = ("richmond", "bend", "clovis", "morgantown", "annapolis", "pate
 OPEN_POOL = ("laurens_mapillary", "bayonne")
 OTHER_SPLITS = ("juneau", "laurens_gsv", "budapest_district5")
 HELDOUT = REFERENCE_POOL + OPEN_POOL + OTHER_SPLITS
-POOLS = {"reference": REFERENCE_POOL, "open": OPEN_POOL,
+US9 = REFERENCE_POOL + ("laurens_mapillary", "juneau")     # rampnet.eval.POOLED_SPLITS, the scoreboard pool
+POOLS = {"reference": REFERENCE_POOL, "open": OPEN_POOL, "us9": US9,
          "all12": HELDOUT, "all13": HELDOUT + ("manual_gold@250",)}
 DRAWS = 2000
 SEED = 276
@@ -194,6 +195,7 @@ def build(main_cache):
     split_gts = {s: load_split_gts(s) for s in HELDOUT + ("manual_gold@250", "manual_gold")}
 
     legs, thresholds, counts = [], [], {}   # counts[(short, arm)][split] -> per-pano array
+    raw_f1 = {}                              # raw_f1[(short, arm)][split] -> F1 with no threshold
     for model_id, short in MODELS:
         for arm, definition in ARMS[short]:
             args.definition = definition
@@ -232,6 +234,7 @@ def build(main_cache):
                 row["n_distinct_scores"] = len({round(c, 4) for c in confs if c is not None})
                 legs.append(row)
                 counts[(short, arm)][split] = pano_counts(pts, gts, rsq, thr)
+                raw_f1.setdefault((short, arm), {})[split] = raw["f1"]
 
     # 3. pools: macro F1 per arm, and each arm against zs with the paired bootstrap
     scored = {k: v for k, v in counts.items()}
@@ -249,6 +252,7 @@ def build(main_cache):
                 tot = np.sum([c[m].sum(0) for m in members], axis=0)
                 pools.append({"pool": pool_name, "short": short, "arm": arm, "status": "scored",
                               "macro_f1": _r(np.mean(list(per.values()))),
+                              "macro_f1_raw": _r(np.mean([raw_f1[(short, arm)][m] for m in members])),
                               "pooled_f1": _r(f1_from_counts(*tot)), "per_split_f1": per})
                 if arm != "zs" and all(m in scored.get((short, "zs"), {}) for m in members):
                     rng = np.random.default_rng(SEED)
@@ -288,15 +292,15 @@ def render_md(res):
             L.append("| %s | %s | %s | %.2f | %.3f | %.3f |" % (
                 t["model"], t["arm"], t["definition"] or "seed", t["threshold"],
                 t["dev_select_f1"], t["dev_select_f1_raw"]))
-    L += ["", "## Pools (macro F1 at the selected thresholds; pooled F1 in parentheses)", "",
-          "| pool | model | arm | macro F1 | pooled F1 |", "|---|---|---|---|---|"]
+    L += ["", "## Pools (macro F1 at the selected thresholds; raw = no threshold; pooled = one micro F1 over the pool)", "",
+          "| pool | model | arm | macro F1 | macro F1 raw | pooled F1 |", "|---|---|---|---|---|---|"]
     for p in res["pool_stats"]:
         if p["status"] != "scored":
-            L.append("| %s | %s | %s | pending (%s) | |" % (p["pool"], p["short"], p["arm"],
-                                                             ", ".join(p["missing"])))
+            L.append("| %s | %s | %s | pending (%s) | | |" % (p["pool"], p["short"], p["arm"],
+                                                               ", ".join(p["missing"])))
         else:
-            L.append("| %s | %s | %s | **%.3f** | %.3f |" % (
-                p["pool"], p["short"], p["arm"], p["macro_f1"], p["pooled_f1"]))
+            L.append("| %s | %s | %s | **%.3f** | %.3f | %.3f |" % (
+                p["pool"], p["short"], p["arm"], p["macro_f1"], p["macro_f1_raw"], p["pooled_f1"]))
     L += ["", "## Arm minus zs (paired pano bootstrap of the macro ΔF1)", "",
           "| pool | model | arm | ΔF1 | 95% CI | p | Holm p | family |", "|---|---|---|---|---|---|---|---|"]
     for t in res["tests"]:

@@ -1,12 +1,17 @@
 # VLM prompt experiments, round 1: Gemini and Qwen on the curb-ramp benchmark (#276)
 
-**Status: in progress (2026-11-10).** Steps 0–4 of the plan are done (Step 3 on three model
-families), the Step 2 zero-shot columns are published and on the scoreboard, and the Step 6
-thinking arm has run. Step 4 is a negative result on both models (the alternative rewording
-passes Flash's gate on the paraphrase effect). Step 5, the frozen held-out run, is next. Sections marked *pending* are placeholders.
+**Status: Step 5 done (2026-11-11), write-up in progress.** Steps 0–5 of the plan are done
+(Step 3 on three model families), the Step 2 zero-shot columns are published and on the
+scoreboard, and the Step 6 thinking arm has run. Step 4 is a negative result on both models,
+and Step 5, the frozen held-out run, finds the **pre-registered primary endpoint null**: the
+optimized Flash definition does not beat zero-shot on held-out cities. The one wording that
+moves Flash on held-out data is Jon's blind expert definition (an amendment arm, so
+exploratory). Nothing moves Argon. Step 7 replicates and the in-context-images control are
+pending.
 Every dev-split number below regenerates from the detection caches with
-`python scripts/analysis/prompt_276_results.py` (`--check` compares with the committed JSON;
-`scripts/check_all.py --only prompt_276_results --allow local-cache` runs it).
+`python scripts/analysis/prompt_276_results.py`, every held-out number with
+`python scripts/analysis/prompt_276_heldout.py` (`--check` compares with the committed JSON;
+`scripts/check_all.py --only prompt_276_results,prompt_276_heldout --allow local-cache` runs both).
 
 ## What and why
 
@@ -186,12 +191,13 @@ para3 beside it. Argon has no optimized arm. The whole step cost $7.79 and four 
 judgements; the record (trajectories, picks, verdicts, rewrites, crops) is under
 `benchmark/prompt_opt_276/optimize/`.
 
-## Step 5: frozen held-out run — *running* (launched 2026-11-09 16:49 PST)
+## Step 5: frozen held-out run (2026-11-09 16:49 → 2026-11-11 01:00 PST)
 
-Every arm runs with elicited confidence at concurrency 6 on the 12 held-out splits (1,414
-panos); the zero-shot baseline also runs the full 1,000-pano `manual_gold`, the other arms its
-committed 250-pano subset. Three processes: two Argon chains over disjoint split lists and one
-Flash chain. Expected ≈ $257 and about a day.
+Every arm ran with elicited confidence at concurrency 6 on the 12 held-out splits (1,414
+panos); the zero-shot baseline also ran the full 1,000-pano `manual_gold`, the other arms its
+committed 250-pano subset. Three processes (two Argon chains over disjoint split lists, one
+Flash chain), 97 legs, all exit 0 after the two incidents below. Five small `dev_select` legs
+(confidence on, one per frozen definition) supplied the thresholds. $269 on the ledger.
 
 | arm | Flash 3.8 | Argon | status in the plan |
 |---|---|---|---|
@@ -200,25 +206,84 @@ Flash chain. Expected ≈ $257 and about a day.
 | para3 + conf | yes | yes | **amendment, 2026-11-09**: the best paraphrase on all three model families in Step 3; added as a held-out arm before any held-out number was seen |
 | expert + conf | yes | yes | **amendment, 2026-11-09**: Jon's blind definition; +0.145 on Flash dev_select, within Argon's floor (so Argon's is exploratory) |
 
-Pre-registered primary endpoint (unchanged): per model, opt+conf vs zs+conf, macro ΔF1 on the
-7-city US reference pool, paired pano bootstrap, Holm across the two models. With Argon having
-no optimized arm, the primary test is Flash's alone; the para3 and expert comparisons, and the
-open pool, are exploratory and will be reported as such. Thresholds are selected on
-`dev_select` at each frozen definition.
+**Protocol, as pre-registered.** One threshold per (model, definition), selected on `dev_select`
+with that definition and confidence on: the 0.01-grid threshold that maximises dev_select F1
+(lowest on a tie). Every held-out split is scored at that threshold, never at its own best.
+Primary endpoint: per model, opt+conf vs zs+conf, macro ΔF1 on the 7-city GSV US reference
+pool (richmond, bend, clovis, morgantown, annapolis, paterson, gainesville: the board before
+`laurens_mapillary` and `juneau` joined), paired pano bootstrap (2,000 draws, seed 276), Holm
+across the two models. Argon has no optimized arm, so the primary test is Flash's alone and
+Holm reduces to it. The open pool (`laurens_mapillary`, `bayonne`), the nine-city scoreboard
+pool, the amendment arms and the remaining splits are exploratory, Holm-corrected within each
+(model, pool) family.
+
+**Selected thresholds.** Flash: 0.00 for every definition, i.e. no confidence cut helps a
+model whose errors are misses (dev_select F1 0.267 zs, 0.310 alt, 0.314 para3, 0.296 expert).
+Argon: 0.35 (zs, dev_select F1 0.705), 0.37 (para3, 0.698), expert *pending*.
+
+**Primary endpoint: null.** Flash alt+conf minus zs+conf on the reference pool is
+**−0.011 F1 [−0.027, +0.006], p = 0.22**. The +0.043 (confidence on) / +0.075 (off) that
+passed the dev_select gate did not transfer: the optimized wording loses on four of the seven
+reference cities and gains on the open pool by +0.028 [−0.011, +0.068]. The gate (65 panos,
+≥ 0.02) is a cost gate, and this is what it looks like when selection noise passes it.
+
+**Macro F1 at the selected thresholds** (`step5_results.md` has every split, P/R, AP and the
+raw unthresholded number):
+
+| pool | Flash zs | Flash alt | Flash para3 | Flash expert | Argon zs | Argon para3 | Argon expert |
+|---|---|---|---|---|---|---|---|
+| reference (7 GSV US) | 0.570 | 0.560 | 0.556 | **0.595** | **0.736** | 0.726 | pending |
+| open (Mapillary + Panoramax) | 0.256 | 0.284 | 0.267 | **0.324** | 0.658 | 0.671 | pending |
+| nine-city scoreboard pool | 0.516 | 0.511 | 0.511 | **0.550** | **0.733** | 0.726 | pending |
+| all 12 held-out | 0.448 | 0.445 | 0.446 | **0.481** | **0.705** | 0.698 | pending |
+
+**Arm minus zs, paired pano bootstrap** (ΔF1 [95% CI], p; Holm within family):
+
+| pool | Flash alt (primary) | Flash para3 | Flash expert | Argon para3 | Argon expert |
+|---|---|---|---|---|---|
+| reference | −0.011 [−0.027, +0.006] p .22 | −0.015 [−0.031, +0.000] p .05 | **+0.025 [+0.009, +0.041] p .002** (Holm .004) | −0.010 [−0.022, +0.002] p .10 | pending |
+| open | +0.028 [−0.011, +0.068] p .16 | +0.011 [−0.027, +0.048] p .53 | **+0.068 [+0.027, +0.106] p < .001** | +0.013 [−0.013, +0.041] p .35 | pending |
+| all 12 | −0.004 [−0.018, +0.011] p .61 | −0.002 [−0.015, +0.011] p .75 | **+0.033 [+0.018, +0.048] p < .001** | −0.008 [−0.019, +0.002] p .13 | pending |
+
+**What held and what did not.**
+
+- *Exemplar-derived rewriting (Step 4) is a null on held-out data for both models*: Argon's
+  candidates never passed dev_train, and Flash's alternative, the only candidate to pass the
+  gate, is −0.011 on the reference pool.
+- *The paraphrase arm is a null too*: para3 was the best of three rewordings on dev_select for
+  all three model families, and on held-out cities it is −0.015 (Flash) and −0.010 (Argon).
+  "Best of K prompts" on 65 panos is selection, not signal, at this effect size.
+- *The expert definition moves Flash*, +0.025 on the reference pool and +0.068 on the open
+  pool, through recall (reference-pool mean recall 0.45 → 0.48, precision 0.80 → 0.79). It
+  leads zs on six of the seven reference cities (paterson 0.647 vs 0.609, bend 0.668 vs 0.640)
+  and trails on gainesville. It is an amendment arm, so this is exploratory, and it is the
+  natural candidate for the Step 7 replicates. On Argon it is *pending*.
+- *Confidence elicitation on Argon moves the operating point, not the model.* Pooled over the
+  nine scoreboard cities, zs+conf at its selected threshold scores 0.736 against Step 2's
+  0.734 without confidence (same panos, same prompt); the cut is worth +0.013 macro over the
+  raw zs+conf output (0.733 vs 0.720). Argon's scores spread over 50–60 distinct values per
+  split, so its AP (0.27 on budapest to 0.73 on richmond; 0.635 on full `manual_gold`) is a usable curve. On Flash the
+  cut is worth nothing (threshold 0.00) and zs+conf scores 0.544 pooled against Step 2's 0.527.
+- *Argon on the full `manual_gold`*: 0.741 at the threshold (0.737 raw) against Step 2's
+  0.740. Flash: 0.490 (0.504 in Step 2).
 
 ## Step 7: replicates — *pending*
 
-## Cost so far
+## Cost
 
 | | legs | cost (ledger, list price) |
 |---|---|---|
-| Gemini 3.8 Flash (Steps 1–4, incl. $2.32 lost to the parser incident below) | 35 | $59.39 |
-| Gemini 4 Argon (Steps 1–4, Step 6 thinking) | 34 | $78.24 |
+| Gemini 3.8 Flash, Steps 1–4 (incl. $2.32 lost to the parser incident below) | 35 | $59.39 |
+| Gemini 4 Argon, Steps 1–4 and the Step 6 thinking arm | 34 | $78.24 |
 | Qwen3-VL-32B (klone, `gpu-l40s-makelab`) | 6 | $0 |
-| **Total through 2026-11-10 00:45** | | **$137.63** |
+| Gemini 3.8 Flash, Step 5 (52 chain legs, 3 threshold legs, 5 one-pano re-runs) | 60 | $153.29 |
+| Gemini 4 Argon, Step 5 (39 chain legs, 2 threshold legs, 1 re-run; expert threshold leg *pending*) | 41 | $115.77 |
+| Argon `manual_gold` run killed by the leg timeout (no ledger row; ≈ 992/1,000 of a $23.26 leg) | | ≈ $23 |
+| **Total through 2026-11-11** | | **≈ $430** |
 
-Reconciled against Cloud Monitoring on 2026-11-09 (billed == logged for both models). Argon
-list price doubles on 2026-12-01; the credit expires 2026-12-07.
+Reconciled against Cloud Monitoring on 2026-11-09 (billed == logged for both models); the
+Step 5 reconcile is *pending* the final legs. Argon list price doubles on 2026-12-01; the
+credit expires 2026-12-07.
 
 ## Incidents and traps, recorded
 
@@ -256,6 +321,8 @@ list price doubles on 2026-12-01; the credit expires 2026-12-07.
 | number | file | regenerator |
 |---|---|---|
 | every dev-split P/R/F1, tp/fp/n_gt, distinct-score counts | `analysis_out/prompt_opt_276/step3_results.{json,md}` | `prompt_276_results.py` (`--check`) |
+| Step 5: selected thresholds and sweeps, every held-out split at them, pool macro/pooled F1, paired-bootstrap Δ rows | `analysis_out/prompt_opt_276/step5_results.{json,md}` | `prompt_276_heldout.py` (`--check`) |
+| the manual_gold 250-pano subset | `benchmark/prompt_opt_276/manual_gold_250.json` | `prompt_opt_276_splits.py --check` |
 | Step 2 pooled / per-split rows, scoreboard effects | `analysis_out/scoreboard.json`, `docs/model_scoreboard.md` | `scoreboard.py --check` |
 | Laurens paired Argon row | `analysis_out/laurens_paired_151.{json,md}` | `laurens_paired_151.py` |
 | costs, s/pano, tokens, finish reasons, `pano_list` sha1, `run_options` per leg | `analysis_out/usage_log.jsonl` | the legs themselves; `vertex_usage.py --reconcile` |
@@ -267,6 +334,7 @@ list price doubles on 2026-12-01; the credit expires 2026-12-07.
 
 The published Step 2 detections re-score from `benchmark/model_detections/` on any clone
 (`scoreboard.py --check`). The dev-split legs live in the local `.model_cache` and
-`.model_cache_rep1` until the PR exports them; `check_all.py --only prompt_276_results --allow
-local-cache` verifies the committed table against those caches. Re-running any paid leg needs
+`.model_cache_rep1` until the PR exports them, and so do the Step 5 held-out legs;
+`check_all.py --only prompt_276_results,prompt_276_heldout --allow local-cache` verifies both
+committed tables against those caches. Re-running any paid leg needs
 Vertex access to `rampnet`; the Qwen legs need klone's `gpu-l40s` and the pinned env.
