@@ -651,8 +651,10 @@ before any card is rated and before s3's test or (b′) numbers at the new thres
 - **Seattle draw (decides).** 120 (b′) panos, draw seed 275, from the 654 panos in no earlier draw (Step 0 and
   the s3 audit), `draw --exclude-panos`. No `node_fa` stratum.
 - **City draws (report only, Jon 2026-11-08).** Same seed 275, drawn from each run's processed panos:
-  - Juneau: 120 of 5,333 (Mapillary: 4,999 Trimble MX7 from the original run, 334 GoPro Max from the 2026-11
-    expansion).
+  - Juneau: 120 of 5,333, all Mapillary. The original run has 4,999 panos (4,589 Trimble MX7 and 410 GoPro Max),
+    and the 2026-11 expansion has 334 (256 Trimble MX7 and 78 GoPro Max). The draw itself is 109 Trimble and 11
+    GoPro. *(Corrected 2026-11-10 from the labeler records' `camera_model`; this line first said all 4,999
+    original panos were Trimble and all 334 expansion panos GoPro.)*
   - Laurens, Mapillary arm: 80 of 4,495 (GoPro Max, 2025-11).
   - Laurens, GSV arm: 80 of 2,137 (2024-09), the same footprint as the Mapillary arm.
   - Panos fetched by `export_benchmark.py --out`, then made 4096×2048 by `bprime-prep` exactly as the training root.
@@ -715,7 +717,9 @@ test was pre-registered.
 - **Laurens Mapillary: a new false-positive class, the top of the capture car** (Jon's finding). 50 of the 54
   Laurens Mapillary cards carry his note "top of the capture car"; the rest are shadows and parking-lot lines.
   Every car-top card is a GoPro Max pano, including the 3 in Juneau's GoPro expansion area; none of Juneau's
-  109 Trimble panos has one. The car tops sit at y 0.52–0.79, so the labeler's curb-ramp nadir mask
+  109 Trimble panos has one. *(Added 2026-11-10: this holds for s1 and s3 only. A later review reports that s4's
+  Juneau car tops are mostly on Trimble panos, behind the vehicle. `docs/crosswalk_followups_285.md` re-measures
+  this.)* The car tops sit at y 0.52–0.79, so the labeler's curb-ramp nadir mask
   (`NADIR_MASK_DEG` 49°, y > 0.772) would remove only 6 of them. s3 does not help here (41 → 48 per 100 panos):
   its hard negatives came from GSV-style panos only.
 - **Laurens has no true positive on either arm.** The town has few marked crosswalks, and the random 80 panos
