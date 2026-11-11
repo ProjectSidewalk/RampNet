@@ -58,6 +58,15 @@
     "y11x_tiles_s2_best": "y11x_tiles",
     "y11x_tiles_s3_best": "y11x_tiles"
   },
+  "study_legs": {
+    "gemini-3.8-flash-confidence-on": "vlm_prompt_276",
+    "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on": "vlm_prompt_276",
+    "gemini-3.8-flash-definition-para3-confidence-on": "vlm_prompt_276",
+    "gemini-3.8-flash-definition-expert-confidence-on": "vlm_prompt_276",
+    "gemini-4-argon-confidence-on": "vlm_prompt_276",
+    "gemini-4-argon-definition-para3-confidence-on": "vlm_prompt_276",
+    "gemini-4-argon-definition-expert-confidence-on": "vlm_prompt_276"
+  },
   "curves": {
     "rampnet": {
       "ap": 0.82944,

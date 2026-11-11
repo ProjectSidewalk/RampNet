@@ -249,8 +249,15 @@ def legs():
     nine seed replicates are not here either. Both sets are analysed in
     ``docs/seed_variance_51_135.md``. The omission is listed in the JSON
     (``off_scoreboard``) and named on the page, so nothing drops out silently.
+
+    Study legs (``roster.STUDY_LEGS``) are left out for a related reason: they are arms
+    of a prompt study (#276 Step 5: two models already on the board, with confidence
+    elicited, at thresholds the study selected on a dev split) and are scored in that
+    study's doc; here they would be the same model several times at a raw operating
+    point the write-up does not use. Listed in the JSON (``study_legs``) and named on
+    the page.
     """
-    return [leg for leg in roster.ROSTER if not leg.seed_of]
+    return [leg for leg in roster.ROSTER if not leg.seed_of and not leg.study]
 
 
 def unregistered_exports():
@@ -572,6 +579,8 @@ def build(models=None):
         # Registered and published, deliberately not scored here (see legs()).
         "off_scoreboard": {roster.published_name(leg): leg.seed_of
                            for leg in roster.SEED_LEGS},
+        "study_legs": {roster.published_name(leg): leg.study
+                       for leg in roster.STUDY_LEGS},
         "curves": curves,
         "splits": {s: {"n_panos": len(gts),
                        "n_gt": sum(len(g.gt_points) for g in gts.values()),

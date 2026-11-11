@@ -563,10 +563,13 @@ def test_scores_every_registered_leg(board):
     one deliberate exception, and test_seed_legs_are_named_but_not_scored pins it.
     """
     scored = {m["model"] for m in board["models"]}
-    registered = {roster.published_name(c) for c in roster.ROSTER if not c.seed_of}
+    registered = {roster.published_name(c) for c in roster.ROSTER
+                  if not c.seed_of and not c.study}
     assert scored == registered, f"registered but not scored: {registered - scored}"
     assert set(board["off_scoreboard"]) == {
         roster.published_name(c) for c in roster.ROSTER if c.seed_of}
+    assert set(board["study_legs"]) == {
+        roster.published_name(c) for c in roster.ROSTER if c.study}
 
 
 def test_no_published_file_is_left_unscored(board):
@@ -1457,6 +1460,22 @@ def test_by_split_rows_rejects_an_aggregate_that_disagrees_with_its_cells():
     committed["models"][0]["f1"] += 0.01
     with pytest.raises(AssertionError, match="mean of its cells"):
         by_split_rows(committed)
+
+
+def test_study_legs_are_named_but_not_scored(board):
+    """Study legs (#276 Step 5) stay off the board the way seed legs do: none is a row,
+    each is listed under ``study_legs`` with its study doc, and the page names every
+    one. Their numbers live in that doc at the thresholds the study selected."""
+    study = {roster.published_name(leg): leg.study for leg in roster.STUDY_LEGS}
+    assert len(study) == 7
+    assert set(study.values()) == {"vlm_prompt_276"}
+    assert not study.keys() & {m["model"] for m in board["models"]}
+    assert not study.keys() & set(board["per_split"])
+    assert board["study_legs"] == study
+    with open(sb.DEFAULT_DOC, encoding="utf-8") as fh:
+        doc = fh.read()
+    for name in study:
+        assert f"`{name}`" in doc, name
 
 
 def test_seed_legs_are_named_but_not_scored(board):

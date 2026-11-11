@@ -67,6 +67,16 @@ These properties of an entry are worth stating because they are easy to get wron
   model is best" rather than "how much does one model vary between training runs". That
   second question has its own write-up, ``docs/seed_variance_51_135.md``. The value is
   the published name of the leg it replicates.
+* ``study`` marks a **study leg**: an arm of a prompt or protocol study, published and
+  registered so its numbers re-score on any clone, but scored in that study's own doc at
+  that study's own operating point (a threshold selected on a dev split, say), not on
+  the scoreboard, whose tables score every row at the class's raw operating point. The
+  #276 Step 5 legs are the first: seven confidence-elicited arms of two models already on
+  the board. Showing them as rows would give one model four rows and the board's "best
+  challenger" would become the same model at an operating point its write-up does not
+  use. Like a seed leg it is listed in the scoreboard JSON (``study_legs``) and named
+  on the page, so nothing drops out silently. The value is the study doc's stem under
+  ``docs/``.
 """
 from collections import namedtuple
 import os
@@ -87,8 +97,8 @@ def slug(label):
 #: extra signature-entering settings it was run with, if any.
 Challenger = namedtuple(
     "Challenger",
-    "spec label provider density standing added note pins published_as seed_of",
-    defaults=((), None, None))
+    "spec label provider density standing added note pins published_as seed_of study",
+    defaults=((), None, None, None))
 
 # --------------------------------------------------------------------------- #
 # The registry
@@ -231,15 +241,15 @@ ROSTER = (
 
     # #276 Step 5: the frozen held-out run (2026-11-09 to 2026-11-11), every arm with
     # elicited per-box confidence (--gemini-confidence: an integer 0-100 score per box,
-    # in the signature and the published files' points). Registered standing=False:
-    # they are the study's replicable legs, not scoreboard rows, until Jon promotes
-    # any. Thresholds in docs/vlm_prompt_276.md were selected on sao_paulo dev_select,
-    # not on these files. The definition arms were run on the twelve held-out splits
+    # in the signature and the published files' points). Registered as STUDY legs
+    # (standing=False, study set): the study's replicable arms, scored in
+    # docs/vlm_prompt_276.md at thresholds selected on sao_paulo dev_select, and off the
+    # scoreboard, which would score them raw (see the ``study`` bullet above). The definition arms were run on the twelve held-out splits
     # (sao_paulo only on dev_select, manual_gold only on its 250-pano subset), so their
     # published coverage is twelve splits; the zs+conf legs cover all fourteen.
     Challenger(
         spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
-        density="sparse", standing=False, added="2026-11-11",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
         pins=(("gemini_confidence", True),),
         published_as="gemini-3.8-flash-confidence-on",
         note="Zero-shot + confidence, 14 splits (#276 Step 5 baseline). Same prompt and "
@@ -249,7 +259,7 @@ ROSTER = (
              "confidence). All 7,606 calls ended STOP."),
     Challenger(
         spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
-        density="sparse", standing=False, added="2026-11-11",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
         pins=(("definition", "def276-flash38-alt"), ("gemini_confidence", True),),
         published_as="gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
         note="The #276 Step 4 alternative rewording (the one optimizer candidate to pass the "
@@ -258,7 +268,7 @@ ROSTER = (
              "reference pool, p 0.22 -- the gate gain did not transfer."),
     Challenger(
         spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
-        density="sparse", standing=False, added="2026-11-11",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
         pins=(("definition", "para3"), ("gemini_confidence", True),),
         published_as="gemini-3.8-flash-definition-para3-confidence-on",
         note="Paraphrase 3 of the seed definition + confidence, 12 held-out splits (#276 Step 5 "
@@ -266,7 +276,7 @@ ROSTER = (
              "wording on dev_select was selection, not signal."),
     Challenger(
         spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
-        density="sparse", standing=False, added="2026-11-11",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
         pins=(("definition", "expert"), ("gemini_confidence", True),),
         published_as="gemini-3.8-flash-definition-expert-confidence-on",
         note="Jon's blind expert definition + confidence, 12 held-out splits (#276 Step 5 "
@@ -275,7 +285,7 @@ ROSTER = (
              "precision; leads zs on six of seven reference cities."),
     Challenger(
         spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
-        density="sparse", standing=False, added="2026-11-11",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
         pins=(("gemini_confidence", True),),
         published_as="gemini-4-argon-confidence-on",
         note="Zero-shot + confidence, 14 splits (#276 Step 5 baseline). Same prompt and views "
@@ -288,14 +298,14 @@ ROSTER = (
              "row, one row with panos_called 8)."),
     Challenger(
         spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
-        density="sparse", standing=False, added="2026-11-11",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
         pins=(("definition", "para3"), ("gemini_confidence", True),),
         published_as="gemini-4-argon-definition-para3-confidence-on",
         note="Paraphrase 3 + confidence, 12 held-out splits (#276 Step 5 amendment arm). -0.010 "
              "F1 vs zs+conf on the reference pool; null."),
     Challenger(
         spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
-        density="sparse", standing=False, added="2026-11-11",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
         pins=(("definition", "expert"), ("gemini_confidence", True),),
         published_as="gemini-4-argon-definition-expert-confidence-on",
         note="Jon's blind expert definition + confidence, 12 held-out splits (#276 Step 5 "
@@ -773,6 +783,9 @@ OFF_ROSTER = tuple(c for c in ROSTER if not c.standing)
 #: Seed legs (``seed_of`` set): published and registered, but not on the scoreboard.
 SEED_LEGS = tuple(c for c in ROSTER if c.seed_of)
 
+#: Study legs (``study`` set): published and registered, scored in their study's doc.
+STUDY_LEGS = tuple(c for c in ROSTER if c.study)
+
 # Read off the entries, not by looking each spec back up in BY_SPEC: that mapping
 # holds default legs only, so a spec-keyed lookup here would resolve to the wrong
 # leg (or raise at import) the moment anything pinned reached this far. The check
@@ -941,7 +954,9 @@ def markdown_table():
     rows = ["| leg | provider | density | joined | in the roster tables |",
             "| :--- | :--- | :--- | :--- | :--- |"]
     for c in ROSTER:
-        scored = "✅" if c.standing else "— published, not in these tables"
+        scored = ("✅" if c.standing else
+                  f"— study leg, scored in `{c.study}.md`" if c.study else
+                  "— published, not in these tables")
         density = c.density or "not yet measured"
         rows.append(f"| `{published_name(c)}` | {c.provider} | {density} | "
                     f"{c.added} | {scored} |")

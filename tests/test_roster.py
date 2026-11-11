@@ -274,6 +274,16 @@ def test_off_roster_entries_are_published_but_not_scored():
         assert c not in roster.SCORED
 
 
+def test_study_legs_are_registered_published_and_off_the_board():
+    """A study leg (#276 Step 5) is standing=False, pinned, names its study doc, and is
+    not a seed leg; the scoreboard and the Laurens record skip it (their own tests)."""
+    assert len(roster.STUDY_LEGS) == 7
+    for c in roster.STUDY_LEGS:
+        assert not c.standing and c.pins and not c.seed_of, c.published_as
+        assert (REPO / "docs" / f"{c.study}.md").exists(), c.study
+        assert c in roster.OFF_ROSTER and c not in roster.SCORED
+
+
 def test_every_entry_records_when_it_joined():
     for c in roster.ROSTER:
         assert c.added and len(c.added) == 10, c.spec

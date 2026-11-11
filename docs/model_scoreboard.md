@@ -618,6 +618,19 @@ Omissions are content, so they are named rather than left as blanks:
   `y11x_tiles`, CI [0.008, 0.024]). Their detections are published and registered under
   #258 like any leg (`seed_of` in `rampnet/roster.py`), and `analysis_out/scoreboard.json`
   lists them under `off_scoreboard`.
+- **Seven study legs of #276 are not on this board**: `gemini-3.8-flash-confidence-on`,
+  `gemini-3.8-flash-definition-def276-flash38-alt-confidence-on`,
+  `gemini-3.8-flash-definition-para3-confidence-on`,
+  `gemini-3.8-flash-definition-expert-confidence-on`, `gemini-4-argon-confidence-on`,
+  `gemini-4-argon-definition-para3-confidence-on` and
+  `gemini-4-argon-definition-expert-confidence-on` (#276 Step 5). They are the two Gemini
+  models already on the board, run with an elicited per-box confidence and, for five of
+  them, a rewritten curb-ramp definition, and they are scored in
+  [`vlm_prompt_276.md`](vlm_prompt_276.md) at thresholds selected on the sao_paulo dev
+  split. Here they would be one model four times at a raw operating point that write-up
+  does not use, and the "best challenger" line would name the same model twice. Their
+  detections are published and registered like any leg (`study` in `rampnet/roster.py`),
+  and `analysis_out/scoreboard.json` lists them under `study_legs`.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
 - **Eight legs have not run every pooled split — six of them only one**, so they are in the partial table rather than the

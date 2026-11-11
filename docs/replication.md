@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 33.4 MB (301 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 35.1 MB (389 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -61,7 +61,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-11-09 (with the tiles arms, #258, the Vistas 1024 arm on all fourteen splits, and the two #276 Gemini legs) that is **301 files, 33.4 MB**, and every one of
+signature recorded inside. As of 2026-11-11 (with the tiles arms, #258, the Vistas 1024 arm on all fourteen splits, the two #276 Gemini legs and the seven #276 Step 5 confidence legs) that is **389 files, 35.1 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |

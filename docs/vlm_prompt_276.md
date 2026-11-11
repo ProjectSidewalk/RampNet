@@ -202,9 +202,11 @@ Flash chain), 97 legs, all exit 0 after the two incidents below. Five small `dev
 
 All seven legs are published under `benchmark/model_detections/` (`export_model_cache.py
 --verify`: 88 of 88 (leg, split) pairs identical to the cache) and registered in
-`rampnet/roster.py` **standing=False**, as `<model>-confidence-on` and
-`<model>-definition-<name>-confidence-on`: replicable from any clone, on no scoreboard table
-until Jon promotes any. The definition arms' `sao_paulo` (dev_select only) and `manual_gold`
+`rampnet/roster.py` as **study legs** (`study="vlm_prompt_276"`, standing=False), named
+`<model>-confidence-on` and `<model>-definition-<name>-confidence-on`: replicable from any
+clone, scored here, and off the scoreboard and the Laurens paired record, which would score
+them at their raw operating point and make the same model the board's best challenger
+twice. `scoreboard.json` lists them under `study_legs` and `model_scoreboard.md` names them. The definition arms' `sao_paulo` (dev_select only) and `manual_gold`
 (250-pano subset) runs stay in the local cache, which is why the regenerator reads the cache.
 
 | arm | Flash 3.8 | Argon | status in the plan |
