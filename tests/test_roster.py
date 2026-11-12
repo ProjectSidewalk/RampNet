@@ -475,7 +475,8 @@ def test_a_replicate_carries_the_bare_leg_s_signature_and_no_pinned_sibling_s():
     could not fail (PR #167 m4)."""
     for rep in roster.REPLICATES:
         leg = roster.BY_PUBLISHED[rep.of]
-        assert not leg.pins, (rep.tag, "a replicate replicates a bare leg")
+        if leg.pins:
+            continue    # a replicate of a PINNED leg: the test below covers it
         siblings = [c for c in roster.ROSTER if c.label == leg.label and c.pins]
         assert siblings, (rep.tag, "no pinned sibling: the property is vacuous here")
         for city in rep.splits:
@@ -620,3 +621,27 @@ def test_provider_defaults_match_the_exporters_parser():
     assert len(shared) >= 7, shared      # the Claude pins, vistas_input_size, the Gemini knobs
     for key in shared:
         assert defaults[key] == roster.PROVIDER_DEFAULTS[key], key
+
+
+def test_a_replicate_of_a_pinned_leg_records_that_leg_s_pins_and_no_other_s():
+    """The #276 Step 7 replicates re-run PINNED study legs (zs+conf, expert+conf), so
+    the bare-leg test above does not apply. A definition pin lives inside the prompt
+    text, not in a signature field of its own, so the property is checked on the
+    file's recorded ``pins``: they are exactly the replicated leg's, no other leg of
+    the same model has the same pins, and the publication name is that leg's. (That
+    the signature equals the original file's is the test two above.)"""
+    seen = 0
+    for rep in roster.REPLICATES:
+        leg = roster.BY_PUBLISHED[rep.of]
+        if not leg.pins:
+            continue
+        seen += 1
+        same_pins = [c for c in roster.ROSTER
+                     if c.label == leg.label and dict(c.pins) == dict(leg.pins)]
+        assert same_pins == [leg], (rep.tag, [c.published_as for c in same_pins])
+        for city in rep.splits:
+            payload = json.loads((REPLICATES_DIR / rep.tag / roster.replicate_filename(rep, city))
+                                 .read_text("utf-8"))
+            assert payload["published_as"] == roster.published_name(leg), (rep.tag, city)
+            assert payload["pins"] == dict(leg.pins), (rep.tag, city, payload["pins"])
+    assert seen, "no replicate of a pinned leg is registered: this test is vacuous"

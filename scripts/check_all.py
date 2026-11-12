@@ -239,6 +239,11 @@ REGISTRY: list = [
       # parallel with pytest (8-9 min) and stays well inside its 30 min guard.
       pins=("analysis_out/cascade_cost_35/", "analysis_out/op_cache/",
             "analysis_out/cascade_gate_op030.json", "benchmark/model_detections/") + GT),
+    E("prompt_276_replicates", (AN + "prompt_276_replicates.py", "--check"),
+      "the #276 Step 7 replicate table re-scores from the published original and replicate detections",
+      pins=("analysis_out/prompt_opt_276/step7_results.json",
+            "analysis_out/prompt_opt_276/step5_results.json",
+            "benchmark/model_detections/") + GT),
     # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
     E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),
       "the default command regenerates docs/data/benchmark_power_135.json byte-identical (#135, #236)",

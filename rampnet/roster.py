@@ -752,6 +752,21 @@ REPLICATES = (
              "environment. First run 2026-08-18 into a private cache that was later "
              "lost; this is the 2026-09-20 re-run, same host, same env. Read against "
              "the published file in docs/vistas_transfer_126.md, Resolution parity."),
+    # #276 Step 7: the Flash zs+conf and expert+conf arms re-run twice on the open pool,
+    # 2026-11-11, same host and code as Step 5, each into its own cache so every call was
+    # paid again (Gemini at temperature 0.0 is not deterministic). They measure the
+    # run-to-run spread the Step 5 expert-vs-zero-shot difference has to clear; scored by
+    # scripts/analysis/prompt_276_replicates.py, read in docs/vlm_prompt_276.md, Step 7.
+) + tuple(
+    Replicate(
+        of=_of, tag="flash-%s-conf-rep%d-2026-11-11" % (_arm, _k),
+        splits=("laurens_mapillary", "bayonne"), added="2026-11-11",
+        note="#276 Step 7 replicate %d of the Flash %s+confidence arm on the open pool "
+             "(laurens_mapillary + bayonne): a fresh paid run of the Step 5 leg at the "
+             "same signature. See docs/vlm_prompt_276.md, Step 7." % (_k, _arm))
+    for _arm, _of in (("zs", "gemini-3.8-flash-confidence-on"),
+                      ("expert", "gemini-3.8-flash-definition-expert-confidence-on"))
+    for _k in (1, 2)
 )
 
 #: Every replicate by its tag -- the directory name, so unique by construction.

@@ -297,7 +297,37 @@ furthest below the diagonal.
 - *Argon on the full `manual_gold`*: 0.741 at the threshold (0.737 raw) against Step 2's
   0.740. Flash: 0.490 (0.504 in Step 2).
 
-## Step 7: replicates — *pending*
+## Step 7: replicates of the Flash expert arm on the open pool (2026-11-11, $18.48)
+
+**The expert-definition gain for Flash on the open pool replicated.** Step 5 found it as an
+exploratory amendment arm, and Gemini at temperature 0.0 is not deterministic, so both arms
+(zs+conf and expert+conf) were paid for twice more on `laurens_mapillary` + `bayonne`, each
+replicate into its own cache directory so that no call was served from cache. Eight legs,
+all exit 0.
+
+| Run | Zero-shot macro F1 | Expert macro F1 | Difference | 95% interval | p |
+|---|---|---|---|---|---|
+| original (Step 5) | 0.256 | 0.324 | +0.068 | +0.027 to +0.106 | <0.001 |
+| replicate 1 | 0.264 | 0.313 | +0.049 | +0.013 to +0.087 | 0.009 |
+| replicate 2 | 0.229 | 0.301 | +0.072 | +0.035 to +0.110 | <0.001 |
+
+Same scoring as Step 5: threshold 0.00 for both arms (selected on `dev_select`), macro over
+the two splits, paired pano bootstrap, 2,000 draws, seed 276.
+
+- **Direction.** Expert is ahead on both splits in all three runs (per-split F1 in
+  `step7_results.md`).
+- **Noise.** Re-running the same arm moves its macro F1 by up to 0.035 (zero-shot: 0.256,
+  0.264, 0.229) and 0.023 (expert: 0.324, 0.313, 0.301). The smallest of the three
+  differences, +0.049, is larger than either range. Three runs give a range, not a
+  standard deviation.
+- **Scope.** This is Flash only, on two open-imagery splits, and from a low base: Flash's
+  recall on this pool stays under 0.30 with either definition, and RampNet's F1 on the same
+  splits is far higher. Argon was not replicated; Step 5 found the expert definition hurts
+  it. Nothing here supports changing a default.
+
+The replicates are published under `benchmark/model_detections/replicates/` (four tags,
+`roster.REPLICATES`), so the table regenerates on a clean clone:
+`python scripts/analysis/prompt_276_replicates.py --check`.
 
 ## Cost
 
@@ -362,6 +392,8 @@ the recovered row is counted). Argon list price doubles on 2026-12-01; the credi
 | every dev-split P/R/F1, tp/fp/n_gt, distinct-score counts | `analysis_out/prompt_opt_276/step3_results.{json,md}` | `prompt_276_results.py` (`--check`) |
 | Step 5: selected thresholds and sweeps, every held-out split at them, pool macro/pooled F1, paired-bootstrap Δ rows | `analysis_out/prompt_opt_276/step5_results.{json,md}` | `prompt_276_heldout.py` (`--check`) |
 | the Step 5 detections themselves (88 files) | `benchmark/model_detections/*-confidence-on__*.json` | `export_model_cache.py --verify` with the leg's flags |
+| Step 7: per-run macro and per-split F1, paired Δ rows, same-arm ranges | `analysis_out/prompt_opt_276/step7_results.{json,md}` | `prompt_276_replicates.py` (`--check`), from the published files alone |
+| the Step 7 replicate detections (8 files) | `benchmark/model_detections/replicates/flash-{zs,expert}-conf-rep{1,2}-2026-11-11/` | `export_model_cache.py --verify --replicate <tag>` with the leg's flags |
 | the two figures | `docs/figures/prompt_276/{arm_vs_zs,dev_to_heldout}.png` | `prompt_276_figures.py`, from `step5_results.json` alone |
 | the manual_gold 250-pano subset | `benchmark/prompt_opt_276/manual_gold_250.json` | `prompt_opt_276_splits.py --check` |
 | Step 2 pooled / per-split rows, scoreboard effects | `analysis_out/scoreboard.json`, `docs/model_scoreboard.md` | `scoreboard.py --check` |
@@ -379,5 +411,7 @@ The published Step 2 detections re-score from `benchmark/model_detections/` on a
 `check_all.py --only prompt_276_results,prompt_276_heldout --allow local-cache` verifies both
 committed tables against those caches. The two figures regenerate from the committed
 `step5_results.json` with `python scripts/analysis/prompt_276_figures.py` (no cache needed).
+The Step 7 table needs no cache either: `check_all.py --only prompt_276_replicates`
+re-scores it from the published original and replicate files.
 Re-running any paid leg needs Vertex access to `rampnet`; the Qwen legs need klone's
 `gpu-l40s` and the pinned env.
