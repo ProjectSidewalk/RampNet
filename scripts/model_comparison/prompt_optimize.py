@@ -34,6 +34,19 @@ best candidate (DetPO's GenerateAlternative), to be selected against on dev_sele
 Nothing here reads a held-out split. Nothing here changes the detector; a candidate
 definition is a file under ``definitions/`` and a leg that uses it is
 ``--definition <name>``.
+
+``--scope prompt`` (the whole-prompt arm) runs the same loop over the WHOLE instruction
+(task verb, definition, what to do when unsure) instead of the definition alone. Its
+candidates are ``prompts/prompt276-<model>-r<k>.txt``, scored with ``--prompt-body``,
+and its record is ``optimize/<model>/prompt/`` with its own ``trajectory.jsonl``, so the
+definition-scope record is never touched. An iteration can reuse crops a human already
+judged in the definition scope instead of picking (and rating) new ones::
+
+    python scripts/model_comparison/prompt_optimize.py pick --scope prompt \\
+        --model gemini-4-argon --reuse-from optimize/gemini-4-argon/iter_01
+    python scripts/model_comparison/prompt_optimize.py rewrite  --scope prompt --model gemini-4-argon
+    python scripts/model_comparison/prompt_optimize.py evaluate --scope prompt --model gemini-4-argon --floor 0.03
+    python scripts/model_comparison/prompt_optimize.py alternative --scope prompt --model gemini-4-argon
 """
 import argparse
 import base64
@@ -65,6 +78,11 @@ CITY = "sao_paulo"                       # the dev split (#51 convention)
 OPT_DIR = Path(D.PROMPT_OPT_DIR)
 SPLIT_FILE = OPT_DIR / "sao_paulo_split.json"
 DEFINITIONS_DIR = OPT_DIR / "definitions"
+PROMPTS_DIR = OPT_DIR / "prompts"
+SCOPES = ("definition", "prompt")
+# Per scope: the candidate-name prefix, and the trajectory key that names a candidate.
+CANDIDATE_PREFIX = {"definition": "def276", "prompt": "prompt276"}
+NAME_KEY = {"definition": "definition", "prompt": "prompt_body"}
 SHORT = {"gemini-4-argon": "argon", "gemini-3.8-flash": "flash38"}
 VETO_TAGS = ("a", "u")                    # A = a real ramp the GT missed, U = unsure (RUBRICS §2)
 BOX_HALF_PX = 80                          # the marker drawn around a point, in 1024-px view pixels
@@ -72,6 +90,9 @@ DETAIL_HALF_PX = 150
 
 CRITIC_SCHEMA = {"type": "object", "properties": {"definition": {"type": "string"}},
                  "required": ["definition"]}
+PROMPT_CRITIC_SCHEMA = {"type": "object", "properties": {"prompt": {"type": "string"}},
+                        "required": ["prompt"]}
+PROMPT_MAX_WORDS = 150                    # the seed instruction is 66 words
 CRITIC_TEMPERATURE = 1.0                  # a rewrite wants variety; recorded in run_options
 
 
@@ -85,67 +106,92 @@ def short_name(model):
         raise SystemExit(f"no short name for {model!r}; add it to prompt_optimize.SHORT")
 
 
-def state_dir(model):
-    return OPT_DIR / "optimize" / model
+def state_dir(model, scope="definition"):
+    """``optimize/<model>/`` for the definition scope (the Step 4 record, unchanged) and
+    ``optimize/<model>/prompt/`` for the whole-prompt scope."""
+    base = OPT_DIR / "optimize" / model
+    return base if scope == "definition" else base / "prompt"
 
 
-def trajectory_path(model):
-    return state_dir(model) / "trajectory.jsonl"
+def trajectory_path(model, scope="definition"):
+    return state_dir(model, scope) / "trajectory.jsonl"
 
 
-def read_trajectory(model):
-    p = trajectory_path(model)
+def read_trajectory(model, scope="definition"):
+    p = trajectory_path(model, scope)
     if not p.exists():
         return []
     with open(p, encoding="utf-8") as f:
         return [json.loads(ln) for ln in f if ln.strip()]
 
 
-def append_trajectory(model, row):
-    p = trajectory_path(model)
+def append_trajectory(model, row, scope="definition"):
+    p = trajectory_path(model, scope)
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "a", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(row, sort_keys=True) + "\n")
 
 
-def current_definition(model):
-    """``(name, train_f1)`` of the best accepted candidate, or ``(None, seed_f1)``."""
+def current_definition(model, scope="definition"):
+    """``(name, train_f1)`` of the best accepted candidate, or ``(None, seed_f1)``.
+    In the prompt scope the name is a prompt body (``prompts/<name>.txt``)."""
     best, best_f1 = None, None
-    for row in read_trajectory(model):
+    for row in read_trajectory(model, scope):
         if row.get("kind") == "seed":
             best_f1 = row["train_f1"]
         elif row.get("kind") == "evaluate" and row.get("accepted"):
-            best, best_f1 = row["definition"], row["train_f1"]
+            best, best_f1 = row[NAME_KEY[scope]], row["train_f1"]
     return best, best_f1
 
 
-def used_panos(model):
+def used_panos(model, scope="definition"):
+    """Panos already shown to the reviewer. The prompt scope also excludes every pano the
+    definition scope used, so a fresh prompt-scope pick never re-asks about a judged crop
+    (reusing those is what ``pick --reuse-from`` is for)."""
     used = set()
-    for row in read_trajectory(model):
-        for k in ("fp", "fn"):
-            if row.get(k) and row[k].get("pano"):
-                used.add(row[k]["pano"])
+    scopes = ("definition",) if scope == "definition" else ("definition", scope)
+    for sc in scopes:
+        for row in read_trajectory(model, sc):
+            for k in ("fp", "fn"):
+                if row.get(k) and row[k].get("pano"):
+                    used.add(row[k]["pano"])
     return used
 
 
-def next_iteration(model):
-    its = [row["iteration"] for row in read_trajectory(model) if "iteration" in row]
+def next_iteration(model, scope="definition"):
+    its = [row["iteration"] for row in read_trajectory(model, scope) if "iteration" in row]
     return (max(its) + 1) if its else 1
 
 
-def iter_dir(model, k):
-    return state_dir(model) / f"iter_{k:02d}"
+def iter_dir(model, k, scope="definition"):
+    return state_dir(model, scope) / f"iter_{k:02d}"
 
 
-def latest_iteration(model):
+def latest_iteration(model, scope="definition"):
     """The most recently picked iteration: the highest ``iter_NN/`` holding candidates.json.
 
     ``rewrite`` and ``evaluate`` act on it. Before the first evaluation the trajectory holds
     only the seed row, so deriving it from the trajectory gave 0 (2026-11-09).
     """
-    ks = [int(p.name[5:]) for p in state_dir(model).glob("iter_[0-9][0-9]")
+    ks = [int(p.name[5:]) for p in state_dir(model, scope).glob("iter_[0-9][0-9]")
           if (p / "candidates.json").exists()]
     return max(ks) if ks else 1
+
+
+def current_text(scope, name):
+    """The text the critic rewrites: the definition (seed ``CURB_RAMP_DEFINITION``) or, in
+    the prompt scope, the whole instruction (seed ``DETECTION_PROMPT``)."""
+    if scope == "definition":
+        return D.CURB_RAMP_DEFINITION if name is None else D.load_definition(name)
+    return D.DETECTION_PROMPT if name is None else D.load_prompt_body(name)
+
+
+def detector_pins(scope, name):
+    """``{definition, prompt_body}`` for ``run_detector``: the candidate goes into its own
+    scope's knob; the other stays unset (the two are exclusive)."""
+    if scope == "definition":
+        return {"definition": name, "prompt_body": None}
+    return {"definition": None, "prompt_body": name}
 
 
 # --------------------------------------------------------------------------- #
@@ -173,26 +219,29 @@ def load_veto_points():
     return veto
 
 
-def compare_args(cache_dir, definition, confidence=True, concurrency=6, debug_dump=None):
+def compare_args(cache_dir, definition, confidence=True, concurrency=6, debug_dump=None,
+                 prompt_body=None):
     from fp_taxonomy import _compare_args
     ns = _compare_args(str(cache_dir))
     ns.definition = definition
+    ns.prompt_body = prompt_body
     ns.gemini_confidence = True if confidence else None
     ns.gemini_concurrency = concurrency
     ns.gemini_debug_dump = debug_dump
     return ns
 
 
-def run_detector(model, definition, pids, cache_dir, usage_log, concurrency=6, tag=""):
-    """Score ``model`` with ``definition`` (None = seed) over ``pids`` of the dev split,
-    through compare.score_model so the cache, the spend guard and the ledger row are
-    the ordinary ones. Returns ``(points_by_pid, gts, report)``."""
+def run_detector(model, definition, pids, cache_dir, usage_log, concurrency=6, tag="",
+                 prompt_body=None):
+    """Score ``model`` with ``definition`` or ``prompt_body`` (both None = seed) over
+    ``pids`` of the dev split, through compare.score_model so the cache, the spend guard
+    and the ledger row are the ordinary ones. Returns ``(points_by_pid, gts, report)``."""
     C.load_dotenv_for_run()
     bundle = str(REPO_ROOT / "benchmark" / CITY)
     records, verdicts, panos_dir = C.load_bundle(bundle)
     gts_all = C.ground_truths_from_verdicts(records, verdicts)
     gts = {p: gts_all[p] for p in pids}
-    args = compare_args(cache_dir, definition, concurrency=concurrency)
+    args = compare_args(cache_dir, definition, concurrency=concurrency, prompt_body=prompt_body)
     label, det = D.build_detector("gemini", model, records, args)
     cache = C.DetectionCache(str(cache_dir), enabled=True)
     rsq = radius_sq_for()
@@ -335,9 +384,10 @@ def _b64(path):
         return base64.b64encode(f.read()).decode("ascii")
 
 
-def write_review_html(path, model, k, definition_text, fp, fn, diag, report):
+def write_review_html(path, model, k, definition_text, fp, fn, diag, report, what="definition"):
     """A self-contained local page (never an Artifact): the two crops, the question,
-    and a form that produces the verdicts.json to save beside it."""
+    and a form that produces the verdicts.json to save beside it. ``what`` names the
+    text shown ("definition", or "instruction" in the prompt scope)."""
     def panel(title, item, question, key):
         if item is None:
             return f"<section><h2>{title}</h2><p>No candidate qualified this iteration.</p></section>"
@@ -364,7 +414,7 @@ def write_review_html(path, model, k, definition_text, fp, fn, diag, report):
  textarea{{width:100%;height:6em;font-family:monospace}} section{{margin-bottom:32px}}
 </style></head><body>
 <h1>Exemplar check: <code>{model}</code>, iteration {k}</h1>
-<p>Current definition (dev_train F1 {report['f1']:.3f}, P {report['precision']:.3f}, R {report['recall']:.3f};
+<p>Current {what} (dev_train F1 {report['f1']:.3f}, P {report['precision']:.3f}, R {report['recall']:.3f};
 at 2x radius P {diag['precision_2R'] if diag['precision_2R'] is None else round(diag['precision_2R'], 3)} /
 R {diag['recall_2R'] if diag['recall_2R'] is None else round(diag['recall_2R'], 3)}):</p>
 <blockquote>{definition_text}</blockquote>
@@ -394,17 +444,21 @@ class Critic:
     model_versions, stop_reasons, a signature and run notes carrying ``role: critic``."""
     name = "gemini"
 
-    def __init__(self, model_id, client, prompt):
+    def __init__(self, model_id, client, prompt, field="definition"):
+        """``field`` is the JSON key the critic answers in: ``definition`` (the Step 4
+        schema, unchanged) or ``prompt`` (the whole-prompt scope)."""
         self.model_id = model_id
         self._client = client
         self.prompt = prompt
+        self.field = field
+        self.schema = CRITIC_SCHEMA if field == "definition" else PROMPT_CRITIC_SCHEMA
         self.usage = dict.fromkeys(D._VLMDetector.USAGE_KEYS, 0)
         self.model_versions = None
         self.stop_reasons = Counter()
 
     def signature(self):
         return {"provider": "gemini", "model_id": self.model_id, "role": "critic",
-                "prompt": self.prompt, "schema": json.dumps(CRITIC_SCHEMA, sort_keys=True),
+                "prompt": self.prompt, "schema": json.dumps(self.schema, sort_keys=True),
                 "temperature": CRITIC_TEMPERATURE}
 
     def run_notes(self):
@@ -415,7 +469,7 @@ class Critic:
         resp = self._client.models.generate_content(
             model=self.model_id, contents=list(images) + [self.prompt],
             config=types.GenerateContentConfig(response_mime_type="application/json",
-                                               response_schema=CRITIC_SCHEMA,
+                                               response_schema=self.schema,
                                                temperature=CRITIC_TEMPERATURE))
         # bookkeeping exactly as the detector does it
         D.GeminiDetector._record_usage(self, resp)
@@ -424,9 +478,9 @@ class Critic:
             out = json.loads(text)
         except json.JSONDecodeError:
             raise SystemExit(f"critic returned non-JSON: {text[:300]!r}")
-        definition = " ".join(str(out.get("definition", "")).split())
+        definition = " ".join(str(out.get(self.field, "")).split())
         if not definition:
-            raise SystemExit(f"critic returned no definition: {text[:300]!r}")
+            raise SystemExit(f"critic returned no {self.field}: {text[:300]!r}")
         return definition, text
 
     # borrowed detector methods (they only touch self.usage / model_versions / stop_reasons)
@@ -469,9 +523,59 @@ def alternative_prompt(definition):
             f"Definition: \"{definition}\"\n\nReturn JSON: {{\"definition\": \"...\"}}.")
 
 
-def write_definition(name, text):
-    DEFINITIONS_DIR.mkdir(parents=True, exist_ok=True)
-    path = DEFINITIONS_DIR / f"{name}.txt"
+# What a whole-prompt rewrite must keep, so the detector's output stays parseable and the
+# provider suffix (schema / confidence sentence) still reads as a continuation.
+_PROMPT_KEEP = ("Keep it an instruction to detect curb ramps and return one tight bounding box "
+                "per curb ramp, and an empty list when there are none. Do not specify an "
+                "output format, coordinates or scores; those are added separately.")
+
+
+def critic_prompt_whole(prompt, has_fp, has_fn):
+    """The critic call of the prompt scope: the same evidence as ``critic_prompt``, but
+    the critic may rewrite the whole instruction (task wording, the description of a
+    curb ramp, what to exclude, what to do when unsure)."""
+    parts = ["You are improving the instruction given to an object detector, a "
+             "vision-language model that finds curb ramps in street-level images. The "
+             "instruction is sent with every image.",
+             f"Current instruction: \"{prompt}\""]
+    n = 0
+    if has_fp:
+        n += 1
+        parts.append(f"Image {n}: the RED box marks a region the detector labeled a curb ramp, "
+                     "but a human reviewer confirmed it is NOT a curb ramp.")
+    if has_fn:
+        n += 1
+        parts.append(f"Image {n}: the BLUE box marks a real curb ramp that the detector missed, "
+                     "confirmed by the reviewer.")
+    goals = ["still finds every ordinary curb ramp"]
+    if has_fp:
+        goals.append("does not box things like the red-boxed region")
+    if has_fn:
+        goals.append("finds cases like the blue-boxed one")
+    parts.append("Rewrite the whole instruction so that the detector " + ", ".join(goals) +
+                 ". You may change any part of it: how the task is worded, how a curb ramp is "
+                 "described, what to exclude, and what to do when unsure. " + _PROMPT_KEEP +
+                 " Describe visual features a detector can use; do not refer to these specific "
+                 f"images or to 'the reviewer'. One paragraph, at most {PROMPT_MAX_WORDS} words. "
+                 "Return JSON: {\"prompt\": \"...\"}.")
+    return "\n\n".join(parts)
+
+
+def alternative_prompt_whole(prompt):
+    """The image-free paraphrase control of the prompt scope."""
+    return ("Rewrite the following instruction for an object detector that finds curb ramps "
+            "in street-level images in different words, keeping exactly the same meaning, the "
+            "same inclusions and exclusions, and the same requested output. " + _PROMPT_KEEP +
+            f" One paragraph, at most {PROMPT_MAX_WORDS} words. "
+            f"Instruction: \"{prompt}\"\n\nReturn JSON: {{\"prompt\": \"...\"}}.")
+
+
+def write_definition(name, text, directory=None):
+    """Write a candidate as ``<directory>/<name>.txt`` (default ``definitions/``; the prompt
+    scope passes ``PROMPTS_DIR``). A candidate is never overwritten."""
+    directory = DEFINITIONS_DIR if directory is None else directory
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / f"{name}.txt"
     if path.exists():
         raise SystemExit(f"{path} exists; a candidate is never overwritten")
     with open(path, "w", encoding="utf-8", newline="\n") as f:
@@ -488,27 +592,131 @@ def _client_for(model):
     det.prepare()
     return det._client
 
+def candidate_dir(scope):
+    """Where a scope's candidates are written: ``definitions/`` or ``prompts/``."""
+    return DEFINITIONS_DIR if scope == "definition" else PROMPTS_DIR
+
+
+def candidate_name(scope, model, k):
+    """``def276-<short>-r<k>`` / ``prompt276-<short>-r<k>``; ``k="alt"`` for the
+    image-free alternative."""
+    suffix = "alt" if k == "alt" else f"r{k}"
+    return f"{CANDIDATE_PREFIX[scope]}-{short_name(model)}-{suffix}"
+
+
+def _rel(path):
+    """``path`` relative to ``OPT_DIR`` when it is under it (for the committed record)."""
+    try:
+        return Path(path).resolve().relative_to(Path(OPT_DIR).resolve()).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def resolve_reuse_source(spec):
+    """``--reuse-from``: a judged iteration directory, given relative to
+    ``benchmark/prompt_opt_276/`` (``optimize/gemini-4-argon/iter_01``), relative to the
+    working directory, or absolute. It must hold ``candidates.json`` and ``verdicts.json``."""
+    src = Path(spec)
+    if not src.is_absolute() and (OPT_DIR / src).is_dir():
+        src = OPT_DIR / src
+    for f in ("candidates.json", "verdicts.json"):
+        if not (src / f).exists():
+            raise SystemExit(f"--reuse-from {spec}: no {f} in {src}; it must be a judged "
+                             f"iteration (pick, then the saved verdict)")
+    return src
+
+
+def pick_reused(model, k, src, scope="prompt"):
+    """Seed iteration ``k`` of ``scope`` from crops a human already judged (``src`` is a
+    definition-scope ``iter_NN/``), so no detector call and no new rating is needed.
+
+    Copies the crops and ``verdicts.json`` verbatim; the verdicts are then read by
+    ``rewrite`` exactly as in the definition scope (an ``unsure`` answer, or a GT-error
+    answer, leaves that crop out; neither confirmed rejects the pick). The new
+    ``candidates.json`` names the prompt body being rewritten (the scope's current best)
+    and records where the crops came from. If the scope has no seed row yet, the
+    definition scope's seed row is copied: the seed whole prompt IS the seed definition
+    inside the as-run frame (``DETECTION_PROMPT``), so the two are one signature and
+    one set of cached detections.
+
+    Example: ``pick_reused("gemini-4-argon", 1, OPT_DIR / "optimize/gemini-4-argon/iter_01")``.
+    """
+    import shutil
+    with open(src / "candidates.json", encoding="utf-8") as f:
+        orig = json.load(f)
+    if orig.get("model") != model:
+        raise SystemExit(f"{src} was picked for {orig.get('model')!r}, not {model!r}")
+    already = {row[key]["pano"] for row in read_trajectory(model, scope)
+               for key in ("fp", "fn") if row.get(key) and row[key].get("pano")}
+    reused = {orig[key]["pano"] for key in ("fp", "fn") if orig.get(key)}
+    if reused & already:
+        raise SystemExit(f"{src}: its crops were already used in this scope "
+                         f"({sorted(reused & already)}); reuse each judged iteration once")
+    if not any(r.get("kind") == "seed" for r in read_trajectory(model, scope)):
+        seed = next((r for r in read_trajectory(model, "definition") if r.get("kind") == "seed"),
+                    None)
+        if seed is None:
+            raise SystemExit("no definition-scope seed row to copy; run `pick --scope "
+                             f"{scope}` without --reuse-from to score the seed")
+        assert D.DETECTION_PROMPT == D.detection_prompt_for(D.CURB_RAMP_DEFINITION)
+        append_trajectory(model, {"kind": "seed", "model": model, NAME_KEY[scope]: None,
+                                  "train_f1": seed["train_f1"], "train": seed["train"],
+                                  "copied_from": _rel(trajectory_path(model)),
+                                  "scope": scope, "at": _now()}, scope)
+    out = iter_dir(model, k, scope)
+    out.mkdir(parents=True, exist_ok=True)
+    for item in (orig.get("fp"), orig.get("fn")):
+        if item:
+            for key in ("image", "detail"):
+                shutil.copy2(src / item[key], out / item[key])
+    shutil.copy2(src / "verdicts.json", out / "verdicts.json")
+    name, _ = current_definition(model, scope)
+    cand = dict(orig)
+    cand.pop("definition", None)
+    cand.update({"iteration": k, "scope": scope, NAME_KEY[scope]: name,
+                 "reused_from": _rel(src), "reused_iteration": orig.get("iteration"),
+                 "picked_under_definition": orig.get("definition"), "reused_at": _now()})
+    with open(out / "candidates.json", "w", encoding="utf-8", newline="\n") as f:
+        json.dump(cand, f, indent=1)
+    return out, cand
+
 
 # --------------------------------------------------------------------------- #
 # commands
 # --------------------------------------------------------------------------- #
 def cmd_pick(args):
-    model = args.model
-    k = args.iteration or next_iteration(model)
-    out = iter_dir(model, k)
+    model, scope = args.model, args.scope
+    k = args.iteration or next_iteration(model, scope)
+    out = iter_dir(model, k, scope)
     if (out / "candidates.json").exists() and not args.force:
         raise SystemExit(f"{out} already has candidates; use --force to redo the pick")
+    if args.reuse_from:
+        if scope == "definition":
+            raise SystemExit("--reuse-from seeds a prompt-scope iteration from judged "
+                             "definition-scope crops; use it with --scope prompt")
+        out, cand = pick_reused(model, k, resolve_reuse_source(args.reuse_from), scope)
+        with open(out / "verdicts.json", encoding="utf-8") as f:
+            verdicts = json.load(f)
+        print(f"iteration {k} ({scope} scope): reused {cand['reused_from']} "
+              f"(verdicts fp={verdicts.get('fp')}, fn={verdicts.get('fn')}); "
+              f"rewriting {cand[NAME_KEY[scope]] or 'the seed'} -> run `rewrite --scope {scope}`")
+        return 0
     out.mkdir(parents=True, exist_ok=True)
-    name, _ = current_definition(model)
-    definition_text = D.CURB_RAMP_DEFINITION if name is None else D.load_definition(name)
+    name, _ = current_definition(model, scope)
+    definition_text = current_text(scope, name)
+    pins = detector_pins(scope, name)
     pids = load_dev("dev_train")
-    points, gts, _, panos_dir = run_detector(model, name, pids, args.cache_dir, args.usage_log,
-                                             concurrency=args.concurrency)
+    points, gts, _, panos_dir = run_detector(model, pins["definition"], pids, args.cache_dir,
+                                             args.usage_log, concurrency=args.concurrency,
+                                             prompt_body=pins["prompt_body"])
     report = train_report(points, gts)
-    if not read_trajectory(model):
-        append_trajectory(model, {"kind": "seed", "model": model, "definition": None,
-                                  "train_f1": report["f1"], "train": report, "at": _now()})
-    used = used_panos(model) | set(args.exclude or [])
+    if not read_trajectory(model, scope):
+        seed = {"kind": "seed", "model": model, NAME_KEY[scope]: None,
+                "train_f1": report["f1"], "train": report, "at": _now()}
+        if scope != "definition":
+            seed["scope"] = scope
+        append_trajectory(model, seed, scope)
+    used = used_panos(model, scope) | set(args.exclude or [])
     fp, fn, diag = pick_exemplars(points, gts, load_veto_points(), used)
     for item, color, stem in ((fp, (220, 30, 30), "fp"), (fn, (30, 80, 220), "fn")):
         if item is None:
@@ -517,14 +725,17 @@ def cmd_pick(args):
                                   item["x"], item["y"], color, str(out / stem))
         item.update(meta)
         item["_image"], item["_detail"] = str(out / meta["image"]), str(out / meta["detail"])
-    write_review_html(str(out / "review.html"), model, k, definition_text, fp, fn, diag, report)
+    write_review_html(str(out / "review.html"), model, k, definition_text, fp, fn, diag, report,
+                      what="definition" if scope == "definition" else "instruction")
     for item in (fp, fn):
         if item:
             item.pop("_image", None)
             item.pop("_detail", None)
-    cand = {"iteration": k, "model": model, "definition": name, "train": report,
+    cand = {"iteration": k, "model": model, NAME_KEY[scope]: name, "train": report,
             "diagnostics_2R": diag, "fp": fp, "fn": fn, "picked_at": _now(),
             "excluded_panos": sorted(used)}
+    if scope != "definition":
+        cand["scope"] = scope
     with open(out / "candidates.json", "w", encoding="utf-8", newline="\n") as f:
         json.dump(cand, f, indent=1)
     print(f"iteration {k}: dev_train F1 {report['f1']:.3f} (P {report['precision']:.3f}, "
@@ -537,9 +748,9 @@ def cmd_pick(args):
 
 
 def cmd_rewrite(args):
-    model = args.model
-    k = args.iteration or latest_iteration(model)
-    out = iter_dir(model, k)
+    model, scope = args.model, args.scope
+    k = args.iteration or latest_iteration(model, scope)
+    out = iter_dir(model, k, scope)
     with open(out / "candidates.json", encoding="utf-8") as f:
         cand = json.load(f)
     vpath = out / "verdicts.json"
@@ -554,12 +765,15 @@ def cmd_rewrite(args):
     if not (use_fp or use_fn):
         append_trajectory(model, {"kind": "pick_rejected", "iteration": k, "model": model,
                                   "fp": cand["fp"], "fn": cand["fn"], "verdicts": verdicts,
-                                  "at": _now()})
+                                  "at": _now()}, scope)
         raise SystemExit("neither exemplar was confirmed; both panos are now excluded -- run "
                          "`pick` again for this iteration with --force")
-    name = cand["definition"]
-    definition_text = D.CURB_RAMP_DEFINITION if name is None else D.load_definition(name)
-    prompt = critic_prompt(definition_text, use_fp, use_fn)
+    name = cand[NAME_KEY[scope]]
+    definition_text = current_text(scope, name)
+    if scope == "definition":
+        prompt = critic_prompt(definition_text, use_fp, use_fn)
+    else:
+        prompt = critic_prompt_whole(definition_text, use_fp, use_fn)
     from PIL import Image
     images = []
     if use_fp:
@@ -567,7 +781,8 @@ def cmd_rewrite(args):
     if use_fn:
         images.append(Image.open(out / cand["fn"]["image"]).convert("RGB"))
     C.load_dotenv_for_run()
-    critic = Critic(model, _client_for(model), prompt)
+    critic = Critic(model, _client_for(model), prompt,
+                    field="definition" if scope == "definition" else "prompt")
     t0 = perf_counter()
     try:
         new_def, raw = critic.ask(images)
@@ -575,32 +790,39 @@ def cmd_rewrite(args):
         C.report_usage(critic, model, CITY, None, args.usage_log,
                        timing={"elapsed_s": round(perf_counter() - t0, 3), "detect_s": 0.0,
                                "panos_called": 0})
-    cand_name = f"def276-{short_name(model)}-r{k}"
-    path = write_definition(cand_name, new_def)
+    cand_name = candidate_name(scope, model, k)
+    path = write_definition(cand_name, new_def, candidate_dir(scope))
+    # The new text is "definition" in the definition scope (Step 4's key) and "instruction"
+    # in the prompt scope ("prompt" is already the critic prompt).
+    record = {"iteration": k, "model": model, "from": name, "candidate": cand_name,
+              "used_fp": use_fp, "used_fn": use_fn, "verdicts": verdicts,
+              "prompt": prompt, "raw": raw,
+              "definition" if scope == "definition" else "instruction": new_def, "at": _now()}
+    if scope != "definition":
+        record["scope"] = scope
     with open(out / "rewrite.json", "w", encoding="utf-8", newline="\n") as f:
-        json.dump({"iteration": k, "model": model, "from": name, "candidate": cand_name,
-                   "used_fp": use_fp, "used_fn": use_fn, "verdicts": verdicts,
-                   "prompt": prompt, "raw": raw, "definition": new_def, "at": _now()},
-                  f, indent=1)
+        json.dump(record, f, indent=1)
     print(f"candidate {cand_name} -> {path}\n{new_def}")
     return 0
 
 
 def cmd_evaluate(args):
-    model = args.model
-    k = args.iteration or latest_iteration(model)
-    out = iter_dir(model, k)
+    model, scope = args.model, args.scope
+    k = args.iteration or latest_iteration(model, scope)
+    out = iter_dir(model, k, scope)
     with open(out / "rewrite.json", encoding="utf-8") as f:
         rw = json.load(f)
     cand_name = rw["candidate"]
-    best_name, best_f1 = current_definition(model)
+    best_name, best_f1 = current_definition(model, scope)
+    pins = detector_pins(scope, cand_name)
     pids = load_dev("dev_train")
-    points, gts, _, _ = run_detector(model, cand_name, pids, args.cache_dir, args.usage_log,
-                                     concurrency=args.concurrency)
+    points, gts, _, _ = run_detector(model, pins["definition"], pids, args.cache_dir,
+                                     args.usage_log, concurrency=args.concurrency,
+                                     prompt_body=pins["prompt_body"])
     report = train_report(points, gts)
     gain = report["f1"] - best_f1
     accepted = gain >= args.floor
-    rows = read_trajectory(model)
+    rows = read_trajectory(model, scope)
     prev_rejections = 0
     for row in reversed(rows):
         if row.get("kind") == "evaluate":
@@ -609,11 +831,13 @@ def cmd_evaluate(args):
             prev_rejections += 1
     with open(out / "candidates.json", encoding="utf-8") as f:
         cand = json.load(f)
-    append_trajectory(model, {
-        "kind": "evaluate", "iteration": k, "model": model, "definition": cand_name,
-        "from": best_name, "train": report, "train_f1": report["f1"], "gain": round(gain, 4),
-        "floor": args.floor, "accepted": accepted, "fp": cand["fp"], "fn": cand["fn"],
-        "verdicts": rw["verdicts"], "at": _now()})
+    row = {"kind": "evaluate", "iteration": k, "model": model, NAME_KEY[scope]: cand_name,
+           "from": best_name, "train": report, "train_f1": report["f1"], "gain": round(gain, 4),
+           "floor": args.floor, "accepted": accepted, "fp": cand["fp"], "fn": cand["fn"],
+           "verdicts": rw["verdicts"], "at": _now()}
+    if scope != "definition":
+        row["scope"] = scope
+    append_trajectory(model, row, scope)
     verdict = "ACCEPTED" if accepted else "rejected"
     print(f"{cand_name}: dev_train F1 {report['f1']:.3f} vs {best_f1:.3f} "
           f"({gain:+.3f}, floor {args.floor}) -> {verdict}")
@@ -624,11 +848,19 @@ def cmd_evaluate(args):
 
 
 def cmd_alternative(args):
-    model = args.model
-    best_name, _ = current_definition(model)
-    text = D.CURB_RAMP_DEFINITION if best_name is None else D.load_definition(best_name)
+    """DetPO's GenerateAlternative. Definition scope (unchanged): an image-free rewording of
+    the best accepted definition. Prompt scope: the paraphrase CONTROL, an image-free
+    rewording of the seed whole prompt (``--from-best`` rewords the best accepted body
+    instead), so a candidate counts as exemplar learning only if it beats this."""
+    model, scope = args.model, args.scope
+    best_name, _ = current_definition(model, scope)
+    source = best_name if (scope == "definition" or args.from_best) else None
+    text = current_text(scope, source)
     C.load_dotenv_for_run()
-    critic = Critic(model, _client_for(model), alternative_prompt(text))
+    if scope == "definition":
+        critic = Critic(model, _client_for(model), alternative_prompt(text))
+    else:
+        critic = Critic(model, _client_for(model), alternative_prompt_whole(text), field="prompt")
     t0 = perf_counter()
     try:
         new_def, raw = critic.ask([])
@@ -636,28 +868,33 @@ def cmd_alternative(args):
         C.report_usage(critic, model, CITY, None, args.usage_log,
                        timing={"elapsed_s": round(perf_counter() - t0, 3), "detect_s": 0.0,
                                "panos_called": 0})
-    cand_name = f"def276-{short_name(model)}-alt"
-    path = write_definition(cand_name, new_def)
-    append_trajectory(model, {"kind": "alternative", "model": model, "from": best_name,
-                              "definition": cand_name, "raw": raw, "at": _now()})
+    cand_name = candidate_name(scope, model, "alt")
+    path = write_definition(cand_name, new_def, candidate_dir(scope))
+    row = {"kind": "alternative", "model": model, "from": source,
+           NAME_KEY[scope]: cand_name, "raw": raw, "at": _now()}
+    if scope != "definition":
+        row["scope"] = scope
+    append_trajectory(model, row, scope)
     print(f"alternative {cand_name} -> {path}\n{new_def}")
     return 0
 
 
 def cmd_status(args):
-    rows = read_trajectory(args.model)
+    scope = args.scope
+    rows = read_trajectory(args.model, scope)
     if not rows:
         print("no trajectory yet")
         return 0
+    key = NAME_KEY[scope]
     for r in rows:
         if r["kind"] == "seed":
             print(f"seed            dev_train F1 {r['train_f1']:.3f}")
         elif r["kind"] == "evaluate":
-            print(f"iter {r['iteration']:02d} {r['definition']:<22} F1 {r['train_f1']:.3f} "
+            print(f"iter {r['iteration']:02d} {r[key]:<22} F1 {r['train_f1']:.3f} "
                   f"({r['gain']:+.3f}) {'ACCEPTED' if r['accepted'] else 'rejected'}")
         else:
-            print(f"{r['kind']:<15} {r.get('definition') or ''}")
-    best, f1 = current_definition(args.model)
+            print(f"{r['kind']:<15} {r.get(key) or ''}")
+    best, f1 = current_definition(args.model, scope)
     print(f"current: {best or 'seed'} (dev_train F1 {f1:.3f})")
     return 0
 
@@ -670,6 +907,11 @@ def build_parser():
         p = sub.add_parser(name)
         p.set_defaults(func=fn)
         p.add_argument("--model", required=True, choices=sorted(SHORT))
+        p.add_argument("--scope", choices=SCOPES, default="definition",
+                       help="What the critic rewrites: the class definition (Step 4, the "
+                            "default) or the whole instruction (prompt276-* candidates under "
+                            "prompts/, scored with --prompt-body, record under "
+                            "optimize/<model>/prompt/).")
         p.add_argument("--iteration", type=int, help="Default: the next (pick) or the latest.")
         p.add_argument("--cache-dir", default=str(REPO_ROOT / ".model_cache"))
         p.add_argument("--usage-log", default=C.default_usage_log(),
@@ -679,10 +921,19 @@ def build_parser():
         if name == "pick":
             p.add_argument("--exclude", nargs="*", metavar="PANO",
                            help="Panos to skip this pick, beyond the already-used ones.")
+            p.add_argument("--reuse-from", metavar="ITER_DIR",
+                           help="With --scope prompt: seed this iteration from a judged "
+                                "definition-scope iteration (e.g. optimize/<model>/iter_01, "
+                                "relative to benchmark/prompt_opt_276/) instead of running "
+                                "the detector and asking for new verdicts.")
         if name == "evaluate":
             p.add_argument("--floor", type=float, required=True,
                            help="Minimum dev_train F1 gain to accept: the seed-repeat spread "
                                 "measured in Step 3, pre-registered before the first evaluate.")
+        if name == "alternative":
+            p.add_argument("--from-best", action="store_true",
+                           help="Prompt scope only: reword the best accepted prompt body "
+                                "instead of the seed (the default paraphrase control).")
     return ap
 
 
