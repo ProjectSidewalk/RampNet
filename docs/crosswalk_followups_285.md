@@ -596,3 +596,14 @@ python $S/score_274.py cards --candidates <kaysville a3_candidates.csv> --label 
     --definition paint_brick --pano-dir <keep>/pano_store/kaysville-ut --out <keep>/osm285/kaysville-ut/page
 python $S/osm_arm.py city-score --city kaysville-ut --ratings <the ratings CSV above>
 ```
+
+### Where the pilot files that are not in the repo are archived (2026-11-12)
+
+| What | Where on makelab2 |
+|---|---|
+| Images, Sacramento (830) and Kaysville (300), with sidewalk-panorama-tools' ledgers | `/projects/makeabilitylab/sidewalk_panos/Panoramas/<city>/` |
+| Per-pano Mapillary positions and headings as used by the placer (`records.jsonl`), the two rating pages, galleries, card views, and the tracker census files the Kaysville and Brussels lists were read from | `/projects/makeabilitylab/RampNet/archives/crosswalk_followups_285/osm285/<city>/` (2,347 files, 295 MB, copied 2026-11-12 from `<keep>/osm285/`) |
+
+To rerun placement from the archive, copy a city's image folder to `<keep>/pano_store/<city>/` and its
+`osm285/<city>/` folder to `<keep>/osm285/<city>/`, then run `city-place` as above. `records.jsonl` is archived
+because Mapillary can revise a pano's computed position and heading, which would move the placements.
