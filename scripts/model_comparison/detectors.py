@@ -959,6 +959,11 @@ def load_exemplars(name, root=None):
     return items
 
 
+#: Per-request ceiling for a Gemini call, in milliseconds (10 min). The slowest view
+#: seen so far took under 3 min (Argon, thinking high).
+GEMINI_REQUEST_TIMEOUT_MS = 600_000
+
+
 class GeminiDetector(_VLMDetector):
     name = "gemini"
     max_edge = 1568  # Gemini tiles internally; a modest cap keeps token cost sane
@@ -1068,9 +1073,16 @@ class GeminiDetector(_VLMDetector):
             return
         # Explicit retry policy for the ~hundreds of calls a full-city run makes:
         # exponential backoff + jitter on the transient/rate-limit status codes.
-        http_options = types.HttpOptions(retry_options=types.HttpRetryOptions(
-            attempts=5, initial_delay=1.0, max_delay=30.0, exp_base=2.0, jitter=1.0,
-            http_status_codes=[408, 429, 500, 502, 503, 504]))
+        # The request timeout is a guard, not a schedule: without one a dropped
+        # connection leaves the call blocked forever, and on 2026-11-12 that stalled four
+        # chains for 3.5 h with every process alive. A timed-out call raises, the pano
+        # fails as a retryable failure and the leg exits non-zero; re-run to finish.
+        # Not in signature(): it decides whether an answer arrives, never what it is.
+        http_options = types.HttpOptions(
+            timeout=GEMINI_REQUEST_TIMEOUT_MS,
+            retry_options=types.HttpRetryOptions(
+                attempts=5, initial_delay=1.0, max_delay=30.0, exp_base=2.0, jitter=1.0,
+                http_status_codes=[408, 429, 500, 502, 503, 504]))
         if self.use_vertex:
             if not self.project:
                 raise RuntimeError(

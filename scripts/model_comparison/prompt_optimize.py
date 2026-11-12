@@ -231,13 +231,17 @@ def compare_args(cache_dir, definition, confidence=True, concurrency=6, debug_du
     return ns
 
 
+#: Where the dev bundle (records, verdicts, panos) is read from; ``--panos-root`` sets it.
+BUNDLE_ROOT = REPO_ROOT
+
+
 def run_detector(model, definition, pids, cache_dir, usage_log, concurrency=6, tag="",
                  prompt_body=None):
     """Score ``model`` with ``definition`` or ``prompt_body`` (both None = seed) over
     ``pids`` of the dev split, through compare.score_model so the cache, the spend guard
     and the ledger row are the ordinary ones. Returns ``(points_by_pid, gts, report)``."""
     C.load_dotenv_for_run()
-    bundle = str(REPO_ROOT / "benchmark" / CITY)
+    bundle = str(BUNDLE_ROOT / "benchmark" / CITY)
     records, verdicts, panos_dir = C.load_bundle(bundle)
     gts_all = C.ground_truths_from_verdicts(records, verdicts)
     gts = {p: gts_all[p] for p in pids}
@@ -914,6 +918,9 @@ def build_parser():
                             "optimize/<model>/prompt/).")
         p.add_argument("--iteration", type=int, help="Default: the next (pick) or the latest.")
         p.add_argument("--cache-dir", default=str(REPO_ROOT / ".model_cache"))
+        p.add_argument("--panos-root", default=str(REPO_ROOT), metavar="CHECKOUT",
+                       help="Checkout holding benchmark/<city>/panos (git-ignored, so from "
+                            "a worktree pass the main checkout; never junction it in).")
         p.add_argument("--usage-log", default=C.default_usage_log(),
                        help="The ledger (default: the main checkout's), as compare.py.")
         p.add_argument("--concurrency", type=int, default=6)
@@ -942,6 +949,8 @@ def main(argv=None):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(errors="replace")
     args = build_parser().parse_args(argv)
+    global BUNDLE_ROOT
+    BUNDLE_ROOT = Path(args.panos_root)
     if args.usage_log == "none":
         args.usage_log = None
     return args.func(args)
