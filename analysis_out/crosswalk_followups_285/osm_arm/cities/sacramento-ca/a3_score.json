@@ -1,0 +1,80 @@
+{
+ "city": "sacramento-ca",
+ "ratings": "ratings_a3_sacramento_jon_2026-11-11.csv",
+ "correct": 97,
+ "n": 100,
+ "wilson": [
+  0.915,
+  0.99
+ ],
+ "bar": 91,
+ "passes": true,
+ "verdicts": {
+  "crosswalk": 97,
+  "not_crosswalk": 1,
+  "unsure": 2
+ },
+ "splits": {
+  "all": [
+   97,
+   100
+  ],
+  "basis: crossing:markings": [
+   65,
+   67
+  ],
+  "basis: crossing=marked": [
+   11,
+   12
+  ],
+  "basis: signals_only": [
+   21,
+   21
+  ],
+  "projected point off paint": [
+   69,
+   71
+  ],
+  "projected point on paint": [
+   28,
+   29
+  ],
+  "range: 10 to 20 m": [
+   68,
+   70
+  ],
+  "range: under 10 m": [
+   29,
+   30
+  ]
+ },
+ "not_correct": [
+  {
+   "pano_id": "1313207617209516",
+   "node_id": "6352418744",
+   "verdict": "unsure",
+   "basis": "crossing:markings",
+   "range_m": "12.4",
+   "comp_area_px": "14992",
+   "note": "This is on the median right between the two crosswalks..."
+  },
+  {
+   "pano_id": "2448958278855457",
+   "node_id": "7539116968",
+   "verdict": "not_crosswalk",
+   "basis": "crossing:markings",
+   "range_m": "15.8",
+   "comp_area_px": "16",
+   "note": "There is a crosswalk here but the crosshair is more on the sidewalk and corner than the crosswalk"
+  },
+  {
+   "pano_id": "1224160575243864",
+   "node_id": "6768520410",
+   "verdict": "unsure",
+   "basis": "crossing=marked",
+   "range_m": "8.8",
+   "comp_area_px": "130592",
+   "note": "The crosshair is squarely on top of the curb ramp rather than the crosswalk right next to it..."
+  }
+ ]
+}

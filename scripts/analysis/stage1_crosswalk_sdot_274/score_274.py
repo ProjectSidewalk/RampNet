@@ -1198,7 +1198,10 @@ def cmd_cards(a):
     prefill = prefill_for(items, load_prefill(a.prefill))
 
     def image_path(pid):
-        return os.path.join(a.pano_dir, f"{pid}.jpg") if a.pano_dir else os.path.join(a.root, a.split, f"{pid}.jpg")
+        if a.pano_dir:                      # flat, or a pano store's <id[:2]>/<id>.jpg
+            flat = os.path.join(a.pano_dir, f"{pid}.jpg")
+            return flat if os.path.exists(flat) else os.path.join(a.pano_dir, pid[:2], f"{pid}.jpg")
+        return os.path.join(a.root, a.split, f"{pid}.jpg")
 
     os.makedirs(a.out, exist_ok=True)
     title, question = SECTION_HEAD["det"]
@@ -1952,7 +1955,7 @@ def main():
     c.add_argument("--candidates", required=True, help="CSV: pano_id, x, y, conf [, city, mode, year, stratum]")
     c.add_argument("--label", required=True, help="names the page, its browser storage and the export")
     c.add_argument("--heading", default=None)
-    c.add_argument("--pano-dir", default=None, help="flat dir of <pano_id>.jpg (else --root/--split)")
+    c.add_argument("--pano-dir", default=None, help="dir of <pano_id>.jpg, flat or sharded as a pano store (else --root/--split)")
     c.add_argument("--root", default=None, help="Stage 2 root, for labels / ignore points as context")
     c.add_argument("--split", default="train")
     c.add_argument("--preds-file", default=None, help="the model's <split>.jsonl, for its other detections")

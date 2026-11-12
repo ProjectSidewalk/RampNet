@@ -1,0 +1,66 @@
+{
+ "city": "kaysville-ut",
+ "ratings": "ratings_a3_kaysville_jon_2026-11-12.csv",
+ "correct": 98,
+ "n": 100,
+ "wilson": [
+  0.93,
+  0.994
+ ],
+ "bar": 91,
+ "passes": true,
+ "verdicts": {
+  "crosswalk": 98,
+  "unsure": 2
+ },
+ "splits": {
+  "all": [
+   98,
+   100
+  ],
+  "basis: crossing:markings": [
+   87,
+   89
+  ],
+  "basis: crossing=marked": [
+   11,
+   11
+  ],
+  "projected point off paint": [
+   77,
+   78
+  ],
+  "projected point on paint": [
+   21,
+   22
+  ],
+  "range: 10 to 20 m": [
+   70,
+   70
+  ],
+  "range: under 10 m": [
+   28,
+   30
+  ]
+ },
+ "not_correct": [
+  {
+   "pano_id": "2131189460749770",
+   "node_id": "10585607603",
+   "verdict": "unsure",
+   "basis": "crossing:markings",
+   "range_m": "2.9",
+   "comp_area_px": "16",
+   "note": "Not clear what this is. Something is very strange here... a tarp? Update: this is the top of the capture vehicle I believe."
+  },
+  {
+   "pano_id": "748649358226651",
+   "node_id": "5065324070",
+   "verdict": "unsure",
+   "basis": "crossing:markings",
+   "range_m": "7.7",
+   "comp_area_px": "469184",
+   "note": "Top of capture car I believe"
+  }
+ ]
+}

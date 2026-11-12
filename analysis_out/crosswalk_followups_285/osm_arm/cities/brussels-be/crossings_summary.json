@@ -1,0 +1,23 @@
+{
+ "city": "brussels-be",
+ "wikidata": "Q240",
+ "osm_timestamp": "2026-11-12T01:24:05Z",
+ "crossing_nodes": 22767,
+ "marked": 18505,
+ "marked_at_grade": 18445,
+ "grade_separated": 72,
+ "by_class_and_basis": {
+  "marked/crossing": 21,
+  "marked/crossing:markings": 18401,
+  "marked/signals_only": 83,
+  "unknown/none": 704,
+  "unmarked/crossing": 1661,
+  "unmarked/markings": 1897
+ },
+ "bbox": [
+  50.7645627,
+  4.2581855,
+  50.9111794,
+  4.468181
+ ]
+}

@@ -7,8 +7,8 @@ is the detector of record throughout. Plan approved by Jon on 2026-11-10 after a
 | Part | Question | Status |
 |---|---|---|
 | B | Does a rule on image position remove capture-vehicle false alarms without losing crosswalks? | done, below (exploratory) |
-| C | What share of visible marked crosswalks does s4 miss in Juneau and Laurens? | sample drawn, blind page built, awaiting ratings |
-| A | Can OSM marked crossings plus the Vistas snap label many cities (#285)? | first city count and two placer checks done; pilot not started |
+| C | What share of visible marked crosswalks does s4 miss in Juneau and Laurens? | rated 2026-11-11; results below |
+| A | Can OSM marked crossings plus the Vistas snap label many cities (#285)? | city count and two placer checks done; Sacramento pilot placed and rated: 97 of 100 placements correct, passes the 91 bar; full-city fetch and the A4 pre-registration are next |
 
 ## B. A position rule for capture-vehicle false alarms (exploratory, 2026-11-10)
 
@@ -401,3 +401,198 @@ python scripts/analysis/stage1_crosswalk_sdot_274/osm_arm.py geometry-check --ke
 `crosswalk274-confirm/ps_label_4096`, `s4-bayonne/prep_4096`), which are archived on the lab share with
 the #274 study. The tracker table was read from the public `streetwalks.json.gz`; the OSM counts are
 not yet scripted in the repo.
+
+## A, continued. Sacramento pilot (started 2026-11-11)
+
+Jon chose Sacramento as the first pilot city on 2026-11-11, with no auto-negatives: the pilot's panos train
+as `sparse`, positives only.
+
+### Precision gate, written before any placement was looked at
+
+- **Sample:** 100 placements drawn with seed 285 from the pilot's positives (a marked, at-grade OSM crossing
+  within 20 m of the pano whose projected point snaps to a segmenter component, first claim on that paint).
+  A simple random draw over positives, so it is weighted as training would be.
+- **Page:** `score_274.py cards --blind --definition paint_brick`. Captions carry no OSM tag, range or
+  camera, and the order is shuffled.
+- **Question:** is the outlined cross on a marked crosswalk? A snap onto a neighbouring real crosswalk
+  counts as correct, because the training label is the paint, not the OSM node. Unsure counts as not correct.
+- **Bar:** the city enters training if at least 91 of 100 are correct (Wilson lower bound 0.838). This is the
+  proposed bar; Jon has not confirmed it.
+- **Notes to record on a wrong card:** stop line, paint removed, mark off the paint, other.
+
+### What was run (2026-11-11)
+
+| Step | Result |
+|---|---|
+| OSM crossing nodes inside the city boundary (Wikidata Q18013; OSM data of 2026-11-11) | 11,017 |
+| Marked (a `crossing:markings` value other than `no`: 3,203; `crossing=marked` and the like: 351; signals only: 611) | 4,165 |
+| Marked and at grade (no way through the node has a tunnel, a bridge or a non-zero layer) | 4,151 |
+| Sampled crossings (seed 285) | 300 |
+| Sampled crossings with a Mapillary 360 pano within 20 m, after 5 m thinning | 279 |
+| Panos fetched (up to 3 per crossing, seeded); none skipped or failed | 830 |
+| Panos with a marked crossing within 20 m of their stored position | 797 |
+| Placements (every marked at-grade crossing within 20 m of a pano, sampled or not) | 1,820 |
+| Positive: snapped to a segmenter component, first claim on that paint | 1,458 (0.80) |
+| Ignore: snapped onto paint another crossing on the pano already labels | 92 |
+| Ignore: no component within 0.05 | 270 |
+| Panos with at least one positive / distinct crossings with one | 744 / 711 |
+
+- **The snap finds a component less often for near crossings:** 397 of 592 under 10 m against 1,061 of 1,228
+  at 10 to 20 m. This is the range where s4's Juneau recall is lowest.
+- **The tag basis barely matters for the snap:** 0.80 for `crossing:markings`, 0.83 for `crossing=marked`,
+  0.80 for signals-only nodes. Whether signals-only nodes are really painted is for the rated page.
+- **The projected point is rarely on the paint:** 29% of positives have the projected point on a segmenter
+  crosswalk pixel, and the median snap moves it 0.032 of the pano width. The snap is doing most of the placing,
+  as in Richmond.
+- **Sacramento's Mapillary coverage is close to one vehicle.** 819 of the 830 panos are from one contributor
+  (a survey company, Labpano Pilot One camera, 330 sequences, captured 2024 and 2025). The city adds crosswalk
+  styles and one new rig, not a mix of rigs. The vehicle's roof and a logo disc fill the bottom of every pano.
+- Not done in the pilot: the position check on sequences, and dropping panos that are themselves on a bridge.
+
+### Rated result (Jon, 2026-11-11): 97 of 100, the gate passes
+
+Jon rated all 100 cards: 97 crosswalk, 1 not a crosswalk, 2 unsure. With unsure counted as not correct, as
+the gate says, 97 of 100 are correct (interval 0.915 to 0.990), above the bar of 91. The bar itself is still
+the proposed one.
+
+| Split | Correct |
+|---|---|
+| `crossing:markings` | 65 of 67 |
+| `crossing=marked` and the like | 11 of 12 |
+| Signals only | 21 of 21 |
+| Crossing under 10 m from the pano | 29 of 30 |
+| Crossing 10 to 20 m from the pano | 68 of 70 |
+| Projected point on paint / off paint | 28 of 29 / 69 of 71 |
+
+- **Signals-only nodes were painted in every rated case** (21 of 21), so the sample gives no reason to
+  exclude them.
+- **All three misses are near misses on a real crosswalk, in Jon's notes:** one on the corner and sidewalk
+  beside the crosswalk (the segmenter component there is 16 pixels), one on the median between two
+  crosswalks, one on the curb ramp next to the crosswalk (a 0.089 pano-width snap). None is a stop line or
+  removed paint.
+- **Small components, exploratory:** 5 of the 6 rated placements on a component under 100 pixels are
+  correct, and 91 of the pilot's 1,458 positives sit on one. Too few to set a minimum area.
+- Jon noted the capture vehicle covering or touching the cross on two cards rated crosswalk.
+
+The 100-card page and the 60-placement gallery are local (they embed imagery):
+`<keep>/osm285/sacramento-ca/page/rate_a3_sacramento.html` and `<keep>/osm285/sacramento-ca/gallery.html`.
+
+| Number | File (under `analysis_out/crosswalk_followups_285/osm_arm/cities/sacramento-ca/`) |
+|---|---|
+| Crossing counts by class | `crossings.csv`, `crossings_summary.json` (raw pull: `osm_crossings.json`) |
+| Sample, tiles, candidate panos | `candidates.csv`, `candidates_summary.json` |
+| Placements and kinds, and every split above | `placements_kinds.csv`, `placements_summary.json` |
+| The 100 rated placements | `a3_candidates.csv` |
+| Jon's verdicts, and the score with every split | `ratings/ratings_a3_sacramento_jon_2026-11-11.csv`, `a3_score.json` |
+
+```bash
+L=<sidewalk-auto-labeler checkout>; PYL=<its environment's python>; S=scripts/analysis/stage1_crosswalk_sdot_274
+$PYL $S/osm_city.py crossings --city sacramento-ca --wikidata Q18013
+$PYL $S/osm_city.py panos --city sacramento-ca --labeler $L --take 300      # Mapillary coverage changes over time
+$PYL $S/osm_city.py meta --city sacramento-ca --labeler $L --keep <keep>    # positions and headings, no images
+$PYL $S/osm_city.py store --city sacramento-ca --labeler $L --keep <keep> \n    --pano-tools <sidewalk-panorama-tools checkout> --python <its python>   # 830 panos, 2.5 GB
+python $S/osm_arm.py city-place --city sacramento-ca --keep <keep>          # GPU (RTX 3070); resumable
+python $S/osm_arm.py city-report --city sacramento-ca --keep <keep>
+python $S/score_274.py cards --candidates <the a3_candidates.csv above> --label a3_sacramento --blind \
+    --definition paint_brick --pano-dir <keep>/pano_store/sacramento-ca --out <keep>/osm285/sacramento-ca/page
+python $S/osm_arm.py city-score --city sacramento-ca --ratings <the ratings CSV above>   # bar defaults to 91
+```
+
+**Images now go through sidewalk-panorama-tools (changed 2026-11-11, after the rating).** `osm_city.py store`
+hands the pano list to pano-tools' `DownloadRunner.py -c`, which writes `<keep>/pano_store/<city>/<id[:2]>/<id>.jpg`
+with its ledgers. That is the Project Sidewalk pano store layout, so a later deployment of the city can reuse the
+files. The pilot's 830 images were downloaded earlier by a direct six-thread fetch in this script (since removed),
+then moved into the store, where pano-tools (commit 3acb2e41) ledgered all 830 as already present. Three of them
+fetched again through pano-tools were byte-identical to the pilot's copies. The run's counts are in
+`store_summary.json`, and the list pano-tools read is `pano_list.csv`.
+
+The contributor and sequence counts and the on-paint share were read ad hoc from `records.jsonl` and
+`placements_kinds.csv`.
+
+## A, continued. Kaysville and Brussels pano lists (2026-11-11; no images, nothing placed or rated yet)
+
+Two more pilot cities, chosen to differ from Sacramento: Kaysville, Utah (a small US suburb) and the
+Brussels-Capital Region (European crossings, many contributors). Only the steps that need no image were run:
+`crossings`, `panos` and `meta`. Placement, the 100-card page and the rating follow once the images are fetched.
+
+| | Sacramento | Kaysville (`kaysville-ut`, Q482516) | Brussels region (`brussels-be`, Q240) |
+|---|---|---|---|
+| OSM crossing nodes | | 1,346 | 22,767 |
+| Marked, at grade | 4,151 | 107 | 18,445 (72 more are grade separated) |
+| Crossings sampled / with a pano within 20 m | 300 / 279 | 107 / 107 | 300 / 295 |
+| Panos in range / after 5 m thinning | | 4,346 / 1,643 | 12,885 / 5,494 |
+| Panos on the list | 830 | 300 | 882 |
+| Contributors | 1 has 819 | 1 has 299 | 13; the top three have 377, 362 and 111 |
+| Main camera | Labpano Pilot One | GoPro Max (5376×2688) | GoPro Max (877 of 882; 830 are 5760×2880) |
+| Capture years | 2024–2025 | almost all 2025 | 2016–2026, mostly 2022–2026 |
+
+- **The pano list now comes from the streetscape tracker's Mapillary census** (`panos --tracker-census`), its
+  per-city run CSV of every 360° image in the city's tiles. No tile request is made. Sacramento's list was built
+  from Mapillary tiles directly, before this option existed.
+- **Brussels uses the region boundary (Q240),** which matches the tracker's `brussels--belgium`. The City of
+  Brussels alone (Q239) has 5,152 crossing nodes, 4,039 of them with `crossing:markings`.
+- **Fresno, California was counted as an alternative** and not taken further: 5,886 crossing nodes, 2,069 with
+  `crossing:markings`, 442 `crossing=marked` or `zebra`, 819 signals.
+- **Not checked:** whether the Brussels panos come from cars, bikes or people on foot. The placer assumes a 2.6 m
+  camera, so a lower camera shifts where each crossing is projected.
+- **Images are fetched by sidewalk-panorama-tools from each `pano_list.csv` into the lab pano store,** then copied
+  to `<keep>/pano_store/<city>/` for placement. `osm_city.py store` is the local equivalent.
+
+Every number above is in `crossings_summary.json` and `candidates_summary.json` under
+`analysis_out/crosswalk_followups_285/osm_arm/cities/<city>/`, except the contributor, camera and capture-year
+counts, which were read ad hoc from `<keep>/osm285/<city>/records.jsonl`, and the Q239 and Fresno counts, which
+were one-off Overpass counts. The census files are public, under
+`https://makeabilitylab.cs.washington.edu/public/streetscape-tracker/data/`.
+
+```bash
+T=<keep>/osm285/kaysville-ut/tracker/kaysville--utah--united-states_width_8018_height_7277_step_20_mapillary_2026-10-03.csv.gz
+$PYL $S/osm_city.py crossings --city kaysville-ut --wikidata Q482516
+$PYL $S/osm_city.py panos --city kaysville-ut --labeler $L --take 300 --tracker-census $T
+$PYL $S/osm_city.py meta --city kaysville-ut --labeler $L --keep <keep>       # writes pano_list.csv
+T=<keep>/osm285/brussels-be/tracker/brussels--belgium_width_16800_height_16711_step_20_mapillary_2026-10-06.csv.gz
+$PYL $S/osm_city.py crossings --city brussels-be --wikidata Q240
+$PYL $S/osm_city.py panos --city brussels-be --labeler $L --take 300 --tracker-census $T
+$PYL $S/osm_city.py meta --city brussels-be --labeler $L --keep <keep>
+```
+
+**Sacramento's images are archived in the lab pano store (2026-11-11):** all 830 were fetched again there by
+sidewalk-panorama-tools from `sacramento-ca/pano_list.csv` (830 downloaded, 0 failed, 0 incomplete JPEGs), at
+`/projects/makeabilitylab/sidewalk_panos/Panoramas/sacramento-ca/` on makelab2. 21 sampled files have the same
+sha256 as the copies the pilot was placed and rated on. That check was run by the pano-tools session, not here.
+
+### Kaysville placed and rated (Jon, 2026-11-12): 98 of 100, the gate passes
+
+Kaysville's 300 images were fetched into the lab pano store by sidewalk-panorama-tools (300 downloaded, 0 failed;
+`/projects/makeabilitylab/sidewalk_panos/Panoramas/kaysville-ut/` on makelab2) and copied to
+`<keep>/pano_store/kaysville-ut/`. Placement: 515 placements on 300 panos, 421 positives (82%) on 266 panos, for
+100 of the 107 crossings; 84 placements found no crosswalk region and 10 collided. The same gate as Sacramento
+(100 placements, seed 285, blind page, bar 91):
+
+| | Correct | Of |
+|---|---|---|
+| All | 98 | 100 (Wilson 0.930 to 0.994) |
+| `crossing:markings` | 87 | 89 |
+| `crossing=marked` | 11 | 11 |
+| Under 10 m | 28 | 30 |
+| 10 to 20 m | 70 | 70 |
+| Projected point on paint | 21 | 22 |
+| Projected point off paint | 77 | 78 |
+
+- **Both cards not rated crosswalk are on the capture vehicle** (Jon's notes; both rated unsure). Both crossings
+  are under 10 m away, and both labels sit 44.5° below the horizon, just above the labeler's 49° rig mask.
+- **Few positives sit that low:** 8 of Kaysville's 421 positives are 44° or more below the horizon (2 beyond 49°),
+  and 4 of Sacramento's 1,458 (1 beyond 49°). Counted ad hoc from `b2_y` in each `placements_kinds.csv`. No cut
+  is applied yet.
+
+Files, under `analysis_out/crosswalk_followups_285/osm_arm/cities/kaysville-ut/`: `placements_kinds.csv`,
+`placements_summary.json`, `a3_candidates.csv`, `ratings/ratings_a3_kaysville_jon_2026-11-12.csv`, `a3_score.json`.
+The page is local: `<keep>/osm285/kaysville-ut/page/rate_a3_kaysville.html`.
+
+```bash
+rsync -rt makelab2:/projects/makeabilitylab/sidewalk_panos/Panoramas/kaysville-ut/ <keep>/pano_store/kaysville-ut/
+python $S/osm_arm.py city-place --city kaysville-ut --keep <keep>
+python $S/osm_arm.py city-report --city kaysville-ut --keep <keep>
+python $S/score_274.py cards --candidates <kaysville a3_candidates.csv> --label a3_kaysville --blind \
+    --definition paint_brick --pano-dir <keep>/pano_store/kaysville-ut --out <keep>/osm285/kaysville-ut/page
+python $S/osm_arm.py city-score --city kaysville-ut --ratings <the ratings CSV above>
+```

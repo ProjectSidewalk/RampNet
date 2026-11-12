@@ -1,0 +1,12 @@
+{
+ "seed": 285,
+ "sampled_crossings": 300,
+ "near_m": 20.0,
+ "per_crossing": 3,
+ "tiles": 68,
+ "panos_in_range": 6937,
+ "panos_after_thinning": 4882,
+ "crossings_with_a_pano": 279,
+ "candidate_pairs": 837,
+ "candidate_panos": 830
+}

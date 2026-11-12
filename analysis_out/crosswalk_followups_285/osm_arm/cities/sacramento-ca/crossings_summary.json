@@ -1,0 +1,23 @@
+{
+ "city": "sacramento-ca",
+ "wikidata": "Q18013",
+ "osm_timestamp": "2026-11-11T19:23:43Z",
+ "crossing_nodes": 11017,
+ "marked": 4165,
+ "marked_at_grade": 4151,
+ "grade_separated": 64,
+ "by_class_and_basis": {
+  "marked/crossing": 351,
+  "marked/crossing:markings": 3203,
+  "marked/signals_only": 611,
+  "unknown/none": 4856,
+  "unmarked/crossing": 272,
+  "unmarked/markings": 1724
+ },
+ "bbox": [
+  38.4380532,
+  -121.5527255,
+  38.6853511,
+  -121.3650676
+ ]
+}
