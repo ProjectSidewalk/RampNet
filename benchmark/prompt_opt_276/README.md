@@ -31,7 +31,8 @@ and the seed `[DEFINITION]` (`definitions/seed.txt`, the record of
 
 With `--gemini-confidence` one sentence asking for a 0-100 score per box follows the prompt
 and the response schema gains that field. Rewriting the instruction sentences themselves is
-a different experiment (a whole-prompt arm), kept separate from the definition arms here.
+a different experiment (the whole-prompt arm, "Prompt bodies" below), kept separate from the
+definition arms here.
 
 | name | what | provenance |
 |---|---|---|
@@ -40,6 +41,23 @@ a different experiment (a whole-prompt arm), kept separate from the definition a
 | `expert` | Jon's definition (248 words, one paragraph): three ramp geometries, domes optional, a recall clause, driveway-apron discriminators, missing-ramp and storm-drain exclusions. Written 2026-11-09 blind to any model error (he had seen only the roster-level recall figures) | Step 3 |
 | `expert-long` | the same content as a 515-word structured version (headings and bullets, ADA/PROWAG framing, fuller exclusion list). Exploratory: does the long structured form add anything over `expert`? | Step 3, exploratory |
 | `def276-<model>-r<k>` | the optimizer's candidates, one per accepted iteration; `trajectory.jsonl` beside them records the exemplar panos, the human verdicts and the dev_train score of each | Step 4 |
+
+## Prompt bodies (`--prompt-body NAME`, Gemini / Claude / Qwen → `prompts/NAME.txt`)
+
+The whole-prompt arm. The file replaces the entire instruction above (task verb, definition
+and tail), normalized like a definition. The provider suffix is still appended by the
+detector (Qwen's JSON shape; with `--gemini-confidence`, the score sentence), so a body never
+states an output format. Exclusive with `--definition`; Molmo refuses it, because a body is a
+boxing instruction and Molmo points. Only the resulting prompt text enters the signature, as
+for a definition, so an unset body moves no cache key.
+
+`prompts/seed.txt` is the record of `detectors.DETECTION_PROMPT`, the as-run instruction quoted
+above; like `definitions/seed.txt` it is not a pin (`--prompt-body seed` is refused).
+
+| name | what | provenance |
+|---|---|---|
+| `prompt276-<model>-r<k>` | the optimizer's whole-prompt candidates (`prompt_optimize.py --scope prompt`); iterations 1-2 reuse the crops judged in Step 4 | whole-prompt arm |
+| `prompt276-<model>-alt` | the image-free paraphrase of the seed instruction: the control a candidate must beat on `dev_select` | whole-prompt arm |
 
 ## Exemplars (`--gemini-exemplars NAME` → `exemplars/NAME.json`)
 
@@ -57,3 +75,9 @@ and `iter_<k>/` with `candidates.json` (the picked FP/FN, their panos and coordi
 box added), `review.html` (the local review page), `verdicts.json` (the reviewer's answers,
 saved by hand from the page) and `rewrite.json` (the critic prompt, its raw answer, the
 candidate name). The candidate definitions themselves land in `definitions/`.
+
+The whole-prompt scope keeps its own record under `optimize/<model>/prompt/` (same layout,
+its own `trajectory.jsonl`). An iteration seeded with `pick --reuse-from optimize/<model>/iter_NN`
+holds copies of that iteration's crops and `verdicts.json`, and its `candidates.json` says
+`reused_from`; its seed row is copied from the definition-scope trajectory (`copied_from`),
+since the seed instruction is the same prompt and the same cached detections.
