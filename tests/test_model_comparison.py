@@ -2990,6 +2990,91 @@ def test_every_committed_276_definition_loads_and_differs_from_the_seed():
         assert det.signature()["prompt"] == detectors.detection_prompt_for(text)
 
 
+def _prompt_body_cases():
+    from detectors import ClaudeDetector, QwenDetector
+    return [
+        (GeminiDetector, dict(model_id="gemini-4-argon"), DETECTION_PROMPT),
+        (ClaudeDetector, dict(model_id="claude-opus-5"), DETECTION_PROMPT),
+        (QwenDetector, dict(model_id="Qwen/Qwen3-VL-32B-Instruct"), detectors.QWEN_PROMPT),
+    ]
+
+
+def test_prompt_body_absent_moves_no_key_and_no_ledger_row():
+    """--prompt-body (#276 whole-prompt arm) unset, or passed as None, is the as-run
+    detector: same signature, and run_notes() without a prompt_body key."""
+    from detectors import MolmoDetector
+    for cls, kw, _ in _prompt_body_cases() + [(MolmoDetector, dict(model_id="allenai/Molmo2-8B"), None)]:
+        plain = cls(**kw)
+        assert cls(prompt_body=None, **kw).signature() == plain.signature(), cls.__name__
+        assert "prompt_body" not in plain.run_notes(), cls.__name__
+    for mid, key in {"gemini-4-argon": "b59a81e83fae2f8b73006402e61cc8f4ee5a148d",
+                     "gemini-3.8-flash": "790f1b1362998a7022fd0d10e875a9504b60dc32"}.items():
+        det = GeminiDetector(model_id=mid, prompt_body=None)
+        assert cache_key(mid, det.signature(), "sao_paulo", "pano1") == key, mid
+
+
+def test_prompts_seed_txt_reproduces_the_as_run_prompts():
+    """prompts/seed.txt is the record of the as-run whole instruction: through each
+    provider's suffix it rebuilds the class prompt byte for byte. Like definitions/seed.txt
+    it is not a pin."""
+    path = os.path.join(detectors.PROMPT_OPT_DIR, "prompts", "seed.txt")
+    with open(path, encoding="utf-8") as f:
+        seed = detectors.normalize_definition(f.read())
+    assert seed == DETECTION_PROMPT
+    for cls, kw, as_run in _prompt_body_cases():
+        assert cls(**kw).prompt_for_body(seed) == as_run, cls.__name__
+    with pytest.raises(ValueError, match="omit --prompt-body"):
+        detectors.load_prompt_body("seed")
+
+
+def test_prompt_body_replaces_the_whole_frame_and_keeps_the_suffixes(tmp_path):
+    root = _write_prompt_opt_dir(tmp_path)
+    (tmp_path / "prompt_opt_276" / "prompts").mkdir()
+    (tmp_path / "prompt_opt_276" / "prompts" / "prompt276-test.txt").write_text(
+        "Find each curb ramp\n  in the image.   Box each one tightly.\n", encoding="utf-8")
+    body = "Find each curb ramp in the image. Box each one tightly."
+    assert detectors.load_prompt_body("prompt276-test", root) == body
+    for cls, kw, as_run in _prompt_body_cases():
+        plain = cls(**kw)
+        det = cls(prompt_body="prompt276-test", prompt_opt_dir=root, **kw)
+        assert det.prompt == body + det.prompt_suffix, cls.__name__
+        assert det.signature() != plain.signature(), cls.__name__
+        assert det.signature()["prompt"] == det.prompt     # the text, not the name, is the key
+        assert "prompt_body" not in det.signature()
+        assert det.run_notes()["prompt_body"] == "prompt276-test"
+    qwen = detectors.QwenDetector(model_id="Qwen/Qwen3-VL-8B-Instruct",
+                                  prompt_body="prompt276-test", prompt_opt_dir=root)
+    assert qwen.prompt.endswith(detectors.QWEN_JSON_INSTRUCTION)
+    gem = GeminiDetector(model_id="gemini-4-argon", prompt_body="prompt276-test",
+                         prompt_opt_dir=root, confidence=True)
+    assert gem.prompt == body + CONFIDENCE_INSTRUCTION
+    assert gem.run_notes()["prompt_body"] == "prompt276-test"
+    with pytest.raises(ValueError, match="not supported for Molmo"):
+        detectors.MolmoDetector(model_id="allenai/Molmo2-8B", prompt_body="prompt276-test",
+                                prompt_opt_dir=root)
+    with pytest.raises(ValueError):
+        detectors.load_prompt_body("../prompts/prompt276-test", root)   # a path is refused
+    with pytest.raises(FileNotFoundError):
+        detectors.load_prompt_body("prompt276-missing", root)
+
+
+def test_prompt_body_and_definition_are_exclusive(tmp_path):
+    root = _write_prompt_opt_dir(tmp_path)
+    (tmp_path / "prompt_opt_276" / "prompts").mkdir()
+    (tmp_path / "prompt_opt_276" / "prompts" / "prompt276-test.txt").write_text(
+        "Find each curb ramp.", encoding="utf-8")
+    with pytest.raises(ValueError, match="exclusive"):
+        GeminiDetector(model_id="gemini-4-argon", definition="def276-test",
+                       prompt_body="prompt276-test", prompt_opt_dir=root)
+    # build_detector carries the knob from the namespace (compare.py, dump_detections.py)
+    import argparse
+    ns = argparse.Namespace(prompt_body="prompt276-missing", definition=None)
+    with pytest.raises(FileNotFoundError, match="prompt276-missing"):
+        detectors.build_detector("qwen", "Qwen/Qwen3-VL-8B-Instruct", {}, ns)
+    defaults = {a.dest: a.default for a in compare.build_parser()._actions}
+    assert defaults["prompt_body"] is None
+
+
 def test_the_seven_276_study_legs_signatures_match_their_published_files():
     """Each study leg's paid cache sits under a signature that CONFIDENCE_INSTRUCTION,
     GEMINI_SCORED_BOX_SCHEMA and the committed definition text all feed. The published

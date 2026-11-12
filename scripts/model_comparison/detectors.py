@@ -613,7 +613,7 @@ class _VLMDetector:
     source_max_edge = 4096  # cap on the pano fed to reprojection (native can be 16k)
 
     def __init__(self, model_id, max_edge=None, tile=True, views=None, concurrency=1,
-                 definition=None, prompt_opt_dir=None):
+                 definition=None, prompt_opt_dir=None, prompt_body=None):
         self.model_id = model_id
         if max_edge:
             self.max_edge = max_edge
@@ -623,8 +623,18 @@ class _VLMDetector:
         # None leaves the class prompt untouched, so every published leg keeps its key;
         # a set definition changes the prompt text, which the base signature() hashes.
         self.definition = definition
+        # --prompt-body NAME (#276 whole-prompt arm): prompts/NAME.txt replaces the
+        # whole frame (task verb + definition + tail); the provider's suffix is still
+        # appended. Same key rule as a definition: only the prompt text enters the
+        # signature, and None leaves it untouched.
+        self.prompt_body = prompt_body
+        if definition is not None and prompt_body is not None:
+            raise ValueError("--definition and --prompt-body are exclusive: a prompt body "
+                             "already carries its own definition")
         if definition is not None:
             self.prompt = self.prompt_for_definition(load_definition(definition, prompt_opt_dir))
+        if prompt_body is not None:
+            self.prompt = self.prompt_for_body(load_prompt_body(prompt_body, prompt_opt_dir))
         self._views = views  # None -> equirect_tiling.default_views()
         # How many of a pano's views are in flight at once (#276). Hosted providers
         # only; local GPU models serialize on the device anyway. NOT in signature():
@@ -653,11 +663,22 @@ class _VLMDetector:
         class ``prompt`` for every subclass (test_definition_frames_reproduce_the_as_run_prompts)."""
         return detection_prompt_for(definition_text) + self.prompt_suffix
 
+    def prompt_for_body(self, body_text):
+        """This provider's prompt around a whole replacement instruction (``--prompt-body``):
+        the body plus the provider's output-format suffix, so parsing is unchanged.
+        ``prompt_for_body(DETECTION_PROMPT)`` equals the class ``prompt`` for every
+        provider that accepts a body (``prompts/seed.txt`` records that text)."""
+        return body_text + self.prompt_suffix
+
     def run_notes(self):
         """What the usage log records about HOW the leg ran, beyond the signature.
         The base records the definition pin by name (the signature carries only the
-        prompt text); Gemini extends this with its schedule and knobs."""
-        return {"definition": self.definition}
+        prompt text); Gemini extends this with its schedule and knobs. A prompt body is
+        named only when set, so the rows of every earlier run keep their shape."""
+        notes = {"definition": self.definition}
+        if self.prompt_body is not None:
+            notes["prompt_body"] = self.prompt_body
+        return notes
 
     # The key contract for `usage`, in one place. Every paid provider reports
     # input and output; almost none report thinking separately, so a reader must
@@ -851,6 +872,31 @@ def load_definition(name, root=None):
     return text
 
 
+def load_prompt_body(name, root=None):
+    """The committed whole detection instruction ``benchmark/prompt_opt_276/prompts/<name>.txt``
+    (``--prompt-body``), normalized exactly as a definition is. It replaces everything
+    ``detection_prompt_for`` builds; the provider suffix (Qwen's JSON shape, Gemini's
+    confidence sentence) is appended by the detector, not written in the file.
+
+    ``prompts/seed.txt`` is the record of ``DETECTION_PROMPT`` and, like the seed
+    definition, is not a pin: the seed leg is the one with no body set.
+
+    Usage: ``GeminiDetector(model_id=..., prompt_body="prompt276-argon-r1")`` or
+    ``compare.py --prompt-body prompt276-argon-r1``. A path is refused (ValueError).
+    """
+    _check_pin_name("prompt body", name)
+    if name == "seed":
+        raise ValueError("the seed is the as-run prompt; omit --prompt-body")
+    path = os.path.join(root or PROMPT_OPT_DIR, "prompts", name + ".txt")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"no committed prompt body {name!r}: expected {path}")
+    with open(path, encoding="utf-8") as f:
+        text = normalize_definition(f.read())
+    if not text:
+        raise ValueError(f"prompt body {name!r} is empty: {path}")
+    return text
+
+
 def normalize_definition(raw):
     """Collapse an editor re-wrap without flattening structure the author put there.
 
@@ -920,9 +966,10 @@ class GeminiDetector(_VLMDetector):
     def __init__(self, model_id="gemini-3.6-flash", api_key=None, max_edge=None, tile=True,
                  use_vertex=None, project=None, location=None, temperature=None,
                  definition=None, confidence=None, exemplars=None, thinking_level=None,
-                 concurrency=1, debug_dump=None, prompt_opt_dir=None):
+                 concurrency=1, debug_dump=None, prompt_opt_dir=None, prompt_body=None):
         super().__init__(model_id, max_edge, tile=tile, concurrency=concurrency,
-                         definition=definition, prompt_opt_dir=prompt_opt_dir)
+                         definition=definition, prompt_opt_dir=prompt_opt_dir,
+                         prompt_body=prompt_body)
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
         # Vertex AI + Application Default Credentials is the path for orgs that
         # disallow API keys. Driven by the standard google-genai env vars unless
@@ -989,8 +1036,8 @@ class GeminiDetector(_VLMDetector):
     def run_notes(self):
         """What the usage log records about HOW the leg ran, beyond the signature:
         the schedule and the pins by name, plus the empty-answer and malformed-box
-        counts."""
-        return {
+        counts. ``prompt_body`` is named only when set (as in the base)."""
+        notes = {
             "concurrency": self.concurrency,
             "definition": self.definition,
             "exemplars": self.exemplars,
@@ -1000,6 +1047,9 @@ class GeminiDetector(_VLMDetector):
             "empty_calls": self.empty_calls,
             "malformed_boxes": self.malformed_boxes,
         }
+        if self.prompt_body is not None:
+            notes["prompt_body"] = self.prompt_body
+        return notes
 
     def _ensure_ready(self):
         try:
@@ -1428,9 +1478,11 @@ class ClaudeDetector(_VLMDetector):
                  views=None, image_format=CLAUDE_AS_RUN_IMAGE_FORMAT,
                  temperature=CLAUDE_AS_RUN_TEMPERATURE,
                  max_tokens=CLAUDE_AS_RUN_MAX_TOKENS,
-                 serving_path=CLAUDE_AS_RUN_SERVING_PATH, definition=None, prompt_opt_dir=None):
+                 serving_path=CLAUDE_AS_RUN_SERVING_PATH, definition=None, prompt_opt_dir=None,
+                 prompt_body=None):
         super().__init__(model_id, max_edge, tile=tile, views=views,
-                         definition=definition, prompt_opt_dir=prompt_opt_dir)
+                         definition=definition, prompt_opt_dir=prompt_opt_dir,
+                         prompt_body=prompt_body)
         if serving_path not in CLAUDE_SERVING_PATHS:
             raise ValueError(f"unknown serving_path {serving_path!r} "
                              f"(choose from: {', '.join(CLAUDE_SERVING_PATHS)})")
@@ -1787,9 +1839,10 @@ class QwenDetector(_VLMDetector):
     max_edge = 2048  # whole-pano mode only; tiled views are rendered at 1024
 
     def __init__(self, model_id="Qwen/Qwen3-VL-8B-Instruct", max_edge=None, tile=True,
-                 coord_space=None, max_new_tokens=1024, definition=None, prompt_opt_dir=None):
+                 coord_space=None, max_new_tokens=1024, definition=None, prompt_opt_dir=None,
+                 prompt_body=None):
         super().__init__(model_id, max_edge, tile=tile, definition=definition,
-                         prompt_opt_dir=prompt_opt_dir)
+                         prompt_opt_dir=prompt_opt_dir, prompt_body=prompt_body)
         self.coord_space = coord_space or infer_qwen_coord_space(model_id)
         self.max_new_tokens = max_new_tokens
         self._model = None
@@ -2002,9 +2055,9 @@ class MolmoDetector(_VLMDetector):
 
     def __init__(self, model_id="allenai/Molmo2-8B", max_edge=None, tile=True,
                  coord_scale=None, mode=None, max_new_tokens=512, definition=None,
-                 prompt_opt_dir=None):
+                 prompt_opt_dir=None, prompt_body=None):
         super().__init__(model_id, max_edge, tile=tile, definition=definition,
-                         prompt_opt_dir=prompt_opt_dir)
+                         prompt_opt_dir=prompt_opt_dir, prompt_body=prompt_body)
         self.coord_scale = float(coord_scale) if coord_scale else None
         self.mode = mode or infer_molmo_mode(model_id)
         self.max_new_tokens = max_new_tokens
@@ -2013,6 +2066,13 @@ class MolmoDetector(_VLMDetector):
 
     def prompt_for_definition(self, definition_text):
         return molmo_prompt_for(definition_text)
+
+    def prompt_for_body(self, body_text):
+        """Refused. A prompt body is a whole BOXING instruction ("Return one tight bounding
+        box ..."); Molmo runs under its own pointing frame, so there is no defined way to
+        apply one here. Use --definition, which Molmo re-frames."""
+        raise ValueError("--prompt-body is not supported for Molmo: a prompt body is a "
+                         "box-detection instruction and Molmo points; use --definition")
 
     def _ensure_ready(self):
         if self._model is not None:
@@ -2440,6 +2500,7 @@ def build_detector(provider, model_id, records, args):
             model_id=mid, tile=tile,
             temperature=getattr(args, "gemini_temperature", None),
             definition=getattr(args, "definition", None),
+            prompt_body=getattr(args, "prompt_body", None),
             confidence=getattr(args, "gemini_confidence", None),
             exemplars=getattr(args, "gemini_exemplars", None),
             thinking_level=getattr(args, "gemini_thinking_level", None),
@@ -2449,6 +2510,7 @@ def build_detector(provider, model_id, records, args):
         mid = model_id or args.claude_model
         return mid, ClaudeDetector(
             model_id=mid, tile=tile, definition=getattr(args, "definition", None),
+            prompt_body=getattr(args, "prompt_body", None),
             effort=getattr(args, "claude_effort", None) or _D("claude_effort"),
             tool_choice=getattr(args, "claude_tool_choice", None) or _D("claude_tool_choice"),
             image_format=(getattr(args, "claude_image_format", None)
@@ -2463,6 +2525,7 @@ def build_detector(provider, model_id, records, args):
         coord_space = getattr(args, "qwen_coord_space", "auto")
         return mid, QwenDetector(model_id=mid, tile=tile,
                                  definition=getattr(args, "definition", None),
+                                 prompt_body=getattr(args, "prompt_body", None),
                                  coord_space=None if coord_space == "auto" else coord_space)
     if provider == "owlv2":
         mid = model_id or getattr(args, "owlv2_model", None) or _D("owlv2_model")
@@ -2480,6 +2543,7 @@ def build_detector(provider, model_id, records, args):
         scale = getattr(args, "molmo_coord_scale", "auto")
         return mid, MolmoDetector(model_id=mid, tile=tile,
                                   definition=getattr(args, "definition", None),
+                                  prompt_body=getattr(args, "prompt_body", None),
                                   coord_scale=None if scale in (None, "auto") else float(scale))
     if provider == "yolo":
         # model_id (from yolo:<path>) or --yolo-model is a trained weights path, not

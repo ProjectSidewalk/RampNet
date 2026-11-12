@@ -724,6 +724,13 @@ def build_parser():
                          "benchmark/prompt_opt_276/definitions/NAME.txt (#276). A short "
                          "name, never a path. Changes the prompt and so the key. "
                          "--gemini-definition is the older spelling of the same flag.")
+    ap.add_argument("--prompt-body", default=_D["prompt_body"], metavar="NAME",
+                    help="Replace the WHOLE detection instruction (task verb, definition, "
+                         "tail) of Gemini, Claude and Qwen with the committed "
+                         "benchmark/prompt_opt_276/prompts/NAME.txt (#276 whole-prompt "
+                         "arm). The provider's output-format and confidence suffixes are "
+                         "still appended. Exclusive with --definition; refused for Molmo. "
+                         "Short name, never a path. Changes the prompt and so the key.")
     ap.add_argument("--gemini-confidence", action="store_const", const=True,
                     default=_D["gemini_confidence"],
                     help="Elicit an integer 0-100 score per box (scored schema + an "
@@ -932,6 +939,9 @@ def main():
 
     ap = build_parser()
     args = ap.parse_args()
+    if args.definition is not None and args.prompt_body is not None:
+        ap.error("--definition and --prompt-body are exclusive: a prompt body carries "
+                 "its own definition")
 
     load_dotenv_for_run()
     specs = [parse_model_spec(t) for t in args.models.split(",") if t.strip()]

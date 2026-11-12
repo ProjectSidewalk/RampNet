@@ -188,7 +188,7 @@ def test_a_run_that_sets_two_opt_in_knobs_resolves_to_the_leg_pinning_both():
         assert roster.leg_for("gemini:gemini-3.6-flash", c) is None, knob
     assert roster.opt_in_knobs_for("gemini") == [
         "definition", "gemini_confidence", "gemini_exemplars", "gemini_temperature",
-        "gemini_thinking_level"]
+        "gemini_thinking_level", "prompt_body"]
     assert roster.opt_in_knobs_for("vistas") == ["vistas_input_size", "vistas_revision"]
     assert "definition" in roster.opt_in_knobs_for("qwen")
     assert roster.opt_in_knobs_for("yolo") == []
@@ -199,6 +199,26 @@ def test_a_run_that_sets_two_opt_in_knobs_resolves_to_the_leg_pinning_both():
     assert roster.set_opt_in_knobs(b, roster.legs_of("gemini:gemini-4-argon")) == []
     b.gemini_temperature = 1.0
     assert roster.leg_for("gemini:gemini-4-argon", b) is None
+
+
+def test_an_unregistered_prompt_body_run_resolves_to_no_leg():
+    """--prompt-body (#276 whole-prompt arm) is opt-in for every provider that takes
+    --definition, so a run that sets it and no leg registers is refused by the exporter
+    (``None``), never exported under the bare or a definition leg's name."""
+    import argparse
+    for provider in ("gemini", "claude", "qwen", "molmo"):
+        assert "prompt_body" in roster.opt_in_knobs_for(provider), provider
+    assert roster.is_opt_in_pin("prompt_body")
+    for spec in ("gemini:gemini-4-argon", "gemini:gemini-3.8-flash", "claude:claude-opus-5",
+                 "qwen:Qwen/Qwen3-VL-32B-Instruct"):
+        base = argparse.Namespace(**roster.PROVIDER_DEFAULTS)
+        assert roster.leg_for(spec, base) is not None, spec          # the bare leg
+        base.prompt_body = "prompt276-argon-r1"
+        assert roster.leg_for(spec, base) is None, spec
+    # beside confidence (which a registered leg pins) it is still nobody's leg
+    a = argparse.Namespace(**roster.PROVIDER_DEFAULTS)
+    a.gemini_confidence, a.prompt_body = True, "prompt276-argon-r1"
+    assert roster.leg_for("gemini:gemini-4-argon", a) is None
 
 
 def test_as_run_values_match_the_detectors():
