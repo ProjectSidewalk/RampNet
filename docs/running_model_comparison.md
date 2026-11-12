@@ -159,6 +159,8 @@ python scripts/model_comparison/compare.py benchmark/sao_paulo --models gemini:g
 #   --gemini-temperature 1.0            sampling temperature (as-run 0.0 is absent from the key)
 #   --definition NAME                   benchmark/prompt_opt_276/definitions/NAME.txt replaces
 #                                       the curb-ramp definition inside the prompt
+#   --prompt-body NAME                  benchmark/prompt_opt_276/prompts/NAME.txt replaces the
+#                                       WHOLE instruction (exclusive with --definition)
 #   --gemini-confidence                 integer 0-100 score per box -> a PR curve, --sweep works
 #   --gemini-exemplars NAME             benchmark/prompt_opt_276/exemplars/NAME.json shown first
 #   --gemini-thinking-level low|...     Gemini 3 thinking level
@@ -200,6 +202,38 @@ and score is a line in `optimize/<model>/trajectory.jsonl`; the selection among 
 is then ordinary `compare.py --definition NAME --pano-list ...@dev_select` runs.
 The detector runs go through `compare.score_model`, so they hit the same cache and write
 the same ledger rows as a `compare.py` leg with the same pins.
+
+#### Rewriting the whole prompt (`--scope prompt`, the whole-prompt arm)
+
+The same loop with `--scope prompt` lets the critic rewrite the whole instruction (task
+verb, definition, exclusions, what to do when unsure) rather than the definition alone.
+Candidates are `prompts/prompt276-<model>-r<k>.txt` and are scored with `--prompt-body`;
+the record is `optimize/<model>/prompt/` with its own `trajectory.jsonl`, so the Step 4
+record is never touched. The first two iterations reuse the crops already judged in Step 4,
+so they need no detector call at pick time and no new rating:
+
+```bash
+M=gemini-4-argon   # floor 0.03; gemini-3.8-flash uses 0.02
+python scripts/model_comparison/prompt_optimize.py pick --scope prompt --model $M \
+    --reuse-from optimize/$M/iter_01
+python scripts/model_comparison/prompt_optimize.py rewrite  --scope prompt --model $M
+python scripts/model_comparison/prompt_optimize.py evaluate --scope prompt --model $M --floor 0.03
+# iteration 2: the same three commands with --reuse-from optimize/$M/iter_02
+python scripts/model_comparison/prompt_optimize.py alternative --scope prompt --model $M
+python scripts/model_comparison/prompt_optimize.py status --scope prompt --model $M
+```
+
+`--reuse-from` copies the crops and `verdicts.json` verbatim, and `rewrite` reads them by the
+definition scope's rule (an `unsure` or GT-error answer leaves that crop out). The seed row is
+copied from the definition-scope trajectory: the seed whole prompt is the seed definition in
+the as-run frame, so it is the same signature and the same cached detections. A pick without
+`--reuse-from` (iteration 3 on) runs the detector as usual and skips every pano either scope
+has shown. `alternative --scope prompt` is the paraphrase control: an image-free rewording of
+the seed whole prompt (`--from-best` rewords the best accepted body instead),
+`prompt276-<model>-alt`. The provider suffix (Qwen's JSON shape, Gemini's confidence
+sentence) is appended by the detector and Gemini's schema is sent separately, so a body never
+states an output format. Molmo refuses
+`--prompt-body`: a body is a boxing instruction and Molmo points.
 
 ## Running the open-weight models on Hyak
 

@@ -534,6 +534,10 @@ PROVIDER_DEFAULTS = {
     # --definition applies to every prompted detector (Gemini, Claude, Qwen, Molmo):
     # the same committed file, each provider's own frame around it.
     "definition": None,
+    # --prompt-body (#276 whole-prompt arm): a committed prompts/NAME.txt that replaces
+    # the whole detection instruction; exclusive with ``definition``. Gemini, Claude and
+    # Qwen accept it; Molmo refuses it (its pointing frame has no whole-body form).
+    "prompt_body": None,
     "gemini_confidence": None,
     "gemini_exemplars": None,
     "gemini_thinking_level": None,
@@ -917,8 +921,11 @@ def leg_for(spec, cargs=None):
 
 # Opt-in knobs that are not named after one provider. ``definition`` is read by every
 # prompted detector (``build_detector``: gemini, claude, qwen, molmo), so a run that
-# sets it is a different leg for any of them.
-GENERIC_OPT_IN_KNOBS = {"definition": ("gemini", "claude", "qwen", "molmo")}
+# sets it is a different leg for any of them. ``prompt_body`` is passed to the same
+# four (Molmo refuses it at construction, so listing it there only keeps the rule
+# uniform): a run that sets it and no leg registers resolves to None, not the bare leg.
+GENERIC_OPT_IN_KNOBS = {"definition": ("gemini", "claude", "qwen", "molmo"),
+                        "prompt_body": ("gemini", "claude", "qwen", "molmo")}
 
 
 def opt_in_knobs_for(provider):

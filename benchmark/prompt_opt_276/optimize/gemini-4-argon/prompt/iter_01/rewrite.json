@@ -1,0 +1,20 @@
+{
+ "iteration": 1,
+ "model": "gemini-4-argon",
+ "from": null,
+ "candidate": "prompt276-argon-r1",
+ "used_fp": true,
+ "used_fn": true,
+ "verdicts": {
+  "iteration": 1,
+  "model": "gemini-4-argon",
+  "fp": "not_ramp",
+  "fn": "ramp",
+  "judged_at": "2026-11-09T23:26:44.808Z"
+ },
+ "prompt": "You are improving the instruction given to an object detector, a vision-language model that finds curb ramps in street-level images. The instruction is sent with every image.\n\nCurrent instruction: \"Detect every curb ramp in this street-level image. A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street. Return one tight bounding box per curb ramp. Do not box driveways, stairs, or crosswalk paint. If there are no curb ramps, return an empty list.\"\n\nImage 1: the RED box marks a region the detector labeled a curb ramp, but a human reviewer confirmed it is NOT a curb ramp.\n\nImage 2: the BLUE box marks a real curb ramp that the detector missed, confirmed by the reviewer.\n\nRewrite the whole instruction so that the detector still finds every ordinary curb ramp, does not box things like the red-boxed region, finds cases like the blue-boxed one. You may change any part of it: how the task is worded, how a curb ramp is described, what to exclude, and what to do when unsure. Keep it an instruction to detect curb ramps and return one tight bounding box per curb ramp, and an empty list when there are none. Do not specify an output format, coordinates or scores; those are added separately. Describe visual features a detector can use; do not refer to these specific images or to 'the reviewer'. One paragraph, at most 150 words. Return JSON: {\"prompt\": \"...\"}.",
+ "raw": "{\"prompt\": \"Detect every curb ramp in this street-level image. A curb ramp (curb cut) is a sloped transition cut into or built onto a sidewalk curb at a street corner or crosswalk that allows pedestrians, wheelchairs, and strollers to move smoothly between the sidewalk and street level. Be sure to include both standard concrete cutouts (with or without tactile paving) and smooth, flush curved corner aprons where the curb height drops to meet the end of painted crosswalk stripes. Return one tight bounding box per curb ramp. Do not box storm drain inlets, catch basins, rectangular concrete utility covers embedded in the curb with drainage openings underneath, vehicle driveways, stairs, or crosswalk paint alone. If there are no curb ramps present, return an empty list.\"}",
+ "instruction": "Detect every curb ramp in this street-level image. A curb ramp (curb cut) is a sloped transition cut into or built onto a sidewalk curb at a street corner or crosswalk that allows pedestrians, wheelchairs, and strollers to move smoothly between the sidewalk and street level. Be sure to include both standard concrete cutouts (with or without tactile paving) and smooth, flush curved corner aprons where the curb height drops to meet the end of painted crosswalk stripes. Return one tight bounding box per curb ramp. Do not box storm drain inlets, catch basins, rectangular concrete utility covers embedded in the curb with drainage openings underneath, vehicle driveways, stairs, or crosswalk paint alone. If there are no curb ramps present, return an empty list.",
+ "at": "2026-11-12T15:39:25Z",
+ "scope": "prompt"
+}

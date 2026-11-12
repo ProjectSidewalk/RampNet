@@ -130,6 +130,7 @@ def main():
     ap.add_argument("--gemini-temperature", type=float, default=_D["gemini_temperature"])
     ap.add_argument("--definition", "--gemini-definition", dest="definition",
                     default=_D["definition"])
+    ap.add_argument("--prompt-body", default=_D["prompt_body"])
     ap.add_argument("--gemini-confidence", action="store_const", const=True,
                     default=_D["gemini_confidence"])
     ap.add_argument("--gemini-exemplars", default=_D["gemini_exemplars"])
