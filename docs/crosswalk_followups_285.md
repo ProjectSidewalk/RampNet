@@ -607,3 +607,50 @@ python $S/osm_arm.py city-score --city kaysville-ut --ratings <the ratings CSV a
 To rerun placement from the archive, copy a city's image folder to `<keep>/pano_store/<city>/` and its
 `osm285/<city>/` folder to `<keep>/osm285/<city>/`, then run `city-place` as above. `records.jsonl` is archived
 because Mapillary can revise a pano's computed position and heading, which would move the placements.
+
+### Brussels placed and rated (Jon, 2026-11-12): 95 of 100, the gate passes
+
+Brussels' 882 images were fetched into the lab pano store by sidewalk-panorama-tools (882 downloaded, 0 failed;
+`/projects/makeabilitylab/sidewalk_panos/Panoramas/brussels-be/`) and copied to `<keep>/pano_store/brussels-be/`.
+Placement: 2,171 placements on 882 panos, 1,617 positives (74%) on 778 panos, for 849 crossings; 403 placements
+found no crosswalk region and 151 collided. The placer uses every tagged crossing within 20 m of a listed pano,
+not only the 300 sampled ones, which is why more crossings than that have a positive. Same gate (100 placements,
+seed 285, blind page, bar 91):
+
+| | Correct | Of |
+|---|---|---|
+| All | 95 | 100 (Wilson 0.888 to 0.978); 2 not a crosswalk, 3 unsure |
+| `crossing:markings` | 94 | 99 |
+| Signals only | 1 | 1 |
+| Under 10 m | 38 | 38 |
+| 10 to 20 m | 57 | 62 |
+| Projected point on paint | 18 | 18 |
+| Projected point off paint | 77 | 82 |
+
+- **All five misses are distant and tiny:** 12 to 19 m away, on a snapped region of 16 to 80 pixels. Jon's notes:
+  beside the crosswalk on a median or sidewalk (2), seen through a fence, too far to tell, and possibly a light
+  rail median crossing.
+
+### Across the three cities: small snapped regions carry most of the misses (post hoc)
+
+Splitting the 300 rated placements by the size of the Vistas region the label snapped to (`comp_area_px`, in
+pixels of the 4096-wide pano the placer works on):
+
+| Snapped region | Brussels | Kaysville | Sacramento | Pooled |
+|---|---|---|---|---|
+| 100 px or less | 4 of 9 | 4 of 5 | 5 of 6 | 13 of 20 |
+| More than 100 px | 91 of 91 | 94 of 95 | 92 of 94 | 277 of 280 |
+
+- **Regions of 100 px or less hold 7 of the 10 misses** and 228 of the 3,496 positives (113 Brussels, 24
+  Kaysville, 91 Sacramento), 6.5%.
+- **This cut was chosen after seeing the ratings,** on 20 rated cards, so it is a proposal for the training
+  pre-registration, not a tested rule. The Sacramento section above judged its own six cards too few to set a
+  minimum; the Brussels cards are what changed that.
+- **The other three misses:** two on the capture vehicle (Kaysville, see above) and one Sacramento near miss.
+
+Counted ad hoc by matching each rated card to its row in `placements_kinds.csv` (pano id and position).
+
+Files, under `analysis_out/crosswalk_followups_285/osm_arm/cities/brussels-be/`: `placements_kinds.csv`,
+`placements_summary.json`, `a3_candidates.csv`, `ratings/ratings_a3_brussels_jon_2026-11-12.csv`, `a3_score.json`.
+The page is local: `<keep>/osm285/brussels-be/page/rate_a3_brussels.html`. Commands are Kaysville's with
+`brussels-be` and `a3_brussels`.

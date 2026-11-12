@@ -1,0 +1,94 @@
+{
+ "city": "brussels-be",
+ "ratings": "ratings_a3_brussels_jon_2026-11-12.csv",
+ "correct": 95,
+ "n": 100,
+ "wilson": [
+  0.888,
+  0.978
+ ],
+ "bar": 91,
+ "passes": true,
+ "verdicts": {
+  "crosswalk": 95,
+  "not_crosswalk": 2,
+  "unsure": 3
+ },
+ "splits": {
+  "all": [
+   95,
+   100
+  ],
+  "basis: crossing:markings": [
+   94,
+   99
+  ],
+  "basis: signals_only": [
+   1,
+   1
+  ],
+  "projected point off paint": [
+   77,
+   82
+  ],
+  "projected point on paint": [
+   18,
+   18
+  ],
+  "range: 10 to 20 m": [
+   57,
+   62
+  ],
+  "range: under 10 m": [
+   38,
+   38
+  ]
+ },
+ "not_correct": [
+  {
+   "pano_id": "149609437917518",
+   "node_id": "206266723",
+   "verdict": "unsure",
+   "basis": "crossing:markings",
+   "range_m": "15.8",
+   "comp_area_px": "80",
+   "note": "Wow, the model may have identified the crosswalk through a fence? But it seems just off the actual crosswalk. Hmmm"
+  },
+  {
+   "pano_id": "1462749677593985",
+   "node_id": "5316252620",
+   "verdict": "not_crosswalk",
+   "basis": "crossing:markings",
+   "range_m": "19.2",
+   "comp_area_px": "16",
+   "note": "I would say this is more on the sidewalk/scooter than on the crosswalk"
+  },
+  {
+   "pano_id": "3012814468879207",
+   "node_id": "1271954967",
+   "verdict": "unsure",
+   "basis": "crossing:markings",
+   "range_m": "12.2",
+   "comp_area_px": "32",
+   "note": "Too far in distance to know for sure"
+  },
+  {
+   "pano_id": "1448459089502923",
+   "node_id": "4911046652",
+   "verdict": "unsure",
+   "basis": "crossing:markings",
+   "range_m": "16.5",
+   "comp_area_px": "80",
+   "note": "I think this might actually be a crosswalk to the median for the light rail but can't see from here for sure"
+  },
+  {
+   "pano_id": "371059301510969",
+   "node_id": "11059496991",
+   "verdict": "not_crosswalk",
+   "basis": "crossing:markings",
+   "range_m": "19.3",
+   "comp_area_px": "32",
+   "note": "I think this is the median or something and the crosswalk is just to the right of this?"
+  }
+ ]
+}
