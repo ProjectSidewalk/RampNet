@@ -67,6 +67,16 @@ These properties of an entry are worth stating because they are easy to get wron
   model is best" rather than "how much does one model vary between training runs". That
   second question has its own write-up, ``docs/seed_variance_51_135.md``. The value is
   the published name of the leg it replicates.
+* ``study`` marks a **study leg**: an arm of a prompt or protocol study, published and
+  registered so its numbers re-score on any clone, but scored in that study's own doc at
+  that study's own operating point (a threshold selected on a dev split, say), not on
+  the scoreboard, whose tables score every row at the class's raw operating point. The
+  #276 Step 5 legs are the first: seven confidence-elicited arms of two models already on
+  the board. Showing them as rows would give one model four rows and the board's "best
+  challenger" would become the same model at an operating point its write-up does not
+  use. Like a seed leg it is listed in the scoreboard JSON (``study_legs``) and named
+  on the page, so nothing drops out silently. The value is the study doc's stem under
+  ``docs/``.
 """
 from collections import namedtuple
 import os
@@ -87,8 +97,8 @@ def slug(label):
 #: extra signature-entering settings it was run with, if any.
 Challenger = namedtuple(
     "Challenger",
-    "spec label provider density standing added note pins published_as seed_of",
-    defaults=((), None, None))
+    "spec label provider density standing added note pins published_as seed_of study",
+    defaults=((), None, None, None))
 
 # --------------------------------------------------------------------------- #
 # The registry
@@ -205,6 +215,106 @@ ROSTER = (
              "Density measured 2026-08-18 off the published detections: 1.90 "
              "boxes/pano over 2,109 panos, against gemini-3.6-flash's 2.34 and "
              "OWLv2's 72.77."),
+
+    # #276 round 1: the two current Gemini legs, run zero-shot at the as-run settings
+    # on all fourteen splits (2026-11-08/09) as the baseline every prompt arm is
+    # measured against. Both were registered standing=False until both were published,
+    # then promoted together so every table moved in one commit (2026-11-09).
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=True, added="2026-11-09",
+        note="Zero-shot, 14 splits, published 2026-11-09 (#276 Step 2). Density "
+             "measured off the published detections: 1.39 boxes/pano over 2,539 "
+             "panos. Recall is the low side of the roster (0.10-0.55 by split) at "
+             "precision 0.50-0.97; every call ended STOP, so that is the model, not "
+             "a parse or truncation artefact (#276 Step 1 diagnostics)."),
+    Challenger(
+        spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
+        density="sparse", standing=True, added="2026-11-09",
+        note="Zero-shot, 14 splits, published 2026-11-09 (#276 Step 2; about $58 of "
+             "Google.org credit, 22-32 s/pano at six views in flight). Density "
+             "measured off the published detections: 2.66 boxes/pano over 2,539 "
+             "panos. Recall 0.35 (budapest_district5) to 0.78 (bend) at precision "
+             "0.51-0.86; manual_gold F1 0.740. 3 of 15,234 views ended MAX_TOKENS "
+             "(clovis 2, laurens_gsv 1) and read as empty; every other call ended "
+             "STOP."),
+
+    # #276 Step 5: the frozen held-out run (2026-11-09 to 2026-11-11), every arm with
+    # elicited per-box confidence (--gemini-confidence: an integer 0-100 score per box,
+    # in the signature and the published files' points). Registered as STUDY legs
+    # (standing=False, study set): the study's replicable arms, scored in
+    # docs/vlm_prompt_276.md at thresholds selected on sao_paulo dev_select, and off the
+    # scoreboard, which would score them raw (see the ``study`` bullet above). The definition arms were run on the twelve held-out splits
+    # (sao_paulo only on dev_select, manual_gold only on its 250-pano subset), so their
+    # published coverage is twelve splits; the zs+conf legs cover all fourteen.
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
+        pins=(("gemini_confidence", True),),
+        published_as="gemini-3.8-flash-confidence-on",
+        note="Zero-shot + confidence, 14 splits (#276 Step 5 baseline). Same prompt and "
+             "views as the standing gemini-3.8-flash leg plus the score field; dev_select "
+             "selected threshold 0.00, i.e. the cut buys nothing on a model whose errors "
+             "are misses. Nine-city macro F1 0.516 at that threshold against the standing "
+             "leg's 0.527 (count-pooled micro 0.544): asking for a score costs Flash a "
+             "little. All 7,606 calls ended STOP."),
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
+        pins=(("definition", "def276-flash38-alt"), ("gemini_confidence", True),),
+        published_as="gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+        note="The #276 Step 4 alternative rewording (the one optimizer candidate to pass the "
+             "dev_select gate) + confidence, 12 held-out splits. The pre-registered "
+             "primary endpoint: -0.011 F1 [-0.027, +0.006] vs zs+conf on the 7-city "
+             "reference pool, p 0.22 -- the gate gain did not transfer."),
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
+        pins=(("definition", "para3"), ("gemini_confidence", True),),
+        published_as="gemini-3.8-flash-definition-para3-confidence-on",
+        note="Paraphrase 3 of the seed definition + confidence, 12 held-out splits (#276 Step 5 "
+             "amendment arm). -0.015 F1 vs zs+conf on the reference pool: the best-of-K "
+             "wording on dev_select was selection, not signal."),
+    Challenger(
+        spec="gemini:gemini-3.8-flash", label="gemini-3.8-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
+        pins=(("definition", "expert"), ("gemini_confidence", True),),
+        published_as="gemini-3.8-flash-definition-expert-confidence-on",
+        note="Jon's blind expert definition + confidence, 12 held-out splits (#276 Step 5 "
+             "amendment arm, exploratory). +0.025 F1 [+0.009, +0.041] vs zs+conf on the "
+             "reference pool and +0.068 on the open pool, through recall at unchanged "
+             "precision; leads zs on six of seven reference cities."),
+    Challenger(
+        spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
+        pins=(("gemini_confidence", True),),
+        published_as="gemini-4-argon-confidence-on",
+        note="Zero-shot + confidence, 14 splits (#276 Step 5 baseline). Same prompt and views "
+             "as the standing gemini-4-argon leg plus the score field; 50-94 distinct "
+             "scores per split, so AP is a usable curve (0.635 on manual_gold). dev_select "
+             "selected threshold 0.35; nine-city macro F1 0.733 at it against the standing "
+             "leg's 0.734 (count-pooled micro 0.736): the cut moves the operating point, "
+             "not the model. 3 views "
+             "ended MAX_TOKENS. The full manual_gold run was killed by a 12 h chain "
+             "timeout 8 panos short and finished on relaunch (ledger: one kind=recovered "
+             "row, one row with panos_called 8)."),
+    Challenger(
+        spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
+        pins=(("definition", "para3"), ("gemini_confidence", True),),
+        published_as="gemini-4-argon-definition-para3-confidence-on",
+        note="Paraphrase 3 + confidence, 12 held-out splits (#276 Step 5 amendment arm). -0.010 "
+             "F1 vs zs+conf on the reference pool; null."),
+    Challenger(
+        spec="gemini:gemini-4-argon", label="gemini-4-argon", provider="gemini",
+        density="sparse", standing=False, added="2026-11-11", study="vlm_prompt_276",
+        pins=(("definition", "expert"), ("gemini_confidence", True),),
+        published_as="gemini-4-argon-definition-expert-confidence-on",
+        note="Jon's blind expert definition + confidence, 12 held-out splits (#276 Step 5 "
+             "amendment arm, exploratory). -0.036 F1 [-0.050, -0.022] vs zs+conf on the "
+             "reference pool: recall rises, precision falls further, and no dev_select "
+             "threshold recovers it (selected 0.00). A recall clause written for a "
+             "low-recall model is a precision tax on a high-recall one."),
 
     # The supervised YOLO baseline (#51). Ten splits each, scored under the
     # pre-registered #71 protocol and written up in their own table in
@@ -413,6 +523,20 @@ WITNESS_POOL_46 = (
 #: the cache key and every lookup silently misses.
 PROVIDER_DEFAULTS = {
     "gemini_model": "gemini-3.6-flash",
+    # The #276 prompt-experiment knobs. ``None`` is as-run and keeps each OUT of the
+    # detection signature (GeminiDetector.signature records a knob only when set), so
+    # every paid Gemini detection keeps its cache key. A leg that sets one is a
+    # different leg and is registered with that knob in ``pins``. ``definition`` and
+    # ``exemplars`` are SHORT NAMES resolving under benchmark/prompt_opt_276/, never
+    # paths. (--gemini-concurrency and --gemini-debug-dump are run-time only, not
+    # signature fields, and so not here.)
+    "gemini_temperature": None,
+    # --definition applies to every prompted detector (Gemini, Claude, Qwen, Molmo):
+    # the same committed file, each provider's own frame around it.
+    "definition": None,
+    "gemini_confidence": None,
+    "gemini_exemplars": None,
+    "gemini_thinking_level": None,
     "claude_model": "claude-sonnet-5",
     "claude_effort": "low",
     "claude_tool_choice": "auto",
@@ -494,7 +618,23 @@ def pin_token(value):
     """
     if isinstance(value, (list, tuple)):
         return "x".join(str(v) for v in value)
+    if isinstance(value, bool):                 # a store_const flag: on/off, not True/False
+        return "on" if value else "off"
     return str(value)
+
+
+#: The as-run value of each opt-in knob whose detector leaves it OUT of the signature
+#: when it is set to exactly this (``GEMINI_AS_RUN_TEMPERATURE``, ``CLAUDE_AS_RUN_*`` in
+#: detectors.py; ``tests/test_roster.py`` pins the parity). A run that passes the as-run
+#: value explicitly (``--gemini-temperature 0.0``) has the bare leg's signature, so it
+#: IS the bare leg and ``set_opt_in_knobs`` does not count the knob as set (#286
+#: re-review: it was refused as an unregistered leg). Knobs absent here count as set
+#: at any non-``None`` value.
+AS_RUN_VALUES = {
+    "gemini_temperature": 0.0,
+    "claude_image_format": "jpeg",
+    "claude_max_tokens": 4096,
+}
 
 
 def is_opt_in_pin(key):
@@ -659,6 +799,9 @@ OFF_ROSTER = tuple(c for c in ROSTER if not c.standing)
 #: Seed legs (``seed_of`` set): published and registered, but not on the scoreboard.
 SEED_LEGS = tuple(c for c in ROSTER if c.seed_of)
 
+#: Study legs (``study`` set): published and registered, scored in their study's doc.
+STUDY_LEGS = tuple(c for c in ROSTER if c.study)
+
 # Read off the entries, not by looking each spec back up in BY_SPEC: that mapping
 # holds default legs only, so a spec-keyed lookup here would resolve to the wrong
 # leg (or raise at import) the moment anything pinned reached this far. The check
@@ -738,10 +881,18 @@ def leg_for(spec, cargs=None):
     whoever ran it to remember ``--publish-as``.
     """
     candidates = legs_of(spec, cargs)
-    for c in candidates:                      # a pinned leg wins when its pins match
-        if c.pins and pins_match(cargs, c.pins):
-            return c
-    if set_opt_in_knobs(cargs, candidates):   # an opt-in knob is SET: not the bare leg
+    # A pinned leg wins when its pins match AND it pins every opt-in knob the run has
+    # set: a run with a definition AND confidence is the definition leg, not the
+    # confidence-only sibling whose one pin it also satisfies (#276 Step 5 found the
+    # first-match rule exporting the alt arm under the zs+conf name). Among several,
+    # the most specific (most pins) wins.
+    set_knobs = set(set_opt_in_knobs(cargs, candidates))
+    matched = [c for c in candidates
+               if c.pins and pins_match(cargs, c.pins)
+               and set_knobs <= {k for k, _ in c.pins}]
+    if matched:
+        return max(matched, key=lambda c: len(c.pins))
+    if set_knobs:                             # an opt-in knob is SET: not the bare leg
         return None
     for c in candidates:                      # otherwise the leg the bare spec names
         if not c.pins:
@@ -749,8 +900,22 @@ def leg_for(spec, cargs=None):
     return None
 
 
+# Opt-in knobs that are not named after one provider. ``definition`` is read by every
+# prompted detector (``build_detector``: gemini, claude, qwen, molmo), so a run that
+# sets it is a different leg for any of them.
+GENERIC_OPT_IN_KNOBS = {"definition": ("gemini", "claude", "qwen", "molmo")}
+
+
+def opt_in_knobs_for(provider):
+    """Every opt-in knob (``is_opt_in_pin``) that enters ``provider``'s signature:
+    the ones named ``<provider>_...`` plus the generic ones that list it."""
+    return sorted(k for k in PROVIDER_DEFAULTS if is_opt_in_pin(k)
+                  and (k.startswith(provider + "_")
+                       or provider in GENERIC_OPT_IN_KNOBS.get(k, ())))
+
+
 def set_opt_in_knobs(cargs, candidates):
-    """The opt-in knobs some candidate leg pins that ``cargs`` has set (non-``None``).
+    """The opt-in knobs of the candidates' provider that ``cargs`` has set (non-``None``).
 
     A bare name means "every opt-in knob unset" (``needs_qualified_name``): the bare
     file's signature carries no such key, and that is what lets it keep its name
@@ -758,14 +923,29 @@ def set_opt_in_knobs(cargs, candidates):
     leg, whatever the value -- ``vistas_input_size=[512, 512]`` is a leg nobody has
     registered, not the 384 arm, and ``leg_for`` must answer ``None`` so the exporter
     refuses rather than writing ``mask2former-vistas-curb-cut__richmond.json`` with
-    ``input_size: [512, 512]`` inside and ``pins: {}`` (PR #167 review, M2). A value
-    some sibling does register was matched before this is consulted, so by the time
-    it runs every set knob is, for this run, unregistered. Sorted, for the message.
+    ``input_size: [512, 512]`` inside and ``pins: {}`` (PR #167 review, M2). Sorted,
+    for the message. A knob set to its detector's as-run value (``AS_RUN_VALUES``) is
+    not in the signature and so not set here.
+    A pinned leg claims a run only if it pins every knob in this set (``leg_for``,
+    #276 Step 5), so a run with a definition AND confidence is the definition leg,
+    not the confidence-only sibling.
+
+    The set is every opt-in knob the provider's signature can carry
+    (``opt_in_knobs_for``), not only the ones some sibling happens to pin: a
+    ``--gemini-thinking-level high`` run that no leg registers used to resolve to the
+    expert+confidence leg, whose signature it does not share (#286 review). A knob of
+    another provider (``vistas_input_size`` on a Gemini run) is not in the signature
+    and is ignored. Knobs some sibling pins are kept in the set as well, so a provider
+    whose knobs are not prefixed by its name still gets the M2 guard.
     """
     if cargs is None:
         return []
-    pinned = {k for c in candidates for k, _ in c.pins if is_opt_in_pin(k)}
-    return sorted(k for k in pinned if getattr(cargs, k, None) is not None)
+    knobs = {k for c in candidates for k, _ in c.pins if is_opt_in_pin(k)}
+    for provider in {c.provider for c in candidates}:
+        knobs.update(opt_in_knobs_for(provider))
+    return sorted(k for k in knobs
+                  if getattr(cargs, k, None) is not None
+                  and getattr(cargs, k) != AS_RUN_VALUES.get(k, object()))
 
 
 def density_of(spec):
@@ -816,7 +996,9 @@ def markdown_table():
     rows = ["| leg | provider | density | joined | in the roster tables |",
             "| :--- | :--- | :--- | :--- | :--- |"]
     for c in ROSTER:
-        scored = "✅" if c.standing else "— published, not in these tables"
+        scored = ("✅" if c.standing else
+                  f"— study leg, scored in `{c.study}.md`" if c.study else
+                  "— published, not in these tables")
         density = c.density or "not yet measured"
         rows.append(f"| `{published_name(c)}` | {c.provider} | {density} | "
                     f"{c.added} | {scored} |")

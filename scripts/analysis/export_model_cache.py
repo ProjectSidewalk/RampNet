@@ -162,12 +162,15 @@ def publication_name(spec, cargs, publish_as=None):
             f"{roster.published_name(c)}: "
             + (", ".join(f"{k}={v}" for k, v in c.pins) or "(bare: every opt-in knob unset)")
             for c in candidates)
-        actual = ", ".join(
-            f"{k}={getattr(cargs, k, None)}"
-            for k in sorted({k for c in candidates for k, _ in c.pins}))
         set_knobs = roster.set_opt_in_knobs(cargs, candidates)
-        why = (f"this run sets {', '.join(set_knobs)} to a value no leg registers, so "
-               f"it is not the bare leg either" if set_knobs
+        pinned = {k for c in candidates for k, _ in c.pins}
+        actual = ", ".join(
+            f"{k}={getattr(cargs, k, None)}" for k in sorted(pinned | set(set_knobs)))
+        unregistered = [k for k in set_knobs if k not in pinned]
+        why = (f"this run sets {', '.join(unregistered)}, which no leg of it pins, so "
+               f"it is not the bare leg either" if unregistered
+               else f"this run sets {', '.join(set_knobs)}, a combination no leg pins, "
+                    f"so it is not the bare leg either" if set_knobs
                else "every leg of it is pinned and none matches this run")
         raise ValueError(
             f"{spec!r} is registered, but {why} ({actual}). Refusing to publish it "
@@ -425,7 +428,9 @@ def verify(cache_dir, out_dir, splits, specs, overrides=None, publish_as=None):
     return compared, problems, vacuous, unpublished
 
 
-def main(argv=None):
+def build_parser():
+    """The CLI as one object, so tests/test_roster.py can check that every
+    signature-feeding default here matches ``roster.PROVIDER_DEFAULTS``."""
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--cache-dir", default=os.path.join(REPO, ".model_cache"))
     p.add_argument("--out", default=PUBLISHED_DIR)
@@ -466,6 +471,18 @@ def main(argv=None):
                         "published 384 arm; `1024 1024` addresses the resolution-parity "
                         "leg (#126, #163), which the registry pins on it, so the "
                         "filename again comes from the roster.")
+    # The #276 Gemini knobs of the producing run (signature fields, recorded only
+    # when set; None is as-run). A leg registered with one of these in ``pins`` is
+    # matched on them, so the filename comes from the roster.
+    _D = roster.PROVIDER_DEFAULTS
+    p.add_argument("--gemini-temperature", type=float, default=_D["gemini_temperature"])
+    p.add_argument("--definition", "--gemini-definition", dest="definition",
+                   default=_D["definition"], metavar="NAME")
+    p.add_argument("--gemini-confidence", action="store_const", const=True,
+                   default=_D["gemini_confidence"])
+    p.add_argument("--gemini-exemplars", default=_D["gemini_exemplars"], metavar="NAME")
+    p.add_argument("--gemini-thinking-level", default=_D["gemini_thinking_level"],
+                   choices=["minimal", "low", "medium", "high"])
     p.add_argument("--publish-as",
                    help="Filename stem for this leg, when the model id alone does not "
                         "identify it -- e.g. claude-sonnet-5 at two effort levels are two "
@@ -492,6 +509,11 @@ def main(argv=None):
                         "cache. Reports what would change; add --write to apply.")
     p.add_argument("--write", action="store_true",
                    help="With --canonicalize, actually rewrite the files.")
+    return p
+
+
+def main(argv=None):
+    p = build_parser()
     args = p.parse_args(argv)
 
     if args.replicate:
@@ -521,6 +543,11 @@ def main(argv=None):
                  "claude_effort": args.claude_effort,
                  "claude_tool_choice": args.claude_tool_choice,
                  "vistas_input_size": args.vistas_input_size,
+                 "gemini_temperature": args.gemini_temperature,
+                 "definition": args.definition,
+                 "gemini_confidence": args.gemini_confidence,
+                 "gemini_exemplars": args.gemini_exemplars,
+                 "gemini_thinking_level": args.gemini_thinking_level,
                  # Not a signature field, so it does not affect the cache lookup --
                  # it is here purely so leg_for() can match a leg pinned on it.
                  "claude_serving_path": args.claude_serving_path}

@@ -108,6 +108,88 @@ MODELS_HELP = (
     "'yolo:<path.pt>' or --yolo-model."
 )
 
+def load_pano_list(spec):
+    """The pano ids named by ``--pano-list``: ``FILE`` (one id per line, ``#`` comments)
+    or ``FILE.json`` holding a list, or ``FILE.json@KEY`` for one list inside a dict
+    (the committed #276 dev split). Order is kept; duplicates are an error."""
+    path, key = spec, None
+    if "@" in spec:
+        path, key = spec.rsplit("@", 1)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"--pano-list: no such file {path}")
+    if path.lower().endswith(".json"):
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        if key is not None:
+            if not isinstance(data, dict) or key not in data:
+                raise KeyError(f"--pano-list: {path} has no key {key!r}"
+                               + (f"; keys: {', '.join(sorted(data))}" if isinstance(data, dict) else ""))
+            data = data[key]
+        elif isinstance(data, dict):
+            raise ValueError(f"--pano-list: {path} is a dict; say which list with @KEY "
+                             f"(keys: {', '.join(sorted(data))})")
+        if not isinstance(data, list) or not all(isinstance(p, str) for p in data):
+            raise ValueError(f"--pano-list: {spec} must be a list of pano ids")
+        ids = data
+    else:
+        if key is not None:
+            raise ValueError("--pano-list: @KEY applies to a .json file only")
+        with open(path, encoding="utf-8") as f:
+            ids = [ln.split("#", 1)[0].strip() for ln in f]
+        ids = [p for p in ids if p]
+    if not ids:
+        raise ValueError(f"--pano-list: {spec} names no panos")
+    dup = sorted({p for p in ids if ids.count(p) > 1})
+    if dup:
+        raise ValueError(f"--pano-list: duplicate ids in {spec}: {', '.join(dup[:5])}")
+    return ids
+
+
+def pano_list_note(spec, ids):
+    """What the ledger row keeps of a ``--pano-list``: the spec (relative to the repo
+    when it is inside it, so a committed list reads the same on every machine), the
+    count, and a digest of the ids in order -- enough to tell two subset rows apart
+    and to check a row against the committed file, without 65 ids per row."""
+    path, _, key = spec.partition("@")
+    try:
+        rel = os.path.relpath(path, REPO_ROOT).replace(os.sep, "/")
+        if not rel.startswith(".."):
+            spec = rel + ("@" + key if key else "")
+    except ValueError:      # a different drive on Windows
+        pass
+    return {"spec": spec, "n": len(ids),
+            "sha1": hashlib.sha1("\n".join(ids).encode("utf-8")).hexdigest()}
+
+
+def apply_pano_list(ids, gts, records, detect_only, detect_unjudged):
+    """Restrict a run to ``ids``. Every id must be in the bundle; a scored one keeps
+    its ground truth, and an unjudged one is kept only under --detect-unjudged.
+    Returns ``(gts, detect_only)`` in list order."""
+    unknown = [p for p in ids if p not in gts and p not in records]
+    if unknown:
+        raise SystemExit(f"--pano-list: {len(unknown)} id(s) are not in this bundle "
+                         f"(first: {unknown[0]}). A typo here would otherwise shrink the "
+                         f"run silently.")
+    new_gts = {p: gts[p] for p in ids if p in gts}
+    unjudged = [p for p in ids if p not in gts]
+    if unjudged and not detect_unjudged:
+        raise SystemExit(f"--pano-list: {len(unjudged)} id(s) have no ground truth here "
+                         f"(first: {unjudged[0]}); pass --detect-unjudged to run them "
+                         f"unscored, or take them off the list.")
+    # An id that is in the bundle but neither scored nor in the unjudged set would
+    # otherwise vanish from the run without a word, the shrink the first check exists
+    # to refuse (#286 review). No CLI path reaches it today: every verdict becomes a
+    # ground truth, and --limit (the one thing that slices either set) is exclusive
+    # with --pano-list. It guards a future filter, or a caller that slices first.
+    neither = [p for p in unjudged if p not in detect_only]
+    if neither:
+        raise SystemExit(f"--pano-list: {len(neither)} id(s) are in this bundle but are "
+                         f"neither scored nor in the unjudged set this run built "
+                         f"(first: {neither[0]}); something sliced the bundle before the "
+                         f"list was applied. Take them off the list, or drop the slice.")
+    return new_gts, list(unjudged)
+
+
 def load_dotenv(root):
     """Load KEY=VALUE lines from a repo-root .env into os.environ (without
     overriding already-set vars), so a Gemini key can live in a git-ignored file
@@ -342,7 +424,7 @@ def hardware_note():
 
 
 def report_usage(detector, label, city, panos_scored, usage_log_path, timing=None,
-                 api_account=None):
+                 api_account=None, pano_list=None):
     """Print and (append-)log what one leg cost: time always, tokens and dollars
     when the provider bills for them.
 
@@ -412,11 +494,17 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
     # truncations is a different measurement from one without, and this is the
     # one place a reader checking the numbers will see it.
     stop_reasons = dict(getattr(detector, "stop_reasons", None) or {})
+    # Anthropic's and Gemini's names for "finished normally"; everything else is a
+    # refusal, truncation or block and is worth a line.
     abnormal = {k: v for k, v in stop_reasons.items()
-                if k not in ("end_turn", "tool_use", "stop_sequence")}
+                if k not in ("end_turn", "tool_use", "stop_sequence", "STOP")}
     if abnormal:
         print(f"[{label}] ABNORMAL stop reasons: "
               + ", ".join(f"{k}={v:,}" for k, v in sorted(abnormal.items())))
+    malformed = getattr(detector, "malformed_boxes", 0)
+    if malformed:
+        print(f"[{label}] {malformed:,} malformed box(es) dropped (counted in the ledger "
+              f"row's run_options.malformed_boxes)")
     rec = {
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "bundle": city,
@@ -467,6 +555,12 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
         "api_account": api_account,
         # How each call terminated. Empty for providers that report nothing.
         "stop_reasons": stop_reasons or None,
+        # How the leg RAN, beyond what the signature says: per-view concurrency, the
+        # pins by name, empty-answer count (#276). None for detectors without it.
+        "run_options": detector.run_notes() if hasattr(detector, "run_notes") else None,
+        # The --pano-list a subset run scored, so a dev_train/dev_select row is
+        # distinguishable from a whole-split row with the same signature.
+        "pano_list": pano_list,
         **usage,
         "est_cost_usd": round(cost, 4) if cost is not None else None,
         "pricing": pricing,
@@ -616,6 +710,45 @@ def build_parser():
     # changes the cache key and silently misses every already-paid detection.
     _D = roster.PROVIDER_DEFAULTS
     ap.add_argument("--gemini-model", default=_D["gemini_model"])
+    # The #276 knobs. Every default is None = as-run; a set knob enters the cache key
+    # (GeminiDetector.signature), so a leg that sets one is a different leg.
+    ap.add_argument("--gemini-temperature", type=float, default=_D["gemini_temperature"],
+                    help="Sampling temperature. The published legs ran 0.0 (greedy); "
+                         "Google's Gemini 3 guidance is the provider default 1.0. A "
+                         "value other than 0.0 is a cache-key change.")
+    ap.add_argument("--definition", "--gemini-definition", dest="definition",
+                    default=_D["definition"], metavar="NAME",
+                    help="Replace the curb-ramp definition inside the prompt of EVERY "
+                         "prompted detector in --models (Gemini, Claude, Qwen, Molmo; each "
+                         "keeps its own frame) with the committed "
+                         "benchmark/prompt_opt_276/definitions/NAME.txt (#276). A short "
+                         "name, never a path. Changes the prompt and so the key. "
+                         "--gemini-definition is the older spelling of the same flag.")
+    ap.add_argument("--gemini-confidence", action="store_const", const=True,
+                    default=_D["gemini_confidence"],
+                    help="Elicit an integer 0-100 score per box (scored schema + an "
+                         "instruction suffix), so the leg gets a PR curve and --sweep "
+                         "applies. Self-reported, not calibrated. Cache-key change.")
+    ap.add_argument("--gemini-exemplars", default=_D["gemini_exemplars"], metavar="NAME",
+                    help="Show the committed in-context example set "
+                         "benchmark/prompt_opt_276/exemplars/NAME.json before the query "
+                         "image (#276 control arm). Short name, never a path.")
+    ap.add_argument("--gemini-thinking-level", default=_D["gemini_thinking_level"],
+                    choices=["minimal", "low", "medium", "high"],
+                    help="Gemini 3 thinking level. Unset = the model's default. Cache-key "
+                         "change when set.")
+    # Run-time only: neither changes a detection, so neither is in the cache key.
+    # Both are written to the usage log (run_options).
+    ap.add_argument("--gemini-concurrency", type=int, default=1, metavar="N",
+                    help="How many of a pano's views are requested at once (<= the view "
+                         "count, 6). Results are collected in view order, so the "
+                         "detections are identical to a sequential run; only the wall "
+                         "clock changes. Vertex Gemini is shared-quota, so expect 429s "
+                         "above ~12 in flight across processes (the retry covers them).")
+    ap.add_argument("--gemini-debug-dump", metavar="DIR",
+                    help="Write every Gemini call's raw text, finish reason, build and "
+                         "token counts (plus the view as JPEG) under DIR/<model_id>/. "
+                         "Diagnostic only.")
     ap.add_argument("--claude-model", default=_D["claude_model"],
                     help="Claude model id, served via Vertex + ADC (same credentials "
                          "as the Gemini legs). Each model must be enabled separately "
@@ -752,8 +885,17 @@ def build_parser():
                          "confidences (RampNet, owlv2, gdino, vistas, yolo) — the tunable operating range.")
     ap.add_argument("--pr-out", help="Directory to write PR curves to (JSON per model, plus a "
                                      "combined PNG when matplotlib is installed).")
-    ap.add_argument("--limit", type=int,
-                    help="Score at most N panos (smoke test / cost control for VLM runs).")
+    subset = ap.add_mutually_exclusive_group()
+    subset.add_argument("--limit", type=int,
+                        help="Score at most N panos (smoke test / cost control for VLM runs).")
+    subset.add_argument("--pano-list", metavar="FILE[@KEY]",
+                        help="Score only these panos of the bundle, in this order: a text "
+                             "file with one pano id per line (# comments), or a JSON file "
+                             "holding a list, or a dict of lists addressed as FILE@KEY "
+                             "(benchmark/prompt_opt_276/sao_paulo_split.json@dev_select). "
+                             "An id not in the bundle is an error, never a silent shrink. "
+                             "The ledger row records the list (pano_list). Exclusive "
+                             "with --limit.")
     ap.add_argument("--detect-unjudged", action="store_true",
                     help="Also run each model over the bundle's panos that have no verdicts "
                          "and cache their detections, unscored (#48 neighbourhood bundles, "
@@ -849,6 +991,12 @@ def main():
         detect_only = [pid for pid in records if pid not in gts and pid not in judged_all]
         if args.limit:
             detect_only = detect_only[:args.limit]
+    pano_list = None
+    if args.pano_list:
+        pano_list = load_pano_list(args.pano_list)
+        gts, detect_only = apply_pano_list(pano_list, gts, records, detect_only,
+                                           args.detect_unjudged)
+        print(f"--pano-list {args.pano_list}: {len(pano_list)} pano(s)")
     print(f"Bundle: {args.bundle}  ({len(gts)} scored panos"
           + (f", {len(detect_only)} unjudged detect-only" if args.detect_unjudged else "")
           + f")  match radius {args.radius}  ground truth: {gt_desc}")
@@ -901,7 +1049,9 @@ def main():
             timing["elapsed_s"] = round(perf_counter() - t_leg, 3)
             report_usage(detector, label, city,
                          len(run.scored) if run is not None else None, usage_log,
-                         timing=timing, api_account=args.api_account)
+                         timing=timing, api_account=args.api_account,
+                         pano_list=(pano_list_note(args.pano_list, pano_list)
+                                    if pano_list else None))
         if run is None:
             continue
         if run.failures and run.failures[-1][0] == "<abort>":

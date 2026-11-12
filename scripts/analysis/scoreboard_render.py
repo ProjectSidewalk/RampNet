@@ -437,6 +437,7 @@ def prose_facts(result):
     facts = {
         "legs": len(result["models"]),
         "seed_legs": len(result.get("off_scoreboard") or {}),
+        "study_legs": len(result.get("study_legs") or {}),
         "splits": len(result["all_splits"]),
         "pooled": len(pooled),
         "pooled_minus_one": len(pooled) - 1,
@@ -510,6 +511,8 @@ PROSE_RULES = (
      ["city_splits", "city_gt", "splits", "manual_gold_share"], True),
     ("missing: seed legs", _NUM + r" seed legs of `y11x_tiles` are not on this board\b",
      ["seed_legs"], True),
+    ("missing: study legs", _NUM + r" study legs of #276 are not on this board\b",
+     ["study_legs"], True),
     ("missing: y11x_tiles scope",
      r"\bscored on 2026-08-30 on the " + _NUM + r" splits registered then\b",
      ["yolo_tiles_splits"], True),
@@ -651,11 +654,10 @@ LOG_ROWS = {
     "laurens_gsv": LOG_STANDING + ("claude-opus-5-effort-low",),
     "budapest_district5": LOG_STANDING,
     "sao_paulo": LOG_STANDING,
-    # Molmo2-8B failed on every pano and Qwen3-VL-32B was not run (weights not cached
-    # on makelab2), so bayonne's table is the standing roster without those two rows
-    # (docs/bayonne_split_159.md section 10). Add them here when they run.
-    "bayonne": tuple(n for n in LOG_STANDING
-                     if n not in ("allenai/Molmo2-8B", "Qwen/Qwen3-VL-32B-Instruct")),
+    # Molmo2-8B and Qwen3-VL-32B were filled on klone on 2026-11-11 (the October pass had
+    # Molmo failing on makelab2's shared GPU and no 32B weights there;
+    # docs/bayonne_split_159.md section 10), so bayonne's table is the full roster too.
+    "bayonne": LOG_STANDING,
 }
 
 

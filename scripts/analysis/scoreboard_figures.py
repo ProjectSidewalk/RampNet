@@ -1,4 +1,4 @@
-"""The five figures for docs/model_scoreboard.md — the findings that read faster as a picture.
+"""The figures for docs/model_scoreboard.md — the findings that read faster as a picture.
 
 Called by ``scoreboard.py``; importable on its own for iterating on a figure without
 re-scoring. Matplotlib is imported inside ``render_all`` so ``--no-figures`` needs no
@@ -405,7 +405,7 @@ def held_out_footer(result, held):
     return "† held out of the pooled headline: " + ", ".join(parts) + "."
 
 
-def fig_by_split(result, path, plt):
+def fig_by_split(result, path, plt, full_only=False):
     """F1 for every (model, split) cell — consistency across cities, at a glance.
 
     Sequential single-hue ramp (magnitude), values printed in every cell so the figure is
@@ -413,11 +413,17 @@ def fig_by_split(result, path, plt):
     number, which the rows are sorted by), a gutter, then the held-out splits, so those are
     never read as part of the pooled headline. Top to bottom: the legs that ran every
     pooled city, a labelled rule, then the partial-coverage legs (``by_split_rows``).
+
+    ``full_only`` drops the partial-coverage group, so the grid is a full matrix with no
+    "—" cells (``scoreboard_by_split_full.png``, the version to paste into a slide or a
+    message). The rows it keeps are the same rows in the same order.
     """
     pooled = list(result["pooled_splits"])
     held = [s for s in result["all_splits"] if s not in pooled]
     per = result["per_split"]
     full, partial = by_split_rows(result)
+    if full_only:
+        partial = []
     n_pool = len(pooled)
 
     # Columns, in data units: cities, a narrow gap, the wider aggregate column (it has to
@@ -546,10 +552,12 @@ def fig_by_split(result, path, plt):
 
     # Two footer lines, spaced in points so they stay apart however tall the figure is.
     line = 11.0 / (fig_h * 72.0)
+    sorting = ("rows are sorted by it; legs that did not run every pooled city are left out."
+               if full_only else
+               "full-coverage rows are sorted by it, partial rows by coverage, then by it.")
     fig.text(0.008, 0.008 + line,
              f"Pooled mean: macro-mean F1 over the {_n_pooled(result)} pooled US cities, the "
-             "headline number (docs/model_scoreboard.md); full-coverage rows are sorted by it, "
-             "partial rows by coverage, then by it.",
+             f"headline number (docs/model_scoreboard.md); {sorting}",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     if held:
         fig.text(0.008, 0.008, held_out_footer(result, held),
@@ -776,11 +784,17 @@ def fig_pr_curves(result, path, plt):
     return path
 
 
+def fig_by_split_full(result, path, plt):
+    """``fig_by_split`` without the partial-coverage rows: a full matrix, no empty cells."""
+    return fig_by_split(result, path, plt, full_only=True)
+
+
 FIGURES = {
     "scoreboard_pr_curves.png": fig_pr_curves,
     "scoreboard_f1.png": fig_headline,
     "scoreboard_pr.png": fig_precision_recall,
     "scoreboard_by_split.png": fig_by_split,
+    "scoreboard_by_split_full.png": fig_by_split_full,
     "scoreboard_generalization.png": fig_generalization,
 }
 

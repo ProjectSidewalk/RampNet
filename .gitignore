@@ -23,7 +23,7 @@ benchmark/*/heatmap_cache/
 benchmark/*/depth/
 .env
 view_dump/
-.model_cache/
+.model_cache*/
 # Ignore analysis_out/ CONTENTS rather than the directory itself: git cannot re-include a
 # file whose parent directory is excluded, and one thing in here must be tracked.
 analysis_out/*
@@ -572,3 +572,13 @@ analysis_out/control_arm_263/trainlogs/*
 benchmark/*/cluster_review/crops/
 benchmark/*/cluster_review/aerial/
 benchmark/*/cluster_review/gallery/
+
+# #276 prompt experiments: the Step 3 table regenerated from the caches
+# (scripts/analysis/prompt_276_results.py), JSON + Markdown only.
+!analysis_out/prompt_opt_276/
+analysis_out/prompt_opt_276/*
+!analysis_out/prompt_opt_276/*.json
+!analysis_out/prompt_opt_276/*.md
+
+# #276 optimizer review pages: a view of iter_*/candidates.json + the crops beside it, ~1 MB of base64 each; `prompt_optimize.py pick` rewrites them
+benchmark/prompt_opt_276/optimize/*/iter_*/review.html

@@ -23,9 +23,10 @@ cost tables are committed under docs/data/vertex_minute_series/. The numbers thi
 produced are transcribed into docs/model_comparison.md; the per-run token counts in
 analysis_out/usage_log.jsonl are the committed, checkable half.
 
-Caveat: each daily row is a 24 h window ending at the query time-of-day (UTC),
-NOT a calendar day — a leg run on the evening of the 14th lands in the row
-labeled the 15th. Attribute rows to legs by the run record, not by eye.
+Caveat: each daily row is a UTC calendar day (buckets end at UTC midnight since
+2026-11-11; see ``fetch_token_series`` for why), so a leg run on a Pacific evening
+lands in the row labeled the next day. Attribute rows to legs by the run record, not
+by eye.
 """
 import argparse
 import json
@@ -165,13 +166,36 @@ def fetch_series(project, filter_, start, end, alignment_period, group_by,
     return series
 
 
-def fetch_token_series(project, days):
-    """Daily-aligned token counts per (model_user_id, type) over the last ``days``."""
-    end = datetime.now(timezone.utc)
+def fetch_token_series(project, window):
+    """Daily-aligned token counts per (model_user_id, type) over ``window``, the
+    ``(start, end)`` of ``billing_window``. ``main`` computes it once and hands the same
+    one to ``--reconcile``: computed twice, a UTC midnight between the paginated fetch
+    and the ledger filter would move the ledger a day ahead of the bill.
+
+    The buckets end at the next UTC midnight, not at the query time-of-day. Measured
+    2026-11-11: with buckets ending at 01:50 UTC the 3-day sum for gemini-3.8-flash read
+    109.6M input tokens against 91.7M in the ledger, a 20% "UNDER" that no leg explained;
+    the same window re-fetched with UTC-midnight buckets, and the same hours fetched at
+    3600 s alignment, both summed to the ledger's figure. ALIGN_DELTA over a 24 h period
+    that straddles the metric's native day boundary over-counts, so align to it.
+    """
+    start, end = window
     return fetch_series(
         project, f'metric.type = "{TOKEN_METRIC}"',
-        (end - timedelta(days=days)).isoformat(), end.isoformat(), "86400s",
+        start.isoformat(), end.isoformat(), "86400s",
         ["resource.labels.model_user_id", "metric.labels.type"])
+
+
+def billing_window(days, now=None):
+    """``(start, end)`` of the fetched window: ``days`` whole UTC days ending at the
+    next UTC midnight. ``--reconcile`` filters the ledger from the same ``start``, so
+    both sides cover the same days (a ledger filtered from ``now - days`` took one
+    extra day and read "over", or hid a missing write behind it; #286 review)."""
+    end = ((now or datetime.now(timezone.utc)) + timedelta(days=1)).replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    return end - timedelta(days=days), end
+
+
 def ledger_totals_by_model(rows, since=None):
     """Per-model token totals from usage_log.jsonl rows, for reconciliation.
 
@@ -333,7 +357,8 @@ def main():
 
     daily = defaultdict(lambda: defaultdict(float))   # (day, model) -> type -> tokens
     totals = defaultdict(lambda: defaultdict(float))  # model -> type -> tokens
-    for ts in fetch_token_series(args.project, args.days):
+    window = billing_window(args.days)
+    for ts in fetch_token_series(args.project, window):
         model = ts["resource"]["labels"].get("model_user_id", "?")
         typ = ts["metric"]["labels"].get("type", "?")
         for p in ts.get("points", []):
@@ -415,8 +440,7 @@ def main():
         if rows is None:
             print(f"\ncannot reconcile: no ledger at {os.path.abspath(log_path)}")
             return
-        since = (datetime.now(timezone.utc)
-                 - timedelta(days=args.days)).date().isoformat()
+        since = window[0].date().isoformat()
         print(f"(ledger: {os.path.abspath(log_path)}, rows stamped >= {since})")
         print_reconciliation(reconcile({m: dict(t) for m, t in totals.items()},
                                        ledger_totals_by_model(rows, since)))

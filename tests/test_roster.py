@@ -121,6 +121,8 @@ def test_pin_token_spells_a_size_as_a_filename_and_a_scalar_as_itself():
     assert roster.pin_token("low") == "low"
     assert roster.pin_token((1024, 1024)) == "1024x1024"
     assert roster.pin_token([1024, 1024]) == "1024x1024"
+    assert roster.pin_token(True) == "on"          # a store_const flag (#276 --gemini-confidence)
+    assert roster.pin_token(False) == "off"
 
 
 def test_every_leg_of_a_pinned_model_is_qualified():
@@ -147,6 +149,75 @@ def test_every_leg_of_a_pinned_model_is_qualified():
     assert roster.is_opt_in_pin("vistas_input_size")
     assert not roster.is_opt_in_pin("claude_effort")
     assert not roster.is_opt_in_pin("no_such_knob")
+
+
+def test_a_run_that_sets_two_opt_in_knobs_resolves_to_the_leg_pinning_both():
+    """#276 Step 5: ``--gemini-confidence`` alone is the zs+conf leg; with
+    ``--definition expert`` as well it is the expert leg, although the confidence-only
+    sibling's one pin also matches. The first-match rule exported the alt arm under the
+    zs+conf name (refused on the signature collision); the most specific leg wins now.
+    A set opt-in knob that NO sibling pins is a leg nobody registered, so the answer
+    is ``None`` (the #286 review found a thinking-level run resolving to the
+    expert+confidence leg, whose signature it does not share); a knob of another
+    provider is not in the signature and is ignored."""
+    class _Args:
+        gemini_confidence = None
+        definition = None
+        gemini_exemplars = None
+        gemini_thinking_level = None
+        gemini_temperature = None
+        vistas_input_size = None
+
+    a = _Args()
+    a.gemini_confidence = True
+    assert roster.leg_for("gemini:gemini-4-argon", a).published_as == "gemini-4-argon-confidence-on"
+    a.definition = "expert"
+    assert (roster.leg_for("gemini:gemini-4-argon", a).published_as
+            == "gemini-4-argon-definition-expert-confidence-on")
+    a.vistas_input_size = [512, 512]                 # another provider's knob: ignored
+    assert (roster.leg_for("gemini:gemini-4-argon", a).published_as
+            == "gemini-4-argon-definition-expert-confidence-on")
+    a.gemini_thinking_level = "high"                 # set, pinned by no registered leg
+    assert roster.leg_for("gemini:gemini-4-argon", a) is None
+    assert roster.set_opt_in_knobs(a, roster.legs_of("gemini:gemini-4-argon")) == [
+        "definition", "gemini_confidence", "gemini_thinking_level"]
+    for knob, value in (("gemini_temperature", 1.0), ("gemini_exemplars", "ex1"),
+                        ("gemini_thinking_level", "high"), ("definition", "expert")):
+        c = _Args()
+        setattr(c, knob, value)                      # alone, on a model with no such leg
+        assert roster.leg_for("gemini:gemini-3.6-flash", c) is None, knob
+    assert roster.opt_in_knobs_for("gemini") == [
+        "definition", "gemini_confidence", "gemini_exemplars", "gemini_temperature",
+        "gemini_thinking_level"]
+    assert roster.opt_in_knobs_for("vistas") == ["vistas_input_size", "vistas_revision"]
+    assert "definition" in roster.opt_in_knobs_for("qwen")
+    assert roster.opt_in_knobs_for("yolo") == []
+    b = _Args()
+    assert roster.leg_for("gemini:gemini-4-argon", b).published_as is None   # the bare leg
+    b.gemini_temperature = 0.0                       # the as-run value, spelled out
+    assert roster.leg_for("gemini:gemini-4-argon", b).published_as is None   # still bare
+    assert roster.set_opt_in_knobs(b, roster.legs_of("gemini:gemini-4-argon")) == []
+    b.gemini_temperature = 1.0
+    assert roster.leg_for("gemini:gemini-4-argon", b) is None
+
+
+def test_as_run_values_match_the_detectors():
+    """``AS_RUN_VALUES`` is what lets ``--gemini-temperature 0.0`` export as the bare leg;
+    the detector decides what stays out of the signature, so the two must agree, or an
+    explicit as-run value is refused (#286 re-review) or, worse, a deviating one reads
+    as bare."""
+    import sys
+    sys.path.insert(0, str(REPO / "scripts" / "model_comparison"))
+    import detectors  # noqa: E402
+
+    assert roster.AS_RUN_VALUES == {
+        "gemini_temperature": detectors.GEMINI_AS_RUN_TEMPERATURE,
+        "claude_image_format": detectors.CLAUDE_AS_RUN_IMAGE_FORMAT,
+        "claude_max_tokens": detectors.CLAUDE_AS_RUN_MAX_TOKENS,
+    }
+    assert detectors.CLAUDE_AS_RUN_TEMPERATURE is None     # None is "unset" already
+    for k in roster.AS_RUN_VALUES:
+        assert roster.is_opt_in_pin(k), k
 
 
 def test_the_parity_leg_is_reached_only_with_its_pin_and_in_every_spelling():
@@ -240,7 +311,19 @@ def test_off_roster_entries_are_published_but_not_scored():
     assert roster.OFF_ROSTER, "gemini-3.7-flash should be registered (#120)"
     for c in roster.OFF_ROSTER:
         assert not c.standing
-        assert c.spec not in roster.SCORED_SPECS
+        # By entry, not by spec: a standing=False pinned leg can share its spec with
+        # the standing bare leg of the same model (#276 Step 5's confidence legs).
+        assert c not in roster.SCORED
+
+
+def test_study_legs_are_registered_published_and_off_the_board():
+    """A study leg (#276 Step 5) is standing=False, pinned, names its study doc, and is
+    not a seed leg; the scoreboard and the Laurens record skip it (their own tests)."""
+    assert len(roster.STUDY_LEGS) == 7
+    for c in roster.STUDY_LEGS:
+        assert not c.standing and c.pins and not c.seed_of, c.published_as
+        assert (REPO / "docs" / f"{c.study}.md").exists(), c.study
+        assert c in roster.OFF_ROSTER and c not in roster.SCORED
 
 
 def test_every_entry_records_when_it_joined():
@@ -317,7 +400,10 @@ def test_each_published_file_names_the_leg_it_says_it_is():
         assert payload.get("published_as", entry.label) == roster.published_name(entry), name
         assert payload["signature"]["model_id"] == entry.label, name
         for key, value in entry.pins:
-            sig_key = key.split("_", 1)[1]          # claude_effort -> effort
+            # claude_effort -> effort; a provider-less pin (definition, #276) keeps its
+            # name, and lives in the file's `pins` since the signature carries the
+            # resolved text under `prompt`, not the short name.
+            sig_key = key.split("_", 1)[1] if "_" in key else key
             if sig_key in payload["signature"]:
                 # pin_value: JSON gives the 1024x1024 size back as a list.
                 assert (roster.pin_value(payload["signature"][sig_key])
@@ -517,3 +603,20 @@ def test_seed_of_names_a_registered_non_seed_leg():
         assert not BY_PUBLISHED[c.seed_of].seed_of, (c.published_as, c.seed_of)
         assert not c.standing, c.published_as
 
+
+
+def test_provider_defaults_match_the_exporters_parser():
+    """export_model_cache.py rebuilds a leg's signature from its own flags to find the
+    cache. Any signature-feeding flag it exposes must default exactly as the registry
+    says, or an export at the defaults looks for a key no run ever wrote (#276 added
+    the Gemini knobs there; before that only the Claude and vistas pins existed)."""
+    import sys
+    sys.path.insert(0, str(REPO / "scripts" / "analysis"))
+    sys.path.insert(0, str(REPO / "scripts" / "model_comparison"))
+    import export_model_cache  # noqa: E402
+
+    defaults = {a.dest: a.default for a in export_model_cache.build_parser()._actions}
+    shared = [k for k in defaults if k in roster.PROVIDER_DEFAULTS]
+    assert len(shared) >= 7, shared      # the Claude pins, vistas_input_size, the Gemini knobs
+    for key in shared:
+        assert defaults[key] == roster.PROVIDER_DEFAULTS[key], key

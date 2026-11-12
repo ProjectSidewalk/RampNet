@@ -4297,6 +4297,860 @@
      "rederived": null
     },
     "f1": {
+     "committed": 0.766296,
+     "equal": true,
+     "rederived": 0.766296
+    },
+    "fn": {
+     "committed": 69,
+     "equal": true,
+     "rederived": 69
+    },
+    "fp": {
+     "committed": 78,
+     "equal": true,
+     "rederived": 78
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.755486,
+     "equal": true,
+     "rederived": 0.755486
+    },
+    "recall": {
+     "committed": 0.777419,
+     "equal": true,
+     "rederived": 0.777419
+    },
+    "tp": {
+     "committed": 241,
+     "equal": true,
+     "rederived": 241
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.78341,
+     "equal": true,
+     "rederived": 0.78341
+    },
+    "fn": {
+     "committed": 72,
+     "equal": true,
+     "rederived": 72
+    },
+    "fp": {
+     "committed": 69,
+     "equal": true,
+     "rederived": 69
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.787037,
+     "equal": true,
+     "rederived": 0.787037
+    },
+    "recall": {
+     "committed": 0.779817,
+     "equal": true,
+     "rederived": 0.779817
+    },
+    "tp": {
+     "committed": 255,
+     "equal": true,
+     "rederived": 255
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.654155,
+     "equal": true,
+     "rederived": 0.654155
+    },
+    "fn": {
+     "committed": 73,
+     "equal": true,
+     "rederived": 73
+    },
+    "fp": {
+     "committed": 56,
+     "equal": true,
+     "rederived": 56
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.685393,
+     "equal": true,
+     "rederived": 0.685393
+    },
+    "recall": {
+     "committed": 0.625641,
+     "equal": true,
+     "rederived": 0.625641
+    },
+    "tp": {
+     "committed": 122,
+     "equal": true,
+     "rederived": 122
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.764,
+     "equal": true,
+     "rederived": 0.764
+    },
+    "fn": {
+     "committed": 76,
+     "equal": true,
+     "rederived": 76
+    },
+    "fp": {
+     "committed": 42,
+     "equal": true,
+     "rederived": 42
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.819742,
+     "equal": true,
+     "rederived": 0.819742
+    },
+    "recall": {
+     "committed": 0.715356,
+     "equal": true,
+     "rederived": 0.715356
+    },
+    "tp": {
+     "committed": 191,
+     "equal": true,
+     "rederived": 191
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.73741,
+     "equal": true,
+     "rederived": 0.73741
+    },
+    "fn": {
+     "committed": 89,
+     "equal": true,
+     "rederived": 89
+    },
+    "fp": {
+     "committed": 57,
+     "equal": true,
+     "rederived": 57
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.782443,
+     "equal": true,
+     "rederived": 0.782443
+    },
+    "recall": {
+     "committed": 0.697279,
+     "equal": true,
+     "rederived": 0.697279
+    },
+    "tp": {
+     "committed": 205,
+     "equal": true,
+     "rederived": 205
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.71131,
+     "equal": true,
+     "rederived": 0.71131
+    },
+    "fn": {
+     "committed": 156,
+     "equal": true,
+     "rederived": 156
+    },
+    "fp": {
+     "committed": 38,
+     "equal": true,
+     "rederived": 38
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.862816,
+     "equal": true,
+     "rederived": 0.862816
+    },
+    "recall": {
+     "committed": 0.605063,
+     "equal": true,
+     "rederived": 0.605063
+    },
+    "tp": {
+     "committed": 239,
+     "equal": true,
+     "rederived": 239
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.725564,
+     "equal": true,
+     "rederived": 0.725564
+    },
+    "fn": {
+     "committed": 79,
+     "equal": true,
+     "rederived": 79
+    },
+    "fp": {
+     "committed": 67,
+     "equal": true,
+     "rederived": 67
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.742308,
+     "equal": true,
+     "rederived": 0.742308
+    },
+    "recall": {
+     "committed": 0.709559,
+     "equal": true,
+     "rederived": 0.709559
+    },
+    "tp": {
+     "committed": 193,
+     "equal": true,
+     "rederived": 193
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.711944,
+     "equal": true,
+     "rederived": 0.711944
+    },
+    "fn": {
+     "committed": 97,
+     "equal": true,
+     "rederived": 97
+    },
+    "fp": {
+     "committed": 26,
+     "equal": true,
+     "rederived": 26
+    },
+    "n_gt_recall": {
+     "committed": 249,
+     "equal": true,
+     "rederived": 249
+    },
+    "n_panos": {
+     "committed": 94,
+     "equal": true,
+     "rederived": 94
+    },
+    "precision": {
+     "committed": 0.853933,
+     "equal": true,
+     "rederived": 0.853933
+    },
+    "recall": {
+     "committed": 0.610442,
+     "equal": true,
+     "rederived": 0.610442
+    },
+    "tp": {
+     "committed": 152,
+     "equal": true,
+     "rederived": 152
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__laurens_mapillary.json",
+   "source": "scoreboard",
+   "split": "laurens_mapillary",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.748175,
+     "equal": true,
+     "rederived": 0.748175
+    },
+    "fn": {
+     "committed": 92,
+     "equal": true,
+     "rederived": 92
+    },
+    "fp": {
+     "committed": 46,
+     "equal": true,
+     "rederived": 46
+    },
+    "n_gt_recall": {
+     "committed": 297,
+     "equal": true,
+     "rederived": 297
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.816733,
+     "equal": true,
+     "rederived": 0.816733
+    },
+    "recall": {
+     "committed": 0.690236,
+     "equal": true,
+     "rederived": 0.690236
+    },
+    "tp": {
+     "committed": 205,
+     "equal": true,
+     "rederived": 205
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__juneau.json",
+   "source": "scoreboard",
+   "split": "juneau",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.705882,
+     "equal": true,
+     "rederived": 0.705882
+    },
+    "fn": {
+     "committed": 88,
+     "equal": true,
+     "rederived": 88
+    },
+    "fp": {
+     "committed": 22,
+     "equal": true,
+     "rederived": 22
+    },
+    "n_gt_recall": {
+     "committed": 220,
+     "equal": true,
+     "rederived": 220
+    },
+    "n_panos": {
+     "committed": 86,
+     "equal": true,
+     "rederived": 86
+    },
+    "precision": {
+     "committed": 0.857143,
+     "equal": true,
+     "rederived": 0.857143
+    },
+    "recall": {
+     "committed": 0.6,
+     "equal": true,
+     "rederived": 0.6
+    },
+    "tp": {
+     "committed": 132,
+     "equal": true,
+     "rederived": 132
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__laurens_gsv.json",
+   "source": "scoreboard",
+   "split": "laurens_gsv",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.414201,
+     "equal": true,
+     "rederived": 0.414201
+    },
+    "fn": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "fp": {
+     "committed": 102,
+     "equal": true,
+     "rederived": 102
+    },
+    "n_gt_recall": {
+     "committed": 300,
+     "equal": true,
+     "rederived": 300
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.507246,
+     "equal": true,
+     "rederived": 0.507246
+    },
+    "recall": {
+     "committed": 0.35,
+     "equal": true,
+     "rederived": 0.35
+    },
+    "tp": {
+     "committed": 105,
+     "equal": true,
+     "rederived": 105
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__budapest_district5.json",
+   "source": "scoreboard",
+   "split": "budapest_district5",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.696177,
+     "equal": true,
+     "rederived": 0.696177
+    },
+    "fn": {
+     "committed": 108,
+     "equal": true,
+     "rederived": 108
+    },
+    "fp": {
+     "committed": 43,
+     "equal": true,
+     "rederived": 43
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.800926,
+     "equal": true,
+     "rederived": 0.800926
+    },
+    "recall": {
+     "committed": 0.615658,
+     "equal": true,
+     "rederived": 0.615658
+    },
+    "tp": {
+     "committed": 173,
+     "equal": true,
+     "rederived": 173
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.609489,
+     "equal": true,
+     "rederived": 0.609489
+    },
+    "fn": {
+     "committed": 134,
+     "equal": true,
+     "rederived": 134
+    },
+    "fp": {
+     "committed": 80,
+     "equal": true,
+     "rederived": 80
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.676113,
+     "equal": true,
+     "rederived": 0.676113
+    },
+    "recall": {
+     "committed": 0.554817,
+     "equal": true,
+     "rederived": 0.554817
+    },
+    "tp": {
+     "committed": 167,
+     "equal": true,
+     "rederived": 167
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.740392,
+     "equal": true,
+     "rederived": 0.740392
+    },
+    "fn": {
+     "committed": 1164,
+     "equal": true,
+     "rederived": 1164
+    },
+    "fp": {
+     "committed": 768,
+     "equal": true,
+     "rederived": 768
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.782004,
+     "equal": true,
+     "rederived": 0.782004
+    },
+    "recall": {
+     "committed": 0.702985,
+     "equal": true,
+     "rederived": 0.702985
+    },
+    "tp": {
+     "committed": 2755,
+     "equal": true,
+     "rederived": 2755
+    }
+   },
+   "model": "gemini-4-argon",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-4-argon__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
      "committed": 0.737589,
      "equal": true,
      "rederived": 0.737589
@@ -6798,6 +7652,67 @@
      "rederived": null
     },
     "f1": {
+     "committed": 0.563222,
+     "equal": true,
+     "rederived": 0.563222
+    },
+    "fn": {
+     "committed": 1968,
+     "equal": true,
+     "rederived": 1968
+    },
+    "fp": {
+     "committed": 1058,
+     "equal": true,
+     "rederived": 1058
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.648388,
+     "equal": true,
+     "rederived": 0.648388
+    },
+    "recall": {
+     "committed": 0.497831,
+     "equal": true,
+     "rederived": 0.497831
+    },
+    "tp": {
+     "committed": 1951,
+     "equal": true,
+     "rederived": 1951
+    }
+   },
+   "model": "gemini-3.1-pro-preview",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.1-pro-preview__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
      "committed": 0.664286,
      "equal": true,
      "rederived": 0.664286
@@ -7652,6 +8567,860 @@
      "rederived": null
     },
     "f1": {
+     "committed": 0.655106,
+     "equal": true,
+     "rederived": 0.655106
+    },
+    "fn": {
+     "committed": 140,
+     "equal": true,
+     "rederived": 140
+    },
+    "fp": {
+     "committed": 39,
+     "equal": true,
+     "rederived": 39
+    },
+    "n_gt_recall": {
+     "committed": 310,
+     "equal": true,
+     "rederived": 310
+    },
+    "n_panos": {
+     "committed": 124,
+     "equal": true,
+     "rederived": 124
+    },
+    "precision": {
+     "committed": 0.813397,
+     "equal": true,
+     "rederived": 0.813397
+    },
+    "recall": {
+     "committed": 0.548387,
+     "equal": true,
+     "rederived": 0.548387
+    },
+    "tp": {
+     "committed": 170,
+     "equal": true,
+     "rederived": 170
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__richmond.json",
+   "source": "scoreboard",
+   "split": "richmond",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.63388,
+     "equal": true,
+     "rederived": 0.63388
+    },
+    "fn": {
+     "committed": 153,
+     "equal": true,
+     "rederived": 153
+    },
+    "fp": {
+     "committed": 48,
+     "equal": true,
+     "rederived": 48
+    },
+    "n_gt_recall": {
+     "committed": 327,
+     "equal": true,
+     "rederived": 327
+    },
+    "n_panos": {
+     "committed": 110,
+     "equal": true,
+     "rederived": 110
+    },
+    "precision": {
+     "committed": 0.783784,
+     "equal": true,
+     "rederived": 0.783784
+    },
+    "recall": {
+     "committed": 0.53211,
+     "equal": true,
+     "rederived": 0.53211
+    },
+    "tp": {
+     "committed": 174,
+     "equal": true,
+     "rederived": 174
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__bend.json",
+   "source": "scoreboard",
+   "split": "bend",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.461017,
+     "equal": true,
+     "rederived": 0.461017
+    },
+    "fn": {
+     "committed": 127,
+     "equal": true,
+     "rederived": 127
+    },
+    "fp": {
+     "committed": 32,
+     "equal": true,
+     "rederived": 32
+    },
+    "n_gt_recall": {
+     "committed": 195,
+     "equal": true,
+     "rederived": 195
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.68,
+     "equal": true,
+     "rederived": 0.68
+    },
+    "recall": {
+     "committed": 0.348718,
+     "equal": true,
+     "rederived": 0.348718
+    },
+    "tp": {
+     "committed": 68,
+     "equal": true,
+     "rederived": 68
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__clovis.json",
+   "source": "scoreboard",
+   "split": "clovis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.597222,
+     "equal": true,
+     "rederived": 0.597222
+    },
+    "fn": {
+     "committed": 138,
+     "equal": true,
+     "rederived": 138
+    },
+    "fp": {
+     "committed": 36,
+     "equal": true,
+     "rederived": 36
+    },
+    "n_gt_recall": {
+     "committed": 267,
+     "equal": true,
+     "rederived": 267
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.781818,
+     "equal": true,
+     "rederived": 0.781818
+    },
+    "recall": {
+     "committed": 0.483146,
+     "equal": true,
+     "rederived": 0.483146
+    },
+    "tp": {
+     "committed": 129,
+     "equal": true,
+     "rederived": 129
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__morgantown.json",
+   "source": "scoreboard",
+   "split": "morgantown",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.525843,
+     "equal": true,
+     "rederived": 0.525843
+    },
+    "fn": {
+     "committed": 177,
+     "equal": true,
+     "rederived": 177
+    },
+    "fp": {
+     "committed": 34,
+     "equal": true,
+     "rederived": 34
+    },
+    "n_gt_recall": {
+     "committed": 294,
+     "equal": true,
+     "rederived": 294
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.774834,
+     "equal": true,
+     "rederived": 0.774834
+    },
+    "recall": {
+     "committed": 0.397959,
+     "equal": true,
+     "rederived": 0.397959
+    },
+    "tp": {
+     "committed": 117,
+     "equal": true,
+     "rederived": 117
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__annapolis.json",
+   "source": "scoreboard",
+   "split": "annapolis",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.611111,
+     "equal": true,
+     "rederived": 0.611111
+    },
+    "fn": {
+     "committed": 219,
+     "equal": true,
+     "rederived": 219
+    },
+    "fp": {
+     "committed": 5,
+     "equal": true,
+     "rederived": 5
+    },
+    "n_gt_recall": {
+     "committed": 395,
+     "equal": true,
+     "rederived": 395
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.972376,
+     "equal": true,
+     "rederived": 0.972376
+    },
+    "recall": {
+     "committed": 0.44557,
+     "equal": true,
+     "rederived": 0.44557
+    },
+    "tp": {
+     "committed": 176,
+     "equal": true,
+     "rederived": 176
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__paterson.json",
+   "source": "scoreboard",
+   "split": "paterson",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.514673,
+     "equal": true,
+     "rederived": 0.514673
+    },
+    "fn": {
+     "committed": 158,
+     "equal": true,
+     "rederived": 158
+    },
+    "fp": {
+     "committed": 57,
+     "equal": true,
+     "rederived": 57
+    },
+    "n_gt_recall": {
+     "committed": 272,
+     "equal": true,
+     "rederived": 272
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.666667,
+     "equal": true,
+     "rederived": 0.666667
+    },
+    "recall": {
+     "committed": 0.419118,
+     "equal": true,
+     "rederived": 0.419118
+    },
+    "tp": {
+     "committed": 114,
+     "equal": true,
+     "rederived": 114
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__gainesville.json",
+   "source": "scoreboard",
+   "split": "gainesville",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.252492,
+     "equal": true,
+     "rederived": 0.252492
+    },
+    "fn": {
+     "committed": 211,
+     "equal": true,
+     "rederived": 211
+    },
+    "fp": {
+     "committed": 14,
+     "equal": true,
+     "rederived": 14
+    },
+    "n_gt_recall": {
+     "committed": 249,
+     "equal": true,
+     "rederived": 249
+    },
+    "n_panos": {
+     "committed": 94,
+     "equal": true,
+     "rederived": 94
+    },
+    "precision": {
+     "committed": 0.730769,
+     "equal": true,
+     "rederived": 0.730769
+    },
+    "recall": {
+     "committed": 0.15261,
+     "equal": true,
+     "rederived": 0.15261
+    },
+    "tp": {
+     "committed": 38,
+     "equal": true,
+     "rederived": 38
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__laurens_mapillary.json",
+   "source": "scoreboard",
+   "split": "laurens_mapillary",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.48951,
+     "equal": true,
+     "rederived": 0.48951
+    },
+    "fn": {
+     "committed": 192,
+     "equal": true,
+     "rederived": 192
+    },
+    "fp": {
+     "committed": 27,
+     "equal": true,
+     "rederived": 27
+    },
+    "n_gt_recall": {
+     "committed": 297,
+     "equal": true,
+     "rederived": 297
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.795455,
+     "equal": true,
+     "rederived": 0.795455
+    },
+    "recall": {
+     "committed": 0.353535,
+     "equal": true,
+     "rederived": 0.353535
+    },
+    "tp": {
+     "committed": 105,
+     "equal": true,
+     "rederived": 105
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__juneau.json",
+   "source": "scoreboard",
+   "split": "juneau",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.164062,
+     "equal": true,
+     "rederived": 0.164062
+    },
+    "fn": {
+     "committed": 199,
+     "equal": true,
+     "rederived": 199
+    },
+    "fp": {
+     "committed": 15,
+     "equal": true,
+     "rederived": 15
+    },
+    "n_gt_recall": {
+     "committed": 220,
+     "equal": true,
+     "rederived": 220
+    },
+    "n_panos": {
+     "committed": 86,
+     "equal": true,
+     "rederived": 86
+    },
+    "precision": {
+     "committed": 0.583333,
+     "equal": true,
+     "rederived": 0.583333
+    },
+    "recall": {
+     "committed": 0.095455,
+     "equal": true,
+     "rederived": 0.095455
+    },
+    "tp": {
+     "committed": 21,
+     "equal": true,
+     "rederived": 21
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__laurens_gsv.json",
+   "source": "scoreboard",
+   "split": "laurens_gsv",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.262376,
+     "equal": true,
+     "rederived": 0.262376
+    },
+    "fn": {
+     "committed": 247,
+     "equal": true,
+     "rederived": 247
+    },
+    "fp": {
+     "committed": 51,
+     "equal": true,
+     "rederived": 51
+    },
+    "n_gt_recall": {
+     "committed": 300,
+     "equal": true,
+     "rederived": 300
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.509615,
+     "equal": true,
+     "rederived": 0.509615
+    },
+    "recall": {
+     "committed": 0.176667,
+     "equal": true,
+     "rederived": 0.176667
+    },
+    "tp": {
+     "committed": 53,
+     "equal": true,
+     "rederived": 53
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__budapest_district5.json",
+   "source": "scoreboard",
+   "split": "budapest_district5",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.339426,
+     "equal": true,
+     "rederived": 0.339426
+    },
+    "fn": {
+     "committed": 216,
+     "equal": true,
+     "rederived": 216
+    },
+    "fp": {
+     "committed": 37,
+     "equal": true,
+     "rederived": 37
+    },
+    "n_gt_recall": {
+     "committed": 281,
+     "equal": true,
+     "rederived": 281
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.637255,
+     "equal": true,
+     "rederived": 0.637255
+    },
+    "recall": {
+     "committed": 0.231317,
+     "equal": true,
+     "rederived": 0.231317
+    },
+    "tp": {
+     "committed": 65,
+     "equal": true,
+     "rederived": 65
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__sao_paulo.json",
+   "source": "scoreboard",
+   "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.287736,
+     "equal": true,
+     "rederived": 0.287736
+    },
+    "fn": {
+     "committed": 240,
+     "equal": true,
+     "rederived": 240
+    },
+    "fp": {
+     "committed": 62,
+     "equal": true,
+     "rederived": 62
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.495935,
+     "equal": true,
+     "rederived": 0.495935
+    },
+    "recall": {
+     "committed": 0.202658,
+     "equal": true,
+     "rederived": 0.202658
+    },
+    "tp": {
+     "committed": 61,
+     "equal": true,
+     "rederived": 61
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.503717,
+     "equal": true,
+     "rederived": 0.503717
+    },
+    "fn": {
+     "committed": 2496,
+     "equal": true,
+     "rederived": 2496
+    },
+    "fp": {
+     "committed": 308,
+     "equal": true,
+     "rederived": 308
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.822068,
+     "equal": true,
+     "rederived": 0.822068
+    },
+    "recall": {
+     "committed": 0.363103,
+     "equal": true,
+     "rederived": 0.363103
+    },
+    "tp": {
+     "committed": 1423,
+     "equal": true,
+     "rederived": 1423
+    }
+   },
+   "model": "gemini-3.8-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.8-flash__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
      "committed": 0.633758,
      "equal": true,
      "rederived": 0.633758
@@ -8445,6 +10214,67 @@
      "rederived": null
     },
     "f1": {
+     "committed": 0.527311,
+     "equal": true,
+     "rederived": 0.527311
+    },
+    "fn": {
+     "committed": 2051,
+     "equal": true,
+     "rederived": 2051
+    },
+    "fp": {
+     "committed": 1298,
+     "equal": true,
+     "rederived": 1298
+    },
+    "n_gt_recall": {
+     "committed": 3919,
+     "equal": true,
+     "rederived": 3919
+    },
+    "n_panos": {
+     "committed": 1000,
+     "equal": true,
+     "rederived": 1000
+    },
+    "precision": {
+     "committed": 0.590019,
+     "equal": true,
+     "rederived": 0.590019
+    },
+    "recall": {
+     "committed": 0.476652,
+     "equal": true,
+     "rederived": 0.476652
+    },
+    "tp": {
+     "committed": 1868,
+     "equal": true,
+     "rederived": 1868
+    }
+   },
+   "model": "gemini-3.6-flash",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/gemini-3.6-flash__manual_gold.json",
+   "source": "scoreboard",
+   "split": "manual_gold",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
      "committed": 0.426914,
      "equal": true,
      "rederived": 0.426914
@@ -9161,6 +10991,67 @@
    "predictions": "benchmark/model_detections/Qwen__Qwen3-VL-32B-Instruct__sao_paulo.json",
    "source": "scoreboard",
    "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.125683,
+     "equal": true,
+     "rederived": 0.125683
+    },
+    "fn": {
+     "committed": 278,
+     "equal": true,
+     "rederived": 278
+    },
+    "fp": {
+     "committed": 42,
+     "equal": true,
+     "rederived": 42
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.353846,
+     "equal": true,
+     "rederived": 0.353846
+    },
+    "recall": {
+     "committed": 0.076412,
+     "equal": true,
+     "rederived": 0.076412
+    },
+    "tp": {
+     "committed": 23,
+     "equal": true,
+     "rederived": 23
+    }
+   },
+   "model": "Qwen/Qwen3-VL-32B-Instruct",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/Qwen__Qwen3-VL-32B-Instruct__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
    "status": "equal"
   },
   {
@@ -10808,6 +12699,67 @@
    "predictions": "benchmark/model_detections/allenai__Molmo2-8B__sao_paulo.json",
    "source": "scoreboard",
    "split": "sao_paulo",
+   "status": "equal"
+  },
+  {
+   "ap_source": "bundle",
+   "fields": {
+    "ap": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "ap_bundle": {
+     "committed": null,
+     "equal": true,
+     "rederived": null
+    },
+    "f1": {
+     "committed": 0.230032,
+     "equal": true,
+     "rederived": 0.230032
+    },
+    "fn": {
+     "committed": 229,
+     "equal": true,
+     "rederived": 229
+    },
+    "fp": {
+     "committed": 253,
+     "equal": true,
+     "rederived": 253
+    },
+    "n_gt_recall": {
+     "committed": 301,
+     "equal": true,
+     "rederived": 301
+    },
+    "n_panos": {
+     "committed": 125,
+     "equal": true,
+     "rederived": 125
+    },
+    "precision": {
+     "committed": 0.221538,
+     "equal": true,
+     "rederived": 0.221538
+    },
+    "recall": {
+     "committed": 0.239203,
+     "equal": true,
+     "rederived": 0.239203
+    },
+    "tp": {
+     "committed": 72,
+     "equal": true,
+     "rederived": 72
+    }
+   },
+   "model": "allenai/Molmo2-8B",
+   "op_threshold": 0.0,
+   "predictions": "benchmark/model_detections/allenai__Molmo2-8B__bayonne.json",
+   "source": "scoreboard",
+   "split": "bayonne",
    "status": "equal"
   },
   {
@@ -17084,10 +19036,10 @@
    "unchecked": 0
   },
   "scoreboard": {
-   "cells": 233,
+   "cells": 265,
    "differs": 0,
-   "equal": 233,
-   "fields_compared": 2330,
+   "equal": 265,
+   "fields_compared": 2650,
    "unchecked": 0
   }
  },

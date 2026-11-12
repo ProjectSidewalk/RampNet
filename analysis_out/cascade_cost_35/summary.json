@@ -13,6 +13,51 @@
  },
  "gaps": [
   {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "annapolis"
@@ -68,6 +113,16 @@
    "split": "bayonne"
   },
   {
+   "challenger": "Qwen/Qwen3-VL-32B-Instruct",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "allenai/Molmo2-8B",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
    "challenger": "google/owlv2-large-patch14-ensemble",
    "reason": "published detections exist but this pair was not run",
    "split": "bayonne"
@@ -84,6 +139,51 @@
   },
   {
    "challenger": "gemini-3.7-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
    "reason": "published detections exist but this pair was not run",
    "split": "bayonne"
   },
@@ -113,6 +213,51 @@
    "split": "bayonne"
   },
   {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "bend"
@@ -163,6 +308,51 @@
    "split": "budapest_district5"
   },
   {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "budapest_district5"
@@ -179,6 +369,51 @@
   },
   {
    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
    "reason": "published detections exist but this pair was not run",
    "split": "clovis"
   },
@@ -226,6 +461,51 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "clovis"
+  },
+  {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
   },
   {
    "challenger": "y11x_tiles",
@@ -318,6 +598,51 @@
    "split": "juneau"
   },
   {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
    "challenger": "y11l_pano",
    "reason": "published detections exist but this pair was not run",
    "split": "juneau"
@@ -384,6 +709,51 @@
   },
   {
    "challenger": "gemini-3.7-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
    "reason": "published detections exist but this pair was not run",
    "split": "laurens_gsv"
   },
@@ -423,6 +793,51 @@
    "split": "laurens_mapillary"
   },
   {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "laurens_mapillary"
@@ -433,58 +848,133 @@
    "split": "laurens_mapillary"
   },
   {
-   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "challenger": "gemini-3.6-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "manual_gold"
   },
   {
-   "challenger": "y11x_tiles",
-   "reason": "published detections exist but this pair was not run",
-   "split": "manual_gold"
-  },
-  {
-   "challenger": "y11x_tiles_s1_ep44",
-   "reason": "published detections exist but this pair was not run",
-   "split": "manual_gold"
-  },
-  {
-   "challenger": "y11x_tiles_s2_ep44",
-   "reason": "published detections exist but this pair was not run",
-   "split": "manual_gold"
-  },
-  {
-   "challenger": "y11x_tiles_s3_ep42",
-   "reason": "published detections exist but this pair was not run",
-   "split": "manual_gold"
-  },
-  {
-   "challenger": "y11x_tiles_s1_best",
-   "reason": "published detections exist but this pair was not run",
-   "split": "manual_gold"
-  },
-  {
-   "challenger": "y11x_tiles_s2_best",
-   "reason": "published detections exist but this pair was not run",
-   "split": "manual_gold"
-  },
-  {
-   "challenger": "y11x_tiles_s3_best",
-   "reason": "published detections exist but this pair was not run",
-   "split": "manual_gold"
-  },
-  {
-   "challenger": "claude-fable-5-1-effort-low-anthropic",
-   "reason": "published detections exist but this pair was not run",
-   "split": "manual_gold"
-  },
-  {
-   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "challenger": "gemini-3.1-pro-preview",
    "reason": "published detections exist but this pair was not run",
    "split": "manual_gold"
   },
   {
    "challenger": "mask2former-vistas-curb-cut-1024x1024",
    "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s1_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s2_ep44",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s3_ep42",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s1_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s2_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "y11x_tiles_s3_best",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "claude-fable-5-1-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "manual_gold"
+  },
+  {
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
    "split": "morgantown"
   },
   {
@@ -533,6 +1023,51 @@
    "split": "morgantown"
   },
   {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
    "challenger": "y11x_tiles",
    "reason": "published detections exist but this pair was not run",
    "split": "paterson"
@@ -576,6 +1111,51 @@
    "challenger": "claude-opus-5-5-effort-low-anthropic",
    "reason": "published detections exist but this pair was not run",
    "split": "paterson"
+  },
+  {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-def276-flash38-alt-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "gemini-3.8-flash-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-para3-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "gemini-4-argon-definition-expert-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
   },
   {
    "challenger": "y11x_tiles",
@@ -624,6 +1204,26 @@
   },
   {
    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "gemini-3.8-flash",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "gemini-4-argon",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "gemini-3.8-flash-confidence-on",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "gemini-4-argon-confidence-on",
    "reason": "published detections exist but this pair was not run",
    "split": "sao_paulo"
   },

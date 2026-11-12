@@ -2611,3 +2611,447 @@ def test_bundle_json_borrows_the_verdicts_of_another_bundle(tmp_path):
                                       encoding="utf-8")
     records, verdicts, _ = load_bundle(str(hood))
     assert set(records) == {"p1", "n1"} and set(verdicts) == {"p1"}
+
+
+# --------------------------------------------------------------------------- #
+# #276: Gemini prompt-experiment knobs, per-view concurrency, --pano-list
+# --------------------------------------------------------------------------- #
+from detectors import (  # noqa: E402
+    CONFIDENCE_INSTRUCTION, EXEMPLAR_INTRO, EXEMPLAR_QUERY_LEAD, GEMINI_AS_RUN_TEMPERATURE,
+    GEMINI_SCORED_BOX_SCHEMA, detection_prompt_for, load_definition, load_exemplars,
+)
+from compare import apply_pano_list, load_pano_list, pano_list_note  # noqa: E402
+
+
+def test_the_two_276_gemini_legs_cache_keys_are_frozen():
+    """The gemini-4-argon and gemini-3.8-flash smokes of 2026-11-08 were paid under these
+    keys, and the Step 2 roster refresh will put ~2,400 panos per model under them.
+    Same contract as test_gemini_cache_key_is_frozen: at the as-run defaults every
+    #276 knob is absent from the signature, so the key is the pre-#276 one."""
+    want = {"gemini-4-argon": "b59a81e83fae2f8b73006402e61cc8f4ee5a148d",
+            "gemini-3.8-flash": "790f1b1362998a7022fd0d10e875a9504b60dc32"}
+    for mid, key in want.items():
+        det = GeminiDetector(model_id=mid)
+        assert det.prompt == DETECTION_PROMPT
+        assert cache_key(mid, det.signature(), "sao_paulo", "pano1") == key, mid
+
+
+def test_detection_prompt_is_the_frame_around_the_definition():
+    # The constant and the function must agree byte for byte, or every cached Gemini
+    # and Qwen detection changes key.
+    assert detection_prompt_for(CURB_RAMP_DEFINITION) == DETECTION_PROMPT
+    assert "a bollard" in detection_prompt_for("a bollard")
+
+
+def test_gemini_knobs_enter_the_signature_only_when_set():
+    base = GeminiDetector(model_id="gemini-4-argon").signature()
+    for k in ("temperature", "confidence", "response_schema", "exemplars", "thinking_level"):
+        assert k not in base, k
+    # the as-run temperature, passed explicitly, is still absent (deviation-only rule)
+    assert GeminiDetector(model_id="gemini-4-argon",
+                          temperature=GEMINI_AS_RUN_TEMPERATURE).signature() == base
+    hot = GeminiDetector(model_id="gemini-4-argon", temperature=1.0).signature()
+    assert hot["temperature"] == 1.0 and hot != base
+    low = GeminiDetector(model_id="gemini-4-argon", thinking_level="low").signature()
+    assert low["thinking_level"] == "low"
+    with pytest.raises(ValueError):
+        GeminiDetector(model_id="gemini-4-argon", thinking_level="max")
+    # concurrency and the debug dump change the schedule and the logging, not a detection
+    assert GeminiDetector(model_id="gemini-4-argon", concurrency=6,
+                          debug_dump="/tmp/x").signature() == base
+
+
+def test_gemini_confidence_changes_prompt_schema_and_key():
+    det = GeminiDetector(model_id="gemini-4-argon", confidence=True)
+    sig = det.signature()
+    assert det.prompt == DETECTION_PROMPT + CONFIDENCE_INSTRUCTION
+    assert sig["confidence"] is True
+    assert json.loads(sig["response_schema"]) == GEMINI_SCORED_BOX_SCHEMA
+    assert det.response_schema() is GEMINI_SCORED_BOX_SCHEMA
+    # score after the box: the model commits to a location before rating it
+    assert GEMINI_SCORED_BOX_SCHEMA["items"]["propertyOrdering"] == ["box_2d", "label", "score"]
+    assert cache_key("gemini-4-argon", sig, "sao_paulo", "p") != cache_key(
+        "gemini-4-argon", GeminiDetector(model_id="gemini-4-argon").signature(), "sao_paulo", "p")
+
+
+def test_gemini_scored_boxes_become_scored_points():
+    pts = gemini_boxes_to_points([{"box_2d": [400, 200, 600, 400], "label": "curb ramp", "score": 73},
+                                  {"box_2d": [0, 0, 100, 100], "label": "x", "score": 250},
+                                  {"box_2d": [0, 0, 100, 100], "label": "x"}])
+    assert pts[0] == (0.3, 0.5, 0.73)
+    assert pts[1][2] == 1.0            # clamped: the schema says 0-100, the model may not
+    assert pts[2][2] is None           # the as-run shape is unchanged
+    # the text path (dict schema -> no resp.parsed) carries the score through
+    resp = _FakeResp(parsed=None, text='[{"box_2d": [1, 2, 3, 4], "label": "x", "score": 10}]')
+    assert boxes_from_gemini_response(resp) == [{"box_2d": [1, 2, 3, 4], "label": "x", "score": 10}]
+    # and a parsed object without a score adds no key (the frozen as-run contract)
+    assert boxes_from_gemini_response(_FakeResp(parsed=[_FakeBox([1, 2, 3, 4], "x")])) == [
+        {"box_2d": [1, 2, 3, 4], "label": "x"}]
+    # the dict schema: google-genai DOES populate resp.parsed, as plain dicts. The first
+    # zs+conf leg failed every pano with a box here ('dict' has no attribute 'box_2d').
+    resp = _FakeResp(parsed=[{"box_2d": [1, 2, 3, 4], "label": "x", "score": 10},
+                             {"box_2d": (5, 6, 7, 8)}],
+                     text='[{"box_2d": [1, 2, 3, 4], "label": "x", "score": 10}]')
+    assert boxes_from_gemini_response(resp) == [
+        {"box_2d": [1, 2, 3, 4], "label": "x", "score": 10}, {"box_2d": [5, 6, 7, 8], "label": ""}]
+
+
+def _write_prompt_opt_dir(tmp_path):
+    root = tmp_path / "prompt_opt_276"
+    (root / "definitions").mkdir(parents=True)
+    (root / "definitions" / "def276-test.txt").write_text(
+        "A curb ramp is a sloped\n  transition   from sidewalk\nto street.\n", encoding="utf-8")
+    ex = root / "exemplars"
+    ex.mkdir()
+    from PIL import Image
+    Image.new("RGB", (8, 8), (255, 0, 0)).save(ex / "a.jpg", quality=90)
+    Image.new("RGB", (8, 8), (0, 0, 255)).save(ex / "b.png")
+    (ex / "ex276-test.json").write_text(json.dumps([
+        {"image": "a.jpg", "caption": "The red box is a curb ramp."},
+        {"image": "b.png", "caption": "The blue box is a driveway apron, not a curb ramp."},
+    ]), encoding="utf-8")
+    return str(root)
+
+
+def test_gemini_definition_is_a_short_name_resolving_to_a_committed_file(tmp_path):
+    root = _write_prompt_opt_dir(tmp_path)
+    assert load_definition("def276-test", root) == (
+        "A curb ramp is a sloped transition from sidewalk to street.")   # whitespace-normalized
+    det = GeminiDetector(model_id="gemini-4-argon", definition="def276-test", prompt_opt_dir=root)
+    assert det.prompt == detection_prompt_for("A curb ramp is a sloped transition from sidewalk to street.")
+    assert det.signature()["prompt"] == det.prompt     # the text, not the name, is the key
+    assert det.run_notes()["definition"] == "def276-test"
+    with pytest.raises(ValueError):
+        load_definition("../definitions/def276-test", root)   # a path is refused
+    with pytest.raises(FileNotFoundError):
+        load_definition("def276-missing", root)
+
+
+def test_every_provider_names_its_definition_pin_in_the_ledger(tmp_path):
+    # The klone Qwen rows of 2026-11-09 recorded run_options None, so only the prompt
+    # text in the signature said which definition ran. Every provider now names it.
+    root = _write_prompt_opt_dir(tmp_path)
+    qwen = QwenDetector(model_id="Qwen/Qwen3-VL-8B-Instruct", definition="def276-test",
+                        prompt_opt_dir=root)
+    assert qwen.run_notes() == {"definition": "def276-test"}
+    assert QwenDetector(model_id="Qwen/Qwen3-VL-8B-Instruct").run_notes() == {"definition": None}
+    gem = GeminiDetector(model_id="gemini-4-argon", definition="def276-test", prompt_opt_dir=root)
+    assert gem.run_notes()["definition"] == "def276-test" and "concurrency" in gem.run_notes()
+
+
+def test_gemini_exemplars_hash_the_bytes_and_order_the_parts(tmp_path):
+    root = _write_prompt_opt_dir(tmp_path)
+    items = load_exemplars("ex276-test", root)
+    assert [i[0] for i in items] == ["a.jpg", "b.png"]
+    assert [i[4] for i in items] == ["image/jpeg", "image/png"]
+    import hashlib
+    assert items[0][1] == hashlib.sha256((tmp_path / "prompt_opt_276" / "exemplars" / "a.jpg").read_bytes()).hexdigest()
+    det = GeminiDetector(model_id="gemini-4-argon", exemplars="ex276-test", prompt_opt_dir=root)
+    sig = det.signature()
+    assert sig["exemplars"]["intro"] == EXEMPLAR_INTRO
+    assert [e["sha256"] for e in sig["exemplars"]["items"]] == [items[0][1], items[1][1]]
+    assert sig["exemplars"]["items"][1]["caption"].startswith("The blue box")
+    parts = det.build_contents("QUERY", image_part=lambda data, mime: ("img", mime, len(data)))
+    assert parts[0] == EXEMPLAR_INTRO
+    assert parts[1][:2] == ("img", "image/jpeg") and parts[2] == "The red box is a curb ramp."
+    assert parts[3][:2] == ("img", "image/png")
+    assert parts[-3] == EXEMPLAR_QUERY_LEAD
+    assert parts[-2:] == ["QUERY", det.prompt]       # query image LAST, then the instruction
+    # the as-run body is untouched when no exemplars are set
+    assert GeminiDetector(model_id="gemini-4-argon").build_contents("Q") == ["Q", DETECTION_PROMPT]
+    # a changed image is a changed key, even under the same set name
+    (tmp_path / "prompt_opt_276" / "exemplars" / "a.jpg").write_bytes(b"\xff\xd8not the same")
+    det2 = GeminiDetector(model_id="gemini-4-argon", exemplars="ex276-test", prompt_opt_dir=root)
+    assert det2.signature() != sig
+
+
+def test_gemini_finish_reasons_are_tallied_and_stop_is_normal(tmp_path, capsys):
+    class _FR:
+        def __init__(self, name):
+            self.name = name
+
+    def resp(fr, text="[]", cands=True):
+        cand = type("C", (), {"finish_reason": _FR(fr) if fr else None})()
+        return type("R", (), {"candidates": [cand] if cands else [], "text": text,
+                              "usage_metadata": None, "model_version": "gemini-4-argon-001"})()
+
+    det = GeminiDetector(model_id="gemini-4-argon")
+    det._record_usage(resp("STOP"))
+    det._record_usage(resp("STOP"))
+    det._record_usage(resp("MAX_TOKENS"))
+    det._record_usage(resp(None, cands=False))
+    assert dict(det.stop_reasons) == {"STOP": 2, "MAX_TOKENS": 1, "NO_CANDIDATES": 1}
+    # a fake without `candidates` (every older test's shape) counts nothing
+    det._record_usage(type("R", (), {"usage_metadata": None})())
+    assert sum(det.stop_reasons.values()) == 4
+    # compare.py prints only the abnormal ones, and STOP is not one of them
+    report_usage(det, "gemini-4-argon", "sao_paulo", 1, str(tmp_path / "u.jsonl"),
+                 timing={"detect_s": 1.0, "panos_called": 1})
+    out = capsys.readouterr().out
+    assert "ABNORMAL stop reasons: MAX_TOKENS=1, NO_CANDIDATES=1" in out
+    rows = [json.loads(l) for l in (tmp_path / "u.jsonl").read_text().splitlines()]
+    assert rows[-1]["stop_reasons"] == {"STOP": 2, "MAX_TOKENS": 1, "NO_CANDIDATES": 1}
+    assert rows[-1]["run_options"]["concurrency"] == 1
+    assert rows[-1]["run_options"]["temperature"] == GEMINI_AS_RUN_TEMPERATURE
+    assert rows[-1]["pano_list"] is None
+
+
+def test_tiled_detection_keeps_view_order_under_concurrency(tmp_path):
+    """dedup_points is a stable sort on confidence; with None scores (the as-run
+    Gemini legs) the FIRST of two overlapping detections survives, so a concurrent
+    schedule that returned views out of order would change the detections. Collecting
+    through pool.map pins the order."""
+    import threading
+    import time
+    from PIL import Image
+
+    pano_path = tmp_path / "p.jpg"
+    Image.new("RGB", (64, 32), (90, 90, 90)).save(pano_path)
+    sample = PanoSample("p", str(pano_path), 64, 32, {})
+    seen = []
+
+    class _Stub(_VLMDetector):
+        name = "stub"
+
+        def _ensure_ready(self):
+            pass
+
+        def _raw_detect(self, image):
+            # later views answer FIRST, so an unordered collector would reverse them
+            i = len(seen)
+            seen.append(threading.get_ident())
+            time.sleep(0.02 * (6 - i))
+            return [i]
+
+        def _parse(self, raw, w, h):
+            # a view-indexed point: distinct x per view, so dedup merges nothing
+            return [(0.5, 0.5, None)] if raw else []
+
+    seq = _Stub("m", concurrency=1).detect(sample)
+    seen.clear()
+    par = _Stub("m", concurrency=6).detect(sample)
+    assert len(seq) == 6
+    assert par == seq
+    assert len(set(seen)) > 1, "the concurrent path did not use more than one thread"
+    # the knob is run-time only
+    assert _Stub("m", concurrency=6).signature() == _Stub("m").signature()
+
+
+def test_pano_list_formats_and_refusals(tmp_path):
+    txt = tmp_path / "ids.txt"
+    txt.write_text("a  # first\n\nb\n# c\n", encoding="utf-8")
+    assert load_pano_list(str(txt)) == ["a", "b"]
+    js = tmp_path / "split.json"
+    js.write_text(json.dumps({"dev_train": ["b", "a"], "dev_select": ["c"], "seed": 1}))
+    assert load_pano_list(f"{js}@dev_train") == ["b", "a"]
+    with pytest.raises(KeyError):
+        load_pano_list(f"{js}@nope")
+    with pytest.raises(ValueError):            # a dict needs @KEY
+        load_pano_list(str(js))
+    lst = tmp_path / "list.json"
+    lst.write_text(json.dumps(["a", "a"]))
+    with pytest.raises(ValueError):            # duplicates
+        load_pano_list(str(lst))
+    with pytest.raises(FileNotFoundError):
+        load_pano_list(str(tmp_path / "missing.txt"))
+    # the ledger keeps a repo-relative spec, the count and a digest -- not the ids
+    note = pano_list_note(os.path.join(REPO_ROOT, "benchmark", "prompt_opt_276",
+                                       "sao_paulo_split.json") + "@dev_train", ["b", "a"])
+    assert note == {"spec": "benchmark/prompt_opt_276/sao_paulo_split.json@dev_train", "n": 2,
+                    "sha1": pano_list_note("x", ["b", "a"])["sha1"]}
+    assert pano_list_note(str(txt), ["a", "b"])["sha1"] != note["sha1"]
+
+
+def test_apply_pano_list_keeps_order_and_refuses_unknown_ids():
+    gt = GroundTruth(gt_points=[], ignore_points=[], fn_confirmed=0)
+    gts = {"a": gt, "b": gt, "c": gt}
+    records = {"a": {}, "b": {}, "c": {}, "u": {}}
+    new, det = apply_pano_list(["c", "a"], gts, records, [], False)
+    assert list(new) == ["c", "a"] and det == []
+    with pytest.raises(SystemExit):
+        apply_pano_list(["a", "zzz"], gts, records, [], False)       # not in the bundle
+    with pytest.raises(SystemExit):
+        apply_pano_list(["a", "u"], gts, records, ["u"], False)      # unjudged without the flag
+    new, det = apply_pano_list(["u", "a"], gts, records, ["u"], True)
+    assert list(new) == ["a"] and det == ["u"]
+    # In the bundle, unscored, and not in the unjudged set either (a judged pano the
+    # ground-truth filter dropped): refused, never silently left out (#286 review).
+    with pytest.raises(SystemExit, match="neither scored nor in the unjudged set"):
+        apply_pano_list(["u", "a"], gts, records, [], True)
+
+
+def test_the_276_dev_split_is_committed_and_reproducible():
+    """The split file is what --pano-list reads and what the ledger rows cite; the
+    generator must rebuild it byte for byte from the bundle and the seed."""
+    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
+    import prompt_opt_276_splits as S
+    split = json.load(open(S.SAO_PAULO_SPLIT, encoding="utf-8"))
+    assert len(split["dev_train"]) == 60 and len(split["dev_select"]) == 65
+    assert not set(split["dev_train"]) & set(split["dev_select"])
+    gold = json.load(open(S.MANUAL_GOLD_250, encoding="utf-8"))
+    assert len(gold["panos"]) == 250 and gold["panos"] == sorted(gold["panos"])
+    assert S.main(["--check"]) == 0
+
+
+def test_gemini_debug_dump_is_per_model_and_records_the_call(tmp_path):
+    """Two legs in one run share --gemini-debug-dump; each numbers its calls from 1, so
+    without a per-model subdirectory the second leg overwrote the first (seen on the
+    first Step 1 diagnostic run)."""
+    pytest.importorskip("google.genai")
+    from PIL import Image
+
+    class _FR:
+        name = "STOP"
+
+    class _Models:
+        def generate_content(self, **kw):
+            cand = type("C", (), {"finish_reason": _FR()})()
+            return type("R", (), {"candidates": [cand], "text": '[{"box_2d": [1, 2, 3, 4], "label": "x"}]',
+                                  "parsed": None, "usage_metadata": None,
+                                  "model_version": "gemini-4-argon-001"})()
+
+    dumps = []
+    for mid in ("gemini-4-argon", "gemini-3.8-flash"):
+        det = GeminiDetector(model_id=mid, debug_dump=str(tmp_path / "dump"))
+        det._client = type("Client", (), {"models": _Models()})()
+        det._ensure_ready()
+        boxes = det._raw_detect(Image.new("RGB", (8, 8)))
+        assert boxes == [{"box_2d": [1, 2, 3, 4], "label": "x"}]
+        dumps.append(sorted(p.name for p in (tmp_path / "dump" / mid).iterdir()))
+    assert dumps == [["00001.jpg", "00001.json"]] * 2
+    rec = json.loads((tmp_path / "dump" / "gemini-3.8-flash" / "00001.json").read_text())
+    assert rec["finish_reason"] == "STOP" and rec["n_boxes"] == 1
+    assert rec["model_version"] == "gemini-4-argon-001" and rec["model_id"] == "gemini-3.8-flash"
+
+
+def test_definition_frames_reproduce_the_as_run_prompts(tmp_path):
+    """--definition applies to every prompted detector through its own frame. With the
+    seed text each frame must rebuild the class prompt byte for byte (so no published
+    key moves), and with another definition only the middle changes."""
+    from detectors import ClaudeDetector, MolmoDetector, QwenDetector, molmo_prompt_for
+    root = _write_prompt_opt_dir(tmp_path)
+    cases = [
+        (GeminiDetector, dict(model_id="gemini-4-argon"), DETECTION_PROMPT),
+        (ClaudeDetector, dict(model_id="claude-opus-5"), DETECTION_PROMPT),
+        (QwenDetector, dict(model_id="Qwen/Qwen3-VL-32B-Instruct"), detectors.QWEN_PROMPT),
+        (MolmoDetector, dict(model_id="allenai/Molmo2-8B"), MOLMO_PROMPT),
+    ]
+    other = detectors.load_definition("def276-test", root)
+    for cls, kw, as_run in cases:
+        plain = cls(**kw)
+        assert plain.prompt == as_run and plain.definition is None, cls.__name__
+        assert plain.prompt_for_definition(CURB_RAMP_DEFINITION) == as_run, cls.__name__
+        pinned = cls(definition="def276-test", prompt_opt_dir=str(root), **kw)
+        assert pinned.definition == "def276-test"
+        assert other in pinned.prompt and CURB_RAMP_DEFINITION not in pinned.prompt
+        assert pinned.signature() != plain.signature(), cls.__name__
+        assert pinned.signature()["prompt"] == pinned.prompt
+    assert molmo_prompt_for(CURB_RAMP_DEFINITION) == MOLMO_PROMPT
+    assert QwenDetector(model_id="Qwen/Qwen3-VL-8B-Instruct",
+                        definition="def276-test", prompt_opt_dir=str(root)).prompt.endswith(
+        detectors.QWEN_JSON_INSTRUCTION)
+
+
+def test_definition_normalization_keeps_bullets_and_paragraphs_but_not_wrapping():
+    """A re-wrapped single paragraph is the same definition (same signature); a blank line
+    and a '- ' bullet are structure the author meant, so they survive (#276 expert arm)."""
+    one = detectors.normalize_definition("A curb ramp is\n   a short\nramp.\n")
+    assert one == "A curb ramp is a short ramp."
+    assert detectors.normalize_definition(CURB_RAMP_DEFINITION) == CURB_RAMP_DEFINITION
+    structured = detectors.normalize_definition(
+        "Intro line\n  wrapped.\n\nCues:\n- one\n  continued\n- two\n\n\nTail.\n")
+    assert structured == "Intro line wrapped.\n\nCues:\n- one continued\n- two\n\nTail."
+    assert detectors.normalize_definition("  \n\n") == ""
+
+
+def test_every_committed_276_definition_loads_and_differs_from_the_seed():
+    """A definition file is a pin: it must load, be one non-empty paragraph, and say
+    something other than the seed (a paraphrase that normalizes to the seed would be
+    the same leg under a new name)."""
+    import glob
+    paths = sorted(glob.glob(os.path.join(detectors.PROMPT_OPT_DIR, "definitions", "*.txt")))
+    assert paths, "no committed definitions"
+    # definitions/seed.txt is the record of the constant, not a pin: byte-for-byte the
+    # same text once normalized, and refused as a --definition name.
+    seed_path = os.path.join(detectors.PROMPT_OPT_DIR, "definitions", "seed.txt")
+    with open(seed_path, encoding="utf-8") as f:
+        assert " ".join(f.read().split()) == CURB_RAMP_DEFINITION
+    with pytest.raises(ValueError, match="omit --definition"):
+        detectors.load_definition("seed")
+    paths.remove(seed_path)
+    seen = {CURB_RAMP_DEFINITION}
+    for p in paths:
+        name = os.path.splitext(os.path.basename(p))[0]
+        text = detectors.load_definition(name)
+        assert "curb ramp" in text.lower() and text.endswith("."), name
+        assert text not in seen, f"{name} duplicates another definition"
+        seen.add(text)
+        det = GeminiDetector(model_id="gemini-4-argon", definition=name)
+        assert det.signature()["prompt"] == detectors.detection_prompt_for(text)
+
+
+def test_the_seven_276_study_legs_signatures_match_their_published_files():
+    """Each study leg's paid cache sits under a signature that CONFIDENCE_INSTRUCTION,
+    GEMINI_SCORED_BOX_SCHEMA and the committed definition text all feed. The published
+    file records the signature as run, so rebuilding the detector from the leg's roster
+    pins and comparing pins any drift in those three without the local cache (#286
+    review: only export_model_cache --verify caught it, and that needs the cache)."""
+    from rampnet import roster
+    study = [c for c in roster.STUDY_LEGS if c.provider == "gemini"]
+    assert len(study) == 7
+    for leg in study:
+        pins = dict(leg.pins)
+        det = GeminiDetector(model_id=leg.label, confidence=pins.get("gemini_confidence"),
+                             definition=pins.get("definition"))
+        path = os.path.join(REPO_ROOT, "benchmark", "model_detections",
+                            roster.published_filename(leg, "richmond"))
+        with open(path, encoding="utf-8") as f:
+            published = json.load(f)["signature"]
+        assert det.signature() == published, leg.published_as
+
+
+def test_a_malformed_gemini_box_is_dropped_and_counted_not_a_pano_failure(tmp_path):
+    """Gemini 3.1 Pro returned a five-element ``box_2d`` on one manual_gold pano
+    (2026-11-11); unpacking it raised and failed the pano as a retryable failure that
+    re-billed all six views. The Qwen parser has always dropped a malformed item and
+    kept the rest; the Gemini path now does the same and counts the drop into the
+    ledger row (#286 review)."""
+    from detectors import well_formed_gemini_boxes
+    items = [{"box_2d": [1, 2, 3, 4], "label": "ok"},
+             {"box_2d": [1, 2, 3, 4, 5], "label": "five"},
+             {"box_2d": None, "label": "none"},
+             {"box_2d": [1, "x", 3, 4], "label": "string"},
+             {"box_2d": [1, 2, 3, 4], "label": "bad score", "score": "high"},
+             {"box_2d": [1, 2, 3, 4], "label": "scored", "score": 40},
+             "not a dict"]
+    kept, dropped = well_formed_gemini_boxes(items)
+    assert [b["label"] for b in kept] == ["ok", "scored"] and dropped == 5
+    nonfinite = [{"box_2d": [1, 2, 3, float("nan")]}, {"box_2d": [1, 2, 3, 4], "score": float("inf")},
+                 {"box_2d": [1, 2, 3, 4], "score": "40"}]
+    assert well_formed_gemini_boxes(nonfinite) == ([], 3)    # NaN/inf/string: dropped
+    assert gemini_boxes_to_points(items) == [(0.003, 0.002, None), (0.003, 0.002, 0.4)]
+    # the parsed path no longer trips over a missing box_2d either
+    assert boxes_from_gemini_response(_FakeResp(parsed=[{"label": "x"}])) == [
+        {"box_2d": None, "label": "x"}]
+
+    pytest.importorskip("google.genai")
+    from PIL import Image
+
+    class _Models:
+        def generate_content(self, **kw):
+            cand = type("C", (), {"finish_reason": type("F", (), {"name": "STOP"})()})()
+            return type("R", (), {
+                "candidates": [cand], "parsed": None, "usage_metadata": None,
+                "model_version": "gemini-4-argon-001",
+                "text": '[{"box_2d": [1, 2, 3, 4, 5], "label": "x"}, '
+                        '{"box_2d": [1, 2, 3, 4], "label": "y"}]'})()
+
+    det = GeminiDetector(model_id="gemini-4-argon")
+    det._client = type("Client", (), {"models": _Models()})()
+    det._ensure_ready()
+    assert det._raw_detect(Image.new("RGB", (8, 8))) == [{"box_2d": [1, 2, 3, 4], "label": "y"}]
+    assert det.malformed_boxes == 1 and det.empty_calls == 0
+    report_usage(det, "gemini-4-argon", "sao_paulo", 1, str(tmp_path / "u.jsonl"),
+                 timing={"detect_s": 1.0, "panos_called": 1})
+    rows = [json.loads(l) for l in (tmp_path / "u.jsonl").read_text().splitlines()]
+    assert rows[-1]["run_options"]["malformed_boxes"] == 1
