@@ -1,0 +1,128 @@
+{
+ "gate": 0.02,
+ "n_panos": 65,
+ "models": [
+  {
+   "model": "gemini-3.8-flash",
+   "short": "flash38",
+   "existing": {
+    "zs": {
+     "threshold": 0.0,
+     "dev_select_f1": 0.2667,
+     "dev_select_f1_raw": 0.2667
+    },
+    "para3": {
+     "threshold": 0.0,
+     "dev_select_f1": 0.314,
+     "dev_select_f1_raw": 0.314
+    },
+    "expert": {
+     "threshold": 0.0,
+     "dev_select_f1": 0.2959,
+     "dev_select_f1_raw": 0.2959
+    }
+   },
+   "best_existing": "para3",
+   "candidates": {
+    "r1": {
+     "threshold": 0.0,
+     "dev_select_f1": 0.3152,
+     "dev_select_f1_raw": 0.3152,
+     "name": "prompt276-flash38-r1",
+     "dev_train": {
+      "f1": 0.3415,
+      "seed_f1": 0.3671,
+      "gain": -0.0256,
+      "floor": 0.02,
+      "accepted": false
+     },
+     "delta_vs_best_existing": 0.0012,
+     "passes_gate": false
+    },
+    "r2": {
+     "threshold": 0.6,
+     "dev_select_f1": 0.2976,
+     "dev_select_f1_raw": 0.2959,
+     "name": "prompt276-flash38-r2",
+     "dev_train": {
+      "f1": 0.3662,
+      "seed_f1": 0.3671,
+      "gain": -0.0009,
+      "floor": 0.02,
+      "accepted": false
+     },
+     "delta_vs_best_existing": -0.0164,
+     "passes_gate": false
+    },
+    "alt": {
+     "threshold": 0.0,
+     "dev_select_f1": 0.3488,
+     "dev_select_f1_raw": 0.3488,
+     "name": "prompt276-flash38-alt",
+     "delta_vs_best_existing": 0.0348
+    }
+   }
+  },
+  {
+   "model": "gemini-4-argon",
+   "short": "argon",
+   "existing": {
+    "zs": {
+     "threshold": 0.35,
+     "dev_select_f1": 0.7049,
+     "dev_select_f1_raw": 0.6863
+    },
+    "para3": {
+     "threshold": 0.37,
+     "dev_select_f1": 0.6984,
+     "dev_select_f1_raw": 0.6667
+    },
+    "expert": {
+     "threshold": 0.0,
+     "dev_select_f1": 0.6507,
+     "dev_select_f1_raw": 0.6507
+    }
+   },
+   "best_existing": "zs",
+   "candidates": {
+    "r1": {
+     "threshold": 0.32,
+     "dev_select_f1": 0.7419,
+     "dev_select_f1_raw": 0.7121,
+     "name": "prompt276-argon-r1",
+     "dev_train": {
+      "f1": 0.7023,
+      "seed_f1": 0.7273,
+      "gain": -0.025,
+      "floor": 0.03,
+      "accepted": false
+     },
+     "delta_vs_best_existing": 0.037,
+     "passes_gate": true
+    },
+    "r2": {
+     "threshold": 0.21,
+     "dev_select_f1": 0.6607,
+     "dev_select_f1_raw": 0.6578,
+     "name": "prompt276-argon-r2",
+     "dev_train": {
+      "f1": 0.6792,
+      "seed_f1": 0.7273,
+      "gain": -0.0481,
+      "floor": 0.03,
+      "accepted": false
+     },
+     "delta_vs_best_existing": -0.0442,
+     "passes_gate": false
+    },
+    "alt": {
+     "threshold": 0.23,
+     "dev_select_f1": 0.6377,
+     "dev_select_f1_raw": 0.6122,
+     "name": "prompt276-argon-alt",
+     "delta_vs_best_existing": -0.0672
+    }
+   }
+  }
+ ]
+}
