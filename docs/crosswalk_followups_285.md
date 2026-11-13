@@ -850,3 +850,10 @@ python $S/recall_check.py compare --verdicts <recall285 verdicts json> --cities 
 python $S/score_274.py retention --ratings <hardneg>/confirm_s3/seattle/s4/ratings.csv \
     --models crosswalk_s4=<bprime preds>@0.23 crosswalk_s4_seed2=<...>@0.30 crosswalk_s4_seed3=<...>@0.13 --out <out>
 ```
+
+**Training jobs submitted 2026-11-13** (`s6_train.sh submit`, klone `ckpt-all`, after the commit that records the
+build above): smoke 43218825 (20 steps on `root_v6_full`); full dose seeds 1 to 3, 43218827 to 43218829
+(1,397 steps); half dose seeds 1 to 3, 43218830 to 43218832 (1,198 steps); step control 43218833 (`root_v4`,
+1,397 steps, seed 1). The seven runs start only if the smoke run succeeds. Each has its own run directory
+(`v6full_s<n>`, `v6half_s<n>`, `v4steps1397_s1`), and the script refuses a directory that already exists.
+Both roots were rebuilt on klone from the tar and matched the label digests above.
