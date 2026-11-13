@@ -1,0 +1,79 @@
+{
+ "rules": {
+  "min_region_px_exclusive": 100,
+  "max_dip_deg": 40.0,
+  "merge_r": 0.05,
+  "half_seed": 285
+ },
+ "cities": {
+  "sacramento-ca": {
+   "ratings": "ratings_a3_sacramento_jon_2026-11-11.csv",
+   "placements": 1820,
+   "positive": 1458,
+   "region_small": 91,
+   "too_low": 5,
+   "region_small_and_too_low": 3,
+   "rated_not_correct": 2,
+   "kept_before_merge": 1363,
+   "panos_before_merge": 728,
+   "merged": 50,
+   "positives": 1313,
+   "panos": 728,
+   "ignore_points": 313,
+   "collided_no_ignore_point": 92,
+   "half_panos": 364,
+   "half_positives": 667
+  },
+  "kaysville-ut": {
+   "ratings": "ratings_a3_kaysville_jon_2026-11-12.csv",
+   "placements": 515,
+   "positive": 421,
+   "region_small": 24,
+   "too_low": 12,
+   "region_small_and_too_low": 2,
+   "kept_before_merge": 387,
+   "panos_before_merge": 253,
+   "merged": 7,
+   "positives": 380,
+   "panos": 253,
+   "ignore_points": 65,
+   "collided_no_ignore_point": 10,
+   "half_panos": 126,
+   "half_positives": 178
+  },
+  "brussels-be": {
+   "ratings": "ratings_a3_brussels_jon_2026-11-12.csv",
+   "placements": 2171,
+   "positive": 1617,
+   "region_small": 113,
+   "too_low": 114,
+   "region_small_and_too_low": 2,
+   "kept_before_merge": 1392,
+   "panos_before_merge": 724,
+   "merged": 45,
+   "positives": 1347,
+   "panos": 724,
+   "ignore_points": 425,
+   "collided_no_ignore_point": 147,
+   "half_panos": 362,
+   "half_positives": 672
+  }
+ },
+ "all": {
+  "placements": 4506,
+  "positive": 3496,
+  "region_small": 228,
+  "too_low": 131,
+  "region_small_and_too_low": 7,
+  "rated_not_correct": 2,
+  "kept_before_merge": 3142,
+  "panos_before_merge": 1705,
+  "merged": 102,
+  "positives": 3040,
+  "panos": 1705,
+  "ignore_points": 803,
+  "collided_no_ignore_point": 249,
+  "half_panos": 852,
+  "half_positives": 1517
+ }
+}

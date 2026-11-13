@@ -1756,6 +1756,31 @@ def paired_lookalike_diff(panos, base, new, rng, n=BOOT_N, level=0.95):
     return point, pct_interval(boots, level)
 
 
+def cmd_retention(a):
+    """How many of a base model's confirmed crosswalks each model still detects (crosswalk_s6 guards 4 and 5).
+
+    A card is confirmed when its verdict in --ratings is `crosswalk`; a model keeps it when it has a detection at
+    its threshold within the scorer's radius (0.05), the rule `audit-compare` uses. With several models the
+    seed spread is the largest difference in the kept count between the first model and any other.
+    """
+    with open(a.ratings, encoding="utf-8", newline="") as f:
+        real = [r for r in csv.DictReader(f) if r["verdict"] == "crosswalk"]
+    res = {"ratings": a.ratings, "confirmed": len(real), "models": {}}
+    for spec in a.models:
+        label, rest = spec.split("=", 1)
+        path, thr = rest.rsplit("@", 1)
+        preds = {r["pano_id"]: [q for q in r["preds"] if q[2] >= float(thr)] for r in read_jsonl(path)}
+        kept = sum(1 for r in real if any(dist_sq(float(r["x"]), float(r["y"]), q[0], q[1], SCALE_X, SCALE_Y, True)
+                                          < RADIUS_SQ for q in preds.get(r["pano_id"], [])))
+        res["models"][label] = {"threshold": float(thr), "kept": kept, "retention": round(kept / len(real), 4)}
+    ks = [m["kept"] for m in res["models"].values()]
+    res["seed_spread"] = max([abs(ks[0] - k) for k in ks[1:]] or [0])
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "retention.json"), "w", encoding="utf-8") as f:
+        json.dump(res, f, indent=1)
+    print(json.dumps(res, indent=1))
+
+
 def cmd_audit_compare(a):
     """The crosswalk_s3 primary and retention guard (docs/stage1_crosswalk_sdot_274.md, pre-registered 2026-11-06).
 
@@ -2067,6 +2092,10 @@ def main():
     b.add_argument("--meta-dir", default=os.path.join(REPO, "analysis_out", "stage1_crosswalk_crowd_274"))
     b.add_argument("--per-cell", type=int, default=BP_PER_CELL)
     b.add_argument("--out", required=True)
+    rt = sub.add_parser("retention", help="confirmed crosswalks of a base model that each model still detects")
+    rt.add_argument("--ratings", required=True, help="the base model's rated cards on the draw (ratings.csv)")
+    rt.add_argument("--models", nargs="+", required=True, metavar="LABEL=PREDS.jsonl@THRESHOLD")
+    rt.add_argument("--out", required=True)
     b = sub.add_parser("bprime-prep", help="(b') store JPEGs -> 4096x2048 as the training root was written")
     b.add_argument("--ids-file", required=True)
     b.add_argument("--store", nargs="+", required=True, help="store roots laid out <id[:2]>/<id>.jpg, or flat dirs")
@@ -2079,7 +2108,7 @@ def main():
     b.add_argument("--out", default=None, help="where scores/nodes/report go (default: --bprime)")
     a = ap.parse_args()
     {"infer": cmd_infer, "score": cmd_score, "figures": cmd_figures, "oracle": cmd_oracle,
-     "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep,
+     "gallery": cmd_gallery, "bprime-sample": cmd_bprime_sample, "bprime-prep": cmd_bprime_prep, "retention": cmd_retention,
      "bprime-score": cmd_bprime_score, "cards": cmd_cards, "bprime-audit": cmd_bprime_audit,
      "audit-summary": cmd_audit_summary, "mine": cmd_mine, "sheets": cmd_sheets,
      "prescreen-merge": cmd_prescreen_merge, "select": cmd_select, "audit-compare": cmd_audit_compare,

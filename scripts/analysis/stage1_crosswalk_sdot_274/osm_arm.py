@@ -19,9 +19,11 @@ Usage (GPU; about 1 s per label on an RTX 3070)::
 import argparse
 import csv
 import json
+import math
 import os
+import random
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -464,6 +466,132 @@ def cmd_city_score(a):
     print(json.dumps(res, indent=1))
 
 
+MIN_REGION_PX = 100         # crosswalk_s6: a positive's snapped region must be larger than this (4096-wide pano)
+MAX_DIP_DEG = 40.0          # ... and the label at most this far below the horizon
+MERGE_R = 0.05              # two positives on one pano closer than this are one crossing (s5's rule)
+
+
+def dip_deg(y):
+    """Degrees below the horizon of a normalized image height.
+
+    >>> dip_deg(0.5), round(dip_deg(0.75), 1)
+    (0.0, 45.0)
+    """
+    return (y - 0.5) * 180.0
+
+
+def cmd_city_export(a):
+    """The `crosswalk_s6` label rules (docs/crosswalk_followups_285.md, section A4) applied to each city's
+    placements: positives, ignore points, pano positions and the seeded half dose, as inputs for
+    `export_stage2.py add-panos`. Reads only committed files plus each city's records.jsonl (positions)."""
+    out = os.path.join(OUT, "root_v6")
+    os.makedirs(out, exist_ok=True)
+    key = lambda r: (r["pano_id"], round(float(r["x"]), 4), round(float(r["y"]), 4))  # noqa: E731
+    pos_rows, ign_rows, position_rows, summary, half = [], [], [], {}, set()
+    n_collided_skipped = Counter()
+    for city in a.cities:
+        cdir = os.path.join(OUT, "cities", city)
+        rows = read_csv(os.path.join(cdir, "placements_kinds.csv"))
+        cand = {key(r): (r["pano_id"], r["node_id"]) for r in read_csv(os.path.join(cdir, "a3_candidates.csv"))}
+        ratings = sorted(f for f in os.listdir(os.path.join(cdir, "ratings")) if f.endswith(".csv"))
+        assert len(ratings) == 1, f"{city}: expected one ratings CSV, found {ratings}"
+        wrong = {cand[key(r)] for r in read_csv(os.path.join(cdir, "ratings", ratings[0]))
+                 if r["verdict"] != "crosswalk"}
+        n = Counter()
+        by_pano = defaultdict(list)
+        for r in rows:
+            n["placements"] += 1
+            why = None
+            if r["kind"] != "positive":
+                why = r["kind"]
+            else:
+                n["positive"] += 1
+                small = float(r["comp_area_px"]) <= MIN_REGION_PX
+                low = dip_deg(float(r["b2_y"])) > MAX_DIP_DEG
+                n["region_small"] += small
+                n["too_low"] += low
+                n["region_small_and_too_low"] += small and low
+                if small or low:
+                    why = "cut"
+                elif (r["pano_id"], r["node_id"]) in wrong:
+                    n["rated_not_correct"] += 1
+                    why = "rated_not_correct"
+            r["_why"] = why
+            by_pano[r["pano_id"]].append(r)
+        n["kept_before_merge"] = sum(r["_why"] is None for r in rows)
+        n["panos_before_merge"] = sum(any(r["_why"] is None for r in rs) for rs in by_pano.values())
+        kept_panos = []
+        for pid in sorted(by_pano):
+            keep = []
+            for r in sorted((r for r in by_pano[pid] if r["_why"] is None),
+                            key=lambda r: (-float(r["comp_area_px"]), r["node_id"])):
+                x, y = float(r["b2_x"]), float(r["b2_y"])
+                dx = lambda q: min(abs(x - q), 1.0 - abs(x - q))  # noqa: E731
+                if any(math.hypot(dx(kx), y - ky) < MERGE_R for kx, ky in keep):
+                    r["_why"] = "merged"
+                    n["merged"] += 1
+                else:
+                    keep.append((x, y))
+            if not keep:
+                continue
+            kept_panos.append(pid)
+            for r in by_pano[pid]:
+                uid = f'osm:{city}:{r["node_id"]}@{pid}'
+                if r["_why"] is None:
+                    pos_rows.append({"label_uid": uid, "city": city, "pano_id": pid, "x": r["b2_x"], "y": r["b2_y"]})
+                elif r["_why"] == "ignore_collided":
+                    # Amendment 2026-11-13: no ignore point. A collided placement sits on paint that the first
+                    # claim on this pano already covers (a positive, or that claim's own ignore point); 109 of
+                    # the 249 were within 30 px of a kept positive and zeroed its loss weight.
+                    n_collided_skipped[city] += 1
+                else:
+                    snapped = r["comp_found"] == "1"
+                    ign_rows.append({"ignore_id": uid, "pano_id": pid, "why": r["_why"],
+                                     "x": r["b2_x"] if snapped else r["b1_x"], "y": r["b2_y"] if snapped else r["b1_y"]})
+        n["positives"] = sum(1 for r in pos_rows if r["city"] == city)
+        n["panos"] = len(kept_panos)
+        n["ignore_points"] = sum(1 for r in ign_rows if r["ignore_id"].startswith(f"osm:{city}:"))
+        n["collided_no_ignore_point"] = n_collided_skipped[city]
+        picked = set(random.Random(SEED).sample(kept_panos, len(kept_panos) // 2))
+        half |= picked
+        n["half_panos"] = len(picked)
+        n["half_positives"] = sum(1 for r in pos_rows if r["pano_id"] in picked)
+        keep_dir = os.path.join(a.keep, "osm285", city)
+        want = set(kept_panos)
+        for line in open(os.path.join(keep_dir, "records.jsonl"), encoding="utf-8"):
+            if line.strip():
+                q = json.loads(line)["pano"]
+                if q["panorama_id"] in want:
+                    position_rows.append({"pano_id": q["panorama_id"], "lat": q["lat"], "lng": q["lng"],
+                                          "capture_date": q.get("capture_date") or ""})
+        summary[city] = {"ratings": ratings[0], **dict(n)}
+
+    def write(name, rows_, cols):
+        with open(os.path.join(out, name), "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
+            w.writeheader()
+            w.writerows(rows_)
+
+    pcols = ["label_uid", "city", "pano_id", "x", "y"]
+    write("positives_full.csv", pos_rows, pcols)
+    write("positives_half.csv", [r for r in pos_rows if r["pano_id"] in half], pcols)
+    write("ignore.csv", ign_rows, ["ignore_id", "pano_id", "why", "x", "y"])
+    write("positions.csv", position_rows, ["pano_id", "lat", "lng", "capture_date"])
+    panos = sorted({r["pano_id"] for r in pos_rows})
+    assert len(position_rows) == len(panos), "a kept pano has no record"
+    for name, ids in (("panos_full.txt", panos), ("panos_half.txt", sorted(half))):
+        with open(os.path.join(out, name), "w", encoding="utf-8", newline="\n") as f:
+            f.writelines(f"{pid}.jpg\n" for pid in ids)
+    tot = Counter()
+    for c in summary.values():
+        tot.update({k: v for k, v in c.items() if k != "ratings"})
+    res = {"rules": {"min_region_px_exclusive": MIN_REGION_PX, "max_dip_deg": MAX_DIP_DEG, "merge_r": MERGE_R,
+                     "half_seed": SEED}, "cities": summary, "all": dict(tot)}
+    with open(os.path.join(out, "summary.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(res, f, indent=1)
+    print(json.dumps(res, indent=1))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -482,10 +610,13 @@ def main():
     g.add_argument("--records", nargs="+", required=True, help="labeler records with lat, lng, camera_heading")
     s = sub.add_parser("style-check", help="Vistas component-exists at human-confirmed crosswalk clicks, by style")
     s.add_argument("--keep", required=True, help="the local scratch root holding the 4096-px pano dirs")
+    e = sub.add_parser("city-export", help="crosswalk_s6: positives, ignore points and the half dose for add-panos")
+    e.add_argument("--cities", nargs="+", required=True)
+    e.add_argument("--keep", required=True, help="scratch root; positions come from <keep>/osm285/<city>/records.jsonl")
     a = ap.parse_args()
     {"style-check": cmd_style_check, "geometry-check": cmd_geometry_check,
      "city-place": cmd_city_place, "city-report": cmd_city_report,
-     "city-score": cmd_city_score}[a.cmd](a)
+     "city-score": cmd_city_score, "city-export": cmd_city_export}[a.cmd](a)
 
 
 if __name__ == "__main__":

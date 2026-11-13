@@ -517,7 +517,7 @@ def cmd_add_panos(a):
     g_p1 = Grid(p1, lat0=40.0)
     near_p1 = sorted(p for p in new if g_p1.within(pos_at[p][0], pos_at[p][1], PHASE1_M))
     new -= set(near_p1)
-    others = census_crosswalk_points(a.census_rawlabels, new)
+    others = census_crosswalk_points(a.census_rawlabels, new) if a.census_rawlabels else {}
     for path in a.ignore:          # crosswalk_s5: extra ignore points (pano_id, x, y), e.g. Jon's unsure verdicts
         with open(path, encoding="utf-8", newline="") as f:
             for r in csv.DictReader(f):
@@ -542,7 +542,7 @@ def cmd_add_panos(a):
         mine = {u for u, _, _ in (p["pts"] if p else [])}
         ignore = [[round(x, 6), round(y, 6)] for u, x, y in others.get(pid, []) if u not in mine]
         sup = {"city": city, "label_type": "Crosswalk", "mode": "sparse",
-               "sources": ["ps_crowd_jon_confirmed"] * len(pts),
+               "sources": [a.source] * len(pts),
                "point_ids": [u for u, _, _ in p["pts"]] if p else [], "ignore_points": ignore}
         if n:
             for cid, nx, ny in n["pts"]:
@@ -623,7 +623,10 @@ def main():
                    help="<ratings CSV; not_crosswalk rows become negatives>=<dir of 4096x2048 JPEGs>")
     s.add_argument("--positions", required=True, help="prod_s4_pano_positions.sh output")
     s.add_argument("--phase1-sheet", required=True)
-    s.add_argument("--census-rawlabels", required=True, help="Phase 0 census out/rawlabels")
+    s.add_argument("--census-rawlabels", help="Phase 0 census out/rawlabels; omit for panos PS has no labels on "
+                                              "(crosswalk_s6's OSM cities)")
+    s.add_argument("--source", default="ps_crowd_jon_confirmed",
+                   help="supervision.sources value for the new positives (crosswalk_s6: osm_vistas_auto)")
     s.add_argument("--exclude", nargs="*", default=[], help="draw lists / panos CSVs that must not be added")
     s.add_argument("--ignore", nargs="*", default=[],
                    help="CSVs of ignore_id,pano_id,x,y: extra ignore points on new panos (crosswalk_s5)")

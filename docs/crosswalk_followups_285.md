@@ -778,3 +778,75 @@ recall by distance band (s4 finds 10 of 29 nearer than 6 m); marks beyond 25 m; 
 already in `root_v4`; that is the same for both models. The Vistas licence question (a CC BY-NC-SA
 segmenter placed these labels) is open and applies to s6's weights as to s1 to s5. Nothing is deployed
 or posted on RampNet#285.
+
+### A4 build and calibration (2026-11-13, before any `crosswalk_s6` training job)
+
+**One amendment to the label rules, made before training.** The pre-registration turns collided placements into
+ignore points. The trainer's own checker (`check_root_negatives.py`) refused that build: a collided placement
+sits on paint that a kept positive on the same pano already labels, 109 of the 249 were within 30 px of that
+positive (42 within 10 px), and an ignore point that close zeroes the positive's loss weight. Collided placements
+now add no ignore point. Positives, panos and every other rule are unchanged, and no model existed when this
+was changed.
+
+**Built roots** (`osm_arm.py city-export`, then `export_stage2.py add-panos` on `root_v4`):
+
+| | Sacramento | Kaysville | Brussels | All |
+|---|---|---|---|---|
+| Kept after the two cuts | 1,365 | 387 | 1,392 | 3,144 |
+| Rated not correct on a gate page | 2 | 0 | 0 | 2 |
+| Merged into a neighbour within 0.05 | 50 | 7 | 45 | 102 |
+| **Positives, full dose** | 1,313 | 380 | 1,347 | **3,040** |
+| **Panos, full dose** | 728 | 253 | 724 | **1,705** |
+| Positives / panos, half dose | 667 / 364 | 178 / 126 | 672 / 362 | 1,517 / 852 |
+| Ignore points (cut, merged, no region, rated not correct) | | | | 803 |
+
+| Root | Train panos | Val / test | Steps (`round(1000 × train / 4294)`) | Labels digest |
+|---|---|---|---|---|
+| `root_v6_full` | 5,999 | 1,029 / 515 | 1,397 | `9b420ac04286` |
+| `root_v6_half` | 5,146 | 1,029 / 515 | 1,198 | `b1aa92b87461` |
+
+- All 11,676 `root_v4` files are unchanged in both roots (JSONs byte-identical, JPEGs the same hardlinked files).
+- `check_root_negatives.py` passes on both: 290 negatives at weight 1 and target about 0; 3,040 and 1,517 new
+  positives at weight 1 and target at least 0.9. No pano was within 35 m of a Phase 1 GT node.
+- New panos were resized to 4096×2048 with `score_274.py bprime-prep`, as every root's images are. Tar of the
+  1,705 new JPEG and JSON pairs: sha256 `29fe307bee34…` (2.76 GB).
+- Twelve random new panos per city were rendered with their labels and looked at by Claude: every cross is where
+  its placement says. That is a check of the build, not a rating.
+
+**Calibration: s4's own seeds** (klone jobs 43218286 to 43218295; seeds 1, 2, 3 at 0.23, 0.30, 0.13):
+
+| Check | Seed 1 | Seed 2 | Seed 3 | Three-seed mean | Seed spread |
+|---|---|---|---|---|---|
+| Juneau marks found, of 110 (primary) | 63 | 59 | 77 | 0.603 | 14 |
+| False alarms on the 119 empty panos | 29 | 8 | 11 | 16.0 | 21 |
+| The same with the 49° rig mask (guard 6) | 6 | 4 | 10 | 6.67 | 4 |
+| Seattle: seed 1's 234 confirmed crosswalks kept (guard 4) | 234 | 194 | 212 | | 40 |
+| Fresh Juneau: seed 1's 43 confirmed crosswalks kept (guard 5) | 43 | 43 | 42 | | 1 |
+
+- klone's seed 1 reproduces the committed 63 of 110, 29 and 6, which were computed on the local RTX 3070.
+- **What the pre-registered rules now say, with these spreads:** guard 4 needs at least 194 of 234 (234 minus the
+  spread of 40, which is lower than 223); guard 5 needs at least 39 of 43; guard 6 allows the three-seed mean of
+  rig-masked false alarms to rise by 4.
+- s4's own seeds 2 and 3 keep 83% and 91% of seed 1's Seattle crosswalks, so the earlier "95% of the confirmed
+  crosswalks" guards were stricter than the difference between two trainings of the same model.
+
+Files: `analysis_out/crosswalk_followups_285/osm_arm/root_v6/` (`summary.json`, `positives_{full,half}.csv`,
+`ignore.csv`, `positions.csv`, `{full,half}/manifest.json`, `new_panos.csv`);
+`analysis_out/crosswalk_followups_285/recall/compare/s4_calibration/compare.json`;
+`analysis_out/crosswalk_followups_285/s6/calibration/{seattle,juneau_eval}/retention.json`; predictions under
+`recall/preds/crosswalk_s4{_klone,_seed2,_seed3}/` and beside s4's for (b′) and the fresh Juneau draw.
+
+```bash
+S=scripts/analysis/stage1_crosswalk_sdot_274; R=analysis_out/crosswalk_followups_285/osm_arm/root_v6
+python $S/osm_arm.py city-export --cities sacramento-ca kaysville-ut brussels-be --keep <keep>
+python $S/score_274.py bprime-prep --ids-file $R/panos_full.txt --store <keep>/pano_store/{sacramento-ca,kaysville-ut,brussels-be} --out-dir <prep>
+python $S/export_stage2.py add-panos --src-root <root_v4> --root <root_v6_full|half> --positives $R/positives_<full|half>.csv=<prep> \
+    --positions $R/positions.csv --phase1-sheet <phase 1 sheet.csv> --source osm_vistas_auto --ignore $R/ignore.csv \
+    --exclude <the four confirmation draws, ps_labels/panos.txt, juneau_eval_draw.txt, juneau_mine_draw.txt> --out $R/<full|half>
+python $S/check_root_negatives.py <root_v6_full|half> $R/<full|half>/new_panos.csv
+bash $S/s6_calibration.sh        # on klone: ten inference jobs for crosswalk_s4 seeds 1 to 3
+python $S/recall_check.py compare --verdicts <recall285 verdicts json> --cities laurens-ia juneau-ak \
+    --base crosswalk_s4_klone@0.23 crosswalk_s4_seed2@0.30 crosswalk_s4_seed3@0.13 --out-label s4_calibration
+python $S/score_274.py retention --ratings <hardneg>/confirm_s3/seattle/s4/ratings.csv \
+    --models crosswalk_s4=<bprime preds>@0.23 crosswalk_s4_seed2=<...>@0.30 crosswalk_s4_seed3=<...>@0.13 --out <out>
+```

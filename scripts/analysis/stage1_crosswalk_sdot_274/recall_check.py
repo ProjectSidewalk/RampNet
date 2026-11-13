@@ -344,6 +344,117 @@ def cmd_score(a):
     print(json.dumps(res, indent=1))
 
 
+RIG_MASK_Y = 0.5 + 49.0 / 180.0   # the labeler's NADIR_MASK_DEG: a detection below this is on the capture vehicle
+
+
+def _model_spec(spec):
+    """'label@threshold' -> (label, threshold); predictions are read from recall/preds/<label>/<city>.jsonl."""
+    label, thr = spec.rsplit("@", 1)
+    return label, float(thr)
+
+
+def _pano_stats(verdicts, cities, label, threshold, primary_city):
+    """Per pano, for one model: (marks, hits) on the primary population, and false alarms on confirmed-empty panos.
+
+    The primary population is the sure marks within 25 m in ``primary_city``, matched one to one at RADII[0],
+    exactly as ``score`` does. A confirmed-empty pano has no mark at all (sure or unsure) and the reviewer's
+    "none here"; every detection on it is a false alarm.
+    """
+    preds = {}
+    for city in cities:
+        with open(os.path.join(OUT, "preds", label, f"{city}.jsonl"), encoding="utf-8") as f:
+            for line in f:
+                r = json.loads(line)
+                preds[r["pano_id"]] = r["preds"]
+    city_of = {}
+    for city in cities:
+        for r in csv.DictReader(open(os.path.join(OUT, city, "intersections.csv"), encoding="utf-8")):
+            if r["in_draw"] == "1":
+                city_of[r["pano_id"]] = city
+    marks, empty = {}, {}
+    for pid, e in verdicts.items():
+        ms = e.get("missed", [])
+        if (not ms and not e.get("no_missed")) or pid not in city_of:
+            continue
+        if pid not in preds:
+            raise SystemExit(f"{label}: no predictions for pano {pid}")
+        dets = [(x, y) for x, y, c in preds[pid] if c >= threshold]
+        if not ms:
+            empty[pid] = (city_of[pid], len(dets), sum(1 for _, y in dets if y <= RIG_MASK_Y))
+            continue
+        if city_of[pid] != primary_city:
+            continue
+        sure = [(m["x"], m["y"]) for m in ms if not m.get("unsure")]
+        hit = match_one_to_one(sure, dets, RADII[0])
+        near = [i for i, (_, y) in enumerate(sure) if y >= Y_25M]
+        if near:
+            marks[pid] = (len(near), sum(1 for i in near if i in hit))
+    return marks, empty
+
+
+def cmd_compare(a):
+    """Seed-averaged recall and confirmed-empty false alarms for one model, or new minus base (#285 A4).
+
+    With only ``--base`` it is the calibration: per-seed numbers and the seed spread (the largest difference
+    between the first seed and any other). With ``--new`` it adds the paired difference of the seed means,
+    with a pano bootstrap that resamples the same panos for every model.
+    """
+    verdicts = json.load(open(a.verdicts, encoding="utf-8"))["panos"]
+    sides = {"base": [_model_spec(s) for s in a.base], "new": [_model_spec(s) for s in (a.new or [])]}
+    stats = {side: [_pano_stats(verdicts, a.cities, lab, thr, a.primary_city) for lab, thr in specs]
+             for side, specs in sides.items()}
+    panos = sorted(stats["base"][0][0])
+    empties = sorted(stats["base"][0][1])
+
+    def mean_recall(side, pick):
+        return sum(sum(m[p][1] for p in pick) / sum(m[p][0] for p in pick) for m, _ in stats[side]) / len(stats[side])
+
+    def mean_fa(side, col):
+        return sum(sum(e[p][col] for p in empties) for _, e in stats[side]) / len(stats[side])
+
+    res = {"primary_city": a.primary_city, "radius": RADII[0], "marks": sum(stats["base"][0][0][p][0] for p in panos),
+           "panos_with_marks": len(panos), "empty_panos": len(empties),
+           "empty_panos_by_city": dict(Counter(stats["base"][0][1][p][0] for p in empties)), "models": {}}
+    for side, specs in sides.items():
+        for (lab, thr), (m, e) in zip(specs, stats[side]):
+            res["models"][f"{lab}@{thr}"] = {
+                "side": side, "hit": sum(v[1] for v in m.values()),
+                "recall": round(sum(v[1] for v in m.values()) / sum(v[0] for v in m.values()), 4),
+                "empty_false_alarms": sum(v[1] for v in e.values()),
+                "empty_false_alarms_rig_masked": sum(v[2] for v in e.values()),
+                "empty_panos_with_one": sum(1 for v in e.values() if v[1])}
+    for side, specs in sides.items():
+        if not specs:
+            continue
+        ms = [res["models"][f"{lab}@{thr}"] for lab, thr in specs]
+        res[side] = {"seeds": [f"{lab}@{thr}" for lab, thr in specs],
+                     "mean_recall": round(mean_recall(side, panos), 4),
+                     "mean_empty_false_alarms": round(mean_fa(side, 1), 3),
+                     "mean_empty_false_alarms_rig_masked": round(mean_fa(side, 2), 3),
+                     "seed_spread": {k: max([abs(ms[0][k] - x[k]) for x in ms[1:]] or [0])
+                                     for k in ("hit", "empty_false_alarms", "empty_false_alarms_rig_masked")}}
+    if sides["new"]:
+        rng, boots = random.Random(SEED), []
+        for _ in range(BOOT_N):
+            pick = rng.choices(panos, k=len(panos))
+            boots.append(mean_recall("new", pick) - mean_recall("base", pick))
+        boots.sort()
+        first = lambda side: res["models"]["%s@%s" % sides[side][0]]["recall"]
+        seed1 = first("new") - first("base")
+        diff = mean_recall("new", panos) - mean_recall("base", panos)
+        lo, hi = boots[int(0.025 * (BOOT_N - 1))], boots[int(0.975 * (BOOT_N - 1))]
+        res["new_minus_base"] = {
+            "mean_recall_diff": round(diff, 4), "ci95": [round(lo, 4), round(hi, 4)],
+            "first_seed_recall_diff": round(seed1, 4), "primary_met": bool(lo > 0 and seed1 > 0),
+            "empty_false_alarms_diff": round(mean_fa("new", 1) - mean_fa("base", 1), 3),
+            "empty_false_alarms_rig_masked_diff": round(mean_fa("new", 2) - mean_fa("base", 2), 3)}
+    out = os.path.join(OUT, "compare", a.out_label)
+    os.makedirs(out, exist_ok=True)
+    with open(os.path.join(out, "compare.json"), "w", encoding="utf-8") as f:
+        json.dump(res, f, indent=1)
+    print(json.dumps(res, indent=1))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -365,8 +476,16 @@ def main():
     sc.add_argument("--cities", nargs="+", required=True)
     sc.add_argument("--label", required=True, help="model label, e.g. crosswalk_s4")
     sc.add_argument("--threshold", type=float, required=True)
+    cp = sub.add_parser("compare", help="seed-averaged recall and confirmed-empty false alarms; new minus base")
+    cp.add_argument("--verdicts", required=True, help="the page's exported <run>_verdicts.json")
+    cp.add_argument("--cities", nargs="+", required=True)
+    cp.add_argument("--primary-city", default="juneau-ak", help="the city whose marks are the recall population")
+    cp.add_argument("--base", nargs="+", required=True, metavar="LABEL@THRESHOLD",
+                    help="one per seed, first seed first; reads recall/preds/<label>/<city>.jsonl")
+    cp.add_argument("--new", nargs="*", metavar="LABEL@THRESHOLD", help="the new model's seeds, in the same order")
+    cp.add_argument("--out-label", required=True, help="results go to recall/compare/<out-label>/compare.json")
     a = ap.parse_args()
-    {"draw": cmd_draw, "page": cmd_page, "score": cmd_score}[a.cmd](a)
+    {"draw": cmd_draw, "page": cmd_page, "score": cmd_score, "compare": cmd_compare}[a.cmd](a)
 
 
 if __name__ == "__main__":

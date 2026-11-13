@@ -1,0 +1,22 @@
+{
+ "ratings": "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/seattle/s4/ratings.csv",
+ "confirmed": 234,
+ "models": {
+  "crosswalk_s4": {
+   "threshold": 0.23,
+   "kept": 234,
+   "retention": 1.0
+  },
+  "crosswalk_s4_seed2": {
+   "threshold": 0.3,
+   "kept": 194,
+   "retention": 0.8291
+  },
+  "crosswalk_s4_seed3": {
+   "threshold": 0.13,
+   "kept": 212,
+   "retention": 0.906
+  }
+ },
+ "seed_spread": 40
+}
