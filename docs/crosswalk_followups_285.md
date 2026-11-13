@@ -601,8 +601,8 @@ python $S/osm_arm.py city-score --city kaysville-ut --ratings <the ratings CSV a
 
 | What | Where on makelab2 |
 |---|---|
-| Images, Sacramento (830) and Kaysville (300), with sidewalk-panorama-tools' ledgers | `/projects/makeabilitylab/sidewalk_panos/Panoramas/<city>/` |
-| Per-pano Mapillary positions and headings as used by the placer (`records.jsonl`), the two rating pages, galleries, card views, and the tracker census files the Kaysville and Brussels lists were read from | `/projects/makeabilitylab/RampNet/archives/crosswalk_followups_285/osm285/<city>/` (2,347 files, 295 MB, copied 2026-11-12 from `<keep>/osm285/`) |
+| Images, Sacramento (830), Kaysville (300) and Brussels (882), with sidewalk-panorama-tools' ledgers | `/projects/makeabilitylab/sidewalk_panos/Panoramas/<city>/` |
+| Per-pano Mapillary positions and headings as used by the placer (`records.jsonl`), the three rating pages, galleries, card views, and the tracker census files the Kaysville and Brussels lists were read from | `/projects/makeabilitylab/RampNet/archives/crosswalk_followups_285/osm285/<city>/` (4,520 files, 446 MB, copied 2026-11-12 from `<keep>/osm285/`, Brussels included) |
 
 To rerun placement from the archive, copy a city's image folder to `<keep>/pano_store/<city>/` and its
 `osm285/<city>/` folder to `<keep>/osm285/<city>/`, then run `city-place` as above. `records.jsonl` is archived
