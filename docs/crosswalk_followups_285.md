@@ -857,3 +857,12 @@ build above): smoke 43218825 (20 steps on `root_v6_full`); full dose seeds 1 to 
 1,397 steps, seed 1). The seven runs start only if the smoke run succeeds. Each has its own run directory
 (`v6full_s<n>`, `v6half_s<n>`, `v4steps1397_s1`), and the script refuses a directory that already exists.
 Both roots were rebuilt on klone from the tar and matched the label digests above.
+
+**Rerun after a storage failure, 2026-11-13.** The smoke run and `v6full_s2` (job 43218828, 1,397 steps) completed. The
+other six jobs failed between 09:36 and 09:43 because `/gscratch/scrubbed` refused writes (`Disk quota exceeded`,
+`PytorchStreamWriter failed writing file`) with the filesystem 99% full and Jon's usage at 1,405 GB of a 5 TB limit;
+a write test minutes later succeeded. Four died mid-checkpoint (steps beyond epoch 2) and two at their first log line.
+None had produced a final checkpoint. Their run directories were renamed to `<name>_failed_quota_1113` and the six
+were started again from step 0 with the same seeds, data and step counts (`RERUN="..." bash s6_train.sh submit`):
+`v6full_s1` 43224827, `v6full_s3` 43224828, `v6half_s1` 43224829, `v6half_s2` 43224830, `v6half_s3` 43224831,
+`v4steps1397_s1` 43224832. No model was scored before the rerun.

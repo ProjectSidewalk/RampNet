@@ -55,6 +55,18 @@ submit)
         DATA_ROOT=$root RUNDIR=$W/$name COPY_DEST=$copy SEED=$seed STEPS=$steps EXPECT_TRAIN=$n \
             sbatch --parsable --job-name="cw285_$name" "$@" $T
     }
+    if [ "${RERUN:-}" ]; then   # RERUN="v6full_s1 v4steps1397_s1 ...": those runs again from step 0, no smoke run.
+        for name in $RERUN; do  # A failed run's directory must be renamed aside first (run refuses an existing one).
+            seed=${name##*_s}
+            case $name in
+                v6full_s*|v6half_s*) d=${name#v6}; d=${d%_s*}; echo "$name $(run "$name" "$W/root_v6_$d" "${TRAIN[$d]}" "${STEPS[$d]}" "$seed")" ;;
+                v4steps${STEPS[full]}_s1) echo "$name $(run "$name" "$W/root_v4" 4294 "${STEPS[full]}" 1)" ;;
+                *) echo "FATAL: unknown run $name" >&2; exit 1 ;;
+            esac
+        done
+        squeue -u "$USER" -o "%.10i %.22j %.2t %.8M %R"
+        exit 0
+    fi
     smoke=$(run smoke20_v6 "$W/root_v6_full" "${TRAIN[full]}" 20 1)
     echo "smoke $smoke"
     for d in full half; do
