@@ -8,7 +8,7 @@ is the detector of record throughout. Plan approved by Jon on 2026-11-10 after a
 |---|---|---|
 | B | Does a rule on image position remove capture-vehicle false alarms without losing crosswalks? | done, below (exploratory) |
 | C | What share of visible marked crosswalks does s4 miss in Juneau and Laurens? | rated 2026-11-11; results below |
-| A | Can OSM marked crossings plus the Vistas snap label many cities (#285)? | city count and two placer checks done; Sacramento pilot placed and rated: 97 of 100 placements correct, passes the 91 bar; full-city fetch and the A4 pre-registration are next |
+| A | Can OSM marked crossings plus the Vistas snap label many cities (#285)? | city count and two placer checks done; Sacramento pilot placed and rated: 97 of 100 placements correct, passes the 91 bar; Kaysville (98) and Brussels (95) pass too; the `crosswalk_s6` training pre-registration is fixed (section A4), nothing trained yet |
 
 ## B. A position rule for capture-vehicle false alarms (exploratory, 2026-11-10)
 
@@ -654,3 +654,127 @@ Files, under `analysis_out/crosswalk_followups_285/osm_arm/cities/brussels-be/`:
 `placements_summary.json`, `a3_candidates.csv`, `ratings/ratings_a3_brussels_jon_2026-11-12.csv`, `a3_score.json`.
 The page is local: `<keep>/osm285/brussels-be/page/rate_a3_brussels.html`. Commands are Kaysville's with
 `brussels-be` and `a3_brussels`.
+
+## A4. `crosswalk_s6` pre-registration (fixed 2026-11-13: Jon approved this text before any calibration run or s6 job)
+
+Drafted 2026-11-12, reviewed adversarially by a second agent (14 findings, folded in) and approved by Jon as
+written. The counts in the table and the s4 numbers quoted were read from the committed placements, ratings and
+scores before the text was fixed. "The two draws below" in the calibration paragraph are the Seattle confirmation
+draw and the fresh Juneau draw of guards 4 and 5.
+
+**Goal.** Raise recall on open imagery the model has never seen, by adding crosswalk positives placed
+automatically from OSM marked crossings in three new cities. It is not expected to reduce look-alikes:
+auto-labelled panos train only inside discs around their positives.
+
+**Training data, `root_v6`.** `root_v4` (not `root_v5`), plus new train panos only. Every val, test and
+(b′) file stays byte for byte the same. Juneau and Laurens contribute nothing (Jon, 2026-11-12).
+
+A placement from `placements_kinds.csv` becomes a positive when all of these hold:
+- its kind is `positive` (marked at-grade crossing within 20 m, snapped to a segmenter region, first
+  claim on that region);
+- the snapped region is larger than 100 px (`comp_area_px > 100`);
+- it is at most 40° below the horizon (`(b2_y − 0.5) × 180 ≤ 40`);
+- Jon did not rate it "not a crosswalk" or "unsure" on a gate page (2 of those 10 cards pass the cuts).
+
+Everything else on a kept pano becomes an ignore point: placements that fail a cut, collided
+placements, placements with no region (at the projected point), and the 2 cards above. Two positives
+on one pano closer than 0.05 in normalized image distance (s5's rule) are merged: the one on the larger
+region stays and the other becomes an ignore point. A pano left with no positive is dropped. The panos
+train as `sparse`. There are no auto-negatives. The 35 m Phase 1 rule is applied and drops nothing (no
+Phase 1 node is in these cities).
+
+No other filter is added (no sequence position check, no drop of panos on bridges, no capture-year
+rule, no camera-height change for Brussels), so the trained positives are the population the three
+gate pages sampled, minus the two cuts.
+
+| City | Positives | Region ≤ 100 px | More than 40° down | Kept | Panos |
+|---|---|---|---|---|---|
+| Sacramento | 1,458 | 91 | 5 | 1,365 | 729 |
+| Kaysville | 421 | 24 | 12 | 387 | 253 |
+| Brussels | 1,617 | 113 | 114 | 1,392 | 724 |
+| All | 3,496 | 228 | 131 | **3,144** | **1,706** |
+
+(7 placements fail both cuts. After the 2 rated-wrong cards and about 100 merges, expect about 3,040
+positives on about 1,705 panos; the exact counts are recorded at build, before training.)
+
+`root_v4` has 8,034 train positives on 4,294 panos, so the auto positives are about 27% of all positives
+at full dose, under the earlier plan's cap of half. No new city exceeds 1,400; Seattle has 5,050.
+
+**Two doses.** Full: every kept pano. Half: half of each city's kept panos, drawn with seed 285.
+
+**Recipe.** s4's: released weights, seeds 1, 2 and 3, batch 16, LR 1e-5, `--loss-mask --mask-norm
+pixels`, `TRIM_EPOCH=1`, final checkpoint only, a 20-step smoke run first. The step count scales with
+the train set so each pano is seen as often as in s4: `STEPS = round(1000 × train panos / 4294)`, about
+1,400 for full and 1,200 for half.
+- **Step control.** s4 and s5 both ran 1,000 steps; s6 runs more. One extra run, `root_v4` at the full
+  dose's step count, seed 1, separates "more data" from "more steps". It is scored on the automatic
+  checks only and decides nothing.
+- Each dose and seed gets its own `RUNDIR`, `COPY_DEST` and `DATA_ROOT`, and a job refuses to start if
+  its run directory already holds a checkpoint at restart 0. A preempted run resumes from its latest
+  checkpoint, as s5 seed 1 did; that is reported.
+- Eight jobs on klone `ckpt-all` (free): smoke, 3 full, 3 half, 1 step control.
+
+**Threshold.** Recall-matched on val (`match-threshold --base-threshold`), each s6 seed to the s4 seed
+with the same number at s4's adopted threshold (0.23, 0.30, 0.13), as for s5. s6's own val pick is reported.
+
+**Calibration, before any s6 job (automatic).** s4 seeds 1, 2 and 3, at 0.23, 0.30 and 0.13, are run
+on klone on the 175 missed-crosswalk panos and the two draws below. Seed 1 must reproduce the committed
+63 of 110. For each count in guards 4 to 6, the **seed spread** is the largest difference between
+seed 1 and seed 2 or 3. All s6 inference runs on klone too.
+
+**Which dose is judged.** Full, unless full fails an automatic guard (1 to 6) that half passes; then
+half. If both fail an automatic guard, s4 stays and nothing is rated. The dose is never chosen on the
+primary, and a failure of a rated guard ends the round with no second dose. Both doses are reported on
+everything automatic. Two doses do give two tries at the guards; that is accepted and stated.
+
+**Primary (one; 95% interval, pano bootstrap, 2,000 draws, seed 285).** Recall on Jon's Juneau marks
+from the missed-crosswalk page: the 110 sure marks within 25 m on 48 panos, one-to-one matching at
+radius 0.05, as s4 was scored. The statistic is the **three-seed mean** recall of s6 minus the
+three-seed mean of s4, each seed at its own threshold, resampling panos. Met if the interval's lower
+end is above 0 and seed 1's own difference is above 0.
+- Power, stated before the result, from a simulation on s4 seed 1's marks: if s6 loses none of the 63,
+  5 more marks clear; if it loses 3, it needs 12 to 13 new ones (net +9 to +10); if it loses 6, 17 to
+  18 (net about +12). Averaging seeds should tighten this, by an amount not yet known.
+
+**Guards (all must hold). 1 to 6 need no rating.**
+1. Mean test F1 of the three seeds on the v2 labels ≥ 0.826 (s4's mean 0.836 − 0.01).
+2. (b′) weighted marked-node recall, three-seed mean, falls by ≤ 0.03 against s4's three-seed mean
+   (s4 seed 1 is 0.728). This is the guard s5 failed.
+3. Columbia brick recall: paired s6 − s4 point estimate, seed 1, ≥ −0.03 (s4 0.871).
+4. Seattle confirmation draw: s6 seed 1 has a detection within 0.05 of ≥ 95% of the 234 crosswalks Jon
+   confirmed for s4 (223), or of 234 minus the seed spread if that is lower.
+5. Fresh Juneau draw (120 panos): the same for ≥ 90% of s4's 43 (39), or 43 minus the seed spread.
+6. False alarms on the 119 panos Jon confirmed have no crosswalk (92 Laurens, 27 Juneau), with the
+   labeler's 49° rig mask applied to both models (s4 seed 1 then has 6; 23 of its 29 are Laurens car
+   tops under the mask). Three-seed mean of s6 minus three-seed mean of s4 is ≤ +3 detections, or the
+   seed spread if larger. The unmasked count is reported.
+7. Look-alikes on the Seattle confirmation draw, seed 1: paired point estimate ≤ +2.5 per 100 panos (rated).
+8. Look-alikes on the fresh Juneau draw, seed 1: paired point estimate ≤ +2.5 per 100 panos (rated).
+
+"Confirmed" means the verdict `crosswalk` in that draw's `s4/ratings.csv`. A look-alike is a "not a
+crosswalk" verdict; "unsure" is neither. Guards 7 and 8 are point rules on small counts, as in s4 and
+s5, and can fail by chance (s5 − s4 on the Juneau draw was −2.5 with an interval of −10.8 to +5.0).
+
+**Rating, kept as small as the rule allows.**
+- Guards 7 and 8 are rated only if the primary is met and guards 1 to 6 hold for the judged dose.
+- A new card within 0.01 of any card Jon has rated on that draw (the confirmation page, s4 Step B, s5
+  Step B) inherits its verdict. If a guard holds even with every unrated card counted as a look-alike,
+  that draw is not rated; expect that to be rare.
+- Otherwise one blind page of the unrated cards, `paint_brick` definition, with one-click reason tags
+  (capture vehicle, brick or plain sidewalk, curb ramp, lane marking, other) in place of typed notes.
+- The Laurens draws are not re-rated; guard 6 covers Laurens.
+
+**Outcomes.**
+- **Adopt:** the primary is met and every guard holds. s6 seed 1 at the judged dose becomes the detector
+  of record.
+- **Promising, not established:** the point estimate rises but the primary is not met. s4 stays.
+- **s4 stays:** any guard fails.
+
+**Reported, deciding nothing.** The step control; the primary per seed and under the region rule;
+recall by distance band (s4 finds 10 of 29 nearer than 6 m); marks beyond 25 m; Laurens marks (s4 1 of
+11); the Bayonne and PS-label probes; test per city; (b′) F1; the dose not judged.
+
+**Known limits.** 37 of the 92 Laurens empty panos are within 30 m of a Laurens negative-only pano
+already in `root_v4`; that is the same for both models. The Vistas licence question (a CC BY-NC-SA
+segmenter placed these labels) is open and applies to s6's weights as to s1 to s5. Nothing is deployed
+or posted on RampNet#285.
