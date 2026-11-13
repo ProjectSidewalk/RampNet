@@ -414,11 +414,18 @@ local cache). Candidates: `benchmark/prompt_opt_276/prompts/`; the loop's record
 | Gemini 3.8 Flash, Step 7 replicates (2 arms x 2 splits x 2 replicates) | 8 | $18.48 |
 | Step 6 exemplar arm: Flash $7.11 (4 rows incl. a 2-pano smoke test), Argon $18.39 | 7 | $25.50 |
 | Whole-prompt-rewrite arm: Flash $5.84, Argon $5.93 (dev_train evaluations, dev_select, critic calls) | 16 | $11.77 |
-| **Total logged, 2026-11-08 → 2026-11-12** | 149 | **$488.51** |
+| Calls made by the legs stopped after the 2026-11-12 stall: two `kind: recovered` rows, billed minus logged (Flash $3.66, Argon $3.74) | 2 | $7.40 |
+| **Total logged, 2026-11-08 → 2026-11-12** | 151 | **$495.91** |
 
-Not in the total: the calls four legs had made when they were stopped on 2026-11-12 (see
-Incidents). A stopped leg writes no ledger row; the detections it had cached were reused, so
-the money was not wasted, but it is not yet reconciled.
+The legs stopped on 2026-11-12 (see Incidents) wrote no ledger row for the calls they had
+made. The detections they had cached were reused, so the money was not wasted. The two
+recovered rows above are the billed total for each model over 2026-11-08 → 2026-11-12 (UTC)
+minus every surviving row: 3,020,359 input and 371,683 output tokens for Flash, 1,703,359
+and 33,009 for Argon. Three readings of the metric over half an hour, the last two hours
+after the final call, were identical. The Flash figure also subtracts the validator leg of
+sidewalk-validator-ai#105 (9,804,431 input tokens, $16.43), which ran in the same cloud
+project and is recorded in that repo's ledger, so `--reconcile` over these days still reports
+Flash short by that amount.
 
 Reconciled against Cloud Monitoring on 2026-11-09 and again on 2026-11-11 after Step 5
 (`vertex_usage.py --days 3 --reconcile`: Flash within tolerance, Argon within tolerance once
