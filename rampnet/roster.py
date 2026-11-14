@@ -534,6 +534,10 @@ PROVIDER_DEFAULTS = {
     # --definition applies to every prompted detector (Gemini, Claude, Qwen, Molmo):
     # the same committed file, each provider's own frame around it.
     "definition": None,
+    # --prompt-body (#276 whole-prompt arm): a committed prompts/NAME.txt that replaces
+    # the whole detection instruction; exclusive with ``definition``. Gemini, Claude and
+    # Qwen accept it; Molmo refuses it (its pointing frame has no whole-body form).
+    "prompt_body": None,
     "gemini_confidence": None,
     "gemini_exemplars": None,
     "gemini_thinking_level": None,
@@ -752,6 +756,21 @@ REPLICATES = (
              "environment. First run 2026-08-18 into a private cache that was later "
              "lost; this is the 2026-09-20 re-run, same host, same env. Read against "
              "the published file in docs/vistas_transfer_126.md, Resolution parity."),
+    # #276 Step 7: the Flash zs+conf and expert+conf arms re-run twice on the open pool,
+    # 2026-11-11, same host and code as Step 5, each into its own cache so every call was
+    # paid again (Gemini at temperature 0.0 is not deterministic). They measure the
+    # run-to-run spread the Step 5 expert-vs-zero-shot difference has to clear; scored by
+    # scripts/analysis/prompt_276_replicates.py, read in docs/vlm_prompt_276.md, Step 7.
+) + tuple(
+    Replicate(
+        of=_of, tag="flash-%s-conf-rep%d-2026-11-11" % (_arm, _k),
+        splits=("laurens_mapillary", "bayonne"), added="2026-11-11",
+        note="#276 Step 7 replicate %d of the Flash %s+confidence arm on the open pool "
+             "(laurens_mapillary + bayonne): a fresh paid run of the Step 5 leg at the "
+             "same signature. See docs/vlm_prompt_276.md, Step 7." % (_k, _arm))
+    for _arm, _of in (("zs", "gemini-3.8-flash-confidence-on"),
+                      ("expert", "gemini-3.8-flash-definition-expert-confidence-on"))
+    for _k in (1, 2)
 )
 
 #: Every replicate by its tag -- the directory name, so unique by construction.
@@ -902,8 +921,11 @@ def leg_for(spec, cargs=None):
 
 # Opt-in knobs that are not named after one provider. ``definition`` is read by every
 # prompted detector (``build_detector``: gemini, claude, qwen, molmo), so a run that
-# sets it is a different leg for any of them.
-GENERIC_OPT_IN_KNOBS = {"definition": ("gemini", "claude", "qwen", "molmo")}
+# sets it is a different leg for any of them. ``prompt_body`` is passed to the same
+# four (Molmo refuses it at construction, so listing it there only keeps the rule
+# uniform): a run that sets it and no leg registers resolves to None, not the bare leg.
+GENERIC_OPT_IN_KNOBS = {"definition": ("gemini", "claude", "qwen", "molmo"),
+                        "prompt_body": ("gemini", "claude", "qwen", "molmo")}
 
 
 def opt_in_knobs_for(provider):

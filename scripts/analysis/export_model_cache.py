@@ -478,6 +478,7 @@ def build_parser():
     p.add_argument("--gemini-temperature", type=float, default=_D["gemini_temperature"])
     p.add_argument("--definition", "--gemini-definition", dest="definition",
                    default=_D["definition"], metavar="NAME")
+    p.add_argument("--prompt-body", default=_D["prompt_body"], metavar="NAME")
     p.add_argument("--gemini-confidence", action="store_const", const=True,
                    default=_D["gemini_confidence"])
     p.add_argument("--gemini-exemplars", default=_D["gemini_exemplars"], metavar="NAME")
@@ -545,6 +546,7 @@ def main(argv=None):
                  "vistas_input_size": args.vistas_input_size,
                  "gemini_temperature": args.gemini_temperature,
                  "definition": args.definition,
+                 "prompt_body": args.prompt_body,
                  "gemini_confidence": args.gemini_confidence,
                  "gemini_exemplars": args.gemini_exemplars,
                  "gemini_thinking_level": args.gemini_thinking_level,

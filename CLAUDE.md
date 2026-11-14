@@ -6,6 +6,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Research code for the RampNet paper (ICCV'25 workshop): a two-stage pipeline that (1) auto-generates a large curb ramp detection dataset by translating open government curb-ramp GPS locations into pixel coordinates on Google Street View panoramas, and (2) trains a curb ramp detection model on that dataset. Published artifacts: `projectsidewalk/rampnet-dataset` and `projectsidewalk/rampnet-model` on Hugging Face.
 
+## CRITICAL: never delete a directory tree on Windows without listing its junctions first
+
+`git worktree remove --force`, `rm -rf` and `Remove-Item -Recurse` **follow NTFS junctions and
+delete the target's contents**. On 2026-11-11 this emptied 14 `benchmark/<split>/panos` folders
+(2,339 panoramas, 15.4 GB) in the main checkout. The pixels are git-ignored, so git could not
+restore them, and the reviewed `laurens_gsv` bytes are gone for good
+(`benchmark/laurens_gsv/IMAGERY_NOTE.md`).
+
+- **Do not junction or symlink data into a worktree.** Pass absolute paths (`--panos-root`,
+  `--cache-dir`, `--bundle`), or run from the main checkout.
+- **Before removing any worktree or directory**, run `cmd /c "dir /AL /S /B <path>"`. `rmdir`
+  every link it lists (that removes the link, not the target), run it again until it prints
+  nothing, and only then remove the tree. Count the files in each former target before and
+  after.
+- **Git-ignored data that cannot be regenerated needs a second copy before any cleanup:**
+  `benchmark/*/panos`, `.model_cache*`, `analysis_out/usage_log.jsonl`.
+
 ## Record scientific progress in GitHub, as it happens
 
 **This is a research repo, and the notes are part of the result.** Every experiment, negative result, caveat, and methodological decision gets written into GitHub — a committed doc, a PR body, or an issue comment — *at the time it is produced*, not batched up at the end. The paper is written from these notes; a finding nobody can find later did not happen.

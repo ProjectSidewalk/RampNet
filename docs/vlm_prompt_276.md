@@ -297,7 +297,108 @@ furthest below the diagonal.
 - *Argon on the full `manual_gold`*: 0.741 at the threshold (0.737 raw) against Step 2's
   0.740. Flash: 0.490 (0.504 in Step 2).
 
-## Step 7: replicates — *pending*
+## Step 7: replicates of the Flash expert arm on the open pool (2026-11-11, $18.48)
+
+**The expert-definition gain for Flash on the open pool replicated.** Step 5 found it as an
+exploratory amendment arm, and Gemini at temperature 0.0 is not deterministic, so both arms
+(zs+conf and expert+conf) were paid for twice more on `laurens_mapillary` + `bayonne`, each
+replicate into its own cache directory so that no call was served from cache. Eight legs,
+all exit 0.
+
+| Run | Zero-shot macro F1 | Expert macro F1 | Difference | 95% interval | p |
+|---|---|---|---|---|---|
+| original (Step 5) | 0.256 | 0.324 | +0.068 | +0.027 to +0.106 | <0.001 |
+| replicate 1 | 0.264 | 0.313 | +0.049 | +0.013 to +0.087 | 0.009 |
+| replicate 2 | 0.229 | 0.301 | +0.072 | +0.035 to +0.110 | <0.001 |
+
+Same scoring as Step 5: threshold 0.00 for both arms (selected on `dev_select`), macro over
+the two splits, paired pano bootstrap, 2,000 draws, seed 276.
+
+- **Direction.** Expert is ahead on both splits in all three runs (per-split F1 in
+  `step7_results.md`).
+- **Noise.** Re-running the same arm moves its macro F1 by up to 0.035 (zero-shot: 0.256,
+  0.264, 0.229) and 0.023 (expert: 0.324, 0.313, 0.301). The smallest of the three
+  differences, +0.049, is larger than either range. Three runs give a range, not a
+  standard deviation.
+- **Scope.** This is Flash only, on two open-imagery splits, and from a low base: Flash's
+  recall on this pool stays under 0.30 with either definition, and RampNet's F1 on the same
+  splits is far higher. Argon was not replicated; Step 5 found the expert definition hurts
+  it. Nothing here supports changing a default.
+
+The replicates are published under `benchmark/model_detections/replicates/` (four tags,
+`roster.REPLICATES`), so the table regenerates on a clean clone:
+`python scripts/analysis/prompt_276_replicates.py --check`.
+
+## Step 6 (exemplars): four in-context crops, both models (2026-11-12, $25.50): negative
+
+**Showing the models example crops did not help: it hurt Flash and did nothing for Argon.**
+The prompt gets four labelled 1024x1024 views before the query image, two curb ramps a
+model missed and two look-alikes a model boxed. They are the iter_01 picks Jon confirmed in
+Step 4, one of each per model, the same set for both models
+(`benchmark/prompt_opt_276/exemplars/shared4.json`, captions "The boxed region is / is not
+a curb ramp."). Confidence is requested as in every Step 5 arm. Scored as Step 5: threshold
+selected on `dev_select`, then the open pool with the paired pano bootstrap.
+
+| Model | Arm | Threshold | dev_select F1 | laurens_mapillary F1 | bayonne F1 | Open macro F1 |
+|---|---|---|---|---|---|---|
+| Gemini 3.8 Flash | zero-shot | 0.00 | 0.267 | 0.163 | 0.350 | 0.256 |
+| Gemini 3.8 Flash | four exemplars | 0.65 | 0.234 | 0.069 | 0.176 | 0.123 |
+| Gemini 4 Argon | zero-shot | 0.35 | 0.705 | 0.693 | 0.623 | 0.658 |
+| Gemini 4 Argon | four exemplars | 0.00 | 0.686 | 0.739 | 0.582 | 0.660 |
+
+| Model | Open-pool macro ΔF1 | 95% interval | p |
+|---|---|---|---|
+| Gemini 3.8 Flash | -0.134 | -0.170 to -0.096 | <0.001 |
+| Gemini 4 Argon | +0.003 | -0.031 to +0.035 | 0.894 |
+
+- **Flash.** Recall collapsed: 0.092 to 0.036 on `laurens_mapillary` and 0.242 to 0.106 on
+  `bayonne`. The examples made a model whose errors are already misses more conservative.
+- **Argon.** No measurable change on the open pool, and -0.018 on `dev_select`, inside its
+  0.021 seed-repeat spread.
+- **Scope.** One exemplar set with minimal captions, exploratory, two open-imagery splits.
+  It shows that this set does not help; it does not show that no exemplar set could.
+
+Table: `analysis_out/prompt_opt_276/step6_exemplars.{json,md}`
+(`prompt_276_exemplars.py --check`, local cache; the exemplar legs are not published).
+
+## Whole-prompt-rewrite arm (2026-11-12, $11.77): negative for Flash, mixed for Argon
+
+Step 4 let the critic rewrite only the class definition. This follow-up lets it rewrite the
+whole instruction (`--prompt-body`, `prompt_optimize.py --scope prompt`): the task wording,
+the description, the exclusions and what to do when unsure. The first two iterations reuse
+the crops Jon judged in Step 4, so no new rating was needed. The control is one image-free
+paraphrase of the whole prompt per model (`prompt276-<model>-alt`). The pre-registered gate
+for a held-out run: at least +0.02 F1 on `dev_select` over the best of {zero-shot, para3,
+expert}, and above the control.
+
+Both loops stopped on two consecutive `dev_train` rejections, the pre-registered early stop.
+
+| Model | Prompt | dev_train F1 (seed) | Optimizer | dev_select F1 | vs best existing | Gate |
+|---|---|---|---|---|---|---|
+| Flash | best existing (para3) | | | 0.314 | | |
+| Flash | control (alt, no images) | | | 0.349 | +0.035 | control |
+| Flash | r1 | 0.342 (0.367) | rejected | 0.315 | +0.001 | fail |
+| Flash | r2 | 0.366 (0.367) | rejected | 0.298 | -0.016 | fail |
+| Argon | best existing (zero-shot) | | | 0.705 | | |
+| Argon | control (alt, no images) | | | 0.638 | -0.067 | control |
+| Argon | r1 | 0.702 (0.727) | rejected | 0.742 | +0.037 | pass |
+| Argon | r2 | 0.679 (0.727) | rejected | 0.661 | -0.044 | fail |
+
+- **Flash: negative.** Neither candidate clears the gate, and the best score on
+  `dev_select` belongs to the rewrite that saw no images. As in Step 4, what moves Flash on
+  the dev split is wording, not the model's own errors.
+- **Argon: the two dev halves disagree about r1.** The optimizer rejected it on `dev_train`
+  (-0.025 against a 0.03 floor); on `dev_select` it is +0.037 over zero-shot and well above
+  the control, which passes the gate as written. It is also the best of three prompts
+  scored on `dev_select`, which flatters it. One half down 0.025 and the other up 0.037, on
+  60 and 65 panoramas, is what no effect looks like. **No held-out run has been made**;
+  whether to spend one (about $44) is an open decision.
+- **Paraphrase sensitivity runs both ways.** The Argon control lost 0.067 to a
+  meaning-preserving rewrite, the largest single wording effect on Argon in this study.
+
+Table: `analysis_out/prompt_opt_276/rewrite_arm.{json,md}` (`prompt_276_rewrite.py --check`,
+local cache). Candidates: `benchmark/prompt_opt_276/prompts/`; the loop's record:
+`benchmark/prompt_opt_276/optimize/<model>/prompt/`.
 
 ## Cost
 
@@ -309,7 +410,22 @@ furthest below the diagonal.
 | Gemini 3.8 Flash, Step 5 (52 chain legs, 3 threshold legs, 5 one-pano re-runs) | 60 | $153.29 |
 | Gemini 4 Argon, Step 5 (39 chain legs, 2 threshold legs, 1 re-run) | 42 | $117.43 |
 | Argon `manual_gold` run killed by the leg timeout: a `kind: recovered` row, billed minus logged | 1 | $24.41 |
-| **Total, 2026-11-08 → 2026-11-11** | 118 | **$432.76** |
+| Subtotal, 2026-11-08 → 2026-11-11 (Steps 0–5) | 118 | $432.76 |
+| Gemini 3.8 Flash, Step 7 replicates (2 arms x 2 splits x 2 replicates) | 8 | $18.48 |
+| Step 6 exemplar arm: Flash $7.11 (4 rows incl. a 2-pano smoke test), Argon $18.39 | 7 | $25.50 |
+| Whole-prompt-rewrite arm: Flash $5.84, Argon $5.93 (dev_train evaluations, dev_select, critic calls) | 16 | $11.77 |
+| Calls made by the legs stopped after the 2026-11-12 stall: two `kind: recovered` rows, billed minus logged (Flash $3.66, Argon $3.74) | 2 | $7.40 |
+| **Total logged, 2026-11-08 → 2026-11-12** | 151 | **$495.91** |
+
+The legs stopped on 2026-11-12 (see Incidents) wrote no ledger row for the calls they had
+made. The detections they had cached were reused, so the money was not wasted. The two
+recovered rows above are the billed total for each model over 2026-11-08 → 2026-11-12 (UTC)
+minus every surviving row: 3,020,359 input and 371,683 output tokens for Flash, 1,703,359
+and 33,009 for Argon. Three readings of the metric over half an hour, the last two hours
+after the final call, were identical. The Flash figure also subtracts the validator leg of
+sidewalk-validator-ai#105 (9,804,431 input tokens, $16.43), which ran in the same cloud
+project and is recorded in that repo's ledger, so `--reconcile` over these days still reports
+Flash short by that amount.
 
 Reconciled against Cloud Monitoring on 2026-11-09 and again on 2026-11-11 after Step 5
 (`vertex_usage.py --days 3 --reconcile`: Flash within tolerance, Argon within tolerance once
@@ -355,6 +471,14 @@ the recovered row is counted). Argon list price doubles on 2026-12-01; the credi
 - **Qwen is deterministic** under its greedy decode: the seed repeat reproduced every box, so
   a fresh cache dir measures no floor for it. The Gemini floors came from the same procedure.
 
+- **Four chains stalled for 3.5 h on 2026-11-12** (08:05 to 11:40): the Step 6 and
+  rewrite-arm legs stopped writing to the cache with every process alive and idle. The
+  Gemini client had retries but no request timeout, so a dropped connection blocked a call
+  forever (a test call at 11:40 answered in 4 s). `GeminiDetector` now sets a 10-minute
+  per-request timeout, outside the signature. The legs were stopped and re-run; cached
+  panoramas were reused. Check that a leg's log is advancing, not just that its process is
+  alive.
+
 ## Where each number lives
 
 | number | file | regenerator |
@@ -362,6 +486,10 @@ the recovered row is counted). Argon list price doubles on 2026-12-01; the credi
 | every dev-split P/R/F1, tp/fp/n_gt, distinct-score counts | `analysis_out/prompt_opt_276/step3_results.{json,md}` | `prompt_276_results.py` (`--check`) |
 | Step 5: selected thresholds and sweeps, every held-out split at them, pool macro/pooled F1, paired-bootstrap Δ rows | `analysis_out/prompt_opt_276/step5_results.{json,md}` | `prompt_276_heldout.py` (`--check`) |
 | the Step 5 detections themselves (88 files) | `benchmark/model_detections/*-confidence-on__*.json` | `export_model_cache.py --verify` with the leg's flags |
+| Step 7: per-run macro and per-split F1, paired Δ rows, same-arm ranges | `analysis_out/prompt_opt_276/step7_results.{json,md}` | `prompt_276_replicates.py` (`--check`), from the published files alone |
+| the Step 7 replicate detections (8 files) | `benchmark/model_detections/replicates/flash-{zs,expert}-conf-rep{1,2}-2026-11-11/` | `export_model_cache.py --verify --replicate <tag>` with the leg's flags |
+| Step 6 exemplar arm: thresholds, dev_select and open-pool P/R/F1, paired Δ | `analysis_out/prompt_opt_276/step6_exemplars.{json,md}` | `prompt_276_exemplars.py` (`--check`, local cache) |
+| rewrite arm: dev_train and dev_select F1 per candidate, gate | `analysis_out/prompt_opt_276/rewrite_arm.{json,md}` | `prompt_276_rewrite.py` (`--check`, local cache) |
 | the two figures | `docs/figures/prompt_276/{arm_vs_zs,dev_to_heldout}.png` | `prompt_276_figures.py`, from `step5_results.json` alone |
 | the manual_gold 250-pano subset | `benchmark/prompt_opt_276/manual_gold_250.json` | `prompt_opt_276_splits.py --check` |
 | Step 2 pooled / per-split rows, scoreboard effects | `analysis_out/scoreboard.json`, `docs/model_scoreboard.md` | `scoreboard.py --check` |
@@ -379,5 +507,7 @@ The published Step 2 detections re-score from `benchmark/model_detections/` on a
 `check_all.py --only prompt_276_results,prompt_276_heldout --allow local-cache` verifies both
 committed tables against those caches. The two figures regenerate from the committed
 `step5_results.json` with `python scripts/analysis/prompt_276_figures.py` (no cache needed).
+The Step 7 table needs no cache either: `check_all.py --only prompt_276_replicates`
+re-scores it from the published original and replicate files.
 Re-running any paid leg needs Vertex access to `rampnet`; the Qwen legs need klone's
 `gpu-l40s` and the pinned env.

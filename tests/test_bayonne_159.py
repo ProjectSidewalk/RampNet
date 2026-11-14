@@ -347,9 +347,11 @@ def test_candidates_json_rederives():
     want = _committed("candidates.json")
     assert B._dumps(B.build_candidates()) == want
     res = json.loads(want)
-    # 11 until 2026-11-11, when Molmo2-8B joined the voters (its bayonne leg ran on klone);
-    # 94 of the 102 rest on Molmo, 93 on Qwen3-VL-8B (docs/bayonne_split_159.md, candidates).
-    assert res["n_candidates"] == 102
+    # 11. Molmo2-8B's bayonne leg (2026-11-11) made it 102 while Molmo voted; Molmo is
+    # support-only since (Jon, 2026-11-11), and the 102 stays on record as if_molmo_votes.
+    assert res["n_candidates"] == 11
+    assert res["support_only"] == ["owlv2", "gdino", "molmo2-8b"]
+    assert res["if_molmo_votes"] == {"n_candidates": 102, "n_on_molmo_and_qwen_alone": 88}
     assert res["if_dense_legs_vote"] == {"n_candidates": 692, "n_from_dense_legs_only": 266,
                                          "n_with_fewer_than_2_non_dense_legs": 578}
 
