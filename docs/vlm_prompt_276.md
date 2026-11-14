@@ -391,10 +391,37 @@ Both loops stopped on two consecutive `dev_train` rejections, the pre-registered
   (-0.025 against a 0.03 floor); on `dev_select` it is +0.037 over zero-shot and well above
   the control, which passes the gate as written. It is also the best of three prompts
   scored on `dev_select`, which flatters it. One half down 0.025 and the other up 0.037, on
-  60 and 65 panoramas, is what no effect looks like. **No held-out run has been made**;
-  whether to spend one (about $44) is an open decision.
+  60 and 65 panoramas, is what no effect looks like. The held-out run below settles it.
 - **Paraphrase sensitivity runs both ways.** The Argon control lost 0.067 to a
   meaning-preserving rewrite, the largest single wording effect on Argon in this study.
+
+### Held-out run of Argon r1 (2026-11-13, $38.46): null on the reference pool, a gain on Mapillary
+
+Jon approved the run on 2026-11-13. r1 with confidence on was scored on the 12 held-out
+splits and `manual_gold`@250, exactly as a Step 5 arm: one threshold selected on
+`dev_select` (0.32; zero-shot 0.35), paired pano bootstrap against the cached zs+confidence
+arm. Exploratory, one run per split, not a pre-registered endpoint.
+
+| Pool | zs macro F1 | r1 macro F1 | ΔF1 | 95% CI | p |
+|---|---|---|---|---|---|
+| reference (7 GSV US cities) | 0.736 | 0.735 | -0.001 | [-0.014, +0.011] | 0.879 |
+| open (laurens_mapillary, bayonne) | 0.658 | 0.704 | +0.046 | [+0.017, +0.074] | 0.001 |
+| us9 (scoreboard pool) | 0.733 | 0.742 | +0.009 | [-0.003, +0.022] | 0.132 |
+| all 12 held-out splits | 0.705 | 0.713 | +0.007 | [-0.003, +0.018] | 0.158 |
+
+- **On the reference pool the rewrite does nothing**, like every other wording change in
+  this study. The `dev_select` gain of +0.037 did not transfer: the largest reference-city
+  move is 0.014 in either direction.
+- **The open-pool gain is one split.** `laurens_mapillary` goes from 0.693 to 0.772
+  (recall 0.626 to 0.727, precision 0.776 to 0.823); `bayonne` from 0.623 to 0.636. No
+  other split moves by more than 0.014. Step 7 measured a run-to-run range of 0.035 in
+  Flash's open-pool macro F1; Argon's is not measured on this pool, so a single run cannot
+  separate a real Mapillary effect from call-to-call variation plus the choice of pool
+  after the fact. Replicating both arms on the open pool would cost about $10 per replicate.
+- No call ended on `MAX_TOKENS`; 13 legs, all exit 0.
+
+Table: `analysis_out/prompt_opt_276/rewrite_heldout.{json,md}`
+(`prompt_276_rewrite_heldout.py --check`, local cache).
 
 Table: `analysis_out/prompt_opt_276/rewrite_arm.{json,md}` (`prompt_276_rewrite.py --check`,
 local cache). Candidates: `benchmark/prompt_opt_276/prompts/`; the loop's record:
@@ -415,7 +442,8 @@ local cache). Candidates: `benchmark/prompt_opt_276/prompts/`; the loop's record
 | Step 6 exemplar arm: Flash $7.11 (4 rows incl. a 2-pano smoke test), Argon $18.39 | 7 | $25.50 |
 | Whole-prompt-rewrite arm: Flash $5.84, Argon $5.93 (dev_train evaluations, dev_select, critic calls) | 16 | $11.77 |
 | Calls made by the legs stopped after the 2026-11-12 stall: two `kind: recovered` rows, billed minus logged (Flash $3.66, Argon $3.74) | 2 | $7.40 |
-| **Total logged, 2026-11-08 → 2026-11-12** | 151 | **$495.91** |
+| Whole-prompt-rewrite arm, held-out run of Argon r1 (12 splits + `manual_gold`@250), 2026-11-13 | 13 | $38.46 |
+| **Total logged, 2026-11-08 → 2026-11-13** | 164 | **$534.37** |
 
 The legs stopped on 2026-11-12 (see Incidents) wrote no ledger row for the calls they had
 made. The detections they had cached were reused, so the money was not wasted. The two
@@ -429,7 +457,8 @@ Flash short by that amount.
 
 Reconciled against Cloud Monitoring on 2026-11-09 and again on 2026-11-11 after Step 5
 (`vertex_usage.py --days 3 --reconcile`: Flash within tolerance, Argon within tolerance once
-the recovered row is counted). Argon list price doubles on 2026-12-01; the credit expires
+the recovered row is counted), and on 2026-11-13 after the r1 held-out run (Argon ok,
+13 rows). Argon list price doubles on 2026-12-01; the credit expires
 2026-12-07.
 
 ## Incidents and traps, recorded
@@ -490,6 +519,7 @@ the recovered row is counted). Argon list price doubles on 2026-12-01; the credi
 | the Step 7 replicate detections (8 files) | `benchmark/model_detections/replicates/flash-{zs,expert}-conf-rep{1,2}-2026-11-11/` | `export_model_cache.py --verify --replicate <tag>` with the leg's flags |
 | Step 6 exemplar arm: thresholds, dev_select and open-pool P/R/F1, paired Δ | `analysis_out/prompt_opt_276/step6_exemplars.{json,md}` | `prompt_276_exemplars.py` (`--check`, local cache) |
 | rewrite arm: dev_train and dev_select F1 per candidate, gate | `analysis_out/prompt_opt_276/rewrite_arm.{json,md}` | `prompt_276_rewrite.py` (`--check`, local cache) |
+| rewrite arm: Argon r1 on the held-out splits and pools | `analysis_out/prompt_opt_276/rewrite_heldout.{json,md}` | `prompt_276_rewrite_heldout.py` (`--check`, local cache) |
 | the two figures | `docs/figures/prompt_276/{arm_vs_zs,dev_to_heldout}.png` | `prompt_276_figures.py`, from `step5_results.json` alone |
 | the manual_gold 250-pano subset | `benchmark/prompt_opt_276/manual_gold_250.json` | `prompt_opt_276_splits.py --check` |
 | Step 2 pooled / per-split rows, scoreboard effects | `analysis_out/scoreboard.json`, `docs/model_scoreboard.md` | `scoreboard.py --check` |
