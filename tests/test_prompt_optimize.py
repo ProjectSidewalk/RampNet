@@ -72,6 +72,7 @@ def test_critic_prompt_names_only_the_confirmed_images():
 
 
 def test_critic_rows_are_recognisable_in_the_ledger():
+    pytest.importorskip("google.genai")  # Critic.ask builds its config from the SDK types
     class _UM:
         prompt_token_count = 2000
         candidates_token_count = 80
@@ -250,6 +251,7 @@ def test_default_scope_is_the_definition_scope_unchanged():
 
 
 def test_prompt_scope_reuses_judged_crops_and_their_verdicts(tmp_path, monkeypatch):
+    pytest.importorskip("google.genai")  # Critic.ask builds its config from the SDK types
     """Iterations 1-2 of the prompt scope take the crops Jon judged in Step 4: no detector
     call, verdicts copied, an 'unsure' crop left out by the same rule as the definition
     scope, and the definition record left byte-for-byte alone."""
@@ -304,6 +306,7 @@ def test_prompt_scope_reuses_judged_crops_and_their_verdicts(tmp_path, monkeypat
 
 
 def test_prompt_scope_alternative_is_an_image_free_paraphrase_of_the_seed(tmp_path, monkeypatch):
+    pytest.importorskip("google.genai")  # Critic.ask builds its config from the SDK types
     monkeypatch.setattr(P, "OPT_DIR", tmp_path)
     monkeypatch.setattr(P, "PROMPTS_DIR", tmp_path / "prompts")
     _fake_critic(monkeypatch, {"prompt": "Detect all curb ramps; box each."})
