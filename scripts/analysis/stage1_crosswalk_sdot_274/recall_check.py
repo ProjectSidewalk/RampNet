@@ -455,6 +455,235 @@ def cmd_compare(a):
     print(json.dumps(res, indent=1))
 
 
+# ---- false-alarm contact sheet (guard 6, looked at rather than counted) -------------------------
+
+SPOT_RADIUS = 0.03      # detections from different models this close (wrap distance) are one spot
+CROP_W = 0.07           # crop width as a share of the pano width (about 25 degrees)
+CROP_ASPECT = 0.75      # crop height / width, in pixels
+CROP_PX = 360           # crop width on the sheet
+THUMB_PX = 960          # whole-pano thumbnail width on the sheet
+
+
+def _family(label):
+    """Model family for grouping seeds on the sheet.
+
+    >>> [_family(x) for x in ("crosswalk_s4_klone", "crosswalk_s4_seed3", "crosswalk_s4_steps1397",
+    ...                       "crosswalk_s6full_seed2", "crosswalk_s6half")]
+    ['s4', 's4', 's4_steps1397', 's6full', 's6half']
+    """
+    name = label.replace("crosswalk_", "")
+    if name.startswith("s4_steps"):
+        return name
+    return name.split("_")[0]
+
+
+def _spots(dets, radius=SPOT_RADIUS):
+    """Greedy grouping of (model, x, y, conf) detections on one pano, strongest first.
+
+    A detection joins the first spot whose seed detection is within ``radius`` (wrap distance), so a
+    spot's position is its strongest detection's.
+
+    >>> s = _spots([("a", 0.10, 0.6, 0.9), ("b", 0.11, 0.6, 0.5), ("a", 0.99, 0.6, 0.4), ("c", 0.01, 0.6, 0.3)])
+    >>> [(round(sp["x"], 2), [d[0] for d in sp["dets"]]) for sp in s]
+    [(0.1, ['a', 'b']), (0.99, ['a', 'c'])]
+    """
+    spots = []
+    for d in sorted(dets, key=lambda d: -d[3]):
+        for sp in spots:
+            if wrap_dist(sp["x"], sp["y"], d[1], d[2]) <= radius:
+                sp["dets"].append(d)
+                break
+        else:
+            spots.append({"x": d[1], "y": d[2], "dets": [d]})
+    return spots
+
+
+def _crop(img, x, y):
+    """A CROP_W-wide window centred on normalized (x, y), wrapping across the 360-degree seam."""
+    from PIL import Image
+    w, h = img.size
+    cw = int(CROP_W * w)
+    ch = int(cw * CROP_ASPECT)
+    left = int(x * w) - cw // 2
+    top = min(max(int(y * h) - ch // 2, 0), h - ch)
+    out = Image.new("RGB", (cw, ch))
+    dx = 0
+    while dx < cw:                      # at most two pastes: the part before the seam and the part after
+        sx = (left + dx) % w
+        run = min(cw - dx, w - sx)
+        out.paste(img.crop((sx, top, sx + run, top + ch)), (dx, 0))
+        dx += run
+    return out.resize((CROP_PX, int(CROP_PX * CROP_ASPECT))), (left, top, cw, ch)
+
+
+def cmd_fa_sheet(a):
+    """Local contact sheet of every detection guard 6 counts: model output on panos Jon confirmed empty.
+
+    Reads the thresholds from the committed ``compare.json`` files, so the sheet shows exactly what the
+    guard scored, and refuses to write anything if its own per-model counts differ from theirs.
+    Imagery (crops, thumbnails, page) goes to ``--out`` outside the repo; the spot table goes to
+    ``recall/fa_sheet/<out-label>/`` in the repo.
+    """
+    import html as H
+    from PIL import Image, ImageDraw
+    verdicts = json.load(open(a.verdicts, encoding="utf-8"))["panos"]
+    models, guard = {}, {}
+    for path in a.compare:
+        for spec, m in json.load(open(path, encoding="utf-8"))["models"].items():
+            label, thr = _model_spec(spec)
+            if label in models and models[label] != thr:
+                raise SystemExit(f"{label}: threshold {models[label]} in one compare file, {thr} in {path}")
+            models[label], guard[label] = thr, m["empty_false_alarms_rig_masked"]
+    native = dict(s.split("=", 1) for s in a.native)
+    info = {}
+    for city in a.cities:
+        for r in csv.DictReader(open(os.path.join(OUT, city, "intersections.csv"), encoding="utf-8")):
+            if r["in_draw"] == "1":
+                info[r["pano_id"]] = {"city": city, **{k: r[k] for k in ("camera_model", "capture_date", "sequence_id")}}
+    empties = sorted(pid for pid, e in verdicts.items()
+                     if pid in info and not e.get("missed") and e.get("no_missed"))
+    dets, counts = defaultdict(list), Counter()
+    for label, thr in models.items():
+        preds = {}
+        for city in a.cities:
+            with open(os.path.join(OUT, "preds", label, f"{city}.jsonl"), encoding="utf-8") as f:
+                for line in f:
+                    r = json.loads(line)
+                    preds[r["pano_id"]] = r["preds"]
+        for pid in empties:
+            for x, y, c in preds[pid]:
+                if c >= thr and y <= RIG_MASK_Y:
+                    dets[pid].append((label, x, y, c))
+                    counts[label] += 1
+        check = sum(v[2] for v in _pano_stats(verdicts, a.cities, label, thr, a.cities[0])[1].values())
+        if not (counts[label] == guard[label] == check):
+            raise SystemExit(f"{label}@{thr}: sheet {counts[label]}, compare.json {guard[label]}, _pano_stats {check}")
+    families = sorted({_family(l) for l in models}, key=lambda f: (not f.startswith("s4"), f))
+    seeds = {f: sorted(l for l in models if _family(l) == f) for f in families}
+    os.makedirs(os.path.join(a.out, "img"), exist_ok=True)
+    rows, cards = [], []
+    order = sorted(dets, key=lambda p: (-sum(1 for d in dets[p] if not _family(d[0]).startswith("s4")), p))
+    for pid in order:
+        meta = info[pid]
+        fns = [fn for fn in os.listdir(native[meta["city"]]) if os.path.splitext(fn)[0] == pid]
+        if not fns:
+            raise SystemExit(f"{meta['city']}: no image for {pid} in {native[meta['city']]}")
+        img = Image.open(os.path.join(native[meta["city"]], fns[0])).convert("RGB")
+        w, h = img.size
+        thumb = img.resize((THUMB_PX, int(THUMB_PX * h / w)))
+        draw, k = ImageDraw.Draw(thumb), THUMB_PX / w
+        mask_y = int(RIG_MASK_Y * thumb.size[1])
+        draw.line([(0, mask_y), (THUMB_PX, mask_y)], fill=(255, 255, 255), width=1)
+        spot_html = []
+        for n, sp in enumerate(_spots(dets[pid]), 1):
+            crop, (left, top, cw, ch) = _crop(img, sp["x"], sp["y"])
+            cd = ImageDraw.Draw(crop)
+            s = CROP_PX / cw
+            for _, x, y, _ in sp["dets"]:
+                px = ((x * w - left) % w) * s
+                py = (y * h - top) * s
+                cd.ellipse([px - 5, py - 5, px + 5, py + 5], outline=(255, 0, 255), width=2)
+            name = f"{pid}_{n}.jpg"
+            crop.save(os.path.join(a.out, "img", name), quality=85)
+            x0, y0, y1 = (left * k) % THUMB_PX, int(top * k), int((top + ch) * k)
+            x1 = x0 + cw * k
+            for shift in (0, -THUMB_PX):        # the second pass draws the part that wraps past the seam
+                if x1 + shift > 0 and x0 + shift < THUMB_PX:
+                    draw.rectangle([int(x0 + shift), y0, int(x1 + shift), y1], outline=(255, 0, 255), width=2)
+            draw.text((int(sp["x"] * THUMB_PX) + 3, int(top * k) + 2), str(n), fill=(255, 0, 255))
+            fired = {f: sorted({seeds[f].index(d[0]) + 1 for d in sp["dets"] if _family(d[0]) == f}) for f in families}
+            s6 = sum(len(v) for f, v in fired.items() if not f.startswith("s4"))
+            rows.append({"pano_id": pid, **meta, "spot": n, "x": round(sp["x"], 4), "y": round(sp["y"], 4),
+                         "max_conf": round(max(d[3] for d in sp["dets"]), 3), "n_models": len({d[0] for d in sp["dets"]}),
+                         **{f"seeds_{f}": " ".join(map(str, fired[f])) for f in families}, "crop": f"img/{name}"})
+            chips = " ".join(f'<span class="chip {"base" if f.startswith("s4") else "new"}">{H.escape(f)}: '
+                             f'{",".join(map(str, fired[f])) or "&ndash;"}</span>' for f in families)
+            spot_html.append(
+                f'<figure class="spot" data-s4="{int(bool(fired.get("s4")))}" data-new="{int(s6 > 0)}">'
+                f'<img src="img/{name}" width="{CROP_PX}" alt="Spot {n} on pano {pid}: area around the detection">'
+                f'<figcaption><strong>Spot {n}</strong>, max conf {rows[-1]["max_conf"]}<br>{chips}</figcaption></figure>')
+        tname = f"{pid}_thumb.jpg"
+        thumb.save(os.path.join(a.out, "img", tname), quality=80)
+        n_new = sum(1 for d in dets[pid] if not _family(d[0]).startswith("s4"))
+        cards.append(
+            f'<section class="card"><h2>{H.escape(meta["city"])} &middot; {pid}</h2>'
+            f'<p class="meta">{H.escape(meta["camera_model"])}, captured {H.escape(meta["capture_date"])}, '
+            f'sequence {H.escape(meta["sequence_id"])}; {len(dets[pid])} detections '
+            f'({n_new} from the new models)</p>'
+            f'<img class="thumb" src="img/{tname}" width="{THUMB_PX}" alt="Whole pano {pid}; magenta boxes mark the '
+            f'spots below; the white line is the rig mask, below which nothing is counted">'
+            f'<div class="spots">{"".join(spot_html)}</div></section>')
+    csv_dir = os.path.join(OUT, "fa_sheet", a.out_label)
+    os.makedirs(csv_dir, exist_ok=True)
+    fields = list(rows[0]) if rows else ["pano_id"]
+    with open(os.path.join(csv_dir, "spots.csv"), "w", encoding="utf-8", newline="") as f:
+        wr = csv.DictWriter(f, fieldnames=fields)
+        wr.writeheader()
+        wr.writerows(rows)
+    by_city = Counter()
+    for pid, ds in dets.items():
+        for d in ds:
+            by_city[(info[pid]["city"], _family(d[0]))] += 1
+    summary = {"empty_panos": len(empties), "panos_with_a_detection": len(dets), "spots": len(rows),
+               "thresholds": models, "detections": dict(counts),
+               "detections_by_city_family": {f"{c} | {f}": n for (c, f), n in sorted(by_city.items())},
+               "spots_new_only": sum(1 for r in rows if not r.get("seeds_s4")),
+               "spot_radius": SPOT_RADIUS, "rig_mask_y": round(RIG_MASK_Y, 4)}
+    with open(os.path.join(csv_dir, "summary.json"), "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=1)
+    trs = "".join(f"<tr><td>{H.escape(l)}</td><td>{models[l]}</td><td>{counts[l]}</td></tr>" for l in sorted(models))
+    page = f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guard 6 false alarms</title>
+<style>
+  :root {{ --bg:#fff; --fg:#1a1a1a; --muted:#555; --line:#ddd; --base:#e6f0ff; --new:#ffe9e0; }}
+  @media (prefers-color-scheme: dark) {{ :root {{ --bg:#161616; --fg:#eee; --muted:#aaa; --line:#333;
+    --base:#1f2f4a; --new:#4a2a1f; }} }}
+  body {{ background:var(--bg); color:var(--fg); font:15px/1.45 system-ui, sans-serif; margin:0 16px 48px; }}
+  h1 {{ font-size:1.4em; }} h2 {{ font-size:1.05em; margin:0 0 4px; }}
+  .meta {{ color:var(--muted); margin:0 0 8px; }}
+  table {{ border-collapse:collapse; margin:8px 0 16px; }} td, th {{ border:1px solid var(--line); padding:3px 8px; }}
+  .card {{ border-top:1px solid var(--line); padding:16px 0; }}
+  .thumb {{ max-width:100%; height:auto; display:block; }}
+  .spots {{ display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; }}
+  .spot {{ margin:0; max-width:{CROP_PX}px; }} .spot img {{ max-width:100%; height:auto; display:block; }}
+  .chip {{ display:inline-block; border-radius:4px; padding:0 5px; margin:2px 2px 0 0; font-size:.85em; }}
+  .chip.base {{ background:var(--base); }} .chip.new {{ background:var(--new); }}
+  fieldset {{ border:1px solid var(--line); }}
+</style></head><body>
+<h1>Guard 6 false alarms: detections on the {len(empties)} panos Jon confirmed have no crosswalk</h1>
+<p>Every detection here counts in guard 6 (at the model's matched threshold, above the rig mask). Nothing to rate.
+Spots group detections within {SPOT_RADIUS} of the pano width across models; chips list which seeds fired there
+(s4 = the adopted model, blue; new models, orange). {len(dets)} panos have at least one, in {len(rows)} spots.
+Cards are ordered by how many new-model detections the pano has.</p>
+<table><caption>Detections per model (equal to compare.json, checked)</caption>
+<tr><th scope="col">Model</th><th scope="col">Threshold</th><th scope="col">Detections</th></tr>{trs}</table>
+<fieldset><legend>Show spots</legend>
+<label><input type="radio" name="f" value="all" checked> all</label>
+<label><input type="radio" name="f" value="new"> fired by a new model but no s4 seed</label>
+<label><input type="radio" name="f" value="s4"> fired by an s4 seed</label></fieldset>
+{"".join(cards)}
+<script>
+  document.querySelectorAll('input[name=f]').forEach(function (r) {{
+    r.addEventListener('change', function () {{
+      document.querySelectorAll('.spot').forEach(function (s) {{
+        var show = r.value === 'all' || (r.value === 'new' ? s.dataset.new === '1' && s.dataset.s4 === '0'
+                                                           : s.dataset.s4 === '1');
+        s.hidden = !show;
+      }});
+      document.querySelectorAll('.card').forEach(function (c) {{
+        c.hidden = !c.querySelector('.spot:not([hidden])');
+      }});
+    }});
+  }});
+</script></body></html>
+"""
+    with open(os.path.join(a.out, "index.html"), "w", encoding="utf-8") as f:
+        f.write(page)
+    print(json.dumps(summary, indent=1))
+    print(f"-> {os.path.join(a.out, 'index.html')}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -484,8 +713,16 @@ def main():
                     help="one per seed, first seed first; reads recall/preds/<label>/<city>.jsonl")
     cp.add_argument("--new", nargs="*", metavar="LABEL@THRESHOLD", help="the new model's seeds, in the same order")
     cp.add_argument("--out-label", required=True, help="results go to recall/compare/<out-label>/compare.json")
+    fs = sub.add_parser("fa-sheet", help="local contact sheet of the detections guard 6 counts on confirmed-empty panos")
+    fs.add_argument("--verdicts", required=True, help="the page's exported <run>_verdicts.json")
+    fs.add_argument("--cities", nargs="+", required=True)
+    fs.add_argument("--compare", nargs="+", required=True, help="compare.json files whose models and thresholds to show")
+    fs.add_argument("--native", nargs="+", required=True, metavar="CITY=DIR", help="native pano dir per city")
+    fs.add_argument("--out", required=True, help="page dir with crops; outside the repo")
+    fs.add_argument("--out-label", required=True, help="spot table goes to recall/fa_sheet/<out-label>/")
     a = ap.parse_args()
-    {"draw": cmd_draw, "page": cmd_page, "score": cmd_score, "compare": cmd_compare}[a.cmd](a)
+    {"draw": cmd_draw, "page": cmd_page, "score": cmd_score, "compare": cmd_compare,
+     "fa-sheet": cmd_fa_sheet}[a.cmd](a)
 
 
 if __name__ == "__main__":

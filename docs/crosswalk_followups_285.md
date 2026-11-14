@@ -920,3 +920,40 @@ bash $S/s6_infer.sh v6full_s1 v6full_s2 v6full_s3 v6half_s1 v6half_s2 v6half_s3 
 PY=<python> ROOT=<Stage 2 root> BASELINE=<baseline_nodes.csv> CENSUS=<Phase 0 census out> PANO_DATA=<seattle_pano_data.psv> \
     VERDICTS=analysis_out/crosswalk_followups_285/recall/ratings/recall285_verdicts_jon_2026-11-11.json bash $S/s6_score.sh
 ```
+
+### A4 follow-up (2026-11-14, exploratory): what guard 6's false alarms sit on
+
+Looked at, not rated: nothing here changes the A4 outcome. `recall_check.py fa-sheet` builds a local contact sheet
+of every detection guard 6 counts, with the thresholds read from the three `compare.json` files. It refuses to write
+anything unless its per-model counts equal both `compare.json` and `_pano_stats` (they do, for all 10 models: 487
+detections). Detections from different models within 0.03 of the pano width are grouped into one spot: 261 spots on
+the 119 empty panos (Laurens 178, Juneau 83), 249 of them fired by no s4 seed.
+
+- **Most new spots are plain road surface.** 126 of the 178 Laurens spots come from full seed 1 alone (threshold
+  0.17). The crops looked at (Claude, about 15, both cities) are unpainted or cracked asphalt, pavers, wire
+  shadows, a stitching seam and the edge of a yellow centre line. None looked like a crosswalk Jon could have missed.
+- **Not a horizon artefact.** Jon's page said not to hunt for specks at the horizon, but only 24 of the 261 spots
+  are beyond 25 m (y < 0.532), so the instruction does not explain the rise.
+- **Some vehicle above the rig mask.** On Laurens and Juneau GoPro Max panos the roof and rack reach above the 49°
+  mask, and the rack's parallel bars draw detections from several models. This is the minority: 7 Laurens and 12
+  Juneau spots sit in the lower centre of the frame.
+- **The spots every model shares are real look-alikes**, fired by all three s4 seeds as well: blue accessible-parking
+  hatching, a stop bar where lanes merge, and a concrete pad under farm equipment.
+- **Hypothesis, untested:** some auto-placed training positives sit on pavement with little or no visible paint, so
+  the model learns "road surface at a junction". The cheap check is a crop sheet of the auto-placed Sacramento,
+  Kaysville and Brussels training labels, looking for positives with no paint in view. The placement gates (97, 98,
+  95 of 100) scored whether a label sat on the crossing, which would not catch a crossing whose paint has worn off.
+
+Files: `analysis_out/crosswalk_followups_285/recall/fa_sheet/s6/{spots.csv,summary.json}`; the page and crops are
+local HTML outside the repo (`<keep>/recall285/fa_sheet_s6/index.html`), rebuilt from the native panos by:
+
+```bash
+R=analysis_out/crosswalk_followups_285/recall; K=<keep>/recall285
+python scripts/analysis/stage1_crosswalk_sdot_274/recall_check.py fa-sheet \
+    --verdicts $R/ratings/recall285_verdicts_jon_2026-11-11.json --cities juneau-ak laurens-ia \
+    --compare $R/compare/s6_full/compare.json $R/compare/s6_half/compare.json $R/compare/s6_steps/compare.json \
+    --native laurens-ia=$K/laurens-ia_native juneau-ak=$K/juneau-ak_native --out $K/fa_sheet_s6 --out-label s6   # CPU, ~20 s
+```
+
+For a future candidate, pass its `compare.json` to get the same sheet, so its false alarms can be looked at before
+anyone is asked to rate.
