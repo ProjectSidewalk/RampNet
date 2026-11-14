@@ -172,6 +172,30 @@ SOURCES = [
     ("s5_eval/panos_4096", f"{SK}/s5-mine/eval_4096", "the same, 4096x2048 as inferred (Step B's --pano-dir)", None),
     ("rating_pages/s5_stepB", f"{SK}/s5-stepB/page", "s5 Step B: blind page of s4 (0.23) and s5 (0.26) cards on the "
      "fresh Juneau draw + Jon's first export and his re-export with one card corrected (2026-11-10)", None),
+    # #285 A4: crosswalk_s6 (auto-placed OSM crossings) and the missed-crosswalk recall check, added 2026-11-14.
+    # s6 failed guard 6; s4 stays (docs/crosswalk_followups_285.md, "A4 result" and "A4 follow-up").
+    ("stage2_root/labels_v6_full", f"{SK}/crosswalk274-root_v6_full", "v6 full-dose label JSONs: v5 plus 1,603 "
+     "auto-placed Sacramento, Kaysville and Brussels train panos (5,999 train; digest 9b420ac04286). The new JPEGs "
+     "are s6_osm/panos_4096; the rest are earlier versions' images", "json"),
+    ("stage2_root/labels_v6_half", f"{SK}/crosswalk274-root_v6_half", "v6 half-dose label JSONs (5,146 train; "
+     "digest b1aa92b87461)", "json"),
+    ("s6_osm/panos_4096", f"{SK}/crosswalk274-root_v6_prep_4096", "the auto-labelled Sacramento, Kaysville and "
+     "Brussels panos, 4096x2048 as trained; natives in store_natives/<city>", None),
+    ("s6_osm/work", f"{SK}/s6-work", "root_v6_new.tar sha256, its file list, and the half-dose pano ids", None),
+    ("work/s6_preds", f"{SK}/crosswalk274-klone/s6_preds", "every s6-era prediction file as pulled from klone "
+     "(s6_preds.tgz unpacked); the scored ones are also committed in the repo", None),
+    ("work/s6_calibration_preds", f"{SK}/crosswalk274-klone/s6_cal", "s4 seed calibration predictions for the A4 "
+     "guards (s6_calibration_preds.tgz unpacked)", None),
+    ("recall285/natives/laurens-ia", f"{SK}/recall285/laurens-ia_native", "missed-crosswalk check, Laurens draw at "
+     "native res (Mapillary GoPro Max; export_benchmark.py --out)", None),
+    ("recall285/natives/juneau-ak", f"{SK}/recall285/juneau-ak_native", "the same, Juneau draw", None),
+    ("recall285/panos_4096", f"{SK}/recall285/prep_4096", "both draws, 4096x2048 as inferred", None),
+    ("recall285/draw_records", f"{SK}/recall285", "the draws' labeler records and pano id lists", "jsonl"),
+    ("recall285/draw_records", f"{SK}/recall285", "the draws' pano id lists", "txt"),
+    ("rating_pages/recall285", f"{SK}/recall285/page", "Jon's blind missed-crosswalk page (2026-11-11); his export "
+     "is committed as recall/ratings/recall285_verdicts_jon_2026-11-11.json", None),
+    ("rating_pages/s6_fa_sheet", f"{SK}/recall285/fa_sheet_s6", "guard 6 contact sheet: every s4/s6 detection on "
+     "the 119 confirmed-empty panos (recall_check.py fa-sheet; looked at, not rated)", None),
     ("worktree_untracked/stage1-label-type-274", f"{WT}/stage1-label-type-274", "gitignored #274 outputs at "
      "their repo paths (SDOT pilot pixels/views, arm C thumbs, logs, galleries)", "ignored"),
     ("worktree_untracked/crosswalk-inventory-274", f"{WT}/crosswalk-inventory-274", "gitignored inventory inputs",
@@ -186,6 +210,9 @@ NATIVES = [
     ("amsterdam", f"{SK}/crowd-stores/amsterdam"),
     ("burnaby", f"{SK}/crowd-stores/burnaby"),
     ("teaneck-nj", f"{SK}/crowd-stores/teaneck-nj"),
+    ("sacramento-ca", f"{SK}/pano_store/sacramento-ca"),       # #285 A: the auto-placed OSM cities (s6 training)
+    ("kaysville-ut", f"{SK}/pano_store/kaysville-ut"),
+    ("brussels-be", f"{SK}/pano_store/brussels-be"),
 ]
 
 
@@ -389,6 +416,9 @@ and manifest.json repeats it per file.
 - `confirm_s3/`: the s3 confirmation's imagery. `panos_4096/` is every pano on its rating page as inferred;
   `natives/` the Juneau and Laurens draws at native resolution as fetched; `draw_records/` the labeler records
   they were fetched from.
+- `s6_osm/`, `stage2_root/labels_v6_{{full,half}}/`, `recall285/`, `rating_pages/{{recall285,s6_fa_sheet}}/`: the
+  #285 A4 additions (`crosswalk_s6`, which failed guard 6; s4 stays). See `docs/crosswalk_followups_285.md`
+  on branch `crosswalk-followups-285`.
 
 ## A second rater
 
