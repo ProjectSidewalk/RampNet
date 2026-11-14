@@ -417,11 +417,37 @@ arm. Exploratory, one run per split, not a pre-registered endpoint.
   other split moves by more than 0.014. Step 7 measured a run-to-run range of 0.035 in
   Flash's open-pool macro F1; Argon's is not measured on this pool, so a single run cannot
   separate a real Mapillary effect from call-to-call variation plus the choice of pool
-  after the fact. Replicating both arms on the open pool would cost about $10 per replicate.
+  after the fact. The replicates below test exactly that.
 - No call ended on `MAX_TOKENS`; 13 legs, all exit 0.
 
 Table: `analysis_out/prompt_opt_276/rewrite_heldout.{json,md}`
 (`prompt_276_rewrite_heldout.py --check`, local cache).
+
+### Replicates on the open pool (2026-11-14, $19.55): the gain shrinks to about +0.02
+
+**r1 stays ahead of zero-shot, but by less than half the single-run figure, and no
+replicate's interval excludes zero.** Jon asked on 2026-11-14 for two more runs of both
+prompts on the open pool. Each replicate ran into its own fresh cache
+(`.model_cache_argon_rep{1,2}`), so every call was paid again; thresholds are the held-out
+table's (zs 0.35, r1 0.32), not re-selected. Eight legs, all exit 0, no `MAX_TOKENS`.
+
+| Run | zs macro F1 | r1 macro F1 | ΔF1 | 95% CI | p |
+|---|---|---|---|---|---|
+| original (2026-11-13) | 0.658 | 0.704 | +0.046 | [+0.017, +0.074] | 0.001 |
+| replicate 1 | 0.686 | 0.702 | +0.017 | [-0.012, +0.047] | 0.278 |
+| replicate 2 | 0.683 | 0.702 | +0.019 | [-0.013, +0.053] | 0.240 |
+
+- **r1 is the stable arm; the original zero-shot run was the low one.** r1's open-pool
+  macro F1 is 0.704, 0.702, 0.702. Zero-shot's is 0.658, 0.686, 0.683: a same-arm range of
+  0.028, larger than either replicate's gain. On `laurens_mapillary` zero-shot reads 0.693,
+  0.728, 0.743 against r1's 0.772, 0.756, 0.750.
+- **r1 is ahead on both splits in all three runs**, so the sign is consistent; the size is
+  about +0.02, inside run-to-run noise for any one run. Read it as a small, unconfirmed
+  open-imagery edge, not as the +0.046 the single run suggested.
+- Nothing changes on the reference pool, which was not re-run (r1 was −0.001 there).
+
+Table: `analysis_out/prompt_opt_276/rewrite_replicates.{json,md}`
+(`prompt_276_rewrite_replicates.py --check`, needs the main and the two replicate caches).
 
 Table: `analysis_out/prompt_opt_276/rewrite_arm.{json,md}` (`prompt_276_rewrite.py --check`,
 local cache). Candidates: `benchmark/prompt_opt_276/prompts/`; the loop's record:
@@ -443,7 +469,8 @@ local cache). Candidates: `benchmark/prompt_opt_276/prompts/`; the loop's record
 | Whole-prompt-rewrite arm: Flash $5.84, Argon $5.93 (dev_train evaluations, dev_select, critic calls) | 16 | $11.77 |
 | Calls made by the legs stopped after the 2026-11-12 stall: two `kind: recovered` rows, billed minus logged (Flash $3.66, Argon $3.74) | 2 | $7.40 |
 | Whole-prompt-rewrite arm, held-out run of Argon r1 (12 splits + `manual_gold`@250), 2026-11-13 | 13 | $38.46 |
-| **Total logged, 2026-11-08 → 2026-11-13** | 164 | **$534.37** |
+| Rewrite arm replicates: Argon zs+conf and r1+conf, open pool, 2 replicates, 2026-11-14 | 8 | $19.55 |
+| **Total logged, 2026-11-08 → 2026-11-14** | 172 | **$553.92** |
 
 The legs stopped on 2026-11-12 (see Incidents) wrote no ledger row for the calls they had
 made. The detections they had cached were reused, so the money was not wasted. The two
@@ -457,8 +484,8 @@ Flash short by that amount.
 
 Reconciled against Cloud Monitoring on 2026-11-09 and again on 2026-11-11 after Step 5
 (`vertex_usage.py --days 3 --reconcile`: Flash within tolerance, Argon within tolerance once
-the recovered row is counted), and on 2026-11-13 after the r1 held-out run (Argon ok,
-13 rows). Argon list price doubles on 2026-12-01; the credit expires
+the recovered row is counted), on 2026-11-13 after the r1 held-out run (Argon ok,
+13 rows), and on 2026-11-14 after the replicates (`--days 2`: Argon ok, 21 rows). Argon list price doubles on 2026-12-01; the credit expires
 2026-12-07.
 
 ## Incidents and traps, recorded
@@ -520,6 +547,7 @@ the recovered row is counted), and on 2026-11-13 after the r1 held-out run (Argo
 | Step 6 exemplar arm: thresholds, dev_select and open-pool P/R/F1, paired Δ | `analysis_out/prompt_opt_276/step6_exemplars.{json,md}` | `prompt_276_exemplars.py` (`--check`, local cache) |
 | rewrite arm: dev_train and dev_select F1 per candidate, gate | `analysis_out/prompt_opt_276/rewrite_arm.{json,md}` | `prompt_276_rewrite.py` (`--check`, local cache) |
 | rewrite arm: Argon r1 on the held-out splits and pools | `analysis_out/prompt_opt_276/rewrite_heldout.{json,md}` | `prompt_276_rewrite_heldout.py` (`--check`, local cache) |
+| rewrite arm replicates: per-run open-pool F1, paired Δ rows, same-arm ranges | `analysis_out/prompt_opt_276/rewrite_replicates.{json,md}` | `prompt_276_rewrite_replicates.py` (`--check`, main cache + `.model_cache_argon_rep{1,2}`) |
 | the two figures | `docs/figures/prompt_276/{arm_vs_zs,dev_to_heldout}.png` | `prompt_276_figures.py`, from `step5_results.json` alone |
 | the manual_gold 250-pano subset | `benchmark/prompt_opt_276/manual_gold_250.json` | `prompt_opt_276_splits.py --check` |
 | Step 2 pooled / per-split rows, scoreboard effects | `analysis_out/scoreboard.json`, `docs/model_scoreboard.md` | `scoreboard.py --check` |

@@ -1,0 +1,140 @@
+{
+ "issue": "ProjectSidewalk/RampNet#276",
+ "step": "rewrite-replicates",
+ "model": "gemini-4-argon",
+ "pool": [
+  "laurens_mapillary",
+  "bayonne"
+ ],
+ "thresholds": {
+  "zs": 0.35,
+  "r1": 0.32
+ },
+ "prompt_bodies": {
+  "zs": null,
+  "r1": "prompt276-argon-r1"
+ },
+ "draws": 2000,
+ "seed": 276,
+ "runs": [
+  {
+   "run": "original",
+   "f1": {
+    "zs": {
+     "laurens_mapillary": 0.6933,
+     "bayonne": 0.6229
+    },
+    "r1": {
+     "laurens_mapillary": 0.7719,
+     "bayonne": 0.6364
+    }
+   },
+   "macro_f1": {
+    "zs": 0.6581,
+    "r1": 0.7041
+   },
+   "macro_delta_f1": 0.046,
+   "ci95": [
+    0.0165,
+    0.0745
+   ],
+   "p": 0.001,
+   "r1_ahead_on": [
+    "laurens_mapillary",
+    "bayonne"
+   ]
+  },
+  {
+   "run": "rep1",
+   "f1": {
+    "zs": {
+     "laurens_mapillary": 0.7281,
+     "bayonne": 0.6431
+    },
+    "r1": {
+     "laurens_mapillary": 0.7559,
+     "bayonne": 0.6484
+    }
+   },
+   "macro_f1": {
+    "zs": 0.6856,
+    "r1": 0.7022
+   },
+   "macro_delta_f1": 0.0166,
+   "ci95": [
+    -0.0121,
+    0.0468
+   ],
+   "p": 0.278,
+   "r1_ahead_on": [
+    "laurens_mapillary",
+    "bayonne"
+   ]
+  },
+  {
+   "run": "rep2",
+   "f1": {
+    "zs": {
+     "laurens_mapillary": 0.7429,
+     "bayonne": 0.623
+    },
+    "r1": {
+     "laurens_mapillary": 0.75,
+     "bayonne": 0.6536
+    }
+   },
+   "macro_f1": {
+    "zs": 0.6829,
+    "r1": 0.7018
+   },
+   "macro_delta_f1": 0.0189,
+   "ci95": [
+    -0.013,
+    0.0528
+   ],
+   "p": 0.24,
+   "r1_ahead_on": [
+    "laurens_mapillary",
+    "bayonne"
+   ]
+  }
+ ],
+ "spread": {
+  "zs": {
+   "macro_f1": [
+    0.6581,
+    0.6856,
+    0.6829
+   ],
+   "range": 0.0275,
+   "mean": 0.6755
+  },
+  "r1": {
+   "macro_f1": [
+    0.7041,
+    0.7022,
+    0.7018
+   ],
+   "range": 0.0023,
+   "mean": 0.7027
+  }
+ },
+ "per_split_range": {
+  "zs": {
+   "laurens_mapillary": 0.0496,
+   "bayonne": 0.0202
+  },
+  "r1": {
+   "laurens_mapillary": 0.0219,
+   "bayonne": 0.0172
+  }
+ },
+ "summary": {
+  "delta_min": 0.0166,
+  "delta_max": 0.046,
+  "delta_mean": 0.0272,
+  "all_ci_exclude_zero": false,
+  "r1_ahead_every_split_every_run": true,
+  "largest_same_arm_range": 0.0275
+ }
+}
