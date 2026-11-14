@@ -186,6 +186,24 @@ SOURCES = [
      "(s6_preds.tgz unpacked); the scored ones are also committed in the repo", None),
     ("work/s6_calibration_preds", f"{SK}/crosswalk274-klone/s6_cal", "s4 seed calibration predictions for the A4 "
      "guards (s6_calibration_preds.tgz unpacked)", None),
+    ("checkpoints/crosswalk_s6full", f"{SK}/crosswalk274-klone/x6/ckpts/v6full_s1", "crosswalk_s6 full dose, seed 1 "
+     "(final_step_1397, sha256 08cbfabfc99d...) + TensorBoard runs/ (klone /gscratch/makelab/jonf/crosswalk274/"
+     "v6full_s1)", None),
+    ("checkpoints/crosswalk_s6full_seed2", f"{SK}/crosswalk274-klone/x6/ckpts/v6full_s2", "full dose, seed 2 "
+     "(final_step_1397, sha256 14817415cb7a...)", None),
+    ("checkpoints/crosswalk_s6full_seed3", f"{SK}/crosswalk274-klone/x6/ckpts/v6full_s3", "full dose, seed 3 "
+     "(final_step_1397, sha256 93108fbd7fd4...)", None),
+    ("checkpoints/crosswalk_s6half", f"{SK}/crosswalk274-klone/x6/ckpts/v6half_s1", "crosswalk_s6 half dose, seed 1 "
+     "(final_step_1198, sha256 821970cf726a...)", None),
+    ("checkpoints/crosswalk_s6half_seed2", f"{SK}/crosswalk274-klone/x6/ckpts/v6half_s2", "half dose, seed 2 "
+     "(final_step_1198, sha256 e23360b1ee33...)", None),
+    ("checkpoints/crosswalk_s6half_seed3", f"{SK}/crosswalk274-klone/x6/ckpts/v6half_s3", "half dose, seed 3 "
+     "(final_step_1198, sha256 eca55ffdacb2...)", None),
+    ("checkpoints/crosswalk_s4_steps1397", f"{SK}/crosswalk274-klone/x6/ckpts/v4steps1397_s1", "step control: "
+     "root_v4 trained 1,397 steps, seed 1 (final_step_1397, sha256 039379384824...)", None),
+    ("logs/slurm_2026-11-13", f"{SK}/crosswalk274-klone/x6/logs/logs", "every #285 A4 slurm .out/.err (s4 seed "
+     "calibration 43218286-95, s6 smoke + training incl. the six quota failures and their reruns, s6 inference and "
+     "scoring); klone RampNet274/logs files newer than 2026-11-12 18:00", None),
     ("recall285/natives/laurens-ia", f"{SK}/recall285/laurens-ia_native", "missed-crosswalk check, Laurens draw at "
      "native res (Mapillary GoPro Max; export_benchmark.py --out)", None),
     ("recall285/natives/juneau-ak", f"{SK}/recall285/juneau-ak_native", "the same, Juneau draw", None),
@@ -406,7 +424,8 @@ and manifest.json repeats it per file.
   `labels_v1/` and `labels_v2/` hold each label version's `<split>/<pano>.json`; a later version adds `labels_v3/`.
 - `bprime/images_4096/`: the (b') node-sample panos as inferred.
 - `checkpoints/<label>/final_step_1000.pth` (+ `.sha256`, TensorBoard `runs/`): the only checkpoint each run scores.
-  Per-step checkpoints were not kept (the pre-registration scores the final one only).
+  Per-step checkpoints were not kept (the pre-registration scores the final one only). The s6 runs and the
+  step control end at `final_step_1397.pth` (full dose) or `final_step_1198.pth` (half dose) instead.
 - `logs/slurm/`: every train and score job's stdout/stderr.
 - `rating_pages/<audit>/`: the HTML pages Jon rated (crops embedded, open offline) and his CSV exports.
 - `work/`, `inputs/`: working files and the prod/web pulls (`seattle_pano_data.psv` is a read-only export of
