@@ -8,7 +8,7 @@ is the detector of record throughout. Plan approved by Jon on 2026-11-10 after a
 |---|---|---|
 | B | Does a rule on image position remove capture-vehicle false alarms without losing crosswalks? | done, below (exploratory) |
 | C | What share of visible marked crosswalks does s4 miss in Juneau and Laurens? | rated 2026-11-11; results below |
-| A | Can OSM marked crossings plus the Vistas snap label many cities (#285)? | city count and two placer checks done; Sacramento pilot placed and rated: 97 of 100 placements correct, passes the 91 bar; Kaysville (98) and Brussels (95) pass too; the `crosswalk_s6` training pre-registration is fixed (section A4), nothing trained yet |
+| A | Can OSM marked crossings plus the Vistas snap label many cities (#285)? | city count and two placer checks done; Sacramento pilot placed and rated: 97 of 100 placements correct, passes the 91 bar; Kaysville (98) and Brussels (95) pass too; `crosswalk_s6` trained on them (section A4, 2026-11-13): it finds more Juneau crosswalks (three-seed mean recall 0.603 to 0.718 at full dose) but false alarms on empty Laurens and Juneau panos rise from 7 to 112, so it fails guard 6 and `crosswalk_s4` stays |
 
 ## B. A position rule for capture-vehicle false alarms (exploratory, 2026-11-10)
 
@@ -866,3 +866,57 @@ None had produced a final checkpoint. Their run directories were renamed to `<na
 were started again from step 0 with the same seeds, data and step counts (`RERUN="..." bash s6_train.sh submit`):
 `v6full_s1` 43224827, `v6full_s3` 43224828, `v6half_s1` 43224829, `v6half_s2` 43224830, `v6half_s3` 43224831,
 `v4steps1397_s1` 43224832. No model was scored before the rerun.
+
+### A4 result (2026-11-13): `crosswalk_s4` stays; both doses fail guard 6
+
+**Outcome under the pre-registered rules: s4 stays.** The primary is met at both doses, and guards 1 to 5 hold at
+both, but both doses fail guard 6 (false alarms on panos confirmed to have no crosswalk) by a wide margin. Because
+both doses fail an automatic guard, nothing was rated and guards 7 and 8 were not scored.
+
+Training: seven runs on klone, each from the released weights at restart 0 (six after the storage failure above).
+Checkpoint sha256 (first 12): full seeds 1 to 3 `08cbfabfc99d`, `14817415cb7a`, `93108fbd7fd4`; half seeds 1 to 3
+`821970cf726a`, `e23360b1ee33`, `eca55ffdacb2`; step control `039379384824`. Recall-matched thresholds against s4's
+0.23, 0.30, 0.13: full 0.17, 0.27, 0.24; half 0.23, 0.23, 0.25; step control 0.24.
+
+| Check | Rule | s4 | Full dose | Half dose | Step control (seed 1) |
+|---|---|---|---|---|---|
+| **Primary:** Juneau marks found, three-seed mean recall (110 marks) | difference's 95% interval above 0, seed 1 above 0 | 0.603 (63, 59, 77) | 0.718 (94, 71, 72); **+0.115** (0.067 to 0.169); seed 1 +0.282: **met** | 0.673 (75, 66, 81); **+0.070** (0.023 to 0.120); seed 1 +0.109: **met** | 70 of 110; +0.064 (0.000 to 0.137) against seed 1 |
+| 1. Test F1, three-seed mean | ≥ 0.826 | 0.836 | 0.837: holds | 0.841: holds | 0.843 |
+| 2. (b′) weighted marked-node recall, three-seed mean | drop ≤ 0.03 | 0.687 | 0.673 (−0.014): holds | 0.705 (+0.019): holds | 0.688 |
+| 3. Columbia labels found, seed 1 (210) | difference ≥ −0.03 | 183 | 191 (+0.038): holds | 190 (+0.033): holds | 190 |
+| 4. Seattle confirmed crosswalks kept, seed 1 (234) | ≥ 194 | 234 | 204: holds | 209: holds | 198 |
+| 5. Fresh Juneau confirmed crosswalks kept, seed 1 (43) | ≥ 39 | 43 | 43: holds | 42: holds | 42 |
+| **6. Rig-masked false alarms on 119 empty panos, three-seed mean** | rise ≤ 4 | 6.7 (6, 4, 10) | 112 (234, 41, 61); **+105.3: fails** | 40.7 (48, 20, 54); **+34.0: fails** | 9 (+3 against seed 1) |
+
+- **Where guard 6's false alarms are.** s4's three seeds put 2 of their 20 rig-masked false alarms on the 92 Laurens
+  empty panos; the six s6 models put 272 of 458 there (full seed 1 alone 164, on 63 of the 92 panos). The 27 Juneau
+  empty panos go from 4, 4, 10 detections (s4) to 70, 19, 28 (full) and 21, 12, 36 (half). Unmasked counts, three-seed
+  mean: s4 16.0, full 140.7, half 53.0. What the detections sit on has not been looked at.
+- **The step control does not show the same rise** (9 rig-masked false alarms against s4 seed 1's 6), so the rise comes
+  with the auto-placed data, not with the longer schedule. One seed only.
+- **The step control also finds more Juneau marks** (70 against 63), so part of the primary's gain may be the longer
+  schedule. Its interval touches 0 and it is one seed; the control decides nothing.
+- **Dose.** The false alarms scale with dose (+34 at half, +105 at full), and so does the recall gain (+0.070, +0.115).
+- **Full seed 1's matched threshold is low (0.17).** It has the largest recall gain (94 of 110) and by far the most
+  false alarms (309 unmasked). Seeds 2 and 3 of the full dose find 71 and 72.
+- **Guard 4's allowance mattered.** Every s6 model keeps 194 to 219 of the 234 Seattle crosswalks; the original 95%
+  rule (223) would have failed all of them, as it would s4's own seeds 2 and 3 (194, 212).
+- The pre-registration said s6 was "not expected to reduce look-alikes" because auto-labelled panos train only inside
+  discs around their positives. It increased them, on the only held-out empty panos we have.
+
+Files: `analysis_out/stage1_crosswalk_detector_274/v2_labels/{s6,s6_matched}/` (test and (b′) scores, threshold sweep);
+`analysis_out/crosswalk_followups_285/recall/compare/s6_{full,half,steps}/compare.json` (primary, guard 6);
+`analysis_out/crosswalk_followups_285/s6/{full,half,steps}/{seattle,juneau_eval}/retention.json` (guards 4, 5);
+`analysis_out/stage1_crosswalk_detector_274/hardneg/s6_eval/columbia/{full,half,steps}/label_recall.json` (guard 3);
+predictions under `v2_labels/preds/`, `v2_labels/bprime/preds/`, `hardneg/s6_eval/*/preds/` and `recall/preds/`
+(labels `crosswalk_s6full[_seedN]`, `crosswalk_s6half[_seedN]`, `crosswalk_s4_steps1397`). The Bayonne, PS-label and
+confirmation-city predictions were inferred and are stored but not scored.
+
+```bash
+S=scripts/analysis/stage1_crosswalk_sdot_274
+bash $S/s6_train.sh build && bash $S/s6_train.sh submit      # on klone; RERUN="<runs>" bash $S/s6_train.sh submit to repeat runs
+bash $S/s6_infer.sh v6full_s1 v6full_s2 v6full_s3 v6half_s1 v6half_s2 v6half_s3 v4steps1397_s1   # on klone
+# copy the predictions into the repo layout above, then (CPU):
+PY=<python> ROOT=<Stage 2 root> BASELINE=<baseline_nodes.csv> CENSUS=<Phase 0 census out> PANO_DATA=<seattle_pano_data.psv> \
+    VERDICTS=analysis_out/crosswalk_followups_285/recall/ratings/recall285_verdicts_jon_2026-11-11.json bash $S/s6_score.sh
+```

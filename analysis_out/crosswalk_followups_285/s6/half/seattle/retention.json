@@ -1,0 +1,27 @@
+{
+ "ratings": "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/seattle/s4/ratings.csv",
+ "confirmed": 234,
+ "models": {
+  "crosswalk_s4": {
+   "threshold": 0.23,
+   "kept": 234,
+   "retention": 1.0
+  },
+  "crosswalk_s6half": {
+   "threshold": 0.23,
+   "kept": 209,
+   "retention": 0.8932
+  },
+  "crosswalk_s6half_seed2": {
+   "threshold": 0.23,
+   "kept": 194,
+   "retention": 0.8291
+  },
+  "crosswalk_s6half_seed3": {
+   "threshold": 0.25,
+   "kept": 219,
+   "retention": 0.9359
+  }
+ },
+ "seed_spread": 40
+}

@@ -1,0 +1,14 @@
+{
+ "label": "crosswalk_s6half_seed3",
+ "checkpoint": "/gscratch/makelab/jonf/crosswalk274/v6half_s3/final_step_1198.pth",
+ "sha256": "eca55ffdacb23d00e9bbfc911dfb77b5e9c0eb7550358d842706ef465d5670b8",
+ "score_floor": 0.05,
+ "min_distance": 10,
+ "tta": false,
+ "fp16": false,
+ "extractor": "threshold_sweep.heatmap_for + peaks_to_dets",
+ "root": "/gscratch/scrubbed/jfroehli/crosswalk274/root_v4",
+ "device": "cuda",
+ "torch": "2.6.0",
+ "gpu": "NVIDIA A100 80GB PCIe"
+}

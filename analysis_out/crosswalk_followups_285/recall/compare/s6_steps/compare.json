@@ -1,0 +1,66 @@
+{
+ "primary_city": "juneau-ak",
+ "radius": 0.05,
+ "marks": 110,
+ "panos_with_marks": 48,
+ "empty_panos": 119,
+ "empty_panos_by_city": {
+  "juneau-ak": 27,
+  "laurens-ia": 92
+ },
+ "models": {
+  "crosswalk_s4_klone@0.23": {
+   "side": "base",
+   "hit": 63,
+   "recall": 0.5727,
+   "empty_false_alarms": 29,
+   "empty_false_alarms_rig_masked": 6,
+   "empty_panos_with_one": 22
+  },
+  "crosswalk_s4_steps1397@0.24": {
+   "side": "new",
+   "hit": 70,
+   "recall": 0.6364,
+   "empty_false_alarms": 14,
+   "empty_false_alarms_rig_masked": 9,
+   "empty_panos_with_one": 12
+  }
+ },
+ "base": {
+  "seeds": [
+   "crosswalk_s4_klone@0.23"
+  ],
+  "mean_recall": 0.5727,
+  "mean_empty_false_alarms": 29.0,
+  "mean_empty_false_alarms_rig_masked": 6.0,
+  "seed_spread": {
+   "hit": 0,
+   "empty_false_alarms": 0,
+   "empty_false_alarms_rig_masked": 0
+  }
+ },
+ "new": {
+  "seeds": [
+   "crosswalk_s4_steps1397@0.24"
+  ],
+  "mean_recall": 0.6364,
+  "mean_empty_false_alarms": 14.0,
+  "mean_empty_false_alarms_rig_masked": 9.0,
+  "seed_spread": {
+   "hit": 0,
+   "empty_false_alarms": 0,
+   "empty_false_alarms_rig_masked": 0
+  }
+ },
+ "new_minus_base": {
+  "mean_recall_diff": 0.0636,
+  "ci95": [
+   0.0,
+   0.1373
+  ],
+  "first_seed_recall_diff": 0.0637,
+  "primary_met": false,
+  "empty_false_alarms_diff": -15.0,
+  "empty_false_alarms_rig_masked_diff": 3.0
+ }
+}

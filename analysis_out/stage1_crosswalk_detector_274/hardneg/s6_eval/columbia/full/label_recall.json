@@ -1,0 +1,44 @@
+{
+ "labels": 210,
+ "panos": 127,
+ "base": "crosswalk_s4",
+ "new": "crosswalk_s6full",
+ "ci_level": 0.975,
+ "boot_n": 2000,
+ "boot_seed": 274,
+ "radius": 0.05,
+ "models": {
+  "crosswalk_s4": {
+   "preds": "analysis_out/stage1_crosswalk_detector_274/hardneg/s4_eval/columbia/preds/crosswalk_s4/columbia.jsonl",
+   "sha256": "22de25b363b0b9dd08734f0e5a99809d811838926c935c2415cc46d5fe20ab50",
+   "threshold": 0.23,
+   "hits": 183,
+   "recall": 0.8714285714285714,
+   "ci975": [
+    0.8078817733990148,
+    0.9248826291079812
+   ]
+  },
+  "crosswalk_s6full": {
+   "preds": "analysis_out/stage1_crosswalk_detector_274/hardneg/s6_eval/columbia/preds/crosswalk_s6full/columbia.jsonl",
+   "sha256": "dd4a8a9b2a0d07313cf4e667dff5bea53efcceffb9a6cb76f61ebfaaf80ef9c6",
+   "threshold": 0.17,
+   "hits": 191,
+   "recall": 0.9095238095238095,
+   "ci975": [
+    0.8564102564102564,
+    0.9530516431924883
+   ]
+  }
+ },
+ "paired": {
+  "crosswalk_s6full - crosswalk_s4": {
+   "diff": 0.03809523809523807,
+   "ci975": [
+    -0.009661835748792313,
+    0.08928571428571419
+   ]
+  }
+ },
+ "primary_met": false
+}
