@@ -71,7 +71,11 @@ did not flag the one gross failure in the development quarter (roll 20° off Goo
 formal SE of 0.04°, but an ambiguity of 1.08). **The formal-SE test never fires on this data**:
 the largest formal SE is 0.165° on the 571 GSV panos and 0.195° on the 200 Lyon panos
 (`gate_sensitivity.json`, `se_term`), so dropping it would change no committed row. It stays as a
-backstop that always declines a degenerate fit (a singular one has an infinite SE). In practice the
+backstop that always declines a degenerate fit: `pitch_roll_se` returns an infinite SE both for a
+singular normal matrix and for one whose inverse comes back with a negative diagonal, which
+near-identical segment normals produce. The first version clipped that diagonal to 0, so such a fit
+reported SE 0 and passed this test (#279); no committed row was such a fit (the smallest stored SE
+is 0.0082°, and clipping gave exactly 0), so the fix changes no row. In practice the
 gate is three tests: inliers, sectors and ambiguity. Each row also carries the inlier count per
 sector and the residual RMS.
 

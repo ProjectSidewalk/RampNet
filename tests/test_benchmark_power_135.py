@@ -474,6 +474,33 @@ def test_check_reports_first_differing_key(tmp_path, capsys):
     assert "max absolute numeric difference: " in out
 
 
+def test_check_accepts_last_bit_float_drift_and_says_it_is_not_byte_identical(tmp_path, capsys):
+    """The macOS failure of #251: floats a few ulps off, everything else equal. That passes
+    at rel 1e-12, and the output says the bytes did not match."""
+    original = _committed()
+    changed = _committed()
+    old = changed["unpaired"]["manual_gold"]["f1"]["se"]
+    changed["unpaired"]["manual_gold"]["f1"]["se"] = old * (1 + 4e-16) + 0.0
+    assert changed["unpaired"]["manual_gold"]["f1"]["se"] != old
+    path = tmp_path / "benchmark_power_135.json"
+    path.write_bytes(bp.serialise(changed).encode("utf-8"))
+
+    assert bp.compare_to_committed(original, path) == 0
+    out = capsys.readouterr().out
+    assert "ok (within rel 1e-12, NOT byte-identical)" in out
+    assert "$.unpaired.manual_gold.f1.se" in out
+    # ...and the same drift fails when the tolerance is zero
+    assert bp.compare_to_committed(original, path, rel=0.0) == 2
+
+
+def test_check_still_fails_on_a_crlf_copy(tmp_path, capsys):
+    """Formatting stays exact under the tolerance: a CRLF copy is a MISMATCH."""
+    path = tmp_path / "benchmark_power_135.json"
+    path.write_bytes(bp.serialise(_committed()).replace("\n", "\r\n").encode("utf-8"))
+    assert bp.compare_to_committed(_committed(), path) == 2
+    assert "formatting only" in capsys.readouterr().out
+
+
 def test_check_reports_a_structural_difference(tmp_path, capsys):
     original = _committed()
     changed = _committed()
