@@ -89,3 +89,22 @@ def test_render_marks_the_point_across_the_seam():
     s = tight.size[0] / cw
     cx, cy = int(((0.999 * 4096 - (int(0.999 * 4096) - cw // 2)) % 4096) * s), int((0.56 * 2048 - top) * s)
     assert px[cx, cy][:3] == (90, 90, 90)              # the gap keeps the pixel under the point clean
+
+
+def test_committed_summary_reproduces_from_committed_tags():
+    """summary.json is rederived from sample.csv + the committed tags file (no imagery needed)."""
+    import json
+    out = ps.OUT
+    paths = [os.path.join(out, f) for f in ("sample.csv", "summary.json")]
+    if not all(os.path.exists(p) for p in paths):
+        pytest.skip("pos_sheet outputs not committed")
+    saved = json.load(open(paths[1], encoding="utf-8"))
+    tags = json.load(open(os.path.join(out, saved["tags_file"]), encoding="utf-8"))
+    assert tags["not_ground_truth"] is True
+    rows = ps.read_csv(paths[0])
+    for r in rows:
+        r["cell"] = int(r["cell"])
+    res = ps.tally(rows, tags["tags"])
+    assert res["verdict"] == saved["verdict"] and res["point_flag"] == saved["point_flag"]
+    assert res["strata"] == saved["strata"] and res["auto_cities"] == saved["auto_cities"]
+    assert ps.digest([r["uid"] for r in rows]) == saved["sample_digest"] == tags["sample_digest"]

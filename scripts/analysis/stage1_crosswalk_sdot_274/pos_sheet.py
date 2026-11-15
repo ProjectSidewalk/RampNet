@@ -329,23 +329,30 @@ def tally(rows, tags):
     return res
 
 
-def skim(rows, tags, k=20):
-    """Up to ``k`` cells for the top of the page: every auto no-paint, then auto faint, then auto peak-off-paint,
-    then human/sdot no-paint, each in cell order."""
+def skim(rows, tags, per_tier=4):
+    """Cells for the top of the page: EVERY auto no-paint cell, then up to ``per_tier`` cells (cell order) of each
+    of auto faint, auto peak between the lines, auto peak off the crossing, and human/SDOT no-paint.
+
+    >>> rows = [{"cell": i, "stratum": "auto"} for i in range(1, 11)]
+    >>> tags = {str(i): {"paint": "none" if i < 3 else "faint", "point": "between"} for i in range(1, 11)}
+    >>> [r["cell"] for r in skim(rows, tags, per_tier=2)]     # 1-2 no paint; 3-4 faint; 5-6 between
+    [1, 2, 3, 4, 5, 6]
+    """
     t = lambda r: tags[str(r["cell"])]  # noqa: E731
-    tiers = [lambda r: r["stratum"] == "auto" and t(r)["paint"] == "none",
-             lambda r: r["stratum"] == "auto" and t(r)["paint"] == "faint",
-             lambda r: r["stratum"] == "auto" and t(r)["point"] in ("between", "off"),
-             lambda r: r["stratum"] != "auto" and t(r)["paint"] == "none",
-             lambda r: r["stratum"] != "auto" and t(r)["point"] in ("between", "off")]
+    tiers = [(None, lambda r: r["stratum"] == "auto" and t(r)["paint"] == "none"),
+             (per_tier, lambda r: r["stratum"] == "auto" and t(r)["paint"] == "faint"),
+             (per_tier, lambda r: r["stratum"] == "auto" and t(r)["point"] == "between"),
+             (per_tier, lambda r: r["stratum"] == "auto" and t(r)["point"] == "off"),
+             (per_tier, lambda r: r["stratum"] != "auto" and t(r)["paint"] == "none")]
     out, seen = [], set()
-    for f in tiers:
+    for cap, f in tiers:
+        took = 0
         for r in rows:
-            if r["cell"] not in seen and f(r):
+            if (cap is None or took < cap) and r["cell"] not in seen and f(r):
                 out.append(r)
                 seen.add(r["cell"])
-    nopaint = [r for r in out if r["stratum"] == "auto" and t(r)["paint"] == "none"]
-    return out[:max(k, len(nopaint))]
+                took += 1
+    return out
 
 
 def _card(r, tags):
@@ -392,8 +399,9 @@ def write_page(out, rows, tags, res=None):
     sk = ""
     if tags:
         sel = skim(rows, tags)
-        sk = (f"<section><h2>Skim first: {len(sel)} cells</h2><p>Every auto positive tagged no visible paint, then "
-              f"faint paint, then a label point off the paint; then the same from the human and SDOT strata.</p>"
+        sk = (f"<section><h2>Skim first: {len(sel)} cells</h2><p>Every auto positive tagged no visible paint; then "
+              f"a few auto positives tagged faint paint, a few with the label peak between the lines, a few with it off "
+              f"the crossing; then the human and SDOT cells tagged no visible paint.</p>"
               f"<div class='grid'>{''.join(_card(r, tags) for r in sel)}</div></section>")
     filt = ("<fieldset><legend>Show</legend>"
             + "".join(f'<label><input type="radio" name="f" value="{v}"{" checked" if v == "all" else ""}> {v}</label> '
