@@ -46,7 +46,9 @@ pairs under ``gaps``.)
 TP, recall GT added across splits, then P/R/F1 as ``aggregate`` computes them): ``open_276``
 (``laurens_mapillary``, ``bayonne`` -- ``prompt_276_heldout.OPEN_POOL``) and ``open_rig``
 (those two plus ``juneau`` and ``budapest_district5``). A pooled row uses ONE arm on every
-split. No pooled interval is computed: the study has no pooled bootstrap to reuse.
+split, and every arm is reported on its own. ``best_open_weight`` (per split and per pool)
+is a further in-sample max over the three YOLO arms. No pooled interval is computed: the
+study has no pooled bootstrap to reuse.
 
 **Argon-only points.** An Argon box with no RampNet floor peak within the scoring radius
 (0.022, wrapped, the scorer's distance) at a floor of 0.05 (everything the op_cache holds)
@@ -55,9 +57,16 @@ on the recall-confirmed panos only, because a pano whose missed-ramp scan was no
 has no GT for a ramp RampNet never fired on. ``tp_new`` counts the matched ramps that the
 0.30 baseline does not already match.
 
+**Unique points, every arm** (PR #289 review). The same grouping for all five arms at the
+0.05 floor, YOLO also at its headline conf 0.25, plus the "RampNet-blind" GT ramps (no
+floor peak within the group radius) and how many of them each arm puts any box on. Three
+configurations (``UNIQUE_CONFIGS``): R (primary), 2R regrouped and rescored, and R-group /
+2R-score; both 2R reads are sensitivity rows. **Scoreboard reconciliation:** the op_cache
+peaks at the scoreboard's RampNet operating point, beside the scoreboard's own row.
+
 Inputs, all committed: ``benchmark/<split>/`` (GT), ``analysis_out/op_cache/<split>.json``,
-``benchmark/model_detections/<leg>__<split>.json``, and the YOLO pair files in
-``analysis_out/cascade_cost_35/``. CPU only; no network, no ``.model_cache``, no model call.
+``benchmark/model_detections/<leg>__<split>.json``, the YOLO pair files in
+``analysis_out/cascade_cost_35/``, and ``analysis_out/scoreboard.json`` (read only). CPU only; no network, no ``.model_cache``, no model call.
 
     python scripts/analysis/cascade_argon_35.py            # run missing pairs, write argon_pairs.json
     python scripts/analysis/cascade_argon_35.py --check    # regenerate everything + byte-compare
@@ -81,6 +90,23 @@ OPEN_WEIGHT = ("y11l_pano", "y11x_pano_h200", "y26_pano")
 OPEN_276 = ("laurens_mapillary", "bayonne")
 OPEN_RIG = ("laurens_mapillary", "juneau", "bayonne", "budapest_district5")
 POOLS = {"open_276": OPEN_276, "open_rig": OPEN_RIG}
+#: The YOLO arms' headline confidence (``compare.py``: "headline F1 at conf 0.25"; the
+#: scoreboard's ``operating_point`` for all three). Their detections are published down
+#: to 0.05, so "all boxes" is the 0.05 floor.
+YOLO_HEADLINE_CONF = 0.25
+#: The scoreboard read for the threshold reconciliation (read only, never written).
+SCOREBOARD = os.path.join(cc.REPO, "analysis_out", "scoreboard.json")
+#: The unique-point comparison's floor: every RampNet peak the op_cache holds.
+UNIQUE_FLOOR = 0.05
+#: Unique-point configurations, as (group radius, score radius) in multiples of R.
+#: ``R`` is the scorer's radius and the primary read. ``2R`` regroups AND rescores at
+#: twice the radius, a sensitivity row for the looser box centres of the VLM arms (PR
+#: #289 review, finding 2); 2R is generous to every arm, so it never replaces ``R``.
+#: ``R_group_2R_score`` keeps the R grouping and rescores at 2R: the reviewer's read,
+#: which isolates localisation on a fixed set of boxes.
+UNIQUE_CONFIGS = {"R": (1, 1), "2R": (2, 2), "R_group_2R_score": (1, 2)}
+
+
 def null_shifts(split):
     """The study's: every shift on richmond, 20 evenly spaced ones elsewhere
     (cascade_cost_35.md, Method)."""
@@ -159,10 +185,21 @@ def _thr_idx(peaks, pids, t):
             for pid in pids}
 
 
-def argon_only(cands, peaks, gts, kept_idx, radius_sq, floor):
-    """Argon boxes by the best RampNet floor peak (>= ``floor``) within the scoring radius:
-    ``none`` / ``sub`` (below T_hi) / ``kept`` (>= T_hi). Each group scored alone, on the
-    recall-confirmed panos."""
+def argon_only(cands, peaks, gts, kept_idx, radius_sq, floor, score_radius_sq=None):
+    """Boxes by the best RampNet floor peak (>= ``floor``) within ``radius_sq`` (wrapped):
+    ``none`` (no peak) / ``sub`` (best peak below T_hi) / ``kept`` (>= T_hi). Each group is
+    scored alone by ``score_pano`` at ``score_radius_sq`` (default ``radius_sq``), on the
+    recall-confirmed panos only. ``tp_new`` counts the GT ramps a group matches that the
+    T_hi baseline (``kept_idx``, matched at the same score radius) does not.
+
+    Named for its first use (Argon boxes), but nothing in it is Argon-specific: the
+    unique-point comparison runs it on every arm.
+
+    Example: one pano, peaks ``[(0.5, 0.5, 0.40), (0.2, 0.5, 0.15)]``, boxes at
+    ``(0.5, 0.5)``, ``(0.2, 0.5)`` and ``(0.8, 0.5)`` -> one box each in ``kept``, ``sub``
+    and ``none``.
+    """
+    score_radius_sq = radius_sq if score_radius_sq is None else score_radius_sq
     groups = {"none": {}, "sub": {}, "kept": {}}
     out = {g: {"boxes": 0, "tp": 0, "fp": 0, "ignored": 0, "tp_new": 0} for g in groups}
     n_panos = 0
@@ -177,22 +214,101 @@ def argon_only(cands, peaks, gts, kept_idx, radius_sq, floor):
                                                 cc.PANO_SCALE_Y, wrap_x=True) < radius_sq]
             by["none" if not near else "kept" if max(near) >= cc.T_HI else "sub"].append(c)
         base = matched_gt([peaks.get(pid, [])[i] for i in kept_idx[pid]], gt.gt_points,
-                          radius_sq)
+                          score_radius_sq)
         for g, boxes in by.items():
-            s = score_pano(boxes, gt, radius_sq)
+            s = score_pano(boxes, gt, score_radius_sq)
             o = out[g]
             o["boxes"] += len(boxes)
             o["tp"] += s.tp
             o["fp"] += s.fp
             o["ignored"] += s.ignored
-            o["tp_new"] += len(matched_gt(boxes, gt.gt_points, radius_sq) - base)
+            o["tp_new"] += len(matched_gt(boxes, gt.gt_points, score_radius_sq) - base)
     for o in out.values():
         o["precision"] = o["tp"] / (o["tp"] + o["fp"]) if o["tp"] + o["fp"] else None
     return {"floor": floor, "recall_confirmed_panos": n_panos, **out}
 
 
-def compare_split(split, out_dir):
-    """One split: every arm's three reads, the paired intervals, the Argon-only counts."""
+def _near(x, y, pts, radius_sq):
+    return any(dist_sq(x, y, p[0], p[1], cc.PANO_SCALE_X, cc.PANO_SCALE_Y, wrap_x=True)
+               < radius_sq for p in pts)
+
+
+def blind_gt(peaks, gts, radius_sq, floor):
+    """``{pid: [gt point, ...]}``: the "RampNet-blind" GT ramps -- no RampNet peak
+    (>= ``floor``) within ``radius_sq``, wrapped -- on the recall-confirmed panos. These
+    are the ramps no cascade setting can recover, since the cascade only promotes peaks.
+
+    Example: GT at ``(0.5, 0.5)`` and ``(0.9, 0.5)``, one peak at ``(0.5, 0.5, 0.06)``,
+    floor 0.05 -> only ``(0.9, 0.5)`` is blind; at floor 0.10 both are.
+    """
+    out = {}
+    for pid, gt in gts.items():
+        if not gt.fn_confirmed:
+            continue
+        pk = [p for p in peaks.get(pid, []) if p[2] >= floor]
+        out[pid] = [g for g in gt.gt_points if not _near(g[0], g[1], pk, radius_sq)]
+    return out
+
+
+def blind_reached(cands, blind, radius_sq):
+    """How many blind GT ramps have at least one of ``cands`` within ``radius_sq``
+    (wrapped). Any box counts, not a 1:1 match: this asks whether the arm put a box on
+    the ramp at all."""
+    return sum(1 for pid, pts in blind.items() for g in pts
+               if _near(g[0], g[1], cands.get(pid, []), radius_sq))
+
+
+def _conf_filter(cands, t):
+    return {pid: [c for c in cs if len(c) > 2 and c[2] is not None and c[2] >= t]
+            for pid, cs in cands.items()}
+
+
+def arm_variants(leg, cands):
+    """``{variant: cands}``: every arm with all its boxes; a YOLO arm also at its headline
+    confidence (``YOLO_HEADLINE_CONF``). Argon zero-shot has no score, and the confidence
+    leg's elicited score has no shipped operating point, so both Argon legs are all-boxes."""
+    out = {"all": cands}
+    if leg in OPEN_WEIGHT:
+        out[f"conf_ge_{YOLO_HEADLINE_CONF:g}"] = _conf_filter(cands, YOLO_HEADLINE_CONF)
+    return out
+
+
+def unique_points(cands, peaks, gts, kept_idx, floor=UNIQUE_FLOOR):
+    """Per unique-point configuration (``UNIQUE_CONFIGS``): the blind GT count and, per arm
+    and variant, the ``none`` group of ``argon_only`` (TP / FP / ignored / tp_new /
+    precision) plus ``blind_gt_reached``. Blind GT is defined at the group radius and
+    reached at the score radius."""
+    res = {}
+    for name, (g, s) in UNIQUE_CONFIGS.items():
+        g_sq, s_sq = radius_sq_for(g * cc.RADIUS), radius_sq_for(s * cc.RADIUS)
+        blind = blind_gt(peaks, gts, g_sq, floor)
+        arms = {}
+        for leg, cs in cands.items():
+            arms[leg] = {}
+            for var, vc in arm_variants(leg, cs).items():
+                n = argon_only(vc, peaks, gts, kept_idx, g_sq, floor, s_sq)["none"]
+                arms[leg][var] = {**n, "blind_gt_reached": blind_reached(vc, blind, s_sq)}
+        res[name] = {"group_radius": g * cc.RADIUS, "score_radius": s * cc.RADIUS,
+                     "floor": floor, "n_blind_gt": sum(len(v) for v in blind.values()),
+                     "arms": arms}
+    return res
+
+
+def scoreboard_operating_point(path=SCOREBOARD):
+    """``(RampNet's scoreboard operating point, its per-split rows)`` from
+    ``scoreboard.json``, or ``(None, {})`` if the file is absent."""
+    if not os.path.exists(path):
+        return None, {}
+    with open(path, encoding="utf-8") as f:
+        sb = json.load(f)
+    m = next(m for m in sb["models"] if m["model"] == "rampnet")
+    return m["operating_point"], sb["per_split"]["rampnet"]
+
+
+def compare_split(split, out_dir, scoreboard=None):
+    """One split: every arm's three reads, the paired intervals, the Argon-only counts,
+    the unique-point comparison across all arms, and the scoreboard reconciliation.
+    ``scoreboard`` is ``scoreboard_operating_point()``'s result (read here if omitted)."""
     pay = {}
     for leg in ARGON + OPEN_WEIGHT:
         path = pair_path(split, leg, out_dir)
@@ -272,13 +388,25 @@ def compare_split(split, out_dir):
                     **boot(idx_of(bo, orow), a)}}
     only = {leg: [argon_only(cands[leg], peaks, gts, kept, radius_sq, fl) for fl in FLOORS]
             for leg in ARGON if leg in pay}
+    op, sb_rows = scoreboard if scoreboard is not None else scoreboard_operating_point()
+    sb_row = sb_rows.get(split)
+    sb = None if op is None else {
+        "operating_point": op,
+        "op_cache_at_operating_point": {k: v for k, v in cc._fast_report(
+            [scorer.pano(pid, i) for pid, i in _thr_idx(peaks, pids, op).items()]).items()
+            if k in ("tp", "fp", "fn", "n_gt", "F1")},
+        "scoreboard": None if sb_row is None else {
+            k: sb_row[k] for k in ("tp", "fp", "fn", "n_gt_recall", "f1", "bundle_floor")
+            if k in sb_row}}
     return {"split": split, "n_panos": ref["n_panos"], "n_gt_recall": ref["n_gt_recall"],
             "null_shifts": ref["null"]["shifts"],
             "baseline": ref["baseline"],
             "threshold_only_best": {k: tb[k] for k in ("t", "tp", "fp", "fn", "n_gt", "P",
                                                        "R", "F1")},
             "arms": arms, "best_open_weight": best_open, "paired": paired,
-            "argon_only": only}
+            "argon_only": only,
+            "unique_points": unique_points(cands, peaks, gts, kept),
+            "scoreboard_reconciliation": sb}
 
 
 def pool(rows, name, members):
@@ -310,8 +438,35 @@ def pool(rows, name, members):
     return out
 
 
+def pool_unique(rows, members):
+    """Count sums of ``unique_points`` over ``members`` per configuration, arm and
+    variant; ``None`` for an arm/variant missing on any member split."""
+    rs = [r for r in rows if r["split"] in members]
+    if len(rs) != len(members):
+        return None
+    keys = ("boxes", "tp", "fp", "ignored", "tp_new", "blind_gt_reached")
+    out = {}
+    for name in UNIQUE_CONFIGS:
+        arms = {}
+        for leg in ARGON + OPEN_WEIGHT:
+            variants = {v for r in rs for v in r["unique_points"][name]["arms"].get(leg, {})}
+            arms[leg] = {}
+            for var in sorted(variants):
+                per = [r["unique_points"][name]["arms"].get(leg, {}).get(var) for r in rs]
+                if any(x is None for x in per):
+                    arms[leg][var] = None
+                    continue
+                o = {k: sum(x[k] for x in per) for k in keys}
+                o["precision"] = o["tp"] / (o["tp"] + o["fp"]) if o["tp"] + o["fp"] else None
+                arms[leg][var] = o
+        out[name] = {"n_blind_gt": sum(r["unique_points"][name]["n_blind_gt"] for r in rs),
+                     "arms": arms}
+    return out
+
+
 def build(out_dir):
-    rows = [r for r in (compare_split(s, out_dir) for s in splits()) if r]
+    sb = scoreboard_operating_point()
+    rows = [r for r in (compare_split(s, out_dir, sb) for s in splits()) if r]
     return {"question": "does gating RampNet's sub-threshold peaks on Gemini 4 Argon add "
                         "more than gating on an open-weight YOLO pano arm? (#35)",
             "method": "cascade_cost_35.run_pair and bootstrap_delta, unchanged",
@@ -322,9 +477,23 @@ def build(out_dir):
             "selection_note": ("best_viable and best_by_f1 are chosen in sample (15 settings "
                                "for the score-less zero-shot leg, 60 for a scored arm); "
                                "fixed is the study's post-hoc setting, selected on neither "
-                               "these splits nor these arms"),
+                               "these splits nor these arms. 'best open-weight' is a "
+                               "further in-sample max over the three YOLO arms, per split "
+                               "(best_open_weight) and per pool (best_open_weight_<read>): "
+                               "up to 3 x 60 = 180 candidate rows against Argon zero-shot's "
+                               "15 and the confidence leg's 60, so each YOLO arm is also "
+                               "reported on its own"),
+            "unique_points_note": ("boxes with no RampNet op_cache peak >= floor within the "
+                                   "group radius, scored alone by score_pano at the score "
+                                   "radius on recall-confirmed panos; blind GT = GT ramps "
+                                   "with no such peak within the group radius; reached = "
+                                   "any box of the arm within the score radius. YOLO also "
+                                   f"at its headline conf >= {YOLO_HEADLINE_CONF:g}. R is "
+                                   "primary; 2R and R_group_2R_score are sensitivity "
+                                   "reads, generous to every arm"),
             "splits": rows,
-            "pools": {n: pool(rows, n, m) for n, m in POOLS.items()}}
+            "pools": {n: pool(rows, n, m) for n, m in POOLS.items()},
+            "pools_unique_points": {n: pool_unique(rows, m) for n, m in POOLS.items()}}
 
 
 # --------------------------------------------------------------------------- #
@@ -391,7 +560,63 @@ def tables(res):
                 L.append(f"| {r['split']} | {leg} | {o['floor']:g} | {n['boxes']} | "
                          f"{n['tp']} / {n['fp']} / {n['ignored']} | {_f(n['precision'], '.3f')} "
                          f"| {n['tp_new']} | {s['tp']} / {s['fp']} | {k['tp']} / {k['fp']} |")
+    L += ["", "**Each arm on its own, pooled F1 (no in-sample max over the YOLO arms)**", "",
+          "| pool | read | " + " | ".join(ARGON + OPEN_WEIGHT) + " |",
+          "|---|---|" + "---:|" * len(ARGON + OPEN_WEIGHT)]
+    for name, p in res["pools"].items():
+        if p is None:
+            continue
+        for read in ("best_by_f1", "fixed"):
+            L.append(f"| {name} | {read} | " + " | ".join(
+                _f((p["arms"][leg][read] or {}).get("F1")) for leg in ARGON + OPEN_WEIGHT)
+                + " |")
+    L += unique_tables(res)
+    L += ["", "**Scoreboard reconciliation: op_cache peaks at the scoreboard's RampNet "
+          "operating point vs the scoreboard row**", "",
+          "| split | operating point | op_cache F1 (TP / FP / FN) | scoreboard F1 (TP / FP / "
+          "FN) | scoreboard bundle floor |", "|---|---:|---|---|---:|"]
+    for r in res["splits"]:
+        sb = r.get("scoreboard_reconciliation")
+        if not sb:
+            continue
+        o, b = sb["op_cache_at_operating_point"], sb["scoreboard"]
+        L.append(f"| {r['split']} | {sb['operating_point']:g} | {o['F1']:.4f} ({o['tp']} / "
+                 f"{o['fp']} / {o['fn']}) | "
+                 + ("–" if b is None else f"{b['f1']:.4f} ({b['tp']} / {b['fp']} / {b['fn']})")
+                 + f" | {_f((b or {}).get('bundle_floor'))} |")
     return "\n".join(L) + "\n"
+
+
+def _u(o):
+    """``TP / FP (precision), reached`` for one unique-point cell."""
+    if o is None:
+        return "–"
+    return f"{o['tp']} / {o['fp']} ({_f(o['precision'], '.2f')}), {o['blind_gt_reached']}"
+
+
+def unique_tables(res):
+    """The unique-point comparison: one table per configuration, every split plus pools.
+    A cell is ``TP / FP (precision), blind GT reached``."""
+    conf = f"conf_ge_{YOLO_HEADLINE_CONF:g}"
+    cols = ([(leg, "all") for leg in ARGON] + [(leg, conf) for leg in OPEN_WEIGHT]
+            + [(leg, "all") for leg in OPEN_WEIGHT])
+    head = ([f"{leg} (all)" for leg in ARGON]
+            + [f"{leg} @{YOLO_HEADLINE_CONF:g}" for leg in OPEN_WEIGHT]
+            + [f"{leg} (all)" for leg in OPEN_WEIGHT])
+    L = []
+    for name in UNIQUE_CONFIGS:
+        L += ["", f"**Unique points, {name}: boxes with no RampNet peak >= "
+              f"{UNIQUE_FLOOR:g} within the group radius; cell = TP / FP (precision), "
+              "RampNet-blind GT reached**", "",
+              "| split | blind GT | " + " | ".join(head) + " |",
+              "|---|---:|" + "---|" * len(cols)]
+        rows = [(r["split"], r["unique_points"][name]) for r in res["splits"]]
+        rows += [(f"**pool {n}**", pu[name]) for n, pu in res["pools_unique_points"].items()
+                 if pu is not None]
+        for label, u in rows:
+            L.append(f"| {label} | {u['n_blind_gt']} | " + " | ".join(
+                _u(u["arms"].get(leg, {}).get(var)) for leg, var in cols) + " |")
+    return L
 
 
 def own_pair_files(out_dir):

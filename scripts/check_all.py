@@ -248,7 +248,8 @@ REGISTRY: list = [
     E("cascade_argon_35", (AN + "cascade_argon_35.py", "--check"),
       "the Argon cascade pair files and argon_pairs.json regenerate byte-identical (#35)",
       pins=("analysis_out/cascade_cost_35/argon/", "analysis_out/cascade_cost_35/",
-            "analysis_out/op_cache/", "benchmark/model_detections/") + GT,
+            "analysis_out/op_cache/", "benchmark/model_detections/",
+            "analysis_out/scoreboard.json") + GT,
       slow=True),
     # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
     E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),

@@ -271,9 +271,537 @@
    }
   }
  },
+ "pools_unique_points": {
+  "open_276": {
+   "2R": {
+    "arms": {
+     "gemini-4-argon": {
+      "all": {
+       "blind_gt_reached": 37,
+       "boxes": 74,
+       "fp": 36,
+       "ignored": 3,
+       "precision": 0.492958,
+       "tp": 35,
+       "tp_new": 35
+      }
+     },
+     "gemini-4-argon-confidence-on": {
+      "all": {
+       "blind_gt_reached": 48,
+       "boxes": 156,
+       "fp": 105,
+       "ignored": 8,
+       "precision": 0.290541,
+       "tp": 43,
+       "tp_new": 43
+      }
+     },
+     "y11l_pano": {
+      "all": {
+       "blind_gt_reached": 19,
+       "boxes": 59,
+       "fp": 36,
+       "ignored": 2,
+       "precision": 0.368421,
+       "tp": 21,
+       "tp_new": 20
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 10,
+       "boxes": 14,
+       "fp": 4,
+       "ignored": 0,
+       "precision": 0.714286,
+       "tp": 10,
+       "tp_new": 9
+      }
+     },
+     "y11x_pano_h200": {
+      "all": {
+       "blind_gt_reached": 22,
+       "boxes": 36,
+       "fp": 16,
+       "ignored": 1,
+       "precision": 0.542857,
+       "tp": 19,
+       "tp_new": 18
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 4,
+       "boxes": 5,
+       "fp": 0,
+       "ignored": 0,
+       "precision": 1.0,
+       "tp": 5,
+       "tp_new": 4
+      }
+     },
+     "y26_pano": {
+      "all": {
+       "blind_gt_reached": 29,
+       "boxes": 113,
+       "fp": 77,
+       "ignored": 5,
+       "precision": 0.287037,
+       "tp": 31,
+       "tp_new": 30
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 6,
+       "boxes": 9,
+       "fp": 2,
+       "ignored": 0,
+       "precision": 0.777778,
+       "tp": 7,
+       "tp_new": 6
+      }
+     }
+    },
+    "n_blind_gt": 68
+   },
+   "R": {
+    "arms": {
+     "gemini-4-argon": {
+      "all": {
+       "blind_gt_reached": 46,
+       "boxes": 121,
+       "fp": 73,
+       "ignored": 3,
+       "precision": 0.381356,
+       "tp": 45,
+       "tp_new": 45
+      }
+     },
+     "gemini-4-argon-confidence-on": {
+      "all": {
+       "blind_gt_reached": 60,
+       "boxes": 234,
+       "fp": 168,
+       "ignored": 11,
+       "precision": 0.246637,
+       "tp": 55,
+       "tp_new": 55
+      }
+     },
+     "y11l_pano": {
+      "all": {
+       "blind_gt_reached": 28,
+       "boxes": 91,
+       "fp": 60,
+       "ignored": 4,
+       "precision": 0.310345,
+       "tp": 27,
+       "tp_new": 25
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 11,
+       "boxes": 17,
+       "fp": 8,
+       "ignored": 0,
+       "precision": 0.529412,
+       "tp": 9,
+       "tp_new": 9
+      }
+     },
+     "y11x_pano_h200": {
+      "all": {
+       "blind_gt_reached": 30,
+       "boxes": 55,
+       "fp": 27,
+       "ignored": 3,
+       "precision": 0.480769,
+       "tp": 25,
+       "tp_new": 24
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 7,
+       "boxes": 8,
+       "fp": 2,
+       "ignored": 0,
+       "precision": 0.75,
+       "tp": 6,
+       "tp_new": 6
+      }
+     },
+     "y26_pano": {
+      "all": {
+       "blind_gt_reached": 37,
+       "boxes": 172,
+       "fp": 129,
+       "ignored": 10,
+       "precision": 0.203704,
+       "tp": 33,
+       "tp_new": 32
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 9,
+       "boxes": 14,
+       "fp": 7,
+       "ignored": 0,
+       "precision": 0.5,
+       "tp": 7,
+       "tp_new": 7
+      }
+     }
+    },
+    "n_blind_gt": 112
+   },
+   "R_group_2R_score": {
+    "arms": {
+     "gemini-4-argon": {
+      "all": {
+       "blind_gt_reached": 67,
+       "boxes": 121,
+       "fp": 45,
+       "ignored": 5,
+       "precision": 0.612069,
+       "tp": 71,
+       "tp_new": 58
+      }
+     },
+     "gemini-4-argon-confidence-on": {
+      "all": {
+       "blind_gt_reached": 87,
+       "boxes": 234,
+       "fp": 132,
+       "ignored": 10,
+       "precision": 0.410714,
+       "tp": 92,
+       "tp_new": 73
+      }
+     },
+     "y11l_pano": {
+      "all": {
+       "blind_gt_reached": 45,
+       "boxes": 91,
+       "fp": 44,
+       "ignored": 3,
+       "precision": 0.5,
+       "tp": 44,
+       "tp_new": 31
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 15,
+       "boxes": 17,
+       "fp": 4,
+       "ignored": 0,
+       "precision": 0.764706,
+       "tp": 13,
+       "tp_new": 11
+      }
+     },
+     "y11x_pano_h200": {
+      "all": {
+       "blind_gt_reached": 46,
+       "boxes": 55,
+       "fp": 19,
+       "ignored": 3,
+       "precision": 0.634615,
+       "tp": 33,
+       "tp_new": 27
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 11,
+       "boxes": 8,
+       "fp": 0,
+       "ignored": 0,
+       "precision": 1.0,
+       "tp": 8,
+       "tp_new": 7
+      }
+     },
+     "y26_pano": {
+      "all": {
+       "blind_gt_reached": 56,
+       "boxes": 172,
+       "fp": 106,
+       "ignored": 10,
+       "precision": 0.345679,
+       "tp": 56,
+       "tp_new": 43
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 16,
+       "boxes": 14,
+       "fp": 2,
+       "ignored": 0,
+       "precision": 0.857143,
+       "tp": 12,
+       "tp_new": 9
+      }
+     }
+    },
+    "n_blind_gt": 112
+   }
+  },
+  "open_rig": {
+   "2R": {
+    "arms": {
+     "gemini-4-argon": {
+      "all": {
+       "blind_gt_reached": 58,
+       "boxes": 145,
+       "fp": 89,
+       "ignored": 6,
+       "precision": 0.359712,
+       "tp": 50,
+       "tp_new": 49
+      }
+     },
+     "gemini-4-argon-confidence-on": {
+      "all": {
+       "blind_gt_reached": 75,
+       "boxes": 292,
+       "fp": 212,
+       "ignored": 12,
+       "precision": 0.242857,
+       "tp": 68,
+       "tp_new": 66
+      }
+     },
+     "y11l_pano": {
+      "all": {
+       "blind_gt_reached": 30,
+       "boxes": 120,
+       "fp": 86,
+       "ignored": 3,
+       "precision": 0.264957,
+       "tp": 31,
+       "tp_new": 28
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 12,
+       "boxes": 18,
+       "fp": 6,
+       "ignored": 0,
+       "precision": 0.666667,
+       "tp": 12,
+       "tp_new": 11
+      }
+     },
+     "y11x_pano_h200": {
+      "all": {
+       "blind_gt_reached": 30,
+       "boxes": 74,
+       "fp": 47,
+       "ignored": 1,
+       "precision": 0.356164,
+       "tp": 26,
+       "tp_new": 22
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 6,
+       "boxes": 5,
+       "fp": 0,
+       "ignored": 0,
+       "precision": 1.0,
+       "tp": 5,
+       "tp_new": 4
+      }
+     },
+     "y26_pano": {
+      "all": {
+       "blind_gt_reached": 41,
+       "boxes": 207,
+       "fp": 161,
+       "ignored": 5,
+       "precision": 0.20297,
+       "tp": 41,
+       "tp_new": 37
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 9,
+       "boxes": 13,
+       "fp": 6,
+       "ignored": 0,
+       "precision": 0.538462,
+       "tp": 7,
+       "tp_new": 6
+      }
+     }
+    },
+    "n_blind_gt": 105
+   },
+   "R": {
+    "arms": {
+     "gemini-4-argon": {
+      "all": {
+       "blind_gt_reached": 65,
+       "boxes": 236,
+       "fp": 164,
+       "ignored": 8,
+       "precision": 0.280702,
+       "tp": 64,
+       "tp_new": 64
+      }
+     },
+     "gemini-4-argon-confidence-on": {
+      "all": {
+       "blind_gt_reached": 95,
+       "boxes": 468,
+       "fp": 358,
+       "ignored": 19,
+       "precision": 0.202673,
+       "tp": 91,
+       "tp_new": 89
+      }
+     },
+     "y11l_pano": {
+      "all": {
+       "blind_gt_reached": 44,
+       "boxes": 196,
+       "fp": 149,
+       "ignored": 6,
+       "precision": 0.215789,
+       "tp": 41,
+       "tp_new": 38
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 12,
+       "boxes": 23,
+       "fp": 13,
+       "ignored": 0,
+       "precision": 0.434783,
+       "tp": 10,
+       "tp_new": 10
+      }
+     },
+     "y11x_pano_h200": {
+      "all": {
+       "blind_gt_reached": 40,
+       "boxes": 129,
+       "fp": 91,
+       "ignored": 4,
+       "precision": 0.272,
+       "tp": 34,
+       "tp_new": 32
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 8,
+       "boxes": 9,
+       "fp": 3,
+       "ignored": 0,
+       "precision": 0.666667,
+       "tp": 6,
+       "tp_new": 6
+      }
+     },
+     "y26_pano": {
+      "all": {
+       "blind_gt_reached": 54,
+       "boxes": 345,
+       "fp": 284,
+       "ignored": 14,
+       "precision": 0.141994,
+       "tp": 47,
+       "tp_new": 46
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 11,
+       "boxes": 22,
+       "fp": 14,
+       "ignored": 0,
+       "precision": 0.363636,
+       "tp": 8,
+       "tp_new": 8
+      }
+     }
+    },
+    "n_blind_gt": 196
+   },
+   "R_group_2R_score": {
+    "arms": {
+     "gemini-4-argon": {
+      "all": {
+       "blind_gt_reached": 112,
+       "boxes": 236,
+       "fp": 109,
+       "ignored": 10,
+       "precision": 0.517699,
+       "tp": 117,
+       "tp_new": 82
+      }
+     },
+     "gemini-4-argon-confidence-on": {
+      "all": {
+       "blind_gt_reached": 147,
+       "boxes": 468,
+       "fp": 270,
+       "ignored": 21,
+       "precision": 0.395973,
+       "tp": 177,
+       "tp_new": 117
+      }
+     },
+     "y11l_pano": {
+      "all": {
+       "blind_gt_reached": 84,
+       "boxes": 196,
+       "fp": 105,
+       "ignored": 5,
+       "precision": 0.450262,
+       "tp": 86,
+       "tp_new": 48
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 21,
+       "boxes": 23,
+       "fp": 6,
+       "ignored": 1,
+       "precision": 0.727273,
+       "tp": 16,
+       "tp_new": 14
+      }
+     },
+     "y11x_pano_h200": {
+      "all": {
+       "blind_gt_reached": 78,
+       "boxes": 129,
+       "fp": 65,
+       "ignored": 3,
+       "precision": 0.484127,
+       "tp": 61,
+       "tp_new": 36
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 20,
+       "boxes": 9,
+       "fp": 0,
+       "ignored": 0,
+       "precision": 1.0,
+       "tp": 9,
+       "tp_new": 8
+      }
+     },
+     "y26_pano": {
+      "all": {
+       "blind_gt_reached": 95,
+       "boxes": 345,
+       "fp": 229,
+       "ignored": 13,
+       "precision": 0.310241,
+       "tp": 103,
+       "tp_new": 59
+      },
+      "conf_ge_0.25": {
+       "blind_gt_reached": 25,
+       "boxes": 22,
+       "fp": 6,
+       "ignored": 0,
+       "precision": 0.727273,
+       "tp": 16,
+       "tp_new": 11
+      }
+     }
+    },
+    "n_blind_gt": 196
+   }
+  }
+ },
  "question": "does gating RampNet's sub-threshold peaks on Gemini 4 Argon add more than gating on an open-weight YOLO pano arm? (#35)",
  "radius": 0.022,
- "selection_note": "best_viable and best_by_f1 are chosen in sample (15 settings for the score-less zero-shot leg, 60 for a scored arm); fixed is the study's post-hoc setting, selected on neither these splits nor these arms",
+ "selection_note": "best_viable and best_by_f1 are chosen in sample (15 settings for the score-less zero-shot leg, 60 for a scored arm); fixed is the study's post-hoc setting, selected on neither these splits nor these arms. 'best open-weight' is a further in-sample max over the three YOLO arms, per split (best_open_weight) and per pool (best_open_weight_<read>): up to 3 x 60 = 180 candidate rows against Argon zero-shot's 15 and the confidence leg's 60, so each YOLO arm is also reported on its own",
  "splits": [
   {
    "argon_only": {
@@ -1221,6 +1749,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.839458,
+     "fn": 77,
+     "fp": 6,
+     "n_gt": 294,
+     "tp": 217
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.550067,
+     "f1": 0.839458,
+     "fn": 77,
+     "fp": 6,
+     "n_gt_recall": 294,
+     "tp": 217
+    }
+   },
    "split": "annapolis",
    "threshold_only_best": {
     "F1": 0.855596,
@@ -1231,6 +1777,278 @@
     "n_gt": 294,
     "t": 0.31,
     "tp": 237
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 0,
+        "boxes": 19,
+        "fp": 18,
+        "ignored": 0,
+        "precision": 0.052632,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 0,
+        "boxes": 50,
+        "fp": 49,
+        "ignored": 0,
+        "precision": 0.02,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 0,
+        "boxes": 19,
+        "fp": 19,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 0,
+        "boxes": 8,
+        "fp": 8,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 0,
+        "boxes": 22,
+        "fp": 21,
+        "ignored": 0,
+        "precision": 0.045455,
+        "tp": 1,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 4,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 42,
+        "fp": 36,
+        "ignored": 1,
+        "precision": 0.121951,
+        "tp": 5,
+        "tp_new": 5
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 7,
+        "boxes": 85,
+        "fp": 78,
+        "ignored": 2,
+        "precision": 0.060241,
+        "tp": 5,
+        "tp_new": 5
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 36,
+        "fp": 33,
+        "ignored": 0,
+        "precision": 0.083333,
+        "tp": 3,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 3,
+        "boxes": 15,
+        "fp": 15,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 33,
+        "fp": 32,
+        "ignored": 0,
+        "precision": 0.030303,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 2,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 24,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 14,
+        "boxes": 42,
+        "fp": 21,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 21,
+        "tp_new": 7
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 85,
+        "fp": 59,
+        "ignored": 2,
+        "precision": 0.289157,
+        "tp": 24,
+        "tp_new": 6
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 36,
+        "fp": 21,
+        "ignored": 0,
+        "precision": 0.416667,
+        "tp": 15,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 3,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 15,
+        "fp": 11,
+        "ignored": 0,
+        "precision": 0.266667,
+        "tp": 4,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 8,
+        "boxes": 33,
+        "fp": 26,
+        "ignored": 0,
+        "precision": 0.212121,
+        "tp": 7,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 2,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 1,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 24,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -2215,6 +3033,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.518182,
+     "fn": 187,
+     "fp": 25,
+     "n_gt": 301,
+     "tp": 114
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.552415,
+     "f1": 0.517162,
+     "fn": 188,
+     "fp": 23,
+     "n_gt_recall": 301,
+     "tp": 113
+    }
+   },
    "split": "bayonne",
    "threshold_only_best": {
     "F1": 0.646749,
@@ -2225,6 +3061,278 @@
     "n_gt": 301,
     "t": 0.19,
     "tp": 184
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 24,
+        "boxes": 52,
+        "fp": 29,
+        "ignored": 2,
+        "precision": 0.42,
+        "tp": 21,
+        "tp_new": 21
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 30,
+        "boxes": 108,
+        "fp": 78,
+        "ignored": 5,
+        "precision": 0.242718,
+        "tp": 25,
+        "tp_new": 25
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 8,
+        "boxes": 26,
+        "fp": 17,
+        "ignored": 1,
+        "precision": 0.32,
+        "tp": 8,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 3,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.333333,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 18,
+        "fp": 10,
+        "ignored": 0,
+        "precision": 0.444444,
+        "tp": 8,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 12,
+        "boxes": 50,
+        "fp": 36,
+        "ignored": 2,
+        "precision": 0.25,
+        "tp": 12,
+        "tp_new": 12
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 2,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 1,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 45,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 32,
+        "boxes": 85,
+        "fp": 55,
+        "ignored": 2,
+        "precision": 0.337349,
+        "tp": 28,
+        "tp_new": 28
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 39,
+        "boxes": 164,
+        "fp": 123,
+        "ignored": 8,
+        "precision": 0.211538,
+        "tp": 33,
+        "tp_new": 33
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 12,
+        "boxes": 47,
+        "fp": 33,
+        "ignored": 3,
+        "precision": 0.25,
+        "tp": 11,
+        "tp_new": 9
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 4,
+        "fp": 4,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 14,
+        "boxes": 32,
+        "fp": 19,
+        "ignored": 3,
+        "precision": 0.344828,
+        "tp": 10,
+        "tp_new": 9
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 96,
+        "fp": 75,
+        "ignored": 7,
+        "precision": 0.157303,
+        "tp": 14,
+        "tp_new": 13
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 3,
+        "fp": 3,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 76,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 47,
+        "boxes": 85,
+        "fp": 36,
+        "ignored": 4,
+        "precision": 0.555556,
+        "tp": 45,
+        "tp_new": 34
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 59,
+        "boxes": 164,
+        "fp": 102,
+        "ignored": 7,
+        "precision": 0.350318,
+        "tp": 55,
+        "tp_new": 43
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 24,
+        "boxes": 47,
+        "fp": 23,
+        "ignored": 2,
+        "precision": 0.488889,
+        "tp": 22,
+        "tp_new": 13
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 3,
+        "boxes": 4,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 2,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 25,
+        "boxes": 32,
+        "fp": 12,
+        "ignored": 2,
+        "precision": 0.6,
+        "tp": 18,
+        "tp_new": 13
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 4,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 29,
+        "boxes": 96,
+        "fp": 58,
+        "ignored": 7,
+        "precision": 0.348315,
+        "tp": 31,
+        "tp_new": 20
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 3,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.666667,
+        "tp": 2,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 76,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -3209,6 +4317,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.853195,
+     "fn": 80,
+     "fp": 5,
+     "n_gt": 327,
+     "tp": 247
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.560725,
+     "f1": 0.849829,
+     "fn": 78,
+     "fp": 10,
+     "n_gt_recall": 327,
+     "tp": 249
+    }
+   },
    "split": "bend",
    "threshold_only_best": {
     "F1": 0.872666,
@@ -3219,6 +4345,278 @@
     "n_gt": 327,
     "t": 0.5,
     "tp": 257
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 3,
+        "boxes": 29,
+        "fp": 25,
+        "ignored": 1,
+        "precision": 0.107143,
+        "tp": 3,
+        "tp_new": 3
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 58,
+        "fp": 50,
+        "ignored": 1,
+        "precision": 0.122807,
+        "tp": 7,
+        "tp_new": 5
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 23,
+        "fp": 17,
+        "ignored": 4,
+        "precision": 0.105263,
+        "tp": 2,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 6,
+        "fp": 4,
+        "ignored": 1,
+        "precision": 0.2,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 16,
+        "fp": 10,
+        "ignored": 4,
+        "precision": 0.166667,
+        "tp": 2,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 43,
+        "fp": 29,
+        "ignored": 12,
+        "precision": 0.064516,
+        "tp": 2,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 2,
+        "fp": 0,
+        "ignored": 1,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 8,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 8,
+        "boxes": 67,
+        "fp": 53,
+        "ignored": 4,
+        "precision": 0.15873,
+        "tp": 10,
+        "tp_new": 8
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 14,
+        "boxes": 113,
+        "fp": 93,
+        "ignored": 5,
+        "precision": 0.138889,
+        "tp": 15,
+        "tp_new": 13
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 3,
+        "boxes": 34,
+        "fp": 26,
+        "ignored": 4,
+        "precision": 0.133333,
+        "tp": 4,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 7,
+        "fp": 4,
+        "ignored": 1,
+        "precision": 0.333333,
+        "tp": 2,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 26,
+        "fp": 17,
+        "ignored": 4,
+        "precision": 0.227273,
+        "tp": 5,
+        "tp_new": 4
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 3,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.666667,
+        "tp": 2,
+        "tp_new": 1
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 59,
+        "fp": 43,
+        "ignored": 13,
+        "precision": 0.065217,
+        "tp": 3,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 4,
+        "fp": 1,
+        "ignored": 1,
+        "precision": 0.666667,
+        "tp": 2,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 22,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 15,
+        "boxes": 67,
+        "fp": 35,
+        "ignored": 3,
+        "precision": 0.453125,
+        "tp": 29,
+        "tp_new": 10
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 18,
+        "boxes": 113,
+        "fp": 62,
+        "ignored": 3,
+        "precision": 0.436364,
+        "tp": 48,
+        "tp_new": 15
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 11,
+        "boxes": 34,
+        "fp": 20,
+        "ignored": 4,
+        "precision": 0.333333,
+        "tp": 10,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 8,
+        "boxes": 7,
+        "fp": 4,
+        "ignored": 1,
+        "precision": 0.333333,
+        "tp": 2,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 11,
+        "boxes": 26,
+        "fp": 13,
+        "ignored": 4,
+        "precision": 0.409091,
+        "tp": 9,
+        "tp_new": 4
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 7,
+        "boxes": 3,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.666667,
+        "tp": 2,
+        "tp_new": 1
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 12,
+        "boxes": 59,
+        "fp": 37,
+        "ignored": 13,
+        "precision": 0.195652,
+        "tp": 9,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 7,
+        "boxes": 4,
+        "fp": 1,
+        "ignored": 1,
+        "precision": 0.666667,
+        "tp": 2,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 22,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -4131,6 +5529,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.644211,
+     "fn": 147,
+     "fp": 22,
+     "n_gt": 300,
+     "tp": 153
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.550114,
+     "f1": 0.644211,
+     "fn": 147,
+     "fp": 22,
+     "n_gt_recall": 300,
+     "tp": 153
+    }
+   },
    "split": "budapest_district5",
    "threshold_only_best": {
     "F1": 0.683919,
@@ -4141,6 +5557,278 @@
     "n_gt": 300,
     "t": 0.37,
     "tp": 185
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 15,
+        "boxes": 57,
+        "fp": 44,
+        "ignored": 2,
+        "precision": 0.2,
+        "tp": 11,
+        "tp_new": 10
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 18,
+        "boxes": 82,
+        "fp": 63,
+        "ignored": 2,
+        "precision": 0.2125,
+        "tp": 17,
+        "tp_new": 15
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 48,
+        "fp": 38,
+        "ignored": 1,
+        "precision": 0.191489,
+        "tp": 9,
+        "tp_new": 7
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 4,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 2,
+        "tp_new": 2
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 7,
+        "boxes": 34,
+        "fp": 27,
+        "ignored": 0,
+        "precision": 0.205882,
+        "tp": 7,
+        "tp_new": 4
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 80,
+        "fp": 71,
+        "ignored": 0,
+        "precision": 0.1125,
+        "tp": 9,
+        "tp_new": 6
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 3,
+        "fp": 3,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 25,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 13,
+        "boxes": 84,
+        "fp": 68,
+        "ignored": 3,
+        "precision": 0.160494,
+        "tp": 13,
+        "tp_new": 13
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 25,
+        "boxes": 143,
+        "fp": 115,
+        "ignored": 3,
+        "precision": 0.178571,
+        "tp": 25,
+        "tp_new": 24
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 15,
+        "boxes": 85,
+        "fp": 70,
+        "ignored": 2,
+        "precision": 0.156627,
+        "tp": 13,
+        "tp_new": 12
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 6,
+        "fp": 5,
+        "ignored": 0,
+        "precision": 0.166667,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 64,
+        "fp": 54,
+        "ignored": 1,
+        "precision": 0.142857,
+        "tp": 9,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 15,
+        "boxes": 153,
+        "fp": 136,
+        "ignored": 4,
+        "precision": 0.087248,
+        "tp": 13,
+        "tp_new": 13
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 7,
+        "fp": 6,
+        "ignored": 0,
+        "precision": 0.142857,
+        "tp": 1,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 58,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 31,
+        "boxes": 84,
+        "fp": 52,
+        "ignored": 4,
+        "precision": 0.35,
+        "tp": 28,
+        "tp_new": 17
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 40,
+        "boxes": 143,
+        "fp": 88,
+        "ignored": 6,
+        "precision": 0.357664,
+        "tp": 49,
+        "tp_new": 30
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 32,
+        "boxes": 85,
+        "fp": 46,
+        "ignored": 2,
+        "precision": 0.445783,
+        "tp": 37,
+        "tp_new": 16
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 6,
+        "boxes": 6,
+        "fp": 2,
+        "ignored": 1,
+        "precision": 0.6,
+        "tp": 3,
+        "tp_new": 3
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 28,
+        "boxes": 64,
+        "fp": 39,
+        "ignored": 0,
+        "precision": 0.390625,
+        "tp": 25,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 8,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 32,
+        "boxes": 153,
+        "fp": 108,
+        "ignored": 3,
+        "precision": 0.28,
+        "tp": 42,
+        "tp_new": 15
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 8,
+        "boxes": 7,
+        "fp": 3,
+        "ignored": 0,
+        "precision": 0.571429,
+        "tp": 4,
+        "tp_new": 2
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 58,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -5125,6 +6813,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.801153,
+     "fn": 56,
+     "fp": 13,
+     "n_gt": 195,
+     "tp": 139
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.553349,
+     "f1": 0.801153,
+     "fn": 56,
+     "fp": 13,
+     "n_gt_recall": 195,
+     "tp": 139
+    }
+   },
    "split": "clovis",
    "threshold_only_best": {
     "F1": 0.841823,
@@ -5135,6 +6841,278 @@
     "n_gt": 195,
     "t": 0.35,
     "tp": 157
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 21,
+        "fp": 20,
+        "ignored": 0,
+        "precision": 0.047619,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 45,
+        "fp": 41,
+        "ignored": 2,
+        "precision": 0.046512,
+        "tp": 2,
+        "tp_new": 2
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 3,
+        "boxes": 18,
+        "fp": 15,
+        "ignored": 0,
+        "precision": 0.166667,
+        "tp": 3,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 8,
+        "fp": 7,
+        "ignored": 0,
+        "precision": 0.125,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 18,
+        "fp": 17,
+        "ignored": 0,
+        "precision": 0.055556,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 2,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 1,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 7,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 0,
+        "boxes": 40,
+        "fp": 40,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 83,
+        "fp": 73,
+        "ignored": 2,
+        "precision": 0.098765,
+        "tp": 8,
+        "tp_new": 7
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 34,
+        "fp": 30,
+        "ignored": 0,
+        "precision": 0.117647,
+        "tp": 4,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 3,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.666667,
+        "tp": 2,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 18,
+        "fp": 16,
+        "ignored": 0,
+        "precision": 0.111111,
+        "tp": 2,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 44,
+        "fp": 42,
+        "ignored": 0,
+        "precision": 0.045455,
+        "tp": 2,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 4,
+        "fp": 3,
+        "ignored": 0,
+        "precision": 0.25,
+        "tp": 1,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 11,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 40,
+        "fp": 27,
+        "ignored": 0,
+        "precision": 0.325,
+        "tp": 13,
+        "tp_new": 4
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 83,
+        "fp": 54,
+        "ignored": 5,
+        "precision": 0.307692,
+        "tp": 24,
+        "tp_new": 8
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 34,
+        "fp": 23,
+        "ignored": 1,
+        "precision": 0.30303,
+        "tp": 10,
+        "tp_new": 4
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 3,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.666667,
+        "tp": 2,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 18,
+        "fp": 11,
+        "ignored": 1,
+        "precision": 0.352941,
+        "tp": 6,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 44,
+        "fp": 31,
+        "ignored": 0,
+        "precision": 0.295455,
+        "tp": 13,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 4,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.75,
+        "tp": 3,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 11,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -6119,6 +8097,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.787097,
+     "fn": 89,
+     "fp": 10,
+     "n_gt": 272,
+     "tp": 183
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.551343,
+     "f1": 0.803383,
+     "fn": 82,
+     "fp": 11,
+     "n_gt_recall": 272,
+     "tp": 190
+    }
+   },
    "split": "gainesville",
    "threshold_only_best": {
     "F1": 0.822355,
@@ -6129,6 +8125,278 @@
     "n_gt": 272,
     "t": 0.38,
     "tp": 206
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 3,
+        "boxes": 34,
+        "fp": 26,
+        "ignored": 1,
+        "precision": 0.212121,
+        "tp": 7,
+        "tp_new": 5
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 74,
+        "fp": 65,
+        "ignored": 1,
+        "precision": 0.109589,
+        "tp": 8,
+        "tp_new": 7
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 0,
+        "boxes": 9,
+        "fp": 9,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 10,
+        "fp": 10,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 13,
+        "fp": 13,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 14,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 51,
+        "fp": 44,
+        "ignored": 2,
+        "precision": 0.102041,
+        "tp": 5,
+        "tp_new": 5
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 11,
+        "boxes": 111,
+        "fp": 95,
+        "ignored": 1,
+        "precision": 0.136364,
+        "tp": 15,
+        "tp_new": 13
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 3,
+        "boxes": 27,
+        "fp": 24,
+        "ignored": 0,
+        "precision": 0.111111,
+        "tp": 3,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 3,
+        "fp": 3,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 22,
+        "fp": 18,
+        "ignored": 0,
+        "precision": 0.181818,
+        "tp": 4,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 29,
+        "fp": 27,
+        "ignored": 0,
+        "precision": 0.068966,
+        "tp": 2,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 2,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 1,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 25,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 51,
+        "fp": 27,
+        "ignored": 1,
+        "precision": 0.46,
+        "tp": 23,
+        "tp_new": 11
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 111,
+        "fp": 75,
+        "ignored": 1,
+        "precision": 0.318182,
+        "tp": 35,
+        "tp_new": 15
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 27,
+        "fp": 14,
+        "ignored": 1,
+        "precision": 0.461538,
+        "tp": 12,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 3,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.666667,
+        "tp": 2,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 7,
+        "boxes": 22,
+        "fp": 12,
+        "ignored": 1,
+        "precision": 0.428571,
+        "tp": 9,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 29,
+        "fp": 18,
+        "ignored": 3,
+        "precision": 0.307692,
+        "tp": 8,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 2,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 1,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 25,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -7041,6 +9309,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.80315,
+     "fn": 93,
+     "fp": 7,
+     "n_gt": 297,
+     "tp": 204
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.550104,
+     "f1": 0.80315,
+     "fn": 93,
+     "fp": 7,
+     "n_gt_recall": 297,
+     "tp": 204
+    }
+   },
    "split": "juneau",
    "threshold_only_best": {
     "F1": 0.830325,
@@ -7051,6 +9337,278 @@
     "n_gt": 297,
     "t": 0.26,
     "tp": 230
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 14,
+        "fp": 9,
+        "ignored": 1,
+        "precision": 0.307692,
+        "tp": 4,
+        "tp_new": 4
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 54,
+        "fp": 44,
+        "ignored": 2,
+        "precision": 0.153846,
+        "tp": 8,
+        "tp_new": 8
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 13,
+        "fp": 12,
+        "ignored": 0,
+        "precision": 0.076923,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 4,
+        "fp": 4,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 14,
+        "fp": 13,
+        "ignored": 0,
+        "precision": 0.071429,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 12,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 31,
+        "fp": 23,
+        "ignored": 2,
+        "precision": 0.206897,
+        "tp": 6,
+        "tp_new": 6
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 91,
+        "fp": 75,
+        "ignored": 5,
+        "precision": 0.127907,
+        "tp": 11,
+        "tp_new": 10
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 20,
+        "fp": 19,
+        "ignored": 0,
+        "precision": 0.05,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 0,
+        "boxes": 10,
+        "fp": 10,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 20,
+        "fp": 19,
+        "ignored": 0,
+        "precision": 0.05,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 26,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 14,
+        "boxes": 31,
+        "fp": 12,
+        "ignored": 1,
+        "precision": 0.6,
+        "tp": 18,
+        "tp_new": 7
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 20,
+        "boxes": 91,
+        "fp": 50,
+        "ignored": 5,
+        "precision": 0.418605,
+        "tp": 36,
+        "tp_new": 14
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 7,
+        "boxes": 20,
+        "fp": 15,
+        "ignored": 0,
+        "precision": 0.25,
+        "tp": 5,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 10,
+        "fp": 7,
+        "ignored": 0,
+        "precision": 0.3,
+        "tp": 3,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 0,
+        "fp": 0,
+        "ignored": 0,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 7,
+        "boxes": 20,
+        "fp": 15,
+        "ignored": 0,
+        "precision": 0.25,
+        "tp": 5,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 26,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -8035,6 +10593,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.615854,
+     "fn": 119,
+     "fp": 7,
+     "n_gt": 220,
+     "tp": 101
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.552202,
+     "f1": 0.658824,
+     "fn": 108,
+     "fp": 8,
+     "n_gt_recall": 220,
+     "tp": 112
+    }
+   },
    "split": "laurens_gsv",
    "threshold_only_best": {
     "F1": 0.809756,
@@ -8045,6 +10621,278 @@
     "n_gt": 220,
     "t": 0.19,
     "tp": 166
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 2,
+        "boxes": 17,
+        "fp": 14,
+        "ignored": 1,
+        "precision": 0.125,
+        "tp": 2,
+        "tp_new": 2
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 42,
+        "fp": 37,
+        "ignored": 0,
+        "precision": 0.119048,
+        "tp": 5,
+        "tp_new": 5
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 5,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.6,
+        "tp": 3,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 4,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 4,
+        "tp_new": 4
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 15,
+        "fp": 11,
+        "ignored": 1,
+        "precision": 0.214286,
+        "tp": 3,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 2,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 2,
+        "tp_new": 2
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 11,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 21,
+        "fp": 15,
+        "ignored": 1,
+        "precision": 0.25,
+        "tp": 5,
+        "tp_new": 5
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 54,
+        "fp": 42,
+        "ignored": 2,
+        "precision": 0.192308,
+        "tp": 10,
+        "tp_new": 10
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 8,
+        "boxes": 17,
+        "fp": 8,
+        "ignored": 2,
+        "precision": 0.466667,
+        "tp": 7,
+        "tp_new": 7
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 2,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 2,
+        "tp_new": 2
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 8,
+        "boxes": 11,
+        "fp": 4,
+        "ignored": 1,
+        "precision": 0.6,
+        "tp": 6,
+        "tp_new": 6
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 2,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 2,
+        "tp_new": 2
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 39,
+        "fp": 28,
+        "ignored": 3,
+        "precision": 0.222222,
+        "tp": 8,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 3,
+        "boxes": 5,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.6,
+        "tp": 3,
+        "tp_new": 3
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 27,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 14,
+        "boxes": 21,
+        "fp": 15,
+        "ignored": 1,
+        "precision": 0.25,
+        "tp": 5,
+        "tp_new": 5
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 19,
+        "boxes": 54,
+        "fp": 38,
+        "ignored": 2,
+        "precision": 0.269231,
+        "tp": 14,
+        "tp_new": 13
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 15,
+        "boxes": 17,
+        "fp": 6,
+        "ignored": 2,
+        "precision": 0.6,
+        "tp": 9,
+        "tp_new": 7
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 2,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 2,
+        "tp_new": 2
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 18,
+        "boxes": 11,
+        "fp": 1,
+        "ignored": 1,
+        "precision": 0.9,
+        "tp": 9,
+        "tp_new": 7
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 2,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 2,
+        "tp_new": 2
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 19,
+        "boxes": 39,
+        "fp": 20,
+        "ignored": 4,
+        "precision": 0.428571,
+        "tp": 15,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 4,
+        "boxes": 5,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.8,
+        "tp": 4,
+        "tp_new": 3
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 27,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -9029,6 +11877,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.543417,
+     "fn": 152,
+     "fp": 11,
+     "n_gt": 249,
+     "tp": 97
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.555331,
+     "f1": 0.543417,
+     "fn": 152,
+     "fp": 11,
+     "n_gt_recall": 249,
+     "tp": 97
+    }
+   },
    "split": "laurens_mapillary",
    "threshold_only_best": {
     "F1": 0.708241,
@@ -9039,6 +11905,278 @@
     "n_gt": 249,
     "t": 0.16,
     "tp": 159
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 13,
+        "boxes": 22,
+        "fp": 7,
+        "ignored": 1,
+        "precision": 0.666667,
+        "tp": 14,
+        "tp_new": 14
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 18,
+        "boxes": 48,
+        "fp": 27,
+        "ignored": 3,
+        "precision": 0.4,
+        "tp": 18,
+        "tp_new": 18
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 11,
+        "boxes": 33,
+        "fp": 19,
+        "ignored": 1,
+        "precision": 0.40625,
+        "tp": 13,
+        "tp_new": 12
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 9,
+        "boxes": 11,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.818182,
+        "tp": 9,
+        "tp_new": 8
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 12,
+        "boxes": 18,
+        "fp": 6,
+        "ignored": 1,
+        "precision": 0.647059,
+        "tp": 11,
+        "tp_new": 10
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 3,
+        "boxes": 4,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 4,
+        "tp_new": 3
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 17,
+        "boxes": 63,
+        "fp": 41,
+        "ignored": 3,
+        "precision": 0.316667,
+        "tp": 19,
+        "tp_new": 18
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 7,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.857143,
+        "tp": 6,
+        "tp_new": 5
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 23,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 14,
+        "boxes": 36,
+        "fp": 18,
+        "ignored": 1,
+        "precision": 0.485714,
+        "tp": 17,
+        "tp_new": 17
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 21,
+        "boxes": 70,
+        "fp": 45,
+        "ignored": 3,
+        "precision": 0.328358,
+        "tp": 22,
+        "tp_new": 22
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 44,
+        "fp": 27,
+        "ignored": 1,
+        "precision": 0.372093,
+        "tp": 16,
+        "tp_new": 16
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 10,
+        "boxes": 13,
+        "fp": 4,
+        "ignored": 0,
+        "precision": 0.692308,
+        "tp": 9,
+        "tp_new": 9
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 23,
+        "fp": 8,
+        "ignored": 0,
+        "precision": 0.652174,
+        "tp": 15,
+        "tp_new": 15
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 6,
+        "boxes": 7,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.857143,
+        "tp": 6,
+        "tp_new": 6
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 21,
+        "boxes": 76,
+        "fp": 54,
+        "ignored": 3,
+        "precision": 0.260274,
+        "tp": 19,
+        "tp_new": 19
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 8,
+        "boxes": 11,
+        "fp": 4,
+        "ignored": 0,
+        "precision": 0.636364,
+        "tp": 7,
+        "tp_new": 7
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 36,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 20,
+        "boxes": 36,
+        "fp": 9,
+        "ignored": 1,
+        "precision": 0.742857,
+        "tp": 26,
+        "tp_new": 24
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 28,
+        "boxes": 70,
+        "fp": 30,
+        "ignored": 3,
+        "precision": 0.552239,
+        "tp": 37,
+        "tp_new": 30
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 21,
+        "boxes": 44,
+        "fp": 21,
+        "ignored": 1,
+        "precision": 0.511628,
+        "tp": 22,
+        "tp_new": 18
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 12,
+        "boxes": 13,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.846154,
+        "tp": 11,
+        "tp_new": 10
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 21,
+        "boxes": 23,
+        "fp": 7,
+        "ignored": 1,
+        "precision": 0.681818,
+        "tp": 15,
+        "tp_new": 14
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 7,
+        "boxes": 7,
+        "fp": 0,
+        "ignored": 0,
+        "precision": 1.0,
+        "tp": 7,
+        "tp_new": 6
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 27,
+        "boxes": 76,
+        "fp": 48,
+        "ignored": 3,
+        "precision": 0.342466,
+        "tp": 25,
+        "tp_new": 23
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 11,
+        "boxes": 11,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.909091,
+        "tp": 10,
+        "tp_new": 8
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 36,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -9769,6 +12907,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.899001,
+     "fn": 590,
+     "fp": 158,
+     "n_gt": 3919,
+     "tp": 3329
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.05007,
+     "f1": 0.908487,
+     "fn": 499,
+     "fp": 190,
+     "n_gt_recall": 3919,
+     "tp": 3420
+    }
+   },
    "split": "manual_gold",
    "threshold_only_best": {
     "F1": 0.9047,
@@ -9779,6 +12935,278 @@
     "n_gt": 3919,
     "t": 0.36,
     "tp": 3465
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 11,
+        "boxes": 191,
+        "fp": 171,
+        "ignored": 0,
+        "precision": 0.104712,
+        "tp": 20,
+        "tp_new": 11
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 18,
+        "boxes": 392,
+        "fp": 368,
+        "ignored": 0,
+        "precision": 0.061224,
+        "tp": 24,
+        "tp_new": 17
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 22,
+        "boxes": 135,
+        "fp": 109,
+        "ignored": 0,
+        "precision": 0.192593,
+        "tp": 26,
+        "tp_new": 23
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 7,
+        "boxes": 10,
+        "fp": 5,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 5,
+        "tp_new": 5
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 27,
+        "boxes": 111,
+        "fp": 82,
+        "ignored": 0,
+        "precision": 0.261261,
+        "tp": 29,
+        "tp_new": 28
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 8,
+        "boxes": 8,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.75,
+        "tp": 6,
+        "tp_new": 6
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 22,
+        "boxes": 203,
+        "fp": 176,
+        "ignored": 0,
+        "precision": 0.133005,
+        "tp": 27,
+        "tp_new": 25
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 6,
+        "boxes": 13,
+        "fp": 8,
+        "ignored": 0,
+        "precision": 0.384615,
+        "tp": 5,
+        "tp_new": 5
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 43,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 48,
+        "boxes": 530,
+        "fp": 455,
+        "ignored": 0,
+        "precision": 0.141509,
+        "tp": 75,
+        "tp_new": 37
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 61,
+        "boxes": 889,
+        "fp": 784,
+        "ignored": 0,
+        "precision": 0.11811,
+        "tp": 105,
+        "tp_new": 57
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 77,
+        "boxes": 370,
+        "fp": 267,
+        "ignored": 0,
+        "precision": 0.278378,
+        "tp": 103,
+        "tp_new": 77
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 39,
+        "boxes": 37,
+        "fp": 15,
+        "ignored": 0,
+        "precision": 0.594595,
+        "tp": 22,
+        "tp_new": 21
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 83,
+        "boxes": 310,
+        "fp": 198,
+        "ignored": 0,
+        "precision": 0.36129,
+        "tp": 112,
+        "tp_new": 86
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 35,
+        "boxes": 32,
+        "fp": 5,
+        "ignored": 0,
+        "precision": 0.84375,
+        "tp": 27,
+        "tp_new": 26
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 80,
+        "boxes": 602,
+        "fp": 460,
+        "ignored": 0,
+        "precision": 0.23588,
+        "tp": 142,
+        "tp_new": 99
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 34,
+        "boxes": 37,
+        "fp": 14,
+        "ignored": 0,
+        "precision": 0.621622,
+        "tp": 23,
+        "tp_new": 20
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 119,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 70,
+        "boxes": 530,
+        "fp": 229,
+        "ignored": 0,
+        "precision": 0.567925,
+        "tp": 301,
+        "tp_new": 46
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 88,
+        "boxes": 889,
+        "fp": 460,
+        "ignored": 0,
+        "precision": 0.482565,
+        "tp": 429,
+        "tp_new": 65
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 97,
+        "boxes": 370,
+        "fp": 175,
+        "ignored": 0,
+        "precision": 0.527027,
+        "tp": 195,
+        "tp_new": 82
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 59,
+        "boxes": 37,
+        "fp": 9,
+        "ignored": 0,
+        "precision": 0.756757,
+        "tp": 28,
+        "tp_new": 21
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 100,
+        "boxes": 310,
+        "fp": 122,
+        "ignored": 0,
+        "precision": 0.606452,
+        "tp": 188,
+        "tp_new": 96
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 54,
+        "boxes": 32,
+        "fp": 3,
+        "ignored": 0,
+        "precision": 0.90625,
+        "tp": 29,
+        "tp_new": 25
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 94,
+        "boxes": 602,
+        "fp": 358,
+        "ignored": 0,
+        "precision": 0.405316,
+        "tp": 244,
+        "tp_new": 104
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 51,
+        "boxes": 37,
+        "fp": 11,
+        "ignored": 0,
+        "precision": 0.702703,
+        "tp": 26,
+        "tp_new": 20
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 119,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -10763,6 +14191,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.835118,
+     "fn": 72,
+     "fp": 5,
+     "n_gt": 267,
+     "tp": 195
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.552227,
+     "f1": 0.835118,
+     "fn": 72,
+     "fp": 5,
+     "n_gt_recall": 267,
+     "tp": 195
+    }
+   },
    "split": "morgantown",
    "threshold_only_best": {
     "F1": 0.851485,
@@ -10773,6 +14219,278 @@
     "n_gt": 267,
     "t": 0.32,
     "tp": 215
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 7,
+        "boxes": 25,
+        "fp": 16,
+        "ignored": 3,
+        "precision": 0.272727,
+        "tp": 6,
+        "tp_new": 6
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 11,
+        "boxes": 57,
+        "fp": 45,
+        "ignored": 1,
+        "precision": 0.196429,
+        "tp": 11,
+        "tp_new": 11
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 8,
+        "boxes": 35,
+        "fp": 25,
+        "ignored": 2,
+        "precision": 0.242424,
+        "tp": 8,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 4,
+        "boxes": 9,
+        "fp": 5,
+        "ignored": 0,
+        "precision": 0.444444,
+        "tp": 4,
+        "tp_new": 4
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 8,
+        "boxes": 20,
+        "fp": 12,
+        "ignored": 0,
+        "precision": 0.4,
+        "tp": 8,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 4,
+        "boxes": 5,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.8,
+        "tp": 4,
+        "tp_new": 4
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 53,
+        "fp": 40,
+        "ignored": 4,
+        "precision": 0.183673,
+        "tp": 9,
+        "tp_new": 9
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 4,
+        "boxes": 8,
+        "fp": 4,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 4,
+        "tp_new": 4
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 12,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 37,
+        "fp": 25,
+        "ignored": 4,
+        "precision": 0.242424,
+        "tp": 8,
+        "tp_new": 8
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 91,
+        "fp": 70,
+        "ignored": 3,
+        "precision": 0.204545,
+        "tp": 18,
+        "tp_new": 16
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 13,
+        "boxes": 48,
+        "fp": 35,
+        "ignored": 2,
+        "precision": 0.23913,
+        "tp": 11,
+        "tp_new": 11
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 11,
+        "fp": 6,
+        "ignored": 0,
+        "precision": 0.454545,
+        "tp": 5,
+        "tp_new": 5
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 13,
+        "boxes": 34,
+        "fp": 19,
+        "ignored": 3,
+        "precision": 0.387097,
+        "tp": 12,
+        "tp_new": 12
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 6,
+        "boxes": 7,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.857143,
+        "tp": 6,
+        "tp_new": 6
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 79,
+        "fp": 56,
+        "ignored": 8,
+        "precision": 0.211268,
+        "tp": 15,
+        "tp_new": 15
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 7,
+        "boxes": 10,
+        "fp": 4,
+        "ignored": 0,
+        "precision": 0.6,
+        "tp": 6,
+        "tp_new": 6
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 21,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 14,
+        "boxes": 37,
+        "fp": 16,
+        "ignored": 4,
+        "precision": 0.515152,
+        "tp": 17,
+        "tp_new": 10
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 19,
+        "boxes": 91,
+        "fp": 53,
+        "ignored": 5,
+        "precision": 0.383721,
+        "tp": 33,
+        "tp_new": 18
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 48,
+        "fp": 27,
+        "ignored": 3,
+        "precision": 0.4,
+        "tp": 18,
+        "tp_new": 11
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 7,
+        "boxes": 11,
+        "fp": 5,
+        "ignored": 0,
+        "precision": 0.545455,
+        "tp": 6,
+        "tp_new": 5
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 34,
+        "fp": 12,
+        "ignored": 2,
+        "precision": 0.625,
+        "tp": 20,
+        "tp_new": 12
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 7,
+        "boxes": 7,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.857143,
+        "tp": 6,
+        "tp_new": 6
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 17,
+        "boxes": 79,
+        "fp": 46,
+        "ignored": 9,
+        "precision": 0.342857,
+        "tp": 24,
+        "tp_new": 15
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 8,
+        "boxes": 10,
+        "fp": 4,
+        "ignored": 0,
+        "precision": 0.6,
+        "tp": 6,
+        "tp_new": 6
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 21,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -11612,6 +15330,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.800595,
+     "fn": 126,
+     "fp": 8,
+     "n_gt": 395,
+     "tp": 269
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.551539,
+     "f1": 0.805349,
+     "fn": 124,
+     "fp": 7,
+     "n_gt_recall": 395,
+     "tp": 271
+    }
+   },
    "split": "paterson",
    "threshold_only_best": {
     "F1": 0.821173,
@@ -11622,6 +15358,278 @@
     "n_gt": 395,
     "t": 0.26,
     "tp": 287
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 18,
+        "fp": 16,
+        "ignored": 1,
+        "precision": 0.058824,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 37,
+        "fp": 36,
+        "ignored": 0,
+        "precision": 0.027027,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 24,
+        "fp": 22,
+        "ignored": 1,
+        "precision": 0.043478,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 3,
+        "fp": 3,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 18,
+        "fp": 16,
+        "ignored": 1,
+        "precision": 0.058824,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 32,
+        "fp": 31,
+        "ignored": 0,
+        "precision": 0.03125,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 2,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 3,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 30,
+        "fp": 28,
+        "ignored": 1,
+        "precision": 0.034483,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 56,
+        "fp": 52,
+        "ignored": 0,
+        "precision": 0.071429,
+        "tp": 4,
+        "tp_new": 4
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 41,
+        "fp": 30,
+        "ignored": 5,
+        "precision": 0.166667,
+        "tp": 6,
+        "tp_new": 6
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 4,
+        "fp": 3,
+        "ignored": 0,
+        "precision": 0.25,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 35,
+        "fp": 25,
+        "ignored": 4,
+        "precision": 0.193548,
+        "tp": 6,
+        "tp_new": 6
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 2,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 60,
+        "fp": 47,
+        "ignored": 5,
+        "precision": 0.145455,
+        "tp": 8,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 3,
+        "boxes": 5,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.6,
+        "tp": 3,
+        "tp_new": 3
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 15,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 30,
+        "fp": 18,
+        "ignored": 1,
+        "precision": 0.37931,
+        "tp": 11,
+        "tp_new": 3
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 12,
+        "boxes": 56,
+        "fp": 40,
+        "ignored": 0,
+        "precision": 0.285714,
+        "tp": 16,
+        "tp_new": 5
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 12,
+        "boxes": 41,
+        "fp": 27,
+        "ignored": 4,
+        "precision": 0.27027,
+        "tp": 10,
+        "tp_new": 7
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 7,
+        "boxes": 4,
+        "fp": 3,
+        "ignored": 0,
+        "precision": 0.25,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 12,
+        "boxes": 35,
+        "fp": 20,
+        "ignored": 5,
+        "precision": 0.333333,
+        "tp": 10,
+        "tp_new": 6
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 7,
+        "boxes": 2,
+        "fp": 1,
+        "ignored": 0,
+        "precision": 0.5,
+        "tp": 1,
+        "tp_new": 1
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 12,
+        "boxes": 60,
+        "fp": 42,
+        "ignored": 5,
+        "precision": 0.236364,
+        "tp": 13,
+        "tp_new": 8
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 5,
+        "fp": 2,
+        "ignored": 0,
+        "precision": 0.6,
+        "tp": 3,
+        "tp_new": 3
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 15,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -12474,6 +16482,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.854578,
+     "fn": 72,
+     "fp": 9,
+     "n_gt": 310,
+     "tp": 238
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.55187,
+     "f1": 0.854578,
+     "fn": 72,
+     "fp": 9,
+     "n_gt_recall": 310,
+     "tp": 238
+    }
+   },
    "split": "richmond",
    "threshold_only_best": {
     "F1": 0.871186,
@@ -12484,6 +16510,278 @@
     "n_gt": 310,
     "t": 0.33,
     "tp": 257
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 3,
+        "boxes": 29,
+        "fp": 24,
+        "ignored": 2,
+        "precision": 0.111111,
+        "tp": 3,
+        "tp_new": 3
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 3,
+        "boxes": 64,
+        "fp": 51,
+        "ignored": 9,
+        "precision": 0.072727,
+        "tp": 4,
+        "tp_new": 4
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 19,
+        "fp": 15,
+        "ignored": 2,
+        "precision": 0.117647,
+        "tp": 2,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 1,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 10,
+        "fp": 8,
+        "ignored": 1,
+        "precision": 0.111111,
+        "tp": 1,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 1,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 26,
+        "fp": 20,
+        "ignored": 3,
+        "precision": 0.130435,
+        "tp": 3,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 2,
+        "fp": 0,
+        "ignored": 1,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 4,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 60,
+        "fp": 48,
+        "ignored": 5,
+        "precision": 0.127273,
+        "tp": 7,
+        "tp_new": 6
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 120,
+        "fp": 95,
+        "ignored": 10,
+        "precision": 0.136364,
+        "tp": 15,
+        "tp_new": 13
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 43,
+        "fp": 31,
+        "ignored": 8,
+        "precision": 0.114286,
+        "tp": 4,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 5,
+        "fp": 3,
+        "ignored": 2,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 27,
+        "fp": 20,
+        "ignored": 4,
+        "precision": 0.130435,
+        "tp": 3,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 3,
+        "fp": 1,
+        "ignored": 2,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 7,
+        "boxes": 73,
+        "fp": 55,
+        "ignored": 13,
+        "precision": 0.083333,
+        "tp": 5,
+        "tp_new": 4
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 11,
+        "fp": 6,
+        "ignored": 3,
+        "precision": 0.25,
+        "tp": 2,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 19,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 13,
+        "boxes": 60,
+        "fp": 27,
+        "ignored": 6,
+        "precision": 0.5,
+        "tp": 27,
+        "tp_new": 6
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 120,
+        "fp": 61,
+        "ignored": 13,
+        "precision": 0.429907,
+        "tp": 46,
+        "tp_new": 15
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 43,
+        "fp": 17,
+        "ignored": 9,
+        "precision": 0.5,
+        "tp": 17,
+        "tp_new": 5
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 5,
+        "fp": 1,
+        "ignored": 2,
+        "precision": 0.666667,
+        "tp": 2,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 16,
+        "boxes": 27,
+        "fp": 12,
+        "ignored": 4,
+        "precision": 0.478261,
+        "tp": 11,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 6,
+        "boxes": 3,
+        "fp": 0,
+        "ignored": 2,
+        "precision": 1.0,
+        "tp": 1,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 15,
+        "boxes": 73,
+        "fp": 35,
+        "ignored": 19,
+        "precision": 0.351852,
+        "tp": 19,
+        "tp_new": 5
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 11,
+        "fp": 3,
+        "ignored": 3,
+        "precision": 0.625,
+        "tp": 5,
+        "tp_new": 1
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 19,
+     "score_radius": 0.044
+    }
    }
   },
   {
@@ -13468,6 +17766,24 @@
      }
     }
    },
+   "scoreboard_reconciliation": {
+    "op_cache_at_operating_point": {
+     "F1": 0.757764,
+     "fn": 98,
+     "fp": 19,
+     "n_gt": 281,
+     "tp": 183
+    },
+    "operating_point": 0.55,
+    "scoreboard": {
+     "bundle_floor": 0.552963,
+     "f1": 0.77666,
+     "fn": 88,
+     "fp": 23,
+     "n_gt_recall": 281,
+     "tp": 193
+    }
+   },
    "split": "sao_paulo",
    "threshold_only_best": {
     "F1": 0.8,
@@ -13478,8 +17794,281 @@
     "n_gt": 281,
     "t": 0.3,
     "tp": 224
+   },
+   "unique_points": {
+    "2R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 23,
+        "fp": 19,
+        "ignored": 2,
+        "precision": 0.095238,
+        "tp": 2,
+        "tp_new": 2
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 36,
+        "fp": 31,
+        "ignored": 1,
+        "precision": 0.114286,
+        "tp": 4,
+        "tp_new": 4
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 41,
+        "fp": 35,
+        "ignored": 4,
+        "precision": 0.054054,
+        "tp": 2,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 1,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 1,
+        "boxes": 27,
+        "fp": 23,
+        "ignored": 2,
+        "precision": 0.08,
+        "tp": 2,
+        "tp_new": 1
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 1,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 0,
+        "boxes": 38,
+        "fp": 32,
+        "ignored": 4,
+        "precision": 0.058824,
+        "tp": 2,
+        "tp_new": 0
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 0,
+        "boxes": 4,
+        "fp": 3,
+        "ignored": 1,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.044,
+     "n_blind_gt": 6,
+     "score_radius": 0.044
+    },
+    "R": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 6,
+        "boxes": 38,
+        "fp": 27,
+        "ignored": 3,
+        "precision": 0.228571,
+        "tp": 8,
+        "tp_new": 6
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 7,
+        "boxes": 64,
+        "fp": 51,
+        "ignored": 5,
+        "precision": 0.135593,
+        "tp": 8,
+        "tp_new": 7
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 5,
+        "boxes": 78,
+        "fp": 71,
+        "ignored": 3,
+        "precision": 0.053333,
+        "tp": 4,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 4,
+        "fp": 3,
+        "ignored": 1,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 4,
+        "boxes": 52,
+        "fp": 45,
+        "ignored": 2,
+        "precision": 0.1,
+        "tp": 5,
+        "tp_new": 4
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 1,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 1,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 3,
+        "boxes": 83,
+        "fp": 73,
+        "ignored": 5,
+        "precision": 0.064103,
+        "tp": 5,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 2,
+        "boxes": 5,
+        "fp": 4,
+        "ignored": 1,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 15,
+     "score_radius": 0.022
+    },
+    "R_group_2R_score": {
+     "arms": {
+      "gemini-4-argon": {
+       "all": {
+        "blind_gt_reached": 11,
+        "boxes": 38,
+        "fp": 22,
+        "ignored": 3,
+        "precision": 0.371429,
+        "tp": 13,
+        "tp_new": 7
+       }
+      },
+      "gemini-4-argon-confidence-on": {
+       "all": {
+        "blind_gt_reached": 11,
+        "boxes": 64,
+        "fp": 34,
+        "ignored": 6,
+        "precision": 0.413793,
+        "tp": 24,
+        "tp_new": 12
+       }
+      },
+      "y11l_pano": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 78,
+        "fp": 50,
+        "ignored": 8,
+        "precision": 0.285714,
+        "tp": 20,
+        "tp_new": 3
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 4,
+        "fp": 1,
+        "ignored": 2,
+        "precision": 0.5,
+        "tp": 1,
+        "tp_new": 0
+       }
+      },
+      "y11x_pano_h200": {
+       "all": {
+        "blind_gt_reached": 10,
+        "boxes": 52,
+        "fp": 34,
+        "ignored": 2,
+        "precision": 0.32,
+        "tp": 16,
+        "tp_new": 5
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 5,
+        "boxes": 1,
+        "fp": 0,
+        "ignored": 1,
+        "precision": null,
+        "tp": 0,
+        "tp_new": 0
+       }
+      },
+      "y26_pano": {
+       "all": {
+        "blind_gt_reached": 9,
+        "boxes": 83,
+        "fp": 57,
+        "ignored": 10,
+        "precision": 0.219178,
+        "tp": 16,
+        "tp_new": 2
+       },
+       "conf_ge_0.25": {
+        "blind_gt_reached": 6,
+        "boxes": 5,
+        "fp": 4,
+        "ignored": 1,
+        "precision": 0.0,
+        "tp": 0,
+        "tp_new": 0
+       }
+      }
+     },
+     "floor": 0.05,
+     "group_radius": 0.022,
+     "n_blind_gt": 15,
+     "score_radius": 0.044
+    }
    }
   }
  ],
- "t_hi": 0.3
+ "t_hi": 0.3,
+ "unique_points_note": "boxes with no RampNet op_cache peak >= floor within the group radius, scored alone by score_pano at the score radius on recall-confirmed panos; blind GT = GT ramps with no such peak within the group radius; reached = any box of the arm within the score radius. YOLO also at its headline conf >= 0.25. R is primary; 2R and R_group_2R_score are sensitivity reads, generous to every arm"
 }
