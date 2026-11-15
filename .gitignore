@@ -671,3 +671,12 @@ analysis_out/crosswalk_followups_285/**/*.*
 !analysis_out/crosswalk_followups_285/**/*.md
 !analysis_out/crosswalk_followups_285/**/*.txt
 !analysis_out/crosswalk_followups_285/**/*.jsonl
+
+# crosswalk_s7 day-1 diagnostics (crosswalk-supervision-fix plan): small text outputs
+!analysis_out/crosswalk_supervision_s7/
+analysis_out/crosswalk_supervision_s7/**/*.*
+!analysis_out/crosswalk_supervision_s7/**/
+!analysis_out/crosswalk_supervision_s7/**/*.csv
+!analysis_out/crosswalk_supervision_s7/**/*.json
+!analysis_out/crosswalk_supervision_s7/**/*.txt
+!analysis_out/crosswalk_supervision_s7/**/*.jsonl

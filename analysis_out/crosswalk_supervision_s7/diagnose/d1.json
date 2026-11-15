@@ -1,0 +1,106 @@
+{
+ "fresh_juneau_120": {
+  "s4": [
+   {
+    "label": "crosswalk_s4_klone",
+    "threshold": 0.23,
+    "matched": 71,
+    "fixed_0.25": 67
+   },
+   {
+    "label": "crosswalk_s4_seed2",
+    "threshold": 0.3,
+    "matched": 70,
+    "fixed_0.25": 85
+   },
+   {
+    "label": "crosswalk_s4_seed3",
+    "threshold": 0.13,
+    "matched": 146,
+    "fixed_0.25": 95
+   }
+  ],
+  "full": [
+   {
+    "label": "crosswalk_s6full",
+    "threshold": 0.17,
+    "matched": 430,
+    "fixed_0.25": 268
+   },
+   {
+    "label": "crosswalk_s6full_seed2",
+    "threshold": 0.27,
+    "matched": 141,
+    "fixed_0.25": 159
+   },
+   {
+    "label": "crosswalk_s6full_seed3",
+    "threshold": 0.24,
+    "matched": 159,
+    "fixed_0.25": 154
+   }
+  ],
+  "half": [
+   {
+    "label": "crosswalk_s6half",
+    "threshold": 0.23,
+    "matched": 187,
+    "fixed_0.25": 170
+   },
+   {
+    "label": "crosswalk_s6half_seed2",
+    "threshold": 0.23,
+    "matched": 110,
+    "fixed_0.25": 99
+   },
+   {
+    "label": "crosswalk_s6half_seed3",
+    "threshold": 0.25,
+    "matched": 182,
+    "fixed_0.25": 182
+   }
+  ],
+  "steps": [
+   {
+    "label": "crosswalk_s4_steps1397",
+    "threshold": 0.24,
+    "matched": 104,
+    "fixed_0.25": 95
+   }
+  ]
+ },
+ "seed1_only": {
+  "s4": {
+   "label": "crosswalk_s4_klone",
+   "threshold": 0.23,
+   "confirmation_mapillary_200": 113,
+   "confirmation_gsv_80": 11,
+   "columbia_gsv": 902,
+   "columbia_panos": 127
+  },
+  "full": {
+   "label": "crosswalk_s6full",
+   "threshold": 0.17,
+   "confirmation_mapillary_200": 621,
+   "confirmation_gsv_80": 39,
+   "columbia_gsv": 1053,
+   "columbia_panos": 127
+  },
+  "half": {
+   "label": "crosswalk_s6half",
+   "threshold": 0.23,
+   "confirmation_mapillary_200": 226,
+   "confirmation_gsv_80": 30,
+   "columbia_gsv": 937,
+   "columbia_panos": 127
+  },
+  "steps": {
+   "label": "crosswalk_s4_steps1397",
+   "threshold": 0.24,
+   "confirmation_mapillary_200": 151,
+   "confirmation_gsv_80": 34,
+   "columbia_gsv": 1015,
+   "columbia_panos": 127
+  }
+ }
+}
