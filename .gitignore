@@ -582,3 +582,17 @@ analysis_out/prompt_opt_276/*
 
 # #276 optimizer review pages: a view of iter_*/candidates.json + the crops beside it, ~1 MB of base64 each; `prompt_optimize.py pick` rewrites them
 benchmark/prompt_opt_276/optimize/*/iter_*/review.html
+# Horizon band, Stage 0a-0c (#263): reports re-derived by merged_separation_263.py and
+# horizon_band_263.py --check, plus the Stage 0c peak caches (image-free) when they exist.
+!analysis_out/horizon_band_263/
+analysis_out/horizon_band_263/*
+!analysis_out/horizon_band_263/merged_pairs.json
+!analysis_out/horizon_band_263/merged_pairs.md
+!analysis_out/horizon_band_263/simulate.json
+!analysis_out/horizon_band_263/simulate.md
+!analysis_out/horizon_band_263/calibration.json
+!analysis_out/horizon_band_263/gate_0c.json
+!analysis_out/horizon_band_263/gate_0c.md
+!analysis_out/horizon_band_263/cache_0c/
+analysis_out/horizon_band_263/cache_0c/*
+!analysis_out/horizon_band_263/cache_0c/*.json
