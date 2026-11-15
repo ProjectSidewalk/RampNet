@@ -188,7 +188,13 @@ def holm(tests):
         tests[i]["p_holm"] = _r(min(1.0, running))
 
 
-def build(main_cache):
+def build(main_cache, models=None, arms=None, primary=None, step=5):
+    """``models`` / ``arms`` / ``primary`` default to the Step 5 design; the rewrite-arm
+    held-out table (prompt_276_rewrite_heldout.py) passes its own. An arm is
+    ``(name, definition)`` or ``(name, definition, prompt_body)``."""
+    models = MODELS if models is None else models
+    arms = ARMS if arms is None else arms
+    primary = PRIMARY if primary is None else primary
     rsq = radius_sq_for()
     cache = C.DetectionCache(main_cache, enabled=True)
     args = _compare_args(main_cache)
@@ -203,15 +209,18 @@ def build(main_cache):
 
     legs, thresholds, counts = [], [], {}   # counts[(short, arm)][split] -> per-pano array
     raw_f1 = {}                              # raw_f1[(short, arm)][split] -> F1 with no threshold
-    for model_id, short in MODELS:
-        for arm, definition in ARMS[short]:
-            args.definition = definition
+    for model_id, short in models:
+        for arm, definition, *body in arms[short]:
+            body = body[0] if body else None
+            args.definition, args.prompt_body = definition, body
             label, det = D.build_detector("gemini", model_id, dev_records, args)
             sig = det.signature()
             # 1. the operating point, from dev_select at this definition
             pts, missing = cached_points(cache, label, sig, DEV_CITY, dev_select)
             trow = {"model": model_id, "short": short, "arm": arm, "definition": definition,
                     "n_panos": len(dev_select), "n_cached": len(dev_select) - len(missing)}
+            if body:
+                trow["prompt_body"] = body
             if missing:
                 trow["status"] = "pending"
                 thresholds.append(trow)
@@ -228,6 +237,8 @@ def build(main_cache):
                 row = {"model": model_id, "short": short, "arm": arm, "definition": definition,
                        "split": split, "threshold": thr, "n_panos": len(gts),
                        "n_cached": len(gts) - len(missing)}
+                if body:
+                    row["prompt_body"] = body
                 if missing:
                     row["status"] = "pending"
                     legs.append(row)
@@ -247,9 +258,9 @@ def build(main_cache):
     scored = {k: v for k, v in counts.items()}
     pools, tests = [], []
     for pool_name, members in POOLS.items():
-        for model_id, short in MODELS:
+        for model_id, short in models:
             fam = []
-            for arm, _definition in ARMS[short]:
+            for arm, *_pins in arms[short]:
                 c = scored.get((short, arm), {})
                 if any(m not in c for m in members):
                     pools.append({"pool": pool_name, "short": short, "arm": arm, "status": "pending",
@@ -267,7 +278,7 @@ def build(main_cache):
                                                     {m: scored[(short, "zs")][m] for m in members}, rng)
                     t = {"pool": pool_name, "short": short, "arm": arm, "vs": "zs",
                          "macro_delta_f1": d, "ci95": [lo, hi], "p": p,
-                         "family": "primary" if (pool_name == "reference" and (short, arm) in PRIMARY)
+                         "family": "primary" if (pool_name == "reference" and (short, arm) in primary)
                          else "exploratory"}
                     fam.append(t)
             if fam:
@@ -276,28 +287,29 @@ def build(main_cache):
     primary = [t for t in tests if t["family"] == "primary"]
     if primary:
         holm(primary)
-    return {"issue": "ProjectSidewalk/RampNet#276", "step": 5, "match_radius": 0.022,
+    return {"issue": "ProjectSidewalk/RampNet#276", "step": step, "match_radius": 0.022,
             "draws": DRAWS, "seed": SEED, "pools": {k: list(v) for k, v in POOLS.items()},
             "thresholds": thresholds, "legs": legs, "pool_stats": pools, "tests": tests}
 
 
-def render_md(res):
-    L = ["# #276 Step 5: frozen held-out run (regenerated)", "",
+def render_md(res, title="# #276 Step 5: frozen held-out run (regenerated)",
+              script="prompt_276_heldout.py", models=None):
+    L = [title, "",
          "Match radius %s. One threshold per (model, definition), selected on sao_paulo dev_select; "
          "held-out splits scored at it. Pool numbers are macro means of per-split F1; Δ rows are "
          "paired pano bootstraps (%d draws, seed %d) of the macro ΔF1 against the zs arm. "
-         "Regenerate with `python scripts/analysis/prompt_276_heldout.py`." % (
-             res["match_radius"], res["draws"], res["seed"]), "",
+         "Regenerate with `python scripts/analysis/%s`." % (
+             res["match_radius"], res["draws"], res["seed"], script), "",
          "## Selected thresholds (dev_select, confidence on)", "",
          "| model | arm | definition | threshold | dev_select F1 at it | raw F1 (no threshold) |",
          "|---|---|---|---|---|---|"]
     for t in res["thresholds"]:
         if t["status"] != "selected":
             L.append("| %s | %s | %s | pending (%d/%d cached) | | |" % (
-                t["model"], t["arm"], t["definition"] or "seed", t["n_cached"], t["n_panos"]))
+                t["model"], t["arm"], t.get("prompt_body") or t["definition"] or "seed", t["n_cached"], t["n_panos"]))
         else:
             L.append("| %s | %s | %s | %.2f | %.3f | %.3f |" % (
-                t["model"], t["arm"], t["definition"] or "seed", t["threshold"],
+                t["model"], t["arm"], t.get("prompt_body") or t["definition"] or "seed", t["threshold"],
                 t["dev_select_f1"], t["dev_select_f1_raw"]))
     L += ["", "## Pools (macro F1 at the selected thresholds; raw = no threshold; pooled = one micro F1 over the pool)", "",
           "| pool | model | arm | macro F1 | macro F1 raw | pooled F1 |", "|---|---|---|---|---|---|"]
@@ -314,7 +326,7 @@ def render_md(res):
         L.append("| %s | %s | %s | %+.3f | [%+.3f, %+.3f] | %s | %s | %s |" % (
             t["pool"], t["short"], t["arm"], t["macro_delta_f1"], t["ci95"][0], t["ci95"][1],
             fmt_p(t["p"]), fmt_p(t["p_holm"]) if "p_holm" in t else "", t["family"]))
-    for model_id, short in MODELS:
+    for model_id, short in (MODELS if models is None else models):
         L += ["", "## %s, per split" % model_id, "",
               "| arm | split | thr | P | R | F1 | AP | tp/fp/n_gt | raw F1 | distinct scores |",
               "|---|---|---|---|---|---|---|---|---|---|"]
