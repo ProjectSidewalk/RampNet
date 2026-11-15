@@ -1023,8 +1023,9 @@ and pinned by `tests/test_pos_sheet_285.py`.
 
 Built from sample digest `b98b6375eac1` (290 cells), tagged blind by Claude Opus 5.5 (`claude-opus-5-5`) after the
 pre-registration above was committed (`10884acf`). 19 uncertain cells were looked at again at twice the size with a
-wider context **before** the stratum key was opened. Nine tags changed then: seven moved away from no paint and
-two stayed as no paint. All tags are an AI pre-pass, not ground truth.
+wider context **before** the stratum key was opened. Five of them moved from no paint or can't tell to faint or
+clear (61, 91, 98, 218, 274), two changed within the painted tags (19, 163), and two stayed no paint with a note
+(56, 63). All tags are an AI pre-pass, not ground truth.
 
 | Stratum | n | Clear | Faint | None | Can't tell | No paint, share of decided (95% CI) | Peak off paint (95% CI) |
 |---|---|---|---|---|---|---|---|
