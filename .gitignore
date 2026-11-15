@@ -59,6 +59,9 @@ analysis_out/cascade_cost_35/*
 !analysis_out/cascade_cost_35/transfer/
 analysis_out/cascade_cost_35/transfer/*
 !analysis_out/cascade_cost_35/transfer/*.json
+!analysis_out/cascade_cost_35/argon/
+analysis_out/cascade_cost_35/argon/*
+!analysis_out/cascade_cost_35/argon/*.json
 
 # Stage 1's coordinate-tolerance result (#96): a few KB, and it is what converts an
 # offset distribution into a decision. Re-derivable on CPU from the committed
