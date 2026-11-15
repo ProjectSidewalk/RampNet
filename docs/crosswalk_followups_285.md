@@ -957,3 +957,64 @@ python scripts/analysis/stage1_crosswalk_sdot_274/recall_check.py fa-sheet \
 
 For a future candidate, pass its `compare.json` to get the same sheet, so its false alarms can be looked at before
 anyone is asked to rate.
+
+### A4 follow-up 2 (2026-11-15, exploratory): do the auto-placed training positives sit on visible paint?
+
+**Pre-registration, written and committed before any crop was built or looked at.** Nothing here changes the A4
+outcome (s4 stays). It tests the hypothesis at the end of the follow-up above: some of the 3,040 auto positives
+sit where no crosswalk paint is visible, so `crosswalk_s6` learned "road surface at a junction".
+
+**Prior, stated up front.** Jon's three A3 gate pages already rated 300 random placements (before the two cuts)
+on "is the outlined cross on a marked crosswalk?": 290 correct, and none of the 10 misses carries the note
+"paint removed". So a large no-paint share is unlikely, and the most probable result of the primary question is
+*not supported*. The sheet is still worth building because it also asks a question the gates did not: where the
+label point sits relative to the paint. Every auto positive is the **centroid** of a Vistas crosswalk component
+(`pilot.vistas_at`), and on a two-line crossing that centroid can fall on the bare asphalt between the lines, so
+the training Gaussian's peak (sigma 10 heatmap px, 0.98% of the pano width) would sit on plain road even though
+the crossing is painted. The gate question ("on a marked crosswalk") counted such a point as correct.
+
+**Sample** (`pos_sheet.py build`, seed 285, from the training JPEGs of `root_v6_full` at 4096 px):
+- `auto`: 70 positives per city from `root_v6/positives_full.csv` (Sacramento, Kaysville, Brussels; 210).
+- `human`: 50 crowd-labelled positives of `root_v4` (sources `crowd` and `ps_crowd_jon_confirmed`): the base rate.
+- `sdot_b2`: 30 SDOT positives of `root_v4`. They were placed by the **same centroid snap** and s4 trained on them,
+  so they separate "the snap puts points on asphalt" (present in s4's data too) from something new in s6.
+- Each cell shows a tight crop (8% of the pano width) with the label point, its 1-sigma circle and the 3-sigma disc
+  a sparse pano trains inside, plus a context crop (25%). Review montages number the cells in one seeded order
+  that mixes the three strata. The rater tags cells by number without the stratum key; the imagery itself can
+  still hint at the source (GSV in Seattle against Mapillary rigs), so the blinding is partial.
+
+**Tags** (one per cell, AI pre-pass by Claude Opus 5.5, `claude-opus-5-5`; never ground truth):
+- *paint*, about the crossing the label claims, inside the training disc: `clear` (markings plainly visible),
+  `faint` (visible but worn or faded), `none` (no crosswalk marking visible there), `cant_tell` (occluded, blurred,
+  too far, or on the capture vehicle).
+- *point*, where the 1-sigma peak sits: `on_paint` (mostly on a marking), `between` (inside a visible crossing but
+  on unpainted surface, such as between the two lines), `off` (outside any crossing), `na` (with `cant_tell`).
+
+**Primary rule.** Shares use the decided cells (`cant_tell` left out; a sensitivity line counts it as no paint).
+The auto share is weighted by each city's full-dose positives (1,313, 380, 1,347); its interval is the Wilson
+interval on the 210 pooled cells.
+- **Supported:** auto no-paint share ≥ 0.10 **and** the auto Wilson lower bound is above the human share.
+- **Not supported:** the auto Wilson upper bound is below 0.10, **or** the auto share is at most the human share
+  plus 0.03.
+- **Inconclusive:** anything else.
+The 0.10 bar is a judgement made now: about 300 of 3,040 label points on plain road is a size that could plausibly
+teach a road-surface response, and a few percent is within what human labels already carry.
+
+**Secondary (decides nothing on its own).** The share of decided-point cells with the peak `between` or `off`.
+The flag is raised only if auto exceeds **both** human and `sdot_b2` by at least 0.15. If `sdot_b2` is as high as
+auto, the snap puts points on asphalt in s4's data too, so it cannot by itself explain a rise that only s6 shows.
+
+**What each outcome leads to (proposals for Jon; no job runs without his OK):**
+- *Supported:* a candidate rule that drops auto positives without paint evidence, checked on this sample first
+  (for example on `on_paint` or region size), and Jon rates only the no-paint and faint cells to confirm.
+- *Not supported, flag raised:* move the auto label point onto paint (for example the component pixel nearest the
+  centroid) and compare it with human click placement on this sample, before any retraining.
+- *Not supported, no flag:* label quality is not the explanation. The leading alternative is the supervision mode:
+  1,705 sparse, positive-only panos add positive pixels and no background, which can shift the model towards firing.
+  Testing it (auto panos as `dense_ignore` with background where Vistas sees no crosswalk, or same-city verified
+  empties) needs a new pre-registration.
+- *Inconclusive:* Jon rates the auto no-paint and faint cells (expected to be a few dozen) and the rule is re-read
+  on his tags.
+
+The rule is also coded in `pos_sheet.tally` (constants `SUPPORT_MIN`, `NOT_SUPPORTED_MARGIN`, `POINT_FLAG_MARGIN`)
+and pinned by `tests/test_pos_sheet_285.py`.

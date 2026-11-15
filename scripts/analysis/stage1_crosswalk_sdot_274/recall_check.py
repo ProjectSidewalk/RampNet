@@ -498,12 +498,13 @@ def _spots(dets, radius=SPOT_RADIUS):
     return spots
 
 
-def _crop(img, x, y):
-    """A CROP_W-wide window centred on normalized (x, y), wrapping across the 360-degree seam."""
+def _crop(img, x, y, crop_w=CROP_W, aspect=CROP_ASPECT, out_px=CROP_PX):
+    """A ``crop_w``-wide window (share of the pano width) centred on normalized (x, y), wrapping across the
+    360-degree seam, resized to ``out_px`` wide. Returns the crop and its (left, top, width, height) in pano px."""
     from PIL import Image
     w, h = img.size
-    cw = int(CROP_W * w)
-    ch = int(cw * CROP_ASPECT)
+    cw = int(crop_w * w)
+    ch = int(cw * aspect)
     left = int(x * w) - cw // 2
     top = min(max(int(y * h) - ch // 2, 0), h - ch)
     out = Image.new("RGB", (cw, ch))
@@ -513,7 +514,7 @@ def _crop(img, x, y):
         run = min(cw - dx, w - sx)
         out.paste(img.crop((sx, top, sx + run, top + ch)), (dx, 0))
         dx += run
-    return out.resize((CROP_PX, int(CROP_PX * CROP_ASPECT))), (left, top, cw, ch)
+    return out.resize((out_px, int(out_px * aspect))), (left, top, cw, ch)
 
 
 def cmd_fa_sheet(a):
