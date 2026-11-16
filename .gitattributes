@@ -148,3 +148,6 @@ analysis_out/pano_tilt/** text eol=lf
 
 # Lyon audit results (#159): written LF and checked byte for byte by lyon_review_159.py.
 analysis_out/lyon_review_159/** text eol=lf
+
+# #248 seam NMS default study: JSON / markdown only (no images are committed)
+analysis_out/seam_nms_default_248/** text eol=lf

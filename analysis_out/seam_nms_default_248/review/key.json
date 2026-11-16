@@ -1,0 +1,633 @@
+{
+ "digest": "3d4c0bc2a9f57492",
+ "cards": {
+  "s248-01": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "MJbCTDJV5advy8eYbL0V5Q",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.751634,
+   "strong_score": 0.896311,
+   "dist": 1,
+   "A": [
+    0.999023,
+    0.539062
+   ],
+   "B": [
+    0.0,
+    0.539062
+   ],
+   "weaker": "A"
+  },
+  "s248-02": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "2NgKmkIoU9nUwvjk6K5wtw",
+   "jon_index": 9,
+   "A": [
+    0.98969,
+    0.541625
+   ],
+   "B": [
+    0.002138,
+    0.544149
+   ],
+   "A_is": "b"
+  },
+  "s248-03": {
+   "kind": "study",
+   "split": "bend",
+   "pano": "rQtHh0Wai-D1FvbvqBlWdw",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.800486,
+   "strong_score": 0.842894,
+   "dist": 7,
+   "A": [
+    0.996094,
+    0.554688
+   ],
+   "B": [
+    0.0,
+    0.568359
+   ],
+   "weaker": "A"
+  },
+  "s248-04": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "JrR9wwG_ynJrSP9ov3Rxrw",
+   "jon_index": 4,
+   "A": [
+    0.006715,
+    0.55001
+   ],
+   "B": [
+    0.997129,
+    0.552834
+   ],
+   "A_is": "a"
+  },
+  "s248-05": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "XFxls0YjTNlFLpZ6eNUuwg",
+   "jon_index": 3,
+   "A": [
+    0.008065,
+    0.543046
+   ],
+   "B": [
+    0.999198,
+    0.545851
+   ],
+   "A_is": "a"
+  },
+  "s248-06": {
+   "kind": "study",
+   "split": "morgantown",
+   "pano": "760811765935688",
+   "set": "E",
+   "weak_index": 0,
+   "weak_score": 0.47804,
+   "strong_score": 0.97381,
+   "dist": 16,
+   "A": [
+    0.996094,
+    0.617188
+   ],
+   "B": [
+    0.011719,
+    0.615234
+   ],
+   "weaker": "A"
+  },
+  "s248-07": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "oE6q6mzI7U-P8l35PsTDFA",
+   "jon_index": 6,
+   "A": [
+    0.991298,
+    0.55743
+   ],
+   "B": [
+    0.001387,
+    0.558619
+   ],
+   "A_is": "b"
+  },
+  "s248-08": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "4lENFOhzGGSJaPgXnTfAJA",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.566833,
+   "strong_score": 0.760688,
+   "dist": 4,
+   "A": [
+    0.0,
+    0.539062
+   ],
+   "B": [
+    0.996094,
+    0.539062
+   ],
+   "weaker": "A"
+  },
+  "s248-09": {
+   "kind": "study",
+   "split": "paterson",
+   "pano": "iPgLrrQ5XDrWWlTXzI5MLQ",
+   "set": "E",
+   "weak_index": 0,
+   "weak_score": 0.366056,
+   "strong_score": 0.914358,
+   "dist": 20,
+   "A": [
+    0.0,
+    0.523438
+   ],
+   "B": [
+    0.980469,
+    0.523438
+   ],
+   "weaker": "A"
+  },
+  "s248-10": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "bIvg28w_vN1FEprlX0biKg",
+   "jon_index": 11,
+   "A": [
+    0.017995,
+    0.555383
+   ],
+   "B": [
+    0.99502,
+    0.547984
+   ],
+   "A_is": "a"
+  },
+  "s248-11": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "R6Awyr2RqM-NKCZyeExAwQ",
+   "set": "E",
+   "weak_index": 0,
+   "weak_score": 0.390388,
+   "strong_score": 0.951472,
+   "dist": 16,
+   "A": [
+    0.011719,
+    0.552734
+   ],
+   "B": [
+    0.996094,
+    0.552734
+   ],
+   "weaker": "B"
+  },
+  "s248-12": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "XCbhS0jxrSrOLyndJXtQvA",
+   "jon_index": 1,
+   "A": [
+    0.000374,
+    0.545885
+   ],
+   "B": [
+    0.994238,
+    0.547147
+   ],
+   "A_is": "b"
+  },
+  "s248-13": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.892905,
+   "strong_score": 0.916836,
+   "dist": 4,
+   "A": [
+    0.996094,
+    0.554688
+   ],
+   "B": [
+    0.0,
+    0.554688
+   ],
+   "weaker": "A"
+  },
+  "s248-14": {
+   "kind": "study",
+   "split": "richmond",
+   "pano": "723487737079243",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.731147,
+   "strong_score": 0.945867,
+   "dist": 4,
+   "A": [
+    0.996094,
+    0.539062
+   ],
+   "B": [
+    0.0,
+    0.539062
+   ],
+   "weaker": "A"
+  },
+  "s248-15": {
+   "kind": "study",
+   "split": "richmond",
+   "pano": "1073049581231056",
+   "set": "E",
+   "weak_index": 0,
+   "weak_score": 0.334738,
+   "strong_score": 0.938278,
+   "dist": 13,
+   "A": [
+    0.0,
+    0.570312
+   ],
+   "B": [
+    0.987305,
+    0.583984
+   ],
+   "weaker": "A"
+  },
+  "s248-16": {
+   "kind": "study",
+   "split": "bend",
+   "pano": "bVadNrPq_zXgbJjhhDSwDw",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.698127,
+   "strong_score": 0.79537,
+   "dist": 4,
+   "A": [
+    0.0,
+    0.523438
+   ],
+   "B": [
+    0.996094,
+    0.523438
+   ],
+   "weaker": "B"
+  },
+  "s248-17": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "fCcAa7bQ3VAxPqaC0ZGy0Q",
+   "set": "E",
+   "weak_index": 0,
+   "weak_score": 0.5237,
+   "strong_score": 0.947548,
+   "dist": 15,
+   "A": [
+    0.996094,
+    0.539062
+   ],
+   "B": [
+    0.010742,
+    0.552734
+   ],
+   "weaker": "A"
+  },
+  "s248-18": {
+   "kind": "study",
+   "split": "paterson",
+   "pano": "gZ3Acgi38PrzOVBkW-Il4Q",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.619814,
+   "strong_score": 0.760159,
+   "dist": 4,
+   "A": [
+    0.0,
+    0.537109
+   ],
+   "B": [
+    0.996094,
+    0.537109
+   ],
+   "weaker": "A"
+  },
+  "s248-19": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "QGbpvWpeg9zLcu5HZneRbw",
+   "jon_index": 13,
+   "A": [
+    0.976675,
+    0.545615
+   ],
+   "B": [
+    0.001149,
+    0.545085
+   ],
+   "A_is": "b"
+  },
+  "s248-20": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "mLHZho9oLtF_S2JpEUai6g",
+   "set": "E",
+   "weak_index": 0,
+   "weak_score": 0.614417,
+   "strong_score": 0.945083,
+   "dist": 12,
+   "A": [
+    0.0,
+    0.601562
+   ],
+   "B": [
+    0.988281,
+    0.601562
+   ],
+   "weaker": "A"
+  },
+  "s248-21": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "1k0cQKEs12LmTz7nGenMjg",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.460038,
+   "strong_score": 0.490544,
+   "dist": 4,
+   "A": [
+    0.0,
+    0.537109
+   ],
+   "B": [
+    0.996094,
+    0.539062
+   ],
+   "weaker": "B"
+  },
+  "s248-22": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+   "jon_index": 7,
+   "A": [
+    0.000647,
+    0.559133
+   ],
+   "B": [
+    0.990039,
+    0.559108
+   ],
+   "A_is": "a"
+  },
+  "s248-23": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "MJbCTDJV5advy8eYbL0V5Q",
+   "jon_index": 10,
+   "A": [
+    0.985422,
+    0.541945
+   ],
+   "B": [
+    0.0023,
+    0.541611
+   ],
+   "A_is": "b"
+  },
+  "s248-24": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "shnQL5DurRLY94LPJmCTYA",
+   "jon_index": 5,
+   "A": [
+    0.991886,
+    0.53821
+   ],
+   "B": [
+    0.001878,
+    0.537662
+   ],
+   "A_is": "a"
+  },
+  "s248-25": {
+   "kind": "study",
+   "split": "bend",
+   "pano": "bTkyJpLDQ7HCw4yOdqdNCg",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.522917,
+   "strong_score": 0.866691,
+   "dist": 4,
+   "A": [
+    0.0,
+    0.539062
+   ],
+   "B": [
+    0.996094,
+    0.537109
+   ],
+   "weaker": "A"
+  },
+  "s248-26": {
+   "kind": "study",
+   "split": "annapolis",
+   "pano": "1066275427712945",
+   "set": "E",
+   "weak_index": 0,
+   "weak_score": 0.504463,
+   "strong_score": 0.786821,
+   "dist": 13,
+   "A": [
+    0.987305,
+    0.585938
+   ],
+   "B": [
+    0.0,
+    0.583984
+   ],
+   "weaker": "B"
+  },
+  "s248-27": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "QGbpvWpeg9zLcu5HZneRbw",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.741876,
+   "strong_score": 0.964573,
+   "dist": 7,
+   "A": [
+    0.0,
+    0.552734
+   ],
+   "B": [
+    0.996094,
+    0.539062
+   ],
+   "weaker": "B"
+  },
+  "s248-28": {
+   "kind": "study",
+   "split": "budapest_district5",
+   "pano": "1046671274052950",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.308485,
+   "strong_score": 0.470878,
+   "dist": 4,
+   "A": [
+    0.996094,
+    0.539062
+   ],
+   "B": [
+    0.0,
+    0.537109
+   ],
+   "weaker": "A"
+  },
+  "s248-29": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "oyyca_diFZoYJGETmlwc3g",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.781742,
+   "strong_score": 0.922212,
+   "dist": 4,
+   "A": [
+    0.996094,
+    0.554688
+   ],
+   "B": [
+    0.0,
+    0.554688
+   ],
+   "weaker": "A"
+  },
+  "s248-30": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "i3klZw0fkItNns0UNkA_UA",
+   "jon_index": 12,
+   "A": [
+    0.982125,
+    0.544643
+   ],
+   "B": [
+    0.006538,
+    0.542825
+   ],
+   "A_is": "a"
+  },
+  "s248-31": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "oyyca_diFZoYJGETmlwc3g",
+   "jon_index": 2,
+   "A": [
+    0.00375,
+    0.562424
+   ],
+   "B": [
+    0.996908,
+    0.561155
+   ],
+   "A_is": "a"
+  },
+  "s248-32": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "YRTsmStw9SqMzZGZpNTcsg",
+   "jon_index": 8,
+   "A": [
+    0.996901,
+    0.579757
+   ],
+   "B": [
+    0.009297,
+    0.579413
+   ],
+   "A_is": "b"
+  },
+  "s248-33": {
+   "kind": "study",
+   "split": "morgantown",
+   "pano": "1061541095152683",
+   "set": "E",
+   "weak_index": 0,
+   "weak_score": 0.486089,
+   "strong_score": 0.610244,
+   "dist": 12,
+   "A": [
+    0.0,
+    0.539062
+   ],
+   "B": [
+    0.988281,
+    0.539062
+   ],
+   "weaker": "A"
+  },
+  "s248-34": {
+   "kind": "calibration",
+   "split": "manual_gold",
+   "pano": "tRwq7cx78-g4Mi59uuN5-Q",
+   "jon_index": 0,
+   "A": [
+    0.999075,
+    0.544514
+   ],
+   "B": [
+    0.001921,
+    0.543661
+   ],
+   "A_is": "b"
+  },
+  "s248-35": {
+   "kind": "study",
+   "split": "morgantown",
+   "pano": "1560632374758055",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.337266,
+   "strong_score": 0.756027,
+   "dist": 4,
+   "A": [
+    0.0,
+    0.662109
+   ],
+   "B": [
+    0.996094,
+    0.664062
+   ],
+   "weaker": "A"
+  },
+  "s248-36": {
+   "kind": "study",
+   "split": "manual_gold",
+   "pano": "oE6q6mzI7U-P8l35PsTDFA",
+   "set": "C",
+   "weak_index": 0,
+   "weak_score": 0.866984,
+   "strong_score": 0.987908,
+   "dist": 7,
+   "A": [
+    0.0,
+    0.554688
+   ],
+   "B": [
+    0.996094,
+    0.568359
+   ],
+   "weaker": "B"
+  }
+ }
+}

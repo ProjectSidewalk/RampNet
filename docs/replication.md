@@ -530,6 +530,7 @@ data are skipped unless `--allow local-cache` is given.
 | `sourcing_tables` | `sourcing_tables.py --check` | the generated tables in the data-sourcing docs re-render identical from committed files (#145) | committed only | 0.1 |
 | `yolo_warmup_dip_72` | `yolo_warmup_dip_72.py --check` | the pinned facts of the YOLO warm-up LR dip hold on the committed curves (#72) | committed only | 0.1 |
 | `seam_pairs_248` | `seam_pairs_248.py --check` | the seam straddling-pair counts (114 / 72 / 58 at 0.05 / 0.30 / 0.55) re-derive from the committed Run A peaks in `docs/data/run_a_84_detections/` (#248) | committed only | 1.1 |
+| `seam_nms_default_248` | `seam_nms_default_248.py --check` | the #248 default study re-derives from committed peaks and verdicts: `bounds.json` (with the plan reviewer's independent counts as literals), `calibration.json`, `results.json` / `results.md` (classification, the rule's outcome NEXT STEP NEEDED, paired scores) and the figure CSV | committed only | 24.9 |
 | `yolo_geometry_51` | `yolo_geometry_51.py --check` | the YOLO control leg reproduces its scoreboard row, and `docs/data/yolo_geometry_51.json` matches a fresh read (#51) | committed only | 0.1 |
 | `run_b_gate_135` | `run_b_gate_135.py --check` | the Run-B gate decision re-derives from the committed CSVs and power JSON (#135) | committed only | 0.1 |
 | `seed_variance_read_51_135` | `seed_variance_read_51_135.py --check` | the seed-variance JSON matches a fresh build from `docs/data/seed_variance_51_135/` | committed only | 6.5 |
@@ -558,14 +559,15 @@ The seconds are from the committed run, `analysis_out/check_all/latest.json` (at
 listed:
 
 - `analysis_out/recall_by_depth_112.json`: `manifests_sha256`, `recall_by_depth_112`, `da3_calibration_101`, `laurens_paired_151`
-- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `cascade_transfer_35`, `cascade_cost_35`, `benchmark_power_135`
-- `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `cascade_transfer_35`
+- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`, `cascade_cost_35`, `benchmark_power_135`
+- `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`
 - `benchmark/model_detections/`: `laurens_paired_151`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`, `export_model_cache_verify`
-- `benchmark/<split>/verdicts.json`: `da3_calibration_101`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
+- `benchmark/<split>/verdicts.json`: `da3_calibration_101`, `seam_nms_default_248`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
+- `benchmark/manual_gold/seam_verdicts__jon.json`: `seam_pairs_248`, `seam_nms_default_248`
 - `docs/data/benchmark_power_135.json`: `run_b_gate_135`, `benchmark_power_135`
 - `docs/data/run_a_84_manual_gold/summary.csv`: `run_b_gate_135`, `benchmark_power_135`
 - `analysis_out/pano_tilt/lyon.json`: `pano_tilt_159`, `lyon_elevation_tilt_159`
-- `manual_labels/`: `scoreboard`, `benchmark_power_135`
+- `manual_labels/`: `seam_nms_default_248`, `scoreboard`, `benchmark_power_135`
 - `docs/data/run_a_84_detections/`: `seed_variance_read_51_135`, `benchmark_power_135`
 
 ### Result on main
