@@ -1,0 +1,189 @@
+{
+ "seed": 248,
+ "digest": "3d4c0bc2a9f57492",
+ "n": 36,
+ "rubric_version": 1,
+ "cards": [
+  {
+   "id": "s248-01",
+   "order": 1,
+   "image_sha256": "f3131fd8f072b1b7de26db13b8c6df6c070e95ece725de4a9826a9d191253810"
+  },
+  {
+   "id": "s248-02",
+   "order": 2,
+   "image_sha256": "3fe4ff9b95aa8ff95ff9312493a2619b9cf85b0052cb57be58adb554e3edd766"
+  },
+  {
+   "id": "s248-03",
+   "order": 3,
+   "image_sha256": "22e5092201675ad028346457c6b4dc11c9621b8861ad377f590ba0c090606941"
+  },
+  {
+   "id": "s248-04",
+   "order": 4,
+   "image_sha256": "86b8193c45cc5e07d0c67e07a1ddc0867096e97b024b56d1912e9c669bf0efdd"
+  },
+  {
+   "id": "s248-05",
+   "order": 5,
+   "image_sha256": "ac6fc69fa94a26233df05709c0f6d8a6e0f72c631bb84ccf497e4e3f54cd3986"
+  },
+  {
+   "id": "s248-06",
+   "order": 6,
+   "image_sha256": "ff1b5f91ccd043271f53aa314d78043aac6d6a7a5db0208da8daa4457607feb1"
+  },
+  {
+   "id": "s248-07",
+   "order": 7,
+   "image_sha256": "ce8bb7a69e0e3a5204e6db91d0457e01a9e4a93abae34448d76fe7168f92b95e"
+  },
+  {
+   "id": "s248-08",
+   "order": 8,
+   "image_sha256": "73cac6ddb740d87067236f86ec7e80c936624a528cebcf2191e182661293cbe8"
+  },
+  {
+   "id": "s248-09",
+   "order": 9,
+   "image_sha256": "2155466eb1c7b7bcf626544e447b3d98d7f435155fac673dc8764c6645106c2e"
+  },
+  {
+   "id": "s248-10",
+   "order": 10,
+   "image_sha256": "0e1086a7b864277da74351bb0e60e6f408cd1dfd96506172a2ff7c36cac248f3"
+  },
+  {
+   "id": "s248-11",
+   "order": 11,
+   "image_sha256": "35c985cfa39627b9206f0ff3c7b0e2b68eef17a8c92d99bc58741b1a110399d8"
+  },
+  {
+   "id": "s248-12",
+   "order": 12,
+   "image_sha256": "0a5cd4850b25e61b9ffef536f61c29ed81f5393aef553e5f2532973566e0168d"
+  },
+  {
+   "id": "s248-13",
+   "order": 13,
+   "image_sha256": "bf249e189066edb0bf5b66c31cea87faacc760a298bf379d36e01eac79658fa3"
+  },
+  {
+   "id": "s248-14",
+   "order": 14,
+   "image_sha256": "1287d31cb25cc8d0c84849f4d0307cc88ad2c766e2e8974df4fe23a85e95aaf5"
+  },
+  {
+   "id": "s248-15",
+   "order": 15,
+   "image_sha256": "3bd12f8d52910908042c8b0075ccc331c65641df3f56682d466df93a97eeac7f"
+  },
+  {
+   "id": "s248-16",
+   "order": 16,
+   "image_sha256": "2437c1b3b0d31d3d801543a0f5bdad17f57cb5cecf219390bfb3404dd65de7bb"
+  },
+  {
+   "id": "s248-17",
+   "order": 17,
+   "image_sha256": "5058616c8349f602546fa7cebcdeb1207ea3f9fdfcd75394ee67d208423ebb9e"
+  },
+  {
+   "id": "s248-18",
+   "order": 18,
+   "image_sha256": "3ec850c3a96a30832a39b3110a47f371d6a5b4e6f05319ea5840962dd3307a33"
+  },
+  {
+   "id": "s248-19",
+   "order": 19,
+   "image_sha256": "11ea58301a1fc994e5f525c56d650703db45a88b638f762ebb3c55c859d4cde5"
+  },
+  {
+   "id": "s248-20",
+   "order": 20,
+   "image_sha256": "e8f14c36623891ae7fd18c42a6647b4691ba24bc7403c525835a5d1cbaa5265d"
+  },
+  {
+   "id": "s248-21",
+   "order": 21,
+   "image_sha256": "e1d9bec2231d284549e781be6ed9aa1f11210d7e6645b133a136ea2945970cbf"
+  },
+  {
+   "id": "s248-22",
+   "order": 22,
+   "image_sha256": "e330b52605bc2de0953d5255f0d131a08696942e24e0732022ecd71e1e5aa026"
+  },
+  {
+   "id": "s248-23",
+   "order": 23,
+   "image_sha256": "07470475bb268dbb1f521a0d42bf44334eabf8423fb402af5f82b7e6e8f0fea5"
+  },
+  {
+   "id": "s248-24",
+   "order": 24,
+   "image_sha256": "c55f8005e1ba490a6663b7235d0b10e9c6303f60f7ce369389fe705bfab407a8"
+  },
+  {
+   "id": "s248-25",
+   "order": 25,
+   "image_sha256": "9c4459f8a1a777a458531db051dfa23c65cf7827790f8d3e551660825ccfe4c9"
+  },
+  {
+   "id": "s248-26",
+   "order": 26,
+   "image_sha256": "4e5645921c54e66be6d7de4a87a41d4f5ef034807bddca081f432be43894740f"
+  },
+  {
+   "id": "s248-27",
+   "order": 27,
+   "image_sha256": "aa4ef142cc183a2941036f90b4d3ef10dbb7a96567c2db33b1d9851845abdad3"
+  },
+  {
+   "id": "s248-28",
+   "order": 28,
+   "image_sha256": "4d995e3fd2bfc6684d07be710bc906e2548981fdc72f97497ab274ee7e8304d4"
+  },
+  {
+   "id": "s248-29",
+   "order": 29,
+   "image_sha256": "c937016616a7b34079c806830cb3a20c08e21b199954f3e34fde07a49e1bf3ec"
+  },
+  {
+   "id": "s248-30",
+   "order": 30,
+   "image_sha256": "49529eae36d0c9f24d70b4973bb5349d3eea6d8ae39c59e9604118388ceae064"
+  },
+  {
+   "id": "s248-31",
+   "order": 31,
+   "image_sha256": "1c01db94e173288a17d09e02cd47cbf415cf84a40e96fb7c7274c5cfc6a28222"
+  },
+  {
+   "id": "s248-32",
+   "order": 32,
+   "image_sha256": "f516d39ccf7cbefa17591cc5c18296c4163f5da97430c06676e3d85e6ba6da26"
+  },
+  {
+   "id": "s248-33",
+   "order": 33,
+   "image_sha256": "ee3edc99e7c58fecc5418cd5a838b10e887427fe3977aa5028ccd32c04ded5e8"
+  },
+  {
+   "id": "s248-34",
+   "order": 34,
+   "image_sha256": "843a9c0f8ca37a7d1d1589efa9509c0a612dc8b2a36d47ecc50e598413b75ee0"
+  },
+  {
+   "id": "s248-35",
+   "order": 35,
+   "image_sha256": "44e624c2bed23e5e8e4087110682b8de9bac90b3ffd671636225cd6da678cf0a"
+  },
+  {
+   "id": "s248-36",
+   "order": 36,
+   "image_sha256": "6c226e9a574c91272c5322f318e200b818a299f680e67583ee076071cd37e33f"
+  }
+ ],
+ "regenerate": "seam_nms_default_248.py sheet --panos-root <checkout>"
+}
