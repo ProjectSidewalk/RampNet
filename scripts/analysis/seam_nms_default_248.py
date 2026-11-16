@@ -726,6 +726,76 @@ show();
 
 
 # --------------------------------------------------------------------------- #
+# calibrate (AI vs Jon on his 14 adjudicated pairs; runs before any study card is classed)
+# --------------------------------------------------------------------------- #
+PAIR_OF_JON = {"one": "same", "two": "different", "unsure": "unsure"}
+
+
+def load_verdicts(path, key):
+    """{card id: verdict dict} from a per-rater export, checked against the deck digest."""
+    v = read_json(path)
+    if v.get("items_digest") != key["digest"]:
+        raise SystemExit(f"{path}: items_digest {v.get('items_digest')} != deck {key['digest']}")
+    return {x["id"]: x for x in v["verdicts"]}
+
+
+def calibration_table(key, ai, jon_file_verdicts):
+    """Per calibration card: Jon's verdict, the AI's pair answer, and whether they agree."""
+    rows = []
+    for cid, k in sorted(key["cards"].items()):
+        if k["kind"] != "calibration":
+            continue
+        jv = jon_file_verdicts[k["jon_index"]]
+        a = ai.get(cid, {}).get("pair")
+        rows.append({"id": cid, "pano": k["pano"], "jon": jv["verdict"], "sep_px": jv["sep_px"],
+                     "ai_pair": a, "agree": a == PAIR_OF_JON.get(jv["verdict"])})
+    return rows
+
+
+def calibration_summary(rows):
+    """The pre-registered bar: the AI answered `different` on every one of Jon's `two` pairs."""
+    two = [r for r in rows if r["jon"] == "two"]
+    one = [r for r in rows if r["jon"] == "one"]
+    bands = {}
+    for r in one:
+        band = "one, <= 8 px" if r["sep_px"] <= 8 else "one, > 8 px"
+        b = bands.setdefault(band, [0, 0])
+        b[0] += r["agree"]
+        b[1] += 1
+    return {"n": len(rows), "two_total": len(two), "two_agree": sum(r["agree"] for r in two),
+            "one_total": len(one), "one_agree": sum(r["agree"] for r in one),
+            "one_by_band": {k: {"agree": v[0], "n": v[1]} for k, v in sorted(bands.items())},
+            "ai_answers_on_one": {a: sum(r["ai_pair"] == a for r in one)
+                                  for a in ("same", "different", "unsure", None)},
+            "calibrated": bool(two) and all(r["agree"] for r in two),
+            "bar": "AI answered `different` on all of Jon's `two` pairs (pre-registered)"}
+
+
+def build_calibration(review_dir=REVIEW_DIR):
+    key = read_json(os.path.join(review_dir, "key.json"))
+    ai = load_verdicts(os.path.join(review_dir, f"verdicts__{AI_RATER}.json"), key)
+    jon = read_json(SEAM_VERDICTS)["verdicts"]
+    rows = calibration_table(key, ai, jon)
+    return {"rater": AI_RATER, "items_digest": key["digest"], "summary": calibration_summary(rows),
+            "cards": rows}
+
+
+def cmd_calibrate(args):
+    c = build_calibration()
+    s = c["summary"]
+    print(f"Jon `two`: AI agrees on {s['two_agree']} / {s['two_total']}; Jon `one`: "
+          f"{s['one_agree']} / {s['one_total']} {s['one_by_band']}; answers on `one`: "
+          f"{s['ai_answers_on_one']}")
+    print("CALIBRATED" if s["calibrated"] else "NOT CALIBRATED: the AI verdicts are not used")
+    for r in c["cards"]:
+        print(f"  {r['id']} jon={r['jon']:<6} sep={r['sep_px']:>6} ai={r['ai_pair']}")
+    if args.out:
+        write_json(args.out, c)
+        print(f"wrote {args.out}")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
 def main(argv=None):
@@ -741,6 +811,8 @@ def main(argv=None):
     s.add_argument("--bounds", default=os.path.join(OUT_DIR, "bounds.json"))
     s.add_argument("--out", default=REVIEW_DIR)
     s.add_argument("--rater", default="", help="rater id the HTML exports under")
+    c = sub.add_parser("calibrate", help="AI vs Jon on the 14 calibration cards")
+    c.add_argument("--out", default=os.path.join(OUT_DIR, "calibration.json"))
     args = ap.parse_args(argv)
     if args.check:
         return cmd_check(args)
@@ -748,6 +820,8 @@ def main(argv=None):
         return cmd_bounds(args)
     if args.cmd == "sheet":
         return cmd_sheet(args)
+    if args.cmd == "calibrate":
+        return cmd_calibrate(args)
     ap.error("choose a subcommand or --check")
 
 
