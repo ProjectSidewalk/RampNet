@@ -204,6 +204,14 @@ REGISTRY: list = [
             "analysis_out/lyon_review_159/recall_by_elevation_tilt.json",
             "analysis_out/lyon_review_159/score.json", "benchmark/lyon/records.jsonl",
             "benchmark/lyon/verdicts.json")),
+    E("lyon_topup_plan_278", (AN + "lyon_topup_278.py", "plan"),
+      "the pre-registered Lyon top-up plan (other_cameras, looks 25/45/70, z 2.35) rebuilds "
+      "byte-identical from the committed draw, the first-draw files it pins and the stored "
+      "design_oc.json (#278)",
+      pins=("benchmark/lyon_topup278/audit_plan.json", "benchmark/lyon_topup278/records.jsonl",
+            "benchmark/lyon_topup278/sample.json", "analysis_out/lyon_topup_278/design_oc.json",
+            "benchmark/lyon/records.jsonl", "benchmark/lyon/verdicts.json",
+            "benchmark/lyon/audit_plan.json", "benchmark/lyon/exclude_ids.txt")),
     E("per_ramp_recall_38", (AN + "per_ramp_recall_38.py", "check"),
       "per-ramp recall results.json + ramps_other_views.csv re-derive byte-identical from #48 captures (#38)",
       pins=("analysis_out/per_ramp_recall_38/", "analysis_out/multiview_48/captures_R25.csv")),

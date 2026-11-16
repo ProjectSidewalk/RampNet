@@ -1,0 +1,64 @@
+{
+ "bundle": "lyon_topup278",
+ "export": {
+  "command": "python scripts/export_benchmark.py D:/Git/labeler-wt/lyon-topup-278-data/pool_other_cameras.jsonl --bundle D:/Git/labeler-wt/lyon-topup-278-data/bundle --sample 80 --empty-sample 0 --top 0 --seed 278 --min-spacing 30 --group-key camera_model --group-key copyright --group-map <RampNet>/benchmark/lyon/group_map.json --group-min 0 --empty-group-min 0 --records-only",
+  "exporter": "sidewalk-auto-labeler scripts/export_benchmark.py at 01b9422 (origin/main on 2026-11-15; detached worktree, nothing committed there)",
+  "exporter_records_jsonl_sha256": "78b4e5f2590bfa2f576bfe0aa59065daf5c6b1dde098485b0ddee06522905a32",
+  "pixels": "--records-only: no picture was fetched by the draw",
+  "reproduced": "run twice into separate directories: records.jsonl byte-identical, sample.json identical apart from source_records",
+  "reproduction_check": "the same commit re-ran the first draw (seed 159, the first draw's flags) into a fresh directory: records.jsonl sha256 aa64a1e7874bf8775fd6689d48599799640e2767df45bfc1f6423d5f8bed1fc5, byte-identical to benchmark/lyon/records.jsonl",
+  "written": "2026-11-15"
+ },
+ "imagery": null,
+ "issue": "https://github.com/ProjectSidewalk/RampNet/issues/278",
+ "kind": "label audit top-up, NOT a benchmark split: more random panos of the other_cameras group of the Lyon label audit (benchmark/lyon, #159), pooled with that audit's first draw. Not registered anywhere; nothing scores it as a split.",
+ "never_train": {
+  "enforcement": "build_sparse_labels.py refuses a Lyon build whose lists miss the ids or the buffer of benchmark/lyon or of this directory (#278)",
+  "exclude_ids_added_by_top_up": 2336,
+  "exclude_ids_txt": 8357,
+  "how": "never_train_ids.txt = benchmark/lyon/ids.txt + ids.txt; exclude_ids.txt = benchmark/lyon/exclude_ids.txt + every run pano within 30 m of a top-up pano (lyon_review_159.exclusion_ids). Both are cumulative: pass these two files to build_sparse_labels.py for any Lyon build.",
+  "ids_txt": 80,
+  "never_train_ids_txt": 280,
+  "rule": "every id in ids.txt (the 80 drawn panos, staged or not, rated or not) and every run pano within 30 m of one is held out of every training pool"
+ },
+ "parent": "benchmark/lyon (frozen; nothing there changes)",
+ "pool": {
+  "command": "python scripts/analysis/lyon_topup_278.py pool --results D:/Git/labeler-wt/lyon5m/runs/lyon/results.jsonl --out D:/Git/labeler-wt/lyon-topup-278-data/pool_other_cameras.jsonl",
+  "counts": {
+   "group_with_det055": 1513,
+   "group_without_det055": 7883,
+   "pool_records": 8997,
+   "pool_with_det055": 1342
+  },
+  "note": "the raw run lines of other_cameras outside benchmark/lyon/exclude_ids.txt; not committed (40 MB), re-derived by the command above",
+  "pool_jsonl_sha256": "39d8c8271acb2e01ed2109ffb5c1940a06a8be80a7cd3263c4afabfc63cb4d6a"
+ },
+ "pre_registered": {
+  "audit_plan_sha256": "2dbd4d82b6b5aef5733fd1af7f8887657a916c26f74d40a22a79b6a22a56f1af",
+  "comment": null,
+  "commit": null,
+  "date": "2026-11-15",
+  "note": "committed and pushed before any pixel of the draw was fetched. score refuses an audit_plan.json or records.jsonl with another sha256. A change of plan before the review opens needs a new block here, with this one kept under superseded. comment: the #159 comment that posts the plan (null until Jon posts the drafted one).",
+  "records_jsonl_sha256": "64232f8bc5f2587cd4a0f66fbe3d6b7c3868ef2276e80f0e3abadc714e13ab17"
+ },
+ "run": {
+  "archive": "makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/lyon/panos/ (all 174,405 native panos, index.csv with sha256 per file)",
+  "command": "python main.py example_geojson/lyon.geojson --name lyon --source panoramax --reuse-scan --thin-spacing 5",
+  "detection_border": "exclude (production drops peaks within 10 heatmap cells of the seam, sidewalk-auto-labeler#130)",
+  "detection_commit": "fd08b8f (plain clone of main, Hyak job 41504145, ckpt-g2, one L40S)",
+  "detection_storage_floor": 0.1,
+  "doc": "docs/panoramax-lyon.md section 8 on branch lyon-densify-159 (4335e73)",
+  "model": "projectsidewalk/rampnet-model@606a11956743f7eb328d9207769034752f6191f4",
+  "pr": "https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/163",
+  "repo": "ProjectSidewalk/sidewalk-auto-labeler",
+  "results_jsonl": "runs/lyon/results.jsonl (local copy D:/Git/labeler-wt/lyon5m/runs/lyon/results.jsonl)",
+  "results_jsonl_sha256": "60e688b28b62f85e71f51c603dc1b6f4ff020348220c6cc7955891dcfef061ef",
+  "results_record_count": 174405
+ },
+ "staged": {
+  "changes": "one record (one producer whose account name is an email address) has that token masked to its first character in copyright and in its source_metadata, as lyon_review_159.py stage does (#149); records.jsonl therefore hashes differently from the exporter's file",
+  "command": "python scripts/analysis/lyon_topup_278.py stage --from D:/Git/labeler-wt/lyon-topup-278-data/bundle --results D:/Git/labeler-wt/lyon5m/runs/lyon/results.jsonl",
+  "records_jsonl_sha256": "64232f8bc5f2587cd4a0f66fbe3d6b7c3868ef2276e80f0e3abadc714e13ab17"
+ },
+ "status": "drawn and pre-registered, NOT reviewed: no look export, nothing scored"
+}

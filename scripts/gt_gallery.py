@@ -1101,6 +1101,78 @@ def build_html(entries, initial, run_key, run_name, source, review_notes=None):
             .replace('__SOURCE__', json.dumps(str(source))))
 
 
+#: ``--detections-only`` (#278): (old, new) snippet pairs applied to the finished page by
+#: :func:`apply_detections_only`. Each ``old`` must occur exactly once in a page that
+#: ``build_html`` produced, so a template edit that moves a snippet fails loudly instead of
+#: leaving a half-converted page. ``HTML_TEMPLATE`` itself is untouched, so every default
+#: gallery stays byte-identical.
+DETECTIONS_ONLY_EDITS = (
+    # the two-sided intro -> the detections-only instruction
+    (HTML_TEMPLATE[HTML_TEMPLATE.index('<div id="intro">'):
+                   HTML_TEMPLATE.index('</div>', HTML_TEMPLATE.index('<div id="intro">'))],
+     '<div id="intro">\n  <b>Detections-only review (#278).</b> Judge each detection only '
+     '&mdash; correct, false positive, duplicate (a 2nd hit on one ramp), or unsure. '
+     '<b>Do not scan for missed ramps in this review.</b> Rate in order. Export after pano 25 '
+     'and after pano 45 and run <code>score</code>; stop when it says SETTLED, or at pano 70.\n'),
+    # a pano is done once its detections are judged: no missed-ramp confirmation
+    ('function fnChecked(s) { return s.missed.length > 0 || !!s.noMissed; }',
+     'function fnChecked(s) { return true; }  // detections-only (#278)'),
+    # hide the missed-ramp bar (render() resets its inline display, so !important)
+    ('  #fnbar{margin:10px 0 0;', '  #fnbar{display:none !important;margin:10px 0 0;'),
+    # ...and the missed-ramp panel (kept in the DOM: renderMissed() looks them up by id)
+    ('<h3 class="section">Reviewer-marked missed ramps</h3>\n'
+     '<div class="crops" id="missedpanel"></div>\n'
+     '<div id="missedempty">None marked yet. Scan the pano above and click any curb ramp the '
+     'model missed.</div>',
+     '<div style="display:none"><div class="crops" id="missedpanel"></div>'
+     '<div id="missedempty"></div></div>'),
+    # the 'm' key does nothing
+    ("  else if (ev.key === 'm' || ev.key === 'M') document.getElementById('nomiss').click();\n",
+     "  // detections-only (#278): 'm' (no missed ramps) does nothing\n"),
+    # a click on the pano never marks a missed ramp
+    ('  if (wasDrag || !view.length) return;\n  // Click on empty pano -> mark a missed ramp.',
+     '  if (wasDrag || !view.length || true) return;  // detections-only (#278): no marks\n'
+     '  // Click on empty pano -> mark a missed ramp.'),
+    # the instructions that describe marking
+    ('scroll to zoom, drag to pan, click empty pano to mark a missed ramp',
+     'scroll to zoom, drag to pan (detections-only: clicks mark nothing)'),
+    ('  click the pano to mark a <span style="color:var(--missed)">missed</span> ramp (click the '
+     'marker to\n  make it <span style="color:var(--unsure)">unsure</span>, again to remove), or '
+     'press <kbd>m</kbd> if\n  there are none &nbsp;&middot;&nbsp;',
+     '  no missed-ramp pass in this review &nbsp;&middot;&nbsp;'),
+    ('save it back over <code>benchmark/&lt;city&gt;/verdicts.json</code>, then\n'
+     '  <code>python scripts/score_validation.py benchmark/&lt;city&gt;</code>',
+     'save it as <code>verdicts_backups/look&lt;k&gt;.json</code> in the bundle (look1 after pano '
+     '25, look2 after 45, look3 after 70), then run\n'
+     '  <code>python scripts/analysis/lyon_topup_278.py score --write</code>'),
+)
+
+
+def apply_detections_only(html):
+    """The detections-only variant of a built page (#278, ``benchmark/RUBRICS.md`` §1).
+
+    The verdict vocabulary is unchanged; what goes is the missed-ramp pass: the intro asks
+    for detections only, a pano counts as reviewed once every detection is judged
+    (``fnChecked`` is always true, so Export no longer warns about unconfirmed panos), the
+    missed-ramp bar and panel are hidden, and neither the ``m`` key nor a click on the pano
+    marks anything. Export still writes ``missed: []`` and ``no_missed: false``, so recall
+    can never be read from such a review. The page shows no running count of correct
+    verdicts. Raises ValueError when a snippet does not occur exactly once.
+
+    Example:
+        >>> page = apply_detections_only(build_html([], {}, 'k', 'k', 'records.jsonl'))
+        >>> 'function fnChecked(s) { return true; }' in page
+        True
+    """
+    for old, new in DETECTIONS_ONLY_EDITS:
+        n = html.count(old)
+        if n != 1:
+            raise ValueError(f"detections-only snippet found {n} times, expected once: "
+                             f"{old[:60]!r}")
+        html = html.replace(old, new)
+    return html
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Build the RampNet ground-truth labeler over a benchmark bundle.")
@@ -1118,6 +1190,10 @@ def main():
                         help="Blind the reviewer to the imagery producer: no credit line "
                              "and no link to the pano's page. For audits read per producer "
                              "(benchmark/lyon, #159); the credit stays in records.jsonl.")
+    parser.add_argument("--detections-only", action="store_true",
+                        help="Detections-only variant (#278, benchmark/RUBRICS.md section 1): "
+                             "judge each detection, no missed-ramp pass; exports no_missed: "
+                             "false, so recall is never read from it.")
     parser.add_argument("--sample", type=int, default=100,
                         help="With --resample: detection panos to include (default: %(default)s).")
     parser.add_argument("--empty-sample", type=int, default=10,
@@ -1191,9 +1267,12 @@ def main():
     entries.sort(key=lambda e: hashlib.sha1(e['pid'].encode()).hexdigest())
     initial = initial_verdicts(verdicts_panos)
     index_path = out_dir / "index.html"
+    page = build_html(entries, initial, run_key, run_name, bundle / "records.jsonl",
+                      review_notes)
+    if args.detections_only:
+        page = apply_detections_only(page)
     with open(index_path, 'w', encoding='utf-8') as f:
-        f.write(build_html(entries, initial, run_key, run_name, bundle / "records.jsonl",
-                           review_notes))
+        f.write(page)
 
     print(f"Gallery: {index_path}")
     if args.hide_credit:
@@ -1203,6 +1282,11 @@ def main():
     if review_notes:
         print(f"Prefilled the split's review_notes ({len(review_notes.get('caveats') or [])} caveats) "
               f"— revise them in the gallery's 'Review notes' panel; Export writes them back.")
+    if args.detections_only:
+        print("  --detections-only: no missed-ramp pass; save each export as "
+              f"{bundle / 'verdicts_backups' / 'look<k>.json'} and run the bundle's score "
+              "command (see its audit_plan.json).")
+        return
     print(f"Open it, review, Export, then save the download over {bundle / 'verdicts.json'}")
     print(f"and re-score with: python scripts/score_validation.py {bundle}")
 
