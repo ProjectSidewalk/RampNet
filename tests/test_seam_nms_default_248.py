@@ -188,7 +188,68 @@ def test_committed_bounds_and_calibration_re_derive():
         s.read_json(os.path.join(s.OUT_DIR, "calibration.json"))
 
 
-def test_committed_results_pin_the_outcome():
+def test_ai_only_state_pins_the_outcome_whatever_jon_adds():
+    """Recomputed with Jon's audit ignored, so it keeps holding when verdicts__jon.json lands
+    (PR #291 review, F6); the with-Jon outcome lives only in the committed results.json."""
+    cards, outcome, reasons = s.ai_only_state()
+    assert outcome == s.NEXT and reasons["L_pess"] == 4 and reasons["L_opt_C"] == 0
+    assert reasons["cards_jon_must_rate"] == ["s248-09", "s248-11", "s248-27", "s248-33"]
     r = s.read_json(os.path.join(s.OUT_DIR, "results.json"))
-    assert r["outcome"] == s.NEXT and r["reasons"]["L_pess"] == 4
     assert r["calibration"]["calibrated"] is True and r["tripwire"]["fired"] is False
+
+
+# --------------------------------------------------------------------------- audit counting (F3)
+def test_jon_counts_only_complete_own_answers():
+    assert not s.jon_counts({"pair": None, "A": None, "B": None, "note": "odd"})
+    assert not s.jon_counts({"pair": "different", "A": None, "B": "ramp"})
+    assert s.jon_counts({"pair": "different", "A": "unsure", "B": "ramp", "complete": True})
+
+
+def test_a_partial_jon_entry_falls_back_to_the_ai_verdict():
+    bounds = s.read_json(os.path.join(s.OUT_DIR, "bounds.json"))
+    key = s.read_json(os.path.join(s.REVIEW_DIR, "key.json"))
+    ai = s.load_verdicts(os.path.join(s.REVIEW_DIR, f"verdicts__{s.AI_RATER}.json"), key)
+    partial = {"s248-27": {"id": "s248-27", "pair": "different", "A": None, "B": None}}
+    cards = s.classify_cards(bounds, key, ai, True, jon_audit=partial)
+    c27 = next(c for c in cards if c["card"] == "s248-27")
+    assert c27["source"] == "ai" and c27["cls"] == "U"
+
+
+# --------------------------------------------------------------------------- A/B mapping (F7)
+@pytest.mark.parametrize("weaker", ["A", "B"])
+def test_weak_strong_follow_the_key_letter(weaker):
+    """A card where only the weak mark is a ramp and the pair is `different` must be L, and the
+    mirror (only the strong mark a ramp) must be N, whichever letter the weak mark got."""
+    strong = "B" if weaker == "A" else "A"
+    cand = {"split": "bend", "pano": "p", "set": "C", "dist": 4, "inherits": None,
+            "weak": [0.001, 0.5, 0.4], "strong": [0.997, 0.5, 0.8]}
+    key = {"cards": {"x": {"kind": "study", "split": "bend", "pano": "p", "weaker": weaker,
+                           weaker: [0.001, 0.5], strong: [0.997, 0.5]}}}
+    orig = s.study_cards
+    try:
+        s.study_cards = lambda b: [cand]
+        lost = s.classify_cards({}, key, {"x": {"pair": "different", weaker: "ramp",
+                                               strong: "not_ramp"}}, True)
+        kept = s.classify_cards({}, key, {"x": {"pair": "different", weaker: "not_ramp",
+                                               strong: "ramp"}}, True)
+    finally:
+        s.study_cards = orig
+    assert lost[0]["cls"] == "L" and kept[0]["cls"] == "N"
+
+
+# --------------------------------------------------------------------------- boundaries (F7)
+@pytest.mark.parametrize("weak_col, want", [(0, "C"), (1, "E"), (10, None)])
+def test_distance_boundaries_10_11_and_20_21(weak_col, want):
+    """Strong peak at column 1014 (in the strip): weak at column 0 is 10 px away (C), column 1
+    is 11 px (E); a strong peak at 1004 puts column 0 at 20 px and column 1 at 21 px."""
+    got = s.removal_candidates([px(1014, 100, 0.9), px(weak_col, 100, 0.5)])
+    assert ([r["set"] for r in got] or [None])[0] == want
+    at20 = s.removal_candidates([px(1004, 100, 0.9), px(0, 100, 0.5)])
+    at21 = s.removal_candidates([px(1003, 100, 0.9), px(0, 100, 0.5)])
+    assert [(r["set"], r["dist"]) for r in at20] == [("E", 20)]
+    assert [(r["set"], r["dist"]) for r in at21] == [("E30", 21)]
+
+
+def test_strip_boundaries_9_10_and_1013_1014():
+    assert s.in_strip(9) and not s.in_strip(10)
+    assert not s.in_strip(1013) and s.in_strip(1014)

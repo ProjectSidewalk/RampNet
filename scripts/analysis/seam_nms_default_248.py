@@ -636,10 +636,13 @@ def render_html(cards, digest, rater="", defaults=None, title="Seam pairs: same 
                 note=""):
     """One self-contained page: one card at a time, keyboard verdicts, localStorage, Export.
 
-    ``defaults`` (id -> verdict) pre-fills a verdict for the rater to confirm or change (the
-    audit copy shows the AI pre-rating this way)."""
+    Nothing is pre-filled: every answer on the page is the rater's own. ``defaults`` (id ->
+    verdict) is **revealed only after** the rater has set all three fields of that card
+    (review of PR #291, F3), so the audit copy can show the AI pre-rating without anchoring
+    the answer or ever exporting it as the rater's. The export carries only the rater's
+    fields and ``complete`` (pair, A and B all set by the rater); a note confirms nothing."""
     payload = json.dumps({"cards": cards, "digest": digest, "rater": rater,
-                          "defaults": defaults or {}, "rubric_version": RUBRIC_VERSION,
+                          "reveal": defaults or {}, "rubric_version": RUBRIC_VERSION,
                           "rubric": [{"rule": t, "detail": d} for t, d in RUBRIC]})
     rubric = "".join(f"<li><b>{t}</b> {d}</li>" for t, d in RUBRIC)
     return (HTML.replace("__PAYLOAD__", payload).replace("__RUBRIC__", rubric)
@@ -686,22 +689,26 @@ Mark B: <kbd>a</kbd> ramp <kbd>s</kbd> not ramp <kbd>d</kbd> unsure.
 </div>
 <script>
 const P = __PAYLOAD__;
-const store = 'seam248_' + P.digest + '_' + (P.rater || 'rater');
+// v2 store: nothing is ever pre-filled, so an older pre-filled store is not reused (PR #291 F3).
+const store = 'seam248v2_' + P.digest + '_' + (P.rater || 'rater');
 let V = {}; try { V = JSON.parse(localStorage.getItem(store) || '{}'); } catch (e) {}
-for (const [id, d] of Object.entries(P.defaults)) if (!V[id]) V[id] = Object.assign({prefilled: true}, d);
 let i = 0;
+const complete = v => !!(v && v.pair && v.A && v.B);
 function save(){ try { localStorage.setItem(store, JSON.stringify(V)); } catch (e) {} }
 function show(){
   const c = P.cards[i], v = V[c.id] || {};
   document.getElementById('img').src = c.img;
   document.getElementById('img').alt = 'card ' + c.id;
   document.getElementById('pos').textContent = (i + 1) + ' / ' + P.cards.length + '  (' + c.id + ')';
-  document.getElementById('done').textContent = Object.values(V).filter(x => x.pair && !x.prefilled).length + ' confirmed';
-  document.getElementById('ai').textContent = v.prefilled ? 'Pre-filled from the AI pre-rating: confirm by re-pressing, or change.' : '';
+  document.getElementById('done').textContent = P.cards.filter(x => complete(V[x.id])).length + ' complete';
+  const r = P.reveal[c.id];
+  document.getElementById('ai').textContent = !r ? '' : (complete(v)
+    ? 'AI pre-rating (shown after your answer; it does not change your export): pair ' + r.pair + ', A ' + r.A + ', B ' + r.B + '.'
+    : 'Answer all three questions to see the AI pre-rating for comparison.');
   document.querySelectorAll('[data-f]').forEach(b => b.classList.toggle('on', v[b.dataset.f] === b.dataset.v));
   document.getElementById('note').value = v.note || '';
 }
-function set(f, val){ const id = P.cards[i].id; V[id] = Object.assign({}, V[id] || {}, {[f]: val}); delete V[id].prefilled; save(); show(); }
+function set(f, val){ const id = P.cards[i].id; V[id] = Object.assign({}, V[id] || {}, {[f]: val}); save(); show(); }
 document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => set(b.dataset.f, b.dataset.v));
 document.getElementById('note').onchange = e => set('note', e.target.value);
 document.getElementById('prev').onclick = () => { i = Math.max(0, i - 1); show(); };
@@ -715,7 +722,7 @@ document.addEventListener('keydown', e => {
 });
 document.getElementById('ex').onclick = () => {
   const out = {rater: P.rater, items_digest: P.digest, rubric_version: P.rubric_version, rubric: P.rubric,
-    verdicts: P.cards.map(c => { const v = V[c.id] || {}; return {id: c.id, pair: v.pair || null, A: v.A || null, B: v.B || null, note: v.note || null, prefilled_unconfirmed: !!v.prefilled}; })};
+    verdicts: P.cards.map(c => { const v = V[c.id] || {}; return {id: c.id, pair: v.pair || null, A: v.A || null, B: v.B || null, note: v.note || null, complete: complete(v)}; })};
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1)], {type: 'application/json'}));
   a.download = 'verdicts__' + (P.rater || 'rater') + '.json'; a.click();
@@ -823,6 +830,22 @@ def card_id_for(cand, key):
     return None
 
 
+def jon_counts(v):
+    """Does an audit entry count as Jon's verdict? Only when he set the pair answer AND both
+    mark tags himself (review of PR #291, F3). A note alone, a partial answer, or an entry
+    an older page exported as an unconfirmed pre-fill does not count.
+
+    >>> jon_counts({"pair": "different", "A": None, "B": "ramp"}), jon_counts(None)
+    (False, False)
+    >>> jon_counts({"pair": "same", "A": "ramp", "B": "ramp", "prefilled_unconfirmed": True})
+    False
+    >>> jon_counts({"pair": "same", "A": "ramp", "B": "unsure"})
+    True
+    """
+    return bool(v and v.get("pair") and v.get("A") and v.get("B")
+                and not v.get("prefilled_unconfirmed"))
+
+
 def classify_cards(bounds, key, ai, ai_calibrated, jon_audit=None):
     """Every C/E card at RULE_T with its effective verdict, source and class (doc section 3)."""
     pairs = jon_pairs()
@@ -843,8 +866,7 @@ def classify_cards(bounds, key, ai, ai_calibrated, jon_audit=None):
             k = key["cards"][cid]
             weak_l, strong_l = k["weaker"], ("B" if k["weaker"] == "A" else "A")
             src = None
-            if jon_audit and jon_audit.get(cid, {}).get("pair") and \
-                    not jon_audit[cid].get("prefilled_unconfirmed"):
+            if jon_counts(jon_audit.get(cid) if jon_audit else None):
                 src, v = "jon (audit)", jon_audit[cid]
             elif ai_calibrated and ai.get(cid, {}).get("pair"):
                 src, v = "ai", ai[cid]
@@ -1174,6 +1196,24 @@ CLASS_NAMES = {"D": "duplicate of the kept peak",
                "L": "a different real ramp"}
 
 
+def unresolved_cards_losing_gt(results):
+    """Cards classed U whose removal loses a GT hit at 0.30 (C under `lo`, E under `hi`;
+    manual_gold under GT-A or GT-B). Post hoc (PR #291 review, F2)."""
+    out = []
+    for c in results["cards"]:
+        if c["cls"] != "U":
+            continue
+        units = ("manual_gold GT-A", "manual_gold GT-B") if c["split"] == MG else (c["split"],)
+        sc = "lo" if c["set"] == "C" else "hi"
+        for u in units:
+            rows = results["scores"][u][sc].get("changed_panos", [])
+            if any(r["pano"] == c["pano"] and r["0.30"]["tp"][1] < r["0.30"]["tp"][0]
+                   for r in rows):
+                out.append(c["card"])
+                break
+    return sorted(out)
+
+
 def figure_rows(results, bounds):
     """One row per (pool, threshold): strip peaks split into C by class, E by class, untouched."""
     rows = []
@@ -1220,7 +1260,10 @@ def cmd_figure(args):
             if n:
                 ax.barh(y, n, left=x, height=0.6, color=col, hatch=hatch, edgecolor="white",
                         linewidth=2)
-                if n >= 2 or name != "untouched":
+                if n == 1 and name != "untouched":     # 1-wide: label above, not on, the bar
+                    ax.text(x + 0.5, y + 0.36, "1", ha="center", va="bottom", fontsize=7,
+                            color="#52514e")
+                elif n >= 2 or name != "untouched":
                     ax.text(x + n / 2, y, str(n), ha="center", va="center", fontsize=8,
                             color="#0b0b0b" if name in ("untouched", "C_U", "E_U") else "white",
                             bbox={"boxstyle": "round,pad=0.15", "fc": col, "ec": "none"})
@@ -1238,9 +1281,11 @@ def cmd_figure(args):
                 Patch(color="#d9d8d4", label="strip peak wrap leaves alone")]
     ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.4, -0.2), ncol=2,
               fontsize=8, frameon=False)
-    ax.set_title("No rater found a lost ramp among the peaks wrapped NMS removes;\n"
-                 f"{results['reasons']['L_pess']} unresolved cards, so the rule says "
-                 f"{results['outcome']}", fontsize=10, loc="left")
+    n_u = results["reasons"]["L_pess"]
+    n_u_gt = len(unresolved_cards_losing_gt(results))
+    ax.set_title(f"No removal was rated a lost ramp, but {n_u} were not resolved and {n_u_gt} "
+                 "of those lose a GT hit\n(raters: one calibrated, unaudited AI + 4 inherited "
+                 f"verdicts); the rule says {results['outcome']}", fontsize=10, loc="left")
     fig.tight_layout()
     fig.savefig(FIGURE, dpi=200, metadata={"Software": None})
     fig.savefig(os.path.splitext(FIGURE)[0] + ".svg", metadata={"Date": None})
@@ -1251,8 +1296,10 @@ def cmd_figure(args):
 def cmd_audit_sheet(args):
     """Jon's audit page: every study card on the sheet, the ones the rule needs first.
 
-    The AI pre-rating is pre-filled as a default to confirm or change; an unconfirmed default is
-    exported with ``prefilled_unconfirmed: true`` and ``report`` does not count it as Jon's."""
+    Every card starts blank. The AI pre-rating is shown only after Jon has answered all three
+    questions on that card, and never enters the export; ``report`` counts a card as Jon's
+    only when he set the pair answer and both mark tags (``jon_counts``; PR #291 review, F3).
+    The page names the cards the rule needs but not which answer would move the outcome."""
     results = read_json(os.path.join(OUT_DIR, "results.json"))
     key = read_json(os.path.join(REVIEW_DIR, "key.json"))
     ai = load_verdicts(os.path.join(REVIEW_DIR, f"verdicts__{AI_RATER}.json"), key)
@@ -1265,11 +1312,12 @@ def cmd_audit_sheet(args):
             cards.append({"id": cid, "img": "data:image/jpeg;base64,"
                           + base64.b64encode(f.read()).decode()})
     defaults = {cid: {k: ai[cid][k] for k in ("pair", "A", "B")} for cid in order}
-    note = (f"<b>Audit for #248.</b> Required for the rule: the first {len(need)} cards "
-            f"({', '.join(need)}). The other {len(order) - len(need)} are the rest of the "
-            "removal cards; rating them too is what turns a conditional FLIP into a FLIP. "
-            "Each card starts with the AI pre-rating filled in: confirm it (press the same key) "
-            "or change it, then Export and save as review/verdicts__jon.json.")
+    note = (f"<b>Audit for #248.</b> Please rate before reading the PR or the study doc. "
+            f"The first {len(need)} cards ({', '.join(need)}) are the ones the rule needs; the "
+            f"other {len(order) - len(need)} are the rest of the removal cards, and rating them "
+            "as well is optional. Every card starts blank; answer all three questions (the AI's "
+            "pre-rating is shown for comparison only after you have), then Export and save as "
+            "analysis_out/seam_nms_default_248/review/verdicts__jon.json.")
     with open(args.out, "w", encoding="utf-8", newline="") as f:
         f.write(render_html(cards, key["digest"], rater="jon", defaults=defaults,
                             title="#248 audit: same object or not?", note=note))
@@ -1282,6 +1330,17 @@ def cmd_audit_sheet(args):
 # --------------------------------------------------------------------------- #
 def strip_volatile(obj):
     return json.loads(json.dumps(obj))
+
+
+def ai_only_state():
+    """(cards, outcome, reasons) with Jon's audit file ignored: the state this PR reports."""
+    bounds = read_json(os.path.join(OUT_DIR, "bounds.json"))
+    key = read_json(os.path.join(REVIEW_DIR, "key.json"))
+    ai = load_verdicts(os.path.join(REVIEW_DIR, f"verdicts__{AI_RATER}.json"), key)
+    calibrated = build_calibration()["summary"]["calibrated"]
+    cards = classify_cards(bounds, key, ai, calibrated, jon_audit=None)
+    outcome, reasons = decide(cards, calibrated)
+    return cards, outcome, reasons
 
 
 def cmd_check(args):
@@ -1302,12 +1361,16 @@ def cmd_check(args):
     with open(FIG_CSV, encoding="utf-8") as f:
         if f.read() != figure_csv(figure_rows(r, b)):
             bad.append("figure CSV differs from a fresh build")
-    # pinned facts of the study (doc "Where each number lives")
-    pins = {"outcome": (r["outcome"], NEXT),
-            "L_pess": (r["reasons"]["L_pess"], 4), "L_opt_C": (r["reasons"]["L_opt_C"], 0),
+    # Pinned facts of the AI-only state, the one this PR reports. They are recomputed with
+    # jon_audit=None, so they keep holding once review/verdicts__jon.json lands; the with-Jon
+    # outcome is compared only against the committed results.json above (PR #291 review, F6).
+    ai_cards, ai_outcome, ai_reasons = ai_only_state()
+    pins = {"outcome (AI-only)": (ai_outcome, NEXT),
+            "L_pess (AI-only)": (ai_reasons["L_pess"], 4),
+            "L_opt_C (AI-only)": (ai_reasons["L_opt_C"], 0),
             "calibrated": (r["calibration"]["calibrated"], True),
-            "inherited cards": (sum(c["source"] == "jon (inherited)" for c in r["cards"]), 4),
-            "study cards": (len(r["cards"]), 26), "GT-B points": (r["gt_points"]["GT-B"], 3909),
+            "inherited cards": (sum(c["source"] == "jon (inherited)" for c in ai_cards), 4),
+            "study cards": (len(ai_cards), 26), "GT-B points": (r["gt_points"]["GT-B"], 3909),
             "tripwire": (r["tripwire"]["fired"], False)}
     for k, (got, want) in pins.items():
         if got != want:

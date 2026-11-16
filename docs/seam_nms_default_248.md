@@ -6,7 +6,9 @@ the rule's outcome is **NEXT STEP NEEDED** (section 5); the default stays off.
 Sections 1-4 are the **pre-registration**, committed and pushed on 2026-11-15 (`fb158eb7`) before
 any score was computed under wrapped NMS, before any card was rendered or looked at, and before any
 model peak pair was joined to Jon's seam verdicts. They are unchanged since, except the one
-paragraph in section 2 that the `bounds` commit appended, as the protocol said it would. The order
+paragraph in section 2 that the `bounds` commit appended, as the protocol said it would, and two
+dated, quoted corrections in section 3 (2026-11-16, section 11) that leave the original text in
+place. The order
 of the later commits is the evidence of the order of work: `bounds` (`5e2bbcb1`), the AI verdicts
 (`104ef849`), the deck key (`a5bfe016`), the calibration (`c54be1e9`), then the report
 (`6436f4d1`).
@@ -112,6 +114,12 @@ is the weaker peak, set `C` / `E` / calibration) is written to `review/key.json`
 after the verdict file**, so it is not in the tree while rating. Card images and the HTML are
 git-ignored and regenerate from `sheet --panos-root <checkout>`; their hashes are in `items.json`.
 
+> *Correction (2026-11-16, after the PR #291 review, F5):* "not in the tree" holds only for git.
+> `sheet` wrote `review/key.json` beside the cards, so the key was on disk, uncommitted, while the
+> cards were rated; it was not opened. `bounds.json`, committed before rating, lists every
+> candidate's pano, scores and set, and the deck order follows from seed 248. Keeping the key closed
+> rested on the rater, as the next paragraph says.
+
 **The AI pre-rater (Opus 5.5).** Views each card image in deck order. Does not open `key.json`,
 `seam_verdicts__jon.json`, the table in [`seam.md`](seam.md) section 2, or any pano-id lookup until
 the verdict file is committed and pushed. `unsure` is a legitimate answer and costs nothing: it sends
@@ -130,6 +138,13 @@ only if its two peaks are each nearest to a **different** mark of one adjudicate
 6.5 px wrapped Chebyshev on the 1024 x 512 grid. Otherwise the card goes on the sheet, including
 every card on a `two` panorama (Jon's `two` pairs are 17 to 25 px apart, every model pair is 1 to
 8 px apart, so a model pair there is most likely the split of one ramp).
+
+> *Correction (2026-11-16, after the PR #291 review, F1):* "every model pair is 1 to 8 px apart" is
+> true only of straddling pairs with **both** peaks in the strip, which is all the plan's count
+> covered. The removal candidates also pair a strip peak with a stronger peak just outside the
+> strip. At 0.30, the `E` cards sit 12, 12, 12, 12, 13, 13, 15, 15, 16, 16 and 20 px from their
+> partner (`bounds.json` `candidates`), which overlaps the range of Jon's `two` pairs (17 to 25 px).
+> The join rule itself is unchanged.
 
 **Classification of a card** ("weaker" is the peak wrap would remove):
 
@@ -196,22 +211,34 @@ are already merged everywhere else in the image.
 1. **Wrapped NMS removes very little.** At 0.30 it certainly removes 7 of 3,351 city peaks
    (`cities13`) and 8 of 3,981 manual_gold flip-TTA peaks; the 20-px envelope adds at most 5 and
    6 more (section 5.1; `bounds.json` `pools.<pool>."0.30".C` / `.E`).
-2. **No rater judged any removal to be a different real ramp** (L = 0 in every pool, set and
-   threshold). Of the 26 removal cards at 0.30, 16 are duplicates of the kept peak, 6 are harmless
-   for another reason, and 4 are unresolved (figure; `results.json` `class_counts`).
+2. **No removal was rated a lost ramp; 4 were not resolved, and 3 of those lose a GT hit.** The
+   raters are one calibrated but unaudited AI (22 cards) and 4 inherited verdicts of Jon's. The AI
+   abstained (`unsure`) on exactly the cards where ground truth credits the removed peak with a GT
+   point of its own: s248-27 (under `lo`), s248-09 and s248-33 (under `hi`). Of the 26 removal
+   cards at 0.30, 16 were rated duplicates of the kept peak and 6 harmless for another reason
+   (figure; `results.json` `class_counts`; corrected wording, 2026-11-16, review F2).
 3. **The AI pre-rater passed its calibration bar**: `different` on all 4 of Jon's `two` seam pairs,
    and `same` on 9 of his 10 `one` pairs (the tenth `unsure`) (section 5.2; `calibration.json`
-   `summary`).
+   `summary`). The calibration is weak evidence: it was rated in the same pass as the study cards,
+   5 calibration cards share a panorama with a study card, and the `two` pairs are easier to call
+   than most study cards (section 5.2).
 4. **The rule gives NEXT STEP NEEDED**, not FLIP, because 4 cards are unresolved (`L_pess` = 4 >
    1), and not KEEP, because no certain removal is a lost ramp (`L_opt_C` = 0). The step is small:
    Jon rates **s248-09, s248-11, s248-27, s248-33**, and an exact (GPU) pass looks at the three
    panoramas behind the three envelope-only ones among them (section 5.4; `results.json`
    `reasons`).
-5. **Scores agree and do not gate.** Under the certain removals, pooled paired dF1 is +0.00058
-   [+0.00012, +0.00115] on `cities13` and +0.00066 [+0.00006, +0.00135] on manual_gold GT-B at
-   0.30; the tripwire did not fire. Against the unmerged published GT (GT-A) it is -0.00035
-   [-0.00108, +0.00039], because Jon's double-marked seam ramps there count the duplicate as a
-   true positive (section 5.5; `results.json` `scores`).
+5. **Scores do not gate, and none of them is independent evidence** (corrected wording,
+   2026-11-16, review F2; section 5.5; `results.json` `scores`). Paired dF1 under the certain
+   removals at 0.30:
+   - **GT-A, the published protocol: -0.00035 [-0.00108, +0.00039]**, with 5 GT hits lost (8 under
+     `hi`, dF1 -0.00042 [-0.00133, +0.00053]). Part of the loss is GT-A crediting the duplicate of
+     a double-marked seam ramp.
+   - GT-B: +0.00066 [+0.00006, +0.00135]. GT-B merges the same `one` verdicts that decide 4 of the
+     8 manual_gold `C` cards, so its positive sign is partly built in.
+   - cities13: +0.00058 [+0.00012, +0.00115]. This is positive by construction: city GT has no
+     strip ramps except reviewers' "missed" marks, so 5 of the 7 certain removals drop a false
+     positive and 2 change nothing.
+   The tripwire did not fire.
 
 ![Strip peaks by what wrapped NMS would do to them](figures/seam_nms_default_248.png)
 
@@ -220,7 +247,8 @@ are already merged everywhere else in the image.
 established; grey is strip peaks wrap leaves alone. Data: `docs/data/seam_nms_default_248_figure.csv`;
 regenerate with `seam_nms_default_248.py figure`. Alt text: four horizontal stacked bars; in each,
 blue (duplicate) and green (harmless) dominate the coloured part, orange (lost ramp) never
-appears, and yellow (unresolved) is 2 cards in cities13 at 0.30 and 1 or 2 in manual_gold.*
+appears, and yellow (unresolved) is 2 cards in cities13 at 0.30 and 1 or 2 in manual_gold. The
+classes are the AI's ratings plus 4 inherited verdicts, not an audited classification.*
 
 ### 5.1 Counts (`bounds.json`)
 
@@ -239,9 +267,18 @@ appears, and yellow (unresolved) is 2 cards in cities13 at 0.30 and 1 or 2 in ma
 Per split at 0.30 (strip / pairs / `C` / `E`): annapolis 2/0/0/1, bend 7/3/3/0,
 budapest_district5 11/1/1/0, clovis 3/0/0/0, gainesville 1/0/0/0, laurens_gsv 0/0/0/0,
 laurens_mapillary 0/0/0/0, morgantown 5/1/1/2, paterson 3/1/1/1, richmond 4/1/1/1, sao_paulo
-0/0/0/0, bayonne 4/0/0/0, juneau 2/0/0/0. The largest straddling-pair distance anywhere, at the
-0.05 floor, is 8 px, so no model pair lies between 9 and 15 px and a wider seam-only radius has
-nothing to act on here. The audit of other files (`bounds.json` `other_files`) confirms 0 strip
+0/0/0/0, bayonne 4/0/0/0, juneau 2/0/0/0.
+
+*Corrected 2026-11-16 (review F1); the sentence here said no model pair lies between 9 and 15 px,
+which was wrong.* The `pairs` column counts only straddling pairs with both peaks in the strip;
+their largest distance at the 0.05 floor is 8 px (`bounds.json` `max_pair_dist_px_at_floor`).
+Removal candidates are wider: at 0.30 the `E` cards sit 12, 12, 12, 12, 13, 13, 15, 15, 16, 16 and
+20 px from a stronger partner just outside the strip. Three of the 12-15 px ones inherit Jon's
+`one` verdict (12, 12 and 15 px): they are adjudicated duplicates that a 10-px wrap may leave split
+and that a 15-px seam-only radius would merge. A wider seam radius does have something to act on;
+it is not proposed here and would need its own test.
+
+The audit of other files (`bounds.json` `other_files`) confirms 0 strip
 peaks in every city `records.jsonl`, in 11 of 14 op_caches and in all of `op_cache_tta`.
 
 ### 5.2 Calibration (`calibration.json`)
@@ -252,9 +289,23 @@ peaks in every city `records.jsonl`, in 11 of 14 op_caches and in all of `op_cac
 | `one`, <= 8 px apart | 3 | 3 | `same` x 3 |
 | `one`, > 8 px apart | 7 | 6 | `same` x 6, `unsure` x 1 (s248-22, 10.86 px) |
 
-The bar (all 4 `two` answered `different`) is met, so the AI's verdicts count. Caveat beside the
-number: Jon's `two` pairs are 17-25 px apart and every model pair is 1-8 px apart, so calibration
-on the `two` side is easier than the real cards; and the blinding was on the honour system.
+The bar (all 4 `two` answered `different`) is met, so the AI's verdicts count. Its limits, beside
+the number (corrected and expanded 2026-11-16 after review F1 / F5):
+
+- **It could not gate the rating.** Calibration and study cards were rated in one pass over the
+  mixed deck. Only the script's classification step came after the calibration commit.
+- **It is not independent of the study answers.** Five calibration cards share a panorama with a
+  study card (s248-07 / -36, -19 / -27, -22 / -13, -23 / -01, -31 / -29), and the rater noticed
+  one: the note on s248-31 reads "same landing as s248-29".
+- **The `two` side is easier than the real cards.** Jon's `two` pairs are 17-25 px apart and read
+  as two features; the study cards run from 1 to 20 px (section 3 correction).
+- **The rating was quick.** The verdict commit landed 4 min 53 s after the `bounds` commit, a span
+  that also covers cutting the deck: at most about 8 s per three-panel card. 11 of the 22 study
+  cards carry `unsure` on a ramp tag.
+- **The blinding was on the honour system.** The key was on disk, uncommitted (section 3
+  correction).
+
+Together these make Jon's audit of the other 18 cards more than a formality.
 
 ### 5.3 Classification of the 26 removal cards at 0.30 (`results.json` `cards`)
 
@@ -315,12 +366,23 @@ FLIP. The next step, exactly:
    `manual_gold:R6Awyr2RqM-NKCZyeExAwQ` (s248-11) and `morgantown:1061541095152683` (s248-33).
    Three forward passes; no GPU was used for this study.
 
-**Post hoc diagnostic (not part of the rule; written after the outcome).** The GT points at the
-same cards. Removing s248-27's weak peak loses a manual_gold true positive under GT-B too: it sits
-on one of Jon's `two` panoramas (`QGbpvWpeg9zLcu5HZneRbw`), where the weak peak is credited with the
-second of two adjudicated ramps. Under scenario `hi`, removing s248-33 and s248-09 each loses a
-city true positive (a reviewer-marked ramp). So these are the cards most likely to be real second
-ramps, and the rule routed exactly them to Jon. Three other cards (s248-13, -29, -36) sit on Jon's
+**Post hoc diagnostic (not part of the rule; written after the outcome; corrected 2026-11-16 after
+review F4).** Removing three of the four unresolved cards' weak peaks loses a GT hit: s248-27 under
+GT-A and GT-B, and s248-33 and s248-09 (city GT) under `hi`. The hit is real under the scoring
+protocol. The geometry (wrapped Chebyshev, heatmap px) shows it is mostly *not* evidence that the
+removed peak is a second ramp:
+
+| card | removed peak to the kept peak's GT point | removed peak to the GT point it claims | kept peak to its GT point |
+|---|---:|---:|---:|
+| s248-27 (`QGbpvWpeg9zLcu5HZneRbw`, one of Jon's `two` panoramas) | 5.2 | 19.9 | 3.9 |
+| s248-33 (morgantown `1061541095152683`) | 12.0 | 19.9 | 0.0 |
+| s248-09 (paterson `iPgLrrQ5XDrWWlTXzI5MLQ`) | 20.0 | 9.5 | 0.0 |
+
+For s248-27 and s248-33 the removed peak sits next to the kept peak's ramp. It claims the other GT
+point only as a greedy fallback inside the 22.5-px match radius, which points to a duplicate of the
+first ramp with the second ramp otherwise undetected. Only for s248-09 is the removed peak nearer a
+GT point of its own (9.5 px). The earlier sentence "these are the cards most likely to be real
+second ramps" is withdrawn. The rule is unaffected; Jon still rates the cards. Three other cards (s248-13, -29, -36) sit on Jon's
 `one` panoramas but missed the 6.5-px inheritance join; the AI called two of them `same` and
 s248-36 `different, weak not a ramp`, both harmless classes, although Jon's adjudication implies
 s248-36's weak peak duplicates the ramp (`results.json` `scores.<unit>.<lo|hi>.changed_panos`).
@@ -332,18 +394,34 @@ stratified by split, 2,000 replicates, seed 248. With at most 3 changed panorama
 per-split CIs include 0 by construction (or are exactly [0, 0] when no removed peak reaches t),
 which is not evidence of no effect; per-split rows are in `results.md`.
 
+*Reordered and completed 2026-11-16 (review F2): GT-A, the published protocol, comes first, and
+its `hi` row at 0.30 was missing.*
+
 | unit | scenario | t | removed >= t | P default -> wrap | R default -> wrap | dF1 [95% CI] | GT hits lost |
 |---|---|---:|---:|---|---|---|---:|
+| manual_gold GT-A | lo | 0.30 | 8 | 0.8970 -> 0.8976 | 0.9112 -> 0.9099 | -0.00035 [-0.00108, +0.00039] | 5 |
+| manual_gold GT-A | hi | 0.30 | 14 | 0.8970 -> 0.8982 | 0.9112 -> 0.9092 | -0.00042 [-0.00133, +0.00053] | 8 |
+| manual_gold GT-A | lo | 0.55 | 6 | 0.9474 -> 0.9478 | 0.8727 -> 0.8717 | -0.00034 [-0.00104, +0.00032] | 4 |
+| manual_gold GT-A | hi | 0.55 | 9 | 0.9474 -> 0.9481 | 0.8727 -> 0.8711 | -0.00051 [-0.00136, +0.00030] | 6 |
+| manual_gold GT-B | lo | 0.30 | 8 | 0.8950 -> 0.8966 | 0.9115 -> 0.9112 | +0.00066 [+0.00006, +0.00135] | 1 |
+| manual_gold GT-B | hi | 0.30 | 14 | 0.8950 -> 0.8979 | 0.9115 -> 0.9112 | +0.00135 [+0.00055, +0.00219] | 1 |
+| manual_gold GT-B | lo | 0.55 | 6 | 0.9457 -> 0.9470 | 0.8734 -> 0.8731 | +0.00046 [-0.00007, +0.00109] | 1 |
 | cities13 | lo | 0.30 | 7 | 0.8594 -> 0.8608 | 0.7303 -> 0.7303 | +0.00058 [+0.00012, +0.00115] | 0 |
 | cities13 | hi | 0.30 | 12 | 0.8594 -> 0.8615 | 0.7303 -> 0.7298 | +0.00057 [-0.00019, +0.00140] | 2 |
 | cities13 | lo | 0.55 | 4 | 0.9376 -> 0.9384 | 0.6324 -> 0.6324 | +0.00024 [+0.00000, +0.00063] | 0 |
 | cities11 | lo | 0.30 | 7 | 0.8624 -> 0.8640 | 0.7498 -> 0.7498 | +0.00069 [+0.00014, +0.00135] | 0 |
-| manual_gold GT-B | lo | 0.30 | 8 | 0.8950 -> 0.8966 | 0.9115 -> 0.9112 | +0.00066 [+0.00006, +0.00135] | 1 |
-| manual_gold GT-B | hi | 0.30 | 14 | 0.8950 -> 0.8979 | 0.9115 -> 0.9112 | +0.00135 [+0.00055, +0.00219] | 1 |
-| manual_gold GT-B | lo | 0.55 | 6 | 0.9457 -> 0.9470 | 0.8734 -> 0.8731 | +0.00046 [-0.00007, +0.00109] | 1 |
-| manual_gold GT-A | lo | 0.30 | 8 | 0.8970 -> 0.8976 | 0.9112 -> 0.9099 | -0.00035 [-0.00108, +0.00039] | 5 |
-| manual_gold GT-A | lo | 0.55 | 6 | 0.9474 -> 0.9478 | 0.8727 -> 0.8717 | -0.00034 [-0.00104, +0.00032] | 4 |
-| manual_gold GT-A | hi | 0.55 | 9 | 0.9474 -> 0.9481 | 0.8727 -> 0.8711 | -0.00051 [-0.00136, +0.00030] | 6 |
+
+What each row can and cannot say (2026-11-16, review F2):
+
+- **GT-A (the published protocol) is negative** at both thresholds and in both scenarios. Part of
+  the loss is GT-A crediting the duplicate of a double-marked seam ramp; part is s248-27.
+- **GT-B is not independent of the classification.** It merges the same `one` verdicts that decide
+  4 of the 8 manual_gold `C` cards (plan section 3.4 required this to be said), so its positive
+  sign is partly built in.
+- **The city rows are positive by construction.** City GT has no strip ramps except reviewers'
+  "missed" marks, so a removed strip peak is a false positive unless it falls in an ignore zone. Of
+  the 7 certain city removals, 5 drop a false positive and 2 change nothing
+  (`changed_panos`).
 
 - **GT-A at 0.55 is the README headline on raw bytes** (P 0.947 / R 0.873, flip TTA). Turning wrap
   on in `stage_two/evaluate.py` would move it to about P 0.948 / R 0.872 (certain removals) or
@@ -375,10 +453,12 @@ which is not evidence of no effect; per-split rows are in `results.md`.
 - **Branch** `analysis/seam-nms-default-248` (the orchestrator's name) instead of the plan's
   `seam-nms-default-248`.
 - **Deck key committed after the verdicts** (`a5bfe016` after `104ef849`), the alternative the
-  plan allowed, so the key was not in the tree while rating.
-- **Calibration and rating were one pass over the mixed deck** (plan section 3.5); the calibration
-  was scored and committed (`c54be1e9`) before any study card was classified, so "calibrate, then
-  use the ratings" holds in the commit order.
+  plan allowed. *Corrected 2026-11-16 (review F5):* the key was uncommitted but on disk while
+  rating; it was not opened (section 3 correction).
+- **Calibration and rating were one pass over the mixed deck** (plan section 3.5). The calibration
+  was scored and committed (`c54be1e9`) before the script classified any study card. That order
+  holds for the computation only: calibration could not gate or inform the rating itself (section
+  5.2, corrected 2026-11-16 after review F5).
 - **Card images**: a 60 deg wide view and a 16 deg zoom (with and without marks), cut from the
   native-resolution panorama, instead of `seam_review.py`'s two square views. Its view B (rolled
   180 deg) is pixel-identical to a wrapping crop, so it was dropped.
@@ -387,8 +467,11 @@ which is not evidence of no effect; per-split rows are in `results.md`.
   20-px envelope", which is what the stored-peak argument needs (section 2).
 - **The audit page** goes to `C:\Users\jonf\.claude-team\plans\seam-nms-default-248-audit\` (the
   orchestrator's path) instead of `...-review\`. It is interactive (one card at a time, keyboard
-  verdicts, autosave, Export) and starts each card from the AI pre-rating, per the lab's
-  rating-page convention.
+  verdicts, autosave, Export). *Rebuilt 2026-11-16 (review F3):* the first version pre-filled the
+  AI rating, and a note or one changed field could export the AI's other answers as Jon's. Every
+  card now starts blank. The AI rating is shown only after Jon has answered all three questions
+  and never enters the export. `report` counts a card as Jon's only when he set the pair answer and
+  both mark tags (`jon_counts`). The page no longer says which answer would move the outcome.
 - **AP** is reported per split and for manual_gold only, not pooled.
 
 ## 7. What a flip would touch (described only; no branch was made)
@@ -426,8 +509,14 @@ python scripts/analysis/seam_nms_default_248.py --check       # re-derive everyt
 pytest -q tests/test_seam_nms_default_248.py
 ```
 
-- **Inputs** (committed): `analysis_out/input_res_sweep_25/cache/r2048/*.json` (pinned by that
-  directory's `SHA256SUMS`, sha256 `58db5d4e314156c1...`), `analysis_out/op_cache/bayonne.json`
+**When Jon's audit lands** (`review/verdicts__jon.json`), run `report`, `figure` and `audit-sheet`,
+then commit the regenerated `results.json`, `results.md`, figure and CSV with his file. `--check`
+and the tests pin the AI-only state (recomputed with Jon's file ignored), so they need no edit; the
+with-Jon outcome is checked only against the committed `results.json` (2026-11-16, review F6).
+
+- **Inputs** (committed): `analysis_out/input_res_sweep_25/cache/r2048/*.json`, pinned by
+  `analysis_out/input_res_sweep_25/SHA256SUMS` (sha256 `58db5d4e314156c1...`; there is no
+  manifest inside `r2048/` itself, corrected 2026-11-16 after review F8), `analysis_out/op_cache/bayonne.json`
   (`01b1b24c9571af76...`) and `juneau.json` (`b401ea101e2d07d5...`),
   `benchmark/manual_gold/records.jsonl` (`c3728e78e4633c25...`) with `detections_meta.json`,
   `manual_labels/` (GT-A), `benchmark/manual_gold/seam_verdicts__jon.json`
@@ -476,3 +565,20 @@ pytest -q tests/test_seam_nms_default_248.py
 - **manual_gold single pass**: no committed post-fix peaks; not studied.
 - **The manual_gold GT merge** is applied in memory only (GT-B); `manual_labels/` is unchanged.
 - **No default was changed**, and no flip branch exists.
+
+## 11. Corrections after review (2026-11-16)
+
+A Fable 5.2 review of [PR #291](https://github.com/ProjectSidewalk/RampNet/pull/291) (comment
+`6910231904`) raised findings F1-F8. Each was reproduced before it was acted on. None changes the
+committed counts, the verdicts, the calibration, `results.json` or the outcome under the rule.
+
+| finding | what changed |
+|---|---|
+| F1: "no model pair between 9 and 15 px" was false | sentence replaced in section 5.1 with the `E` distance list; dated correction in section 3; the calibration caveat fixed; the closing draft's bullet removed |
+| F2: headline leaned toward flip | key takeaways 2, 3 and 5, the figure title and the docs index row reworded; the GT-A `hi` 0.30 row added; GT-A placed first; GT-B non-independence and the by-construction city gain stated beside the numbers |
+| F3: the audit page could export AI answers as Jon's | page rebuilt blank (AI rating shown only after Jon's own answer, never exported); `report` counts a card as Jon's only when all three fields are his (`jon_counts`) |
+| F4: s248-27 misread | post hoc note in section 5.4 rewritten with the distances; "most likely real second ramps" withdrawn |
+| F5: blinding and calibration claims too strong | section 3 correction (key on disk); section 5.2 limits (one pass, 5 shared panoramas, the time per card); section 6 wording |
+| F6: `--check` and a test broke when Jon's file lands | the pins and the test now recompute the AI-only state; replication section says what to re-run |
+| F7: tests could pass on a wrong mapping | tests added for the A/B to weak/strong mapping, distance boundaries 10/11 and 20/21 px, strip columns 9/10 and 1013/1014, and Jon-entry counting |
+| F8: nits | the `SHA256SUMS` location fixed in section 8; 1-wide figure labels moved off the bars; the uncalibrated-and-all-Jon edge in `decide` left as is (it cannot occur with the committed calibration, and changing it would alter the pre-registered rule's literal reading) |
