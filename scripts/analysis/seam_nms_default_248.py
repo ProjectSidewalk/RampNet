@@ -859,8 +859,15 @@ def classify_cards(bounds, key, ai, ai_calibrated, jon_audit=None):
 def decide(cards, ai_calibrated):
     """Apply the pre-registered rule (doc section 4.2). Returns (outcome, reasons dict).
 
-    >>> decide([{"set": "E", "cls": "L", "source": "ai", "card": "x"}], True)[0]
+    Two envelope-only cards judged lost ramps cannot cause KEEP (their removal is not
+    established), and two possible losses exceed the FLIP clause's ``L_pess <= 1``:
+
+    >>> two = [{"set": "E", "cls": "L", "source": "ai", "card": c, "split": "bend", "pano": c}
+    ...        for c in "xy"]
+    >>> decide(two, True)[0]
     'NEXT STEP NEEDED'
+    >>> decide(two[:1], True)[0]
+    "FLIP, CONDITIONAL ON JON'S AUDIT"
     """
     is_jon = lambda r: r["source"].startswith("jon")  # noqa: E731
     l_jon_c = [r for r in cards if r["set"] == "C" and r["cls"] == "L" and is_jon(r)]
@@ -1158,6 +1165,165 @@ def cmd_report(args):
 
 
 # --------------------------------------------------------------------------- #
+# figure: what wrapped NMS would remove from the strip, by class
+# --------------------------------------------------------------------------- #
+FIG_CSV = os.path.join(REPO, "docs", "data", "seam_nms_default_248_figure.csv")
+CLASS_COLOURS = {"D": "#2a78d6", "N": "#1baf7a", "U": "#eda100", "L": "#eb6834"}
+CLASS_NAMES = {"D": "duplicate of the kept peak",
+               "N": "not a ramp (or a duplicate of an unconfirmed one)", "U": "unresolved",
+               "L": "a different real ramp"}
+
+
+def figure_rows(results, bounds):
+    """One row per (pool, threshold): strip peaks split into C by class, E by class, untouched."""
+    rows = []
+    for pool in ("cities13", MG):
+        for t in ("0.30", "0.55"):
+            cc = results["class_counts"][t]
+            b = bounds["pools"][pool][t]
+            row = {"pool": pool, "t": t, "peaks": b["peaks"], "strip": b["strip"]}
+            for st in ("C", "E"):
+                for k in "DNUL":
+                    row[f"{st}_{k}"] = cc[f"{pool} {st}"][k]
+            row["untouched"] = b["strip"] - b["env20"]
+            rows.append(row)
+    return rows
+
+
+def figure_csv(rows):
+    cols = list(rows[0])
+    return "\n".join([",".join(cols)] + [",".join(str(r[c]) for c in cols) for r in rows]) + "\n"
+
+
+def cmd_figure(args):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Patch
+    results = read_json(os.path.join(OUT_DIR, "results.json"))
+    bounds = read_json(os.path.join(OUT_DIR, "bounds.json"))
+    rows = figure_rows(results, bounds)
+    os.makedirs(os.path.dirname(FIG_CSV), exist_ok=True)
+    with open(FIG_CSV, "w", encoding="utf-8", newline="") as f:
+        f.write(figure_csv(rows))
+    plt.rcParams.update({"font.size": 10, "svg.hashsalt": "248"})
+    fig, ax = plt.subplots(figsize=(9, 4.4))
+    labels = []
+    for i, r in enumerate(rows):
+        y = len(rows) - 1 - i
+        x = 0
+        segs = [(f"C_{k}", CLASS_COLOURS[k], None) for k in "DNUL"] + \
+               [(f"E_{k}", CLASS_COLOURS[k], "////") for k in "DNUL"] + \
+               [("untouched", "#d9d8d4", None)]
+        for name, col, hatch in segs:
+            n = r[name]
+            if n:
+                ax.barh(y, n, left=x, height=0.6, color=col, hatch=hatch, edgecolor="white",
+                        linewidth=2)
+                if n >= 2 or name != "untouched":
+                    ax.text(x + n / 2, y, str(n), ha="center", va="center", fontsize=8,
+                            color="#0b0b0b" if name in ("untouched", "C_U", "E_U") else "white",
+                            bbox={"boxstyle": "round,pad=0.15", "fc": col, "ec": "none"})
+                x += n
+        labels.append(f"{r['pool']} @ {r['t']}\n({r['strip']} strip of {r['peaks']:,} peaks)")
+    ax.set_yticks(range(len(rows)))
+    ax.set_yticklabels(labels[::-1])
+    ax.set_xlabel("seam-strip peaks (heatmap column < 10 or >= 1014)")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.grid(axis="x", color="#ecebe8")
+    ax.set_axisbelow(True)
+    handles = [Patch(color=CLASS_COLOURS[k], label=f"{k}: {CLASS_NAMES[k]}") for k in "DNUL"]
+    handles += [Patch(facecolor="white", edgecolor="#52514e", hatch="////",
+                      label="hatched: envelope-only (E), removal not established"),
+                Patch(color="#d9d8d4", label="strip peak wrap leaves alone")]
+    ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.4, -0.2), ncol=2,
+              fontsize=8, frameon=False)
+    ax.set_title("No rater found a lost ramp among the peaks wrapped NMS removes;\n"
+                 f"{results['reasons']['L_pess']} unresolved cards, so the rule says "
+                 f"{results['outcome']}", fontsize=10, loc="left")
+    fig.tight_layout()
+    fig.savefig(FIGURE, dpi=200, metadata={"Software": None})
+    fig.savefig(os.path.splitext(FIGURE)[0] + ".svg", metadata={"Date": None})
+    print(f"wrote {FIGURE}, .svg and {FIG_CSV}")
+    return 0
+
+
+def cmd_audit_sheet(args):
+    """Jon's audit page: every study card on the sheet, the ones the rule needs first.
+
+    The AI pre-rating is pre-filled as a default to confirm or change; an unconfirmed default is
+    exported with ``prefilled_unconfirmed: true`` and ``report`` does not count it as Jon's."""
+    results = read_json(os.path.join(OUT_DIR, "results.json"))
+    key = read_json(os.path.join(REVIEW_DIR, "key.json"))
+    ai = load_verdicts(os.path.join(REVIEW_DIR, f"verdicts__{AI_RATER}.json"), key)
+    need = results["reasons"].get("cards_jon_must_rate", [])
+    study = sorted(c["card"] for c in results["cards"] if c["card"])
+    order = need + [c for c in study if c not in need]
+    cards = []
+    for cid in order:
+        with open(os.path.join(REVIEW_DIR, "cards", f"{cid}.jpg"), "rb") as f:
+            cards.append({"id": cid, "img": "data:image/jpeg;base64,"
+                          + base64.b64encode(f.read()).decode()})
+    defaults = {cid: {k: ai[cid][k] for k in ("pair", "A", "B")} for cid in order}
+    note = (f"<b>Audit for #248.</b> Required for the rule: the first {len(need)} cards "
+            f"({', '.join(need)}). The other {len(order) - len(need)} are the rest of the "
+            "removal cards; rating them too is what turns a conditional FLIP into a FLIP. "
+            "Each card starts with the AI pre-rating filled in: confirm it (press the same key) "
+            "or change it, then Export and save as review/verdicts__jon.json.")
+    with open(args.out, "w", encoding="utf-8", newline="") as f:
+        f.write(render_html(cards, key["digest"], rater="jon", defaults=defaults,
+                            title="#248 audit: same object or not?", note=note))
+    print(f"wrote {args.out} ({len(order)} cards; required first: {need})")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
+# --check
+# --------------------------------------------------------------------------- #
+def strip_volatile(obj):
+    return json.loads(json.dumps(obj))
+
+
+def cmd_check(args):
+    """Re-derive bounds.json, calibration.json, results.json and the figure CSV; compare."""
+    bad = []
+    b = build_bounds()
+    b["manual_gold_gt_points"] = sum(len(g.gt_points) for g in manual_gold_gt().values())
+    bad += check_reviewer_literals(b)
+    for name, fresh in (("bounds.json", b), ("calibration.json", build_calibration())):
+        if strip_volatile(fresh) != read_json(os.path.join(OUT_DIR, name)):
+            bad.append(f"{name} differs from a fresh build")
+    r = build_results()
+    if strip_volatile(r) != read_json(os.path.join(OUT_DIR, "results.json")):
+        bad.append("results.json differs from a fresh build")
+    with open(os.path.join(OUT_DIR, "results.md"), encoding="utf-8") as f:
+        if f.read() != results_markdown(strip_volatile(r)):
+            bad.append("results.md differs from a fresh render")
+    with open(FIG_CSV, encoding="utf-8") as f:
+        if f.read() != figure_csv(figure_rows(r, b)):
+            bad.append("figure CSV differs from a fresh build")
+    # pinned facts of the study (doc "Where each number lives")
+    pins = {"outcome": (r["outcome"], NEXT),
+            "L_pess": (r["reasons"]["L_pess"], 4), "L_opt_C": (r["reasons"]["L_opt_C"], 0),
+            "calibrated": (r["calibration"]["calibrated"], True),
+            "inherited cards": (sum(c["source"] == "jon (inherited)" for c in r["cards"]), 4),
+            "study cards": (len(r["cards"]), 26), "GT-B points": (r["gt_points"]["GT-B"], 3909),
+            "tripwire": (r["tripwire"]["fired"], False)}
+    for k, (got, want) in pins.items():
+        if got != want:
+            bad.append(f"{k}: {got} != pinned {want}")
+    for m in r["gt_b_merges"]:
+        if max(m["to_a_px"], m["to_b_px"]) > JOIN_PX or m["to_seam_px"] > 7:
+            bad.append(f"GT-B merge of {m['pano']} is not a seam midpoint: {m}")
+    if bad:
+        print("CHECK FAILED:\n  " + "\n  ".join(bad))
+        return 1
+    print(f"check OK: bounds, calibration, results and figure data re-derive; outcome "
+          f"{r['outcome']}; reviewer literals hold")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
 def main(argv=None):
@@ -1177,22 +1343,25 @@ def main(argv=None):
     c.add_argument("--out", default=os.path.join(OUT_DIR, "calibration.json"))
     r = sub.add_parser("report", help="classification, the rule, paired scores")
     r.add_argument("--out", default=os.path.join(OUT_DIR, "results.json"))
+    sub.add_parser("figure", help="docs/figures/seam_nms_default_248.png + its CSV")
+    a = sub.add_parser("audit-sheet", help="Jon's audit page: study cards, AI pre-rating shown")
+    a.add_argument("--out", default=os.path.join(REVIEW_DIR, "audit_jon.html"))
     args = ap.parse_args(argv)
-    if args.cmd == "report":
-        return cmd_report(args)
     if args.check:
         return cmd_check(args)
+    if args.cmd == "report":
+        return cmd_report(args)
     if args.cmd == "bounds":
         return cmd_bounds(args)
     if args.cmd == "sheet":
         return cmd_sheet(args)
     if args.cmd == "calibrate":
         return cmd_calibrate(args)
+    if args.cmd == "figure":
+        return cmd_figure(args)
+    if args.cmd == "audit-sheet":
+        return cmd_audit_sheet(args)
     ap.error("choose a subcommand or --check")
-
-
-def cmd_check(args):  # filled in with the report
-    raise SystemExit("--check is not implemented yet")
 
 
 if __name__ == "__main__":
