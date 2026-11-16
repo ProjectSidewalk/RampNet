@@ -36,7 +36,7 @@
  "pre_registered": {
   "audit_plan_sha256": "2dbd4d82b6b5aef5733fd1af7f8887657a916c26f74d40a22a79b6a22a56f1af",
   "comment": null,
-  "commit": null,
+  "commit": "2f1f9944cd8d",
   "date": "2026-11-15",
   "note": "committed and pushed before any pixel of the draw was fetched. score refuses an audit_plan.json or records.jsonl with another sha256. A change of plan before the review opens needs a new block here, with this one kept under superseded. comment: the #159 comment that posts the plan (null until Jon posts the drafted one).",
   "records_jsonl_sha256": "64232f8bc5f2587cd4a0f66fbe3d6b7c3868ef2276e80f0e3abadc714e13ab17"
