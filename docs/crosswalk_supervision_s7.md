@@ -5,32 +5,49 @@ for its $0 stage only. This doc records the day-1 diagnostics of section 2 of th
 (exploratory) and **part (a) of D4**, the leak check that is the plan's only stop gate. Nothing was built, trained
 or rated. Written by Claude Opus 5.5 (`claude-opus-5-5`).
 
-**D4 part (b) has not been run.** It uses Jon's missed-crosswalk marks (110 Juneau, 11 Laurens) as a hold-out
-population, and that use is Jon's decision, not yet made. The code for (b) is written and refuses to run without
-`--jon-approved-b`; its marks were not opened for this doc. **The gate's (b) half is pending.**
+**D4 fails on its (b) half, so fix H is not built.** Jon approved using his missed-crosswalk marks to measure the leak
+(never for training) on 2026-11-15, after (a) was scored. (b) was run with `--jon-approved-b`. Jon read its summary
+himself, and the (b) numbers below are as he relayed them, from `leak_b/summary.json`. The author did not open that
+file. Nothing was retuned after either result.
 
 ## Result
 
 | Gate half | n (marks / panos) | Leaked into background | Leak (Wilson 95%) | s4-blind at 0.05 (Wilson 95%) | Verdict |
 |---|---|---|---|---|---|
 | D4 (a): Jon's `crosswalk` verdicts, 200 Mapillary panos of the confirmation `cities` draw | 106 / 38 | 0 | **0.000 (0.000 to 0.035)** | 0 of 106, 0.000 (0.000 to 0.035) | **holds** (≤ 0.05) |
-| D4 (b): Jon's missed-crosswalk marks, 110 Juneau + 11 Laurens | not run | | | | **pending Jon's decision** |
+| D4 (b): Jon's missed-crosswalk marks, sure, within 25 m (110 Juneau, 11 Laurens) | 121 / 51 | 15 | **0.124 (0.077 to 0.194)** | 25 of 121, 0.207 (0.144 to 0.287); seed 1 alone 34, 0.281 | **fails** (> 0.05) |
 
-- **(a) holds, but it is a weak test, as the plan said it would be.** Every (a) mark is a card some model fired on, and
-  s4 seed 1's own detections are among those cards. An s4 peak's 30 px ignore disc alone covers 104 of the 106 marks,
-  and no mark is s4-blind at 0.05 (no seed has a peak within 0.05 of it). With s4's peaks alone and no Vistas or OSM
-  term, 2 of 106 would leak; Vistas covers both. So (a) shows the rule does not erase crosswalks s4 already sees. It
-  cannot show what happens to the crosswalks s4 misses, which is the recall risk H carries.
-- **The gate as a whole is open.** Under the plan, H is built only if the leak is at most 5% in (a) and in (b). (b) is
-  the half that measures crosswalks s4 misses (s4 found 63 of the 110 Juneau marks at 0.23). Using those marks this way
-  is Jon's call. If he approves, (b) runs with one command (below). If he declines, the plan says the gate is (a)
-  alone, and it holds.
-- **What happens next, per the plan (section 7):** D4 is the stop rule, so nothing is built until the gate is settled.
-  Then days 2 to 3: build `root_v7h`, commit the pre-registration with exact counts, and Jon approves the text before
-  any training job. None of that was started here.
+**Gate: fails.** The plan needs a leak of at most 5% in (a) and in (b). (b)'s leak is 12.4%, and even the lower end of
+its interval (7.7%) is above the bar.
+
+**Consequence, per the plan's stop rule (sections 2, 4 and 7):** H is not built, and the rule is not retuned on these
+marks. `root_v7h` was not built and no pre-registration was written. Arm E (H plus matched empties) uses H's rule, so it
+is out too.
+
+- **The circularity the review warned about is what fails.** 13 of the 25 marks that s4 is blind to at 0.05 would
+  become background. Those are the crosswalks a retrained model most needs to learn, and H would teach them as "not a
+  crosswalk". The reviewer's finding 5 named this risk: the background is taught wherever s4, OSM and Vistas are all
+  silent, so H caps recall at s4's blind spots.
+- **(a) could not see it.** Every (a) mark is a card some model fired on, s4 among them. s4's own ignore discs cover 104
+  of the 106 (a) marks, and none is s4-blind. (b) holds the crosswalks s4 misses, and there the rule leaks.
+- **Every reading of the rule fails (b):** marked OSM nodes only, 15 (0.124); OSM nodes within 25 m, 15 (0.124); boxes
+  dilated 30 image px, 18 (0.149, 0.096 to 0.223); boxes not dilated, 20 (0.165, 0.110 to 0.242). The OSM term barely
+  matters. Vistas and s4 carry the coverage.
+- **(b) coverage, per source** (a mark can have several): s4 discs 87, Vistas boxes 95, OSM discs 32; Vistas alone 16,
+  OSM alone 1. Vistas is the main backstop for what s4 misses, and it still leaves 15 marks uncovered.
 - D1 and D2 are exploratory and decide nothing. D2 adds one reading worth Jon's eye: on the 110 marks and the 119
-  empty panos, no s6 model reaches s4's false-alarm level at any threshold from 0.10 to 0.40, and at equal false alarms
-  s4 finds more marks (section D2).
+  empty panos, no s6 model gets down to s4's false-alarm level at any threshold from 0.10 to 0.40, and at equal false
+  alarms s4 finds more marks (section D2).
+
+**Open decisions for Jon (nothing was started):**
+1. **Whether to run W alone.** W keeps the auto panos `sparse` at a quarter of the loss and samples at least 8
+   whole-frame panos (all Seattle GSV) into every 16-pano step. It needs about 40 lines in `train.py` plus a test, and
+   it does not use H's rule. The plan ordered W after H, so W alone is outside its order and needs Jon's call (and,
+   under the plan's stop rule, its own pre-registration).
+2. Whether to keep `crosswalk_s4` as detector of record and close Planning option S here. That is the plan's default
+   outcome when no arm runs.
+3. The sibling plan `argon-teacher-2026-11-15.md` uses the same whole-frame background rule. Its supervision mode
+   rested on this D4, which now gives no support for that rule.
 
 ## Background: fix H and why D4 exists
 
@@ -81,15 +98,25 @@ outside the 30 px disc. s4-blind at 0.05: 0 of 106 for the three seeds together,
 population is nearly empty of the crosswalks H could erase. That was known when the plan was revised (section 10,
 finding 1), and it is why (b) exists.
 
-## D4 (b): written, not run
+## D4 (b): Jon's missed-crosswalk marks
 
-`pu_arm.py leak-check --population b --keep <keep> --jon-approved-b` applies the same rule to the sure marks within
-25 m of Jon's missed-crosswalk page (the 110 Juneau marks of the A4 primary and the 11 Laurens marks). It reads the
-committed `recall285` verdicts, the three s4 seeds' committed predictions on those panos (`crosswalk_s4_klone`,
-`_seed2`, `_seed3`), the `recall285` records and 4096 px panos under `<keep>`, runs the Vistas pass on the panos that
-carry marks, pulls OSM for each city's draw, and writes `leak_b/` with the same files and summary as (a). Without
-`--jon-approved-b` it exits before reading any mark (`tests/test_pu_arm_s7.py` pins that). Nothing under `leak_b/`
-exists, and none of those marks was scored against the rule for this doc.
+Run on 2026-11-15 after Jon approved the use: `pu_arm.py leak-check --population b --keep <keep> --jon-approved-b`.
+The population is the sure marks within 25 m from the missed-crosswalk page: the 110 Juneau marks of the A4 primary and
+the 11 Laurens marks, 121 on 51 panos. The rule and every reading are exactly (a)'s. The inputs are the three s4 seeds'
+committed predictions on those panos (`crosswalk_s4_klone`, `_seed2`, `_seed3`), a Vistas pass on the 51 panos (RTX
+3070), and one Overpass query per city's draw. Overpass returned 502 twice for Juneau and then answered.
+
+| Reading | Leaked of 121 | Leak (Wilson 95%) |
+|---|---|---|
+| **Primary:** all OSM nodes within 20 m, boxes dilated 30 heatmap px | **15** | **0.124 (0.077 to 0.194)** |
+| OSM marked nodes only | 15 | 0.124 |
+| OSM nodes within 25 m | 15 | 0.124 |
+| Boxes dilated 30 image px (7.5 heatmap px) | 18 | 0.149 (0.096 to 0.223) |
+| Boxes not dilated | 20 | 0.165 (0.110 to 0.242) |
+
+s4-blind at 0.05: 25 of 121 for the three seeds together (0.207, 0.144 to 0.287), 34 for seed 1 alone (0.281). 13 of
+the 25 s4-blind marks leak. The figures in this section are as Jon read them from `leak_b/summary.json`; the per-mark
+rows are in `leak_b/marks_scored.csv`.
 
 ## D1 (exploratory, already read; reproduced)
 
@@ -144,7 +171,7 @@ linear to 10, logarithmic beyond.*
   and 119 empty panos that every arm has been designed around. A common threshold also ignores the per-seed val
   matching the pre-registration uses. It decides nothing.
 - The grid starts at 0.10 rather than 0.05 on purpose: at 0.05 it would report which of Jon's marks s4 misses at its
-  storage floor, which is a quantity D4 (b) reports and is not approved yet.
+  storage floor, which is a quantity D4 (b) reports (it was not approved when D2 was run).
 
 
 ## Amendments and readings (the plan was ambiguous here; the most literal reading gates)
@@ -180,7 +207,7 @@ Every choice below was fixed in the code before the D4 scoring was run, and none
    pass had already finished; the check was rerun once the main instance answered again, and it resumed without
    repeating the pass. Two queries in all, no mirror used.
 
-Not done here, by the plan: no training root built, no training, no rating, nothing pushed or posted. One unrelated
+Not done, by the plan's stop rule: no training root built, no pre-registration, no training, no rating, nothing pushed or posted. One unrelated
 test fails on the base commit as well (`tests/test_check_all.py::test_manifest_discovery_covers_the_unowned_manifests`,
 a `hardneg/s4_bayonne/*.sha256` manifest not in the `manifests_sha256` pins); it was left alone.
 
@@ -199,6 +226,10 @@ All paths under `analysis_out/crosswalk_supervision_s7/`.
 | D4 (a): raw OSM pulls, and every node projected within 25 m | `leak_a/osm_{juneau-ak,laurens-ia}.json`, `leak_a/osm_points.csv` |
 | D4 (a): per mark, background under each rule, covering source, s4-blind | `leak_a/marks_scored.csv` |
 | D4 (a): leak, Wilson interval, s4-blind share, the half-gate verdict, input hashes | `leak_a/summary.json` |
+| D4 (b): the 51 panos, the 121 marks | `leak_b/panos.txt`, `leak_b/marks.csv` |
+| D4 (b): Vistas components, OSM pulls and projected nodes | `leak_b/vistas.jsonl`, `leak_b/osm_{juneau-ak,laurens-ia}.json`, `leak_b/osm_points.csv` |
+| D4 (b): per mark, background under each rule, covering source, s4-blind | `leak_b/marks_scored.csv` |
+| D4 (b): leak, Wilson interval, s4-blind share, coverage, the half-gate verdict, input hashes | `leak_b/summary.json` |
 | s4 seeds 2 and 3 on the 200 panos | `preds/crosswalk_s4_seed{2,3}/cities_mly.jsonl` (+ `meta.json`) |
 | D2 figure | `docs/figures/crosswalk_supervision_s7/d2_tradeoff.png` (`pu_arm.py figures`) |
 
@@ -220,9 +251,9 @@ for s in 2 3; do C=$K/archive-stage1_crosswalk_detector_274/checkpoints/crosswal
     --split-name cities_mly; done
 # D4 (a): Vistas pass (RTX 3070, fp16, about 20 minutes; resumable), two Overpass queries (cached), scoring
 python $S/pu_arm.py leak-check --population a --keep $K
-# D4 (b): NOT APPROVED. Runs only after Jon approves using his missed-crosswalk marks:
-#   python $S/pu_arm.py leak-check --population b --keep $K --jon-approved-b
-# Reproduction from committed files only (CPU; writes nothing)
+# D4 (b): approved by Jon 2026-11-15 for measuring the leak only (never training). Vistas on 51 panos, two Overpass queries
+python $S/pu_arm.py leak-check --population b --keep $K --jon-approved-b
+# Reproduction from committed files only (CPU; writes nothing; covers D1, D2 and D4 (a))
 python $S/pu_arm.py --check
 pytest tests/test_pu_arm_s7.py
 ```
