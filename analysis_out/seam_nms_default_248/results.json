@@ -1,0 +1,5000 @@
+{
+ "what": "seam-wrapped NMS default study (#248): classification, rule, scores",
+ "rule_threshold": 0.3,
+ "outcome": "NEXT STEP NEEDED",
+ "reasons": {
+  "L_jon_C": 0,
+  "L_opt_C": 0,
+  "L_pess": 4,
+  "ai_calibrated": true,
+  "all_cards_rated_by_jon": false,
+  "cards_jon_must_rate": [
+   "s248-09",
+   "s248-11",
+   "s248-27",
+   "s248-33"
+  ],
+  "panoramas_for_exact_tier": [
+   "manual_gold:R6Awyr2RqM-NKCZyeExAwQ",
+   "morgantown:1061541095152683",
+   "paterson:iPgLrrQ5XDrWWlTXzI5MLQ"
+  ]
+ },
+ "tripwire": {
+  "fired": false,
+  "by_unit": {
+   "cities13 @ 0.30": false,
+   "cities13 @ 0.55": false,
+   "manual_gold GT-B @ 0.30": false,
+   "manual_gold GT-B @ 0.55": false
+  },
+  "rule": "pooled paired dF1 under lo < -0.001"
+ },
+ "calibration": {
+  "n": 14,
+  "two_total": 4,
+  "two_agree": 4,
+  "one_total": 10,
+  "one_agree": 9,
+  "one_by_band": {
+   "one, <= 8 px": {
+    "agree": 3,
+    "n": 3
+   },
+   "one, > 8 px": {
+    "agree": 6,
+    "n": 7
+   }
+  },
+  "ai_answers_on_one": {
+   "same": 9,
+   "different": 0,
+   "unsure": 1,
+   "null": 0
+  },
+  "calibrated": true,
+  "bar": "AI answered `different` on all of Jon's `two` pairs (pre-registered)"
+ },
+ "jon_audit_present": false,
+ "ai_vs_jon_audit": null,
+ "class_counts": {
+  "0.30": {
+   "cities13 C": {
+    "D": 6,
+    "L": 0,
+    "N": 1,
+    "U": 0
+   },
+   "cities13 E": {
+    "D": 2,
+    "L": 0,
+    "N": 1,
+    "U": 2
+   },
+   "manual_gold C": {
+    "D": 3,
+    "L": 0,
+    "N": 4,
+    "U": 1
+   },
+   "manual_gold E": {
+    "D": 5,
+    "L": 0,
+    "N": 0,
+    "U": 1
+   }
+  },
+  "0.55": {
+   "cities13 C": {
+    "D": 4,
+    "L": 0,
+    "N": 0,
+    "U": 0
+   },
+   "cities13 E": {
+    "D": 0,
+    "L": 0,
+    "N": 0,
+    "U": 0
+   },
+   "manual_gold C": {
+    "D": 2,
+    "L": 0,
+    "N": 3,
+    "U": 1
+   },
+   "manual_gold E": {
+    "D": 3,
+    "L": 0,
+    "N": 0,
+    "U": 0
+   }
+  }
+ },
+ "cards": [
+  {
+   "split": "annapolis",
+   "pano": "1066275427712945",
+   "set": "E",
+   "dist": 13,
+   "weak_score": 0.504463,
+   "strong_score": 0.786821,
+   "card": "s248-26",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "bend",
+   "pano": "bTkyJpLDQ7HCw4yOdqdNCg",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.522917,
+   "strong_score": 0.866691,
+   "card": "s248-25",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "bend",
+   "pano": "bVadNrPq_zXgbJjhhDSwDw",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.698127,
+   "strong_score": 0.79537,
+   "card": "s248-16",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "unsure",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "bend",
+   "pano": "rQtHh0Wai-D1FvbvqBlWdw",
+   "set": "C",
+   "dist": 7,
+   "weak_score": 0.800486,
+   "strong_score": 0.842894,
+   "card": "s248-03",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "budapest_district5",
+   "pano": "1046671274052950",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.308485,
+   "strong_score": 0.470878,
+   "card": "s248-28",
+   "source": "ai",
+   "cls": "N",
+   "verdict": {
+    "pair": "same",
+    "weak": "unsure",
+    "strong": "unsure"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "1k0cQKEs12LmTz7nGenMjg",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.460038,
+   "strong_score": 0.490544,
+   "card": "s248-21",
+   "source": "ai",
+   "cls": "N",
+   "verdict": {
+    "pair": "same",
+    "weak": "unsure",
+    "strong": "unsure"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "2NgKmkIoU9nUwvjk6K5wtw",
+   "set": "E",
+   "dist": 12,
+   "weak_score": 0.35705,
+   "strong_score": 0.87849,
+   "card": null,
+   "source": "jon (inherited)",
+   "cls": "D",
+   "verdict": "one",
+   "jon_pair_index": 9
+  },
+  {
+   "split": "manual_gold",
+   "pano": "4lENFOhzGGSJaPgXnTfAJA",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.566833,
+   "strong_score": 0.760688,
+   "card": "s248-08",
+   "source": "ai",
+   "cls": "N",
+   "verdict": {
+    "pair": "same",
+    "weak": "unsure",
+    "strong": "unsure"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "MJbCTDJV5advy8eYbL0V5Q",
+   "set": "C",
+   "dist": 1,
+   "weak_score": 0.751634,
+   "strong_score": 0.896311,
+   "card": "s248-01",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "QGbpvWpeg9zLcu5HZneRbw",
+   "set": "C",
+   "dist": 7,
+   "weak_score": 0.741876,
+   "strong_score": 0.964573,
+   "card": "s248-27",
+   "source": "ai",
+   "cls": "U",
+   "verdict": {
+    "pair": "unsure",
+    "weak": "unsure",
+    "strong": "unsure"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "R6Awyr2RqM-NKCZyeExAwQ",
+   "set": "E",
+   "dist": 16,
+   "weak_score": 0.390388,
+   "strong_score": 0.951472,
+   "card": "s248-11",
+   "source": "ai",
+   "cls": "U",
+   "verdict": {
+    "pair": "unsure",
+    "weak": "unsure",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "XCbhS0jxrSrOLyndJXtQvA",
+   "set": "E",
+   "dist": 12,
+   "weak_score": 0.684638,
+   "strong_score": 0.786904,
+   "card": null,
+   "source": "jon (inherited)",
+   "cls": "D",
+   "verdict": "one",
+   "jon_pair_index": 1
+  },
+  {
+   "split": "manual_gold",
+   "pano": "YRTsmStw9SqMzZGZpNTcsg",
+   "set": "E",
+   "dist": 15,
+   "weak_score": 0.892676,
+   "strong_score": 0.938122,
+   "card": null,
+   "source": "jon (inherited)",
+   "cls": "D",
+   "verdict": "one",
+   "jon_pair_index": 8
+  },
+  {
+   "split": "manual_gold",
+   "pano": "fCcAa7bQ3VAxPqaC0ZGy0Q",
+   "set": "E",
+   "dist": 15,
+   "weak_score": 0.5237,
+   "strong_score": 0.947548,
+   "card": "s248-17",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "unsure",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "mLHZho9oLtF_S2JpEUai6g",
+   "set": "E",
+   "dist": 12,
+   "weak_score": 0.614417,
+   "strong_score": 0.945083,
+   "card": "s248-20",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "oE6q6mzI7U-P8l35PsTDFA",
+   "set": "C",
+   "dist": 7,
+   "weak_score": 0.866984,
+   "strong_score": 0.987908,
+   "card": "s248-36",
+   "source": "ai",
+   "cls": "N",
+   "verdict": {
+    "pair": "different",
+    "weak": "not_ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "oyyca_diFZoYJGETmlwc3g",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.781742,
+   "strong_score": 0.922212,
+   "card": "s248-29",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "manual_gold",
+   "pano": "tRwq7cx78-g4Mi59uuN5-Q",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.40323,
+   "strong_score": 0.45261,
+   "card": null,
+   "source": "jon (inherited)",
+   "cls": "D",
+   "verdict": "one",
+   "jon_pair_index": 0
+  },
+  {
+   "split": "manual_gold",
+   "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.892905,
+   "strong_score": 0.916836,
+   "card": "s248-13",
+   "source": "ai",
+   "cls": "N",
+   "verdict": {
+    "pair": "same",
+    "weak": "unsure",
+    "strong": "unsure"
+   }
+  },
+  {
+   "split": "morgantown",
+   "pano": "1061541095152683",
+   "set": "E",
+   "dist": 12,
+   "weak_score": 0.486089,
+   "strong_score": 0.610244,
+   "card": "s248-33",
+   "source": "ai",
+   "cls": "U",
+   "verdict": {
+    "pair": "unsure",
+    "weak": "ramp",
+    "strong": "unsure"
+   }
+  },
+  {
+   "split": "morgantown",
+   "pano": "1560632374758055",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.337266,
+   "strong_score": 0.756027,
+   "card": "s248-35",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "morgantown",
+   "pano": "760811765935688",
+   "set": "E",
+   "dist": 16,
+   "weak_score": 0.47804,
+   "strong_score": 0.97381,
+   "card": "s248-06",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "paterson",
+   "pano": "gZ3Acgi38PrzOVBkW-Il4Q",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.619814,
+   "strong_score": 0.760159,
+   "card": "s248-18",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "unsure",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "paterson",
+   "pano": "iPgLrrQ5XDrWWlTXzI5MLQ",
+   "set": "E",
+   "dist": 20,
+   "weak_score": 0.366056,
+   "strong_score": 0.914358,
+   "card": "s248-09",
+   "source": "ai",
+   "cls": "U",
+   "verdict": {
+    "pair": "different",
+    "weak": "unsure",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "richmond",
+   "pano": "1073049581231056",
+   "set": "E",
+   "dist": 13,
+   "weak_score": 0.334738,
+   "strong_score": 0.938278,
+   "card": "s248-15",
+   "source": "ai",
+   "cls": "N",
+   "verdict": {
+    "pair": "different",
+    "weak": "not_ramp",
+    "strong": "ramp"
+   }
+  },
+  {
+   "split": "richmond",
+   "pano": "723487737079243",
+   "set": "C",
+   "dist": 4,
+   "weak_score": 0.731147,
+   "strong_score": 0.945867,
+   "card": "s248-14",
+   "source": "ai",
+   "cls": "D",
+   "verdict": {
+    "pair": "same",
+    "weak": "ramp",
+    "strong": "ramp"
+   }
+  }
+ ],
+ "gt_b_merges": [
+  {
+   "pano": "tRwq7cx78-g4Mi59uuN5-Q",
+   "mid": [
+    0.0004980267125650529,
+    0.5440874174558357
+   ],
+   "to_a_px": 1.457,
+   "to_b_px": 1.457,
+   "to_seam_px": 0.51
+  },
+  {
+   "pano": "XCbhS0jxrSrOLyndJXtQvA",
+   "mid": [
+    0.9973059411491597,
+    0.5465159510468205
+   ],
+   "to_a_px": 3.142,
+   "to_b_px": 3.142,
+   "to_seam_px": 2.759
+  },
+  {
+   "pano": "oyyca_diFZoYJGETmlwc3g",
+   "mid": [
+    0.00032880817037626246,
+    0.5617894653222086
+   ],
+   "to_a_px": 3.503,
+   "to_b_px": 3.503,
+   "to_seam_px": 0.337
+  },
+  {
+   "pano": "XFxls0YjTNlFLpZ6eNUuwg",
+   "mid": [
+    0.0036316009481182146,
+    0.5444484089845292
+   ],
+   "to_a_px": 4.54,
+   "to_b_px": 4.54,
+   "to_seam_px": 3.719
+  },
+  {
+   "pano": "JrR9wwG_ynJrSP9ov3Rxrw",
+   "mid": [
+    0.001921677161412171,
+    0.5514219908661365
+   ],
+   "to_a_px": 4.908,
+   "to_b_px": 4.908,
+   "to_seam_px": 1.968
+  },
+  {
+   "pano": "shnQL5DurRLY94LPJmCTYA",
+   "mid": [
+    0.9968820117457025,
+    0.5379361296795264
+   ],
+   "to_a_px": 5.116,
+   "to_b_px": 5.116,
+   "to_seam_px": 3.193
+  },
+  {
+   "pano": "oE6q6mzI7U-P8l35PsTDFA",
+   "mid": [
+    0.9963425615077443,
+    0.5580243434678603
+   ],
+   "to_a_px": 5.166,
+   "to_b_px": 5.166,
+   "to_seam_px": 3.745
+  },
+  {
+   "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+   "mid": [
+    0.9953431268435475,
+    0.559120238943934
+   ],
+   "to_a_px": 5.431,
+   "to_b_px": 5.431,
+   "to_seam_px": 4.769
+  },
+  {
+   "pano": "YRTsmStw9SqMzZGZpNTcsg",
+   "mid": [
+    0.003099149085619096,
+    0.5795849837906769
+   ],
+   "to_a_px": 6.347,
+   "to_b_px": 6.347,
+   "to_seam_px": 3.174
+  },
+  {
+   "pano": "2NgKmkIoU9nUwvjk6K5wtw",
+   "mid": [
+    0.9959139445172567,
+    0.5428871006100684
+   ],
+   "to_a_px": 6.373,
+   "to_b_px": 6.373,
+   "to_seam_px": 4.184
+  }
+ ],
+ "gt_points": {
+  "GT-A": 3919,
+  "GT-B": 3909
+ },
+ "scores": {
+  "annapolis": {
+   "lo": {
+    "removed": {
+     "all": 1,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.894737,
+      "recall": 0.809524,
+      "f1": 0.85
+     },
+     "wrap": {
+      "precision": 0.894737,
+      "recall": 0.809524,
+      "f1": 0.85
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 294,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.96875,
+      "recall": 0.738095,
+      "f1": 0.837838
+     },
+     "wrap": {
+      "precision": 0.96875,
+      "recall": 0.738095,
+      "f1": 0.837838
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 294,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.874005,
+    "ap_wrap": 0.874107,
+    "ap_delta": 0.000102
+   },
+   "hi": {
+    "removed": {
+     "all": 2,
+     "ge_0.30": 1,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.894737,
+      "recall": 0.809524,
+      "f1": 0.85
+     },
+     "wrap": {
+      "precision": 0.898113,
+      "recall": 0.809524,
+      "f1": 0.851521
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.003376,
+       "ci_lo": 0.0,
+       "ci_hi": 0.010248
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001521,
+       "ci_lo": 0.0,
+       "ci_hi": 0.004654
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 294,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.96875,
+      "recall": 0.738095,
+      "f1": 0.837838
+     },
+     "wrap": {
+      "precision": 0.96875,
+      "recall": 0.738095,
+      "f1": 0.837838
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 294,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1066275427712945",
+      "0.30": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        2,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        1,
+        1
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.874005,
+    "ap_wrap": 0.874548,
+    "ap_delta": 0.000543
+   }
+  },
+  "bend": {
+   "lo": {
+    "removed": {
+     "all": 3,
+     "ge_0.30": 3,
+     "ge_0.55": 2
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.915541,
+      "recall": 0.828746,
+      "f1": 0.869984
+     },
+     "wrap": {
+      "precision": 0.918644,
+      "recall": 0.828746,
+      "f1": 0.871383
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.003104,
+       "ci_lo": 0.0,
+       "ci_hi": 0.009648
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001399,
+       "ci_lo": 0.0,
+       "ci_hi": 0.004383
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 327,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.972656,
+      "recall": 0.761468,
+      "f1": 0.854202
+     },
+     "wrap": {
+      "precision": 0.972656,
+      "recall": 0.761468,
+      "f1": 0.854202
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 327,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "bTkyJpLDQ7HCw4yOdqdNCg",
+      "0.30": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        2,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        1
+       ]
+      }
+     },
+     {
+      "pano": "bVadNrPq_zXgbJjhhDSwDw",
+      "0.30": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "rQtHh0Wai-D1FvbvqBlWdw",
+      "0.30": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        2,
+        2
+       ]
+      },
+      "0.55": {
+       "tp": [
+        1,
+        1
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.870747,
+    "ap_wrap": 0.871098,
+    "ap_delta": 0.000351
+   },
+   "hi": {
+    "removed": {
+     "all": 3,
+     "ge_0.30": 3,
+     "ge_0.55": 2
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.915541,
+      "recall": 0.828746,
+      "f1": 0.869984
+     },
+     "wrap": {
+      "precision": 0.918644,
+      "recall": 0.828746,
+      "f1": 0.871383
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.003104,
+       "ci_lo": 0.0,
+       "ci_hi": 0.009648
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001399,
+       "ci_lo": 0.0,
+       "ci_hi": 0.004383
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 327,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.972656,
+      "recall": 0.761468,
+      "f1": 0.854202
+     },
+     "wrap": {
+      "precision": 0.972656,
+      "recall": 0.761468,
+      "f1": 0.854202
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 327,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "bTkyJpLDQ7HCw4yOdqdNCg",
+      "0.30": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        2,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        1
+       ]
+      }
+     },
+     {
+      "pano": "bVadNrPq_zXgbJjhhDSwDw",
+      "0.30": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "rQtHh0Wai-D1FvbvqBlWdw",
+      "0.30": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        2,
+        2
+       ]
+      },
+      "0.55": {
+       "tp": [
+        1,
+        1
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.870747,
+    "ap_wrap": 0.871098,
+    "ap_delta": 0.000351
+   }
+  },
+  "budapest_district5": {
+   "lo": {
+    "removed": {
+     "all": 10,
+     "ge_0.30": 1,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.679577,
+      "recall": 0.643333,
+      "f1": 0.660959
+     },
+     "wrap": {
+      "precision": 0.681979,
+      "recall": 0.643333,
+      "f1": 0.662093
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.002401,
+       "ci_lo": 0.0,
+       "ci_hi": 0.008089
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001134,
+       "ci_lo": 0.0,
+       "ci_hi": 0.003787
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 300,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.869318,
+      "recall": 0.51,
+      "f1": 0.642857
+     },
+     "wrap": {
+      "precision": 0.869318,
+      "recall": 0.51,
+      "f1": 0.642857
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 300,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1046671274052950",
+      "0.30": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        2,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        1,
+        1
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.643777,
+    "ap_wrap": 0.644429,
+    "ap_delta": 0.000651
+   },
+   "hi": {
+    "removed": {
+     "all": 15,
+     "ge_0.30": 1,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.679577,
+      "recall": 0.643333,
+      "f1": 0.660959
+     },
+     "wrap": {
+      "precision": 0.681979,
+      "recall": 0.643333,
+      "f1": 0.662093
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.002401,
+       "ci_lo": 0.0,
+       "ci_hi": 0.008089
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001134,
+       "ci_lo": 0.0,
+       "ci_hi": 0.003787
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 300,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.869318,
+      "recall": 0.51,
+      "f1": 0.642857
+     },
+     "wrap": {
+      "precision": 0.869318,
+      "recall": 0.51,
+      "f1": 0.642857
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 300,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1046671274052950",
+      "0.30": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        2,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        1,
+        1
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.643777,
+    "ap_wrap": 0.644517,
+    "ap_delta": 0.000739
+   }
+  },
+  "clovis": {
+   "lo": {
+    "removed": {
+     "all": 3,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.837696,
+      "recall": 0.820513,
+      "f1": 0.829016
+     },
+     "wrap": {
+      "precision": 0.837696,
+      "recall": 0.820513,
+      "f1": 0.829016
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 195,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.908497,
+      "recall": 0.712821,
+      "f1": 0.798851
+     },
+     "wrap": {
+      "precision": 0.908497,
+      "recall": 0.712821,
+      "f1": 0.798851
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 195,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.86825,
+    "ap_wrap": 0.868664,
+    "ap_delta": 0.000414
+   },
+   "hi": {
+    "removed": {
+     "all": 4,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.837696,
+      "recall": 0.820513,
+      "f1": 0.829016
+     },
+     "wrap": {
+      "precision": 0.837696,
+      "recall": 0.820513,
+      "f1": 0.829016
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 195,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.908497,
+      "recall": 0.712821,
+      "f1": 0.798851
+     },
+     "wrap": {
+      "precision": 0.908497,
+      "recall": 0.712821,
+      "f1": 0.798851
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 195,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.86825,
+    "ap_wrap": 0.86868,
+    "ap_delta": 0.00043
+   }
+  },
+  "gainesville": {
+   "lo": {
+    "removed": {
+     "all": 2,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.853659,
+      "recall": 0.772059,
+      "f1": 0.810811
+     },
+     "wrap": {
+      "precision": 0.853659,
+      "recall": 0.772059,
+      "f1": 0.810811
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 272,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.943299,
+      "recall": 0.672794,
+      "f1": 0.785408
+     },
+     "wrap": {
+      "precision": 0.943299,
+      "recall": 0.672794,
+      "f1": 0.785408
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 272,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.842239,
+    "ap_wrap": 0.842539,
+    "ap_delta": 0.0003
+   },
+   "hi": {
+    "removed": {
+     "all": 3,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.853659,
+      "recall": 0.772059,
+      "f1": 0.810811
+     },
+     "wrap": {
+      "precision": 0.853659,
+      "recall": 0.772059,
+      "f1": 0.810811
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 272,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.943299,
+      "recall": 0.672794,
+      "f1": 0.785408
+     },
+     "wrap": {
+      "precision": 0.943299,
+      "recall": 0.672794,
+      "f1": 0.785408
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 272,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.842239,
+    "ap_wrap": 0.842562,
+    "ap_delta": 0.000323
+   }
+  },
+  "laurens_gsv": {
+   "lo": {
+    "removed": {
+     "all": 0,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.923077,
+      "recall": 0.654545,
+      "f1": 0.765957
+     },
+     "wrap": {
+      "precision": 0.923077,
+      "recall": 0.654545,
+      "f1": 0.765957
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 220,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.935185,
+      "recall": 0.459091,
+      "f1": 0.615854
+     },
+     "wrap": {
+      "precision": 0.935185,
+      "recall": 0.459091,
+      "f1": 0.615854
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 220,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.768483,
+    "ap_wrap": 0.768483,
+    "ap_delta": 0.0
+   },
+   "hi": {
+    "removed": {
+     "all": 0,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.923077,
+      "recall": 0.654545,
+      "f1": 0.765957
+     },
+     "wrap": {
+      "precision": 0.923077,
+      "recall": 0.654545,
+      "f1": 0.765957
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 220,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.935185,
+      "recall": 0.459091,
+      "f1": 0.615854
+     },
+     "wrap": {
+      "precision": 0.935185,
+      "recall": 0.459091,
+      "f1": 0.615854
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 220,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.768483,
+    "ap_wrap": 0.768483,
+    "ap_delta": 0.0
+   }
+  },
+  "laurens_mapillary": {
+   "lo": {
+    "removed": {
+     "all": 0,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.885135,
+      "recall": 0.526104,
+      "f1": 0.65995
+     },
+     "wrap": {
+      "precision": 0.885135,
+      "recall": 0.526104,
+      "f1": 0.65995
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 249,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.898148,
+      "recall": 0.389558,
+      "f1": 0.543417
+     },
+     "wrap": {
+      "precision": 0.898148,
+      "recall": 0.389558,
+      "f1": 0.543417
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 249,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.690656,
+    "ap_wrap": 0.690656,
+    "ap_delta": 0.0
+   },
+   "hi": {
+    "removed": {
+     "all": 0,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.885135,
+      "recall": 0.526104,
+      "f1": 0.65995
+     },
+     "wrap": {
+      "precision": 0.885135,
+      "recall": 0.526104,
+      "f1": 0.65995
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 249,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.898148,
+      "recall": 0.389558,
+      "f1": 0.543417
+     },
+     "wrap": {
+      "precision": 0.898148,
+      "recall": 0.389558,
+      "f1": 0.543417
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 249,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.690656,
+    "ap_wrap": 0.690656,
+    "ap_delta": 0.0
+   }
+  },
+  "morgantown": {
+   "lo": {
+    "removed": {
+     "all": 4,
+     "ge_0.30": 1,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.878543,
+      "recall": 0.812734,
+      "f1": 0.844358
+     },
+     "wrap": {
+      "precision": 0.882114,
+      "recall": 0.812734,
+      "f1": 0.846004
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.003571,
+       "ci_lo": 0.0,
+       "ci_hi": 0.012872
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001646,
+       "ci_lo": 0.0,
+       "ci_hi": 0.006115
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 267,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.975124,
+      "recall": 0.734082,
+      "f1": 0.837607
+     },
+     "wrap": {
+      "precision": 0.975124,
+      "recall": 0.734082,
+      "f1": 0.837607
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 267,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1560632374758055",
+      "0.30": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.864312,
+    "ap_wrap": 0.864548,
+    "ap_delta": 0.000236
+   },
+   "hi": {
+    "removed": {
+     "all": 6,
+     "ge_0.30": 3,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.878543,
+      "recall": 0.812734,
+      "f1": 0.844358
+     },
+     "wrap": {
+      "precision": 0.885246,
+      "recall": 0.808989,
+      "f1": 0.845401
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.006703,
+       "ci_lo": -0.000792,
+       "ci_hi": 0.01853
+      },
+      "recall": {
+       "observed": -0.003745,
+       "ci_lo": -0.011858,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001043,
+       "ci_lo": -0.005344,
+       "ci_hi": 0.007671
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 1,
+      "n_gt": 267,
+      "lost_in_seam_band": 1,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.975124,
+      "recall": 0.734082,
+      "f1": 0.837607
+     },
+     "wrap": {
+      "precision": 0.975124,
+      "recall": 0.734082,
+      "f1": 0.837607
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 267,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1061541095152683",
+      "0.30": {
+       "tp": [
+        4,
+        3
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "1560632374758055",
+      "0.30": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "760811765935688",
+      "0.30": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.864312,
+    "ap_wrap": 0.861256,
+    "ap_delta": -0.003055
+   }
+  },
+  "paterson": {
+   "lo": {
+    "removed": {
+     "all": 1,
+     "ge_0.30": 1,
+     "ge_0.55": 1
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.94702,
+      "recall": 0.724051,
+      "f1": 0.82066
+     },
+     "wrap": {
+      "precision": 0.950166,
+      "recall": 0.724051,
+      "f1": 0.821839
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.003146,
+       "ci_lo": 0.0,
+       "ci_hi": 0.01016
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001179,
+       "ci_lo": 0.0,
+       "ci_hi": 0.003791
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 395,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.967742,
+      "recall": 0.683544,
+      "f1": 0.801187
+     },
+     "wrap": {
+      "precision": 0.971223,
+      "recall": 0.683544,
+      "f1": 0.802377
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.003481,
+       "ci_lo": 0.0,
+       "ci_hi": 0.011391
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.00119,
+       "ci_lo": 0.0,
+       "ci_hi": 0.003839
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 395,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "gZ3Acgi38PrzOVBkW-Il4Q",
+      "0.30": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.755022,
+    "ap_wrap": 0.755417,
+    "ap_delta": 0.000395
+   },
+   "hi": {
+    "removed": {
+     "all": 4,
+     "ge_0.30": 2,
+     "ge_0.55": 1
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.94702,
+      "recall": 0.724051,
+      "f1": 0.82066
+     },
+     "wrap": {
+      "precision": 0.95,
+      "recall": 0.721519,
+      "f1": 0.820144
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.00298,
+       "ci_lo": -0.000475,
+       "ci_hi": 0.010063
+      },
+      "recall": {
+       "observed": -0.002532,
+       "ci_lo": -0.008221,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": -0.000516,
+       "ci_lo": -0.005079,
+       "ci_hi": 0.003453
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 1,
+      "n_gt": 395,
+      "lost_in_seam_band": 1,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.967742,
+      "recall": 0.683544,
+      "f1": 0.801187
+     },
+     "wrap": {
+      "precision": 0.971223,
+      "recall": 0.683544,
+      "f1": 0.802377
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.003481,
+       "ci_lo": 0.0,
+       "ci_hi": 0.011391
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.00119,
+       "ci_lo": 0.0,
+       "ci_hi": 0.003839
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 395,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "gZ3Acgi38PrzOVBkW-Il4Q",
+      "0.30": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "iPgLrrQ5XDrWWlTXzI5MLQ",
+      "0.30": {
+       "tp": [
+        6,
+        5
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.755022,
+    "ap_wrap": 0.750806,
+    "ap_delta": -0.004215
+   }
+  },
+  "richmond": {
+   "lo": {
+    "removed": {
+     "all": 1,
+     "ge_0.30": 1,
+     "ge_0.55": 1
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.892734,
+      "recall": 0.832258,
+      "f1": 0.861436
+     },
+     "wrap": {
+      "precision": 0.895833,
+      "recall": 0.832258,
+      "f1": 0.862876
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0031,
+       "ci_lo": 0.0,
+       "ci_hi": 0.010028
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001441,
+       "ci_lo": 0.0,
+       "ci_hi": 0.004692
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 310,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.956,
+      "recall": 0.770968,
+      "f1": 0.853571
+     },
+     "wrap": {
+      "precision": 0.959839,
+      "recall": 0.770968,
+      "f1": 0.855098
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.003839,
+       "ci_lo": 0.0,
+       "ci_hi": 0.01239
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001527,
+       "ci_lo": 0.0,
+       "ci_hi": 0.005032
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 310,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "723487737079243",
+      "0.30": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.876546,
+    "ap_wrap": 0.877441,
+    "ap_delta": 0.000895
+   },
+   "hi": {
+    "removed": {
+     "all": 3,
+     "ge_0.30": 2,
+     "ge_0.55": 1
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.892734,
+      "recall": 0.832258,
+      "f1": 0.861436
+     },
+     "wrap": {
+      "precision": 0.898955,
+      "recall": 0.832258,
+      "f1": 0.864322
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.006221,
+       "ci_lo": 0.0,
+       "ci_hi": 0.016023
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.002886,
+       "ci_lo": 0.0,
+       "ci_hi": 0.007552
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 310,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.956,
+      "recall": 0.770968,
+      "f1": 0.853571
+     },
+     "wrap": {
+      "precision": 0.959839,
+      "recall": 0.770968,
+      "f1": 0.855098
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.003839,
+       "ci_lo": 0.0,
+       "ci_hi": 0.01239
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001527,
+       "ci_lo": 0.0,
+       "ci_hi": 0.005032
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 310,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1073049581231056",
+      "0.30": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        2,
+        2
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "723487737079243",
+      "0.30": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.876546,
+    "ap_wrap": 0.877599,
+    "ap_delta": 0.001053
+   }
+  },
+  "sao_paulo": {
+   "lo": {
+    "removed": {
+     "all": 0,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.802867,
+      "recall": 0.797153,
+      "f1": 0.8
+     },
+     "wrap": {
+      "precision": 0.802867,
+      "recall": 0.797153,
+      "f1": 0.8
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 281,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.905941,
+      "recall": 0.651246,
+      "f1": 0.757764
+     },
+     "wrap": {
+      "precision": 0.905941,
+      "recall": 0.651246,
+      "f1": 0.757764
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 281,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.811194,
+    "ap_wrap": 0.811194,
+    "ap_delta": 0.0
+   },
+   "hi": {
+    "removed": {
+     "all": 1,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.802867,
+      "recall": 0.797153,
+      "f1": 0.8
+     },
+     "wrap": {
+      "precision": 0.802867,
+      "recall": 0.797153,
+      "f1": 0.8
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 281,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.905941,
+      "recall": 0.651246,
+      "f1": 0.757764
+     },
+     "wrap": {
+      "precision": 0.905941,
+      "recall": 0.651246,
+      "f1": 0.757764
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 281,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.811194,
+    "ap_wrap": 0.811198,
+    "ap_delta": 4e-06
+   }
+  },
+  "bayonne": {
+   "lo": {
+    "removed": {
+     "all": 8,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.753769,
+      "recall": 0.498339,
+      "f1": 0.6
+     },
+     "wrap": {
+      "precision": 0.753769,
+      "recall": 0.498339,
+      "f1": 0.6
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 301,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.820144,
+      "recall": 0.378738,
+      "f1": 0.518182
+     },
+     "wrap": {
+      "precision": 0.820144,
+      "recall": 0.378738,
+      "f1": 0.518182
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 301,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.586762,
+    "ap_wrap": 0.587199,
+    "ap_delta": 0.000437
+   },
+   "hi": {
+    "removed": {
+     "all": 13,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.753769,
+      "recall": 0.498339,
+      "f1": 0.6
+     },
+     "wrap": {
+      "precision": 0.753769,
+      "recall": 0.498339,
+      "f1": 0.6
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 301,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.820144,
+      "recall": 0.378738,
+      "f1": 0.518182
+     },
+     "wrap": {
+      "precision": 0.820144,
+      "recall": 0.378738,
+      "f1": 0.518182
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 301,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.586762,
+    "ap_wrap": 0.587248,
+    "ap_delta": 0.000487
+   }
+  },
+  "juneau": {
+   "lo": {
+    "removed": {
+     "all": 1,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.91129,
+      "recall": 0.760943,
+      "f1": 0.829358
+     },
+     "wrap": {
+      "precision": 0.91129,
+      "recall": 0.760943,
+      "f1": 0.829358
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 297,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.966825,
+      "recall": 0.686869,
+      "f1": 0.80315
+     },
+     "wrap": {
+      "precision": 0.966825,
+      "recall": 0.686869,
+      "f1": 0.80315
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 297,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.833366,
+    "ap_wrap": 0.833417,
+    "ap_delta": 5e-05
+   },
+   "hi": {
+    "removed": {
+     "all": 1,
+     "ge_0.30": 0,
+     "ge_0.55": 0
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.91129,
+      "recall": 0.760943,
+      "f1": 0.829358
+     },
+     "wrap": {
+      "precision": 0.91129,
+      "recall": 0.760943,
+      "f1": 0.829358
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 297,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.966825,
+      "recall": 0.686869,
+      "f1": 0.80315
+     },
+     "wrap": {
+      "precision": 0.966825,
+      "recall": 0.686869,
+      "f1": 0.80315
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      }
+     },
+     "bootstrap": "none (no removed peak >= t: the difference is 0 in every replicate)",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 297,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [],
+    "ap_default": 0.833366,
+    "ap_wrap": 0.833417,
+    "ap_delta": 5e-05
+   }
+  },
+  "cities11": {
+   "lo": {
+    "removed": {
+     "all": 25,
+     "ge_0.30": 7,
+     "ge_0.55": 4
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.862426,
+      "recall": 0.749839,
+      "f1": 0.802202
+     },
+     "wrap": {
+      "precision": 0.864024,
+      "recall": 0.749839,
+      "f1": 0.802892
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.001598,
+       "ci_lo": 0.000322,
+       "ci_hi": 0.003144
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.00069,
+       "ci_lo": 0.000139,
+       "ci_hi": 0.00135
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 3110,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.942352,
+      "recall": 0.651768,
+      "f1": 0.770576
+     },
+     "wrap": {
+      "precision": 0.943229,
+      "recall": 0.651768,
+      "f1": 0.770869
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.000877,
+       "ci_lo": 0.0,
+       "ci_hi": 0.002249
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000293,
+       "ci_lo": 0.0,
+       "ci_hi": 0.000754
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 3110,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    }
+   },
+   "hi": {
+    "removed": {
+     "all": 41,
+     "ge_0.30": 12,
+     "ge_0.55": 4
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.862426,
+      "recall": 0.749839,
+      "f1": 0.802202
+     },
+     "wrap": {
+      "precision": 0.864885,
+      "recall": 0.749196,
+      "f1": 0.802895
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.002459,
+       "ci_lo": 0.000885,
+       "ci_hi": 0.004309
+      },
+      "recall": {
+       "observed": -0.000643,
+       "ci_lo": -0.001621,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000693,
+       "ci_lo": -0.000252,
+       "ci_hi": 0.001656
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 2,
+      "n_gt": 3110,
+      "lost_in_seam_band": 2,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.942352,
+      "recall": 0.651768,
+      "f1": 0.770576
+     },
+     "wrap": {
+      "precision": 0.943229,
+      "recall": 0.651768,
+      "f1": 0.770869
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.000877,
+       "ci_lo": 0.0,
+       "ci_hi": 0.002249
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000293,
+       "ci_lo": 0.0,
+       "ci_hi": 0.000754
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 3110,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    }
+   }
+  },
+  "cities13": {
+   "lo": {
+    "removed": {
+     "all": 34,
+     "ge_0.30": 7,
+     "ge_0.55": 4
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.85941,
+      "recall": 0.730313,
+      "f1": 0.789619
+     },
+     "wrap": {
+      "precision": 0.860776,
+      "recall": 0.730313,
+      "f1": 0.790196
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.001366,
+       "ci_lo": 0.000276,
+       "ci_hi": 0.002713
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000576,
+       "ci_lo": 0.000117,
+       "ci_hi": 0.001146
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 3708,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.937625,
+      "recall": 0.632416,
+      "f1": 0.755355
+     },
+     "wrap": {
+      "precision": 0.938375,
+      "recall": 0.632416,
+      "f1": 0.755599
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.00075,
+       "ci_lo": 0.0,
+       "ci_hi": 0.001932
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000243,
+       "ci_lo": 0.0,
+       "ci_hi": 0.000627
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 3708,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    }
+   },
+   "hi": {
+    "removed": {
+     "all": 55,
+     "ge_0.30": 12,
+     "ge_0.55": 4
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.85941,
+      "recall": 0.730313,
+      "f1": 0.789619
+     },
+     "wrap": {
+      "precision": 0.861509,
+      "recall": 0.729773,
+      "f1": 0.790188
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.002099,
+       "ci_lo": 0.000766,
+       "ci_hi": 0.00376
+      },
+      "recall": {
+       "observed": -0.000539,
+       "ci_lo": -0.001361,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000569,
+       "ci_lo": -0.000193,
+       "ci_hi": 0.001405
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 2,
+      "n_gt": 3708,
+      "lost_in_seam_band": 2,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.937625,
+      "recall": 0.632416,
+      "f1": 0.755355
+     },
+     "wrap": {
+      "precision": 0.938375,
+      "recall": 0.632416,
+      "f1": 0.755599
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.00075,
+       "ci_lo": 0.0,
+       "ci_hi": 0.001932
+      },
+      "recall": {
+       "observed": 0.0,
+       "ci_lo": 0.0,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000243,
+       "ci_lo": 0.0,
+       "ci_hi": 0.000627
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 0,
+      "n_gt": 3708,
+      "lost_in_seam_band": 0,
+      "gained_in_seam_band": 0
+     }
+    }
+   }
+  },
+  "manual_gold GT-A": {
+   "lo": {
+    "removed": {
+     "all": 18,
+     "ge_0.30": 8,
+     "ge_0.55": 6
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.897011,
+      "recall": 0.911202,
+      "f1": 0.904051
+     },
+     "wrap": {
+      "precision": 0.897559,
+      "recall": 0.909926,
+      "f1": 0.9037
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.000548,
+       "ci_lo": -0.000123,
+       "ci_hi": 0.001491
+      },
+      "recall": {
+       "observed": -0.001276,
+       "ci_lo": -0.002501,
+       "ci_hi": -0.000256
+      },
+      "f1": {
+       "observed": -0.000351,
+       "ci_lo": -0.001081,
+       "ci_hi": 0.000393
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 5,
+      "n_gt": 3919,
+      "lost_in_seam_band": 5,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.947368,
+      "recall": 0.872672,
+      "f1": 0.908487
+     },
+     "wrap": {
+      "precision": 0.947836,
+      "recall": 0.871651,
+      "f1": 0.908148
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.000467,
+       "ci_lo": -8.4e-05,
+       "ci_hi": 0.00129
+      },
+      "recall": {
+       "observed": -0.001021,
+       "ci_lo": -0.002083,
+       "ci_hi": -0.00025
+      },
+      "f1": {
+       "observed": -0.000339,
+       "ci_lo": -0.001041,
+       "ci_hi": 0.000316
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 4,
+      "n_gt": 3919,
+      "lost_in_seam_band": 4,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1k0cQKEs12LmTz7nGenMjg",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        3,
+        2
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "4lENFOhzGGSJaPgXnTfAJA",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "MJbCTDJV5advy8eYbL0V5Q",
+      "0.30": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "QGbpvWpeg9zLcu5HZneRbw",
+      "0.30": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "oE6q6mzI7U-P8l35PsTDFA",
+      "0.30": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "oyyca_diFZoYJGETmlwc3g",
+      "0.30": {
+       "tp": [
+        4,
+        3
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        3
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "tRwq7cx78-g4Mi59uuN5-Q",
+      "0.30": {
+       "tp": [
+        5,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        1,
+        1
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+      "0.30": {
+       "tp": [
+        6,
+        5
+       ],
+       "fp": [
+        1,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        6,
+        5
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.917292,
+    "ap_wrap": 0.915893,
+    "ap_delta": -0.001399
+   },
+   "hi": {
+    "removed": {
+     "all": 34,
+     "ge_0.30": 14,
+     "ge_0.55": 9
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.897011,
+      "recall": 0.911202,
+      "f1": 0.904051
+     },
+     "wrap": {
+      "precision": 0.89816,
+      "recall": 0.909161,
+      "f1": 0.903627
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.001149,
+       "ci_lo": 0.000214,
+       "ci_hi": 0.002369
+      },
+      "recall": {
+       "observed": -0.002041,
+       "ci_lo": -0.003515,
+       "ci_hi": -0.000774
+      },
+      "f1": {
+       "observed": -0.000424,
+       "ci_lo": -0.001331,
+       "ci_hi": 0.000534
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 8,
+      "n_gt": 3919,
+      "lost_in_seam_band": 8,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.947368,
+      "recall": 0.872672,
+      "f1": 0.908487
+     },
+     "wrap": {
+      "precision": 0.94807,
+      "recall": 0.871141,
+      "f1": 0.907979
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.000702,
+       "ci_lo": -7.8e-05,
+       "ci_hi": 0.001771
+      },
+      "recall": {
+       "observed": -0.001531,
+       "ci_lo": -0.002843,
+       "ci_hi": -0.000503
+      },
+      "f1": {
+       "observed": -0.000508,
+       "ci_lo": -0.001356,
+       "ci_hi": 0.000296
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 6,
+      "n_gt": 3919,
+      "lost_in_seam_band": 6,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1k0cQKEs12LmTz7nGenMjg",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        3,
+        2
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "2NgKmkIoU9nUwvjk6K5wtw",
+      "0.30": {
+       "tp": [
+        5,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "4lENFOhzGGSJaPgXnTfAJA",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "MJbCTDJV5advy8eYbL0V5Q",
+      "0.30": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "QGbpvWpeg9zLcu5HZneRbw",
+      "0.30": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "R6Awyr2RqM-NKCZyeExAwQ",
+      "0.30": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "XCbhS0jxrSrOLyndJXtQvA",
+      "0.30": {
+       "tp": [
+        5,
+        4
+       ],
+       "fp": [
+        1,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        5,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "YRTsmStw9SqMzZGZpNTcsg",
+      "0.30": {
+       "tp": [
+        6,
+        5
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        6,
+        5
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "fCcAa7bQ3VAxPqaC0ZGy0Q",
+      "0.30": {
+       "tp": [
+        7,
+        7
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        7,
+        7
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "mLHZho9oLtF_S2JpEUai6g",
+      "0.30": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "oE6q6mzI7U-P8l35PsTDFA",
+      "0.30": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "oyyca_diFZoYJGETmlwc3g",
+      "0.30": {
+       "tp": [
+        4,
+        3
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        3
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "tRwq7cx78-g4Mi59uuN5-Q",
+      "0.30": {
+       "tp": [
+        5,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        1,
+        1
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+      "0.30": {
+       "tp": [
+        6,
+        5
+       ],
+       "fp": [
+        1,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        6,
+        5
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.917292,
+    "ap_wrap": 0.915203,
+    "ap_delta": -0.002089
+   }
+  },
+  "manual_gold GT-B": {
+   "lo": {
+    "removed": {
+     "all": 18,
+     "ge_0.30": 8,
+     "ge_0.55": 6
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.895001,
+      "recall": 0.911486,
+      "f1": 0.903169
+     },
+     "wrap": {
+      "precision": 0.896552,
+      "recall": 0.91123,
+      "f1": 0.903832
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.00155,
+       "ci_lo": 0.000456,
+       "ci_hi": 0.002729
+      },
+      "recall": {
+       "observed": -0.000256,
+       "ci_lo": -0.000784,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000663,
+       "ci_lo": 6e-05,
+       "ci_hi": 0.001347
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 1,
+      "n_gt": 3909,
+      "lost_in_seam_band": 1,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.945706,
+      "recall": 0.873369,
+      "f1": 0.908099
+     },
+     "wrap": {
+      "precision": 0.947003,
+      "recall": 0.873113,
+      "f1": 0.908558
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.001297,
+       "ci_lo": 0.00025,
+       "ci_hi": 0.00255
+      },
+      "recall": {
+       "observed": -0.000256,
+       "ci_lo": -0.000784,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000459,
+       "ci_lo": -6.6e-05,
+       "ci_hi": 0.001085
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 1,
+      "n_gt": 3909,
+      "lost_in_seam_band": 1,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1k0cQKEs12LmTz7nGenMjg",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        3,
+        2
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "4lENFOhzGGSJaPgXnTfAJA",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "MJbCTDJV5advy8eYbL0V5Q",
+      "0.30": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "QGbpvWpeg9zLcu5HZneRbw",
+      "0.30": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "oE6q6mzI7U-P8l35PsTDFA",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "oyyca_diFZoYJGETmlwc3g",
+      "0.30": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "tRwq7cx78-g4Mi59uuN5-Q",
+      "0.30": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        1,
+        1
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+      "0.30": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        2,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.916943,
+    "ap_wrap": 0.917028,
+    "ap_delta": 8.5e-05
+   },
+   "hi": {
+    "removed": {
+     "all": 34,
+     "ge_0.30": 14,
+     "ge_0.55": 9
+    },
+    "0.30": {
+     "default": {
+      "precision": 0.895001,
+      "recall": 0.911486,
+      "f1": 0.903169
+     },
+     "wrap": {
+      "precision": 0.897908,
+      "recall": 0.91123,
+      "f1": 0.90452
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.002906,
+       "ci_lo": 0.001478,
+       "ci_hi": 0.004485
+      },
+      "recall": {
+       "observed": -0.000256,
+       "ci_lo": -0.000784,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.001351,
+       "ci_lo": 0.00055,
+       "ci_hi": 0.002192
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 1,
+      "n_gt": 3909,
+      "lost_in_seam_band": 1,
+      "gained_in_seam_band": 0
+     }
+    },
+    "0.55": {
+     "default": {
+      "precision": 0.945706,
+      "recall": 0.873369,
+      "f1": 0.908099
+     },
+     "wrap": {
+      "precision": 0.947792,
+      "recall": 0.873113,
+      "f1": 0.908921
+     },
+     "delta": {
+      "precision": {
+       "observed": 0.002086,
+       "ci_lo": 0.00078,
+       "ci_hi": 0.003598
+      },
+      "recall": {
+       "observed": -0.000256,
+       "ci_lo": -0.000784,
+       "ci_hi": 0.0
+      },
+      "f1": {
+       "observed": 0.000822,
+       "ci_lo": 0.000188,
+       "ci_hi": 0.001556
+      }
+     },
+     "bootstrap": "paired pano-level, stratified by split, 2000 reps, seed 248",
+     "gt_flips": {
+      "gained": 0,
+      "lost": 1,
+      "n_gt": 3909,
+      "lost_in_seam_band": 1,
+      "gained_in_seam_band": 0
+     }
+    },
+    "changed_panos": [
+     {
+      "pano": "1k0cQKEs12LmTz7nGenMjg",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        3,
+        2
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "2NgKmkIoU9nUwvjk6K5wtw",
+      "0.30": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "4lENFOhzGGSJaPgXnTfAJA",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "MJbCTDJV5advy8eYbL0V5Q",
+      "0.30": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "QGbpvWpeg9zLcu5HZneRbw",
+      "0.30": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        7,
+        6
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "R6Awyr2RqM-NKCZyeExAwQ",
+      "0.30": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "XCbhS0jxrSrOLyndJXtQvA",
+      "0.30": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        2,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "YRTsmStw9SqMzZGZpNTcsg",
+      "0.30": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "fCcAa7bQ3VAxPqaC0ZGy0Q",
+      "0.30": {
+       "tp": [
+        7,
+        7
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        7,
+        7
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "mLHZho9oLtF_S2JpEUai6g",
+      "0.30": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        8,
+        8
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "oE6q6mzI7U-P8l35PsTDFA",
+      "0.30": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        6,
+        6
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "oyyca_diFZoYJGETmlwc3g",
+      "0.30": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        3,
+        3
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "tRwq7cx78-g4Mi59uuN5-Q",
+      "0.30": {
+       "tp": [
+        4,
+        4
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      },
+      "0.55": {
+       "tp": [
+        1,
+        1
+       ],
+       "fp": [
+        0,
+        0
+       ]
+      }
+     },
+     {
+      "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+      "0.30": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        2,
+        1
+       ]
+      },
+      "0.55": {
+       "tp": [
+        5,
+        5
+       ],
+       "fp": [
+        1,
+        0
+       ]
+      }
+     }
+    ],
+    "ap_default": 0.916943,
+    "ap_wrap": 0.917225,
+    "ap_delta": 0.000282
+   }
+  }
+ }
+}

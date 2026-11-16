@@ -796,6 +796,368 @@ def cmd_calibrate(args):
 
 
 # --------------------------------------------------------------------------- #
+# report: classification, the rule, and the (non-gating) paired scores
+# --------------------------------------------------------------------------- #
+KEEP = "KEEP OPT-IN AND CLOSE"
+FLIP_COND = "FLIP, CONDITIONAL ON JON'S AUDIT"
+FLIP = "FLIP"
+NEXT = "NEXT STEP NEEDED"
+TRIPWIRE_DF1 = -0.001
+SEAM_BAND = 0.022 + D / W           # match radius plus the NMS reach, normalized x
+RND = 6
+
+
+def rnd(v, nd=RND):
+    if v is None or (isinstance(v, float) and (math.isnan(v) or math.isinf(v))):
+        return None
+    return round(float(v), nd)
+
+
+def card_id_for(cand, key):
+    """The deck id of a study candidate (matched on split, pano and the weaker mark)."""
+    for cid, k in key["cards"].items():
+        if k["kind"] != "study" or k["split"] != cand["split"] or k["pano"] != cand["pano"]:
+            continue
+        if list(k[k["weaker"]]) == list(cand["weak"][:2]):
+            return cid
+    return None
+
+
+def classify_cards(bounds, key, ai, ai_calibrated, jon_audit=None):
+    """Every C/E card at RULE_T with its effective verdict, source and class (doc section 3)."""
+    pairs = jon_pairs()
+    out = []
+    for c in study_cards(bounds):
+        row = {"split": c["split"], "pano": c["pano"], "set": c["set"], "dist": c["dist"],
+               "weak_score": c["weak"][2], "strong_score": c["strong"][2],
+               "card": None, "source": "none", "cls": "U"}
+        if c["inherits"] is not None:
+            jv = pairs[c["inherits"]]["verdict"]
+            row.update(source="jon (inherited)", verdict=jv, cls=jon_class(jv),
+                       jon_pair_index=c["inherits"])
+        else:
+            cid = card_id_for(c, key)
+            row["card"] = cid
+            if cid is None:
+                raise SystemExit(f"no deck card for {c['split']} {c['pano']} {c['weak']}")
+            k = key["cards"][cid]
+            weak_l, strong_l = k["weaker"], ("B" if k["weaker"] == "A" else "A")
+            src = None
+            if jon_audit and jon_audit.get(cid, {}).get("pair") and \
+                    not jon_audit[cid].get("prefilled_unconfirmed"):
+                src, v = "jon (audit)", jon_audit[cid]
+            elif ai_calibrated and ai.get(cid, {}).get("pair"):
+                src, v = "ai", ai[cid]
+            if src:
+                row.update(source=src, verdict={"pair": v["pair"], "weak": v[weak_l],
+                                                "strong": v[strong_l]},
+                           cls=classify(v["pair"], v[weak_l], v[strong_l]))
+        out.append(row)
+    return out
+
+
+def decide(cards, ai_calibrated):
+    """Apply the pre-registered rule (doc section 4.2). Returns (outcome, reasons dict).
+
+    >>> decide([{"set": "E", "cls": "L", "source": "ai", "card": "x"}], True)[0]
+    'NEXT STEP NEEDED'
+    """
+    is_jon = lambda r: r["source"].startswith("jon")  # noqa: E731
+    l_jon_c = [r for r in cards if r["set"] == "C" and r["cls"] == "L" and is_jon(r)]
+    l_opt_c = [r for r in cards if r["set"] == "C" and r["cls"] == "L"]
+    l_pess = [r for r in cards if r["cls"] in ("L", "U")]
+    reasons = {"L_jon_C": len(l_jon_c), "L_opt_C": len(l_opt_c), "L_pess": len(l_pess),
+               "ai_calibrated": ai_calibrated,
+               "all_cards_rated_by_jon": all(is_jon(r) for r in cards)}
+    if l_jon_c or len(l_opt_c) >= 2:
+        return KEEP, reasons
+    if ai_calibrated and len(l_pess) <= 1:
+        reasons["cards_first"] = [r["card"] for r in l_pess]
+        return (FLIP if reasons["all_cards_rated_by_jon"] else FLIP_COND), reasons
+    rate = [r for r in cards if not is_jon(r) and
+            (r["cls"] == "U" or (r["source"] == "ai" and r["cls"] == "L") or not ai_calibrated)]
+    reasons["cards_jon_must_rate"] = sorted(r["card"] for r in rate if r["card"])
+    reasons["panoramas_for_exact_tier"] = sorted({f"{r['split']}:{r['pano']}" for r in cards
+                                                  if r["set"] == "E" and r["cls"] in ("L", "U")})
+    return NEXT, reasons
+
+
+def merge_gt_b(gts, pairs):
+    """GT-B: Jon's `one` pairs merged to their wrapped midpoint, in memory (doc section 4.2)."""
+    from rampnet.detection_eval import GroundTruth
+    out = dict(gts)
+    merged = []
+    for pr in pairs:
+        if pr["verdict"] != "one":
+            continue
+        g = out[pr["pano"]]
+        pts = list(g.gt_points)
+        idx = []
+        for m in (pr["a"], pr["b"]):
+            j = min(range(len(pts)), key=lambda i: abs(pts[i][0] - m[0]) + abs(pts[i][1] - m[1]))
+            if abs(pts[j][0] - m[0]) + abs(pts[j][1] - m[1]) > 1e-4 or j in idx:
+                raise SystemExit(f"GT-B: mark {m} of {pr['pano']} not found in manual_labels")
+            idx.append(j)
+        mid = wrapped_midpoint(pts[idx[0]], pts[idx[1]])
+        merged.append({"pano": pr["pano"], "mid": mid,
+                       "to_a_px": rnd(norm_cheb_px(mid, pts[idx[0]]), 3),
+                       "to_b_px": rnd(norm_cheb_px(mid, pts[idx[1]]), 3),
+                       "to_seam_px": rnd(min(mid[0], 1 - mid[0]) * W, 3)})
+        pts = [p for i, p in enumerate(pts) if i not in idx] + [mid]
+        out[pr["pano"]] = GroundTruth(pts, list(g.ignore_points), g.fn_confirmed)
+    return out, merged
+
+
+def arms_for(panos, cands):
+    """{scenario: {pano: preds}} for default / lo (remove C) / hi (remove C and E)."""
+    rm = {"lo": {}, "hi": {}}
+    for c in cands:
+        key = (round(c["weak"][0], 6), round(c["weak"][1], 6))
+        if c["set"] == "C":
+            rm["lo"].setdefault(c["pano"], set()).add(key)
+        if c["set"] in ("C", "E"):
+            rm["hi"].setdefault(c["pano"], set()).add(key)
+    out = {"default": {}, "lo": {}, "hi": {}}
+    removed = {"lo": {}, "hi": {}}
+    for pano, preds, _ in panos:
+        out["default"][pano] = list(preds)
+        for sc in ("lo", "hi"):
+            drop = rm[sc].get(pano, set())
+            kept = [p for p in preds if (round(p[0], 6), round(p[1], 6)) not in drop]
+            if len(preds) - len(kept) != len(drop):
+                raise SystemExit(f"{pano}: removal keys did not match the stored peaks")
+            out[sc][pano] = kept
+            removed[sc][pano] = [p for p in preds if (round(p[0], 6), round(p[1], 6)) in drop]
+    return out, removed
+
+
+def scored(split, preds_by_pano, gts, rsq):
+    import input_res_sweep_25 as irs
+    panos = [{"pano": p, "preds": preds_by_pano[p], "gt": gts[p]} for p in sorted(gts)]
+    return irs.scored_from_panos(split, panos, rsq)
+
+
+def assert_unchanged_panos_identical(s_def, s_arm, removed):
+    """The invariant that does hold: on every pano with no removal, per-pano results match."""
+    import numpy as np
+    changed = {i for i, p in enumerate(s_def.pids) if removed.get(p.split("/")[-1])}
+    keep_d = ~np.isin(s_def.det_pano, list(changed))
+    keep_a = ~np.isin(s_arm.det_pano, list(changed))
+    same = (np.array_equal(s_def.conf[keep_d], s_arm.conf[keep_a])
+            and np.array_equal(s_def.is_tp[keep_d], s_arm.is_tp[keep_a]))
+    if not same:
+        raise SystemExit("invariant broken: a pano with no removal scored differently")
+
+
+def contrast(s_def, s_arm, sizes, t, removed_scores):
+    """Observed P/R/F1 of both arms and the paired difference with a 95% bootstrap CI.
+
+    When no removed peak scores >= t the difference is exactly 0 in every replicate (greedy
+    matching in confidence order: dropping a lower peak cannot move a higher one's match), so
+    no bootstrap is drawn."""
+    import numpy as np
+    import benchmark_power_135 as bp
+    ones = np.ones((1, len(s_def.pids)))
+    md = [float(x[0]) for x in bp.metrics(s_def, ones, t)][:3]
+    ma = [float(x[0]) for x in bp.metrics(s_arm, ones, t)][:3]
+    names = ("precision", "recall", "f1")
+    out = {"default": dict(zip(names, map(rnd, md))), "wrap": dict(zip(names, map(rnd, ma)))}
+    if not any(s >= t for s in removed_scores):
+        out["delta"] = {n: {"observed": 0.0, "ci_lo": 0.0, "ci_hi": 0.0} for n in names}
+        out["bootstrap"] = "none (no removed peak >= t: the difference is 0 in every replicate)"
+    else:
+        rng = np.random.default_rng(SEED)
+        r = bp.observed_and_se(s_arm, sizes, t, rng, N_REPS, paired=s_def)
+        out["delta"] = {n: {"observed": rnd(r[n]["observed"]), "ci_lo": rnd(r[n]["ci_lo"]),
+                            "ci_hi": rnd(r[n]["ci_hi"])} for n in names}
+        out["bootstrap"] = f"paired pano-level, stratified by split, {N_REPS} reps, seed {SEED}"
+    out["_df1_raw"] = ma[2] - md[2]
+    a = bp.mcnemar(s_def, s_arm, t, t)
+    lost = (s_def.hit_gt >= t) & ~(s_arm.hit_gt >= t)
+    gained = ~(s_def.hit_gt >= t) & (s_arm.hit_gt >= t)
+    band = np.minimum(s_def.gt_x, 1 - s_def.gt_x) < SEAM_BAND
+    out["gt_flips"] = {"gained": a[0], "lost": a[1], "n_gt": a[2],
+                       "lost_in_seam_band": int((lost & band).sum()),
+                       "gained_in_seam_band": int((gained & band).sum())}
+    return out
+
+
+def changed_panos(default, arm, removed, gts, rsq):
+    """Per pano with a removal >= 0.30: TP / FP at 0.30 and 0.55 in both arms (diagnostic)."""
+    from rampnet.detection_eval import score_pano
+    out = []
+    for pano in sorted(p for p, r in removed.items() if any(x[2] >= 0.30 for x in r)):
+        row = {"pano": pano}
+        for t in (0.30, 0.55):
+            sd = score_pano([p for p in default[pano] if p[2] >= t], gts[pano], radius_sq=rsq)
+            sa = score_pano([p for p in arm[pano] if p[2] >= t], gts[pano], radius_sq=rsq)
+            row[f"{t:.2f}"] = {"tp": [sd.tp, sa.tp], "fp": [sd.fp, sa.fp]}
+        out.append(row)
+    return out
+
+
+def ap_of(preds_by_pano, gts, rsq):
+    import operating_point_curve as opc
+    panos = [{"pano": p, "preds": preds_by_pano[p], "gt": gts[p]} for p in sorted(gts)]
+    return opc.pr_curve_and_ap(panos, rsq).ap
+
+
+def build_scores(bounds, data):
+    """Paired scores for every split and pool, both scenarios, at 0.30 and 0.55."""
+    import benchmark_power_135 as bp
+    from operating_point_curve import _gt_from_json
+    from rampnet.detection_eval import radius_sq_for
+    rsq = radius_sq_for()
+    cands = bounds["candidates"]
+    units = {}
+    gt_a = manual_gold_gt()
+    gt_b, merged = merge_gt_b(gt_a, jon_pairs())
+    gtsets = {s: {p: _gt_from_json(g) for p, _, g in data[s]} for s in SPLITS13}
+    gtsets["manual_gold GT-A"] = gt_a
+    gtsets["manual_gold GT-B"] = gt_b
+    per = {}
+    for unit, gts in gtsets.items():
+        split = MG if unit.startswith(MG) else unit
+        arms, removed = arms_for(data[split], [c for c in cands if c["split"] == split])
+        sc = {a: scored(split, arms[a], gts, rsq) for a in arms}
+        for a in ("lo", "hi"):
+            assert_unchanged_panos_identical(sc["default"], sc[a], removed[a])
+        per[unit] = (sc, removed, arms, gts)
+    pools = {"cities11": SPLITS11, "cities13": SPLITS13,
+             "manual_gold GT-A": ("manual_gold GT-A",), "manual_gold GT-B": ("manual_gold GT-B",)}
+    for name in list(SPLITS13) + list(pools):
+        members = pools.get(name, (name,))
+        out = {}
+        for a in ("lo", "hi"):
+            s_def = bp.stack([per[m][0]["default"] for m in members])
+            s_arm = bp.stack([per[m][0][a] for m in members])
+            sizes = [len(per[m][0]["default"].pids) for m in members]
+            rem = [p[2] for m in members for ps in per[m][1][a].values() for p in ps]
+            out[a] = {"removed": {"all": len(rem), "ge_0.30": sum(s >= 0.30 for s in rem),
+                                  "ge_0.55": sum(s >= 0.55 for s in rem)}}
+            for t in (0.30, 0.55):
+                out[a][f"{t:.2f}"] = contrast(s_def, s_arm, sizes, t, rem)
+            if len(members) == 1:       # AP per split / manual_gold GT only, not pooled
+                m = members[0]
+                out[a]["changed_panos"] = changed_panos(per[m][2]["default"], per[m][2][a],
+                                                        per[m][1][a], per[m][3], rsq)
+                ap_d = ap_of(per[m][2]["default"], per[m][3], rsq)
+                ap_w = ap_of(per[m][2][a], per[m][3], rsq)
+                out[a]["ap_default"], out[a]["ap_wrap"] = rnd(ap_d), rnd(ap_w)
+                out[a]["ap_delta"] = rnd(ap_w - ap_d)
+        units[name] = out
+    return units, merged
+
+
+def class_counts(cards, t):
+    out = {}
+    for pool in ("cities13", MG):
+        for st in ("C", "E"):
+            rows = [r for r in cards if r["set"] == st and r["weak_score"] >= t
+                    and (r["split"] == MG) == (pool == MG)]
+            out[f"{pool} {st}"] = {k: sum(r["cls"] == k for r in rows) for k in "DLNU"}
+    return out
+
+
+def build_results():
+    bounds = read_json(os.path.join(OUT_DIR, "bounds.json"))
+    key = read_json(os.path.join(REVIEW_DIR, "key.json"))
+    ai = load_verdicts(os.path.join(REVIEW_DIR, f"verdicts__{AI_RATER}.json"), key)
+    jon_path = os.path.join(REVIEW_DIR, "verdicts__jon.json")
+    jon_audit = load_verdicts(jon_path, key) if os.path.exists(jon_path) else None
+    cal = build_calibration()
+    calibrated = cal["summary"]["calibrated"]
+    cards = classify_cards(bounds, key, ai, calibrated, jon_audit)
+    outcome, reasons = decide(cards, calibrated)
+    units, merged = build_scores(bounds, load_pools())
+    trip = {}
+    for unit in ("cities13", "manual_gold GT-B"):
+        for t in ("0.30", "0.55"):
+            trip[f"{unit} @ {t}"] = units[unit]["lo"][t]["_df1_raw"] < TRIPWIRE_DF1
+    if jon_audit:
+        agree = [(ai[c].get("pair"), jon_audit[c].get("pair")) for c in jon_audit if c in ai]
+    else:
+        agree = None
+    return {"what": "seam-wrapped NMS default study (#248): classification, rule, scores",
+            "rule_threshold": RULE_T, "outcome": outcome, "reasons": reasons,
+            "tripwire": {"fired": any(trip.values()), "by_unit": trip,
+                         "rule": f"pooled paired dF1 under lo < {TRIPWIRE_DF1}"},
+            "calibration": cal["summary"],
+            "jon_audit_present": jon_audit is not None, "ai_vs_jon_audit": agree,
+            "class_counts": {f"{t:.2f}": class_counts(cards, t) for t in (0.30, 0.55)},
+            "cards": cards, "gt_b_merges": merged,
+            "gt_points": {"GT-A": 3919, "GT-B": sum(len(g.gt_points)
+                                                   for g in merge_gt_b(manual_gold_gt(),
+                                                                       jon_pairs())[0].values())},
+            "scores": _strip_private(units)}
+
+
+def _strip_private(obj):
+    if isinstance(obj, dict):
+        return {k: _strip_private(v) for k, v in obj.items() if not str(k).startswith("_")}
+    if isinstance(obj, list):
+        return [_strip_private(v) for v in obj]
+    return obj
+
+
+def results_markdown(r):
+    L = [f"**Outcome under the pre-registered rule: {r['outcome']}.** Reasons: "
+         + ", ".join(f"{k} = {v}" for k, v in r["reasons"].items()) + ".", "",
+         f"Calibration: AI `different` on {r['calibration']['two_agree']} / "
+         f"{r['calibration']['two_total']} of Jon's `two` pairs, `same` on "
+         f"{r['calibration']['one_agree']} / {r['calibration']['one_total']} `one` pairs; "
+         f"calibrated = {r['calibration']['calibrated']}. Tripwire fired: {r['tripwire']['fired']}.",
+         "", "| card | split | set | dist px | weak / strong score | source | verdict | class |",
+         "|---|---|---|---:|---|---|---|---|"]
+    for c in sorted(r["cards"], key=lambda c: (c["split"] != MG, c["split"], c["set"], c["card"] or "")):
+        v = c.get("verdict")
+        vs = v if isinstance(v, str) else (f"{v['pair']}; weak {v['weak']}, strong {v['strong']}"
+                                           if v else "")
+        L.append(f"| {c['card'] or '(inherited)'} | {c['split']} | {c['set']} | {c['dist']} | "
+                 f"{c['weak_score']:.3f} / {c['strong_score']:.3f} | {c['source']} | {vs} | "
+                 f"{c['cls']} |")
+    L += ["", "| pool, set | t | D | L | N | U |", "|---|---:|---:|---:|---:|---:|"]
+    for t, cc in r["class_counts"].items():
+        for k, v in cc.items():
+            L.append(f"| {k} | {t} | {v['D']} | {v['L']} | {v['N']} | {v['U']} |")
+    L += ["", "Paired scores (wrap minus default; reported, never gating). `lo` removes `C`, "
+          "`hi` removes `C` and `E`. A CI of [0, 0] with no bootstrap means no removed peak "
+          "reaches t.", "",
+          "| unit | scen. | t | removed >= t | P def -> wrap | R def -> wrap | dF1 [95% CI] | GT lost / gained |",
+          "|---|---|---:|---:|---|---|---|---|"]
+    for unit in ("cities11", "cities13", "manual_gold GT-A", "manual_gold GT-B") + SPLITS13:
+        for sc in ("lo", "hi"):
+            u = r["scores"][unit][sc]
+            for t in ("0.30", "0.55"):
+                x = u[t]
+                n = u["removed"][f"ge_{t}"]
+                if unit in SPLITS13 and n == 0:
+                    continue
+                d = x["delta"]["f1"]
+                L.append(f"| {unit} | {sc} | {t} | {n} | {x['default']['precision']:.4f} -> "
+                         f"{x['wrap']['precision']:.4f} | {x['default']['recall']:.4f} -> "
+                         f"{x['wrap']['recall']:.4f} | {d['observed']:+.5f} [{d['ci_lo']:+.5f}, "
+                         f"{d['ci_hi']:+.5f}] | {x['gt_flips']['lost']} / {x['gt_flips']['gained']} |")
+    L += ["", "AP (from the 0.05 floor), wrap minus default: " + "; ".join(
+        f"{u} {sc} {r['scores'][u][sc]['ap_delta']:+.5f}"
+        for u in ("manual_gold GT-A", "manual_gold GT-B") + SPLITS13 for sc in ("lo", "hi")
+        if r["scores"][u][sc].get("ap_delta")) + " (every other split: 0)."]
+    return "\n".join(L) + "\n"
+
+
+def cmd_report(args):
+    r = build_results()
+    md = results_markdown(r)
+    print(md)
+    if args.out:
+        write_json(args.out, r)
+        with open(os.path.splitext(args.out)[0] + ".md", "w", encoding="utf-8", newline="") as f:
+            f.write(md)
+        print(f"wrote {args.out} and .md")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
 def main(argv=None):
@@ -813,7 +1175,11 @@ def main(argv=None):
     s.add_argument("--rater", default="", help="rater id the HTML exports under")
     c = sub.add_parser("calibrate", help="AI vs Jon on the 14 calibration cards")
     c.add_argument("--out", default=os.path.join(OUT_DIR, "calibration.json"))
+    r = sub.add_parser("report", help="classification, the rule, paired scores")
+    r.add_argument("--out", default=os.path.join(OUT_DIR, "results.json"))
     args = ap.parse_args(argv)
+    if args.cmd == "report":
+        return cmd_report(args)
     if args.check:
         return cmd_check(args)
     if args.cmd == "bounds":
