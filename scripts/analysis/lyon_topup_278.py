@@ -43,11 +43,13 @@ Commands, in order (``docs/lyon_review_159.md`` section 11 has the full replicat
     python scripts/analysis/lyon_topup_278.py stage-pixels --from <dir of <id>.jpg> \\
         --index <archive index.csv>
     python scripts/analysis/imagery_manifest.py --write --cities lyon_topup278 --panos-root .
+    python scripts/analysis/lyon_topup_278.py nadir-sheet --out <scratch>   # LOGO_BANDS by eye
     python scripts/analysis/lyon_topup_278.py band --write
     python scripts/analysis/lyon_topup_278.py verify
     python scripts/gt_gallery.py benchmark/lyon_topup278 --hide-credit --detections-only
 
-    # 5. the review: after pano 25, 45, 70 save the export as verdicts_backups/look<k>.json
+    # 5. the review: after pano 25, 45, 70 save the export as verdicts_backups/look<k>.json,
+    #    run score, and commit the look file and looks.json before rating on
     python scripts/analysis/lyon_topup_278.py score --write
 
 ``tests/test_lyon_topup_278.py`` covers the logic on committed inputs and synthetic looks.
@@ -738,6 +740,7 @@ def cmd_stage_pixels(args):
         w.writerow(["panorama_id", "filename", "bytes", "sha256", "source"])
         w.writerows(rows)
     block = {"staged_ids": [pid for pid, _, _, _ in staged],
+             "staged_ids_sha256": staged_sha256([pid for pid, _, _, _ in staged]),
              "dropped": [{"id": pid, "reason": why} for pid, why in dropped],
              "unused_reserve": unused,
              "sources": dict(collections.Counter(s for _, _, _, s in staged)),
@@ -805,6 +808,31 @@ def build_band(bundle=BUNDLE):
     }
 
 
+def cmd_nadir_sheet(args):
+    """Regenerate the contact sheet LOGO_BANDS was read from: the bottom 31% of each staged
+    pano at width 1000, two per row, 24 per sheet, labelled with position and id, written to
+    ``--out`` (outside the repo). It shows no detection and no marker."""
+    from PIL import Image, ImageDraw
+    Image.MAX_IMAGE_PIXELS = None
+    staged = load_provenance(args.bundle)["imagery"]["staged_ids"]
+    w, h, per = 1000, 155, 24
+    os.makedirs(args.out, exist_ok=True)
+    for s0 in range(0, len(staged), per):
+        ids = staged[s0:s0 + per]
+        sheet = Image.new("RGB", (2 * w + 10, (len(ids) + 1) // 2 * (h + 14)), "white")
+        draw = ImageDraw.Draw(sheet)
+        for i, pid in enumerate(ids):
+            with Image.open(os.path.join(args.bundle, "panos", f"{pid}.jpg")) as im:
+                strip = im.convert("RGB").resize((w, 500)).crop((0, 500 - h, w, 500))
+            x, y = (i % 2) * (w + 10), (i // 2) * (h + 14)
+            sheet.paste(strip, (x, y + 12))
+            draw.text((x + 2, y), f"{s0 + i + 1}: {pid}", fill="black")
+        path = os.path.join(args.out, f"nadir_{s0 // per + 1}.jpg")
+        sheet.save(path, quality=80)
+        print(f"wrote {path}")
+    return 0
+
+
 def cmd_band(args):
     return L._check_or_write(build_band(args.bundle),
                              os.path.join(args.bundle, L.NADIR_BAND_NAME), args.write)
@@ -856,6 +884,8 @@ def verify_bundle(bundle=BUNDLE, first=FIRST, require_imagery=True):
     with open(plan_path, encoding="utf-8") as f:
         order = json.load(f)["review_order"]
     problems += staged_order_problems(order, staged, prov["imagery"].get("dropped", []))
+    if prov["imagery"].get("staged_ids_sha256") != staged_sha256(staged):
+        problems.append("imagery.staged_ids does not hash to imagery.staged_ids_sha256")
     on_disk = sorted(os.path.splitext(n)[0] for n in os.listdir(os.path.join(bundle, "panos"))) \
         if os.path.isdir(os.path.join(bundle, "panos")) else []
     man = os.path.join(bundle, "imagery_manifest.json")
@@ -922,6 +952,22 @@ def reading_at(units, z=Z_SEQ, reps=BOOT_REPS, seed=SEED):
                  "bootstrap": (blo, bhi)}
 
 
+def staged_sha256(ids):
+    """sha256 of the staged list as LF-terminated lines: the pin of the order the rule reads
+    (recorded in bundle_provenance.json and in looks.json; outside the plan hash).
+
+    Example: ``staged_sha256(['a'])`` is the sha256 of the two bytes ``a`` and LF."""
+    return hashlib.sha256("".join(f"{p}\n" for p in ids).encode("utf-8")).hexdigest()
+
+
+def valid_verdict(d):
+    """True for the page's verdict values: true, false, "duplicate", "unsure", or null
+    (unjudged). ``1`` and ``"true"`` are not verdicts (``1 == True`` in Python, so this
+    tests identity)."""
+    return d is True or d is False or d is None or (isinstance(d, str)
+                                                     and d in ("duplicate", "unsure"))
+
+
 def fully_judged(entry, n_dets):
     return (entry is not None and len(entry.get("dets", [])) == n_dets
             and all(d is not None for d in entry["dets"]))
@@ -937,6 +983,12 @@ def evaluate_looks(looks, staged, n_dets, first_units, look_sizes=LOOKS, run_key
     ``final``, plus ``looks``: one record per look read (no estimate unless final)."""
     read, counted_at = [], {}
     for k, panos in enumerate(looks, start=1):
+        bad = sorted(pid for pid, e in panos.items()
+                     if not all(valid_verdict(d) for d in (e or {}).get("dets", [])))
+        if bad:
+            return {"status": "refuse",
+                    "problems": [f"look{k}.json holds a verdict value other than true, false, "
+                                 f"'duplicate', 'unsure' or null on: {', '.join(bad)}"]}
         if k > len(look_sizes):
             return {"status": "refuse", "problems": [f"look{k}.json: only "
                                                      f"{len(look_sizes)} looks exist"]}
@@ -961,7 +1013,10 @@ def evaluate_looks(looks, staged, n_dets, first_units, look_sizes=LOOKS, run_key
                 return {"status": "refuse",
                         "problems": [f"look{k}.json does not cover look {k} ({done} of the "
                                      f"first {size} judged), yet look{k + 1}.json exists"]}
-            return {"status": "waiting", "look": k, "need": size, "done": done, "looks": read}
+            misaligned = [pid for pid in counted if pid in panos
+                          and len(panos[pid].get("dets", [])) != n_dets[pid]]
+            return {"status": "waiting", "look": k, "need": size, "done": done, "looks": read,
+                    "misaligned": misaligned}
         units = list(first_units) + [pano_unit(panos[pid]["dets"]) for pid in counted]
         outcome, nums = reading_at(units)
         last = k == len(look_sizes)
@@ -1042,7 +1097,49 @@ def preflight(bundle=BUNDLE, first=FIRST):
     with open(plan_path, "rb") as f:
         if f.read() != _dumps(build_plan(bundle, first)).encode("utf-8"):
             problems.append("the current code does not rebuild audit_plan.json")
+    imagery = load_provenance(bundle).get("imagery") or {}
+    staged = imagery.get("staged_ids") or []
+    problems += [f"staged list: {p}" for p in staged_order_problems(
+        plan["review_order"], staged, imagery.get("dropped") or [])]
+    if imagery.get("staged_ids_sha256") != staged_sha256(staged):
+        problems.append("imagery.staged_ids does not hash to imagery.staged_ids_sha256 (the "
+                        "staged list is frozen once staged)")
     return problems
+
+
+def recorded_problems(recorded, names, shas, staged, plan_sha):
+    """Why the look record already written (``looks.json``) disagrees with the look files
+    on disk (empty list = it does not). A recorded look may never be re-read with other
+    verdicts, and the staged list and the plan are frozen once a look is recorded; new looks
+    may only be appended. Pure."""
+    if recorded is None:
+        return []
+    out = []
+    if recorded.get("staged_ids_sha256") != staged_sha256(staged):
+        out.append("the staged list differs from the one looks.json recorded")
+    if recorded.get("audit_plan_sha256") != plan_sha:
+        out.append("audit_plan.json differs from the one looks.json recorded")
+    for i, rec in enumerate(recorded.get("looks", [])):
+        if i >= len(names):
+            out.append(f"looks.json records {rec['file']}, which is gone")
+        elif rec.get("sha256") != shas[i]:
+            out.append(f"{LOOK_DIR}/{names[i]} differs from the export looks.json recorded "
+                       f"(sha256 {rec.get('sha256', '')[:12]}): a look is read once; restore "
+                       f"the recorded file (git) before going on")
+    return out
+
+
+def score_paths(bundle, out_dir=None):
+    """(looks.json, score.json) for a bundle: under ``out_dir`` if given; the committed
+    analysis_out/lyon_topup_278/ for the real bundle; otherwise beside the bundle copy, so
+    ``--bundle <copy> score --write`` never writes into the repo."""
+    if out_dir is None:
+        same = (os.path.normcase(os.path.abspath(bundle))
+                == os.path.normcase(os.path.abspath(BUNDLE)))
+        if same:
+            return LOOKS_JSON, SCORE
+        out_dir = os.path.join(bundle, "score_out")
+    return os.path.join(out_dir, "looks.json"), os.path.join(out_dir, "score.json")
 
 
 def cmd_score(args):
@@ -1069,15 +1166,35 @@ def cmd_score(args):
         path = os.path.join(bundle, LOOK_DIR, n)
         with open(path, encoding="utf-8") as f:
             v = json.load(f)
-        if v.get("run_key") not in (None, os.path.basename(bundle)):
-            print(f"refusing: {n} is an export of {v.get('run_key')!r}, not this bundle")
+        if v.get("run_key") != os.path.basename(os.path.normpath(bundle)):
+            print(f"refusing: {n} has run_key {v.get('run_key')!r}, not this bundle's "
+                  f"{os.path.basename(os.path.normpath(bundle))!r}")
             return 1
         looks.append(v.get("panos", {}))
         shas.append(_sha256(path))
+    looks_path, score_path = score_paths(bundle, args.out_dir)
+    plan_sha = _sha256(os.path.join(bundle, PLAN_NAME))
+    recorded = None
+    if os.path.exists(looks_path):
+        with open(looks_path, encoding="utf-8") as f:
+            recorded = json.load(f)
+    rec_problems = recorded_problems(recorded, names, shas, staged, plan_sha)
+    if rec_problems:
+        for p in rec_problems:
+            print("  PROBLEM: " + p)
+        print(f"refusing to score: {_rel(looks_path)} already records the looks read")
+        return 1
     recs = {r["pano"]["panorama_id"]: r for r in L.load_records(bundle)}
     n_dets = {pid: len(r["detections"]) for pid, r in recs.items()}
     fd = first_draw()
     res = evaluate_looks(looks, staged, n_dets, fd["units"])
+    if res["status"] != "refuse" and recorded is not None:
+        old = [(r["look"], r["outcome"]) for r in recorded.get("looks", [])]
+        new = [(r["look"], r["outcome"]) for r in res["looks"]]
+        if new[:len(old)] != old:
+            res = {"status": "refuse", "problems": [
+                f"the looks read now ({len(new)}) do not extend the {len(old)} that "
+                f"looks.json recorded"]}
     if res["status"] == "refuse":
         for p in res["problems"]:
             print("  PROBLEM: " + p)
@@ -1085,17 +1202,21 @@ def cmd_score(args):
         return 1
     if res["status"] == "waiting":
         print(f"CONTINUE: look {res['look']} needs the first {res['need']} panos judged, "
-              f"{res['done']} so far")
+              f"{res['done']} so far"
+              + (f"; the verdict count differs from the detections on: "
+                 f"{', '.join(res['misaligned'])}" if res["misaligned"] else ""))
         return 0
     record = {"what": "the look exports read by score and their outcome; no estimate before "
                       "the final reading (blind interim)",
-              "audit_plan_sha256": _sha256(os.path.join(bundle, PLAN_NAME)),
+              "audit_plan_sha256": plan_sha,
+              "staged_ids_sha256": staged_sha256(staged),
               "looks": [{**rec, "file": f"{LOOK_DIR}/{names[i]}", "sha256": shas[i]}
                         for i, rec in enumerate(res["looks"])]}
-    rc = L._check_or_write(record, LOOKS_JSON, args.write)
+    rc = L._check_or_write(record, looks_path, args.write)
     if res["status"] == "continue":
-        print(f"CONTINUE: rate on to pano {res['next']}, Export, save it as "
-              f"{LOOK_DIR}/look{len(names) + 1}.json, and run score again")
+        print(f"CONTINUE: commit {LOOK_DIR}/{names[-1]} and {_rel(looks_path)} now; then rate "
+              f"on to pano {res['next']}, Export, save it as "
+              f"{LOOK_DIR}/look{len(names) + 1}.json, and run score --write again")
         return rc
     rep = final_report(res, recs, fd, staged, record["audit_plan_sha256"], prov)
     head = (f"SETTLED {res['outcome']} at look {res['look']}" if res["outcome"]
@@ -1112,7 +1233,7 @@ def cmd_score(args):
           f"(first draw {f0['unsure']}/{f0['shown']}, {f0['duplicate']}/{f0['shown']})")
     if not rep["plan_comment_posted"]:
         print("  WARNING: pre_registered.comment is null: the plan was not posted on #159")
-    rc |= L._check_or_write(rep, SCORE, args.write)
+    rc |= L._check_or_write(rep, score_path, args.write)
     final_path = os.path.join(bundle, "verdicts.json")
     src = os.path.join(bundle, LOOK_DIR, names[res["look"] - 1])
     if args.write:
@@ -1142,12 +1263,19 @@ def main(argv=None):
     s.add_argument("--sims", type=int, default=OC_SIMS)
     s.add_argument("--boot", type=int, default=OC_BOOT)
     s.set_defaults(fn=cmd_oc)
+    s = sub.add_parser("nadir-sheet")
+    s.add_argument("--out", required=True, help="directory for the sheets (outside the repo)")
+    s.set_defaults(fn=cmd_nadir_sheet)
     s = sub.add_parser("figure")
     s.add_argument("--out", default=FIGURE)
     s.set_defaults(fn=cmd_figure)
     for name, fn in (("plan", cmd_plan), ("band", cmd_band), ("score", cmd_score)):
         s = sub.add_parser(name)
         s.add_argument("--write", action="store_true")
+        if name == "score":
+            s.add_argument("--out-dir", help="where looks.json and score.json go (default: "
+                                             "analysis_out/lyon_topup_278/ for the real bundle, "
+                                             "<bundle>/score_out/ for a copy)")
         s.set_defaults(fn=fn)
     s = sub.add_parser("stage-pixels")
     s.add_argument("--from", dest="src", help="directory of verified-candidate <id>.jpg")

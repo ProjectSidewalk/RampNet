@@ -1112,8 +1112,9 @@ DETECTIONS_ONLY_EDITS = (
                    HTML_TEMPLATE.index('</div>', HTML_TEMPLATE.index('<div id="intro">'))],
      '<div id="intro">\n  <b>Detections-only review (#278).</b> Judge each detection only '
      '&mdash; correct, false positive, duplicate (a 2nd hit on one ramp), or unsure. '
-     '<b>Do not scan for missed ramps in this review.</b> Rate in order. Export after pano 25 '
-     'and after pano 45 and run <code>score</code>; stop when it says SETTLED, or at pano 70.\n'),
+     '<b>Do not scan for missed ramps in this review.</b> Rate in order. Export after pano 25, '
+     'after pano 45 and after pano 70, and run <code>score --write</code> each time; stop when '
+     'it says SETTLED, or after pano 70.\n'),
     # a pano is done once its detections are judged: no missed-ramp confirmation
     ('function fnChecked(s) { return s.missed.length > 0 || !!s.noMissed; }',
      'function fnChecked(s) { return true; }  // detections-only (#278)'),

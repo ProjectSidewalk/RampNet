@@ -210,10 +210,21 @@ def check_never_train_lists(city, benchmark_ids, exclude_ids):
     ``never_train_ids.txt`` / ``exclude_ids.txt`` (cumulative) pass.
     """
     passed_ids, passed_excl = load_ids(benchmark_ids), load_ids(exclude_ids)
-    for name in benchmark_bundles_for(city):
+
+    def is_audit(name):
+        return (BENCHMARK_ROOT / name / "exclude_ids.txt").is_file()
+
+    # Matching is not transitive (``lyon_5m`` matches ``lyon`` but not ``lyon_topup278``),
+    # so follow each matched audit bundle to the audit bundles that match its own name.
+    audits = [n for n in benchmark_bundles_for(city) if is_audit(n)]
+    todo = list(audits)
+    while todo:
+        for n in benchmark_bundles_for(todo.pop()):
+            if is_audit(n) and n not in audits:
+                audits.append(n)
+                todo.append(n)
+    for name in sorted(audits):
         d = BENCHMARK_ROOT / name
-        if not (d / "exclude_ids.txt").is_file():
-            continue
         short = []
         if (d / "ids.txt").is_file() and not load_ids(d / "ids.txt") <= passed_ids:
             short.append(f"--benchmark-ids lacks ids of {name}/ids.txt")
@@ -477,7 +488,7 @@ def plan(args):
                              + (" (several match: pass the ids of every one that shares "
                                 "this run's imagery)" if len(bundles) > 1 else ""))
     check_never_train_lists(args.city, args.benchmark_ids, args.exclude_ids)
-    manifest_path =args.manifest or str(Path(args.results).with_name("manifest.json"))
+    manifest_path = args.manifest or str(Path(args.results).with_name("manifest.json"))
     floor = load_run_floor(manifest_path)
     meta_path = args.sites_meta or str(Path(args.sites).with_name(
         Path(args.sites).stem + "_meta.json"))
