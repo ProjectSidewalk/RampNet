@@ -461,11 +461,20 @@ are not on Hugging Face.
 
 ## 11. Top-up for other cameras (#278): plan, not reviewed
 
-**Status (2026-11-15): drawn and pre-registered, not reviewed.** Issue
+**Status (2026-11-15): drawn, pre-registered and staged; not reviewed.** Issue
 [#278](https://github.com/ProjectSidewalk/RampNet/issues/278). The draw, the pooled rule, the stop
 rule and what each final reading means for training are in
 `benchmark/lyon_topup278/audit_plan.json`, committed and pushed before any pixel of the draw was
 fetched (`bundle_provenance.json` → `pre_registered`). Nothing under `benchmark/lyon/` changes.
+
+**Imagery (staged 2026-11-15, after the plan was pushed).** The archive's `index.csv` was fetched
+from makelab2 first; all 80 drawn ids are in it. One `sftp` batch then copied the first 70 in
+review order (626,349,724 bytes). All 70 match the archive's sha256 (`stage-pixels`), so none was
+dropped and the reserve is unused. They are pinned in `imagery_manifest.json` (digest
+`3d293f7d2adc746e`). `nadir_band.json` marks the "La Voie Bleue" logo band, found by eye on a
+contact sheet of the bottom 31% of all 70 (geometry only), on 12 panos. No pano has a black or
+white nadir. The gallery (`gallery/index.html`, git-ignored) holds 70 panos and 113 detections in
+the staged order, with the producer hidden.
 
 ### Why other cameras, and why not Grand Lyon (recommendation, Jon's call)
 

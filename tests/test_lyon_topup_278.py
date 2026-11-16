@@ -308,6 +308,19 @@ def test_default_gallery_is_unchanged_and_the_variant_is_a_post_process():
         apply_detections_only(variant)                 # its snippets are gone now
 
 
+def test_committed_imagery_records_agree_with_the_staged_list():
+    prov = T.load_provenance()
+    staged = prov["imagery"]["staged_ids"]
+    plan = json.load(open(os.path.join(BUNDLE, T.PLAN_NAME), encoding="utf-8"))
+    assert len(staged) == T.N_MAX
+    assert T.staged_order_problems(plan["review_order"], staged, prov["imagery"]["dropped"]) == []
+    man = json.load(open(os.path.join(BUNDLE, "imagery_manifest.json"), encoding="utf-8"))
+    assert sorted(man["panos"]) == sorted(staged)
+    band = json.load(open(os.path.join(BUNDLE, L.NADIR_BAND_NAME), encoding="utf-8"))
+    assert sorted(band["panos"]) == sorted(staged)
+    assert {p for p, e in band["panos"].items() if e.get("kind") == "logo"} == set(T.LOGO_BANDS)
+
+
 # --------------------------------------------------------------------------- #
 # imagery (developer checkout only)
 # --------------------------------------------------------------------------- #

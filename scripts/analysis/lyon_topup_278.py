@@ -746,7 +746,7 @@ def cmd_stage_pixels(args):
     prov_path = os.path.join(args.bundle, PROVENANCE)
     with open(prov_path, encoding="utf-8") as f:
         prov = json.load(f)
-    prov.setdefault("imagery", {}).update(block)
+    prov["imagery"] = {**(prov.get("imagery") or {}), **block}
     with open(prov_path, "wb") as f:
         f.write(_dumps(prov).encode("utf-8"))
     print(json.dumps({k: (len(v) if isinstance(v, list) else v) for k, v in block.items()},
@@ -761,10 +761,20 @@ def cmd_stage_pixels(args):
 # --------------------------------------------------------------------------- #
 # band: the nadir overlays of the staged panos (geometry only)
 # --------------------------------------------------------------------------- #
-#: Burned-in logo bands the black/white rule cannot see, listed after a contact sheet of
-#: the bottom 31% of the staged panos (geometry only; filled in by the implementer after
-#: the plan was committed). Empty means none was found.
-LOGO_BANDS = {}
+#: Burned-in logo bands the black/white rule cannot see, found by eye on a contact sheet of
+#: the bottom 31% of all 70 staged panos (2026-11-15, claude-opus-5-5, after the plan was
+#: committed; the sheet is not committed, it regenerates from the panos). One graphic, the
+#: "La Voie Bleue" bike-route band of the first draw, on 12 panos (staged positions 3, 6,
+#: 18, 23, 29, 41, 44, 51, 60, 62, 65, 67). The blue rule alone also fires on 7 other panos,
+#: which is why the list is by eye. Rig parts (helmets, car roofs, riders) are imagery and
+#: not marked; no pano has a black or white nadir. Geometry only.
+LOGO_BANDS = {pid: "La Voie Bleue bike-route logo" for pid in (
+    "639dfc9b-6373-4307-8e6f-ce51334277fd", "c3c27e34-a12a-4537-be65-7ff2a986e8cc",
+    "21f8fbe6-8a0d-4b2c-96cc-8efa84e5c631", "362bf73e-4809-483d-b612-56b851307c54",
+    "1845b7e5-988b-4059-a4cf-c07bac9e3302", "3acc78b9-fed7-41d1-b0a6-7cc5612d33d4",
+    "1e066561-ae6d-43e6-8076-05713ce746ed", "16e10c79-1c10-4f4c-bc41-f8b67a802c09",
+    "84cffe84-d55c-43df-b82b-458f00966775", "1b62afd5-a08f-44cb-8190-337e451737e3",
+    "bbc1f720-db2c-4b0e-a27b-46f197e3176a", "3409807c-247e-457d-a17a-c27f4f5657e2")}
 
 
 def build_band(bundle=BUNDLE):
