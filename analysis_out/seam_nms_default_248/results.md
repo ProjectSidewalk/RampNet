@@ -1,45 +1,45 @@
-**Outcome under the pre-registered rule: NEXT STEP NEEDED.** Reasons: L_jon_C = 0, L_opt_C = 0, L_pess = 4, ai_calibrated = True, all_cards_rated_by_jon = False, cards_jon_must_rate = ['s248-09', 's248-11', 's248-27', 's248-33'], panoramas_for_exact_tier = ['manual_gold:R6Awyr2RqM-NKCZyeExAwQ', 'morgantown:1061541095152683', 'paterson:iPgLrrQ5XDrWWlTXzI5MLQ'].
+**Outcome under the pre-registered rule: NEXT STEP NEEDED.** Reasons: L_jon_C = 0, L_opt_C = 0, L_pess = 5, ai_calibrated = True, all_cards_rated_by_jon = True, cards_jon_must_rate = [], panoramas_for_exact_tier = ['manual_gold:R6Awyr2RqM-NKCZyeExAwQ', 'manual_gold:fCcAa7bQ3VAxPqaC0ZGy0Q', 'morgantown:1061541095152683', 'paterson:iPgLrrQ5XDrWWlTXzI5MLQ'].
 
 Calibration: AI `different` on 4 / 4 of Jon's `two` pairs, `same` on 9 / 10 `one` pairs; calibrated = True. Tripwire fired: False.
 
 | card | split | set | dist px | weak / strong score | source | verdict | class |
 |---|---|---|---:|---|---|---|---|
 | (inherited) | manual_gold | C | 4 | 0.403 / 0.453 | jon (inherited) | one | D |
-| s248-01 | manual_gold | C | 1 | 0.752 / 0.896 | ai | same; weak ramp, strong ramp | D |
-| s248-08 | manual_gold | C | 4 | 0.567 / 0.761 | ai | same; weak unsure, strong unsure | N |
-| s248-13 | manual_gold | C | 4 | 0.893 / 0.917 | ai | same; weak unsure, strong unsure | N |
-| s248-21 | manual_gold | C | 4 | 0.460 / 0.491 | ai | same; weak unsure, strong unsure | N |
-| s248-27 | manual_gold | C | 7 | 0.742 / 0.965 | ai | unsure; weak unsure, strong unsure | U |
-| s248-29 | manual_gold | C | 4 | 0.782 / 0.922 | ai | same; weak ramp, strong ramp | D |
-| s248-36 | manual_gold | C | 7 | 0.867 / 0.988 | ai | different; weak not_ramp, strong ramp | N |
+| s248-01 | manual_gold | C | 1 | 0.752 / 0.896 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-08 | manual_gold | C | 4 | 0.567 / 0.761 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-13 | manual_gold | C | 4 | 0.893 / 0.917 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-21 | manual_gold | C | 4 | 0.460 / 0.491 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-27 | manual_gold | C | 7 | 0.742 / 0.965 | jon (audit) | unsure; weak ramp, strong not_ramp | U |
+| s248-29 | manual_gold | C | 4 | 0.782 / 0.922 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-36 | manual_gold | C | 7 | 0.867 / 0.988 | jon (audit) | same; weak unsure, strong ramp | D |
 | (inherited) | manual_gold | E | 12 | 0.357 / 0.878 | jon (inherited) | one | D |
 | (inherited) | manual_gold | E | 12 | 0.685 / 0.787 | jon (inherited) | one | D |
 | (inherited) | manual_gold | E | 15 | 0.893 / 0.938 | jon (inherited) | one | D |
-| s248-11 | manual_gold | E | 16 | 0.390 / 0.951 | ai | unsure; weak unsure, strong ramp | U |
-| s248-17 | manual_gold | E | 15 | 0.524 / 0.948 | ai | same; weak unsure, strong ramp | D |
-| s248-20 | manual_gold | E | 12 | 0.614 / 0.945 | ai | same; weak ramp, strong ramp | D |
-| s248-26 | annapolis | E | 13 | 0.504 / 0.787 | ai | same; weak ramp, strong ramp | D |
-| s248-03 | bend | C | 7 | 0.800 / 0.843 | ai | same; weak ramp, strong ramp | D |
-| s248-16 | bend | C | 4 | 0.698 / 0.795 | ai | same; weak unsure, strong ramp | D |
-| s248-25 | bend | C | 4 | 0.523 / 0.867 | ai | same; weak ramp, strong ramp | D |
-| s248-28 | budapest_district5 | C | 4 | 0.308 / 0.471 | ai | same; weak unsure, strong unsure | N |
-| s248-35 | morgantown | C | 4 | 0.337 / 0.756 | ai | same; weak ramp, strong ramp | D |
-| s248-06 | morgantown | E | 16 | 0.478 / 0.974 | ai | same; weak ramp, strong ramp | D |
-| s248-33 | morgantown | E | 12 | 0.486 / 0.610 | ai | unsure; weak ramp, strong unsure | U |
-| s248-18 | paterson | C | 4 | 0.620 / 0.760 | ai | same; weak unsure, strong ramp | D |
-| s248-09 | paterson | E | 20 | 0.366 / 0.914 | ai | different; weak unsure, strong ramp | U |
-| s248-14 | richmond | C | 4 | 0.731 / 0.946 | ai | same; weak ramp, strong ramp | D |
-| s248-15 | richmond | E | 13 | 0.335 / 0.938 | ai | different; weak not_ramp, strong ramp | N |
+| s248-11 | manual_gold | E | 16 | 0.390 / 0.951 | jon (audit) | unsure; weak not_ramp, strong ramp | U |
+| s248-17 | manual_gold | E | 15 | 0.524 / 0.948 | jon (audit) | unsure; weak unsure, strong ramp | U |
+| s248-20 | manual_gold | E | 12 | 0.614 / 0.945 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-26 | annapolis | E | 13 | 0.504 / 0.787 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-03 | bend | C | 7 | 0.800 / 0.843 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-16 | bend | C | 4 | 0.698 / 0.795 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-25 | bend | C | 4 | 0.523 / 0.867 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-28 | budapest_district5 | C | 4 | 0.308 / 0.471 | jon (audit) | same; weak unsure, strong unsure | N |
+| s248-35 | morgantown | C | 4 | 0.337 / 0.756 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-06 | morgantown | E | 16 | 0.478 / 0.974 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-33 | morgantown | E | 12 | 0.486 / 0.610 | jon (audit) | different; weak ramp, strong ramp | L |
+| s248-18 | paterson | C | 4 | 0.620 / 0.760 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-09 | paterson | E | 20 | 0.366 / 0.914 | jon (audit) | different; weak ramp, strong ramp | L |
+| s248-14 | richmond | C | 4 | 0.731 / 0.946 | jon (audit) | same; weak ramp, strong ramp | D |
+| s248-15 | richmond | E | 13 | 0.335 / 0.938 | jon (audit) | same; weak ramp, strong ramp | D |
 
 | pool, set | t | D | L | N | U |
 |---|---:|---:|---:|---:|---:|
 | cities13 C | 0.30 | 6 | 0 | 1 | 0 |
-| cities13 E | 0.30 | 2 | 0 | 1 | 2 |
-| manual_gold C | 0.30 | 3 | 0 | 4 | 1 |
-| manual_gold E | 0.30 | 5 | 0 | 0 | 1 |
+| cities13 E | 0.30 | 3 | 2 | 0 | 0 |
+| manual_gold C | 0.30 | 7 | 0 | 0 | 1 |
+| manual_gold E | 0.30 | 4 | 0 | 0 | 2 |
 | cities13 C | 0.55 | 4 | 0 | 0 | 0 |
 | cities13 E | 0.55 | 0 | 0 | 0 | 0 |
-| manual_gold C | 0.55 | 2 | 0 | 3 | 1 |
+| manual_gold C | 0.55 | 5 | 0 | 0 | 1 |
 | manual_gold E | 0.55 | 3 | 0 | 0 | 0 |
 
 Paired scores (wrap minus default; reported, never gating). `lo` removes `C`, `hi` removes `C` and `E`. A CI of [0, 0] with no bootstrap means no removed peak reaches t.

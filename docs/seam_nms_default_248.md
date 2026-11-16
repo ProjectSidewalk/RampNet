@@ -1,7 +1,8 @@
 # Should seam-wrapped NMS be the default? (#248)
 
-**Issue:** [#248](https://github.com/ProjectSidewalk/RampNet/issues/248). **Status:** in progress:
-the rule's outcome is **NEXT STEP NEEDED** (section 5); the default stays off.
+**Issue:** [#248](https://github.com/ProjectSidewalk/RampNet/issues/248). **Status:** final:
+**keep opt-in** (Jon, 2026-11-16, section 12). The rule's formal outcome is still **NEXT STEP
+NEEDED**; Jon audited all 22 cards and chose to stop there. The default stays off.
 
 Sections 1-4 are the **pre-registration**, committed and pushed on 2026-11-15 (`fb158eb7`) before
 any score was computed under wrapped NMS, before any card was rendered or looked at, and before any
@@ -205,6 +206,10 @@ column, which is to suppress the weaker of two peaks within 10 px. Two real ramp
 are already merged everywhere else in the image.
 
 ## 5. Results (2026-11-15)
+
+> **Read section 12 first.** This section is the state before Jon's audit, with the AI's ratings.
+> `results.json`, `results.md` and the figure were regenerated on 2026-11-16 with Jon's verdicts
+> and now differ from the classification counts quoted here; section 12 gives the audited counts.
 
 ### Key takeaways
 
@@ -582,3 +587,42 @@ committed counts, the verdicts, the calibration, `results.json` or the outcome u
 | F6: `--check` and a test broke when Jon's file lands | the pins and the test now recompute the AI-only state; replication section says what to re-run |
 | F7: tests could pass on a wrong mapping | tests added for the A/B to weak/strong mapping, distance boundaries 10/11 and 20/21 px, strip columns 9/10 and 1013/1014, and Jon-entry counting |
 | F8: nits | the `SHA256SUMS` location fixed in section 8; 1-wide figure labels moved off the bars; the uncalibrated-and-all-Jon edge in `decide` left as is (it cannot occur with the committed calibration, and changing it would alter the pre-registered rule's literal reading) |
+
+## 12. Jon's audit and the decision (2026-11-16)
+
+Jon rated all 22 study cards on the blank audit page (`review/verdicts__jon.json`, items digest
+`3d4c0bc2a9f57492`), before reading the PR. He noted that the cards are not easy: marks A and B
+rarely sit on exactly the same spot. With his verdicts and the 4 inherited ones, no card rests on
+the AI's rating any more.
+
+| class at 0.30 | cards | which |
+|---|---:|---|
+| duplicate (D) | 20 | |
+| harmless otherwise (N) | 1 | budapest_district5, certain set |
+| lost ramp (L) | 2 | s248-09 (paterson, 20 px) and s248-33 (morgantown, 12 px), both envelope-only |
+| unresolved (U) | 3 | s248-11, s248-17, s248-27 (all manual_gold; one certain, two envelope-only) |
+
+**Outcome under the rule: still NEXT STEP NEEDED** (`results.json`: `L_jon_C` = 0, `L_opt_C` = 0,
+`L_pess` = 5, `cards_jon_must_rate` = []). It is not KEEP, because both lost ramps are
+envelope-only cards, whose removal only a forward pass can establish (the one change the plan made
+to the reviewer's rule). It is not FLIP, because `L_pess` = 5 > 1. The rule's remaining step is a
+forward pass on four panoramas (`panoramas_for_exact_tier`).
+
+**Decision (Jon, 2026-11-16): keep `wrap_nms` opt-in and stop here; the forward passes are not
+run.** This is a decision on the evidence, not the rule's outcome, and it is recorded as such:
+
+- A flip is already out of reach in practice. It needs at most one non-duplicate among the
+  removals, and Jon judged two of them to be separate, real ramps.
+- The forward passes could only show that wrapping would leave those two alone. That would leave a
+  default change worth about 15 duplicate peaks in 7,300 at 0.30, with paired dF1 of about
+  +/-0.0005 whose sign depends on the ground truth (section 5.5), against moving a published number.
+- Paired scores with the audited classes are unchanged, since they do not depend on the ratings:
+  `cities13` `hi` at 0.30 is +0.00057 [-0.00019, +0.00140] with 2 GT hits lost, the two cards above.
+
+**Scope: the curb-ramp model only.** Nothing here was measured on the crosswalk detector. A
+crosswalk is a wide object, so one that crosses the seam is more likely to leave a peak on each
+side than a curb ramp is, and the labeler's Crosswalk spec keeps border peaks (`border: keep`). The
+question should be asked again for that detector, on its own peaks.
+
+Audit and decision recorded by Fable 5.2 (`claude-fable-5-2`).
+

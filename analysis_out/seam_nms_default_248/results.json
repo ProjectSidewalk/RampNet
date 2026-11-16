@@ -5,17 +5,13 @@
  "reasons": {
   "L_jon_C": 0,
   "L_opt_C": 0,
-  "L_pess": 4,
+  "L_pess": 5,
   "ai_calibrated": true,
-  "all_cards_rated_by_jon": false,
-  "cards_jon_must_rate": [
-   "s248-09",
-   "s248-11",
-   "s248-27",
-   "s248-33"
-  ],
+  "all_cards_rated_by_jon": true,
+  "cards_jon_must_rate": [],
   "panoramas_for_exact_tier": [
    "manual_gold:R6Awyr2RqM-NKCZyeExAwQ",
+   "manual_gold:fCcAa7bQ3VAxPqaC0ZGy0Q",
    "morgantown:1061541095152683",
    "paterson:iPgLrrQ5XDrWWlTXzI5MLQ"
   ]
@@ -55,8 +51,97 @@
   "calibrated": true,
   "bar": "AI answered `different` on all of Jon's `two` pairs (pre-registered)"
  },
- "jon_audit_present": false,
- "ai_vs_jon_audit": null,
+ "jon_audit_present": true,
+ "ai_vs_jon_audit": [
+  [
+   "different",
+   "different"
+  ],
+  [
+   "unsure",
+   "unsure"
+  ],
+  [
+   "unsure",
+   "unsure"
+  ],
+  [
+   "unsure",
+   "different"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "different",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "unsure"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "same",
+   "same"
+  ],
+  [
+   "different",
+   "same"
+  ]
+ ],
  "class_counts": {
   "0.30": {
    "cities13 C": {
@@ -66,22 +151,22 @@
     "U": 0
    },
    "cities13 E": {
-    "D": 2,
-    "L": 0,
-    "N": 1,
-    "U": 2
+    "D": 3,
+    "L": 2,
+    "N": 0,
+    "U": 0
    },
    "manual_gold C": {
-    "D": 3,
-    "L": 0,
-    "N": 4,
-    "U": 1
-   },
-   "manual_gold E": {
-    "D": 5,
+    "D": 7,
     "L": 0,
     "N": 0,
     "U": 1
+   },
+   "manual_gold E": {
+    "D": 4,
+    "L": 0,
+    "N": 0,
+    "U": 2
    }
   },
   "0.55": {
@@ -98,9 +183,9 @@
     "U": 0
    },
    "manual_gold C": {
-    "D": 2,
+    "D": 5,
     "L": 0,
-    "N": 3,
+    "N": 0,
     "U": 1
    },
    "manual_gold E": {
@@ -120,7 +205,7 @@
    "weak_score": 0.504463,
    "strong_score": 0.786821,
    "card": "s248-26",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
@@ -136,7 +221,7 @@
    "weak_score": 0.522917,
    "strong_score": 0.866691,
    "card": "s248-25",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
@@ -152,11 +237,11 @@
    "weak_score": 0.698127,
    "strong_score": 0.79537,
    "card": "s248-16",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
-    "weak": "unsure",
+    "weak": "ramp",
     "strong": "ramp"
    }
   },
@@ -168,7 +253,7 @@
    "weak_score": 0.800486,
    "strong_score": 0.842894,
    "card": "s248-03",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
@@ -184,7 +269,7 @@
    "weak_score": 0.308485,
    "strong_score": 0.470878,
    "card": "s248-28",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "N",
    "verdict": {
     "pair": "same",
@@ -200,12 +285,12 @@
    "weak_score": 0.460038,
    "strong_score": 0.490544,
    "card": "s248-21",
-   "source": "ai",
-   "cls": "N",
+   "source": "jon (audit)",
+   "cls": "D",
    "verdict": {
     "pair": "same",
-    "weak": "unsure",
-    "strong": "unsure"
+    "weak": "ramp",
+    "strong": "ramp"
    }
   },
   {
@@ -229,12 +314,12 @@
    "weak_score": 0.566833,
    "strong_score": 0.760688,
    "card": "s248-08",
-   "source": "ai",
-   "cls": "N",
+   "source": "jon (audit)",
+   "cls": "D",
    "verdict": {
     "pair": "same",
-    "weak": "unsure",
-    "strong": "unsure"
+    "weak": "ramp",
+    "strong": "ramp"
    }
   },
   {
@@ -245,7 +330,7 @@
    "weak_score": 0.751634,
    "strong_score": 0.896311,
    "card": "s248-01",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
@@ -261,12 +346,12 @@
    "weak_score": 0.741876,
    "strong_score": 0.964573,
    "card": "s248-27",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "U",
    "verdict": {
     "pair": "unsure",
-    "weak": "unsure",
-    "strong": "unsure"
+    "weak": "ramp",
+    "strong": "not_ramp"
    }
   },
   {
@@ -277,11 +362,11 @@
    "weak_score": 0.390388,
    "strong_score": 0.951472,
    "card": "s248-11",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "U",
    "verdict": {
     "pair": "unsure",
-    "weak": "unsure",
+    "weak": "not_ramp",
     "strong": "ramp"
    }
   },
@@ -319,10 +404,10 @@
    "weak_score": 0.5237,
    "strong_score": 0.947548,
    "card": "s248-17",
-   "source": "ai",
-   "cls": "D",
+   "source": "jon (audit)",
+   "cls": "U",
    "verdict": {
-    "pair": "same",
+    "pair": "unsure",
     "weak": "unsure",
     "strong": "ramp"
    }
@@ -335,7 +420,7 @@
    "weak_score": 0.614417,
    "strong_score": 0.945083,
    "card": "s248-20",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
@@ -351,11 +436,11 @@
    "weak_score": 0.866984,
    "strong_score": 0.987908,
    "card": "s248-36",
-   "source": "ai",
-   "cls": "N",
+   "source": "jon (audit)",
+   "cls": "D",
    "verdict": {
-    "pair": "different",
-    "weak": "not_ramp",
+    "pair": "same",
+    "weak": "unsure",
     "strong": "ramp"
    }
   },
@@ -367,7 +452,7 @@
    "weak_score": 0.781742,
    "strong_score": 0.922212,
    "card": "s248-29",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
@@ -396,12 +481,12 @@
    "weak_score": 0.892905,
    "strong_score": 0.916836,
    "card": "s248-13",
-   "source": "ai",
-   "cls": "N",
+   "source": "jon (audit)",
+   "cls": "D",
    "verdict": {
     "pair": "same",
-    "weak": "unsure",
-    "strong": "unsure"
+    "weak": "ramp",
+    "strong": "ramp"
    }
   },
   {
@@ -412,12 +497,12 @@
    "weak_score": 0.486089,
    "strong_score": 0.610244,
    "card": "s248-33",
-   "source": "ai",
-   "cls": "U",
+   "source": "jon (audit)",
+   "cls": "L",
    "verdict": {
-    "pair": "unsure",
+    "pair": "different",
     "weak": "ramp",
-    "strong": "unsure"
+    "strong": "ramp"
    }
   },
   {
@@ -428,7 +513,7 @@
    "weak_score": 0.337266,
    "strong_score": 0.756027,
    "card": "s248-35",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
@@ -444,7 +529,7 @@
    "weak_score": 0.47804,
    "strong_score": 0.97381,
    "card": "s248-06",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
@@ -460,11 +545,11 @@
    "weak_score": 0.619814,
    "strong_score": 0.760159,
    "card": "s248-18",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
-    "weak": "unsure",
+    "weak": "ramp",
     "strong": "ramp"
    }
   },
@@ -476,11 +561,11 @@
    "weak_score": 0.366056,
    "strong_score": 0.914358,
    "card": "s248-09",
-   "source": "ai",
-   "cls": "U",
+   "source": "jon (audit)",
+   "cls": "L",
    "verdict": {
     "pair": "different",
-    "weak": "unsure",
+    "weak": "ramp",
     "strong": "ramp"
    }
   },
@@ -492,11 +577,11 @@
    "weak_score": 0.334738,
    "strong_score": 0.938278,
    "card": "s248-15",
-   "source": "ai",
-   "cls": "N",
+   "source": "jon (audit)",
+   "cls": "D",
    "verdict": {
-    "pair": "different",
-    "weak": "not_ramp",
+    "pair": "same",
+    "weak": "ramp",
     "strong": "ramp"
    }
   },
@@ -508,7 +593,7 @@
    "weak_score": 0.731147,
    "strong_score": 0.945867,
    "card": "s248-14",
-   "source": "ai",
+   "source": "jon (audit)",
    "cls": "D",
    "verdict": {
     "pair": "same",
