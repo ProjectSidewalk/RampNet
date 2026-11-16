@@ -65,8 +65,13 @@ Seen by the planner and, independently, by the reviewer:
   0 in the same order.
 - op_caches: bayonne 39 strip / 8 pairs at the floor, 4 strip / 0 pairs at 0.30; juneau 13 / 1 at
   the floor, 2 / 0 at 0.30; laurens_mapillary 4 / 0; the other 11 files and all of `op_cache_tta`,
-  0. The `C` and `E` counts for bayonne and juneau have **not** been computed; the `bounds` commit
-  appends them here before any card exists.
+  0. The `C` and `E` counts for bayonne and juneau had **not** been computed when the rule was
+  committed. **Appended by the `bounds` commit, before any card existed:** bayonne `C` 0 / `E` 0
+  and juneau `C` 0 / `E` 0 at both 0.30 and 0.55 (at the 0.05 floor the two add 9 `C` and 5 `E`).
+  So `cities13` and `cities11` hold the same 12 candidates at 0.30. `bounds` also reproduced every
+  number in the table above exactly, found 3,919 manual_gold GT points, and found one pair of tied
+  across-seam peaks (manual_gold, both clipped to 1.0, 23 px apart: outside the 20-px envelope, so
+  it touches neither `C` nor `E`; the reviewer's "0 tied pairs" was within 10 px and holds).
 - manual_gold records: 5,072 peaks, 132 strip peaks at the floor, 270 scores equal to 1.0 (one in
   the strip, unpaired). r2048: 33 raw scores >= 1.0, none in the strip. 0 tied pairs.
 - City `benchmark/*/records.jsonl` (labeler output): 0 strip peaks in all 13 splits.
