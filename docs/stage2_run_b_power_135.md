@@ -505,7 +505,13 @@ the JSON never contained them. That is why they are left out, not any judgment a
 `--check` runs the default analysis in memory and compares its bytes with the committed JSON. It
 writes nothing, exits 0 with `ok (byte-identical)` on a match, and on a mismatch exits 2 with the
 first differing byte offset, the first differing key path, the number of differing leaf values and
-the largest absolute numeric difference. **On 2026-10-03 the default command regenerated
+the largest absolute numeric difference. One mismatch is accepted (#251): if every difference is a
+float leaf within 1e-12 relative, and the text is otherwise identical byte for byte (formatting,
+line endings, ints, strings, keys, types), it exits 0 with `ok (within rel 1e-12, NOT
+byte-identical)` and the count and size of the drift. That is the macOS case from #251 (110 floats,
+max |Δ| 6.66e-16, Python 3.10, CPU torch, 2026-10-11); the smallest non-zero float in the file is
+about 1.1e-5, so the tolerance sits four orders of magnitude above last-bit drift and far below
+anything the doc quotes. The comparison is `rampnet.json_compare.compare_json`. **On 2026-10-03 the default command regenerated
 `docs/data/benchmark_power_135.json` byte for byte** (#237): Windows 11 desktop, CPython 3.12.10,
 numpy 2.5.1, 676 s wall-clock. The same check is registered in `scripts/check_all.py` as a slow
 entry, so it runs with `--all` and not in CI. `tests/test_benchmark_power_135.py` holds the same
