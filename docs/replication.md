@@ -549,6 +549,9 @@ data are skipped unless `--allow local-cache` is given.
 | `yolo_rescore_benchmark_eval` | `scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py --check` | `benchmark_eval/` matches the current scorer over the committed detections | committed only | 2.1 |
 | `cascade_transfer_35` | `cascade_transfer_35.py --check` | the transfer table regenerates byte-identical (#35) | committed only | 1.8 |
 | `scoreboard` | `scoreboard.py --check` | the scoreboard doc's tables, the counts its prose quotes, the log tables and `scoreboard.json` match a fresh scoring of every leg except the seed legs (`seed_of`, kept off the board) | committed only | 4.4 |
+| `verifier_candidates_258` | `verifier_candidates_258.py --check` | the #258 candidate set (every RampNet peak ≥ 0.05 on the 14 pinned splits, one label per peak) and its manifest re-derive byte-identical from the committed op_caches, records and verdicts | committed only | 1 |
+| `validator_fusion_258` | `validator_fusion_258.py --check` | `analysis_out/verifier_258/validator_fusion.json` (#258 step 3: the fusion fitted on sao_paulo, recall at matched precision on the held-out splits, bootstrap intervals) re-derives byte-identical from the committed candidates, validator scores and the job log. Its seconds are from a standalone `--check` on the desktop (2026-11-16), not from `latest.json` | committed only | 30 |
+| `validator_auc_258` | `validator_auc_258.py --check` | `analysis_out/verifier_258/validator_auc.json` (#258 step 2: AUC of the validator's P(correct) against RampNet's score per stratum, paired pano bootstrap, the richmond 4096 control) re-derives byte-identical from the committed candidates and scores. Seconds as for the entry above | committed only | 98 |
 | `cascade_cost_35` | `cascade_cost_35.py --check` | all 142 per-pair cascade files regenerate byte-identical from their recorded args (#35) | committed only | 341.7 |
 | `cascade_argon_35` | `cascade_argon_35.py --check` | the 37 Argon and YOLO cascade pair files under `analysis_out/cascade_cost_35/argon/` and `argon_pairs.json` (incl. the unique-point / blind-GT comparison and the scoreboard reconciliation) regenerate byte-identical (#35). **Slow: `--all` only.** Its seconds are from a standalone `--check` run (2026-11-15, same desktop), not from `latest.json` | committed only | 176 |
 | `benchmark_power_135` | `benchmark_power_135.py --check` | the default command (the ten pinned #135 splits) regenerates `docs/data/benchmark_power_135.json` byte-identical (#135, #236). **Slow: `--all` only.** Its seconds are from the standalone `--check` run in #237 (2026-10-03, same desktop), not from `latest.json` | committed only | 676 |
@@ -562,10 +565,11 @@ The seconds are from the committed run, `analysis_out/check_all/latest.json` (at
 listed:
 
 - `analysis_out/recall_by_depth_112.json`: `manifests_sha256`, `recall_by_depth_112`, `da3_calibration_101`, `laurens_paired_151`
-- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`, `cascade_cost_35`, `benchmark_power_135`
+- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`, `verifier_candidates_258`, `validator_fusion_258`, `validator_auc_258`, `cascade_cost_35`, `benchmark_power_135`
 - `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`
 - `benchmark/model_detections/`: `laurens_paired_151`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`, `export_model_cache_verify`
-- `benchmark/<split>/verdicts.json`: `dataset_cards_150`, `da3_calibration_101`, `seam_nms_default_248`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
+- `benchmark/<split>/verdicts.json`: `dataset_cards_150`, `da3_calibration_101`, `seam_nms_default_248`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `verifier_candidates_258`, `validator_fusion_258`, `validator_auc_258`, `cascade_cost_35`, `benchmark_power_135`
+- `analysis_out/verifier_258/candidates/` and `analysis_out/verifier_258/validator_scores/`: `validator_fusion_258`, `validator_auc_258` (the candidates also `verifier_candidates_258`)
 - `benchmark/manual_gold/seam_verdicts__jon.json`: `seam_pairs_248`, `seam_nms_default_248`
 - `docs/data/benchmark_power_135.json`: `run_b_gate_135`, `benchmark_power_135`
 - `docs/data/run_a_84_manual_gold/summary.csv`: `run_b_gate_135`, `benchmark_power_135`

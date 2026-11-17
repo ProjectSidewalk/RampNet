@@ -614,3 +614,23 @@ analysis_out/seam_nms_default_248/review/*
 !analysis_out/seam_nms_default_248/review/items.json
 !analysis_out/seam_nms_default_248/review/key.json
 !analysis_out/seam_nms_default_248/review/verdicts__*.json
+
+# #258: the second-pass verifier's candidate set (re-derived byte for byte by
+# scripts/analysis/verifier_candidates_258.py --check) and the validator leakage bound
+# (scripts/analysis/validator_leakage_258.py). The rawLabels CSV cache stays ignored.
+!analysis_out/verifier_258/
+analysis_out/verifier_258/*
+!analysis_out/verifier_258/*.json
+!analysis_out/verifier_258/candidates/
+analysis_out/verifier_258/candidates/*
+!analysis_out/verifier_258/candidates/*.json
+# Step 2's validator scores (GPU output, scripts/analysis/validator_score_258.py); the
+# per-pano resume files are scratch.
+!analysis_out/verifier_258/validator_scores/
+analysis_out/verifier_258/validator_scores/*
+!analysis_out/verifier_258/validator_scores/*.json
+# The richmond 4096 resolution control (PR #269 review, finding 4): same scorer on
+# richmond's panos downsampled with manual_gold's transform, plus its downsample manifest.
+!analysis_out/verifier_258/validator_scores_4096/
+analysis_out/verifier_258/validator_scores_4096/*
+!analysis_out/verifier_258/validator_scores_4096/*.json
