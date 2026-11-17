@@ -332,6 +332,25 @@ REGISTRY: list = [
       "scoreboard doc tables, its prose counts, the log tables and scoreboard.json match a fresh scoring",
       pins=("docs/model_scoreboard.md", "docs/model_comparison.md", "analysis_out/scoreboard.json",
             "benchmark/model_detections/", "manual_labels/") + GT),
+    E("verifier_candidates_258", (AN + "verifier_candidates_258.py", "--check"),
+      "the #258 candidate set (every RampNet peak >= 0.05 on the 14 splits, each labelled once) "
+      "re-derives byte-identical from the op_caches and GT",
+      pins=("analysis_out/verifier_258/candidates/", "analysis_out/op_cache/") + GT),
+    E("validator_fusion_258", (AN + "validator_fusion_258.py", "--check"),
+      "the #258 step 3 fusion (fitted on sao_paulo, recall at matched precision on the held-out "
+      "splits) re-derives byte-identical from the committed candidates and validator scores",
+      pins=("analysis_out/verifier_258/validator_fusion.json",
+            "analysis_out/verifier_258/candidates/", "analysis_out/verifier_258/validator_scores/",
+            "analysis_out/op_cache/", "docs/data/validator_258_42152480.log",
+            "scripts/analysis/cascade_cost_35.py", "scripts/analysis/open_rig_misses_258.py",
+            "scripts/analysis/validator_auc_258.py") + GT),
+    E("validator_auc_258", (AN + "validator_auc_258.py", "--check"),
+      "the #258 step 2 AUC tables (validator P(correct) vs RampNet's score, paired pano bootstrap, "
+      "and the richmond 4096 control) re-derive byte-identical from the committed scores",
+      pins=("analysis_out/verifier_258/validator_auc.json",
+            "analysis_out/verifier_258/candidates/", "analysis_out/verifier_258/validator_scores/",
+            "analysis_out/verifier_258/validator_scores_4096/", "analysis_out/op_cache/",
+            "scripts/analysis/open_rig_misses_258.py") + GT),
     E("cascade_cost_35", (AN + "cascade_cost_35.py", "--check"),
       "every per-pair cascade file regenerates byte-identical from its recorded args (#35)",
       # ~400 s on the desktop, ~5 min on a GitHub runner: in --ci, since the job runs in
