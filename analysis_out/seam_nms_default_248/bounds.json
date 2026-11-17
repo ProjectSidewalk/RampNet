@@ -2782,6 +2782,11 @@
    "pairs_floor": 0
   },
   {
+   "file": "benchmark/lyon_topup278/records.jsonl",
+   "strip_floor": 0,
+   "pairs_floor": 0
+  },
+  {
    "file": "benchmark/morgantown/records.jsonl",
    "strip_floor": 0,
    "pairs_floor": 0
