@@ -34,8 +34,8 @@ Entry fields:
                        never runs against nothing.
   * ``nothing_verified`` -- a function of the entry's output returning a reason when the
                        script exited 0 without comparing anything; that is a FAIL.
-  * ``slow``        -- runs only with ``--all``. One entry is slow: ``benchmark_power_135``
-                       (about 11 minutes; see the doc).
+  * ``slow``        -- runs only with ``--all``. Two entries are slow: ``benchmark_power_135``
+                       (about 11 minutes; see the doc) and ``cascade_argon_35``.
 
 Placeholders in an argv: ``{tmp}`` (a fresh scratch directory per entry, deleted
 afterwards) and ``{local_root}`` (``--local-root``, default the repo root).
@@ -286,6 +286,13 @@ REGISTRY: list = [
       pins=("analysis_out/prompt_opt_276/step7_results.json",
             "analysis_out/prompt_opt_276/step5_results.json",
             "benchmark/model_detections/") + GT),
+    # Slow: 164 s on the desktop for an exploratory side read, so --all only, not --ci.
+    E("cascade_argon_35", (AN + "cascade_argon_35.py", "--check"),
+      "the Argon cascade pair files and argon_pairs.json regenerate byte-identical (#35)",
+      pins=("analysis_out/cascade_cost_35/argon/", "analysis_out/cascade_cost_35/",
+            "analysis_out/op_cache/", "benchmark/model_detections/",
+            "analysis_out/scoreboard.json") + GT,
+      slow=True),
     # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
     E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),
       "the default command regenerates docs/data/benchmark_power_135.json byte-identical (#135, #236)",
