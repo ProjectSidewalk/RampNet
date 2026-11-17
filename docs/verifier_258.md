@@ -140,7 +140,11 @@ serving code, sidewalk-ai-api `main.py` at `745e0c5`; the perspective function i
   confidence; the argmax is recorded too, as `pred`.
 - **Imagery:** every split's panos were checked against its `imagery_manifest.json` on klone before
   scoring (the `.slurm` stops otherwise). juneau and bayonne were copied to klone for this run, from
-  the main checkout and from the bayonne bundle, after the same check passed locally.
+  the main checkout and from the bayonne bundle, after the same check passed locally. laurens_gsv's
+  manifest has since been re-pinned (2026-11-12, `benchmark/laurens_gsv/IMAGERY_NOTE.md`): the files
+  this run scored are lost, so a re-run of `validator_score_258.py` on laurens_gsv would read a later
+  fetch of the same 86 panos with slightly different bytes, and its scores need not match the
+  committed ones exactly. The CPU analyses below read only the committed scores and are unaffected.
 - **Compute:** klone job `42152480`, `ckpt-g2`, one L40S, 2026-10-22 06:51–07:21 local, 1,822 s =
   0.51 GPU-hours, $0, no preemption. The row is in `analysis_out/compute_log.jsonl`, and the sacct
   dump is `docs/data/compute/sacct_klone_2026-10-22_validator258.txt`. The job log is
