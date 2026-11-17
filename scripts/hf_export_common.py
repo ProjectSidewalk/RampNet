@@ -90,3 +90,17 @@ def clear_build_dir(out, subdir="data"):
     if target.exists():
         shutil.rmtree(str(target))
     return target
+
+
+def size_category(n):
+    """The Hub's `size_categories` bucket for a dataset of n examples (the card YAML key).
+
+    >>> size_category(1109), size_category(214385)
+    ('1K<n<10K', '100K<n<1M')
+    """
+    bounds = ((1_000, "n<1K"), (10_000, "1K<n<10K"), (100_000, "10K<n<100K"),
+              (1_000_000, "100K<n<1M"), (10_000_000, "1M<n<10M"))
+    for bound, label in bounds:
+        if n < bound:
+            return label
+    return "n>10M"
