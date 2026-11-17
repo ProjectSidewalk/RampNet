@@ -116,7 +116,12 @@ def test_committed_artifact_is_lf_rounded_and_hashed(committed):
     # Then moved again on 2026-10-20, when #263 added analysis_out/op_cache/laurens_gsv.json:
     # the rampnet@0.30 row gained its GSV side (equal to rampnet_r2048@0.30), and that leg's
     # note stopped saying "laurens_gsv has none"; no other row changed.
-    assert committed["rows_sha256"] == "6b1376d19de6389f666336cff3e6e7c42b981fb117d5cf7545ae6fb8da0ff15c"
+    # Moved from 6b1376d1... on 2026-11-09, when #276 Step 2 published gemini-3.8-flash on both
+    # Laurens arms (one new leg, 180 new score rows). No earlier row changed; labeler_commit is
+    # again the checkout it was regenerated from (1e0e96e, was 39afcd4).
+    # Moved from 21e56287... later on 2026-11-09, when #276 Step 2 published gemini-4-argon on
+    # both Laurens arms (one new leg, 180 new score rows). No earlier row changed.
+    assert committed["rows_sha256"] == "5610e03951f28142f91991a7122ee8181328ce616322d9557727d6f7850ad874"
     for row in committed["gt"]:
         for key, v in row.items():
             if isinstance(v, float) and key not in ("x", "y"):

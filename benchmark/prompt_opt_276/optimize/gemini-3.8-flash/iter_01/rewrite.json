@@ -1,0 +1,19 @@
+{
+ "iteration": 1,
+ "model": "gemini-3.8-flash",
+ "from": null,
+ "candidate": "def276-flash38-r1",
+ "used_fp": true,
+ "used_fn": true,
+ "verdicts": {
+  "iteration": 1,
+  "model": "gemini-3.8-flash",
+  "fp": "not_ramp",
+  "fn": "ramp",
+  "judged_at": "2026-11-09T23:31:04.940Z"
+ },
+ "prompt": "You are improving the written definition of a target class for an object detector that finds curb ramps in street-level images.\n\nCurrent definition: \"A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street.\"\n\nImage 1: the RED box marks a region the detector labeled a curb ramp, but a human reviewer confirmed it is NOT a curb ramp.\n\nImage 2: the BLUE box marks a real curb ramp that the detector missed, confirmed by the reviewer.\n\nRewrite the definition so that it still covers every ordinary curb ramp, excludes things like the red-boxed region, includes cases like the blue-boxed one. Describe visual features a detector can use; do not refer to these specific images or to 'the reviewer'. One paragraph, at most 90 words, beginning with 'A curb ramp'. Return JSON: {\"definition\": \"...\"}.",
+ "raw": "{\n  \"definition\": \"A curb ramp is an intentional, downward-sloping incline cut into or built out from a sidewalk curb that provides a continuous, barrier-free transition flush with the roadway surface, typically positioned at pedestrian crossings, intersections, or corners. Visually, it features a smooth graded slope with flared sides or recessed curb edges leading directly to street level, regardless of partial occlusion by pedestrians or street fixtures. It excludes raised utility lids, drainage bridge slabs, elevated steps, driveway edges, or uneven sidewalk patches that create an abrupt vertical lip.\"\n}",
+ "definition": "A curb ramp is an intentional, downward-sloping incline cut into or built out from a sidewalk curb that provides a continuous, barrier-free transition flush with the roadway surface, typically positioned at pedestrian crossings, intersections, or corners. Visually, it features a smooth graded slope with flared sides or recessed curb edges leading directly to street level, regardless of partial occlusion by pedestrians or street fixtures. It excludes raised utility lids, drainage bridge slabs, elevated steps, driveway edges, or uneven sidewalk patches that create an abrupt vertical lip.",
+ "at": "2026-11-09T23:31:54Z"
+}

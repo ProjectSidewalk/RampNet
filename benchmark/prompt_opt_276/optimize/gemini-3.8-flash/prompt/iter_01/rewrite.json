@@ -1,0 +1,20 @@
+{
+ "iteration": 1,
+ "model": "gemini-3.8-flash",
+ "from": null,
+ "candidate": "prompt276-flash38-r1",
+ "used_fp": true,
+ "used_fn": true,
+ "verdicts": {
+  "iteration": 1,
+  "model": "gemini-3.8-flash",
+  "fp": "not_ramp",
+  "fn": "ramp",
+  "judged_at": "2026-11-09T23:31:04.940Z"
+ },
+ "prompt": "You are improving the instruction given to an object detector, a vision-language model that finds curb ramps in street-level images. The instruction is sent with every image.\n\nCurrent instruction: \"Detect every curb ramp in this street-level image. A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street. Return one tight bounding box per curb ramp. Do not box driveways, stairs, or crosswalk paint. If there are no curb ramps, return an empty list.\"\n\nImage 1: the RED box marks a region the detector labeled a curb ramp, but a human reviewer confirmed it is NOT a curb ramp.\n\nImage 2: the BLUE box marks a real curb ramp that the detector missed, confirmed by the reviewer.\n\nRewrite the whole instruction so that the detector still finds every ordinary curb ramp, does not box things like the red-boxed region, finds cases like the blue-boxed one. You may change any part of it: how the task is worded, how a curb ramp is described, what to exclude, and what to do when unsure. Keep it an instruction to detect curb ramps and return one tight bounding box per curb ramp, and an empty list when there are none. Do not specify an output format, coordinates or scores; those are added separately. Describe visual features a detector can use; do not refer to these specific images or to 'the reviewer'. One paragraph, at most 150 words. Return JSON: {\"prompt\": \"...\"}.",
+ "raw": "{\n  \"prompt\": \"Detect every curb ramp in this street-level image. A curb ramp (curb cut) is an intentional sloped transition that lowers a sidewalk curb to street level to provide barrier-free passage to the roadway, typically located at intersections, street corners, or aligned with pedestrian crosswalks. Detect curb ramps even if partially obscured by pedestrians, street vendors, utility poles, or street clutter. Do not detect utility access covers, drainage slabs, stairs, driveways, or tactile paving and concrete patches that sit atop full-height curbs with a vertical drop-off. The ramp must visibly grade down to meet the street surface for pedestrian crossing. Return one tight bounding box per curb ramp. If there are no curb ramps, return an empty list.\"\n}",
+ "instruction": "Detect every curb ramp in this street-level image. A curb ramp (curb cut) is an intentional sloped transition that lowers a sidewalk curb to street level to provide barrier-free passage to the roadway, typically located at intersections, street corners, or aligned with pedestrian crosswalks. Detect curb ramps even if partially obscured by pedestrians, street vendors, utility poles, or street clutter. Do not detect utility access covers, drainage slabs, stairs, driveways, or tactile paving and concrete patches that sit atop full-height curbs with a vertical drop-off. The ramp must visibly grade down to meet the street surface for pedestrian crossing. Return one tight bounding box per curb ramp. If there are no curb ramps, return an empty list.",
+ "at": "2026-11-12T15:39:23Z",
+ "scope": "prompt"
+}

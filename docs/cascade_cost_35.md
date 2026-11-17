@@ -222,7 +222,10 @@ The null is small at these settings because the gate is tight: a wrong-pano box 
 This section covers the 15 challengers that were published when it was run. The seven YOLO11x
 tiles legs published on 2026-10-19 ([#258](https://github.com/ProjectSidewalk/RampNet/issues/258))
 were not run here or in (e); `summary.json` lists every one of those (leg, split) pairs under
-`gaps` as "published detections exist but this pair was not run".
+`gaps` as "published detections exist but this pair was not run". So are the seven #276 study
+legs published on 2026-11-11 (two Gemini models with elicited confidence, at three prompt
+definitions; `docs/vlm_prompt_276.md`): their zero-shot parents are already in the table, and a
+prompt arm scored in its own study is not a cascade candidate.
 
 | challenger | verdict | best viable (T_lo, r_gate, c_min) | F1 | attributable ΔR | FP / attr ramp | fixed setting F1 | fixed ΔF1 [95% CI] | fixed attributable ΔR | union F1 |
 |---|---|---|---:|---:|---:|---:|---|---:|---:|

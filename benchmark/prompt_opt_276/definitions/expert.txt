@@ -1,0 +1,18 @@
+A curb ramp is a constructed pedestrian slope bridging the height difference between a
+raised sidewalk and the roadway gutter, located at intersection corners, marked or unmarked
+crosswalks, mid-block crossings, and medians or islands. Look for three geometries: (1)
+perpendicular ramps: a sloped run cut through the curb, flanked by triangular flared sides
+or returned curbs; (2) parallel ramps: the sidewalk slopes down from one or both sides to a
+level landing at street level; (3) blended transitions: a broad corner area lowered nearly
+flush with the street. Many ramps have a high-contrast detectable warning surface of
+truncated domes (yellow, red, white, or gray; rectangular or curved) at the street edge;
+older ramps are plain or grooved concrete with no domes—detect both. Count a curb ramp
+wherever the curb visibly drops to street level at a pedestrian crossing point, even if it
+is old, cracked, steep, narrow, missing detectable warnings, partly hidden, or far away.
+Box the full ramp structure (sloped run, flares, and warning surface) from where it leaves
+sidewalk level down to the gutter. A parallel ramp or a blended transition gets one box. If
+a corner has two ramps separated by raised curb or grass, box each; a single apex ramp
+serving both crossings gets one box. Exclude driveway and alley aprons (vehicle curb cuts,
+usually wider and mid-block, leading to garages, alleys, or parking, with no domes and the
+sidewalk staying level across them), full-height curbs with no lowered section, and storm
+drain inlets.

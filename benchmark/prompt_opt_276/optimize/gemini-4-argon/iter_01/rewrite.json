@@ -1,0 +1,19 @@
+{
+ "iteration": 1,
+ "model": "gemini-4-argon",
+ "from": null,
+ "candidate": "def276-argon-r1",
+ "used_fp": true,
+ "used_fn": true,
+ "verdicts": {
+  "iteration": 1,
+  "model": "gemini-4-argon",
+  "fp": "not_ramp",
+  "fn": "ramp",
+  "judged_at": "2026-11-09T23:26:44.808Z"
+ },
+ "prompt": "You are improving the written definition of a target class for an object detector that finds curb ramps in street-level images.\n\nCurrent definition: \"A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street.\"\n\nImage 1: the RED box marks a region the detector labeled a curb ramp, but a human reviewer confirmed it is NOT a curb ramp.\n\nImage 2: the BLUE box marks a real curb ramp that the detector missed, confirmed by the reviewer.\n\nRewrite the definition so that it still covers every ordinary curb ramp, excludes things like the red-boxed region, includes cases like the blue-boxed one. Describe visual features a detector can use; do not refer to these specific images or to 'the reviewer'. One paragraph, at most 90 words, beginning with 'A curb ramp'. Return JSON: {\"definition\": \"...\"}.",
+ "raw": "{\"definition\": \"A curb ramp (curb cut) is a sloped transition cut into or formed along a sidewalk curb at a street corner or crosswalk that lets wheelchairs or strollers roll smoothly between the sidewalk and street. It includes both distinct cut-out ramps with flared sides and subtle, gradual sections where the curb edge tapers down flush with the road surface, even without tactile paving. Do not confuse it with rectangular concrete storm-drain covers or catch basins built into the curb edge, which stay level with the sidewalk and have a drainage opening underneath.\"}",
+ "definition": "A curb ramp (curb cut) is a sloped transition cut into or formed along a sidewalk curb at a street corner or crosswalk that lets wheelchairs or strollers roll smoothly between the sidewalk and street. It includes both distinct cut-out ramps with flared sides and subtle, gradual sections where the curb edge tapers down flush with the road surface, even without tactile paving. Do not confuse it with rectangular concrete storm-drain covers or catch basins built into the curb edge, which stay level with the sidewalk and have a drainage opening underneath.",
+ "at": "2026-11-09T23:31:09Z"
+}

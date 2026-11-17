@@ -23,7 +23,7 @@ benchmark/*/heatmap_cache/
 benchmark/*/depth/
 .env
 view_dump/
-.model_cache/
+.model_cache*/
 # Ignore analysis_out/ CONTENTS rather than the directory itself: git cannot re-include a
 # file whose parent directory is excluded, and one thing in here must be tracked.
 analysis_out/*
@@ -212,6 +212,8 @@ analysis_out/georef_check_*_chips/registration_*.png
 # the auto-labeler. Belongs with the imagery, which is intentionally not in git
 # (see benchmark/README.md) -- nothing in this repo reads it.
 benchmark/*/index.csv
+# ...and the decay list the same exporter may write beside it.
+benchmark/*/decayed.txt
 
 # Model weights never go in git -- durable homes are HF / lab storage (see
 # scripts/model_comparison/yolo_baseline/README.md, "Where the weights live").
@@ -525,6 +527,13 @@ analysis_out/lyon_review_159/**/*.jpg
 analysis_out/lyon_review_159/**/*.png
 analysis_out/lyon_review_159/**/*.html
 
+# Lyon audit top-up (#278): the stored operating characteristics and, after the review, the
+# look record and score, re-derivable only from committed look exports and the plan.
+!analysis_out/lyon_topup_278/
+analysis_out/lyon_topup_278/**/*.jpg
+analysis_out/lyon_topup_278/**/*.png
+analysis_out/lyon_topup_278/**/*.html
+
 # PR #261: paired intervals and the radius check for the newest-ids Claude legs, re-derived
 # from committed detections by scripts/analysis/claude_newest_ids_261.py --check.
 !analysis_out/claude_newest_ids_261/
@@ -585,3 +594,29 @@ analysis_out/control_arm_263/trainlogs/*
 benchmark/*/cluster_review/crops/
 benchmark/*/cluster_review/aerial/
 benchmark/*/cluster_review/gallery/
+
+# #276 prompt experiments: the Step 3 table regenerated from the caches
+# (scripts/analysis/prompt_276_results.py), JSON + Markdown only.
+!analysis_out/prompt_opt_276/
+analysis_out/prompt_opt_276/*
+!analysis_out/prompt_opt_276/*.json
+!analysis_out/prompt_opt_276/*.md
+
+# #276 optimizer review pages: a view of iter_*/candidates.json + the crops beside it, ~1 MB of base64 each; `prompt_optimize.py pick` rewrites them
+benchmark/prompt_opt_276/optimize/*/iter_*/review.html
+
+# #248 seam-wrapped NMS default study (scripts/analysis/seam_nms_default_248.py): the counts,
+# results, the deck's item list, key and per-rater verdicts are committed; the card images and
+# the self-contained HTML (which embeds them) are not -- `sheet --panos-root` regenerates them
+# and items.json carries each image's sha256.
+!analysis_out/seam_nms_default_248/
+analysis_out/seam_nms_default_248/*
+!analysis_out/seam_nms_default_248/bounds.json
+!analysis_out/seam_nms_default_248/calibration.json
+!analysis_out/seam_nms_default_248/results.json
+!analysis_out/seam_nms_default_248/results.md
+!analysis_out/seam_nms_default_248/review/
+analysis_out/seam_nms_default_248/review/*
+!analysis_out/seam_nms_default_248/review/items.json
+!analysis_out/seam_nms_default_248/review/key.json
+!analysis_out/seam_nms_default_248/review/verdicts__*.json

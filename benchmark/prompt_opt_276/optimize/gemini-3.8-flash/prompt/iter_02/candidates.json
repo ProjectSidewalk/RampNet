@@ -1,0 +1,55 @@
+{
+ "iteration": 2,
+ "model": "gemini-3.8-flash",
+ "train": {
+  "precision": 0.7308,
+  "recall": 0.2452,
+  "f1": 0.3671,
+  "tp": 38,
+  "fp": 14,
+  "n_gt": 155
+ },
+ "diagnostics_2R": {
+  "precision_1R": 0.7308,
+  "recall_1R": 0.2452,
+  "precision_2R": 0.8824,
+  "recall_2R": 0.2903,
+  "n_gt": 155,
+  "n_pred": 52
+ },
+ "fp": {
+  "pano": "iGerSDCCTaZmeNVguzT7mg",
+  "x": 0.49981143355649343,
+  "y": 0.6806631725675688,
+  "conf": 0.83,
+  "view_yaw_deg": 0.0,
+  "view_pitch_deg": -30.0,
+  "u": 0.4995,
+  "v": 0.522,
+  "image": "fp.jpg",
+  "detail": "fp_detail.jpg"
+ },
+ "fn": {
+  "pano": "oubzmEZebW0xt9hWWIgN3Q",
+  "x": 0.4091796875,
+  "y": 0.5390625,
+  "nearest_pred_px": null,
+  "view_yaw_deg": 300.0,
+  "view_pitch_deg": -30.0,
+  "u": 0.7759,
+  "v": 0.297,
+  "image": "fn.jpg",
+  "detail": "fn_detail.jpg"
+ },
+ "picked_at": "2026-11-09T23:47:44Z",
+ "excluded_panos": [
+  "74L65cpBc6Sv_D15h1n4Rw",
+  "wX8uKBQfioiFHogENC9FbQ"
+ ],
+ "scope": "prompt",
+ "prompt_body": null,
+ "reused_from": "optimize/gemini-3.8-flash/iter_02",
+ "reused_iteration": 2,
+ "picked_under_definition": null,
+ "reused_at": "2026-11-12T15:57:05Z"
+}
