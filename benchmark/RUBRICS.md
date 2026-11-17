@@ -53,6 +53,15 @@ pan/zoom so a reviewer scanning for misses sees exactly the model's pixels.
 `note` both round-trip through the tool, so re-reviewing a city revises its caveats instead of
 silently deleting them. `score_validation.py` prints `review_notes` above the numbers.
 
+### Detections-only variant (#278)
+
+`gt_gallery.py --detections-only` builds a page for a review that reads **precision only**, first
+used for the Lyon top-up (`benchmark/lyon_topup278/`). The verdict meanings above are unchanged and
+every detection is judged the same way. There is **no missed-ramp pass**: the page hides the
+missed-ramp bar, the `m` key and pano clicks mark nothing, a pano counts as done once its detections
+are judged, and the export writes `missed: []` and `no_missed: false` for every pano. By the gate
+above, no pano of such a review enters recall, so **recall is never read from it**.
+
 ### Class rulings
 
 | question | rule | stated |
