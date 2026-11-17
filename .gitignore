@@ -540,3 +540,8 @@ analysis_out/verifier_258/candidates/*
 !analysis_out/verifier_258/validator_scores/
 analysis_out/verifier_258/validator_scores/*
 !analysis_out/verifier_258/validator_scores/*.json
+# The richmond 4096 resolution control (PR #269 review, finding 4): same scorer on
+# richmond's panos downsampled with manual_gold's transform, plus its downsample manifest.
+!analysis_out/verifier_258/validator_scores_4096/
+analysis_out/verifier_258/validator_scores_4096/*
+!analysis_out/verifier_258/validator_scores_4096/*.json
