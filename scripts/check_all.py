@@ -221,6 +221,22 @@ REGISTRY: list = [
             "benchmark/lyon_topup278/sample.json", "analysis_out/lyon_topup_278/design_oc.json",
             "benchmark/lyon/records.jsonl", "benchmark/lyon/verdicts.json",
             "benchmark/lyon/audit_plan.json", "benchmark/lyon/exclude_ids.txt")),
+    # Registered in the #251 merge of main: the committed-only half of the top-up's verify,
+    # like lyon_review_159's `verify --records-only`. The pixel half needs the panos.
+    E("lyon_topup_verify_278", (AN + "lyon_topup_278.py", "verify", "--records-only"),
+      "the Lyon top-up bundle's draw, id lists and exclusion lists agree with the first draw, "
+      "and the current code rebuilds audit_plan.json (#278)",
+      pins=("benchmark/lyon_topup278/", "analysis_out/lyon_topup_278/design_oc.json",
+            "benchmark/lyon/records.jsonl", "benchmark/lyon/verdicts.json",
+            "benchmark/lyon/audit_plan.json", "benchmark/lyon/ids.txt",
+            "benchmark/lyon/exclude_ids.txt")),
+    E("prompt_opt_276_splits", (AN + "prompt_opt_276_splits.py", "--check"),
+      "the #276 sao_paulo dev split and manual_gold-250 pano lists rebuild byte-identical from "
+      "the committed bundles (#276)",
+      pins=("benchmark/prompt_opt_276/sao_paulo_split.json",
+            "benchmark/prompt_opt_276/manual_gold_250.json", "benchmark/sao_paulo/records.jsonl",
+            "benchmark/sao_paulo/verdicts.json", "benchmark/manual_gold/records.jsonl",
+            "benchmark/manual_gold/gt_source.json", "manual_labels/")),
     E("per_ramp_recall_38", (AN + "per_ramp_recall_38.py", "check"),
       "per-ramp recall results.json + ramps_other_views.csv re-derive byte-identical from #48 captures (#38)",
       pins=("analysis_out/per_ramp_recall_38/", "analysis_out/multiview_48/captures_R25.csv",
