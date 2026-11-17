@@ -1,0 +1,106 @@
+{
+ "population": "b",
+ "marks": 121,
+ "panos_with_marks": 51,
+ "gate_max_leak": 0.05,
+ "rules": {
+  "primary": {
+   "leaked": 15,
+   "leak": 0.124,
+   "wilson95": [
+    0.077,
+    0.194
+   ],
+   "osm_range_m": 20.0,
+   "osm_classes": "all",
+   "box_dilate_heatmap_px": 30
+  },
+  "osm_marked_only": {
+   "leaked": 15,
+   "leak": 0.124,
+   "wilson95": [
+    0.077,
+    0.194
+   ],
+   "osm_range_m": 20.0,
+   "osm_classes": [
+    "marked"
+   ],
+   "box_dilate_heatmap_px": 30
+  },
+  "osm_25m": {
+   "leaked": 15,
+   "leak": 0.124,
+   "wilson95": [
+    0.077,
+    0.194
+   ],
+   "osm_range_m": 25.0,
+   "osm_classes": "all",
+   "box_dilate_heatmap_px": 30
+  },
+  "box_dilate_30_image_px": {
+   "leaked": 18,
+   "leak": 0.1488,
+   "wilson95": [
+    0.096,
+    0.223
+   ],
+   "osm_range_m": 20.0,
+   "osm_classes": "all",
+   "box_dilate_heatmap_px": 7.5
+  },
+  "no_box_dilation": {
+   "leaked": 20,
+   "leak": 0.1653,
+   "wilson95": [
+    0.11,
+    0.242
+   ],
+   "osm_range_m": 20.0,
+   "osm_classes": "all",
+   "box_dilate_heatmap_px": 0
+  }
+ },
+ "s4_blind_at_0.05": {
+  "k": 25,
+  "share": 0.2066,
+  "wilson95": [
+   0.144,
+   0.287
+  ],
+  "rule": "no peak >= 0.05 from any of the three s4 seeds within 0.05 (recall_check radius)"
+ },
+ "s4_seed1_blind_at_0.05": {
+  "k": 34,
+  "share": 0.281
+ },
+ "covered_by": {
+  "s4": 87,
+  "osm": 32,
+  "vistas": 95
+ },
+ "covered_by_vistas_only": 16,
+ "covered_by_osm_only": 1,
+ "leaked_among_s4_blind": 13,
+ "gate_half": {
+  "verdict": "fails",
+  "rule": "leak <= 0.05 on the primary rule"
+ },
+ "panos": 51,
+ "osm_points_within_25m": 77,
+ "vistas_components": 767,
+ "vistas_panos_with_a_component": 50,
+ "inputs_sha256": {
+  "analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4_klone/juneau-ak.jsonl": "da38105944dc",
+  "analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4_klone/laurens-ia.jsonl": "47d96cb266b4",
+  "analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4_seed2/juneau-ak.jsonl": "4e6f445ccab8",
+  "analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4_seed2/laurens-ia.jsonl": "21b6563c8caa",
+  "analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4_seed3/juneau-ak.jsonl": "7d6f45b090e3",
+  "analysis_out/crosswalk_followups_285/recall/preds/crosswalk_s4_seed3/laurens-ia.jsonl": "8f64eadbf2b3",
+  "analysis_out/crosswalk_supervision_s7/leak_b/panos.txt": "60ad900bcb76",
+  "analysis_out/crosswalk_supervision_s7/leak_b/marks.csv": "e2090390daeb",
+  "analysis_out/crosswalk_supervision_s7/leak_b/vistas.jsonl": "1af016b3cfdd",
+  "analysis_out/crosswalk_supervision_s7/leak_b/osm_points.csv": "f1dc6753e7ef"
+ }
+}

@@ -1,0 +1,9695 @@
+{
+ "version": 0.6,
+ "generator": "Overpass API 0.7.62.11 87bfad18",
+ "osm3s": {
+  "timestamp_osm_base": "2026-11-15T20:28:35Z",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+ },
+ "elements": [
+  {
+   "type": "node",
+   "id": 65665527,
+   "lat": 58.2986038,
+   "lon": -134.4044382,
+   "tags": {
+    "crossing": "marked",
+    "crossing:island": "no",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 65667055,
+   "lat": 58.3005114,
+   "lon": -134.405506,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 65668763,
+   "lat": 58.3001052,
+   "lon": -134.4049417,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 65668767,
+   "lat": 58.2997474,
+   "lon": -134.4044707,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2266452838,
+   "lat": 58.2995238,
+   "lon": -134.4077492,
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:island": "no",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2401089960,
+   "lat": 58.3001269,
+   "lon": -134.4143868,
+   "tags": {
+    "crossing:island": "no",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2401089961,
+   "lat": 58.3005992,
+   "lon": -134.4147929,
+   "tags": {
+    "crossing:island": "no",
+    "crossing:markings": "no",
+    "crossing:signals": "no",
+    "highway": "crossing",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2401089962,
+   "lat": 58.3011955,
+   "lon": -134.4153349,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "no",
+    "crossing:markings": "yes",
+    "crossing:signals": "no",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2401089963,
+   "lat": 58.2994274,
+   "lon": -134.4139317,
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:island": "no",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2401089965,
+   "lat": 58.2992498,
+   "lon": -134.4135978,
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "highway": "crossing",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2401089966,
+   "lat": 58.2991277,
+   "lon": -134.413737,
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:island": "no",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "highway": "crossing",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2401090463,
+   "lat": 58.2997096,
+   "lon": -134.4078731,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 2401090467,
+   "lat": 58.299672,
+   "lon": -134.4076353,
+   "tags": {
+    "button_operated": "yes",
+    "crossing": "traffic_signals",
+    "crossing:island": "no",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes",
+    "traffic_signals:sound": "no",
+    "traffic_signals:vibration": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3266711501,
+   "lat": 58.2965624,
+   "lon": -134.400274,
+   "tags": {
+    "crossing": "marked",
+    "crossing:island": "no",
+    "crossing:markings": "yes",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3266711522,
+   "lat": 58.2958245,
+   "lon": -134.3989953,
+   "tags": {
+    "crossing:island": "no",
+    "crossing:markings": "no",
+    "crossing:signals": "no",
+    "highway": "crossing",
+    "kerb": "raised",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3266711538,
+   "lat": 58.2935364,
+   "lon": -134.3962125,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3266716367,
+   "lat": 58.2971833,
+   "lon": -134.4014493,
+   "tags": {
+    "crossing": "marked",
+    "crossing:island": "no",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3266716369,
+   "lat": 58.2978837,
+   "lon": -134.4024237,
+   "tags": {
+    "crossing": "marked",
+    "crossing:island": "no",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3534147262,
+   "lat": 58.3005154,
+   "lon": -134.4194521,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3639800586,
+   "lat": 58.3004767,
+   "lon": -134.420216,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3703322625,
+   "lat": 58.2984176,
+   "lon": -134.4032164,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3703322628,
+   "lat": 58.2993177,
+   "lon": -134.4055982,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3703322725,
+   "lat": 58.2984801,
+   "lon": -134.4031063,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3703323132,
+   "lat": 58.2996429,
+   "lon": -134.406761,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3703323225,
+   "lat": 58.2997843,
+   "lon": -134.4046361,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3703323230,
+   "lat": 58.3005434,
+   "lon": -134.4071057,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3703323329,
+   "lat": 58.2996746,
+   "lon": -134.4068671,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 3703324126,
+   "lat": 58.2994768,
+   "lon": -134.4057935,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 4327624144,
+   "lat": 58.2988946,
+   "lon": -134.4035776,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5348025623,
+   "lat": 58.2996369,
+   "lon": -134.4105178,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5348025625,
+   "lat": 58.2996329,
+   "lon": -134.4108078,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5674074976,
+   "lat": 58.2973215,
+   "lon": -134.4330972,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5674081373,
+   "lat": 58.2967612,
+   "lon": -134.4326899,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5674081469,
+   "lat": 58.2968099,
+   "lon": -134.4324668,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5680864339,
+   "lat": 58.2975071,
+   "lon": -134.4337871,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5701121146,
+   "lat": 58.3014586,
+   "lon": -134.4229696,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5759484335,
+   "lat": 58.2995666,
+   "lon": -134.4073655,
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:island": "no",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5759484343,
+   "lat": 58.2994556,
+   "lon": -134.4054935,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5759484345,
+   "lat": 58.3006294,
+   "lon": -134.4056697,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5759484346,
+   "lat": 58.3006244,
+   "lon": -134.4070643,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5759484347,
+   "lat": 58.3006942,
+   "lon": -134.4073409,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 5821906692,
+   "lat": 58.2889954,
+   "lon": -134.3943033,
+   "tags": {
+    "crossing": "marked",
+    "crossing:island": "no",
+    "highway": "crossing",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 6047826416,
+   "lat": 58.3045647,
+   "lon": -134.4265571,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 6122828892,
+   "lat": 58.299461,
+   "lon": -134.4095123,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388064,
+   "lat": 58.3020489,
+   "lon": -134.4221589,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388065,
+   "lat": 58.3020296,
+   "lon": -134.422001,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388066,
+   "lat": 58.3016882,
+   "lon": -134.423177,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388067,
+   "lat": 58.3016613,
+   "lon": -134.4229914,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388068,
+   "lat": 58.3015487,
+   "lon": -134.4229972,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388079,
+   "lat": 58.3015068,
+   "lon": -134.4212811,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388080,
+   "lat": 58.3014089,
+   "lon": -134.42136,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388085,
+   "lat": 58.3018319,
+   "lon": -134.4203049,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388086,
+   "lat": 58.3018782,
+   "lon": -134.4204334,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388101,
+   "lat": 58.3029753,
+   "lon": -134.423435,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388102,
+   "lat": 58.3030533,
+   "lon": -134.4236975,
+   "tags": {
+    "crossing": "marked;uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388103,
+   "lat": 58.3032709,
+   "lon": -134.4243531,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388104,
+   "lat": 58.3029662,
+   "lon": -134.4236577,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388105,
+   "lat": 58.3030626,
+   "lon": -134.4233794,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388106,
+   "lat": 58.3033842,
+   "lon": -134.4223128,
+   "tags": {
+    "crossing": "marked;uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 7401388107,
+   "lat": 58.3033914,
+   "lon": -134.4224301,
+   "tags": {
+    "crossing": "marked",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 8281514389,
+   "lat": 58.2994704,
+   "lon": -134.4104443,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 8282093709,
+   "lat": 58.2994446,
+   "lon": -134.4108159,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:island": "no",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 10143264020,
+   "lat": 58.3069376,
+   "lon": -134.4045303,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:island": "no",
+    "highway": "crossing",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724870091,
+   "lat": 58.3018088,
+   "lon": -134.4108168,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724870096,
+   "lat": 58.3017064,
+   "lon": -134.4106308,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724870099,
+   "lat": 58.3018055,
+   "lon": -134.4105934,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724870116,
+   "lat": 58.3022708,
+   "lon": -134.4115899,
+   "tags": {
+    "crossing": "uncontrolled",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724870117,
+   "lat": 58.3021955,
+   "lon": -134.4114639,
+   "tags": {
+    "crossing": "uncontrolled",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724870120,
+   "lat": 58.3022607,
+   "lon": -134.4114482,
+   "tags": {
+    "crossing": "uncontrolled",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724870162,
+   "lat": 58.3008747,
+   "lon": -134.4091495,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724870165,
+   "lat": 58.3008684,
+   "lon": -134.4089508,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724874782,
+   "lat": 58.3023491,
+   "lon": -134.4085556,
+   "tags": {
+    "crossing": "uncontrolled",
+    "highway": "crossing",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724874783,
+   "lat": 58.3023622,
+   "lon": -134.4087083,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "no",
+    "highway": "crossing",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724874784,
+   "lat": 58.3024127,
+   "lon": -134.4085381,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "no",
+    "highway": "crossing",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724874785,
+   "lat": 58.3024275,
+   "lon": -134.4086852,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "no",
+    "highway": "crossing",
+    "tactile_paving": "no"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724874794,
+   "lat": 58.3017246,
+   "lon": -134.4108566,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724874795,
+   "lat": 58.3025977,
+   "lon": -134.4105341,
+   "tags": {
+    "crossing": "uncontrolled",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724874796,
+   "lat": 58.3025262,
+   "lon": -134.4103977,
+   "tags": {
+    "crossing": "uncontrolled",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724874797,
+   "lat": 58.3025795,
+   "lon": -134.4104069,
+   "tags": {
+    "crossing": "uncontrolled",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 11724874798,
+   "lat": 58.3025369,
+   "lon": -134.4105391,
+   "tags": {
+    "crossing": "uncontrolled",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 12669186754,
+   "lat": 58.3006035,
+   "lon": -134.4224409,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 12669186796,
+   "lat": 58.3008279,
+   "lon": -134.420449,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 12669186836,
+   "lat": 58.300965,
+   "lon": -134.4209263,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 12669186849,
+   "lat": 58.30089,
+   "lon": -134.4208317,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 12917264871,
+   "lat": 58.2992491,
+   "lon": -134.4039841,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13073308267,
+   "lat": 58.2963098,
+   "lon": -134.4319546,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107939755,
+   "lat": 58.3022301,
+   "lon": -134.4258475,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107939767,
+   "lat": 58.3026522,
+   "lon": -134.4243556,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107939768,
+   "lat": 58.3026769,
+   "lon": -134.4244954,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107939770,
+   "lat": 58.3027628,
+   "lon": -134.4245002,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107939772,
+   "lat": 58.3031829,
+   "lon": -134.4243607,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107939776,
+   "lat": 58.3029706,
+   "lon": -134.4236451,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107939780,
+   "lat": 58.302962,
+   "lon": -134.4233897,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107939781,
+   "lat": 58.3030684,
+   "lon": -134.4233627,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952402,
+   "lat": 58.3019207,
+   "lon": -134.4233019,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952403,
+   "lat": 58.3019793,
+   "lon": -134.4233762,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952404,
+   "lat": 58.3021559,
+   "lon": -134.4235997,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952405,
+   "lat": 58.302335,
+   "lon": -134.423825,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952415,
+   "lat": 58.3019682,
+   "lon": -134.4236201,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952416,
+   "lat": 58.3021018,
+   "lon": -134.4237795,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952417,
+   "lat": 58.3022781,
+   "lon": -134.423996,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952431,
+   "lat": 58.3040476,
+   "lon": -134.4260242,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952436,
+   "lat": 58.3039951,
+   "lon": -134.4257115,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952439,
+   "lat": 58.3036713,
+   "lon": -134.4253057,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952447,
+   "lat": 58.3045639,
+   "lon": -134.4267799,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952510,
+   "lat": 58.3060171,
+   "lon": -134.4298839,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952512,
+   "lat": 58.3057657,
+   "lon": -134.4297198,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952518,
+   "lat": 58.3052008,
+   "lon": -134.4282737,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952519,
+   "lat": 58.3052883,
+   "lon": -134.4284898,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952521,
+   "lat": 58.3050724,
+   "lon": -134.4279812,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952537,
+   "lat": 58.3047278,
+   "lon": -134.4273347,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952540,
+   "lat": 58.3059195,
+   "lon": -134.4300932,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952595,
+   "lat": 58.3033944,
+   "lon": -134.4226118,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952598,
+   "lat": 58.3047353,
+   "lon": -134.4190581,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952602,
+   "lat": 58.3044315,
+   "lon": -134.4192645,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952603,
+   "lat": 58.3044447,
+   "lon": -134.4193683,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "surface",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952611,
+   "lat": 58.3047422,
+   "lon": -134.4187055,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952627,
+   "lat": 58.3046941,
+   "lon": -134.4172125,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952654,
+   "lat": 58.3041909,
+   "lon": -134.4190469,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952658,
+   "lat": 58.3036967,
+   "lon": -134.4195354,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952659,
+   "lat": 58.3038761,
+   "lon": -134.4199242,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952661,
+   "lat": 58.3040843,
+   "lon": -134.4202855,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952663,
+   "lat": 58.3038332,
+   "lon": -134.4200467,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952665,
+   "lat": 58.3035787,
+   "lon": -134.4197282,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952667,
+   "lat": 58.3036214,
+   "lon": -134.419605,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952671,
+   "lat": 58.3033105,
+   "lon": -134.419398,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952672,
+   "lat": 58.303003,
+   "lon": -134.4202917,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952677,
+   "lat": 58.3035275,
+   "lon": -134.420945,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952680,
+   "lat": 58.3037322,
+   "lon": -134.421302,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "surface",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952681,
+   "lat": 58.3037451,
+   "lon": -134.4214001,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "surface",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952691,
+   "lat": 58.3034849,
+   "lon": -134.42107,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952692,
+   "lat": 58.3031804,
+   "lon": -134.4219626,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952695,
+   "lat": 58.3033958,
+   "lon": -134.4224174,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952711,
+   "lat": 58.3031353,
+   "lon": -134.4220915,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952712,
+   "lat": 58.3028167,
+   "lon": -134.422975,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952718,
+   "lat": 58.3022089,
+   "lon": -134.4224811,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952724,
+   "lat": 58.302297,
+   "lon": -134.4223263,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952726,
+   "lat": 58.3025634,
+   "lon": -134.4226215,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952729,
+   "lat": 58.3026104,
+   "lon": -134.4214324,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952735,
+   "lat": 58.3029607,
+   "lon": -134.4204148,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952736,
+   "lat": 58.3026537,
+   "lon": -134.4213074,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952738,
+   "lat": 58.302694,
+   "lon": -134.4200847,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952740,
+   "lat": 58.3027365,
+   "lon": -134.4199589,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952752,
+   "lat": 58.3022244,
+   "lon": -134.4194365,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952755,
+   "lat": 58.3021441,
+   "lon": -134.419434,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952756,
+   "lat": 58.3019424,
+   "lon": -134.4197856,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952771,
+   "lat": 58.3004747,
+   "lon": -134.4200281,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952776,
+   "lat": 58.3005601,
+   "lon": -134.4189014,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952780,
+   "lat": 58.3006092,
+   "lon": -134.4187698,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952781,
+   "lat": 58.3006508,
+   "lon": -134.4189533,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952791,
+   "lat": 58.3009567,
+   "lon": -134.4168337,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952795,
+   "lat": 58.3012192,
+   "lon": -134.4157559,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952797,
+   "lat": 58.3013594,
+   "lon": -134.4152155,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952803,
+   "lat": 58.3016474,
+   "lon": -134.4138646,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952833,
+   "lat": 58.2995879,
+   "lon": -134.4090762,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952834,
+   "lat": 58.2996226,
+   "lon": -134.4102446,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952835,
+   "lat": 58.299812,
+   "lon": -134.4107182,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952836,
+   "lat": 58.3011676,
+   "lon": -134.413003,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952840,
+   "lat": 58.2995906,
+   "lon": -134.4087682,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952850,
+   "lat": 58.3000132,
+   "lon": -134.4081268,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952874,
+   "lat": 58.3004833,
+   "lon": -134.4080203,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952875,
+   "lat": 58.3004074,
+   "lon": -134.4083621,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "yes",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952879,
+   "lat": 58.3003945,
+   "lon": -134.4081263,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952881,
+   "lat": 58.3002505,
+   "lon": -134.4081428,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "yes",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952892,
+   "lat": 58.3002293,
+   "lon": -134.4079887,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952897,
+   "lat": 58.3006189,
+   "lon": -134.4181837,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952898,
+   "lat": 58.3005946,
+   "lon": -134.4184836,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952899,
+   "lat": 58.3005819,
+   "lon": -134.4186404,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952900,
+   "lat": 58.3007108,
+   "lon": -134.4178098,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952910,
+   "lat": 58.3010837,
+   "lon": -134.4158809,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952911,
+   "lat": 58.3010254,
+   "lon": -134.4161242,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952912,
+   "lat": 58.300805,
+   "lon": -134.4170333,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952913,
+   "lat": 58.3007253,
+   "lon": -134.4174339,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952915,
+   "lat": 58.3004845,
+   "lon": -134.4148484,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952918,
+   "lat": 58.3001312,
+   "lon": -134.4145345,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952921,
+   "lat": 58.3012868,
+   "lon": -134.4152453,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952929,
+   "lat": 58.3012395,
+   "lon": -134.4133226,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952930,
+   "lat": 58.3011985,
+   "lon": -134.413177,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952934,
+   "lat": 58.3007241,
+   "lon": -134.4125874,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952937,
+   "lat": 58.300343,
+   "lon": -134.4120311,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952938,
+   "lat": 58.3004247,
+   "lon": -134.4120013,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952960,
+   "lat": 58.2999285,
+   "lon": -134.4141232,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952961,
+   "lat": 58.3000869,
+   "lon": -134.4142517,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952962,
+   "lat": 58.3007059,
+   "lon": -134.4147633,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952993,
+   "lat": 58.2997334,
+   "lon": -134.4142034,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952997,
+   "lat": 58.3000183,
+   "lon": -134.4142982,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107952999,
+   "lat": 58.2998926,
+   "lon": -134.414359,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13107953002,
+   "lat": 58.2993544,
+   "lon": -134.413683,
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "highway": "crossing",
+    "kerb": "lowered",
+    "tactile_paving": "yes"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13124408411,
+   "lat": 58.2988146,
+   "lon": -134.4035899,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685081580,
+   "lat": 58.2995575,
+   "lon": -134.4102845,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "yes",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685119405,
+   "lat": 58.2994467,
+   "lon": -134.4092243,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685187797,
+   "lat": 58.2991004,
+   "lon": -134.4055614,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685212201,
+   "lat": 58.2987022,
+   "lon": -134.4050316,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685213073,
+   "lat": 58.298798,
+   "lon": -134.4034692,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685232116,
+   "lat": 58.2992652,
+   "lon": -134.4040976,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685255335,
+   "lat": 58.3005377,
+   "lon": -134.4056855,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685296186,
+   "lat": 58.3011673,
+   "lon": -134.4081479,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "surface",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685296190,
+   "lat": 58.3011564,
+   "lon": -134.4080157,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "surface",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685296193,
+   "lat": 58.3011142,
+   "lon": -134.4080328,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "surface",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685296196,
+   "lat": 58.3011159,
+   "lon": -134.4081536,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "surface",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685297481,
+   "lat": 58.3006009,
+   "lon": -134.4073696,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685297498,
+   "lat": 58.3005277,
+   "lon": -134.4065378,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685309522,
+   "lat": 58.3004249,
+   "lon": -134.407863,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685326924,
+   "lat": 58.3010315,
+   "lon": -134.4062177,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685326930,
+   "lat": 58.3014267,
+   "lon": -134.407108,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685326932,
+   "lat": 58.3013366,
+   "lon": -134.4075668,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685326937,
+   "lat": 58.3014739,
+   "lon": -134.40695,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685326941,
+   "lat": 58.3014828,
+   "lon": -134.4070821,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685326943,
+   "lat": 58.3014082,
+   "lon": -134.4069567,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685331889,
+   "lat": 58.2999406,
+   "lon": -134.4063864,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685331894,
+   "lat": 58.2999039,
+   "lon": -134.4067218,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685376512,
+   "lat": 58.3013435,
+   "lon": -134.4097735,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685376522,
+   "lat": 58.3012686,
+   "lon": -134.4099833,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685376525,
+   "lat": 58.3012582,
+   "lon": -134.4097903,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685376530,
+   "lat": 58.3017565,
+   "lon": -134.4104781,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685532065,
+   "lat": 58.2956847,
+   "lon": -134.4314924,
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685532077,
+   "lat": 58.2953546,
+   "lon": -134.4322584,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685532079,
+   "lat": 58.2951162,
+   "lon": -134.4329012,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685532081,
+   "lat": 58.2949329,
+   "lon": -134.4334007,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685532085,
+   "lat": 58.2946281,
+   "lon": -134.4343004,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685532091,
+   "lat": 58.2942548,
+   "lon": -134.4351964,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685575320,
+   "lat": 58.2973742,
+   "lon": -134.4324336,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685575323,
+   "lat": 58.2972324,
+   "lon": -134.4332342,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13685575334,
+   "lat": 58.2972893,
+   "lon": -134.4322407,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135512,
+   "lat": 58.3024893,
+   "lon": -134.4183082,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135513,
+   "lat": 58.3025597,
+   "lon": -134.4182887,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135514,
+   "lat": 58.302517,
+   "lon": -134.4184184,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135515,
+   "lat": 58.302572,
+   "lon": -134.4184139,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135516,
+   "lat": 58.3027836,
+   "lon": -134.4174344,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135518,
+   "lat": 58.3029415,
+   "lon": -134.4173654,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135523,
+   "lat": 58.302915,
+   "lon": -134.4172601,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135528,
+   "lat": 58.3031041,
+   "lon": -134.4190613,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135530,
+   "lat": 58.3030401,
+   "lon": -134.4190655,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135532,
+   "lat": 58.3027524,
+   "lon": -134.4200854,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135533,
+   "lat": 58.3026715,
+   "lon": -134.4199847,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135534,
+   "lat": 58.3032056,
+   "lon": -134.4206424,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135535,
+   "lat": 58.3032686,
+   "lon": -134.4206207,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135536,
+   "lat": 58.3032251,
+   "lon": -134.420746,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135537,
+   "lat": 58.3032879,
+   "lon": -134.4207448,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135538,
+   "lat": 58.3035521,
+   "lon": -134.4196232,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135539,
+   "lat": 58.3036371,
+   "lon": -134.419728,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135552,
+   "lat": 58.3033909,
+   "lon": -134.4180481,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135553,
+   "lat": 58.3034547,
+   "lon": -134.4180392,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135563,
+   "lat": 58.304236,
+   "lon": -134.418919,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13753135571,
+   "lat": 58.3039817,
+   "lon": -134.4187083,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 14256032036,
+   "lat": 58.3039947,
+   "lon": -134.4169368,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 14256032044,
+   "lat": 58.3046636,
+   "lon": -134.4170564,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 14256032046,
+   "lat": 58.3038245,
+   "lon": -134.416586,
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8966705,
+   "nodes": [
+    65663801,
+    3632967486,
+    3266716369,
+    13381707198,
+    8980804846,
+    4327579434,
+    4327570418,
+    3266711559,
+    3266716367,
+    4337590270,
+    4337590266,
+    3266716377,
+    4337590251,
+    3266711501,
+    4337590236,
+    3266711494,
+    6047914181,
+    4337590223,
+    3266711490,
+    4337590214,
+    3266711522,
+    3266711518,
+    3266711471,
+    3266711507,
+    3266711549,
+    3266716385,
+    10125473543,
+    3266711477,
+    3266711538,
+    4748184079,
+    3266711552,
+    6047914182,
+    3266711504,
+    6047914183,
+    3266711516,
+    3266711484,
+    6047914184,
+    3266711489
+   ],
+   "tags": {
+    "NHS": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "South Franklin Street",
+    "ref": "AK 7",
+    "sidewalk": "both",
+    "sidewalk:both:surface": "concrete",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967000,
+   "nodes": [
+    65665141,
+    13107952797,
+    65665143
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Whittier Way",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Whittier",
+    "tiger:name_type": "Way",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967057,
+   "nodes": [
+    65665479,
+    13107952602,
+    7401383147
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "A Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "A",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967065,
+   "nodes": [
+    2401090664,
+    2401090460,
+    13685178407,
+    2401090468,
+    2401090467,
+    65665515
+   ],
+   "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "South Main Street",
+    "name_1": "Sealaska Plaza",
+    "sidewalk:both": "separate",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Main",
+    "tiger:name_base_1": "Sealaska",
+    "tiger:name_direction_prefix": "S",
+    "tiger:name_type": "St",
+    "tiger:name_type_1": "Plz",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967067,
+   "nodes": [
+    65665515,
+    5759484335,
+    3703322629
+   ],
+   "tags": {
+    "NHS": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Marine Way",
+    "ref": "AK 7",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A31",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Marine",
+    "tiger:name_type": "Way",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967159,
+   "nodes": [
+    65666168,
+    12460582449,
+    12460582452,
+    65665141,
+    65666171,
+    3639800571,
+    65666172,
+    3639800592,
+    12460582453,
+    3639800577,
+    6047914169,
+    5348025401,
+    13107952803,
+    65666174
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Village Street",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Village",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967295,
+   "nodes": [
+    65664112,
+    12463416341,
+    65667064,
+    65667066,
+    3637841778,
+    12457238817,
+    12457238813,
+    12457238816,
+    13685532079,
+    65666938,
+    65667072,
+    6052201153,
+    6052201151,
+    6052201152,
+    65667075,
+    65667077,
+    65667082,
+    65667086,
+    65667089,
+    65667091,
+    65667094,
+    6052201154,
+    65667096
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Nowell Avenue",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Nowell",
+    "tiger:name_type": "Ave"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967308,
+   "nodes": [
+    65670662,
+    3794921810,
+    65670663,
+    65670665,
+    13107952598,
+    6047826466,
+    3639800560,
+    14256031971,
+    65668972
+   ],
+   "tags": {
+    "addr:postcode": "99801",
+    "highway": "residential",
+    "name": "Irwin Street",
+    "sidewalk": "right",
+    "surface": "asphalt",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967339,
+   "nodes": [
+    65667418,
+    65667422,
+    65667122,
+    11724870116,
+    65667424,
+    11724870117,
+    11724870091,
+    65667426
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "Main Street",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Main",
+    "tiger:name_type": "St"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967394,
+   "nodes": [
+    65667800,
+    7401388106,
+    3633196945,
+    7401383140,
+    65667802,
+    3511004331,
+    7401388077,
+    65667805,
+    7401388086,
+    65667807
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "D Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "D",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967429,
+   "nodes": [
+    65668033,
+    1962385059,
+    12669186737,
+    12669187026,
+    12669186580,
+    12669186984,
+    12669187006,
+    12669186661,
+    12669186888,
+    12669136785,
+    12669187123,
+    12669186836,
+    12669187138
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "West 8th Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "8th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no",
+    "tiger:separated": "no",
+    "tiger:source": "tiger_import_dch_v0.6_20070809",
+    "tiger:tlid": "190968372"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967506,
+   "nodes": [
+    65668465,
+    6047826481,
+    5348025387,
+    8986946286,
+    13753135523,
+    5348025394
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "West 9th Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "9th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967542,
+   "nodes": [
+    65668631,
+    3482814122,
+    3482814106,
+    65668634,
+    3482814113,
+    1962377165,
+    3482813581,
+    13107952447,
+    65668640,
+    3482813584,
+    65668642,
+    13107952436,
+    1962376884,
+    65668645,
+    13344713440,
+    6047414545,
+    7401388103,
+    65668651,
+    3794921811,
+    7401388102,
+    65668654
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "Glacier Avenue",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Glacier",
+    "tiger:name_type": "Ave",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967572,
+   "nodes": [
+    65668761,
+    5759484345,
+    65668758
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "lanes": "1",
+    "name": "South Franklin Street",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "sidewalk:both:surface": "concrete",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Franklin",
+    "tiger:name_direction_prefix": "S",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967600,
+   "nodes": [
+    65668972,
+    6047826468,
+    3639800583,
+    6091193150,
+    6091193151,
+    65665479,
+    13107952603,
+    65668975,
+    65668977,
+    65668978,
+    13107952681,
+    65667800,
+    13107952695,
+    7401388107,
+    12456533439,
+    13107939781,
+    7401388105,
+    65668654
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "West 12th Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "12th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967632,
+   "nodes": [
+    65667143,
+    14256032044,
+    65669099,
+    65669100,
+    65669103,
+    65669105,
+    65669107,
+    65669108,
+    65669110,
+    65669113,
+    65669115,
+    13073040922,
+    13073040923
+   ],
+   "tags": {
+    "highway": "unclassified",
+    "name": "Cope Park Road",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Cope Park",
+    "tiger:name_type": "Rd",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967734,
+   "nodes": [
+    65669906,
+    13685331889,
+    13685331894,
+    65669726
+   ],
+   "tags": {
+    "highway": "residential",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "Municipal Way",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "sidewalk:both:surface": "concrete",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Municipal",
+    "tiger:name_type": "Way",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967800,
+   "nodes": [
+    65670206,
+    6047826412,
+    1962353458,
+    6047826410,
+    6047826411,
+    13107952510,
+    65668631
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Highland Drive",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Highland",
+    "tiger:name_type": "Dr",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967835,
+   "nodes": [
+    65670536,
+    10230292339,
+    10230292340,
+    13685326924,
+    65668758
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "1st Street",
+    "sidewalk": "right",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "1st",
+    "tiger:name_type": "St"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8967985,
+   "nodes": [
+    65667426,
+    11724870099,
+    13685376532,
+    65671452
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "4th Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "4th",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968001,
+   "nodes": [
+    65667429,
+    13685376522,
+    65671548,
+    65671549,
+    65671550
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "West 3rd Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "3rd",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968047,
+   "nodes": [
+    65667424,
+    11724870120,
+    11724874798,
+    65671733,
+    11724874797,
+    65671735,
+    65671738,
+    65665156,
+    65668288
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "5th Street",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "5th",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968065,
+   "nodes": [
+    65668978,
+    13107952680,
+    3633196946,
+    7401383145,
+    13753135537,
+    65668316,
+    13753135534,
+    3511004333,
+    13753135532,
+    65667940,
+    13753135533,
+    3534147234,
+    13107952752,
+    65668473
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "C Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "C",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968101,
+   "nodes": [
+    65672078,
+    13685326941,
+    10230292331,
+    10230292323,
+    65672076
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "North Franklin Street",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "sidewalk:both:surface": "concrete",
+    "smoothness": "intermediate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Franklin",
+    "tiger:name_direction_prefix": "N",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968202,
+   "nodes": [
+    65667143,
+    14256031985,
+    65672515,
+    6091193155,
+    65672517,
+    65668309,
+    6091193156,
+    6091193157,
+    5348025419,
+    6047826470,
+    3642959088,
+    6047826471,
+    5348025420,
+    65667947,
+    1962381525,
+    5348025396,
+    5348025395,
+    13753135518,
+    5348025394
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "Capitol Avenue",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Capitol",
+    "tiger:name_type": "Ave",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968269,
+   "nodes": [
+    65669906,
+    13685297497,
+    13685297498,
+    65672855
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Shattuck Way",
+    "oneway": "yes",
+    "sidewalk:left": "separate",
+    "sidewalk:right": "no",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Shattuck",
+    "tiger:name_type": "Way",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968331,
+   "nodes": [
+    65666174,
+    5348025399,
+    5348025400,
+    65668280,
+    12463422160,
+    13107952930,
+    11381378559,
+    11974776292,
+    4527213055,
+    13107952938,
+    6047914168,
+    65673266
+   ],
+   "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Willoughby Avenue",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Willoughby",
+    "tiger:name_type": "Ave",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968616,
+   "nodes": [
+    65668761,
+    13685255335,
+    13685297486,
+    13685297479,
+    65672855,
+    13685297480,
+    13685297485,
+    5759484346,
+    65669723,
+    13685297481,
+    13685297482,
+    13685297484,
+    12463422179,
+    12463422180,
+    13107952879,
+    65665514
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Front Street",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Front",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968622,
+   "nodes": [
+    65668651,
+    13107939772,
+    1962353577,
+    1962353507,
+    1962353616,
+    65675378,
+    13107939770,
+    3511008651
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "F Street",
+    "oneway": "yes",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "F",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968670,
+   "nodes": [
+    6047914395,
+    65672863,
+    5759484343,
+    3703323225,
+    65668765
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Ferry Way",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Ferry",
+    "tiger:name_type": "Way",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968782,
+   "nodes": [
+    65676135,
+    2401089962,
+    12463422157,
+    2401089961,
+    2401091519,
+    65676136,
+    6122910880,
+    2401089960,
+    11974776304,
+    2401091525,
+    13107952997,
+    65676139,
+    7278802187,
+    65676140,
+    2401089963,
+    2266453316
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "name": "Whittier Street",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Whittier",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968799,
+   "nodes": [
+    65668977,
+    13107952661,
+    3633196947,
+    7401383146,
+    13753135539,
+    65668315,
+    13753135538,
+    3511004334,
+    13753135528,
+    2094307452,
+    65667943
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "B Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "B",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8968918,
+   "nodes": [
+    65667176,
+    11724874794,
+    65667426
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "West 4th Street",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "4th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8969011,
+   "nodes": [
+    65676207,
+    65672076,
+    65674066,
+    13685376512,
+    65667429
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "lanes": "1",
+    "name": "3rd Street",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "3rd",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8969013,
+   "nodes": [
+    65673266,
+    5348025622,
+    13685081587,
+    13685081586,
+    5348025625,
+    5348025621,
+    65677593
+   ],
+   "tags": {
+    "highway": "secondary",
+    "lanes": "1",
+    "name": "Willoughby Avenue",
+    "oneway": "yes",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "3rd",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 8969018,
+   "nodes": [
+    65667432,
+    11724870165,
+    13685296184,
+    13685296196,
+    65674067,
+    13685296190,
+    10230292337,
+    13685326930,
+    65672078
+   ],
+   "tags": {
+    "highway": "residential",
+    "lanes": "1",
+    "name": "2nd Street",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "2nd",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 64302144,
+   "nodes": [
+    65667937,
+    7401388065,
+    12456533475,
+    65667805,
+    13107952738,
+    65667940,
+    13107952740,
+    13753135530,
+    65667943
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "West 10th Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "10th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St"
+   }
+  },
+  {
+   "type": "way",
+   "id": 116986913,
+   "nodes": [
+    65676200,
+    13753135515,
+    65668469,
+    13753135512,
+    13753135520,
+    65668023
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "B Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "B",
+    "tiger:name_type": "St"
+   }
+  },
+  {
+   "type": "way",
+   "id": 116986915,
+   "nodes": [
+    65668314,
+    11393777065,
+    13107952667,
+    65668315,
+    13107952665,
+    13753135535,
+    65668316,
+    13753135536,
+    65667802,
+    13107952726,
+    65668319
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "West 11th Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "11th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St"
+   }
+  },
+  {
+   "type": "way",
+   "id": 116986918,
+   "nodes": [
+    65667946,
+    13753135552,
+    1962381494
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "West 10th Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "10th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 116986922,
+   "nodes": [
+    65665995,
+    5348025623,
+    13685081584,
+    13685081585,
+    5348025624,
+    12927870810,
+    65673266
+   ],
+   "tags": {
+    "highway": "secondary",
+    "lanes": "1",
+    "name": "Willoughby Avenue",
+    "oneway": "yes",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Willoughby",
+    "tiger:name_type": "Ave",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 185582484,
+   "nodes": [
+    1962353452,
+    65668473,
+    13107952755,
+    6047826469,
+    3534147289,
+    7401388085,
+    65667807,
+    7401388079,
+    65668477
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "West 9th Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "9th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 185582512,
+   "nodes": [
+    1962353529,
+    3534147273,
+    65667793,
+    13107952780,
+    5627902832,
+    3482806699,
+    5627902826,
+    3482806701,
+    65676677,
+    13107952900,
+    65676681,
+    11381378516,
+    65672522,
+    2401089955,
+    65676683,
+    2401089959,
+    12460582448,
+    65676135
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "West Willoughby Avenue",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Willoughby",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "Ave"
+   }
+  },
+  {
+   "type": "way",
+   "id": 185584809,
+   "nodes": [
+    10076048819,
+    10075982916,
+    10076048818,
+    10076048817,
+    1962377083,
+    13107952521,
+    1962377165
+   ],
+   "tags": {
+    "highway": "service",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 185584815,
+   "nodes": [
+    1962377129,
+    13107952415,
+    1962377101,
+    1962377088,
+    13107952416,
+    1962377108
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "parking_aisle",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 185584863,
+   "nodes": [
+    1962377077,
+    5701121146,
+    1962376880
+   ],
+   "tags": {
+    "highway": "service",
+    "oneway": "yes",
+    "service": "parking_aisle",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 185584871,
+   "nodes": [
+    1962376942,
+    13107952417,
+    1962377115
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "parking_aisle",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 185584875,
+   "nodes": [
+    12669186877,
+    12669187010,
+    12669186644,
+    12669186532,
+    12669186577,
+    1962377114,
+    12669186796,
+    1962377073
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 185585739,
+   "nodes": [
+    1962385105,
+    3534147262,
+    3534147273
+   ],
+   "tags": {
+    "highway": "service",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 217373907,
+   "nodes": [
+    65665995,
+    13685081580,
+    12927870812,
+    2266453121,
+    2266452924,
+    6122828893,
+    9933310931,
+    2266452926,
+    2401090657
+   ],
+   "tags": {
+    "NHS": "yes",
+    "highway": "primary",
+    "lanes": "4",
+    "name": "Egan Drive",
+    "ref": "AK 7",
+    "sidewalk:both": "separate",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A31",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Egan",
+    "tiger:name_type": "Dr",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 231776692,
+   "nodes": [
+    2401089955,
+    13107952911,
+    2401089956,
+    2401089957,
+    2401089958,
+    13107952910,
+    2401089959
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "parking_aisle",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 231776708,
+   "nodes": [
+    2401090460,
+    2401090461,
+    2401090462,
+    2401090463,
+    2401090464,
+    2401090465,
+    13685178409,
+    13685178410,
+    2401090466
+   ],
+   "tags": {
+    "highway": "primary_link",
+    "lanes": "1",
+    "oneway": "yes",
+    "source": "Bing",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 231776712,
+   "nodes": [
+    2401090657,
+    2401090658,
+    13107952840,
+    2401090659,
+    2401090660,
+    2401090661,
+    2401090662,
+    2401090663,
+    13107952850,
+    2401090664
+   ],
+   "tags": {
+    "highway": "service",
+    "source": "Bing",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 231776769,
+   "nodes": [
+    2401091519,
+    13107952915,
+    2401091520,
+    2401091521,
+    2401091522,
+    6122910878,
+    6122910879,
+    2401091523,
+    2401091524,
+    13107952918,
+    6122910880
+   ],
+   "tags": {
+    "highway": "service",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 320173014,
+   "nodes": [
+    3266720026,
+    3638245293,
+    5821906522,
+    3638245294,
+    3638245298,
+    3266719966,
+    3638245299,
+    5821906692,
+    5821906477,
+    3266719964,
+    3266720009,
+    3266719994,
+    5821906534,
+    3266720005,
+    3266719985
+   ],
+   "tags": {
+    "highway": "unclassified",
+    "name": "Jacobsen Road",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 326126320,
+   "nodes": [
+    3327420837,
+    5674081444,
+    13685575334,
+    5674074994,
+    1962376951
+   ],
+   "tags": {
+    "highway": "secondary",
+    "oneway": "yes",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate"
+   }
+  },
+  {
+   "type": "way",
+   "id": 326126507,
+   "nodes": [
+    3327422691,
+    5674081287,
+    13685575323,
+    5674081246,
+    13685575324,
+    1962377023
+   ],
+   "tags": {
+    "highway": "secondary",
+    "oneway": "yes",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate"
+   }
+  },
+  {
+   "type": "way",
+   "id": 326126632,
+   "nodes": [
+    1962376705,
+    5674081373,
+    13685575328,
+    65672002
+   ],
+   "tags": {
+    "highway": "secondary",
+    "oneway": "yes",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate"
+   }
+  },
+  {
+   "type": "way",
+   "id": 326381134,
+   "nodes": [
+    1962376951,
+    5674074995,
+    13685575319,
+    13685575320,
+    5674081475,
+    1962376939
+   ],
+   "tags": {
+    "highway": "secondary",
+    "oneway": "yes"
+   }
+  },
+  {
+   "type": "way",
+   "id": 326381135,
+   "nodes": [
+    65672002,
+    13685575329,
+    13685575330,
+    13685575333,
+    5674081469,
+    13685575331,
+    13685575332,
+    3327422090
+   ],
+   "tags": {
+    "highway": "secondary",
+    "oneway": "yes",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate"
+   }
+  },
+  {
+   "type": "way",
+   "id": 341052197,
+   "nodes": [
+    65667793,
+    13107952776,
+    3482792691
+   ],
+   "tags": {
+    "highway": "service",
+    "oneway": "yes",
+    "service": "parking_aisle"
+   }
+  },
+  {
+   "type": "way",
+   "id": 341052198,
+   "nodes": [
+    3482806698,
+    5627902837,
+    13107952899,
+    5627902832
+   ],
+   "tags": {
+    "highway": "service",
+    "oneway": "yes",
+    "service": "parking_aisle"
+   }
+  },
+  {
+   "type": "way",
+   "id": 341052199,
+   "nodes": [
+    3482806701,
+    13107952897,
+    3482806700
+   ],
+   "tags": {
+    "highway": "service",
+    "oneway": "yes",
+    "service": "parking_aisle"
+   }
+  },
+  {
+   "type": "way",
+   "id": 341052200,
+   "nodes": [
+    65676681,
+    13107952913,
+    3482806697
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "parking_aisle"
+   }
+  },
+  {
+   "type": "way",
+   "id": 341053720,
+   "nodes": [
+    3482813581,
+    13107952537,
+    3482813582,
+    3482813583,
+    13107952431,
+    3482813584
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "parking_aisle"
+   }
+  },
+  {
+   "type": "way",
+   "id": 341053727,
+   "nodes": [
+    3482814106,
+    13107952519,
+    3482814107,
+    3482814108,
+    3482814109,
+    3482814110,
+    3482814111,
+    3482814112,
+    13107952518,
+    3482814113
+   ],
+   "tags": {
+    "highway": "service",
+    "oneway": "yes",
+    "service": "parking_aisle",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 341053730,
+   "nodes": [
+    3482814122,
+    13107952512,
+    3482814123,
+    3482814124,
+    3482814126,
+    3482814125
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "parking_aisle",
+    "surface": "paved"
+   }
+  },
+  {
+   "type": "way",
+   "id": 344350328,
+   "nodes": [
+    65667935,
+    7401388068,
+    1962377077,
+    65675383,
+    1962377063,
+    1962353652,
+    12669186738,
+    12669186991,
+    1962353473,
+    12669186911,
+    65675384,
+    1962385078,
+    65675387,
+    65675389,
+    12669186754,
+    12669186833,
+    12669187018,
+    12669186679,
+    65675390,
+    12669186933,
+    65668033,
+    12669186528,
+    12669186842,
+    12669186702,
+    65675392,
+    12669186640,
+    65675393,
+    12669186537,
+    1962376941,
+    1962377157,
+    1962377042,
+    12669187111,
+    1962377067,
+    1962376765,
+    12669186638,
+    1962376767,
+    12669187133,
+    12669186602,
+    12669186918,
+    1962377068,
+    12669186891,
+    12669186843,
+    12669186750,
+    12669186652,
+    12669187080,
+    12669186969,
+    12669186580
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "F Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "F",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 359224915,
+   "nodes": [
+    3572964193,
+    3639800558,
+    3639800559,
+    13107952771,
+    3639800570,
+    3534147283
+   ],
+   "tags": {
+    "highway": "tertiary_link",
+    "oneway": "yes"
+   }
+  },
+  {
+   "type": "way",
+   "id": 366353393,
+   "nodes": [
+    65669723,
+    13685297483,
+    3703323230,
+    3703323328,
+    65669726,
+    3703323330,
+    13685185818,
+    3703323132,
+    65665520
+   ],
+   "tags": {
+    "highway": "residential",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "Heritage Way",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "sidewalk:both:surface": "concrete",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_direction_prefix": "S",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 366353394,
+   "nodes": [
+    3703323330,
+    3703323232,
+    13685185819,
+    3703323329,
+    3703323231,
+    13685185820,
+    3703322629
+   ],
+   "tags": {
+    "highway": "secondary_link",
+    "lanes": "1",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_direction_prefix": "S",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 416466199,
+   "nodes": [
+    65665995,
+    8281514389,
+    6122828895,
+    4172079741,
+    4172079740,
+    6122828894,
+    4172079742,
+    6122828892,
+    6122828893
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "parking_aisle",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 416466200,
+   "nodes": [
+    65666942,
+    13685532091,
+    6052201165,
+    65669601,
+    65669595,
+    4172079591,
+    4172079487,
+    11054950750,
+    11054950751,
+    11054950752,
+    11054950753,
+    11054950754,
+    4172079591
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 435867353,
+   "nodes": [
+    4337590325,
+    13685187797,
+    4337590319,
+    4337590303,
+    4337590294,
+    13685212201,
+    2361149193
+   ],
+   "tags": {
+    "highway": "service",
+    "oneway": "yes",
+    "service": "parking_aisle"
+   }
+  },
+  {
+   "type": "way",
+   "id": 554125340,
+   "nodes": [
+    65666168,
+    65672520,
+    6091193159,
+    6047840390,
+    6091193158,
+    1317703635,
+    3510990192,
+    65668025,
+    5348025386,
+    13753135516,
+    65668467
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "Capitol Avenue",
+    "oneway": "yes",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Capitol",
+    "tiger:name_type": "Ave",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 554125344,
+   "nodes": [
+    65671455,
+    11724874784,
+    65671457,
+    65662086
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "4th Street",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "4th",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 554125345,
+   "nodes": [
+    65672074,
+    65671735,
+    11724874785,
+    65671455
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "North Franklin Street",
+    "sidewalk": "both",
+    "smoothness": "bad",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Franklin",
+    "tiger:name_direction_prefix": "N",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 554125347,
+   "nodes": [
+    65663798,
+    13685224806,
+    3703322625,
+    6047855943,
+    8980804845,
+    65663801
+   ],
+   "tags": {
+    "NHS": "yes",
+    "highway": "secondary",
+    "lanes": "1",
+    "name": "South Franklin Street",
+    "oneway": "yes",
+    "ref": "AK 7",
+    "sidewalk": "right",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 554125348,
+   "nodes": [
+    65663801,
+    13685224803,
+    3703322725,
+    3482819741,
+    65663819
+   ],
+   "tags": {
+    "NHS": "yes",
+    "highway": "secondary",
+    "lanes": "1",
+    "name": "South Franklin Street",
+    "oneway": "yes",
+    "ref": "AK 7",
+    "sidewalk": "right",
+    "sidewalk:right:surface": "concrete",
+    "smoothness": "good",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 554125349,
+   "nodes": [
+    65667426,
+    11724870096,
+    13685376527,
+    65667429,
+    3520740388,
+    13685376525,
+    11724870162,
+    65667432,
+    13107952875,
+    65665514
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "Main Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Main",
+    "tiger:name_type": "St"
+   }
+  },
+  {
+   "type": "way",
+   "id": 554125350,
+   "nodes": [
+    65668631,
+    13107952540,
+    6122910891,
+    12461055944,
+    2266452729,
+    2266453190
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "Highland Drive",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Highland",
+    "tiger:name_type": "Dr",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 554125351,
+   "nodes": [
+    65668972,
+    6047826467,
+    13107952611,
+    3639800569,
+    65670667,
+    6091193152,
+    65667142
+   ],
+   "tags": {
+    "addr:postcode": "99801",
+    "highway": "secondary",
+    "name": "Irwin Street",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 554125355,
+   "nodes": [
+    2266453429,
+    2401089966,
+    11381378551,
+    8282093704,
+    65676144
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Whittier Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Whittier",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 589360137,
+   "nodes": [
+    5627902837,
+    13107952898,
+    5627902826
+   ],
+   "tags": {
+    "highway": "service",
+    "oneway": "yes",
+    "service": "parking_aisle"
+   }
+  },
+  {
+   "type": "way",
+   "id": 595293265,
+   "nodes": [
+    5674081380,
+    5674074981,
+    5674081224,
+    5674074992,
+    5674081438,
+    13073308267,
+    5674081265,
+    5674081291,
+    5674081381,
+    5674081415,
+    13685575318,
+    5674075019,
+    13685575317,
+    5674081476,
+    5674075003,
+    5674075005,
+    5674081274,
+    5674081372,
+    13685575316,
+    5674081490
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 595293268,
+   "nodes": [
+    5674074980,
+    5674081469,
+    5674074977
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 595293271,
+   "nodes": [
+    5674075014,
+    5674081355,
+    5674081326,
+    13073308267,
+    5674081338
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "parking_aisle",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 596271183,
+   "nodes": [
+    5680865323,
+    5680864364,
+    5680864399,
+    5680864377,
+    5680865326,
+    5680864359,
+    5680864336,
+    5680864381,
+    5680864339,
+    3637841788
+   ],
+   "tags": {
+    "highway": "service",
+    "source": "Bing",
+    "surface": "unpaved"
+   }
+  },
+  {
+   "type": "way",
+   "id": 599131290,
+   "nodes": [
+    12669186616,
+    12669186650,
+    12669187110,
+    12669136760,
+    12669186936,
+    12669187117,
+    12669186522,
+    12669187079,
+    12669186586,
+    12669186614,
+    12669187008,
+    12669186778,
+    12669186852,
+    12669136799,
+    7401388072,
+    12669187130,
+    12669186776,
+    12669136758,
+    12669187127,
+    12669186739,
+    12669186802,
+    12669186611,
+    12669186630,
+    12669186894,
+    12669187135,
+    12669186889,
+    12669187086,
+    12669186941,
+    12669186851,
+    12669186622,
+    12669186651,
+    12669187020,
+    7401388081,
+    12669186836,
+    12669186849,
+    12669186759,
+    12669136791
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 606514521,
+   "nodes": [
+    5750420875,
+    5750420876,
+    5750420877,
+    5750420878,
+    5750420879,
+    5750420880,
+    5750420881,
+    10143264020,
+    5750420882,
+    5750420883,
+    5750420884,
+    5750420885,
+    5750420886,
+    414250725
+   ],
+   "tags": {
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 615692501,
+   "nodes": [
+    5821906497,
+    5821906668,
+    5821906685,
+    5821906687,
+    5821906471,
+    5821906509,
+    5821906454,
+    5821906536,
+    5821906654,
+    5821906662,
+    5821906692,
+    5821906527
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "source": "Bing",
+    "surface": "concrete"
+   }
+  },
+  {
+   "type": "way",
+   "id": 642388918,
+   "nodes": [
+    65667726,
+    6047840389,
+    13107952781,
+    65667793
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "D Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "D",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 642397261,
+   "nodes": [
+    65672180,
+    11724874795,
+    65671733,
+    11724874796,
+    14077204015
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Seward Street",
+    "oneway": "yes",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Seward",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 642406029,
+   "nodes": [
+    6047855921,
+    65669013,
+    6047855926,
+    6047855924,
+    6047855925,
+    65669016,
+    6047855927,
+    6047855928,
+    65669017,
+    65669021,
+    65669023,
+    65669024,
+    6091193143,
+    10143264020,
+    2098907756,
+    65666600
+   ],
+   "tags": {
+    "highway": "unclassified",
+    "name": "Basin Road",
+    "sidewalk": "no",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Basin",
+    "tiger:name_type": "Rd",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 643176959,
+   "nodes": [
+    65663819,
+    13685213073,
+    13124408412,
+    4327624144,
+    65668769,
+    12917264871,
+    13685232122,
+    3703323026,
+    4327624140,
+    13685232123,
+    65668767,
+    65668765,
+    3703323125,
+    65668763,
+    13685255346,
+    65667055,
+    65668761
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "lanes": "1",
+    "name": "South Franklin Street",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "sidewalk:both:surface": "concrete",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Franklin",
+    "tiger:name_direction_prefix": "S",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 648907716,
+   "nodes": [
+    3639800556,
+    13107952627,
+    65667143,
+    6047826472,
+    5348025392,
+    6047826473,
+    5348025391,
+    6047826474,
+    5348025393,
+    6047826475,
+    14256032036,
+    5348025390,
+    65667145,
+    14256032046,
+    65667146,
+    65667148,
+    65667151,
+    65667153,
+    65665611,
+    6047826484,
+    6047826483,
+    8981959245,
+    65667156,
+    65667158,
+    65667160,
+    65667161,
+    65667162,
+    65667163,
+    65667165,
+    65667167,
+    65667169,
+    65667170,
+    65667172,
+    65667173,
+    6047829386,
+    65667176
+   ],
+   "tags": {
+    "addr:postcode": "99801",
+    "highway": "secondary",
+    "name": "Calhoun Avenue",
+    "surface": "asphalt",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 653326431,
+   "nodes": [
+    65668656,
+    3639800586,
+    3572964193
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "Glacier Avenue",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "F",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 779477297,
+   "nodes": [
+    7278802187,
+    13107952993,
+    7278802188,
+    7278802189,
+    7278802190,
+    7278802195
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 791701173,
+   "nodes": [
+    7401383139,
+    13107952712,
+    13107952711,
+    7401383140,
+    13107952692,
+    13107952691,
+    7401383145,
+    13107952677,
+    13107952663,
+    7401383146,
+    13107952659,
+    11393777064,
+    13107952654,
+    7401383147,
+    13753135563,
+    7401383148
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "alley"
+   }
+  },
+  {
+   "type": "way",
+   "id": 791701212,
+   "nodes": [
+    3511004334,
+    13107952671,
+    13107952672,
+    3511004333,
+    13107952735,
+    13107952736,
+    3511004331,
+    13107952729,
+    13107952724,
+    7401388056
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "alley"
+   }
+  },
+  {
+   "type": "way",
+   "id": 791701223,
+   "nodes": [
+    7401388071,
+    7401388066,
+    7401388069
+   ],
+   "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 791701224,
+   "nodes": [
+    7401388069,
+    7401388067,
+    7401388072
+   ],
+   "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 791701225,
+   "nodes": [
+    7401388070,
+    7401388064,
+    7401388074,
+    7401388065,
+    7401388075
+   ],
+   "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 791701228,
+   "nodes": [
+    7401388078,
+    7401388079,
+    5618456140
+   ],
+   "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 791701229,
+   "nodes": [
+    5618456140,
+    7401388082,
+    12669186964,
+    12669186796
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 791701231,
+   "nodes": [
+    7401388090,
+    7401388086,
+    7401388093
+   ],
+   "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 791701232,
+   "nodes": [
+    7401388095,
+    13107952403,
+    7401388096,
+    7401388097,
+    7401388098,
+    7401388099,
+    13107952404,
+    1962377108
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "driveway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 864010591,
+   "nodes": [
+    65671452,
+    65674066,
+    13685333504,
+    13685296186,
+    65674067
+   ],
+   "tags": {
+    "highway": "residential",
+    "lanes": "1",
+    "name": "Seward Street",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Seward",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 864012196,
+   "nodes": [
+    65672078,
+    13685326937,
+    10230292326,
+    10230292338,
+    65676208
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "2nd Street",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "2nd",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 891096270,
+   "nodes": [
+    8282093704,
+    8282130723,
+    8282093705,
+    8282130724,
+    8282093706,
+    8282130718,
+    8282093707,
+    8282093709,
+    8282093708
+   ],
+   "tags": {
+    "highway": "unclassified",
+    "surface": "gravel"
+   }
+  },
+  {
+   "type": "way",
+   "id": 932978565,
+   "nodes": [
+    2266453477,
+    2266453393,
+    2266452936,
+    13107953002,
+    2266453316,
+    2266453362,
+    11381378549,
+    2266452874,
+    2266452813,
+    2266453441,
+    2266452774,
+    2266453247,
+    2266453146,
+    2266453298
+   ],
+   "tags": {
+    "NHS": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40 mph",
+    "name": "Egan Drive",
+    "oneway": "yes",
+    "postal_code": "99801",
+    "ref": "AK 7",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A31",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Egan",
+    "tiger:name_type": "Dr",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1083961314,
+   "nodes": [
+    9933310931,
+    13685119405,
+    9933310932,
+    9933310933
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108401870,
+   "nodes": [
+    2401090466,
+    2266453369,
+    2266452838,
+    65665515
+   ],
+   "tags": {
+    "NHS": "yes",
+    "highway": "primary",
+    "lanes": "4",
+    "name": "Egan Drive",
+    "ref": "AK 7",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A31",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Egan",
+    "tiger:name_type": "Dr",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108401871,
+   "nodes": [
+    2266453429,
+    2401089965,
+    2266453164,
+    13685113952,
+    2266452871,
+    2266453477
+   ],
+   "tags": {
+    "NHS": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40 mph",
+    "name": "Egan Drive",
+    "oneway": "yes",
+    "postal_code": "99801",
+    "ref": "AK 7",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A31",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Egan",
+    "tiger:name_type": "Dr",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108401894,
+   "nodes": [
+    65676135,
+    13107952921,
+    65665143,
+    65676684,
+    5348025398,
+    5348025397,
+    65666174
+   ],
+   "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "West Willoughby Avenue",
+    "sidewalk:both": "separate",
+    "smoothness": "good",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Willoughby",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "Ave"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108401898,
+   "nodes": [
+    65665514,
+    13685152417,
+    13107952881,
+    12463422176,
+    2401090664
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "South Main Street",
+    "name_1": "Sealaska Plaza",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Main",
+    "tiger:name_base_1": "Sealaska",
+    "tiger:name_direction_prefix": "S",
+    "tiger:name_type": "St",
+    "tiger:name_type_1": "Plz",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108407376,
+   "nodes": [
+    6052202303,
+    6052202304,
+    65677369,
+    4172770868,
+    13685532085,
+    6052202302
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Foster Avenue",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Foster",
+    "tiger:name_type": "Ave"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108407378,
+   "nodes": [
+    65672002,
+    5674081338,
+    6051839282,
+    13685575327,
+    13685575326,
+    6051839283,
+    13685532065,
+    65666935
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "Douglas Highway",
+    "name_1": "3rd Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Douglas",
+    "tiger:name_base_1": "3rd",
+    "tiger:name_type": "Hwy",
+    "tiger:name_type_1": "St"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108407384,
+   "nodes": [
+    65667935,
+    7401388067,
+    12456533474,
+    12669187041,
+    65667937
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "West 10th Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "10th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108407386,
+   "nodes": [
+    3511008651,
+    13107939767,
+    1962377115,
+    1962377108,
+    1962377129,
+    7401388095,
+    12456533469,
+    12456533450,
+    7401388066,
+    65667935
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "F Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "F",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108407388,
+   "nodes": [
+    3511008651,
+    13107939768,
+    13107939755,
+    2266452842
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "West 12th Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "12th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108407389,
+   "nodes": [
+    65668654,
+    13107939776,
+    7401388104,
+    3511008651
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "West 12th Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "12th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108407390,
+   "nodes": [
+    65668654,
+    7401388101,
+    13107939780,
+    1962353497,
+    1962353633,
+    7401383139,
+    3633196944,
+    13821540867,
+    65668319,
+    7401388056,
+    3511004332,
+    12456533468,
+    7401388064,
+    65667937
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "Glacier Avenue",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Glacier",
+    "tiger:name_type": "Ave",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108414413,
+   "nodes": [
+    1962376716,
+    13685575321,
+    5674074976,
+    13685575322,
+    3327422691
+   ],
+   "tags": {
+    "highway": "secondary",
+    "oneway": "yes",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108414414,
+   "nodes": [
+    65671452,
+    11724874783,
+    65671455
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "4th Street",
+    "sidewalk": "both",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "4th",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1108415044,
+   "nodes": [
+    65668477,
+    7401388080,
+    12669187138,
+    1962353573
+   ],
+   "tags": {
+    "highway": "secondary",
+    "name": "Glacier Avenue",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Glacier",
+    "tiger:name_type": "Ave",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1111903623,
+   "nodes": [
+    3534147264,
+    3534147260,
+    3534147249,
+    12669187146,
+    3534147240,
+    13107952756,
+    3534147289
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "driveway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1118567484,
+   "nodes": [
+    10230292336,
+    13685326932,
+    10230292337
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1123071135,
+   "nodes": [
+    10270940176,
+    12669186849,
+    10270940186,
+    10270940182,
+    10270940179,
+    10270940177
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1227350458,
+   "nodes": [
+    11381378516,
+    13107952912,
+    11381378517
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1227350468,
+   "nodes": [
+    11381378558,
+    13107952836,
+    11381378559
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1228596718,
+   "nodes": [
+    11393777001,
+    13107952439,
+    1962376884
+   ],
+   "tags": {
+    "highway": "service",
+    "source": "Bing",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1228596723,
+   "nodes": [
+    3703322629,
+    3703322630,
+    13685178416,
+    65665520,
+    13685178417,
+    65665521,
+    65665523,
+    6047914394,
+    65665524,
+    6047914395,
+    3703322628,
+    4337590325,
+    65665525,
+    65665526,
+    2361149193,
+    6047855942,
+    13685185837,
+    65665527,
+    13124408409,
+    65663797
+   ],
+   "tags": {
+    "NHS": "yes",
+    "highway": "secondary",
+    "name": "Marine Way",
+    "ref": "AK 7",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A31",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Marine",
+    "tiger:name_type": "Way",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1228596729,
+   "nodes": [
+    11393777064,
+    13107952658,
+    11393777065
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "parking_aisle"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877425,
+   "nodes": [
+    11724870092,
+    11724870091,
+    11724870090
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877426,
+   "nodes": [
+    11724870092,
+    11724874794,
+    11724870093
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877427,
+   "nodes": [
+    11724870094,
+    11724870096,
+    11724870095
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877428,
+   "nodes": [
+    11724870097,
+    11724870099,
+    11724870098
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877435,
+   "nodes": [
+    11724870112,
+    11724870117,
+    11724870113
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877436,
+   "nodes": [
+    11724870114,
+    11724870116,
+    11724870115
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877437,
+   "nodes": [
+    11724870118,
+    11724870120,
+    11724870119
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877445,
+   "nodes": [
+    11724870140,
+    11724874795,
+    11724870141
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877446,
+   "nodes": [
+    11724870142,
+    11724874797,
+    11724870143
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877447,
+   "nodes": [
+    11724870144,
+    11724874796,
+    11724870145
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877448,
+   "nodes": [
+    11724870146,
+    11724874798,
+    11724870147
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877455,
+   "nodes": [
+    11724870160,
+    11724870162,
+    11724870161
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877456,
+   "nodes": [
+    11724870163,
+    11724870165,
+    11724870164
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877459,
+   "nodes": [
+    11724870168,
+    11724874782,
+    11724874769
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877460,
+   "nodes": [
+    11724874770,
+    11724874783,
+    11724874771
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877461,
+   "nodes": [
+    11724874772,
+    11724874785,
+    11724874773
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1261877462,
+   "nodes": [
+    11724874774,
+    11724874784,
+    11724874775
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1291663716,
+   "nodes": [
+    65676139,
+    13107952999,
+    11974776286,
+    11974776287
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1291663718,
+   "nodes": [
+    6047914168,
+    13107952937,
+    11974776295,
+    11974776290,
+    11974776310,
+    11974776291
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1291663719,
+   "nodes": [
+    11974776292,
+    13107952934,
+    11974776293
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1291663723,
+   "nodes": [
+    11974776291,
+    11974776298,
+    11974776299,
+    11974776314,
+    13107952960,
+    65676139
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1291663725,
+   "nodes": [
+    11974776293,
+    11974776303,
+    11974776305,
+    13107952961,
+    11974776304
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1346719423,
+   "nodes": [
+    12456533439,
+    13107952595,
+    12456533440
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1346719424,
+   "nodes": [
+    1962377115,
+    13107952405,
+    12456533441,
+    13821540864,
+    13821540865,
+    13821540866,
+    13821540868,
+    13821540867
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1346719428,
+   "nodes": [
+    12456533471,
+    12456533472,
+    13107952402,
+    12456533469
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1346719429,
+   "nodes": [
+    12456533468,
+    13107952718,
+    12456533470
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1346752842,
+   "nodes": [
+    12457238817,
+    12457238818,
+    13685532077,
+    12457238819
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1347047957,
+   "nodes": [
+    12460582448,
+    13107952795,
+    12460582450,
+    12460582449
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1347368308,
+   "nodes": [
+    12463422157,
+    13107952962,
+    12463422158,
+    12463422159,
+    12463422162,
+    13107952929,
+    12463422160
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1347368315,
+   "nodes": [
+    2266452926,
+    13107952833,
+    12463422175,
+    12463422172,
+    12463422173,
+    12463422174,
+    12463422175
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1347368316,
+   "nodes": [
+    12463422176,
+    13107952892,
+    12463422177,
+    12463422178,
+    13685309522,
+    12463422179
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1347368317,
+   "nodes": [
+    12463422180,
+    13107952874,
+    12463422181
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "driveway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1368000128,
+   "nodes": [
+    12669186664,
+    12669186754,
+    12669186634
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1368000149,
+   "nodes": [
+    7401388093,
+    7401388085,
+    7401388094
+   ],
+   "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1368000167,
+   "nodes": [
+    12669136791,
+    12669186927,
+    12669186543,
+    12669187094,
+    12669186805,
+    12669186926,
+    12669186772,
+    12669186939,
+    13107952767,
+    12669186636,
+    12669186921,
+    12669186762,
+    12669186567,
+    12669186798,
+    12669186561,
+    12669186972,
+    12669186910,
+    12669187029,
+    12669186977,
+    12669186961,
+    12669186686,
+    12669187017,
+    12669186714,
+    12669186869,
+    5701121153,
+    5701121149,
+    5701121170,
+    5701121158,
+    5701121173,
+    5701121152,
+    5701121155,
+    5701121128,
+    5701121177,
+    5701121159,
+    5701121148,
+    5701121140,
+    5701121145,
+    5701121137,
+    5701121130,
+    12669186791,
+    12669186615,
+    12669186585,
+    5701121165,
+    5701121164,
+    7401388073,
+    5701121156,
+    5701121146,
+    5701121138,
+    5701121129,
+    5701121172,
+    5701121166,
+    5701121142,
+    12669186967,
+    12669186783,
+    12669186786,
+    12669187142,
+    12669186664
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1368000169,
+   "nodes": [
+    7401388072,
+    7401388068,
+    7401388073
+   ],
+   "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1368000172,
+   "nodes": [
+    12669186796,
+    12669186520,
+    12669186568,
+    12669187024,
+    12669186745,
+    12669186731,
+    12669186855,
+    12669187109,
+    12669186549
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1368000175,
+   "nodes": [
+    5618456140,
+    7401388080,
+    7401388081
+   ],
+   "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1395485824,
+   "nodes": [
+    13685232122,
+    13685232116,
+    12917264872,
+    12917264873
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1396823485,
+   "nodes": [
+    12927870808,
+    12927870807,
+    13107952834,
+    12927870812
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1396823487,
+   "nodes": [
+    12927870810,
+    13107952835,
+    12927870811
+   ],
+   "tags": {
+    "highway": "service",
+    "surface": "asphalt"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947417,
+   "nodes": [
+    13107939751,
+    13107939755,
+    5701121154
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947419,
+   "nodes": [
+    13107939757,
+    13107939768,
+    13107939765,
+    13107939767,
+    13107939766
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947420,
+   "nodes": [
+    13107939757,
+    13107939770,
+    13107939769
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947421,
+   "nodes": [
+    13107939764,
+    13107939772,
+    13107939771
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947422,
+   "nodes": [
+    13107939773,
+    7401388102,
+    13107939774
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947423,
+   "nodes": [
+    13107939773,
+    13107939776,
+    13107939775
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947424,
+   "nodes": [
+    13107939777,
+    13107939781,
+    13107939778,
+    13107939780,
+    13107939779
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947428,
+   "nodes": [
+    13107939779,
+    13107939775,
+    13107939796,
+    13107939797,
+    13107939798,
+    13107939766,
+    13107939799,
+    13107939800,
+    13107952405,
+    13107952404,
+    13107952403,
+    13107952402,
+    13107952401
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "layer": "-1"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947429,
+   "nodes": [
+    5701121134,
+    13107952415,
+    13107952406,
+    13107952416,
+    13107952417,
+    13107952407,
+    13107939765,
+    13107952408,
+    13107952409,
+    13107952410,
+    13107952411,
+    13107952412,
+    13107952413,
+    13107952414,
+    5701121154
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947431,
+   "nodes": [
+    13107952429,
+    13107952431,
+    13107952430
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947433,
+   "nodes": [
+    13107952435,
+    13107952436,
+    13107952434
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947435,
+   "nodes": [
+    13107952437,
+    13107952439,
+    13107952438
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947438,
+   "nodes": [
+    13107952446,
+    13107952447,
+    13107952445
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947439,
+   "nodes": [
+    13107952446,
+    6047826416,
+    13107952448
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947442,
+   "nodes": [
+    13107952501,
+    13107952510,
+    13107952509
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947443,
+   "nodes": [
+    13107939727,
+    13107952512,
+    13107952511
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947444,
+   "nodes": [
+    13107952511,
+    13107952513,
+    13107952514,
+    13107952515,
+    13107952519,
+    13107952516,
+    13107952518,
+    13107952517
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947445,
+   "nodes": [
+    13107952517,
+    13107952521,
+    13107952520
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947447,
+   "nodes": [
+    13107952535,
+    13107952537,
+    13107952536
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947449,
+   "nodes": [
+    13107939728,
+    13107952540,
+    13107952539
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947452,
+   "nodes": [
+    13107939777,
+    13107952579,
+    13107952580,
+    13107952581,
+    13107952595,
+    13107952582,
+    13107952696,
+    13107952583,
+    13107952584,
+    13107952682,
+    13107952585,
+    13107952586,
+    13107952587,
+    13107952604,
+    13107952588,
+    13107952589,
+    13107952590,
+    13107952591,
+    13107952592,
+    13107952596,
+    13107952593,
+    13107952594
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947453,
+   "nodes": [
+    13107952596,
+    13107952598,
+    13107952597
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947454,
+   "nodes": [
+    13107952600,
+    13107952602,
+    13107952601
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947457,
+   "nodes": [
+    13107952609,
+    13107952611,
+    13107952610,
+    14256031972,
+    14256031970
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947461,
+   "nodes": [
+    13107952625,
+    13107952627,
+    13107952626
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947468,
+   "nodes": [
+    13107952655,
+    13107952656,
+    13107952658,
+    13107952657
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947469,
+   "nodes": [
+    13107952652,
+    13107952661,
+    13107952660
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947470,
+   "nodes": [
+    13107952660,
+    13107952663,
+    13107952673,
+    13107952662
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947471,
+   "nodes": [
+    13107952662,
+    13107952665,
+    13107952664
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947472,
+   "nodes": [
+    13107952655,
+    13107952667,
+    13107952666
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947474,
+   "nodes": [
+    13107952673,
+    13107952674,
+    13107952677,
+    13107952675,
+    13107952676,
+    13107952660
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947475,
+   "nodes": [
+    13107952675,
+    13107952680,
+    13107952678
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "surface",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947477,
+   "nodes": [
+    13107952678,
+    13107952691,
+    13107952683,
+    13107952684,
+    13107952685,
+    13107952686,
+    13107952687,
+    13107952688,
+    13107952692,
+    13107952689,
+    13107952690,
+    13107952678
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947478,
+   "nodes": [
+    13107952690,
+    7401388106,
+    13107952693,
+    13107952695,
+    13107952694
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947480,
+   "nodes": [
+    13107952693,
+    13107952711,
+    13107952697,
+    13107952698,
+    13107952699,
+    13107952725,
+    13107952700,
+    13107952701,
+    13107952702,
+    13107952712,
+    13107952703,
+    13107952704,
+    13107952705,
+    13107952706,
+    13107939778,
+    13107952707,
+    13107952708,
+    13107952709,
+    13107952710,
+    13107952693
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947481,
+   "nodes": [
+    13107939779,
+    13107952713,
+    13107952714,
+    13107952715,
+    13821540868,
+    13107952718,
+    13107952716,
+    13107952717,
+    7401388070
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947482,
+   "nodes": [
+    7401388074,
+    13107952719,
+    13107952720,
+    13107952724,
+    13107952721,
+    13107952722,
+    13107952723
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "layer": "-1"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947483,
+   "nodes": [
+    13107952725,
+    13107952726,
+    13107952722
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947484,
+   "nodes": [
+    13107952723,
+    13107952727,
+    13107952729,
+    13107952728
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947486,
+   "nodes": [
+    13107952730,
+    13107952731,
+    13107952736,
+    13107952732,
+    13107952733,
+    13107952735,
+    13107952734,
+    13107952730
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947487,
+   "nodes": [
+    13107952734,
+    13107952738,
+    13107952737
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947488,
+   "nodes": [
+    13107952669,
+    13107952740,
+    13107952739
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947493,
+   "nodes": [
+    13107952741,
+    13107952752,
+    13107952746
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947494,
+   "nodes": [
+    13107952753,
+    13107952755,
+    13107952754
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947495,
+   "nodes": [
+    13107952754,
+    13107952756,
+    12669186623
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947499,
+   "nodes": [
+    13107952767,
+    3639800586,
+    13107952768
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947501,
+   "nodes": [
+    13107952769,
+    13107952771,
+    13107952770
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947502,
+   "nodes": [
+    13107952777,
+    3534147262,
+    13107952774,
+    13107952776,
+    13107952775
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947505,
+   "nodes": [
+    13107952775,
+    13107952780,
+    13107952779,
+    13107952781,
+    12669186632
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947507,
+   "nodes": [
+    13107952789,
+    13107952791,
+    13107952790
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947508,
+   "nodes": [
+    13107952790,
+    13107952792,
+    13107952795,
+    13107952793,
+    13107952920,
+    13107952794
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947509,
+   "nodes": [
+    13107952794,
+    13107952797,
+    13107952796
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947511,
+   "nodes": [
+    13107952801,
+    13107952803,
+    13107952802
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947513,
+   "nodes": [
+    13107952802,
+    13107952806,
+    13107952807,
+    13107952808,
+    13107952809,
+    13107952810,
+    13107952836,
+    13107952811,
+    13107952812,
+    13107952813,
+    13107952814,
+    13107952815,
+    13107952935,
+    13107952816,
+    13107952817,
+    13685119415,
+    13107952819,
+    13107952820,
+    13107952835,
+    13107952821,
+    13107952822,
+    13685081582,
+    13107952834,
+    13107952823,
+    13107952824,
+    13107952833,
+    13107952825,
+    13107952826,
+    13107952838,
+    13107952827,
+    13107952828,
+    13107952829,
+    13685132498,
+    13107952830,
+    13107952837,
+    13107952831,
+    13107952832,
+    13685152407
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947515,
+   "nodes": [
+    13685132496,
+    13107952840,
+    13107952839
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947517,
+   "nodes": [
+    13107952848,
+    13107952850,
+    13107952849
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947519,
+   "nodes": [
+    11724870164,
+    13107952873,
+    13685152414,
+    13685152412,
+    13107952862,
+    13685152415,
+    13685152422,
+    13685152421,
+    13107952864,
+    13107952874,
+    13107952865,
+    13107952866,
+    13107952867,
+    13107952868,
+    13107952869,
+    13685296199
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "layer": "-1"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947520,
+   "nodes": [
+    13107952863,
+    13107952875,
+    13685152416
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "yes",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947523,
+   "nodes": [
+    13685152420,
+    13107952879,
+    13107952878
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947524,
+   "nodes": [
+    13107952880,
+    13107952881,
+    13685152418
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "yes",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947527,
+   "nodes": [
+    13685309508,
+    13685331869,
+    13685331868,
+    13685331867,
+    13685331866,
+    13685331865,
+    13685331864,
+    13685331863,
+    13685331862,
+    13685185816,
+    13685185815,
+    13685185814,
+    13685185813,
+    13685178414,
+    13685178415,
+    13685185817,
+    13685178405,
+    13685178406,
+    13107952890,
+    13107952889,
+    13107952888,
+    13107952887,
+    13685178404,
+    13685178403,
+    13107952886,
+    13107952885,
+    13107952892,
+    13685152419,
+    13107952884,
+    13685309525,
+    13107952878
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947528,
+   "nodes": [
+    11393777023,
+    2401090467,
+    13107952891
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947529,
+   "nodes": [
+    13685178408,
+    2401090463,
+    11393777017
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947530,
+   "nodes": [
+    13107952775,
+    13107952899,
+    13107952898,
+    13107952897,
+    13107952894,
+    13107952895,
+    13107952896
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947531,
+   "nodes": [
+    13107952896,
+    13107952900,
+    13107952786
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947532,
+   "nodes": [
+    13107952896,
+    13107952901,
+    13107952913,
+    13107952902,
+    13107952912,
+    13107952903,
+    13107952904,
+    13107952911,
+    13107952910,
+    13107952905,
+    13107952906,
+    13107952907,
+    13107952908,
+    13107952909
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947533,
+   "nodes": [
+    13107952909,
+    13107952915,
+    13107952914
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947535,
+   "nodes": [
+    13107952916,
+    13107952918,
+    13107952917
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947536,
+   "nodes": [
+    13107952906,
+    2401089962,
+    13107952919,
+    13107952921,
+    13107952920
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947537,
+   "nodes": [
+    13107952919,
+    13107952922,
+    13107952923,
+    13107952924,
+    13107952925,
+    13107952926,
+    13107952927,
+    13107952929,
+    13107952928
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947538,
+   "nodes": [
+    13107952928,
+    13107952930,
+    13107952810
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947539,
+   "nodes": [
+    13107952928,
+    13107952934,
+    13107952931,
+    13107952932,
+    13685119414,
+    13107952933
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947540,
+   "nodes": [
+    13685119413,
+    13107952938,
+    13685119412
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947541,
+   "nodes": [
+    13107952936,
+    13107952939,
+    13107952940,
+    13107952941,
+    13107952942,
+    13107952943,
+    13107952944,
+    13107952945,
+    13685081583,
+    13685081588,
+    13107952946,
+    13107952947,
+    13107952948,
+    13107952949,
+    13107953001,
+    13107952950,
+    13107953000,
+    13107952951,
+    13107952952,
+    13107952960,
+    13107952953,
+    13107952996,
+    13107952961,
+    13107952954,
+    13107952955,
+    13107952956,
+    13107952962,
+    13107952957,
+    13107952958,
+    13107952959,
+    13107952919
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947542,
+   "nodes": [
+    13107952917,
+    13107952963,
+    13107952964,
+    13107952965,
+    13107952966,
+    13107952967,
+    13107952968,
+    13107952969,
+    13107952970,
+    13107952971,
+    13107952972,
+    13107952973,
+    13107952974,
+    13107952975,
+    13107952976,
+    13107952977,
+    13107952978,
+    13107952979,
+    13107952980,
+    13107952981,
+    13107952982,
+    13107952983,
+    13107952984,
+    13107952985,
+    13107952986,
+    13107952987,
+    13107952988,
+    13685113954,
+    13107952989,
+    13107952993,
+    13107952990,
+    13107952991,
+    13107952992
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "layer": "-1"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947543,
+   "nodes": [
+    13107952963,
+    13107952997,
+    13107952996
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947544,
+   "nodes": [
+    13107952998,
+    13107952999,
+    13107952992
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947546,
+   "nodes": [
+    13685113953,
+    2401089963,
+    13685113955
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1425947547,
+   "nodes": [
+    13685113956,
+    13107953002,
+    2401089965,
+    13685113957
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1427632024,
+   "nodes": [
+    13124408409,
+    13124408410,
+    13685213074,
+    13124408411,
+    13124408412
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1452755863,
+   "nodes": [
+    65666168,
+    13107952791,
+    65672522
+   ],
+   "tags": {
+    "access": "no",
+    "highway": "tertiary",
+    "name": "Capitol Avenue",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Capitol",
+    "tiger:name_type": "Ave",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1452909214,
+   "nodes": [
+    65672076,
+    11724874782,
+    65671455
+   ],
+   "tags": {
+    "highway": "residential",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "North Franklin Street",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "sidewalk:both:surface": "concrete",
+    "smoothness": "intermediate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Franklin",
+    "tiger:name_direction_prefix": "N",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1468419341,
+   "nodes": [
+    13467778292,
+    13685532081,
+    13467778293
+   ],
+   "tags": {
+    "highway": "service"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493462264,
+   "nodes": [
+    13685081579,
+    8281514388,
+    8281514389,
+    13685081576,
+    13685081577,
+    13685119402,
+    13685119403,
+    6122828892,
+    13685119404,
+    13685119405,
+    13685119406,
+    13685119407,
+    13685119408,
+    13685119409,
+    13685119410,
+    13685178411,
+    13685185826,
+    13685185827
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493462265,
+   "nodes": [
+    8281514387,
+    8282093709,
+    13685081579
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493462267,
+   "nodes": [
+    13685081578,
+    13685081580,
+    13685081581
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:island": "yes",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493462268,
+   "nodes": [
+    13685081591,
+    5348025623,
+    13685081592
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493462270,
+   "nodes": [
+    13685081589,
+    5348025625,
+    13685081590
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493463331,
+   "nodes": [
+    13685119411,
+    2266452838,
+    11393777021
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493463332,
+   "nodes": [
+    13107952933,
+    13107952937,
+    13107952936
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493464201,
+   "nodes": [
+    13685113950,
+    2401089966,
+    13685113951
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493470702,
+   "nodes": [
+    13685178412,
+    5759484335,
+    13685178413
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:markings": "lines",
+    "crossing:signals": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493472446,
+   "nodes": [
+    13685185824,
+    3703323132,
+    13685185823
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493472448,
+   "nodes": [
+    13685185822,
+    3703323329,
+    13685185821
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493472450,
+   "nodes": [
+    13685185836,
+    13685185828,
+    13685185829,
+    13685185830,
+    13685185831,
+    13685185832,
+    13685185833,
+    13685185834,
+    13685185835,
+    13685187796,
+    13685187797,
+    13685187798,
+    13685187799,
+    13685187800,
+    13685212201,
+    13685212202,
+    13685212203,
+    13685212204,
+    13685212215,
+    13685213087,
+    13685213088,
+    13685213089,
+    13685213090,
+    13685213091,
+    13685213092,
+    13685213093,
+    13685213094,
+    13685213095
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493472454,
+   "nodes": [
+    13685185848,
+    3703324126,
+    13685185841
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493472456,
+   "nodes": [
+    13685185845,
+    5759484343,
+    13685185846
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493472458,
+   "nodes": [
+    13685185842,
+    3703322628,
+    13685185843
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493474089,
+   "nodes": [
+    13685212214,
+    65665527,
+    13685212205
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493475585,
+   "nodes": [
+    13685213075,
+    4327624144,
+    13685213076
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493475587,
+   "nodes": [
+    13685213082,
+    13124408411,
+    13685213083
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493475589,
+   "nodes": [
+    13685213079,
+    13685213073,
+    13685213080
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493475593,
+   "nodes": [
+    13685213095,
+    3703322625,
+    13685213096
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493475595,
+   "nodes": [
+    13685213098,
+    3703322725,
+    13685213099
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493476703,
+   "nodes": [
+    13685232120,
+    12917264871,
+    13685232119
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493476706,
+   "nodes": [
+    13685232132,
+    65668767,
+    13685232129
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493476709,
+   "nodes": [
+    13685232136,
+    3703323225,
+    13685232135
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493478655,
+   "nodes": [
+    13685255330,
+    65668763,
+    13685255337
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493478657,
+   "nodes": [
+    13685255338,
+    65667055,
+    13685255327
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493478658,
+   "nodes": [
+    13685213072,
+    13685232115,
+    13685232121,
+    13685232116,
+    13685232130,
+    13685232131
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493478661,
+   "nodes": [
+    13685255342,
+    5759484345,
+    13685255343
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493478662,
+   "nodes": [
+    13685255334,
+    13685255335,
+    13685255339
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493484267,
+   "nodes": [
+    13685297491,
+    13685297498,
+    13685297499
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493484269,
+   "nodes": [
+    13685309513,
+    13685297481,
+    13685309514
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493484270,
+   "nodes": [
+    13685309507,
+    13685309508,
+    13685309509,
+    13685309510,
+    13685309511,
+    13685309512,
+    13685309520,
+    13685309521,
+    13685309522,
+    13685309523,
+    13685309524,
+    13685309525
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493484271,
+   "nodes": [
+    13685309504,
+    3703323230,
+    13685309507
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493484273,
+   "nodes": [
+    13685309515,
+    5759484347,
+    13685297495
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493484274,
+   "nodes": [
+    13685309516,
+    5759484346,
+    13685309517
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493486749,
+   "nodes": [
+    13685331890,
+    13685331889,
+    13685331888
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493486751,
+   "nodes": [
+    13685331893,
+    13685331894,
+    13685331895
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493489136,
+   "nodes": [
+    13685296195,
+    13685296196,
+    13685296197
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "surface",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493489139,
+   "nodes": [
+    13685296192,
+    13685296193,
+    13685296194
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "surface",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493489141,
+   "nodes": [
+    13685296189,
+    13685296190,
+    13685296191
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "surface",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493489142,
+   "nodes": [
+    13685296187,
+    13685296188,
+    13685326932,
+    13685326933,
+    13685326934
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "layer": "-1"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493489143,
+   "nodes": [
+    13685296185,
+    13685296186,
+    13685296187
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "surface",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493490421,
+   "nodes": [
+    13685326925,
+    13685326924,
+    13685326923
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493490424,
+   "nodes": [
+    13685326929,
+    13685326930,
+    13685326936
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493490426,
+   "nodes": [
+    13685326938,
+    13685326937,
+    13685326926
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493490427,
+   "nodes": [
+    13685326942,
+    13685326943,
+    13685326926
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493490429,
+   "nodes": [
+    13685326934,
+    13685326941,
+    13685326940
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493493695,
+   "nodes": [
+    13685376519,
+    13685376530,
+    13685376520
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493493697,
+   "nodes": [
+    13685376521,
+    13685376522,
+    13685376523
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493493699,
+   "nodes": [
+    13685376511,
+    13685376512,
+    13685376513
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "lines",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493493700,
+   "nodes": [
+    13685376511,
+    13685376525,
+    13685376526
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493493702,
+   "nodes": [
+    13685376527,
+    13685376528,
+    13685376529,
+    13685376530,
+    13685376531,
+    13685376532
+   ],
+   "tags": {
+    "highway": "secondary_link",
+    "oneway": "yes"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493499902,
+   "nodes": [
+    65674067,
+    13685296193,
+    13685333503,
+    65674068,
+    5759484347,
+    65669723
+   ],
+   "tags": {
+    "highway": "residential",
+    "lanes": "1",
+    "name": "Seward Street",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Seward",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493499903,
+   "nodes": [
+    6047914394,
+    3703324126,
+    6047914392,
+    6047914393,
+    65672862,
+    6047914397,
+    65672858,
+    6047914396,
+    65669906
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Shattuck Way",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Shattuck",
+    "tiger:name_type": "Way",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493517255,
+   "nodes": [
+    13685575358,
+    13685575357,
+    13685575356,
+    13685575355,
+    13685575354,
+    13685532068,
+    5680864339,
+    13685532067
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493517256,
+   "nodes": [
+    5674074986,
+    5674081373,
+    5674081488
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493517259,
+   "nodes": [
+    13685532073,
+    13685532072,
+    13685532071,
+    13685532070,
+    13685532069,
+    13685575349,
+    13685575348,
+    13685575347,
+    13685575346,
+    13685575345,
+    13685575344,
+    13685575342,
+    13685532056,
+    13685532057,
+    13685532058,
+    13685532059,
+    13685532060,
+    13685532061,
+    13685532062,
+    13685532063,
+    13685532074,
+    13685532075,
+    13685532076,
+    13685532077,
+    13685532078
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493517260,
+   "nodes": [
+    13685575351,
+    13685575323,
+    13685575350
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493517262,
+   "nodes": [
+    13685575353,
+    5674074976,
+    13685575352
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493517264,
+   "nodes": [
+    13685575359,
+    13685575320,
+    13685575358
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493517266,
+   "nodes": [
+    13685575362,
+    13685575334,
+    13685575361
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "zebra",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493518657,
+   "nodes": [
+    13685532064,
+    13685532065,
+    13685532066
+   ],
+   "tags": {
+    "crossing": "marked",
+    "crossing:markings": "zebra",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493518661,
+   "nodes": [
+    13685532086,
+    13685532087,
+    13685532088,
+    13685532089,
+    13685532090,
+    13685532091,
+    13685532092,
+    13685532093,
+    13685532094,
+    13685532095,
+    13685532096,
+    13685532097,
+    13685532098,
+    10882885108
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493518662,
+   "nodes": [
+    13685532084,
+    13685532085,
+    13685532086
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493518663,
+   "nodes": [
+    13685532080,
+    13685532081,
+    13685532082,
+    13685532083,
+    13685532084
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1493518664,
+   "nodes": [
+    13685532078,
+    13685532079,
+    13685532080
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565031,
+   "nodes": [
+    13753135505,
+    13753135516,
+    13753135506
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565033,
+   "nodes": [
+    13753135504,
+    13753135513,
+    13753135510
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565035,
+   "nodes": [
+    13107952747,
+    13753135514,
+    13107952764
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565036,
+   "nodes": [
+    13107952764,
+    13753135512,
+    13753135504
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565038,
+   "nodes": [
+    13753135510,
+    13753135515,
+    13107952747
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565039,
+   "nodes": [
+    13753135507,
+    13753135518,
+    13753135517
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565041,
+   "nodes": [
+    13753135517,
+    13753135523,
+    13753135521
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "lines",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565046,
+   "nodes": [
+    13107952668,
+    13753135528,
+    13753135527
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565047,
+   "nodes": [
+    13107952668,
+    13753135530,
+    13753135529
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565050,
+   "nodes": [
+    13107952669,
+    13753135532,
+    13107952734
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565051,
+   "nodes": [
+    13107952739,
+    13753135533,
+    13107952737
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565052,
+   "nodes": [
+    13107952733,
+    13753135536,
+    13107952683
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565053,
+   "nodes": [
+    13107952674,
+    13753135535,
+    13107952670
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565054,
+   "nodes": [
+    13107952683,
+    13753135537,
+    13107952674
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565055,
+   "nodes": [
+    13107952670,
+    13753135534,
+    13107952733
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565056,
+   "nodes": [
+    13107952666,
+    13753135538,
+    13107952664
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565057,
+   "nodes": [
+    13107952655,
+    13753135539,
+    13107952673
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565059,
+   "nodes": [
+    13753135541,
+    13753135552,
+    13753135550
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565060,
+   "nodes": [
+    13753135550,
+    13753135553,
+    13753135551
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565064,
+   "nodes": [
+    13107952664,
+    13107952671,
+    13107952668
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502565065,
+   "nodes": [
+    13107952669,
+    13107952672,
+    13107952670
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502566146,
+   "nodes": [
+    7401383147,
+    3633196948,
+    13753135571,
+    65668314
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "A Street",
+    "sidewalk:left": "no",
+    "sidewalk:right": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "A",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502566147,
+   "nodes": [
+    1962381573,
+    3642959087,
+    13753135553,
+    1962381494
+   ],
+   "tags": {
+    "highway": "residential",
+    "sidewalk:both": "no",
+    "source": "Bing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502566148,
+   "nodes": [
+    5348025394,
+    65668467,
+    13753135513,
+    65668469,
+    13753135514,
+    1962353613
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "West 9th Street",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "9th",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502567996,
+   "nodes": [
+    13107952601,
+    13753135566,
+    13753135565,
+    13753135563,
+    13753135564
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502567998,
+   "nodes": [
+    13107952652,
+    13107952653,
+    13107952659,
+    13107952655
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502567999,
+   "nodes": [
+    13107952657,
+    13107952654,
+    13107952600
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502568000,
+   "nodes": [
+    13107952657,
+    13753135571,
+    13753135562
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502568001,
+   "nodes": [
+    13107952599,
+    13107952603,
+    13107952600
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "surface",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1502568002,
+   "nodes": [
+    13107952678,
+    13107952681,
+    13107952679
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "surface",
+    "crossing:signals": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1565598716,
+   "nodes": [
+    14256032022,
+    14256032036,
+    14256032035
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1565598718,
+   "nodes": [
+    13107952642,
+    14256032044,
+    14256032043
+   ],
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1565598719,
+   "nodes": [
+    14256032024,
+    14256032046,
+    14256032045
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "surface",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1566392269,
+   "nodes": [
+    65674018,
+    6047826414,
+    3639800579,
+    65674020,
+    6047826415,
+    65674021,
+    6047826416,
+    65668640
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Behrends Avenue",
+    "sidewalk:both": "separate",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Behrends;Ross",
+    "tiger:name_type": "Ave;Way",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1566392280,
+   "nodes": [
+    65668758,
+    13685326943,
+    65672078
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "North Franklin Street",
+    "oneway": "yes",
+    "sidewalk:both": "separate",
+    "sidewalk:both:surface": "concrete",
+    "smoothness": "intermediate",
+    "surface": "asphalt",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Juneau, AK",
+    "tiger:name_base": "Franklin",
+    "tiger:name_direction_prefix": "N",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  }
+ ],
+ "query": "[out:json][timeout:120];node[\"highway\"=\"crossing\"](58.285977,-134.440442,58.310880,-134.382311)->.c;.c out body;way(bn.c)[\"highway\"];out body;",
+ "endpoint": "https://overpass-api.de/api/interpreter"
+}

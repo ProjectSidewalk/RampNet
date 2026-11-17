@@ -1,0 +1,33 @@
+{
+ "seed": 285,
+ "auto_per_city": 70,
+ "n_human": 50,
+ "n_sdot": 30,
+ "human_sources": [
+  "crowd",
+  "ps_crowd_jon_confirmed"
+ ],
+ "root": "crosswalk274-root_v6_full",
+ "pools": {
+  "auto": 3040,
+  "v4_crowd": 5273,
+  "v4_ps_crowd_jon_confirmed": 962,
+  "v4_sdot_b2": 1799
+ },
+ "sample": {
+  "auto | sacramento-ca": 70,
+  "auto | brussels-be": 70,
+  "auto | kaysville-ut": 70,
+  "human": 50,
+  "sdot_b2": 30
+ },
+ "sample_digest": "b98b6375eac1",
+ "n": 290,
+ "crop": {
+  "tight_w": 0.08,
+  "context_w": 0.25,
+  "sigma_w": 0.009766,
+  "disc_w": 0.029297
+ },
+ "montages": 33
+}

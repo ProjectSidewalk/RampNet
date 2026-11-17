@@ -1,0 +1,1493 @@
+{
+ "rater": "AI pre-pass",
+ "model": "claude-opus-5-5",
+ "date": "2026-11-15",
+ "not_ground_truth": true,
+ "protocol": "docs/crosswalk_followups_285.md, A4 follow-up 2; cells tagged in montage order without the stratum key; 19 uncertain cells re-viewed at 2x (tight) and a 40%-wide context before mapping to strata",
+ "vocabulary": {
+  "paint": [
+   "clear",
+   "faint",
+   "none",
+   "cant_tell"
+  ],
+  "point": [
+   "on_paint",
+   "between",
+   "off",
+   "na"
+  ]
+ },
+ "sample_digest": "b98b6375eac1",
+ "tags": {
+  "1": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "2": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "paver crossing"
+  },
+  "3": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "4": {
+   "paint": "faint",
+   "point": "between",
+   "note": "worn bars"
+  },
+  "5": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "6": {
+   "paint": "faint",
+   "point": "between",
+   "note": "worn ladder bars"
+  },
+  "7": {
+   "paint": "clear",
+   "point": "off",
+   "note": "beside zebra"
+  },
+  "8": {
+   "paint": "faint",
+   "point": "between",
+   "note": "worn bars"
+  },
+  "9": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "10": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "11": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "12": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, distant"
+  },
+  "13": {
+   "paint": "faint",
+   "point": "between",
+   "note": "night, lines faint"
+  },
+  "14": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "15": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "16": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, worn"
+  },
+  "17": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "18": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra on cobbles, gap"
+  },
+  "19": {
+   "paint": "faint",
+   "point": "between",
+   "note": "very faint parallel lines at 2x zoom, glare",
+   "rechecked_at_2x": true
+  },
+  "20": {
+   "paint": "faint",
+   "point": "between",
+   "note": "worn bars, sun glare"
+  },
+  "21": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "22": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, worn"
+  },
+  "23": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "24": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap, tram tracks"
+  },
+  "25": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "26": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "27": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "28": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "distant zebra"
+  },
+  "29": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra, worn, gap"
+  },
+  "30": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "two-line, on line"
+  },
+  "31": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder"
+  },
+  "32": {
+   "paint": "faint",
+   "point": "between",
+   "note": "worn bars, dusk"
+  },
+  "33": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra in shade, blurry"
+  },
+  "34": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "35": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "36": {
+   "paint": "none",
+   "point": "off",
+   "note": "no marking in view, tree shade",
+   "rechecked_at_2x": true
+  },
+  "37": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "38": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder blocks, shade"
+  },
+  "39": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "40": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "41": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra behind bollards"
+  },
+  "42": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "43": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "44": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "45": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "46": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "distant ladder"
+  },
+  "47": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line in shade, between lines"
+  },
+  "48": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra behind bollards"
+  },
+  "49": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "yellow school crossing bars"
+  },
+  "50": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, worn"
+  },
+  "51": {
+   "paint": "faint",
+   "point": "between",
+   "note": "worn zebra, gap"
+  },
+  "52": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "worn paint on pavers"
+  },
+  "53": {
+   "paint": "clear",
+   "point": "off",
+   "note": "just short of zebra"
+  },
+  "54": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "55": {
+   "paint": "none",
+   "point": "between",
+   "note": "wide two-line crossing, disc holds no paint"
+  },
+  "56": {
+   "paint": "none",
+   "point": "off",
+   "note": "dark; a light smear below the point, possibly a worn bar (zoom-checked, left as none)",
+   "rechecked_at_2x": true
+  },
+  "57": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "58": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, pedestrians"
+  },
+  "59": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "60": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "61": {
+   "paint": "faint",
+   "point": "between",
+   "note": "a faint short mark at the point (zoom-checked)",
+   "rechecked_at_2x": true
+  },
+  "62": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "63": {
+   "paint": "none",
+   "point": "off",
+   "note": "road by bollards; a faint lighter band at most (zoom-checked, left as none)",
+   "rechecked_at_2x": true
+  },
+  "64": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "65": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "66": {
+   "paint": "none",
+   "point": "off",
+   "note": "hedge and curb by a bike lane",
+   "rechecked_at_2x": true
+  },
+  "67": {
+   "paint": "cant_tell",
+   "point": "na",
+   "note": "overexposed brick paving",
+   "rechecked_at_2x": true
+  },
+  "68": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "69": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, dusk"
+  },
+  "70": {
+   "paint": "cant_tell",
+   "point": "na",
+   "note": "glare washes out the road"
+  },
+  "71": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "72": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "73": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "74": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra blocks"
+  },
+  "75": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two lines under a freeway, unsure",
+   "rechecked_at_2x": true
+  },
+  "76": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "77": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, dusk"
+  },
+  "78": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "red-surfaced crossing band"
+  },
+  "79": {
+   "paint": "faint",
+   "point": "between",
+   "note": "faint zebra, dusk"
+  },
+  "80": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "faint zebra"
+  },
+  "81": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra behind a truck"
+  },
+  "82": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra partly behind a car"
+  },
+  "83": {
+   "paint": "faint",
+   "point": "between",
+   "note": "faint blocks, dusk"
+  },
+  "84": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "85": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "86": {
+   "paint": "clear",
+   "point": "between",
+   "note": "ladder gap"
+  },
+  "87": {
+   "paint": "none",
+   "point": "off",
+   "note": "low sun, no marking in disc",
+   "rechecked_at_2x": true
+  },
+  "88": {
+   "paint": "faint",
+   "point": "between",
+   "note": "faint blocks, dusk"
+  },
+  "89": {
+   "paint": "clear",
+   "point": "between",
+   "note": "ladder gap"
+  },
+  "90": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra blocks"
+  },
+  "91": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "red brick crossing band (context); capture-vehicle mast and antenna in the disc",
+   "rechecked_at_2x": true
+  },
+  "92": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "worn paint on cobbles"
+  },
+  "93": {
+   "paint": "clear",
+   "point": "off",
+   "note": "two lines in disc, point on car and pole"
+  },
+  "94": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra on cobbles"
+  },
+  "95": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "96": {
+   "paint": "faint",
+   "point": "between",
+   "note": "worn crossing"
+  },
+  "97": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra, worn, gap"
+  },
+  "98": {
+   "paint": "clear",
+   "point": "off",
+   "note": "on lane dashes just short of a zebra that is inside the disc (zoom-checked)",
+   "rechecked_at_2x": true
+  },
+  "99": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "100": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines; vehicle gear in disc"
+  },
+  "101": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "102": {
+   "paint": "clear",
+   "point": "off",
+   "note": "point on capture vehicle roof, lines at disc top"
+  },
+  "103": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "worn zebra, hand and vehicle in disc"
+  },
+  "104": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "105": {
+   "paint": "clear",
+   "point": "between",
+   "note": "ladder gap"
+  },
+  "106": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "faint blocks"
+  },
+  "107": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "108": {
+   "paint": "clear",
+   "point": "off",
+   "note": "point on vehicle rack, blocks above"
+  },
+  "109": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder, worn"
+  },
+  "110": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "111": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "112": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines; vehicle reflection"
+  },
+  "113": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "114": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "115": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "distant zebra"
+  },
+  "116": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "117": {
+   "paint": "none",
+   "point": "between",
+   "note": "wide two-line crossing, disc holds no paint"
+  },
+  "118": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "119": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "120": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "121": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "122": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra blocks at night, gap"
+  },
+  "123": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder"
+  },
+  "124": {
+   "paint": "faint",
+   "point": "between",
+   "note": "faded two-line, between lines"
+  },
+  "125": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, dark"
+  },
+  "126": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "127": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line in shade, between lines"
+  },
+  "128": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder"
+  },
+  "129": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "130": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "131": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, cracked"
+  },
+  "132": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra in glare, gap"
+  },
+  "133": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "134": {
+   "paint": "none",
+   "point": "off",
+   "note": "rail-line area by barriers, no marking at point",
+   "rechecked_at_2x": true
+  },
+  "135": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line at night, between lines"
+  },
+  "136": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line in shade, between lines"
+  },
+  "137": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "138": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "139": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "faint blocks, dusk"
+  },
+  "140": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "141": {
+   "paint": "clear",
+   "point": "between",
+   "note": "bordered ladder, gap"
+  },
+  "142": {
+   "paint": "clear",
+   "point": "between",
+   "note": "ladder gap"
+  },
+  "143": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "144": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "distant ladder"
+  },
+  "145": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "146": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "147": {
+   "paint": "faint",
+   "point": "between",
+   "note": "worn blocks"
+  },
+  "148": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, pedestrians"
+  },
+  "149": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "paint mostly worn off, flecks remain"
+  },
+  "150": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap, close"
+  },
+  "151": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "faint zebra, blur"
+  },
+  "152": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "153": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "154": {
+   "paint": "clear",
+   "point": "between",
+   "note": "ladder pair, gap between the pair"
+  },
+  "155": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "156": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, cracked"
+  },
+  "157": {
+   "paint": "clear",
+   "point": "between",
+   "note": "wide two-line, between lines"
+  },
+  "158": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "159": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra blocks, gap"
+  },
+  "160": {
+   "paint": "faint",
+   "point": "between",
+   "note": "wide road, faint lines at most",
+   "rechecked_at_2x": true
+  },
+  "161": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra, worn, gap"
+  },
+  "162": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "163": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "single wide line; may be a stop bar rather than a crossing line",
+   "rechecked_at_2x": true
+  },
+  "164": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "165": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, tram tracks"
+  },
+  "166": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "167": {
+   "paint": "none",
+   "point": "off",
+   "note": "light-rail tracks by a platform, no marking at point",
+   "rechecked_at_2x": true
+  },
+  "168": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra blocks"
+  },
+  "169": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder"
+  },
+  "170": {
+   "paint": "clear",
+   "point": "between",
+   "note": "wide two-line, between lines"
+  },
+  "171": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "bordered zebra"
+  },
+  "172": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "173": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line at dusk, between lines"
+  },
+  "174": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra blocks, vehicle mount below"
+  },
+  "175": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap, close"
+  },
+  "176": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, on a stripe edge"
+  },
+  "177": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "178": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder"
+  },
+  "179": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "180": {
+   "paint": "none",
+   "point": "off",
+   "note": "concrete sidewalk panels, no crossing",
+   "rechecked_at_2x": true
+  },
+  "181": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line in dappled shade, between lines"
+  },
+  "182": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "183": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "184": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "185": {
+   "paint": "clear",
+   "point": "between",
+   "note": "wide two-line in shade, between lines"
+  },
+  "186": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, tram tracks"
+  },
+  "187": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "188": {
+   "paint": "clear",
+   "point": "off",
+   "note": "point on capture-vehicle mount between the lines"
+  },
+  "189": {
+   "paint": "clear",
+   "point": "between",
+   "note": "wide two-line, between lines"
+  },
+  "190": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "191": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap, close"
+  },
+  "192": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "worn zebra in shadow"
+  },
+  "193": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra blocks in shade, gap"
+  },
+  "194": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "distant ladder"
+  },
+  "195": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "196": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra behind scooters"
+  },
+  "197": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "distant ladder"
+  },
+  "198": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "199": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line at dusk, between lines"
+  },
+  "200": {
+   "paint": "clear",
+   "point": "off",
+   "note": "point on a car, ladder beyond"
+  },
+  "201": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra on cobble road"
+  },
+  "202": {
+   "paint": "clear",
+   "point": "between",
+   "note": "wide two-line, between lines"
+  },
+  "203": {
+   "paint": "clear",
+   "point": "off",
+   "note": "point on a parked car, zebra behind"
+  },
+  "204": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder"
+  },
+  "205": {
+   "paint": "faint",
+   "point": "between",
+   "note": "faint two-line on pale concrete"
+  },
+  "206": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "distant ladder"
+  },
+  "207": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "208": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "209": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "faint zebra"
+  },
+  "210": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "211": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder in shade"
+  },
+  "212": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "213": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line at dusk, between lines"
+  },
+  "214": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "215": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, worn"
+  },
+  "216": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "217": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "218": {
+   "paint": "faint",
+   "point": "between",
+   "note": "two thin lines through the point, wet road at dusk (zoom-checked)",
+   "rechecked_at_2x": true
+  },
+  "219": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "220": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "zebra in fog"
+  },
+  "221": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "222": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra blocks"
+  },
+  "223": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "two-line, on a line, low sun"
+  },
+  "224": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder, worn, shade"
+  },
+  "225": {
+   "paint": "clear",
+   "point": "between",
+   "note": "ladder gap"
+  },
+  "226": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder near a car"
+  },
+  "227": {
+   "paint": "faint",
+   "point": "between",
+   "note": "worn paint traces on setts"
+  },
+  "228": {
+   "paint": "clear",
+   "point": "between",
+   "note": "wide two-line, between lines"
+  },
+  "229": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "230": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder"
+  },
+  "231": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "worn zebra"
+  },
+  "232": {
+   "paint": "clear",
+   "point": "between",
+   "note": "ladder pair, gap"
+  },
+  "233": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "234": {
+   "paint": "faint",
+   "point": "between",
+   "note": "faint two-line"
+  },
+  "235": {
+   "paint": "clear",
+   "point": "between",
+   "note": "painted pavers, gap"
+  },
+  "236": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "worn zebra blocks"
+  },
+  "237": {
+   "paint": "cant_tell",
+   "point": "na",
+   "note": "motion blur at night"
+  },
+  "238": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "faint blocks"
+  },
+  "239": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "240": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra blocks"
+  },
+  "241": {
+   "paint": "clear",
+   "point": "between",
+   "note": "wide two-line, between lines"
+  },
+  "242": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "red-surfaced crossing band"
+  },
+  "243": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines; vehicle gear below"
+  },
+  "244": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra blocks"
+  },
+  "245": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "246": {
+   "paint": "faint",
+   "point": "off",
+   "note": "distant crossing beyond a rail fence"
+  },
+  "247": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "248": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "249": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "250": {
+   "paint": "none",
+   "point": "between",
+   "note": "wide two-line crossing, disc holds no paint"
+  },
+  "251": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "252": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "faint blocks"
+  },
+  "253": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra blocks at dusk"
+  },
+  "254": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "255": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "256": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line with shadows, between lines"
+  },
+  "257": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "258": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "259": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra on cobbles, gap"
+  },
+  "260": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra on pavers"
+  },
+  "261": {
+   "paint": "clear",
+   "point": "between",
+   "note": "zebra gap"
+  },
+  "262": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "faint blocks in glare"
+  },
+  "263": {
+   "paint": "clear",
+   "point": "between",
+   "note": "wide two-line, line at disc edge only"
+  },
+  "264": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "265": {
+   "paint": "none",
+   "point": "off",
+   "note": "asphalt with sealed crack and manhole, no crossing",
+   "rechecked_at_2x": true
+  },
+  "266": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "267": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, cracked"
+  },
+  "268": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "269": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "270": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra, close"
+  },
+  "271": {
+   "paint": "clear",
+   "point": "off",
+   "note": "zebra across a path, point on the grass edge, rain"
+  },
+  "272": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "273": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "very worn zebra, close"
+  },
+  "274": {
+   "paint": "faint",
+   "point": "between",
+   "note": "faint line across the intersection between parked cars (zoom-checked)",
+   "rechecked_at_2x": true
+  },
+  "275": {
+   "paint": "clear",
+   "point": "between",
+   "note": "wide two-line, between lines"
+  },
+  "276": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "277": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra behind a car and people"
+  },
+  "278": {
+   "paint": "clear",
+   "point": "off",
+   "note": "point on a median by a signal pole, lines nearby"
+  },
+  "279": {
+   "paint": "clear",
+   "point": "between",
+   "note": "ladder pairs, gap"
+  },
+  "280": {
+   "paint": "none",
+   "point": "between",
+   "note": "wide two-line at night, disc holds no paint"
+  },
+  "281": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "282": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "283": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "284": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "ladder pairs"
+  },
+  "285": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra over a red bike lane"
+  },
+  "286": {
+   "paint": "clear",
+   "point": "between",
+   "note": "two-line, between lines"
+  },
+  "287": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "288": {
+   "paint": "faint",
+   "point": "on_paint",
+   "note": "faint zebra blocks"
+  },
+  "289": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra"
+  },
+  "290": {
+   "paint": "clear",
+   "point": "on_paint",
+   "note": "zebra behind bollards"
+  }
+ }
+}

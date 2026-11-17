@@ -1,0 +1,194 @@
+{
+ "strata": {
+  "auto": {
+   "n": 210,
+   "paint": {
+    "clear": 164,
+    "faint": 35,
+    "none": 9,
+    "cant_tell": 2
+   },
+   "point": {
+    "on_paint": 92,
+    "between": 102,
+    "off": 14,
+    "na": 2
+   },
+   "no_paint_share": 0.04326923076923077,
+   "no_paint_wilson": [
+    0.022928210873058096,
+    0.08017524000722226
+   ],
+   "no_paint_or_cant_tell_share": 0.05238095238095238,
+   "faint_share": 0.16826923076923078,
+   "peak_off_paint_share": 0.5576923076923077,
+   "peak_off_paint_wilson": [
+    0.4897557971619141,
+    0.6235363985163663
+   ]
+  },
+  "human": {
+   "n": 50,
+   "paint": {
+    "clear": 43,
+    "faint": 4,
+    "none": 2,
+    "cant_tell": 1
+   },
+   "point": {
+    "on_paint": 31,
+    "between": 15,
+    "off": 3,
+    "na": 1
+   },
+   "no_paint_share": 0.04081632653061224,
+   "no_paint_wilson": [
+    0.011265396927928273,
+    0.13713283476831106
+   ],
+   "no_paint_or_cant_tell_share": 0.06,
+   "faint_share": 0.08163265306122448,
+   "peak_off_paint_share": 0.3673469387755102,
+   "peak_off_paint_wilson": [
+    0.24664982524781226,
+    0.5073318861311014
+   ]
+  },
+  "sdot_b2": {
+   "n": 30,
+   "paint": {
+    "clear": 27,
+    "faint": 1,
+    "none": 2,
+    "cant_tell": 0
+   },
+   "point": {
+    "on_paint": 21,
+    "between": 5,
+    "off": 4,
+    "na": 0
+   },
+   "no_paint_share": 0.06666666666666667,
+   "no_paint_wilson": [
+    0.01847663532769335,
+    0.21323817721072091
+   ],
+   "no_paint_or_cant_tell_share": 0.06666666666666667,
+   "faint_share": 0.03333333333333333,
+   "peak_off_paint_share": 0.3,
+   "peak_off_paint_wilson": [
+    0.16664562643958933,
+    0.4787612101166018
+   ]
+  }
+ },
+ "auto_cities": {
+  "brussels-be": {
+   "n": 70,
+   "paint": {
+    "clear": 66,
+    "faint": 2,
+    "none": 2,
+    "cant_tell": 0
+   },
+   "point": {
+    "on_paint": 56,
+    "between": 11,
+    "off": 3,
+    "na": 0
+   },
+   "no_paint_share": 0.02857142857142857,
+   "no_paint_wilson": [
+    0.007870446893806289,
+    0.09832443512391814
+   ],
+   "no_paint_or_cant_tell_share": 0.02857142857142857,
+   "faint_share": 0.02857142857142857,
+   "peak_off_paint_share": 0.2,
+   "peak_off_paint_wilson": [
+    0.12304627802949916,
+    0.30816864689087087
+   ]
+  },
+  "kaysville-ut": {
+   "n": 70,
+   "paint": {
+    "clear": 35,
+    "faint": 30,
+    "none": 3,
+    "cant_tell": 2
+   },
+   "point": {
+    "on_paint": 25,
+    "between": 39,
+    "off": 4,
+    "na": 2
+   },
+   "no_paint_share": 0.04411764705882353,
+   "no_paint_wilson": [
+    0.0151163456535321,
+    0.12187392182380694
+   ],
+   "no_paint_or_cant_tell_share": 0.07142857142857142,
+   "faint_share": 0.4411764705882353,
+   "peak_off_paint_share": 0.6323529411764706,
+   "peak_off_paint_wilson": [
+    0.5135541592730174,
+    0.7369970533948519
+   ]
+  },
+  "sacramento-ca": {
+   "n": 70,
+   "paint": {
+    "clear": 63,
+    "faint": 3,
+    "none": 4,
+    "cant_tell": 0
+   },
+   "point": {
+    "on_paint": 11,
+    "between": 52,
+    "off": 7,
+    "na": 0
+   },
+   "no_paint_share": 0.05714285714285714,
+   "no_paint_wilson": [
+    0.02244341584741017,
+    0.1379214733207552
+   ],
+   "no_paint_or_cant_tell_share": 0.05714285714285714,
+   "faint_share": 0.04285714285714286,
+   "peak_off_paint_share": 0.8428571428571429,
+   "peak_off_paint_wilson": [
+    0.7401153685651781,
+    0.9099247172401131
+   ]
+  }
+ },
+ "auto_no_paint_training_weighted": 0.04285493144626272,
+ "weights": {
+  "brussels-be": 1347,
+  "kaysville-ut": 380,
+  "sacramento-ca": 1313
+ },
+ "verdict": "not_supported",
+ "point_flag": true,
+ "rule": {
+  "support_min": 0.1,
+  "not_supported_margin": 0.03,
+  "point_flag_margin": 0.15
+ },
+ "a3_overlap": {
+  "crosswalk | clear": 12,
+  "crosswalk | faint": 11,
+  "crosswalk | none": 2
+ },
+ "tags_file": "ai_prerater_tags_claude-opus-5-5.json",
+ "rater": {
+  "rater": "AI pre-pass",
+  "model": "claude-opus-5-5",
+  "date": "2026-11-15",
+  "not_ground_truth": true
+ },
+ "sample_digest": "b98b6375eac1"
+}

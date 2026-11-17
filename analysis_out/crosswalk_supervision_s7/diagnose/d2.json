@@ -1,0 +1,803 @@
+{
+ "grid": [
+  0.1,
+  0.11,
+  0.12,
+  0.13,
+  0.14,
+  0.15,
+  0.16,
+  0.17,
+  0.18,
+  0.19,
+  0.2,
+  0.21,
+  0.22,
+  0.23,
+  0.24,
+  0.25,
+  0.26,
+  0.27,
+  0.28,
+  0.29,
+  0.3,
+  0.31,
+  0.32,
+  0.33,
+  0.34,
+  0.35,
+  0.36,
+  0.37,
+  0.38,
+  0.39,
+  0.4
+ ],
+ "radius": 0.05,
+ "rig_mask_y": 0.772222,
+ "families": {
+  "s4": {
+   "seeds": 3,
+   "matched": {
+    "found": [
+     63,
+     59,
+     77
+    ],
+    "fa_rig_masked": [
+     6,
+     4,
+     10
+    ],
+    "mean_recall": 0.603,
+    "mean_fa_rig_masked": 6.667
+   },
+   "fixed_0.25": {
+    "found": [
+     61,
+     67,
+     67
+    ],
+    "fa_rig_masked": [
+     4,
+     5,
+     4
+    ],
+    "mean_recall": 0.591,
+    "mean_fa_rig_masked": 4.333
+   },
+   "mean_curve": [
+    {
+     "threshold": 0.1,
+     "mean_recall": 0.7,
+     "mean_fa_rig_masked": 14.667
+    },
+    {
+     "threshold": 0.11,
+     "mean_recall": 0.697,
+     "mean_fa_rig_masked": 14.333
+    },
+    {
+     "threshold": 0.12,
+     "mean_recall": 0.688,
+     "mean_fa_rig_masked": 13.0
+    },
+    {
+     "threshold": 0.13,
+     "mean_recall": 0.688,
+     "mean_fa_rig_masked": 12.333
+    },
+    {
+     "threshold": 0.14,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 11.333
+    },
+    {
+     "threshold": 0.15,
+     "mean_recall": 0.67,
+     "mean_fa_rig_masked": 11.0
+    },
+    {
+     "threshold": 0.16,
+     "mean_recall": 0.667,
+     "mean_fa_rig_masked": 10.0
+    },
+    {
+     "threshold": 0.17,
+     "mean_recall": 0.648,
+     "mean_fa_rig_masked": 9.667
+    },
+    {
+     "threshold": 0.18,
+     "mean_recall": 0.63,
+     "mean_fa_rig_masked": 8.333
+    },
+    {
+     "threshold": 0.19,
+     "mean_recall": 0.627,
+     "mean_fa_rig_masked": 7.667
+    },
+    {
+     "threshold": 0.2,
+     "mean_recall": 0.615,
+     "mean_fa_rig_masked": 7.0
+    },
+    {
+     "threshold": 0.21,
+     "mean_recall": 0.615,
+     "mean_fa_rig_masked": 6.667
+    },
+    {
+     "threshold": 0.22,
+     "mean_recall": 0.606,
+     "mean_fa_rig_masked": 6.333
+    },
+    {
+     "threshold": 0.23,
+     "mean_recall": 0.6,
+     "mean_fa_rig_masked": 6.0
+    },
+    {
+     "threshold": 0.24,
+     "mean_recall": 0.597,
+     "mean_fa_rig_masked": 5.333
+    },
+    {
+     "threshold": 0.25,
+     "mean_recall": 0.591,
+     "mean_fa_rig_masked": 4.333
+    },
+    {
+     "threshold": 0.26,
+     "mean_recall": 0.573,
+     "mean_fa_rig_masked": 4.333
+    },
+    {
+     "threshold": 0.27,
+     "mean_recall": 0.564,
+     "mean_fa_rig_masked": 4.333
+    },
+    {
+     "threshold": 0.28,
+     "mean_recall": 0.551,
+     "mean_fa_rig_masked": 4.333
+    },
+    {
+     "threshold": 0.29,
+     "mean_recall": 0.539,
+     "mean_fa_rig_masked": 4.333
+    },
+    {
+     "threshold": 0.3,
+     "mean_recall": 0.53,
+     "mean_fa_rig_masked": 4.0
+    },
+    {
+     "threshold": 0.31,
+     "mean_recall": 0.53,
+     "mean_fa_rig_masked": 4.0
+    },
+    {
+     "threshold": 0.32,
+     "mean_recall": 0.521,
+     "mean_fa_rig_masked": 4.0
+    },
+    {
+     "threshold": 0.33,
+     "mean_recall": 0.512,
+     "mean_fa_rig_masked": 4.0
+    },
+    {
+     "threshold": 0.34,
+     "mean_recall": 0.5,
+     "mean_fa_rig_masked": 3.667
+    },
+    {
+     "threshold": 0.35,
+     "mean_recall": 0.497,
+     "mean_fa_rig_masked": 3.667
+    },
+    {
+     "threshold": 0.36,
+     "mean_recall": 0.488,
+     "mean_fa_rig_masked": 3.667
+    },
+    {
+     "threshold": 0.37,
+     "mean_recall": 0.482,
+     "mean_fa_rig_masked": 3.667
+    },
+    {
+     "threshold": 0.38,
+     "mean_recall": 0.476,
+     "mean_fa_rig_masked": 3.333
+    },
+    {
+     "threshold": 0.39,
+     "mean_recall": 0.464,
+     "mean_fa_rig_masked": 3.333
+    },
+    {
+     "threshold": 0.4,
+     "mean_recall": 0.458,
+     "mean_fa_rig_masked": 3.0
+    }
+   ],
+   "best_recall_within_guard6_mean": {
+    "limit": 10.667,
+    "threshold": 0.16,
+    "mean_recall": 0.667,
+    "mean_fa_rig_masked": 10.0
+   }
+  },
+  "full": {
+   "seeds": 3,
+   "matched": {
+    "found": [
+     94,
+     71,
+     72
+    ],
+    "fa_rig_masked": [
+     234,
+     41,
+     61
+    ],
+    "mean_recall": 0.718,
+    "mean_fa_rig_masked": 112.0
+   },
+   "fixed_0.25": {
+    "found": [
+     91,
+     72,
+     72
+    ],
+    "fa_rig_masked": [
+     128,
+     46,
+     58
+    ],
+    "mean_recall": 0.712,
+    "mean_fa_rig_masked": 77.333
+   },
+   "mean_curve": [
+    {
+     "threshold": 0.1,
+     "mean_recall": 0.803,
+     "mean_fa_rig_masked": 242.667
+    },
+    {
+     "threshold": 0.11,
+     "mean_recall": 0.788,
+     "mean_fa_rig_masked": 220.333
+    },
+    {
+     "threshold": 0.12,
+     "mean_recall": 0.782,
+     "mean_fa_rig_masked": 204.333
+    },
+    {
+     "threshold": 0.13,
+     "mean_recall": 0.77,
+     "mean_fa_rig_masked": 186.333
+    },
+    {
+     "threshold": 0.14,
+     "mean_recall": 0.77,
+     "mean_fa_rig_masked": 175.667
+    },
+    {
+     "threshold": 0.15,
+     "mean_recall": 0.767,
+     "mean_fa_rig_masked": 164.667
+    },
+    {
+     "threshold": 0.16,
+     "mean_recall": 0.758,
+     "mean_fa_rig_masked": 149.667
+    },
+    {
+     "threshold": 0.17,
+     "mean_recall": 0.745,
+     "mean_fa_rig_masked": 137.333
+    },
+    {
+     "threshold": 0.18,
+     "mean_recall": 0.739,
+     "mean_fa_rig_masked": 125.333
+    },
+    {
+     "threshold": 0.19,
+     "mean_recall": 0.73,
+     "mean_fa_rig_masked": 118.667
+    },
+    {
+     "threshold": 0.2,
+     "mean_recall": 0.727,
+     "mean_fa_rig_masked": 112.0
+    },
+    {
+     "threshold": 0.21,
+     "mean_recall": 0.721,
+     "mean_fa_rig_masked": 105.0
+    },
+    {
+     "threshold": 0.22,
+     "mean_recall": 0.718,
+     "mean_fa_rig_masked": 98.667
+    },
+    {
+     "threshold": 0.23,
+     "mean_recall": 0.715,
+     "mean_fa_rig_masked": 90.667
+    },
+    {
+     "threshold": 0.24,
+     "mean_recall": 0.712,
+     "mean_fa_rig_masked": 83.667
+    },
+    {
+     "threshold": 0.25,
+     "mean_recall": 0.712,
+     "mean_fa_rig_masked": 77.333
+    },
+    {
+     "threshold": 0.26,
+     "mean_recall": 0.7,
+     "mean_fa_rig_masked": 74.0
+    },
+    {
+     "threshold": 0.27,
+     "mean_recall": 0.691,
+     "mean_fa_rig_masked": 65.667
+    },
+    {
+     "threshold": 0.28,
+     "mean_recall": 0.685,
+     "mean_fa_rig_masked": 61.667
+    },
+    {
+     "threshold": 0.29,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 58.0
+    },
+    {
+     "threshold": 0.3,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 54.333
+    },
+    {
+     "threshold": 0.31,
+     "mean_recall": 0.673,
+     "mean_fa_rig_masked": 52.0
+    },
+    {
+     "threshold": 0.32,
+     "mean_recall": 0.67,
+     "mean_fa_rig_masked": 48.333
+    },
+    {
+     "threshold": 0.33,
+     "mean_recall": 0.658,
+     "mean_fa_rig_masked": 48.0
+    },
+    {
+     "threshold": 0.34,
+     "mean_recall": 0.645,
+     "mean_fa_rig_masked": 46.333
+    },
+    {
+     "threshold": 0.35,
+     "mean_recall": 0.636,
+     "mean_fa_rig_masked": 42.667
+    },
+    {
+     "threshold": 0.36,
+     "mean_recall": 0.624,
+     "mean_fa_rig_masked": 40.0
+    },
+    {
+     "threshold": 0.37,
+     "mean_recall": 0.621,
+     "mean_fa_rig_masked": 37.333
+    },
+    {
+     "threshold": 0.38,
+     "mean_recall": 0.621,
+     "mean_fa_rig_masked": 34.0
+    },
+    {
+     "threshold": 0.39,
+     "mean_recall": 0.612,
+     "mean_fa_rig_masked": 31.0
+    },
+    {
+     "threshold": 0.4,
+     "mean_recall": 0.594,
+     "mean_fa_rig_masked": 27.333
+    }
+   ],
+   "best_recall_within_guard6_mean": {
+    "limit": 10.667,
+    "threshold": null
+   }
+  },
+  "half": {
+   "seeds": 3,
+   "matched": {
+    "found": [
+     75,
+     66,
+     81
+    ],
+    "fa_rig_masked": [
+     48,
+     20,
+     54
+    ],
+    "mean_recall": 0.673,
+    "mean_fa_rig_masked": 40.667
+   },
+   "fixed_0.25": {
+    "found": [
+     71,
+     65,
+     81
+    ],
+    "fa_rig_masked": [
+     41,
+     18,
+     54
+    ],
+    "mean_recall": 0.658,
+    "mean_fa_rig_masked": 37.667
+   },
+   "mean_curve": [
+    {
+     "threshold": 0.1,
+     "mean_recall": 0.782,
+     "mean_fa_rig_masked": 120.333
+    },
+    {
+     "threshold": 0.11,
+     "mean_recall": 0.773,
+     "mean_fa_rig_masked": 105.667
+    },
+    {
+     "threshold": 0.12,
+     "mean_recall": 0.77,
+     "mean_fa_rig_masked": 95.667
+    },
+    {
+     "threshold": 0.13,
+     "mean_recall": 0.758,
+     "mean_fa_rig_masked": 87.667
+    },
+    {
+     "threshold": 0.14,
+     "mean_recall": 0.748,
+     "mean_fa_rig_masked": 82.333
+    },
+    {
+     "threshold": 0.15,
+     "mean_recall": 0.739,
+     "mean_fa_rig_masked": 72.667
+    },
+    {
+     "threshold": 0.16,
+     "mean_recall": 0.73,
+     "mean_fa_rig_masked": 67.667
+    },
+    {
+     "threshold": 0.17,
+     "mean_recall": 0.718,
+     "mean_fa_rig_masked": 63.667
+    },
+    {
+     "threshold": 0.18,
+     "mean_recall": 0.712,
+     "mean_fa_rig_masked": 57.667
+    },
+    {
+     "threshold": 0.19,
+     "mean_recall": 0.709,
+     "mean_fa_rig_masked": 54.667
+    },
+    {
+     "threshold": 0.2,
+     "mean_recall": 0.7,
+     "mean_fa_rig_masked": 50.0
+    },
+    {
+     "threshold": 0.21,
+     "mean_recall": 0.694,
+     "mean_fa_rig_masked": 46.333
+    },
+    {
+     "threshold": 0.22,
+     "mean_recall": 0.685,
+     "mean_fa_rig_masked": 44.667
+    },
+    {
+     "threshold": 0.23,
+     "mean_recall": 0.679,
+     "mean_fa_rig_masked": 42.0
+    },
+    {
+     "threshold": 0.24,
+     "mean_recall": 0.67,
+     "mean_fa_rig_masked": 39.333
+    },
+    {
+     "threshold": 0.25,
+     "mean_recall": 0.658,
+     "mean_fa_rig_masked": 37.667
+    },
+    {
+     "threshold": 0.26,
+     "mean_recall": 0.633,
+     "mean_fa_rig_masked": 36.0
+    },
+    {
+     "threshold": 0.27,
+     "mean_recall": 0.63,
+     "mean_fa_rig_masked": 34.0
+    },
+    {
+     "threshold": 0.28,
+     "mean_recall": 0.621,
+     "mean_fa_rig_masked": 32.0
+    },
+    {
+     "threshold": 0.29,
+     "mean_recall": 0.615,
+     "mean_fa_rig_masked": 29.667
+    },
+    {
+     "threshold": 0.3,
+     "mean_recall": 0.603,
+     "mean_fa_rig_masked": 27.0
+    },
+    {
+     "threshold": 0.31,
+     "mean_recall": 0.573,
+     "mean_fa_rig_masked": 25.667
+    },
+    {
+     "threshold": 0.32,
+     "mean_recall": 0.564,
+     "mean_fa_rig_masked": 24.333
+    },
+    {
+     "threshold": 0.33,
+     "mean_recall": 0.545,
+     "mean_fa_rig_masked": 22.667
+    },
+    {
+     "threshold": 0.34,
+     "mean_recall": 0.536,
+     "mean_fa_rig_masked": 21.667
+    },
+    {
+     "threshold": 0.35,
+     "mean_recall": 0.533,
+     "mean_fa_rig_masked": 21.0
+    },
+    {
+     "threshold": 0.36,
+     "mean_recall": 0.515,
+     "mean_fa_rig_masked": 20.333
+    },
+    {
+     "threshold": 0.37,
+     "mean_recall": 0.509,
+     "mean_fa_rig_masked": 19.0
+    },
+    {
+     "threshold": 0.38,
+     "mean_recall": 0.509,
+     "mean_fa_rig_masked": 18.667
+    },
+    {
+     "threshold": 0.39,
+     "mean_recall": 0.503,
+     "mean_fa_rig_masked": 17.667
+    },
+    {
+     "threshold": 0.4,
+     "mean_recall": 0.494,
+     "mean_fa_rig_masked": 17.0
+    }
+   ],
+   "best_recall_within_guard6_mean": {
+    "limit": 10.667,
+    "threshold": null
+   }
+  },
+  "steps": {
+   "seeds": 1,
+   "matched": {
+    "found": [
+     70
+    ],
+    "fa_rig_masked": [
+     9
+    ],
+    "mean_recall": 0.636,
+    "mean_fa_rig_masked": 9.0
+   },
+   "fixed_0.25": {
+    "found": [
+     68
+    ],
+    "fa_rig_masked": [
+     9
+    ],
+    "mean_recall": 0.618,
+    "mean_fa_rig_masked": 9.0
+   },
+   "mean_curve": [
+    {
+     "threshold": 0.1,
+     "mean_recall": 0.709,
+     "mean_fa_rig_masked": 21.0
+    },
+    {
+     "threshold": 0.11,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 18.0
+    },
+    {
+     "threshold": 0.12,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 17.0
+    },
+    {
+     "threshold": 0.13,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 17.0
+    },
+    {
+     "threshold": 0.14,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 16.0
+    },
+    {
+     "threshold": 0.15,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 16.0
+    },
+    {
+     "threshold": 0.16,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 13.0
+    },
+    {
+     "threshold": 0.17,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 11.0
+    },
+    {
+     "threshold": 0.18,
+     "mean_recall": 0.682,
+     "mean_fa_rig_masked": 11.0
+    },
+    {
+     "threshold": 0.19,
+     "mean_recall": 0.673,
+     "mean_fa_rig_masked": 11.0
+    },
+    {
+     "threshold": 0.2,
+     "mean_recall": 0.664,
+     "mean_fa_rig_masked": 10.0
+    },
+    {
+     "threshold": 0.21,
+     "mean_recall": 0.664,
+     "mean_fa_rig_masked": 9.0
+    },
+    {
+     "threshold": 0.22,
+     "mean_recall": 0.645,
+     "mean_fa_rig_masked": 9.0
+    },
+    {
+     "threshold": 0.23,
+     "mean_recall": 0.645,
+     "mean_fa_rig_masked": 9.0
+    },
+    {
+     "threshold": 0.24,
+     "mean_recall": 0.636,
+     "mean_fa_rig_masked": 9.0
+    },
+    {
+     "threshold": 0.25,
+     "mean_recall": 0.618,
+     "mean_fa_rig_masked": 9.0
+    },
+    {
+     "threshold": 0.26,
+     "mean_recall": 0.609,
+     "mean_fa_rig_masked": 9.0
+    },
+    {
+     "threshold": 0.27,
+     "mean_recall": 0.6,
+     "mean_fa_rig_masked": 8.0
+    },
+    {
+     "threshold": 0.28,
+     "mean_recall": 0.6,
+     "mean_fa_rig_masked": 8.0
+    },
+    {
+     "threshold": 0.29,
+     "mean_recall": 0.591,
+     "mean_fa_rig_masked": 7.0
+    },
+    {
+     "threshold": 0.3,
+     "mean_recall": 0.573,
+     "mean_fa_rig_masked": 7.0
+    },
+    {
+     "threshold": 0.31,
+     "mean_recall": 0.573,
+     "mean_fa_rig_masked": 7.0
+    },
+    {
+     "threshold": 0.32,
+     "mean_recall": 0.573,
+     "mean_fa_rig_masked": 6.0
+    },
+    {
+     "threshold": 0.33,
+     "mean_recall": 0.536,
+     "mean_fa_rig_masked": 6.0
+    },
+    {
+     "threshold": 0.34,
+     "mean_recall": 0.527,
+     "mean_fa_rig_masked": 6.0
+    },
+    {
+     "threshold": 0.35,
+     "mean_recall": 0.518,
+     "mean_fa_rig_masked": 6.0
+    },
+    {
+     "threshold": 0.36,
+     "mean_recall": 0.518,
+     "mean_fa_rig_masked": 6.0
+    },
+    {
+     "threshold": 0.37,
+     "mean_recall": 0.509,
+     "mean_fa_rig_masked": 6.0
+    },
+    {
+     "threshold": 0.38,
+     "mean_recall": 0.5,
+     "mean_fa_rig_masked": 5.0
+    },
+    {
+     "threshold": 0.39,
+     "mean_recall": 0.5,
+     "mean_fa_rig_masked": 5.0
+    },
+    {
+     "threshold": 0.4,
+     "mean_recall": 0.482,
+     "mean_fa_rig_masked": 5.0
+    }
+   ],
+   "best_recall_within_guard6_mean": {
+    "limit": 10.667,
+    "threshold": 0.2,
+    "mean_recall": 0.664,
+    "mean_fa_rig_masked": 10.0
+   }
+  }
+ }
+}

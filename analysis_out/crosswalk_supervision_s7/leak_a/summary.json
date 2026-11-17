@@ -1,0 +1,121 @@
+{
+ "population": "a",
+ "marks": 106,
+ "panos_with_marks": 38,
+ "gate_max_leak": 0.05,
+ "rules": {
+  "primary": {
+   "leaked": 0,
+   "leak": 0.0,
+   "wilson95": [
+    0.0,
+    0.035
+   ],
+   "osm_range_m": 20.0,
+   "osm_classes": "all",
+   "box_dilate_heatmap_px": 30
+  },
+  "osm_marked_only": {
+   "leaked": 0,
+   "leak": 0.0,
+   "wilson95": [
+    0.0,
+    0.035
+   ],
+   "osm_range_m": 20.0,
+   "osm_classes": [
+    "marked"
+   ],
+   "box_dilate_heatmap_px": 30
+  },
+  "osm_25m": {
+   "leaked": 0,
+   "leak": 0.0,
+   "wilson95": [
+    0.0,
+    0.035
+   ],
+   "osm_range_m": 25.0,
+   "osm_classes": "all",
+   "box_dilate_heatmap_px": 30
+  },
+  "box_dilate_30_image_px": {
+   "leaked": 0,
+   "leak": 0.0,
+   "wilson95": [
+    0.0,
+    0.035
+   ],
+   "osm_range_m": 20.0,
+   "osm_classes": "all",
+   "box_dilate_heatmap_px": 7.5
+  },
+  "no_box_dilation": {
+   "leaked": 0,
+   "leak": 0.0,
+   "wilson95": [
+    0.0,
+    0.035
+   ],
+   "osm_range_m": 20.0,
+   "osm_classes": "all",
+   "box_dilate_heatmap_px": 0
+  }
+ },
+ "s4_blind_at_0.05": {
+  "k": 0,
+  "share": 0.0,
+  "wilson95": [
+   0.0,
+   0.035
+  ],
+  "rule": "no peak >= 0.05 from any of the three s4 seeds within 0.05 (recall_check radius)"
+ },
+ "s4_seed1_blind_at_0.05": {
+  "k": 2,
+  "share": 0.0189
+ },
+ "covered_by": {
+  "s4": 104,
+  "osm": 21,
+  "vistas": 96
+ },
+ "covered_by_vistas_only": 1,
+ "covered_by_osm_only": 0,
+ "leaked_among_s4_blind": 0,
+ "gate_half": {
+  "verdict": "holds",
+  "rule": "leak <= 0.05 on the primary rule"
+ },
+ "panos": 200,
+ "osm_points_within_25m": 73,
+ "vistas_components": 550,
+ "vistas_panos_with_a_component": 61,
+ "inputs_sha256": {
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/preds/crosswalk_s4/cities.jsonl": "2dd9b99ef205",
+  "analysis_out/crosswalk_supervision_s7/preds/crosswalk_s4_seed2/cities_mly.jsonl": "793a5a81807b",
+  "analysis_out/crosswalk_supervision_s7/preds/crosswalk_s4_seed3/cities_mly.jsonl": "0d1f2985781f",
+  "analysis_out/crosswalk_supervision_s7/leak_a/panos.txt": "93ade4b983d6",
+  "analysis_out/crosswalk_supervision_s7/leak_a/marks.csv": "8dda472bac62",
+  "analysis_out/crosswalk_supervision_s7/leak_a/vistas.jsonl": "5a3575c0b81a",
+  "analysis_out/crosswalk_supervision_s7/leak_a/osm_points.csv": "6cf14a1d39e8"
+ },
+ "merged_cards": {
+  "not_crosswalk": 98,
+  "unsure": 5,
+  "crosswalk": 106
+ },
+ "rating_files": {
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/page/ratings_jon_2026-11-08_confirm.csv": "f20a90d29a6e",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/s4_stepB/ratings_jon_2026-11-09_s4_stepB.csv": "12813af20c7c",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/s5_stepB/ratings_jon_2026-11-10_s5_stepB_fixed.csv": "ce33cfadc932"
+ },
+ "marks_by_city": {
+  "juneau-ak": 105,
+  "laurens-ia": 1
+ },
+ "panos_by_city": {
+  "juneau-ak": 120,
+  "laurens-ia": 80
+ }
+}
