@@ -1,0 +1,205 @@
+{
+ "rater": "jon",
+ "items_digest": "3d4c0bc2a9f57492",
+ "rubric_version": 1,
+ "rubric": [
+  {
+   "rule": "Pair: is A the same physical object as B?",
+   "detail": "same = one object marked twice; different = two distinct objects; unsure = cannot tell. The crops are rolled so the panorama seam is at the centre; the imagery there is continuous, so judge the world, not the projection."
+  },
+  {
+   "rule": "Each mark: is it a curb ramp?",
+   "detail": "ramp / not_ramp / unsure, for the object under the mark."
+  },
+  {
+   "rule": "A driveway is NOT a curb ramp",
+   "detail": "Driveway aprons are excluded however ramp-like they look."
+  },
+  {
+   "rule": "Mark only what you can SEE",
+   "detail": "Never call a ramp because a crossing implies one."
+  },
+  {
+   "rule": "Unsure is a real answer",
+   "detail": "An unsure verdict sends the card to a human; a coerced one is noise."
+  }
+ ],
+ "verdicts": [
+  {
+   "id": "s248-09",
+   "pair": "different",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-11",
+   "pair": "unsure",
+   "A": "ramp",
+   "B": "not_ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-27",
+   "pair": "unsure",
+   "A": "not_ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-33",
+   "pair": "different",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-01",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-03",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-06",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-08",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-13",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-14",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-15",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-16",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-17",
+   "pair": "unsure",
+   "A": "unsure",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-18",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-20",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-21",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-25",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-26",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-28",
+   "pair": "same",
+   "A": "unsure",
+   "B": "unsure",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-29",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-35",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": null,
+   "complete": true
+  },
+  {
+   "id": "s248-36",
+   "pair": "same",
+   "A": "ramp",
+   "B": "unsure",
+   "note": null,
+   "complete": true
+  }
+ ]
+}

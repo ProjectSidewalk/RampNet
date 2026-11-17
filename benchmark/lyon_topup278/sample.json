@@ -1,0 +1,66 @@
+{
+  "source_records": "D:\\Git\\labeler-wt\\lyon-topup-278-data\\pool_other_cameras.jsonl",
+  "source_record_count": 8997,
+  "sample": 80,
+  "empty_sample": 0,
+  "seed": 278,
+  "min_spacing_m": 30.0,
+  "min_confidence": 0.55,
+  "selected": 80,
+  "groups": {
+    "top": 0,
+    "random": 80,
+    "empty": 0
+  },
+  "top_n": 0,
+  "stratified": {
+    "group_keys": [
+      "camera_model",
+      "copyright"
+    ],
+    "group_map": [
+      [
+        "Ladybug|grand lyon",
+        "grand_lyon_ladybug"
+      ],
+      [
+        "Ladybug|grand-lyon",
+        "grand_lyon_ladybug"
+      ],
+      [
+        "|grand lyon",
+        "grand_lyon_ladybug"
+      ],
+      [
+        "|grand-lyon",
+        "grand_lyon_ladybug"
+      ],
+      [
+        "Max|ecartip",
+        "ecartip_gopro_max"
+      ],
+      [
+        "Max|*",
+        "other_gopro_max"
+      ],
+      [
+        "*",
+        "other_cameras"
+      ]
+    ],
+    "group_min": 0,
+    "empty_group_min": 0,
+    "spread_order": "strata in name order, one shared spacing index: an earlier name claims contested ground first",
+    "strata": {
+      "other_cameras": {
+        "pool_with_detections": 1342,
+        "pool_empty": 7655,
+        "top": 0,
+        "random_target": 80,
+        "random": 80,
+        "empty_target": 0,
+        "empty": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+ "iteration": 1,
+ "model": "gemini-4-argon",
+ "fp": "not_ramp",
+ "fn": "ramp",
+ "judged_at": "2026-11-09T23:26:44.808Z"
+}

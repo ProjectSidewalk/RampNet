@@ -152,3 +152,6 @@ analysis_out/lyon_review_159/** text eol=lf
 # #150 dataset cards: export_dataset_cards.py --check compares these renders byte for byte with a
 # fresh LF render, so an autocrlf=true clone must not rewrite their line endings.
 docs/data/hf_cards/*.md text eol=lf
+
+# #248 seam NMS default study: JSON / markdown only (no images are committed)
+analysis_out/seam_nms_default_248/** text eol=lf

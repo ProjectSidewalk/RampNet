@@ -43,7 +43,8 @@ Usage:
     python scripts/build_sparse_labels.py \\
         --results runs/lyon/results.jsonl --sites runs/lyon/sites.jsonl \\
         --mined runs/lyon/mined/labels.jsonl --panos /data/lyon/index.csv \\
-        --benchmark-ids benchmark/lyon/ids.txt --exclude-ids benchmark/lyon/exclude_ids.txt \\
+        --benchmark-ids benchmark/lyon_topup278/never_train_ids.txt \\
+        --exclude-ids benchmark/lyon_topup278/exclude_ids.txt \\
         --city lyon --out /gscratch/scrubbed/$USER/sparse/lyon --limit 20000 --seed 0
 
     python scripts/build_sparse_labels.py ...same args... --check
@@ -192,6 +193,49 @@ def load_ids(path):
         return set()
     with open(path, encoding="utf-8") as f:
         return {ln.strip() for ln in f if ln.strip() and not ln.startswith("#")}
+
+
+def check_never_train_lists(city, benchmark_ids, exclude_ids):
+    """Refuse a build whose never-train lists miss a label-audit bundle's panos (#278).
+
+    Only bundles that carry an ``exclude_ids.txt`` (a label audit's 30 m buffer: today
+    ``benchmark/lyon`` and its top-up ``benchmark/lyon_topup278``) are checked; every other
+    bundle is untouched, so builds that legitimately pass one arm's ids (``laurens_gsv``
+    vs ``laurens_mapillary``) keep working. For each such bundle matching ``city``, its
+    ``ids.txt`` must be a subset of ``benchmark_ids`` and its ``exclude_ids.txt`` a subset
+    of ``exclude_ids``; otherwise SystemExit names the bundle.
+
+    Example: with both Lyon directories present, ``--benchmark-ids benchmark/lyon/ids.txt
+    --exclude-ids benchmark/lyon/exclude_ids.txt`` is refused, and the top-up's
+    ``never_train_ids.txt`` / ``exclude_ids.txt`` (cumulative) pass.
+    """
+    passed_ids, passed_excl = load_ids(benchmark_ids), load_ids(exclude_ids)
+
+    def is_audit(name):
+        return (BENCHMARK_ROOT / name / "exclude_ids.txt").is_file()
+
+    # Matching is not transitive (``lyon_5m`` matches ``lyon`` but not ``lyon_topup278``),
+    # so follow each matched audit bundle to the audit bundles that match its own name.
+    audits = [n for n in benchmark_bundles_for(city) if is_audit(n)]
+    todo = list(audits)
+    while todo:
+        for n in benchmark_bundles_for(todo.pop()):
+            if is_audit(n) and n not in audits:
+                audits.append(n)
+                todo.append(n)
+    for name in sorted(audits):
+        d = BENCHMARK_ROOT / name
+        short = []
+        if (d / "ids.txt").is_file() and not load_ids(d / "ids.txt") <= passed_ids:
+            short.append(f"--benchmark-ids lacks ids of {name}/ids.txt")
+        if not load_ids(d / "exclude_ids.txt") <= passed_excl:
+            short.append(f"--exclude-ids lacks ids of {name}/exclude_ids.txt")
+        if short:
+            raise SystemExit(f"label-audit bundle {name} under {BENCHMARK_ROOT}: "
+                             f"{'; '.join(short)}. Its panos and their buffer must never "
+                             f"train: pass lists that contain them (for Lyon, "
+                             f"benchmark/lyon_topup278/never_train_ids.txt and "
+                             f"benchmark/lyon_topup278/exclude_ids.txt, which are cumulative)")
 
 
 def resolve_images(panos_arg, ids):
@@ -443,6 +487,7 @@ def plan(args):
                              f"is required: their panos must never train"
                              + (" (several match: pass the ids of every one that shares "
                                 "this run's imagery)" if len(bundles) > 1 else ""))
+    check_never_train_lists(args.city, args.benchmark_ids, args.exclude_ids)
     manifest_path = args.manifest or str(Path(args.results).with_name("manifest.json"))
     floor = load_run_floor(manifest_path)
     meta_path = args.sites_meta or str(Path(args.sites).with_name(

@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 31.3 MB (273 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 35.4 MB (393 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -61,13 +61,16 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-10-20 (with the tiles arms, #258, and the Vistas 1024 arm on all fourteen splits) that is **273 files, 31.3 MB**, and every one of
+signature recorded inside. As of 2026-11-11 (with the tiles arms, #258, the Vistas 1024 arm on all fourteen splits, the two #276 Gemini legs and the seven #276 Step 5 confidence legs) that is **393 files, 35.4 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
 |---|---:|---|
-| the standing zero-shot roster, fourteen splits each (two Gemini legs are absent on `manual_gold`; Molmo2-8B and Qwen3-VL-32B are absent on `bayonne`, #159) | 94 | the roster tables in [`model_comparison.md`](model_comparison.md) |
+| the seven zero-shot roster challengers of 2026-07, fourteen splits each (the four pairs that were absent, Gemini 3.1 Pro and 3.6 Flash on `manual_gold` and Molmo2-8B and Qwen3-VL-32B on `bayonne`, were filled on 2026-11-11, two months after their other splits; `bayonne_split_159.md` and the `manual_gold` note in `model_scoreboard.md`); the two #276 Gemini legs promoted to standing on 2026-11-09 are the rows below | 98 | the roster tables in [`model_comparison.md`](model_comparison.md) |
 | `gemini-3.7-flash`, fourteen splits, published ahead of its write-up (#120) | 14 | §below |
+| `gemini-3.8-flash`, fourteen splits, zero-shot at the as-run settings (#276 Step 2, published 2026-11-09 ahead of its write-up) | 14 | [`model_scoreboard.md`](model_scoreboard.md); the write-up lands as `vlm_prompt_276.md` |
+| `gemini-4-argon`, fourteen splits, zero-shot at the as-run settings (#276 Step 2, published 2026-11-09 ahead of its write-up; the best challenger on the board) | 14 | [`model_scoreboard.md`](model_scoreboard.md); the write-up lands as `vlm_prompt_276.md` |
+| the seven #276 Step 5 held-out legs, every arm with elicited confidence: `gemini-3.8-flash-confidence-on` and `gemini-4-argon-confidence-on` (fourteen splits each), `gemini-3.8-flash-definition-def276-flash38-alt-confidence-on`, `-definition-para3-` and `-definition-expert-` on both models (twelve held-out splits each); registered standing=False, so off every table until promoted | 88 | [`vlm_prompt_276.md`](vlm_prompt_276.md); `prompt_276_heldout.py --check` re-scores the committed tables from the local cache, and the published files re-score on any clone |
 | the supervised YOLO pano trio, fourteen splits each (#51) | 42 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
 | the supervised YOLO perspective-tiles arms (#51, #135; published under #258 on 2026-10-19): `y11x_tiles` on ten splits, and the six seed-variance legs `y11x_tiles_s1_ep44`, `y11x_tiles_s2_ep44`, `y11x_tiles_s3_ep42`, `y11x_tiles_s1_best`, `y11x_tiles_s2_best`, `y11x_tiles_s3_best` on nine (no `budapest_district5`) | 64 | [`yolo_geometry_51.md`](yolo_geometry_51.md), [`seed_variance_51_135.md`](seed_variance_51_135.md); export commands §below |
 | `claude-opus-5` at `low` effort, eleven splits (#122; the pool by #139, both Laurens arms by #151) | 11 | [`claude_legs_122.md`](claude_legs_122.md) |
@@ -528,6 +531,7 @@ data are skipped unless `--allow local-cache` is given.
 | `dataset_cards_150` | `scripts/export_dataset_cards.py --check` | the `rampnet-dataset` and `rampnet-benchmark` Hugging Face cards re-render byte-identical to `docs/data/hf_cards/` from `croissant/*.json`, `scripts/hf_package/cards_facts.json`, the two card templates and the committed `verdicts.json` / `train_overlap.json`, and every fact marked `in_croissant` still appears in its Croissant file ([`dataset_cards_150.md`](dataset_cards_150.md), #150). Its seconds are from a standalone run on the desktop (2026-11-05), not from `latest.json` | committed only | 0.2 |
 | `yolo_warmup_dip_72` | `yolo_warmup_dip_72.py --check` | the pinned facts of the YOLO warm-up LR dip hold on the committed curves (#72) | committed only | 0.1 |
 | `seam_pairs_248` | `seam_pairs_248.py --check` | the seam straddling-pair counts (114 / 72 / 58 at 0.05 / 0.30 / 0.55) re-derive from the committed Run A peaks in `docs/data/run_a_84_detections/` (#248) | committed only | 1.1 |
+| `seam_nms_default_248` | `seam_nms_default_248.py --check` | the #248 default study re-derives from committed peaks and verdicts: `bounds.json` (with the plan reviewer's independent counts as literals), `calibration.json`, `results.json` / `results.md` (classification, the rule's outcome NEXT STEP NEEDED, paired scores) and the figure CSV | committed only | 24.9 |
 | `yolo_geometry_51` | `yolo_geometry_51.py --check` | the YOLO control leg reproduces its scoreboard row, and `docs/data/yolo_geometry_51.json` matches a fresh read (#51) | committed only | 0.1 |
 | `run_b_gate_135` | `run_b_gate_135.py --check` | the Run-B gate decision re-derives from the committed CSVs and power JSON (#135) | committed only | 0.1 |
 | `seed_variance_read_51_135` | `seed_variance_read_51_135.py --check` | the seed-variance JSON matches a fresh build from `docs/data/seed_variance_51_135/` | committed only | 6.5 |
@@ -539,6 +543,7 @@ data are skipped unless `--allow local-cache` is given.
 | `crop_tilt_113` | `crop_tilt_113.py --check` | `summary*.json`, `sample*.csv`, `response*.json` (both runs and the held-out sample) and `overlap.json` re-derive byte-identical from the committed `labels*.csv` and `response*.csv`. Without `--pano-tools-root` it does not re-derive `labels*.csv` or the funnel blocks (#113). Its seconds are from a standalone `--check` on a Mac (2026-10-11), not from `latest.json` | committed only | 1.3 |
 | `pano_tilt_159` | `pano_tilt_estimate.py check` | the pano tilt id list re-derives from the five GSV splits' records, and `validation_summary.json`, `lyon_summary.json` and `gate_sensitivity.json` re-derive byte-identical from the committed per-pano rows (#159, #273). It does not re-run the estimator, which needs the panos ([`pano_tilt_estimate.md`](pano_tilt_estimate.md) §8). Its seconds are from a standalone run on the desktop (2026-10-31), not from `latest.json` | committed only | 0.2 |
 | `lyon_elevation_tilt_159` | `lyon_review_159.py elevation --tilt analysis_out/pano_tilt/lyon.json` | the tilt-corrected Lyon recall by elevation re-derives byte-identical from the committed verdicts, records, `score.json` and `analysis_out/pano_tilt/lyon.json`, whose sha256 the output records (#159, #273). Seconds as for the entry above | committed only | 7.1 |
+| `lyon_topup_plan_278` | `lyon_topup_278.py plan` | the pre-registered Lyon top-up plan (other cameras, looks at 25/45/70, z 2.35) rebuilds byte-identical from the committed draw, the four first-draw files it pins and the stored `design_oc.json` (#278). It does not re-run the simulation (`oc` has no check mode) or the draw, which needs the run's `results.jsonl` ([`lyon_review_159.md`](lyon_review_159.md) §11). Seconds not yet measured in `latest.json` | committed only | — |
 | `two_scale_197` | `two_scale_197.py report --check` | `results.json` and `results.md` regenerate byte-identical from the committed #196 peak caches (#197) | committed only | 52.8 |
 | `input_res_sweep_25` | `input_res_sweep_25.py sums`, then `input_res_sweep_25.py check --out {tmp}/instrument_check.json`, then `input_res_sweep_25.py report --out {tmp}/results.json`, then `input_res_sweep_25.py sums --root {tmp} --partial` | the committed outputs and caches match `SHA256SUMS`, and r2048 reproduces `analysis_out/op_cache` (the instrument check). `check` and `report`, regenerated into scratch, hash to the pinned values (#25) | committed only | 54.0 |
 | `yolo_rescore_benchmark_eval` | `scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py --check` | `benchmark_eval/` matches the current scorer over the committed detections | committed only | 2.1 |
@@ -556,14 +561,15 @@ The seconds are from the committed run, `analysis_out/check_all/latest.json` (at
 listed:
 
 - `analysis_out/recall_by_depth_112.json`: `manifests_sha256`, `recall_by_depth_112`, `da3_calibration_101`, `laurens_paired_151`
-- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `cascade_transfer_35`, `cascade_cost_35`, `benchmark_power_135`
-- `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `cascade_transfer_35`
+- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`, `cascade_cost_35`, `benchmark_power_135`
+- `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`
 - `benchmark/model_detections/`: `laurens_paired_151`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`, `export_model_cache_verify`
-- `benchmark/<split>/verdicts.json`: `dataset_cards_150`, `da3_calibration_101`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
+- `benchmark/<split>/verdicts.json`: `dataset_cards_150`, `da3_calibration_101`, `seam_nms_default_248`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
+- `benchmark/manual_gold/seam_verdicts__jon.json`: `seam_pairs_248`, `seam_nms_default_248`
 - `docs/data/benchmark_power_135.json`: `run_b_gate_135`, `benchmark_power_135`
 - `docs/data/run_a_84_manual_gold/summary.csv`: `run_b_gate_135`, `benchmark_power_135`
 - `analysis_out/pano_tilt/lyon.json`: `pano_tilt_159`, `lyon_elevation_tilt_159`
-- `manual_labels/`: `scoreboard`, `benchmark_power_135`
+- `manual_labels/`: `seam_nms_default_248`, `scoreboard`, `benchmark_power_135`
 - `docs/data/run_a_84_detections/`: `seed_variance_read_51_135`, `benchmark_power_135`
 
 ### Result on main

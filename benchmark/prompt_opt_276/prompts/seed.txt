@@ -1,0 +1,1 @@
+Detect every curb ramp in this street-level image. A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street. Return one tight bounding box per curb ramp. Do not box driveways, stairs, or crosswalk paint. If there are no curb ramps, return an empty list.
