@@ -530,6 +530,7 @@ data are skipped unless `--allow local-cache` is given.
 | `sourcing_tables` | `sourcing_tables.py --check` | the generated tables in the data-sourcing docs re-render identical from committed files (#145) | committed only | 0.1 |
 | `yolo_warmup_dip_72` | `yolo_warmup_dip_72.py --check` | the pinned facts of the YOLO warm-up LR dip hold on the committed curves (#72) | committed only | 0.1 |
 | `seam_pairs_248` | `seam_pairs_248.py --check` | the seam straddling-pair counts (114 / 72 / 58 at 0.05 / 0.30 / 0.55) re-derive from the committed Run A peaks in `docs/data/run_a_84_detections/` (#248) | committed only | 1.1 |
+| `seam_nms_default_248` | `seam_nms_default_248.py --check` | the #248 default study re-derives from committed peaks and verdicts: `bounds.json` (with the plan reviewer's independent counts as literals), `calibration.json`, `results.json` / `results.md` (classification, the rule's outcome NEXT STEP NEEDED, paired scores) and the figure CSV | committed only | 24.9 |
 | `yolo_geometry_51` | `yolo_geometry_51.py --check` | the YOLO control leg reproduces its scoreboard row, and `docs/data/yolo_geometry_51.json` matches a fresh read (#51) | committed only | 0.1 |
 | `run_b_gate_135` | `run_b_gate_135.py --check` | the Run-B gate decision re-derives from the committed CSVs and power JSON (#135) | committed only | 0.1 |
 | `seed_variance_read_51_135` | `seed_variance_read_51_135.py --check` | the seed-variance JSON matches a fresh build from `docs/data/seed_variance_51_135/` | committed only | 6.5 |
@@ -541,6 +542,7 @@ data are skipped unless `--allow local-cache` is given.
 | `crop_tilt_113` | `crop_tilt_113.py --check` | `summary*.json`, `sample*.csv`, `response*.json` (both runs and the held-out sample) and `overlap.json` re-derive byte-identical from the committed `labels*.csv` and `response*.csv`. Without `--pano-tools-root` it does not re-derive `labels*.csv` or the funnel blocks (#113). Its seconds are from a standalone `--check` on a Mac (2026-10-11), not from `latest.json` | committed only | 1.3 |
 | `pano_tilt_159` | `pano_tilt_estimate.py check` | the pano tilt id list re-derives from the five GSV splits' records, and `validation_summary.json`, `lyon_summary.json` and `gate_sensitivity.json` re-derive byte-identical from the committed per-pano rows (#159, #273). It does not re-run the estimator, which needs the panos ([`pano_tilt_estimate.md`](pano_tilt_estimate.md) §8). Its seconds are from a standalone run on the desktop (2026-10-31), not from `latest.json` | committed only | 0.2 |
 | `lyon_elevation_tilt_159` | `lyon_review_159.py elevation --tilt analysis_out/pano_tilt/lyon.json` | the tilt-corrected Lyon recall by elevation re-derives byte-identical from the committed verdicts, records, `score.json` and `analysis_out/pano_tilt/lyon.json`, whose sha256 the output records (#159, #273). Seconds as for the entry above | committed only | 7.1 |
+| `lyon_topup_plan_278` | `lyon_topup_278.py plan` | the pre-registered Lyon top-up plan (other cameras, looks at 25/45/70, z 2.35) rebuilds byte-identical from the committed draw, the four first-draw files it pins and the stored `design_oc.json` (#278). It does not re-run the simulation (`oc` has no check mode) or the draw, which needs the run's `results.jsonl` ([`lyon_review_159.md`](lyon_review_159.md) §11). Seconds not yet measured in `latest.json` | committed only | — |
 | `two_scale_197` | `two_scale_197.py report --check` | `results.json` and `results.md` regenerate byte-identical from the committed #196 peak caches (#197) | committed only | 52.8 |
 | `input_res_sweep_25` | `input_res_sweep_25.py sums`, then `input_res_sweep_25.py check --out {tmp}/instrument_check.json`, then `input_res_sweep_25.py report --out {tmp}/results.json`, then `input_res_sweep_25.py sums --root {tmp} --partial` | the committed outputs and caches match `SHA256SUMS`, and r2048 reproduces `analysis_out/op_cache` (the instrument check). `check` and `report`, regenerated into scratch, hash to the pinned values (#25) | committed only | 54.0 |
 | `yolo_rescore_benchmark_eval` | `scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py --check` | `benchmark_eval/` matches the current scorer over the committed detections | committed only | 2.1 |
@@ -559,14 +561,15 @@ The seconds are from the committed run, `analysis_out/check_all/latest.json` (at
 listed:
 
 - `analysis_out/recall_by_depth_112.json`: `manifests_sha256`, `recall_by_depth_112`, `da3_calibration_101`, `laurens_paired_151`
-- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `cascade_transfer_35`, `cascade_cost_35`, `benchmark_power_135`
-- `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `cascade_transfer_35`
+- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`, `cascade_cost_35`, `benchmark_power_135`
+- `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`
 - `benchmark/model_detections/`: `laurens_paired_151`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`, `export_model_cache_verify`
-- `benchmark/<split>/verdicts.json`: `da3_calibration_101`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
+- `benchmark/<split>/verdicts.json`: `da3_calibration_101`, `seam_nms_default_248`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`
+- `benchmark/manual_gold/seam_verdicts__jon.json`: `seam_pairs_248`, `seam_nms_default_248`
 - `docs/data/benchmark_power_135.json`: `run_b_gate_135`, `benchmark_power_135`
 - `docs/data/run_a_84_manual_gold/summary.csv`: `run_b_gate_135`, `benchmark_power_135`
 - `analysis_out/pano_tilt/lyon.json`: `pano_tilt_159`, `lyon_elevation_tilt_159`
-- `manual_labels/`: `scoreboard`, `benchmark_power_135`
+- `manual_labels/`: `seam_nms_default_248`, `scoreboard`, `benchmark_power_135`
 - `docs/data/run_a_84_detections/`: `seed_variance_read_51_135`, `benchmark_power_135`
 
 ### Result on main
