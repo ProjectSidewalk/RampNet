@@ -515,8 +515,9 @@ even when every split's imagery is absent, so the runner also FAILs that entry i
 every split is absent. Both guards are tested.
 
 **`--ci`** runs every entry that has no requirements (committed inputs, CPU, offline) and is not
-marked slow. Three entries are marked slow and run only with `--all`: `benchmark_power_135` (676 s
-of bootstrap on the desktop CPU, added in #236), and `aug_finetune_82` and `control_arm_263`
+marked slow. Four entries are marked slow and run only with `--all`: `benchmark_power_135` (676 s
+of bootstrap on the desktop CPU, added in #236), `cascade_argon_35` (164 to 176 s, added in #289),
+and `aug_finetune_82` and `control_arm_263`
 (minutes of paired bootstrap each; registered slow in #251 so the `checks` job keeps its time). `cascade_cost_35` was out of `--ci` in the first
 version of this gate, and is now in, because the measured CI time leaves room for it.
 On GitHub's runner at `9671aa2` the whole `checks` job took 6m19s: 17 PASS and 2 SKIP, with 312.6 s inside `check_all.py`, 214.2 s of it `cascade_cost_35`. The runner was faster than the desktop (342 s for the same entry), so the first version's claim that this entry would push a 2-core runner over budget was wrong. The job runs in parallel with the two pytest jobs (8-9 min each), has
@@ -564,6 +565,7 @@ data are skipped unless `--allow local-cache` is given.
 | `cascade_cost_35` | `cascade_cost_35.py --check` | all 142 per-pair cascade files regenerate byte-identical from their recorded args (#35) | committed only | 341.7 |
 | `aug_finetune_82` | `aug_finetune_82.py --check` | `finetune_results.json` and `.md` re-derive from the committed per-checkpoint caches in `analysis_out/aug_transfer_82/finetune/` and the #151 pairs (#82). **Slow: `--all` only** (#251) | committed only | 176.5 |
 | `control_arm_263` | `control_arm_263.py --check` | `analysis_out/control_arm_263/results.json` and `.md` re-derive from the committed caches, the #82 controls, `op_cache` and the verdicts' strata (#263). **Slow: `--all` only** (#251) | committed only | 282.9 |
+| `cascade_argon_35` | `cascade_argon_35.py --check` | the 37 Argon and YOLO cascade pair files under `analysis_out/cascade_cost_35/argon/` and `argon_pairs.json` (incl. the unique-point / blind-GT comparison and the scoreboard reconciliation) regenerate byte-identical (#35). **Slow: `--all` only.** Its seconds are from a standalone `--check` run (2026-11-15, same desktop), not from `latest.json` | committed only | 176 |
 | `benchmark_power_135` | `benchmark_power_135.py --check` | the default command (the ten pinned #135 splits) regenerates `docs/data/benchmark_power_135.json` byte-identical (#135, #236), or identical except for float leaves within 1e-12 relative, which the output reports as `NOT byte-identical` (the macOS last-bit drift of #251; formatting, ints, strings and keys stay exact). **Slow: `--all` only.** Its seconds are from the standalone `--check` run in #237 (2026-10-03, same desktop), not from `latest.json` | committed only | 676 |
 | `export_model_cache_verify` | `export_model_cache.py --verify --cache-dir {local_root}/.model_cache` | the published `benchmark/model_detections/` score identically to the local `.model_cache` | **local-cache** (`{local_root}/.model_cache` must exist) | 12.4 |
 | `imagery_manifest_verify` | `imagery_manifest.py --verify --panos-root {local_root}` | the local `benchmark/*/panos/` JPEGs match the committed imagery manifests | **local-cache** (`{local_root}/benchmark/*/panos` must exist) | 16.5 |

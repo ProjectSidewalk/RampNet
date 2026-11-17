@@ -1,0 +1,187 @@
+{
+ "annapolis__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__gemini-4-argon.json": {
+  "elapsed_s": 0.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bayonne__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bayonne__gemini-4-argon.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bayonne__y11l_pano.json": {
+  "elapsed_s": 2.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bayonne__y11x_pano_h200.json": {
+  "elapsed_s": 1.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bayonne__y26_pano.json": {
+  "elapsed_s": 2.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__gemini-4-argon.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__gemini-4-argon.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__gemini-4-argon.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__gemini-4-argon.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "juneau__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "juneau__gemini-4-argon.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "juneau__y11l_pano.json": {
+  "elapsed_s": 1.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "juneau__y11x_pano_h200.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "juneau__y26_pano.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_gsv__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_gsv__gemini-4-argon.json": {
+  "elapsed_s": 0.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_gsv__y11l_pano.json": {
+  "elapsed_s": 0.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_gsv__y11x_pano_h200.json": {
+  "elapsed_s": 0.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_gsv__y26_pano.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__gemini-4-argon.json": {
+  "elapsed_s": 0.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 9.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__gemini-4-argon.json": {
+  "elapsed_s": 6.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__gemini-4-argon.json": {
+  "elapsed_s": 0.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__gemini-4-argon.json": {
+  "elapsed_s": 0.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 4.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__gemini-4-argon.json": {
+  "elapsed_s": 1.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__gemini-4-argon-confidence-on.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__gemini-4-argon.json": {
+  "elapsed_s": 0.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ }
+}
