@@ -274,6 +274,11 @@ REGISTRY: list = [
             "analysis_out/op_cache/", "benchmark/model_detections/",
             "analysis_out/scoreboard.json") + GT,
       slow=True),
+    E("argon_teacher_s0", (AN + "argon_teacher_s0.py", "--check"),
+      "the Argon-teacher Stage 0 leak, feature table, 80 candidate filters and LOSO gates "
+      "regenerate byte-identical from the committed derived inputs",
+      pins=("analysis_out/argon_teacher_s0/", "analysis_out/op_cache/",
+            "benchmark/model_detections/") + GT),
     # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
     E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),
       "the default command regenerates docs/data/benchmark_power_135.json byte-identical (#135, #236)",
