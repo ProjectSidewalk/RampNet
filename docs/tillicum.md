@@ -15,6 +15,45 @@ See [Migrating our Slurm scripts](#migrating-our-slurm-scripts) for the diff.
 > nothing here is confirmed by experience. Correct this file from measurement, not
 > from re-reading the docs.
 
+## Changes announced 2026-11-03
+
+From the Hyak mailing-list notice of 2026-11-03. Statements below that it makes wrong are
+corrected in place, or marked where they record what was true at the time. The dry runs used
+`sbatch --test-only`, which submits nothing and costs nothing.
+
+- **Maintenance:** Tuesday 2026-11-10, 9 AM to 5 PM, on klone, Tillicum, Kopah and Globus.
+  The scheduler holds nodes longer than that: the Slurm reservation `November10_Maintenance`
+  runs from 11-10 09:00 to **11-11 09:00** on both clusters (`scontrol show reservation`, read
+  2026-11-03). Tillicum dry runs of a 24 h job beginning at noon on Nov 9, and of a 1 h job
+  beginning at 17:30 on Nov 10, were both estimated to start at 11-11 09:00. So a 24 h job, or a
+  `CHAIN` link, has to start by 09:00 on Nov 9 to run before the window. Hyak may release the
+  reservation early, so check it rather than planning on either time.
+- **Default CPUs per GPU drop from 4 to 1** during the maintenance. The current value is
+  confirmed in `/etc/slurm/partitions.conf` (`DefCpuPerGPU=4`, read 2026-11-03). Always set
+  `--cpus-per-task` and `--mem` explicitly: a bare `--gres=gpu:1` job would pay full H200
+  price with one CPU feeding it. Default memory is per CPU (`DefMemPerCPU=30720`), so unless
+  that also changes it falls from about 120 GB to about 30 GB. That figure is our
+  derivation, not part of the notice. All three Tillicum `.slurm` scripts in this repo
+  already set 8 CPUs and 200 G, so they are unaffected.
+- **CPU-only jobs are now allowed**, and free through the end of 2026. A new rate starts in
+  2027; the notice gives no amount. Dry runs with no GPU landed in the default `gpu-h200`
+  partition, and accepted 32 CPUs but refused 33 on one node. Their start estimate stayed at
+  about 23:00 on 11-08 on both 11-03 and 11-04, against the same evening for a 1-GPU dry run on
+  11-03; the reason is unknown. They quoted
+  $0.00, which says nothing about price, because the estimate only counts GPU hours. **No
+  CPU-only job has actually been run here.**
+- **TODO when the 2027 rate is announced:** `scripts/analysis/slurm_usage.py` and
+  `COMPUTE_PRICING` in `pricing.py` price GPU-hours only, so they will record CPU-only jobs as
+  $0 even once they bill.
+- **The caps per GPU are unchanged by the notice** and still enforced on `gpu-h200`. Dry runs
+  refused 12 CPUs on 1 GPU ("Jobs must request no more than 8 CPUs per GPU requested") and 241G
+  on 1 GPU, while accepting 240G. `gpu-h200-mig` allows only 2 CPUs per slice.
+- **klone's `/gscratch/scrubbed` limit drops from 10 TB to 5 TB per user** during the
+  maintenance. The notice does not mention Tillicum's `/gpfs/scrubbed`. It says files "not
+  modified" for 21 days are deleted, while our 2026-08 label loss (see
+  `scripts/model_comparison/yolo_baseline/rescue_label_caches.sh`) was recorded as purging by
+  access time. Rely on neither to keep a file there.
+
 ## Why we care: the klone problem this solves
 
 The supervised-YOLO baseline (#51) ran on klone's `ckpt` scavenger partition, which is
@@ -59,8 +98,9 @@ in this section is now from experience rather than from the docs.
 ## The scheduler model: QoS, not partitions
 
 klone is a condo: you get partitions tied to hardware your group owns or scavenges
-(`-p ckpt-g2 -q ckpt-gpu`). **Tillicum has no partitions at all.** You pick a QoS, and
-billing handles the rest.
+(`-p ckpt-g2 -q ckpt-gpu`). **Tillicum had no partitions to choose between when this was
+written.** You pick a QoS, and billing handles the rest. As of 2026-11-03 `sinfo` lists two:
+`gpu-h200` (the default, so you can still ignore it) and `gpu-h200-mig` (1/7 H200 slices).
 
 | QoS | Max time | Max GPUs/job | Concurrent | Notes |
 |---|---|---|---|---|
@@ -98,18 +138,22 @@ Do 1, fall back to 2.
 ## Hardware
 
 192 × NVIDIA **H200** (141 GB HBM3e, NVLink 4.0), 8 GPUs per node, 24 × Dell XE9680,
-1,536 Intel Emerald Rapids cores, 400 Gbps NDR InfiniBand, ~3 PB flash, Rocky 9.
+1,536 Intel Emerald Rapids cores, 400 Gbps NDR InfiniBand, ~3 PB flash, Rocky 9. As of
+2026-11-03 `sinfo` shows 23 of those nodes as whole GPUs (184 H200s) and one split into 56 MIG
+slices.
 
-Per-GPU binding: **200 GB system RAM and 8 CPUs**. This ratio is not negotiable —
+Per-GPU binding: **200 GB system RAM and 8 CPUs**, as documented. The limits actually enforced
+are 8 CPUs and 240G per GPU (dry runs, 2026-11-03). This ratio is not negotiable —
 the docs are explicit that exceeding 8 CPUs per GPU requires requesting *additional
-GPUs*. **CPU-only jobs are prohibited**; every job must request ≥1 GPU.
+GPUs*. CPU-only jobs used to be prohibited, and the 2026-11-03 notice says they are now
+available; see [Changes announced 2026-11-03](#changes-announced-2026-11-03).
 
 > Operational consequence: our CPU-side data prep (`run_yolo_data.slurm`,
 > `run_yolo_prep.slurm`) has no business on Tillicum. Keep prep on klone, train on
 > Tillicum.
 >
 > **Superseded 2026-07-31 — see "How the data actually got there" below.** The
-> reasoning here is still right (a prep job must hold an H200 it never uses, and it
+> reasoning held at the time (a prep job had to hold an H200 it never used, and it
 > cost us $4.20 to do exactly that), but it assumed a klone → Tillicum transfer path
 > exists. None does, so prep had to run on Tillicum after all, via
 > `scripts/model_comparison/run_yolo_data_prep_tillicum.slurm`. Read "keep prep on
@@ -126,9 +170,11 @@ provisioning email.)
 - **100 free GPU demo hours** on the new account (≈ $90). They do not expire:
   `hyakusage` lists the $23.35 remaining on 2026-09-21 as "(no expiration)"
   (`docs/data/compute/hyakusage_tillicum_2026-09-21.txt`).
-- Budget requested 2026-07-30: **$1,500/month** ≈ **1,666 GPU-hours/month**.
+- Budget requested 2026-07-30: **$1,500/month** ≈ **1,666 GPU-hours/month**. The cap has
+  since risen: `hyakusage` showed $3,000/month, with the cycle starting on the 26th, when
+  read on 2026-10-18.
 
-At that ceiling:
+At the original $1,500 ceiling (double these at $3,000):
 
 | job shape | wall-clock hours/month |
 |---|---|
@@ -311,10 +357,11 @@ comparable to the #51 klone arms on the data axis.
 
 Two caveats that travel with this:
 
-- **It cost $4.20** — 4.67 GPU-hours at `normal` QoS. Tillicum rejects CPU-only jobs, so
-  a data-prep job must hold an H200 it never uses. That is structural, not an error, but
-  it is the argument for keeping prep on klone (free) whenever a dataset already exists
-  there and *can* be reached. Here it could not be.
+- **It cost $4.20** — 4.67 GPU-hours at `normal` QoS. Tillicum rejected CPU-only jobs at
+  the time, so a data-prep job had to hold an H200 it never used. That was structural, not
+  an error, and it was the argument for keeping prep on klone (free) whenever a dataset
+  already exists there and *can* be reached. Here it could not be. The 2026-11-03 notice says
+  CPU-only jobs are now available, so a re-run need not hold a GPU; that path is untested.
 - **It landed on `/gpfs/scrubbed`, not the 1 TB project quota** — 1.61 TB across 2.28 M
   files, counting the ~462 GB Hugging Face source cache. `scrubbed` is purged on an
   inactivity timer, so this copy is not durable: it is fine while an arm is actively
@@ -376,13 +423,13 @@ Tillicum accepts:
 
 | klone (current) | Tillicum | why |
 |---|---|---|
-| `#SBATCH -p ckpt-g2` | **delete** | no partitions exist |
+| `#SBATCH -p ckpt-g2` | **delete** | the default `gpu-h200` partition applies |
 | `#SBATCH -q ckpt-gpu` | `#SBATCH --qos=normal` | or `long` once approved |
 | `#SBATCH --requeue` | **delete** | nothing preempts |
 | `#SBATCH --time=72:00:00` | `24:00:00` | 72 h needs `long` QoS |
 | `#SBATCH --gpus-per-node=1` | `#SBATCH --gres=gpu:1` | also `--gpus=1` / `-G 1` |
 | `#SBATCH --cpus-per-task=12` | **`8`** (1 GPU) | 12 CPUs on 1 GPU is rejected |
-| `#SBATCH --mem=64G` | keep, or up to `200G` | no default; must be explicit |
+| `#SBATCH --mem=64G` | keep, or up to `240G` per GPU | set it explicitly; the default is per CPU (`DefMemPerCPU=30720`) |
 | `#SBATCH --nodes=1 --ntasks=1` | unchanged | |
 
 **`--cpus-per-task=12` with one GPU is the blocking incompatibility** — it is not a
@@ -585,8 +632,9 @@ history recorded above than anything model-specific. **It is an inference, not a
 - **Group:** `u_hyak_tillicum_makelab` (UW Groups Service). Jon is a member manager and
   can add users via the Membership tab; UW-IT can grant member-manager rights to others
   on request.
-- **Maintenance:** second Tuesday monthly. Join the mailing list; put it on the run
-  calendar so long jobs are not scheduled across it.
+- **Maintenance:** second Tuesday monthly. Join the mailing list; put it on the run calendar
+  so long jobs are not scheduled across it. The scheduler can hold nodes past the announced
+  end, so check `scontrol show reservation`.
 - **Support:** `help@uw.edu` with "Tillicum" in the subject; twice-weekly office hours.
 - **Budget changes:** contact UW-IT; enforcement semantics (blocks new submissions vs.
   cancels running jobs) are **UNVERIFIED** and were asked about on 2026-07-30.
@@ -606,6 +654,9 @@ than left in a mailbox.
    allocation; UW-IT is considering it, but the UW-approved rate model cannot charge for
    CPUs independently, and unbalanced nodes are undesirable. **So the 2-GPU dataloader
    trick is the only lever**, and its 2× billing is unavoidable — see the trap above.
+   *Update 2026-11-03: CPU-only jobs are now available, per the Hyak notice. That does not
+   change this for a GPU job: the 8 CPUs per GPU cap still holds, so the trick remains the only
+   way to get more CPUs alongside a GPU.*
 3. **Many small files → `/gpfs/scrubbed`, and pack into SquashFS.** This is the big one.
    Active many-small-file datasets belong on **`/gpfs/scrubbed`** (larger capacity, has
    an automatic cleanup policy) rather than the 1 TB project quota, and UW-IT explicitly

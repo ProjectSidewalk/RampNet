@@ -347,9 +347,13 @@ def test_candidates_json_rederives():
     want = _committed("candidates.json")
     assert B._dumps(B.build_candidates()) == want
     res = json.loads(want)
+    # 11. Molmo2-8B's bayonne leg (2026-11-11) made it 102 while Molmo voted; Molmo is
+    # support-only since (Jon, 2026-11-11), and the 102 stays on record as if_molmo_votes.
     assert res["n_candidates"] == 11
-    assert res["if_dense_legs_vote"] == {"n_candidates": 579, "n_from_dense_legs_only": 299,
-                                         "n_with_fewer_than_2_non_dense_legs": 568}
+    assert res["support_only"] == ["owlv2", "gdino", "molmo2-8b"]
+    assert res["if_molmo_votes"] == {"n_candidates": 102, "n_on_molmo_and_qwen_alone": 88}
+    assert res["if_dense_legs_vote"] == {"n_candidates": 692, "n_from_dense_legs_only": 266,
+                                         "n_with_fewer_than_2_non_dense_legs": 578}
 
 
 def test_paid_estimate_rederives_from_the_ledger_before_its_cutoff():

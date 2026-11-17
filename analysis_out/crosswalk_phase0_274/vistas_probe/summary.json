@@ -1,0 +1,110 @@
+{
+ "merge_r": 0.03,
+ "match_r": 0.05,
+ "classes": [
+  8,
+  23
+ ],
+ "cuts": {
+  "all": {
+   "n_labels": 67,
+   "n_panos": 34,
+   "recall@0.022": 0.582,
+   "recall@0.05": 0.821,
+   "recall@0.1": 0.97
+  },
+  "human_confirmed": {
+   "n_labels": 0,
+   "n_panos": 0,
+   "recall@0.022": null,
+   "recall@0.05": null,
+   "recall@0.1": null
+  },
+  "paterson": {
+   "n_labels": 44,
+   "n_panos": 16,
+   "recall@0.022": 0.682,
+   "recall@0.05": 0.886,
+   "recall@0.1": 1.0
+  },
+  "paterson_human_confirmed": {
+   "n_labels": 0,
+   "n_panos": 0,
+   "recall@0.022": null,
+   "recall@0.05": null,
+   "recall@0.1": null
+  },
+  "gainesville": {
+   "n_labels": 23,
+   "n_panos": 18,
+   "recall@0.022": 0.391,
+   "recall@0.05": 0.696,
+   "recall@0.1": 0.913
+  },
+  "gainesville_human_confirmed": {
+   "n_labels": 0,
+   "n_panos": 0,
+   "recall@0.022": null,
+   "recall@0.05": null,
+   "recall@0.1": null
+  },
+  "richmond": {
+   "n_labels": 0,
+   "n_panos": 0,
+   "recall@0.022": null,
+   "recall@0.05": null,
+   "recall@0.1": null
+  },
+  "richmond_human_confirmed": {
+   "n_labels": 0,
+   "n_panos": 0,
+   "recall@0.022": null,
+   "recall@0.05": null,
+   "recall@0.1": null
+  },
+  "laurens_gsv": {
+   "n_labels": 0,
+   "n_panos": 0,
+   "recall@0.022": null,
+   "recall@0.05": null,
+   "recall@0.1": null
+  },
+  "laurens_gsv_human_confirmed": {
+   "n_labels": 0,
+   "n_panos": 0,
+   "recall@0.022": null,
+   "recall@0.05": null,
+   "recall@0.1": null
+  },
+  "laurens_mapillary": {
+   "n_labels": 0,
+   "n_panos": 0,
+   "recall@0.022": null,
+   "recall@0.05": null,
+   "recall@0.1": null
+  },
+  "laurens_mapillary_human_confirmed": {
+   "n_labels": 0,
+   "n_panos": 0,
+   "recall@0.022": null,
+   "recall@0.05": null,
+   "recall@0.1": null
+  }
+ },
+ "panos": {
+  "labeled": {
+   "n": 34,
+   "merged_per_pano": 6.21,
+   "merged_within_match_r_of_a_label": 65,
+   "merged_total": 211
+  },
+  "unlabeled": {
+   "n": 520,
+   "merged_per_pano": 2.61,
+   "panos_with_any_component": 282
+  },
+  "backends": [
+   "cuda-fp16"
+  ]
+ }
+}

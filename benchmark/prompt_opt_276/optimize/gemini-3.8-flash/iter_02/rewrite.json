@@ -1,0 +1,19 @@
+{
+ "iteration": 2,
+ "model": "gemini-3.8-flash",
+ "from": null,
+ "candidate": "def276-flash38-r2",
+ "used_fp": false,
+ "used_fn": true,
+ "verdicts": {
+  "iteration": 2,
+  "model": "gemini-3.8-flash",
+  "fp": "unsure",
+  "fn": "ramp",
+  "judged_at": "2026-11-10T00:02:52.357Z"
+ },
+ "prompt": "You are improving the written definition of a target class for an object detector that finds curb ramps in street-level images.\n\nCurrent definition: \"A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street.\"\n\nImage 1: the BLUE box marks a real curb ramp that the detector missed, confirmed by the reviewer.\n\nRewrite the definition so that it still covers every ordinary curb ramp, includes cases like the blue-boxed one. Describe visual features a detector can use; do not refer to these specific images or to 'the reviewer'. One paragraph, at most 90 words, beginning with 'A curb ramp'. Return JSON: {\"definition\": \"...\"}.",
+ "raw": "{\n  \"definition\": \"A curb ramp is a sloped transition or lowered section of sidewalk curb at a corner, intersection, or crossing that enables smooth passage between sidewalk and street level. It may be straight or wrap along a curved corner radius, and its surface or edges may be partially occupied by or adjacent to utility poles, posts, or infrastructure. Detectable features include a distinct downward incline toward the roadway, a flush or depressed curb lip, and frequent alignment with crosswalk markings or pedestrian paths.\"\n}",
+ "definition": "A curb ramp is a sloped transition or lowered section of sidewalk curb at a corner, intersection, or crossing that enables smooth passage between sidewalk and street level. It may be straight or wrap along a curved corner radius, and its surface or edges may be partially occupied by or adjacent to utility poles, posts, or infrastructure. Detectable features include a distinct downward incline toward the roadway, a flush or depressed curb lip, and frequent alignment with crosswalk markings or pedestrian paths.",
+ "at": "2026-11-10T00:03:23Z"
+}

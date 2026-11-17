@@ -1,0 +1,14 @@
+Env unpacked to node-local /scr/jfroehli/ctrl263env_42104183_0/sidewalkcv2 in 28 s
+--- #263 control arm: released weights, GSV only ---
+Job ID:      42104183   restarts: 0
+Seed:        3   (no --aug, no --loss-mask)
+Repo:        /mmfs1/gscratch/makelab/jonf/RampNet263  commit 20ea5753  dirty files: 1
+Run dir:     /gscratch/scrubbed/jfroehli/control263/s3
+Copy to:     /gscratch/makelab/jonf/control263/s3
+Data root:   /gscratch/scrubbed/jfroehli/rampnet_dataset_v2
+Init:        /gscratch/scrubbed/jfroehli/aug82/released_rampnet_state_dict.pth  sha256 024a987cabed7cc9
+GPUs:        1 x 4 (world 4) x accum 4 = global batch 16
+Steps:       2000 optimizer steps, LR 1e-5 constant, ckpt every 400 micro-batches
+Node list:   g3110
+      4 NVIDIA L40S
+----------------------------

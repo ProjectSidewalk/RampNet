@@ -1,0 +1,51 @@
+{
+ "pinned_recall@0.05": 0.8208955223880597,
+ "n_labels": 67,
+ "n_panos": 34,
+ "server_correct_true": {
+  "n_labels": 44,
+  "recall@0.05": 0.8181818181818182
+ },
+ "server_correct_false": {
+  "n_labels": 9,
+  "recall@0.05": 0.7777777777777778
+ },
+ "chance_floor_recall@0.05": {
+  "mean": 0.276,
+  "p95": 0.388,
+  "rounds": 200
+ },
+ "sensitivity": {
+  "prob>=0.4": {
+   "recall@0.05": 0.806,
+   "merged_per_pano": 5.41
+  },
+  "prob>=0.5": {
+   "recall@0.05": 0.746,
+   "merged_per_pano": 4.12
+  },
+  "area<=5%view": {
+   "recall@0.05": 0.746,
+   "merged_per_pano": 5.65
+  },
+  "prob>=0.4&area<=5%view": {
+   "recall@0.05": 0.746,
+   "merged_per_pano": 4.91
+  }
+ },
+ "merged_per_labeled_pano": 6.21,
+ "matched_component_n_views": {
+  "1": 31,
+  "2": 24
+ },
+ "splits": {
+  "paterson": {
+   "n_panos": 16,
+   "n_labels": 44
+  },
+  "gainesville": {
+   "n_panos": 18,
+   "n_labels": 23
+  }
+ }
+}

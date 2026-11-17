@@ -1,0 +1,7 @@
+{
+ "iteration": 2,
+ "model": "gemini-3.8-flash",
+ "fp": "unsure",
+ "fn": "ramp",
+ "judged_at": "2026-11-10T00:02:52.357Z"
+}

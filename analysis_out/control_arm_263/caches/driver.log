@@ -1,0 +1,28 @@
+=== control263 scoring (job 42152649) 2026-10-22T07:48:23-07:00 host g3046 repo commit 85c42e11
+=== control263 scoring (job 42152652) 2026-10-22T07:48:23-07:00 host g3111 repo commit 85c42e11
+python: /scr/jfroehli/ctrl263score_42152649_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA A40, 0 MiB, 46068 MiB 
+splits: annapolis,bayonne,bend,budapest_district5,clovis,gainesville,juneau,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- released: Hub projectsidewalk/rampnet-model (no --checkpoint)
+python: /scr/jfroehli/ctrl263score_42152652_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA L40S, 0 MiB, 46068 MiB 
+splits: annapolis,bayonne,bend,budapest_district5,clovis,gainesville,juneau,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- control_s3: /gscratch/makelab/jonf/control263/control_s3.pth sha256 cabd583033f4438c
+=== control263 scoring (job 42152651) 2026-10-22T07:48:26-07:00 host g3077 repo commit 85c42e11
+=== control263 scoring (job 42152650) 2026-10-22T07:48:26-07:00 host g3077 repo commit 85c42e11
+python: /scr/jfroehli/ctrl263score_42152651_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA A40, 0 MiB, 46068 MiB 
+splits: annapolis,bayonne,bend,budapest_district5,clovis,gainesville,juneau,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+python: /scr/jfroehli/ctrl263score_42152650_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA A40, 0 MiB, 46068 MiB 
+splits: annapolis,bayonne,bend,budapest_district5,clovis,gainesville,juneau,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- control_s2: /gscratch/makelab/jonf/control263/control_s2.pth sha256 bbb353f39bd65c09
+--- control_s1: /gscratch/makelab/jonf/control263/control_s1.pth sha256 7c6f4920a5e34f32
+--- control_s3 exit=0 splits=14 elapsed=1880s
+=== done 2026-10-22T08:19:46-07:00 status=0
+--- released exit=0 splits=14 elapsed=2828s
+=== done 2026-10-22T08:35:34-07:00 status=0
+--- control_s1 exit=0 splits=14 elapsed=2902s
+=== done 2026-10-22T08:36:52-07:00 status=0
+--- control_s2 exit=0 splits=14 elapsed=2904s
+=== done 2026-10-22T08:36:54-07:00 status=0

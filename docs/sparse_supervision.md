@@ -170,7 +170,8 @@ mix is **a hyperparameter for the label-budget curve to test**. Neither has been
 python scripts/build_sparse_labels.py \
     --results runs/lyon/results.jsonl --sites runs/lyon/sites.jsonl \
     --mined runs/lyon/mined/labels.jsonl --panos /data/lyon/index.csv \
-    --benchmark-ids benchmark/lyon/ids.txt --exclude-ids benchmark/lyon/exclude_ids.txt \
+    --benchmark-ids benchmark/lyon_topup278/never_train_ids.txt \
+    --exclude-ids benchmark/lyon_topup278/exclude_ids.txt \
     --city lyon --out /gscratch/scrubbed/$USER/sparse/lyon --limit 20000 --seed 0
 
 python scripts/build_sparse_labels.py ...the same arguments... --check
@@ -187,7 +188,7 @@ Inputs:
 | `--mined` | `labels.jsonl`: `pano_id, site_id, status, emit, x, y, peak_conf, band, benchmark_pano` | labeler `scripts/mine_city.py` (sidewalk-auto-labeler PR #114, not merged as of 2026-10-20) |
 | `--panos` | a directory of native `<id>.jpg`, or a labeler archive `index.csv` (`panorama_id, filename, bytes, sha256`, with the files in `panos/` beside it). The index's sha256 is checked when each image is read. | labeler `scripts/export_benchmark.py` |
 | `--benchmark-ids` | pano ids never to emit, one per line. **Required whenever a bundle under `benchmark/` matches the city** (#266 review M2): the same slug ignoring case, or one slug a prefix of the other at a `_` boundary, so `laurens` and `laurens_mapillary` match each other but `lyon` and `lyonnais` do not. When several bundles match, the error names them all. | the benchmark bundle |
-| `--exclude-ids` | more pano ids never to emit: the spatial buffer around the benchmark, e.g. the 30 m `benchmark/lyon/exclude_ids.txt` that #264 will write | the bundle's build |
+| `--exclude-ids` | more pano ids never to emit: the spatial buffer around the benchmark, e.g. the 30 m buffer of the Lyon audit; for Lyon pass `benchmark/lyon_topup278/exclude_ids.txt`, which is cumulative (first draw and #278 top-up), and the builder refuses lists that miss any label-audit bundle's ids or buffer | the bundle's build |
 
 Rules, in order:
 

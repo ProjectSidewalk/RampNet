@@ -1,0 +1,25 @@
+i,label_uid,painted,position,bike,note,rater,imagery
+38,seattle-wa:241843,yes,yes,,ladder visible 2025 at node; crop faded bars; label on paint near centre,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+40,seattle-wa:240807,yes,end,,2025 ladder at node; label at west end of the paint by the bike lane,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+41,seattle-wa:271480,no,na,,single stop bar only (2023 + crop); no crosswalk,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+43,seattle-wa:274325,no,off,,node mid side-street mouth,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+47,seattle-wa:208275,yes,near,,faded ladder: barely in aerials,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+48,seattle-wa:208230,no,off,B,node in tree shadow,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+49,seattle-wa:208217,no,off,B,node in side-street mouth,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+50,seattle-wa:210687,unclear,na,,canopy hides node both years; crop label on signal pole,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+55,seattle-wa:244574,yes,off,,2025 ladder at node; label ~6 m SE on bike rack / curb bulb (placement error),claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+58,seattle-wa:212972,yes,near,,faded ladder in 2023 + shadowed 2025; crop remnants; label ~2.7 m along,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+59,seattle-wa:237241,no,off,,stop bar only at node (side street); label at corner,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+61,seattle-wa:254008,yes,yes,,2025 ladder; label 1.5 m off along street,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+63,seattle-wa:264818,unclear,near,,median refuge cut-through with yellow edge paint; no white bars across lanes,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+65,seattle-wa:209048,no,off,,node in unpainted intersection; label on a ladder crossing ~6 m SE,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+67,seattle-wa:226880,yes,near,,2025 ladder; label ~2.5 m west of centre on western bars,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+68,seattle-wa:238491,yes,off,,no paint 2023 (or truck),claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+69,seattle-wa:238480,no,off,,node in unpainted intersection; label ~12 m N past a school ladder crossing,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+74,seattle-wa:198255,yes,near,,faded ladder (2023 faint,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+77,seattle-wa:253005,yes,near,,2025 ladder; label ~3 m along street at bar ends,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+78,seattle-wa:272241,no,na,,roundabout approach: yield/stop bar only,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+79,seattle-wa:237769,no,off,B,node mid-street no paint; label on green bike crossing ~6 m SW,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+82,seattle-wa:238688,no,off,,node at road edge no paint; label on school-crossing sign post on sidewalk,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+104,seattle-wa:247445,yes,near,,faded 2023,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop
+111,seattle-wa:237482,yes,near,,ladder visible 2023 + 2025 at node; label ~1.9 m NE on paint,claude-opus-5-5 blind re-rate 2026-11-01,2023+2025+crop

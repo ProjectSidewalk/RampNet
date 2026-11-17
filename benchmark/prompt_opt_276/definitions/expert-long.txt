@@ -1,0 +1,49 @@
+A curb ramp is a short, sloped section of pedestrian walkway that cuts through or descends
+from a raised curb, so a person using a wheelchair, walker, stroller, or cane can move
+between sidewalk level and street level without a step. Following ADA and U.S. Access Board
+(PROWAG) guidance, curb ramps are placed where a pedestrian route meets a street crossing:
+at intersection corners, at marked or unmarked crosswalks, at mid-block crossings, and on
+medians or refuge islands.
+
+Visual cues in a street-level photo:
+- A break in the curb line where the vertical curb face tapers down until it is flush, or
+  nearly flush, with the gutter.
+- A sloped surface, usually concrete, about 4–6 ft wide (roughly pedestrian-walkway width,
+  narrower than a car lane). It is often lighter or newer than the surrounding sidewalk and
+  may have grooved or scored lines.
+- Triangular flared sides ("wings"), or vertical returned curbs, on either side of the
+  sloped surface.
+- A detectable warning surface at the street edge: a panel of raised truncated domes about
+  2 ft deep spanning the ramp width, usually yellow, red, white, or dark gray. It is strong
+  evidence of a curb ramp, but many older ramps lack it.
+- Usually faces a crosswalk, an opposite corner, or a mid-block crossing point.
+
+Common forms:
+- Perpendicular: runs straight from the sidewalk to the street at a right angle to the
+  curb. A corner often has two, one for each crossing.
+- Diagonal (apex): a single ramp at the middle of the corner that serves both crossings.
+- Parallel: the sidewalk itself slopes down along the curb from one or both sides to a low
+  landing at street level.
+- Blended transition (depressed corner): a broad area of the corner lowered almost flush
+  with the street, usually edged with detectable warnings.
+
+Count a curb ramp if the curb visibly drops to street level at a pedestrian crossing
+point, even if it is old, cracked, steep, narrow, missing detectable warnings, partly
+hidden, or far away.
+
+Box extent: draw one box per ramp. Include the sloped surface, its flares, and its
+detectable warning panel, from where it leaves sidewalk level to where it meets the gutter.
+Two distinct ramps at the same corner get two boxes. A parallel ramp (both sloped runs plus
+the landing) gets one box, and so does a blended transition.
+
+Not curb ramps:
+- Driveway aprons and alley entrances. These are curb cuts for vehicles leading across the
+  sidewalk to a garage, parking lot, yard, or alley—usually wider, mid-block, and where the
+  sidewalk often stays level across them (do not box vehicle driveways even if the sidewalk
+  dips or has warning domes).
+- A full-height curb with no lowered section (this is a missing curb ramp, so do not box
+  it).
+- Building entrance ramps, ramps with handrails, and loading docks.
+- Raised crosswalks and speed tables, where the street rises to sidewalk level instead.
+- Tactile domes at rail or transit platforms that are not at a street curb.
+- Curb paint, stop bars, storm grates, and utility covers.

@@ -1,0 +1,1318 @@
+{
+ "bootstrap_resamples": 1000,
+ "first_draw_units": [
+  [
+   1,
+   2
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   3,
+   3
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   1,
+   2
+  ],
+  [
+   6,
+   6
+  ],
+  [
+   4,
+   4
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   0,
+   0
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   0,
+   0
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   0,
+   1
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   0,
+   0
+  ],
+  [
+   1,
+   2
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   0,
+   1
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   1,
+   1
+  ],
+  [
+   0,
+   1
+  ]
+ ],
+ "model": "each top-up pano draws its decided-detection count from the first draw's per-pano counts; each detection is correct with probability p (rho > 0: beta-binomial pano effect with that intra-pano correlation; the group's ANOVA ICC in the first draw is about 0.33, estimated from 27 panos). p = Beta(41, 7): p drawn per review from the flat prior updated by 40/46 (a predictive average over what the first draw supports).",
+ "monte_carlo_error": "about +-0.015 on a rate near 0.5, less near 0 or 1",
+ "not_a_byte_contract": "numpy random streams may change across versions; plan reads this file, it never recomputes it",
+ "numpy": "2.5.1",
+ "readings": {
+  "final_ge_080_unsettled": "last look, estimate >= 0.80, not settled",
+  "final_lt_080_unsettled": "last look, estimate < 0.80, not settled",
+  "settled_eligible": "estimate >= 0.80 and both lower bounds >= 0.80 at some look (the false-settle rate where p < 0.80)",
+  "settled_not_eligible": "estimate < 0.80 and both upper bounds < 0.80"
+ },
+ "rows": [
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.0592,
+   "final_lt_080_unsettled": 0.8265,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.5,
+   "p": 0.7,
+   "p_final_estimate_ge_080": 0.0597,
+   "rho": 0.0,
+   "settled_eligible": 0.0005,
+   "settled_not_eligible": 0.1138,
+   "stop_at": [
+    0.0003,
+    0.0195,
+    0.9802
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.3312,
+   "final_lt_080_unsettled": 0.6573,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.9,
+   "p": 0.75,
+   "p_final_estimate_ge_080": 0.334,
+   "rho": 0.0,
+   "settled_eligible": 0.0027,
+   "settled_not_eligible": 0.0088,
+   "stop_at": [
+    0.002,
+    0.0018,
+    0.9962
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.6022,
+   "final_lt_080_unsettled": 0.3865,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.8,
+   "p": 0.78,
+   "p_final_estimate_ge_080": 0.6122,
+   "rho": 0.0,
+   "settled_eligible": 0.01,
+   "settled_not_eligible": 0.0013,
+   "stop_at": [
+    0.0032,
+    0.0035,
+    0.9932
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.7578,
+   "final_lt_080_unsettled": 0.216,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.4,
+   "p": 0.8,
+   "p_final_estimate_ge_080": 0.784,
+   "rho": 0.0,
+   "settled_eligible": 0.0262,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.0063,
+    0.0115,
+    0.9822
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.8275,
+   "final_lt_080_unsettled": 0.0515,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 67.7,
+   "p": 0.83,
+   "p_final_estimate_ge_080": 0.9485,
+   "rho": 0.0,
+   "settled_eligible": 0.121,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.0267,
+    0.0435,
+    0.9297
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.7445,
+   "final_lt_080_unsettled": 0.0155,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 65.7,
+   "p": 0.85,
+   "p_final_estimate_ge_080": 0.9845,
+   "rho": 0.0,
+   "settled_eligible": 0.24,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.0462,
+    0.0882,
+    0.8655
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.5455,
+   "final_lt_080_unsettled": 0.002,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 62.0,
+   "p": 0.87,
+   "p_final_estimate_ge_080": 0.998,
+   "rho": 0.0,
+   "settled_eligible": 0.4525,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.0805,
+    0.1752,
+    0.7442
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.2107,
+   "final_lt_080_unsettled": 0.0,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 52.4,
+   "p": 0.9,
+   "p_final_estimate_ge_080": 1.0,
+   "rho": 0.0,
+   "settled_eligible": 0.7893,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.2092,
+    0.3265,
+    0.4642
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.0243,
+   "final_lt_080_unsettled": 0.0,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 41.0,
+   "p": 0.93,
+   "p_final_estimate_ge_080": 1.0,
+   "rho": 0.0,
+   "settled_eligible": 0.9758,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.4108,
+    0.42,
+    0.1693
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.0955,
+   "final_lt_080_unsettled": 0.8185,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.6,
+   "p": 0.7,
+   "p_final_estimate_ge_080": 0.0963,
+   "rho": 0.3,
+   "settled_eligible": 0.0008,
+   "settled_not_eligible": 0.0853,
+   "stop_at": [
+    0.0013,
+    0.012,
+    0.9868
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.3573,
+   "final_lt_080_unsettled": 0.6275,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.7,
+   "p": 0.75,
+   "p_final_estimate_ge_080": 0.3653,
+   "rho": 0.3,
+   "settled_eligible": 0.008,
+   "settled_not_eligible": 0.0073,
+   "stop_at": [
+    0.0043,
+    0.0035,
+    0.9922
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.5873,
+   "final_lt_080_unsettled": 0.3915,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.5,
+   "p": 0.78,
+   "p_final_estimate_ge_080": 0.6072,
+   "rho": 0.3,
+   "settled_eligible": 0.02,
+   "settled_not_eligible": 0.0013,
+   "stop_at": [
+    0.007,
+    0.0077,
+    0.9852
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.7005,
+   "final_lt_080_unsettled": 0.2392,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 68.5,
+   "p": 0.8,
+   "p_final_estimate_ge_080": 0.7602,
+   "rho": 0.3,
+   "settled_eligible": 0.0597,
+   "settled_not_eligible": 0.0005,
+   "stop_at": [
+    0.02,
+    0.0232,
+    0.9567
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.7572,
+   "final_lt_080_unsettled": 0.079,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 66.5,
+   "p": 0.83,
+   "p_final_estimate_ge_080": 0.921,
+   "rho": 0.3,
+   "settled_eligible": 0.1638,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.0473,
+    0.0558,
+    0.897
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.6727,
+   "final_lt_080_unsettled": 0.028,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 63.8,
+   "p": 0.85,
+   "p_final_estimate_ge_080": 0.972,
+   "rho": 0.3,
+   "settled_eligible": 0.2993,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.0772,
+    0.11,
+    0.8127
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.507,
+   "final_lt_080_unsettled": 0.0095,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 59.5,
+   "p": 0.87,
+   "p_final_estimate_ge_080": 0.9905,
+   "rho": 0.3,
+   "settled_eligible": 0.4835,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.1348,
+    0.1782,
+    0.687
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.2477,
+   "final_lt_080_unsettled": 0.0005,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 51.2,
+   "p": 0.9,
+   "p_final_estimate_ge_080": 0.9995,
+   "rho": 0.3,
+   "settled_eligible": 0.7518,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.2562,
+    0.291,
+    0.4527
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.062,
+   "final_lt_080_unsettled": 0.0,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 40.9,
+   "p": 0.93,
+   "p_final_estimate_ge_080": 1.0,
+   "rho": 0.3,
+   "settled_eligible": 0.938,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.4535,
+    0.348,
+    0.1985
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.35 (pre-registered)",
+   "final_ge_080_unsettled": 0.5102,
+   "final_lt_080_unsettled": 0.0872,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 61.1,
+   "p": "Beta(41, 7)",
+   "p_final_estimate_ge_080": 0.9093,
+   "rho": 0.0,
+   "settled_eligible": 0.399,
+   "settled_not_eligible": 0.0035,
+   "stop_at": [
+    0.1145,
+    0.1512,
+    0.7342
+   ],
+   "z": 2.35
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.0503,
+   "final_lt_080_unsettled": 0.7845,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.2,
+   "p": 0.7,
+   "p_final_estimate_ge_080": 0.0505,
+   "rho": 0.0,
+   "settled_eligible": 0.0003,
+   "settled_not_eligible": 0.165,
+   "stop_at": [
+    0.001,
+    0.03,
+    0.969
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.3245,
+   "final_lt_080_unsettled": 0.6552,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.7,
+   "p": 0.75,
+   "p_final_estimate_ge_080": 0.3305,
+   "rho": 0.0,
+   "settled_eligible": 0.006,
+   "settled_not_eligible": 0.0143,
+   "stop_at": [
+    0.0035,
+    0.0037,
+    0.9928
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.6018,
+   "final_lt_080_unsettled": 0.378,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.5,
+   "p": 0.78,
+   "p_final_estimate_ge_080": 0.6195,
+   "rho": 0.0,
+   "settled_eligible": 0.0177,
+   "settled_not_eligible": 0.0025,
+   "stop_at": [
+    0.0065,
+    0.0085,
+    0.985
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.7422,
+   "final_lt_080_unsettled": 0.2072,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 68.7,
+   "p": 0.8,
+   "p_final_estimate_ge_080": 0.7923,
+   "rho": 0.0,
+   "settled_eligible": 0.05,
+   "settled_not_eligible": 0.0005,
+   "stop_at": [
+    0.0182,
+    0.0175,
+    0.9643
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.7843,
+   "final_lt_080_unsettled": 0.0503,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 66.7,
+   "p": 0.83,
+   "p_final_estimate_ge_080": 0.9497,
+   "rho": 0.0,
+   "settled_eligible": 0.1655,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.04,
+    0.0607,
+    0.8992
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.6573,
+   "final_lt_080_unsettled": 0.0135,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 63.5,
+   "p": 0.85,
+   "p_final_estimate_ge_080": 0.9865,
+   "rho": 0.0,
+   "settled_eligible": 0.3292,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.0793,
+    0.1185,
+    0.8023
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.464,
+   "final_lt_080_unsettled": 0.002,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 58.8,
+   "p": 0.87,
+   "p_final_estimate_ge_080": 0.998,
+   "rho": 0.0,
+   "settled_eligible": 0.534,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.1427,
+    0.1923,
+    0.665
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.159,
+   "final_lt_080_unsettled": 0.0,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 48.6,
+   "p": 0.9,
+   "p_final_estimate_ge_080": 1.0,
+   "rho": 0.0,
+   "settled_eligible": 0.841,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.29,
+    0.3347,
+    0.3752
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.0118,
+   "final_lt_080_unsettled": 0.0,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 36.6,
+   "p": 0.93,
+   "p_final_estimate_ge_080": 1.0,
+   "rho": 0.0,
+   "settled_eligible": 0.9882,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.549,
+    0.3473,
+    0.1037
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.0965,
+   "final_lt_080_unsettled": 0.7887,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.4,
+   "p": 0.7,
+   "p_final_estimate_ge_080": 0.0973,
+   "rho": 0.3,
+   "settled_eligible": 0.0008,
+   "settled_not_eligible": 0.114,
+   "stop_at": [
+    0.0018,
+    0.0208,
+    0.9775
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.347,
+   "final_lt_080_unsettled": 0.6208,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 69.4,
+   "p": 0.75,
+   "p_final_estimate_ge_080": 0.3625,
+   "rho": 0.3,
+   "settled_eligible": 0.0155,
+   "settled_not_eligible": 0.0168,
+   "stop_at": [
+    0.0085,
+    0.008,
+    0.9835
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.5503,
+   "final_lt_080_unsettled": 0.4035,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 68.8,
+   "p": 0.78,
+   "p_final_estimate_ge_080": 0.5945,
+   "rho": 0.3,
+   "settled_eligible": 0.0442,
+   "settled_not_eligible": 0.002,
+   "stop_at": [
+    0.0185,
+    0.0145,
+    0.967
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.6723,
+   "final_lt_080_unsettled": 0.2412,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 67.7,
+   "p": 0.8,
+   "p_final_estimate_ge_080": 0.7588,
+   "rho": 0.3,
+   "settled_eligible": 0.0865,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.034,
+    0.0307,
+    0.9353
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.7145,
+   "final_lt_080_unsettled": 0.0798,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 65.3,
+   "p": 0.83,
+   "p_final_estimate_ge_080": 0.9203,
+   "rho": 0.3,
+   "settled_eligible": 0.2057,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.0655,
+    0.0717,
+    0.8628
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.6052,
+   "final_lt_080_unsettled": 0.029,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 61.3,
+   "p": 0.85,
+   "p_final_estimate_ge_080": 0.971,
+   "rho": 0.3,
+   "settled_eligible": 0.3658,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.1215,
+    0.1303,
+    0.7482
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.4385,
+   "final_lt_080_unsettled": 0.0077,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 56.6,
+   "p": 0.87,
+   "p_final_estimate_ge_080": 0.9922,
+   "rho": 0.3,
+   "settled_eligible": 0.5537,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.1872,
+    0.1975,
+    0.6152
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.1895,
+   "final_lt_080_unsettled": 0.0,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 47.4,
+   "p": 0.9,
+   "p_final_estimate_ge_080": 1.0,
+   "rho": 0.3,
+   "settled_eligible": 0.8105,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.3478,
+    0.28,
+    0.3723
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.04,
+   "final_lt_080_unsettled": 0.0,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 37.2,
+   "p": 0.93,
+   "p_final_estimate_ge_080": 1.0,
+   "rho": 0.3,
+   "settled_eligible": 0.96,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    0.5687,
+    0.2868,
+    0.1445
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "looks 25/45/70, z 2.2 (option A2)",
+   "final_ge_080_unsettled": 0.4617,
+   "final_lt_080_unsettled": 0.095,
+   "looks": [
+    25,
+    45,
+    70
+   ],
+   "mean_panos": 58.8,
+   "p": "Beta(41, 7)",
+   "p_final_estimate_ge_080": 0.9018,
+   "rho": 0.0,
+   "settled_eligible": 0.44,
+   "settled_not_eligible": 0.0032,
+   "stop_at": [
+    0.155,
+    0.1673,
+    0.6777
+   ],
+   "z": 2.2
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.0575,
+   "final_lt_080_unsettled": 0.7177,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.7,
+   "p_final_estimate_ge_080": 0.0575,
+   "rho": 0.0,
+   "settled_eligible": 0.0,
+   "settled_not_eligible": 0.2248,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.3422,
+   "final_lt_080_unsettled": 0.6302,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.75,
+   "p_final_estimate_ge_080": 0.3443,
+   "rho": 0.0,
+   "settled_eligible": 0.002,
+   "settled_not_eligible": 0.0255,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.6008,
+   "final_lt_080_unsettled": 0.3785,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.78,
+   "p_final_estimate_ge_080": 0.618,
+   "rho": 0.0,
+   "settled_eligible": 0.0173,
+   "settled_not_eligible": 0.0035,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.742,
+   "final_lt_080_unsettled": 0.2067,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.8,
+   "p_final_estimate_ge_080": 0.793,
+   "rho": 0.0,
+   "settled_eligible": 0.051,
+   "settled_not_eligible": 0.0003,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.7418,
+   "final_lt_080_unsettled": 0.0493,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.83,
+   "p_final_estimate_ge_080": 0.9507,
+   "rho": 0.0,
+   "settled_eligible": 0.209,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.6048,
+   "final_lt_080_unsettled": 0.0103,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.85,
+   "p_final_estimate_ge_080": 0.9898,
+   "rho": 0.0,
+   "settled_eligible": 0.385,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.382,
+   "final_lt_080_unsettled": 0.0025,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.87,
+   "p_final_estimate_ge_080": 0.9975,
+   "rho": 0.0,
+   "settled_eligible": 0.6155,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.0963,
+   "final_lt_080_unsettled": 0.0003,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.9,
+   "p_final_estimate_ge_080": 0.9998,
+   "rho": 0.0,
+   "settled_eligible": 0.9035,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.006,
+   "final_lt_080_unsettled": 0.0,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.93,
+   "p_final_estimate_ge_080": 1.0,
+   "rho": 0.0,
+   "settled_eligible": 0.994,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.094,
+   "final_lt_080_unsettled": 0.7228,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.7,
+   "p_final_estimate_ge_080": 0.0945,
+   "rho": 0.3,
+   "settled_eligible": 0.0005,
+   "settled_not_eligible": 0.1827,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.3655,
+   "final_lt_080_unsettled": 0.5975,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.75,
+   "p_final_estimate_ge_080": 0.3752,
+   "rho": 0.3,
+   "settled_eligible": 0.0097,
+   "settled_not_eligible": 0.0272,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.573,
+   "final_lt_080_unsettled": 0.3855,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.78,
+   "p_final_estimate_ge_080": 0.6095,
+   "rho": 0.3,
+   "settled_eligible": 0.0365,
+   "settled_not_eligible": 0.005,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.6815,
+   "final_lt_080_unsettled": 0.2412,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.8,
+   "p_final_estimate_ge_080": 0.7565,
+   "rho": 0.3,
+   "settled_eligible": 0.075,
+   "settled_not_eligible": 0.0022,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.6893,
+   "final_lt_080_unsettled": 0.0907,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.83,
+   "p_final_estimate_ge_080": 0.9093,
+   "rho": 0.3,
+   "settled_eligible": 0.22,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.592,
+   "final_lt_080_unsettled": 0.0365,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.85,
+   "p_final_estimate_ge_080": 0.9635,
+   "rho": 0.3,
+   "settled_eligible": 0.3715,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.4027,
+   "final_lt_080_unsettled": 0.014,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.87,
+   "p_final_estimate_ge_080": 0.986,
+   "rho": 0.3,
+   "settled_eligible": 0.5833,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.1683,
+   "final_lt_080_unsettled": 0.0013,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.9,
+   "p_final_estimate_ge_080": 0.9988,
+   "rho": 0.3,
+   "settled_eligible": 0.8305,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.0385,
+   "final_lt_080_unsettled": 0.0,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": 0.93,
+   "p_final_estimate_ge_080": 1.0,
+   "rho": 0.3,
+   "settled_eligible": 0.9615,
+   "settled_not_eligible": 0.0,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  },
+  {
+   "design": "one look at +69, z 1.96 (the issue's proposal, two-sided review)",
+   "final_ge_080_unsettled": 0.4113,
+   "final_lt_080_unsettled": 0.0848,
+   "looks": [
+    69
+   ],
+   "mean_panos": 69.0,
+   "p": "Beta(41, 7)",
+   "p_final_estimate_ge_080": 0.9103,
+   "rho": 0.0,
+   "settled_eligible": 0.499,
+   "settled_not_eligible": 0.005,
+   "stop_at": [
+    1.0
+   ],
+   "z": 1.96
+  }
+ ],
+ "seed_base": 278000,
+ "sims_per_cell": 4000,
+ "what": "operating characteristics of the #278 top-up stop rule, simulated conditional on the observed first draw of other_cameras (30 random panos, 40/46). Rates are shares of simulated reviews ending in each reading."
+}

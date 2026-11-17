@@ -1,5 +1,13 @@
 # Lyon label audit (#159, #263): are Lyon's self-labels good enough to train on?
 
+**Status (2026-11-15): other-cameras top-up drawn and pre-registered, not reviewed (#278).** An 80-pano top-up of the other cameras group (`benchmark/lyon_topup278/`) is drawn, and its pooled rule and blind stop rule are committed before any pixel was fetched (section 11). A Lyon label build must now pass the top-up's cumulative never-train lists; the builder refuses otherwise (section 1).
+
+**Status (2026-10-30): reviewed and scored.** Jon judged all 200 panos (export of
+2026-10-27T16:34Z, `benchmark/lyon/verdicts.json`). All four groups are **eligible** at 0.55
+(precision 0.83-0.95). Grand Lyon Ladybug and other cameras are flagged "not decisive". Recall
+is low in every group (0.26), even for nearby ramps. Results are in section 10. The text below that
+status, through section 9, is the pre-review plan and is kept as it was posted.
+
 **Status (2026-10-20): ready for review, not reviewed.** The sample is drawn and committed, the
 plan and the pass bar are written down (`benchmark/lyon/audit_plan.json`), the never-train lists
 are committed, and the known-artifact counts are in. The 200 panos are staged and pinned
@@ -39,6 +47,13 @@ ramps the model trained on.
 Nothing in this repo enforces the lists on its own. The builder in #266 is to require
 `--benchmark-ids` for any city with a `benchmark/<city>/` directory, and it is to be given
 `exclude_ids.txt`.
+
+**Update (2026-11-15, #278).** The top-up (section 11) adds 80 audited panos and their buffer.
+A Lyon label build must pass `--benchmark-ids benchmark/lyon_topup278/never_train_ids.txt
+--exclude-ids benchmark/lyon_topup278/exclude_ids.txt` (both cumulative: 280 ids and 8,357 buffer
+panos). `scripts/build_sparse_labels.py` now refuses a build whose lists miss the ids or the
+buffer of any matching bundle that carries an `exclude_ids.txt`, so the first draw's two lists
+alone are refused once the top-up directory exists.
 
 - **Not a benchmark split.** Lyon stays training-only under #158's rule that a city trains or
   evaluates, never both. `benchmark/lyon/` is staged the way a split is so that the same tools
@@ -328,3 +343,294 @@ was replaced on 2026-10-20 after review, before anyone reviewed it.
   Not built.
 - **Per-producer caps on training** (#159 decision, point 2) are a training-side step, not part of
   this audit.
+
+## 10. Results (review exported 2026-10-27, scored 2026-10-27, elevation split 2026-10-30)
+
+Jon reviewed all 200 panos in one pass. `score` ran against the posted plan (`plan_posted: true`,
+`partial: false`). Five `top` panos are excluded as planned, so 195 are scored. Files:
+`benchmark/lyon/verdicts.json` (the export, byte for byte; the 38- and 104-pano partial exports are
+in `verdicts_backups/`) and `analysis_out/lyon_review_159/score.json`.
+
+### Precision against the bar (unbiased subset)
+
+| group | panos | P@0.55 | bootstrap 95% | Wilson 95% | reading | R@0.55 | P@0.30 | R@0.30 |
+|---|---:|---:|---|---|---|---:|---:|---:|
+| Grand Lyon Ladybug | 71 | 0.83 (84/101) | 0.75-0.90 | 0.75-0.89 | eligible, not decisive | 0.27 (84/317) | 0.75 | 0.39 |
+| ecartip GoPro Max | 56 | 0.95 (75/79) | 0.90-0.99 | 0.88-0.98 | eligible (decisive) | 0.26 (75/288) | 0.70 | 0.39 |
+| other GoPro Max | 35 | 0.94 (45/48) | 0.88-1.00 | 0.83-0.98 | eligible (decisive) | 0.27 (45/165) | 0.73 | 0.37 |
+| other cameras | 33 | 0.87 (40/46) | 0.75-0.96 | 0.74-0.94 | eligible, not decisive | 0.26 (40/151) | 0.78 | 0.39 |
+| all (no verdict) | 195 | 0.89 (244/274) | 0.85-0.93 | 0.85-0.92 | — | 0.26 (244/921) | 0.74 | 0.39 |
+
+- **Every group clears 0.80 on the point estimate**, so under the posted rule all four are
+  eligible for a Lyon training pool. None is a decisive fail.
+- **"Not decisive"** means an interval contains 0.80. `score` sizes a top-up draw that would
+  settle it. Grand Lyon needs about 364 more random panos and other cameras about 69. Neither has
+  been drawn, and whether to draw them is Jon's call.
+- **Recall is the problem, not precision.** About a quarter of the ramps Jon marked are found
+  at 0.55, and 0.39 at 0.30, the same in every group. For training this means Lyon's self-labels
+  are mostly correct where they exist, but **most ramps carry no label**. A pano used as training
+  data would teach "no ramp here" at about three of every four ramps unless the loss is masked
+  (the `--loss-mask` path of #266) or only positives are used.
+- The 158 missed marks Jon flagged "unsure" are reported and never counted against recall.
+
+### Is the low recall far-field? Recall at 0.55 by degrees below the horizon
+
+`python scripts/analysis/lyon_review_159.py elevation` splits the same 0.55 recall pool by how far
+below the horizon each true detection or missed mark sits. Distances label the bands for a level
+camera 2.5 m up; they are not measured. A GoPro on a helmet or a car roof sits at a different
+height, which moves the distances but not the angles.
+
+| below horizon | ~distance | level: TP / sure misses / unsure | level R | tilt-corrected: TP / sure / unsure | corrected R |
+|---|---|---|---:|---|---:|
+| above the horizon | — | 13 / 62 / 12 | 0.17 | 0 / 1 / 1 | — |
+| 0-2° | > 72 m | 6 / 30 / 8 | 0.17 | 1 / 1 / 0 | — |
+| 2-4° | 36-72 m | 4 / 52 / 29 | 0.07 | 1 / 37 / 31 | 0.03 |
+| 4-6° | 24-36 m | 10 / 69 / 44 | 0.13 | 12 / 115 / 62 | 0.09 |
+| 6-10° | 14-24 m | 50 / 145 / 35 | 0.26 | 56 / 229 / 48 | 0.20 |
+| 10-20° | 7-14 m | 88 / 202 / 19 | 0.30 | 113 / 209 / 12 | 0.35 |
+| > 20° | < 7 m | 73 / 117 / 11 | 0.38 | 61 / 85 / 4 | 0.42 |
+| **within ~24 m (≥ 6°)** | | 211 / 464 | **0.31** [0.28, 0.35] | 230 / 523 | **0.31** [0.27, 0.34] |
+| **within ~14 m (≥ 10°)** | | 161 / 319 | **0.34** [0.29, 0.38] | 174 / 294 | **0.37** [0.32, 0.42] |
+| all | | 244 / 677 / 158 | 0.26 | same pool | 0.26 |
+
+Brackets are pano-bootstrap 95% intervals (the "within" rows draw from all 195 pool panos, as
+`score` does; a band draws from the panos with a ramp in it). Per-group rows are in the JSON files.
+
+- **Far ramps are close to undetected.** Beyond about 24 m the model finds 7-17% of what Jon
+  marked on the level reading and 3-9% tilt-corrected.
+- **Dropping the far marks barely helps.** Within about 24 m recall is 0.31, and within about
+  14 m it is 0.34 (0.37 tilt-corrected). Even under about 7 m the model misses about 60%.
+- **So most of the recall deficit is near-field.** 464 of the 677 sure misses (69%) are within
+  about 24 m on the level reading, and 523 (77%) tilt-corrected. Recall still rises with angle
+  inside the near field (0.26, 0.30, 0.38 level), so image size matters too, but even the closest
+  band misses most ramps, which points at what the ramps look like as well. Jon's notes on three panos describe it: Lyon kerbs "drop slightly at the
+  crosswalks but there is still a lip", and some corners have "massive diagonal ramps" that he
+  marked as two. Neither looks like the US ramps the model was trained on. **This is a hypothesis.**
+  Three notes do not measure it, and no per-mark ramp-type tag exists to test it.
+- **The tilt correction works as a check on itself.** The level reading puts 87 marks and
+  detections above the horizon, which is impossible for a kerb. After undoing each pano's estimated
+  pitch and roll, 2 remain. The corrected bands move marks mostly from "above" and 0-4° into 4-10°,
+  which lowers far-field recall further and leaves the near-field reading about where it was.
+
+**Tilt input.** The corrected column uses `analysis_out/pano_tilt/lyon.json` from PR #273 (branch
+`analysis/pano-tilt-159`, written at commit 090cb4f and unchanged by that PR's review fixes;
+sha256 recorded in `recall_by_elevation_tilt.json`). It accepts 193 of 200 panos. The 7 declined
+panos are read as level. With #273 merged the file is in the tree, and this re-derives the
+corrected file and compares its bytes (`check_all.py` entry `lyon_elevation_tilt_159`):
+
+```bash
+python scripts/analysis/lyon_review_159.py elevation --tilt analysis_out/pano_tilt/lyon.json
+```
+
+If `lyon.json` is ever regenerated, the recorded sha256 no longer matches and the check fails;
+re-run `elevation --tilt ... --write` on the new file and update this section. How the tilt was
+estimated and validated, and its caveats, are in [`pano_tilt_estimate.md`](pano_tilt_estimate.md).
+
+### Reproduce the results
+
+Everything below runs from a clean clone, on CPU, with no network and no imagery:
+
+```bash
+python scripts/analysis/lyon_review_159.py score       # recomputes score.json, compares its bytes
+python scripts/analysis/lyon_review_159.py elevation   # recall_by_elevation.json, likewise
+pytest -q tests/test_lyon_review_159.py
+```
+
+`score` and `elevation` need only committed files: `records.jsonl`, `verdicts.json`, `sample.json`,
+`audit_plan.json`, `bundle_provenance.json`, `analysis_out/lyon_review_159/run_peaks.json`, and (for
+`elevation`'s pool check) `analysis_out/lyon_review_159/score.json`. **Re-doing the review** also
+needs the 200 panos, which are git-ignored. They are pinned by sha256 in `imagery_manifest.json`.
+A copy is in the makelab2 run archive (`/projects/makeabilitylab/sidewalk-auto-labeler/runs/lyon/`,
+backed up by CSE IT). Each record also carries its public Panoramax `hd_url`, and
+`python scripts/analysis/pano_tilt_estimate.py fetch-lyon --out <dir>` downloads all 200 from
+those URLs and checks every file against the manifest (on 2026-10-31 all 200 matched). Panoramax
+may serve different bytes later, in which case the fetch fails instead of using them. The panos
+are not on Hugging Face.
+
+### Not done
+
+- **The top-up draws** for Grand Lyon and other cameras. Jon decides whether "not decisive" is
+  good enough. *Update 2026-11-15:* the other-cameras top-up is drawn and pre-registered, not
+  reviewed (section 11); Grand Lyon is not drawn (a recommendation, Jon's call).
+- **Ramp-type tagging of the missed marks** (lipped kerb vs. ramp; a diagonal ramp marked as one
+  or as two), which would test the near-field hypothesis above.
+- **A second rater.** The verdicts are single-rater. The item list and rubric are fixed, so a
+  second pass can be compared directly.
+- **No Lyon training has started.** Eligibility is necessary, not sufficient: the recall finding
+  above changes how Lyon labels should enter a training pool.
+
+## 11. Top-up for other cameras (#278): plan, not reviewed
+
+**Status (2026-11-15): drawn, pre-registered and staged; not reviewed.** Issue
+[#278](https://github.com/ProjectSidewalk/RampNet/issues/278). The draw, the pooled rule, the stop
+rule and what each final reading means for training are in
+`benchmark/lyon_topup278/audit_plan.json`, committed and pushed before any pixel of the draw was
+fetched (`bundle_provenance.json` → `pre_registered`). Nothing under `benchmark/lyon/` changes.
+
+**Imagery (staged 2026-11-15, after the plan was pushed).** The archive's `index.csv` was fetched
+from makelab2 first; all 80 drawn ids are in it. One `sftp` batch then copied the first 70 in
+review order (626,349,724 bytes). All 70 match the archive's sha256 (`stage-pixels`), so none was
+dropped and the reserve is unused. They are pinned in `imagery_manifest.json` (digest
+`3d293f7d2adc746e`). `nadir_band.json` marks the "La Voie Bleue" logo band, found by eye on a
+contact sheet of the bottom 31% of all 70 (geometry only), on 12 panos. No pano has a black or
+white nadir. The sheet is regenerated by `lyon_topup_278.py nadir-sheet --out <dir>` (outside
+the repo); it shows no detection. Of the 19 panos the blue rule alone fires on, the 12 by-eye ones
+are listed in `LOGO_BANDS`. The 12 are one producer's panos, so the hatch is a producer cue inside
+the group (the first audit had the same cue, and the group is read as a whole). The gallery
+(`gallery/index.html`, git-ignored) holds 70 panos and 113 detections in the staged order, with the
+producer hidden.
+
+**The staged list is pinned** outside the plan hash: `bundle_provenance.json` -> `imagery` ->
+`staged_ids_sha256` = `24f6a8497720ca2d810252f27ebf51cd49cf7d678e4147949128cf4b8daaa730` (sha256 of
+the 70 ids as LF-terminated lines; committed in 85ad7e07, pinned by hash after the #290 review).
+`score` refuses a staged list that breaks the review order without a named drop or that differs from
+this pin, and `looks.json` records it at the first look; a recorded look file can never be read
+again with other bytes (restore it from git instead).
+
+### Why other cameras, and why not Grand Lyon (recommendation, Jon's call)
+
+| group | random panos | P@0.55 | Wilson 95% | share of the run's panos with a 0.55 detection |
+|---|---:|---:|---|---:|
+| Grand Lyon Ladybug | 59 | 0.832 (84/101) | 0.747-0.892 | 41.8% (17,089) |
+| other cameras | 30 | 0.870 (40/46) | 0.743-0.939 | 3.7% (1,513) |
+
+- **Other cameras** is the thinnest reading (46 detections over seven cameras) and cheap to top
+  up. The top-up can still flip its eligibility: averaged over what 40/46 supports (p drawn from
+  Beta(41, 7)), the pooled estimate ends below 0.80 in 9% of simulated reviews, and the flag clears
+  ("SETTLED eligible") in 40%.
+- **Grand Lyon** would need about 364 more random panos (about 620 detections) for a 54% chance of
+  "decisive" if the truth is the observed 0.83, and the draw would hold about 11k more Grand Lyon
+  panos out of training. **Recommendation (Jon's call): do not draw Grand Lyon.**
+- Recall (0.26 in every group) needs no top-up: it decides *how* Lyon labels enter training
+  (positives-only or loss-masked), not whether, and this review does not read it.
+
+### The design (pre-registered)
+
+1. **Pool:** the 5 m run's `other_cameras` records (group map on `camera_model|copyright`) outside
+   `benchmark/lyon/exclude_ids.txt`: 8,997 records, 1,342 with a 0.55 detection.
+2. **Draw:** labeler `export_benchmark.py` at `01b9422` (which reproduces the first draw byte for
+   byte), `--sample 80 --empty-sample 0 --top 0 --seed 278 --min-spacing 30`: 70 panos plus a
+   reserve of 10, 132 detections at 0.55 over the 80. Run twice, identical bytes. Every pano is > 30 m from all
+   200 first-draw panos and ≥ 30 m from each other.
+3. **Review order:** ascending `sha1(panorama_id)` (the gallery's order). The **staged list** is the
+   first 70 ids in that order whose pixels were staged; the reserve only replaces a pano whose pixels
+   cannot be staged.
+4. **What is judged:** each 0.55 detection (correct / false positive / duplicate / unsure, rubric
+   unchanged, duplicates false, unsure dropped). **Detections-only**: no missed-ramp pass
+   (`benchmark/RUBRICS.md` §1, "Detections-only variant"); this is listed under `deviations`.
+5. **Pooled precision:** per-pano `(correct, decided)` units, the first draw's 30 random
+   other-camera panos (40/46) followed by the counted top-up panos; sum correct / sum decided.
+6. **Looks at exactly the first 25, 45 and 70 staged panos.** At each look: a Wilson interval at
+   z = 2.35 and a pano-bootstrap percentile interval at the matching level (0.94%-99.06%, 10,000
+   resamples, seed 278). **SETTLED eligible** = estimate ≥ 0.80 and both lower bounds ≥ 0.80;
+   **SETTLED not eligible** = estimate < 0.80 and both upper bounds < 0.80; otherwise CONTINUE.
+   The first settlement ends the review; look 3 is final whatever it reads. No discretionary stop.
+   Each look's export is kept (`verdicts_backups/look<k>.json`), and `score` refuses a later
+   export that changes a verdict of a pano an earlier look counted.
+7. **Blind interim output:** before the final reading `score` prints only CONTINUE or SETTLED and
+   writes no estimate or interval anywhere (`looks.json` holds outcomes and file hashes only).
+
+**What each final reading means for training** (the pooled reading replaces the first-draw reading
+for other cameras, in both directions; the 95% intervals printed with it are descriptive):
+
+| final reading | meaning for training |
+|---|---|
+| SETTLED eligible (any look) | eligible for a Lyon training pool; flag cleared (the posted "eligible (decisive)") |
+| look 3, estimate ≥ 0.80, not settled | eligible under the posted rule; stays "not decisive" |
+| look 3, estimate < 0.80, not settled | **not eligible**: out of any Lyon training pool unless a later, separately pre-registered audit says otherwise |
+| SETTLED not eligible (any look) | the posted "decisive fail": excluded from any Lyon training pool |
+
+Reported with the final reading, never gating: the unsure and duplicate shares of the counted
+panos beside the first draw's (3 unsure and 1 duplicate of 49 shown), and any ratings beyond the
+look in force. Not updated: recall at 0.55, precision and recall at 0.30, the elevation split.
+
+### Operating characteristics (`analysis_out/lyon_topup_278/design_oc.json`)
+
+Simulated conditional on the observed first draw: each top-up pano draws its decided-detection
+count from the first draw's per-pano counts, each detection is correct with probability p, and
+rho 0.30 adds a beta-binomial pano effect (the group's own ANOVA ICC is about 0.33, from 27 panos).
+4,000 runs per cell, 1,000 bootstrap resamples (Monte Carlo error about ±0.016 near 0.5).
+
+| design | false settle at p = 0.80, independent | same, rho 0.30 | settle at 0.85 | 0.87 | 0.90 | 0.93 | mean panos at 0.87 / 0.90 / 0.93 |
+|---|---:|---:|---:|---:|---:|---:|---|
+| **looks 25/45/70, z 2.35 (pre-registered)** | **0.026** | **0.060** | 0.24 | 0.45 | 0.79 | 0.98 | 62 / 52 / 41 |
+| looks 25/45/70, z 2.2 (option A2) | 0.050 | 0.086 | 0.33 | 0.53 | 0.84 | 0.99 | 59 / 49 / 37 |
+| one look at +69, z 1.96 (the issue's proposal, two-sided) | 0.051 | 0.075 | 0.39 | 0.62 | 0.90 | 0.99 | 69 / 69 / 69 |
+
+| P(final pooled estimate ≥ 0.80), z 2.35 | p = 0.70 | 0.75 | 0.78 | 0.80 | Beta(41, 7) |
+|---|---:|---:|---:|---:|---:|
+| independent | 0.06 | 0.33 | 0.61 | 0.78 | 0.91 |
+| rho 0.30 | 0.10 | 0.37 | 0.61 | 0.76 | — |
+
+- **The 0.05 is not a nominal level.** It is the conditional false-settle rate of the issue's own
+  single look, given a first draw that already read 40/46. z = 2.35 holds it near that under the
+  group's estimated clustering (0.060 at rho 0.30) and at 0.026 under independence, at a cost of
+  about 8 points of settle chance at p = 0.87 against z 2.2.
+- **Calibration is simulated and conditional on the first draw**; the clustering is estimated from
+  27 panos.
+- **A prefix of a spaced sample.** The looks read a `sha1`-ordered prefix of an 80-pano spaced
+  draw: content-blind, but not identical in distribution to a 25-pano spaced draw.
+
+![Settle chance by true precision](figures/lyon_topup_278/settle_by_p.png)
+
+### Rating instructions (for Jon)
+
+```
+1. Post the drafted comment on #159, then put its URL in
+   benchmark/lyon_topup278/bundle_provenance.json -> pre_registered.comment.
+2. Open benchmark/lyon_topup278/gallery/index.html (built with --hide-credit --detections-only).
+   Judge the detections on each pano, in order. Nothing else.
+3. After pano 25: Export, save the download as
+   benchmark/lyon_topup278/verdicts_backups/look1.json, then run
+   python scripts/analysis/lyon_topup_278.py score --write
+   It says CONTINUE or SETTLED. On CONTINUE, commit look1.json and
+   analysis_out/lyon_topup_278/looks.json right away, then rate on to pano 45 (look2.json,
+   score --write, commit), then to pano 70 (look3.json, score --write).
+4. Do not change a verdict on a pano an earlier look already counted, and never re-export over a
+   look file that score has read; score refuses both.
+5. At the final reading commit the look files, looks.json, score.json and verdicts.json.
+```
+
+### Replication
+
+```bash
+# the pool (needs the run's results.jsonl, sha256 60e688b2...61ef; not in this repo)
+python scripts/analysis/lyon_topup_278.py pool --results <runs/lyon/results.jsonl> --out <scratch>/pool_other_cameras.jsonl
+# the draw, in sidewalk-auto-labeler at 01b9422 (command in bundle_provenance.json -> export)
+python scripts/export_benchmark.py <scratch>/pool_other_cameras.jsonl --bundle <scratch>/bundle \
+    --sample 80 --empty-sample 0 --top 0 --seed 278 --min-spacing 30 \
+    --group-key camera_model --group-key copyright --group-map <RampNet>/benchmark/lyon/group_map.json \
+    --group-min 0 --empty-group-min 0 --records-only
+python scripts/analysis/lyon_topup_278.py stage --from <scratch>/bundle --results <runs/lyon/results.jsonl>
+python scripts/analysis/lyon_topup_278.py oc --write       # simulation; about 4 minutes; no check mode
+python scripts/analysis/lyon_topup_278.py figure           # docs/figures/lyon_topup_278/settle_by_p.png
+python scripts/analysis/lyon_topup_278.py plan             # byte check (check_all: lyon_topup_plan_278)
+python scripts/analysis/lyon_topup_278.py verify --records-only
+pytest -q tests/test_lyon_topup_278.py
+```
+
+From a clean clone, `plan`, `verify --records-only`, `figure` and the tests need only committed
+files. `pool` and `stage` need the run's `results.jsonl` (local copy and the makelab2 run archive,
+see `benchmark/lyon/bundle_provenance.json` → `run`). The pixels come from the makelab2 run archive
+and are pinned in `imagery_manifest.json` once staged.
+
+### Where each number lives
+
+| number | file | produced by |
+|---|---|---|
+| pool counts (8,997 / 1,342), draw (80 panos, 132 detections) | `benchmark/lyon_topup278/audit_plan.json` → `pool`, `sampler`, `detections_055` | `pool`, the exporter, `plan` |
+| never-train counts (280 ids, 8,357 in the buffer, 2,336 added) | `benchmark/lyon_topup278/bundle_provenance.json` → `never_train` | `stage` |
+| first-draw units (30 panos, 40/46; 3 unsure, 1 duplicate of 49) | `audit_plan.json` → `pooled_precision.first_draw` | `first_draw()` over `benchmark/lyon/verdicts.json` |
+| operating characteristics, predictive figures | `analysis_out/lyon_topup_278/design_oc.json` (also embedded in the plan) | `oc --write` |
+| plan and records hashes | `bundle_provenance.json` → `pre_registered` | sha256 |
+| looks and final reading (after the review) | `analysis_out/lyon_topup_278/looks.json`, `score.json` | `score --write` |
+| first-draw table above | `analysis_out/lyon_review_159/score.json` | section 10 |
+
+### Not done
+
+- **No AI pre-rater.** None exists in this tooling, and none ran (no paid API was used).
+- **No blind re-rate of first-draw panos** (a drift check across the three weeks and the mode
+  change; option F in the plan, not built because it adds rating).
+- **No archive copy of the gallery** on the lab share yet.
+- **The top-up is not reviewed.** Nothing about other cameras changes until `score` gives a final
+  reading.
