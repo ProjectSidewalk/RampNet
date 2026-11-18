@@ -455,6 +455,11 @@ def build_parser():
                         "must match the run or the export finds no cache.")
     p.add_argument("--claude-tool-choice", default="auto", choices=["auto", "forced"],
                    help="Claude tool choice of the producing run (signature field).")
+    p.add_argument("--claude-max-tokens", type=int, default=None,
+                   help="Claude max_tokens of the producing run. A signature field only "
+                        "when it differs from the as-run 4096 (ClaudeDetector.signature), "
+                        "so leave it unset for every leg except one that ran with it "
+                        "raised: the effort=high legs of claude_effort_high ran 20000.")
     p.add_argument("--claude-serving-path", default="vertex",
                    choices=["vertex", "anthropic"],
                    help="Which account served the producing run. UNLIKE the two flags "
@@ -543,6 +548,7 @@ def main(argv=None):
     overrides = {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz,
                  "claude_effort": args.claude_effort,
                  "claude_tool_choice": args.claude_tool_choice,
+                 "claude_max_tokens": args.claude_max_tokens,
                  "vistas_input_size": args.vistas_input_size,
                  "gemini_temperature": args.gemini_temperature,
                  "definition": args.definition,

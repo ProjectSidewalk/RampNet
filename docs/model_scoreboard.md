@@ -629,6 +629,11 @@ Omissions are content, so they are named rather than left as blanks:
   does not use, and the "best challenger" line would name the same model twice. Their
   detections are published and registered like any leg (`study` in `rampnet/roster.py`),
   and `analysis_out/scoreboard.json` lists them under `study_legs`.
+- **One study leg of the effort comparison is not on this board**:
+  `claude-opus-5-5-effort-high-anthropic-maxtokens-20000`, Claude Opus 5.5 at effort high on the
+  thirteen city splits. On the board it would be the same model twice; it is scored in
+  [`claude_effort_high.md`](claude_effort_high.md), paired against the effort=low leg, and is
+  also listed under `study_legs`.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
 - **Eight legs have not run every pooled split — six of them only one**, so they are in the partial table rather than the

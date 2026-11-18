@@ -58,7 +58,9 @@ def doc():
 def ledger():
     with open(USAGE_LOG, encoding="utf-8") as fh:
         rows = [json.loads(line) for line in fh if line.strip()]
-    return [r for r in rows if r.get("api_account")]
+    # The campaign's rows only (2026-10-19/20): the same orgs paid for later work, such as
+    # the 2026-11-17 effort=high leg of the same model (docs/claude_effort_high.md).
+    return [r for r in rows if r.get("api_account") and r["ts"] < "2026-10-21"]
 
 
 # --------------------------------------------------------------------------- #
