@@ -541,6 +541,10 @@ analysis_out/lyon_topup_278/**/*.html
 # from committed detections by scripts/analysis/claude_newest_ids_261.py --check.
 !analysis_out/claude_newest_ids_261/
 
+# docs/claude_effort_high.md: Opus 5.5 effort=high vs effort=low, re-derived from committed
+# detections and the ledger by scripts/analysis/claude_effort_high.py --check.
+!analysis_out/claude_effort_high/
+
 # #263 Track 1: the open-rig miss buckets, re-derived byte for byte by
 # scripts/analysis/open_rig_misses_258.py --check.
 !analysis_out/open_rig_misses_258.json

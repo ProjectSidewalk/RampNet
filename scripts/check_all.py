@@ -193,6 +193,12 @@ REGISTRY: list = [
       "from committed detections (PR #261)",
       pins=("analysis_out/claude_newest_ids_261/results.json", "analysis_out/scoreboard.json",
             "benchmark/model_detections/", "manual_labels/") + GT),
+    E("claude_effort_high", (AN + "claude_effort_high.py", "--check"),
+      "Opus 5.5 effort=high vs effort=low: paired per-split and pooled F1 intervals, boxes/pano "
+      "and cost re-derive from committed detections and the ledger",
+      pins=("analysis_out/claude_effort_high/results.json", "analysis_out/scoreboard.json",
+            "analysis_out/usage_log.jsonl", "benchmark/model_detections/",
+            "manual_labels/") + GT),
     E("benchmark_depth_111", (AN + "harvest_depth_111.py", "--check"),
       "benchmark depth manifests are self-consistent and match the records; with the local "
       "archive present every saved entry is re-decoded and compared field by field (#111)",

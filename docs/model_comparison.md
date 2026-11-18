@@ -99,6 +99,7 @@ and `tests/test_roster.py` fails if the two stop agreeing. Regenerate it with
 | `claude-fable-5-1-effort-low-anthropic` | claude | sparse | 2026-09-05 | — published, not in these tables |
 | `claude-fable-5-effort-low-anthropic` | claude | sparse | 2026-09-05 | — published, not in these tables |
 | `claude-opus-5-5-effort-low-anthropic` | claude | sparse | 2026-10-19 | — published, not in these tables |
+| `claude-opus-5-5-effort-high-anthropic-maxtokens-20000` | claude | sparse | 2026-11-17 | — study leg, scored in `claude_effort_high.md` |
 
 **"Not in these tables" covers three different situations, and the difference matters.**
 The tables below are the zero-shot comparison; a leg can sit outside them because its
