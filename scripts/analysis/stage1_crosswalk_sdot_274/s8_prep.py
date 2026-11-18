@@ -20,8 +20,10 @@ Subcommands:
     role), ``slice/areas.json`` and ``slice/summary.json``.
 
 ``pools``
-    Candidate Juneau training points outside the slice and its buffer, by source and rule, before any audit or
-    disc screen. Writes ``pools/candidates.csv`` and ``pools/summary.json``.
+    Candidate Juneau training points outside the slice and its buffer, by source and rule: Jon's verdicts, the
+    validator-MINED negative candidates for Jon's blind page (never trained on the validator's word), GoPro-only
+    validator positives for the GoPro balance, the caps, and the positives <= negatives rule in each branch of the
+    page's outcome. Before the page and Claude's disc review. Writes ``pools/candidates.csv`` and ``pools/summary.json``.
 
 ``cards``
     How many rating cards a three-seed-per-model comparison makes, measured on the 80 Juneau missed-crosswalk panos
@@ -29,8 +31,9 @@ Subcommands:
     "s4 against a retrained model").
 
 ``power``
-    Simulated chance that the primary clears, for several pano-sample sizes and effect sizes, on the slice's own
-    s4 labels with Jon's votes where he voted and the validator's verdict as a stand-in elsewhere.
+    Simulated chance that the primary clears, on the slice's own s4 labels with Jon's votes where he voted and the
+    validator's verdict as a stand-in elsewhere: for redrawn samples of several sizes (``power.csv``), and
+    conditional on the drawn 200-pano sample with a pano and a sequence-block bootstrap (``power_drawn_sample.csv``).
 
 Usage::
 
@@ -69,13 +72,24 @@ Y_RIG = 0.5 + 49.0 / 180      # the labeler's 49 deg camera-rig mask (NADIR_MASK
 Y_25M = 0.532                 # recall_check's 25 m line
 MERGE_R = 0.01                # score_274.PREFILL_R: one card per paint across models
 NEAR_R = 0.05                 # the scorer's matching radius; s5's merge and disc-screen radius
-NEG_CUT = 0.9999              # validator p_incorrect above which an AI label is a candidate negative (to be audited)
+NEG_CUT = 0.9999              # validator p_incorrect above which an AI label is MINED for Jon's page (never trusted)
 NEG_MIN_DIP = 8.4375          # ... and at least this far below the horizon (deg): a detector row-cell edge, ~17 m and nearer
-POS_CUT = 0.9999              # validator p_correct above which an AI label is a candidate positive (to be audited)
+POS_CUT = 0.9999              # validator p_correct above which an AI label may be a (GoPro-only) positive
 SEAM_PER_SEQ = 10             # rear-seam negatives (x < 0.04 or > 0.96) kept per capture sequence
+NEG_PER_SEQ = 30              # negatives kept per capture sequence (Jon's first)
 NEG_PER_PANO = 3              # negatives kept per pano
 POS_PER_PANO = 2              # validator positives kept per pano
+MINED_CAP = 125               # validator-mined negative candidates on Jon's page
 CAP_SEED = 298
+BUFFER_M = 60.0               # 50 m in the first draft; 60 m after review (hills, camera height); slice unchanged
+GOPRO = "GoPro Max"
+# juneau-test vote accounts, from a read-only lookup of sidewalk_login.sidewalk_user on the test instance (2026-11-17).
+# confirmed=False: votes are kept but flagged until Jon confirms the account is his; no root is built before that.
+VOTE_ACCOUNTS = {
+    "2d8335ef-daff-4382-afe2-7e1eb6567fd9": {"username": "jonfroehlich", "confirmed": True},
+    "4ff63c52-88d6-40bb-ad08-ceff4e14f8bc": {"username": "29vs30oz1c7daxjc", "confirmed": False,
+                                             "note": "auto-generated username; very likely Jon not logged in"},
+}
 
 
 def sha256(path):
@@ -148,14 +162,20 @@ def cmd_snapshot(a):
     print(json.dumps(meta["panos_by_run"]), "panos;", len(copies), "files copied")
 
 
-def load_inputs():
+def load_inputs(accounts=None):
+    """`accounts`: vote accounts treated as Jon's (default: every account in VOTE_ACCOUNTS, confirmed or not, so
+    prep can proceed; the root build passes only the confirmed ones). Votes are frozen at the 11-17 snapshot."""
+    accounts = set(VOTE_ACCOUNTS) if accounts is None else set(accounts)
     pt = pd.read_csv(os.path.join(INP, "juneau_panos.csv"), dtype={"pano_id": str, "sequence_id": str})
     lab = pd.read_csv(os.path.join(INP, "validator_all_labels_scored.csv"), dtype={"pano_id": str})
     lab = lab.drop(columns=["validation_result", "comment", "dip_deg"], errors="ignore")
     votes = pd.read_csv(os.path.join(INP, "juneau_test_votes_2026-11-17.csv"), dtype={"pano_id": str})
     n_raw = len(votes)
-    votes = votes.sort_values("validated_at").groupby("label_uid").tail(1)   # a label's latest vote, as the report
-    lab = lab.merge(votes[["label_uid", "validation_result", "comment"]].rename(columns={"validation_result": "vote"}),
+    assert set(votes.validator_user_id) <= set(VOTE_ACCOUNTS), "a vote from an account not in VOTE_ACCOUNTS"
+    votes = votes[votes.validator_user_id.isin(accounts)]
+    votes = votes.sort_values("validated_at").groupby("label_uid").tail(1)   # latest vote per label, kept accounts
+    lab = lab.merge(votes[["label_uid", "validation_result", "comment", "validator_user_id"]]
+                    .rename(columns={"validation_result": "vote", "validator_user_id": "vote_user_id"}),
                     on="label_uid", how="left", validate="one_to_one")
     assert lab.label_uid.is_unique and lab.label_uid.str.startswith(CITY + ":").all()
     lab["x"] = lab.pano_x / lab.width
@@ -169,6 +189,21 @@ def load_inputs():
     pt["e"], pt["n"] = enu(pt.lat, pt.lng, lat0, lng0)
     lab["e"], lab["n"] = enu(lab.lat, lab.lng, lat0, lng0)   # PS's stored label position (approximate)
     return pt, lab, n_raw
+
+
+def carry_page_verdicts(lab):
+    """Jon's BLIND verdicts on earlier pages (s4 cards on the confirmation and fresh Juneau draws, question "is the
+    outlined cross on a crosswalk?") carried to an AI label within MERGE_R. Returns a Series aligned to lab."""
+    pages = [os.path.join(HARDNEG, "confirm_s3", "juneau", "s4", "ratings.csv"),
+             os.path.join(HARDNEG, "s5_inputs", "juneau_eval", "s4", "ratings.csv")]
+    pv = pd.concat([pd.read_csv(p, dtype={"pano_id": str}) for p in pages], ignore_index=True)
+    out = pd.Series([None] * len(lab), index=lab.index, dtype=object)
+    for pid, g in pv.groupby("pano_id"):
+        for i in lab.index[lab.pano_id == pid]:
+            d = np.hypot(wrap_dx(g.x, lab.at[i, "x"]), g.y - lab.at[i, "y"])
+            if (d <= MERGE_R).any():
+                out.at[i] = g.verdict.iloc[int(np.argmin(d))]
+    return out
 
 
 def legacy_sets():
@@ -307,13 +342,31 @@ def cmd_slice(a):
         f.write("\n".join(sample) + "\n")
     with open(os.path.join(OUT, "slice", "primary_reserve.txt"), "w", newline="\n") as f:
         f.write("\n".join(reserve) + "\n")
-    ls = lab[lab.pano_id.isin(sample)]
+    ls = lab[lab.pano_id.isin(sample)].copy()
     n4 = len(ls)
+    ls["page_verdict"] = carry_page_verdicts(ls)
+    sp_ = pt[pt.pano_id.isin(sample)]
+    standin = np.where(ls.vote.notna(), ls.vote.eq("Disagree"), ls.verdict.eq("Disagree"))
+    sl_lab = lab[lab.role == "slice"]
+    sl_standin = np.where(sl_lab.vote.notna(), sl_lab.vote.eq("Disagree"), sl_lab.verdict.eq("Disagree"))
+    seam = lambda d: (d.pano_x / d.width < 0.04) | (d.pano_x / d.width > 0.96)   # noqa: E731
+    summ["slice_checks"] = {
+        "slice_labels_jon_agree": int((sl_lab.vote == "Agree").sum()),
+        "slice_gopro_panos": int(((pt.role == "slice") & (pt.camera_model == GOPRO)).sum()),
+        "slice_look_alike_standins": int(sl_standin.sum()),
+        "slice_look_alike_standins_rear_seam": int((sl_standin & seam(sl_lab)).sum()),
+    }
     summ["primary_sample"] = {
         "panos": len(sample), "reserve": len(reserve), "draw_seed": a.seed + 1,
+        "panos_by_area": {str(k): int(v) for k, v in sp_.area.value_counts().sort_index().items()},
+        "gopro_panos": int((sp_.camera_model == GOPRO).sum()),
+        "sequences": int(sp_.sequence_id.nunique()),
         "panos_with_s4_label": int(ls.pano_id.nunique()), "s4_labels": n4,
-        "s4_labels_gopro": int((ls.camera_model == "GoPro Max").sum()),
-        "jon_votes_inherited": int(ls.vote.notna().sum()),
+        "s4_labels_gopro": int((ls.camera_model == GOPRO).sum()),
+        "look_alike_standins": int(standin.sum()),
+        "look_alike_standins_rear_seam": int((standin & seam(ls)).sum()),
+        "ps_votes_to_rerate_blind": int(ls.vote.notna().sum()),
+        "blind_page_verdicts_inherited": int((ls.vote.isna() & ls.page_verdict.notna()).sum()),
         "recall285_sure_marks_within_25m": int(sure_near.pano_id.isin(sample).sum()),
         "est_cards_seed1_pair": round(n4 * a.cards_seed1),
         "est_cards_three_seeds_each": round(n4 * a.cards_three),
@@ -333,16 +386,7 @@ def cmd_pools(a):
     lab = lab.merge(sp[["pano_id", "sequence_id"]].rename(columns={"sequence_id": "seq"}), on="pano_id",
                     validate="many_to_one")
     # Jon's verdicts on earlier pages (s4 cards on the confirmation and fresh draws) carry to an AI label within 0.01.
-    pages = [os.path.join(HARDNEG, "confirm_s3", "juneau", "s4", "ratings.csv"),
-             os.path.join(HARDNEG, "s5_inputs", "juneau_eval", "s4", "ratings.csv")]
-    pv = pd.concat([pd.read_csv(p, dtype={"pano_id": str}) for p in pages], ignore_index=True)
-    lab["page_verdict"] = None
-    for pid, g in pv.groupby("pano_id"):
-        idx = lab.index[lab.pano_id == pid]
-        for i in idx:
-            d = np.hypot(wrap_dx(g.x, lab.at[i, "x"]), g.y - lab.at[i, "y"])
-            if (d <= MERGE_R).any():
-                lab.at[i, "page_verdict"] = g.verdict.iloc[int(np.argmin(d))]
+    lab["page_verdict"] = carry_page_verdicts(lab)
     # Jon's missed-crosswalk marks are never training data (approved 2026-11-15 for measuring only), so their panos
     # carry no training point; nor do the panos with live PS Crosswalk labels (held out since s4).
     leg = legacy_sets()
@@ -375,40 +419,86 @@ def cmd_pools(a):
             lab.at[i, "neg_near_crosswalk"] = bool((d <= NEAR_R).any())
     lab["rear_seam"] = (lab.x < 0.04) | (lab.x > 0.96)
     lab["eligible"] = eligible
-    # ---- the planned recipe's counts (before the audits and the disc review, which can only remove points) ----
+    # ---- the planned recipe (consensus of 2026-11-17 after review) ----
+    # Negatives: Jon's verdicts first, then validator-MINED candidates, which train only if Jon rates them on one
+    # uniform blind page. Caps: rear seam per sequence, all negatives per sequence, per pano; then the mined cap.
     rng = np.random.default_rng(CAP_SEED)
+    role = sp.set_index("pano_id").role
+    cam = pt.set_index("pano_id").camera_model
     lab["planned"] = ""
+    lab["pos_drop_rank"] = np.nan
     e_idx = lab.index[eligible & ~lab.on_root_v5_pano]
-    neg = lab.loc[e_idx][lab.loc[e_idx].source.isin(["jon_negative", "validator_negative_candidate"])
-                         & ~lab.loc[e_idx].neg_near_crosswalk]
+    E = lab.loc[e_idx]
+    neg = E[E.source.isin(["jon_negative", "validator_negative_candidate"]) & ~E.neg_near_crosswalk]
     neg = neg.assign(jon=neg.source.eq("jon_negative"), r=rng.random(len(neg)))
     neg = neg.sort_values(["jon", "r"], ascending=[False, True])           # Jon's first, then a seeded order
     seam_rank = neg[neg.rear_seam].groupby("seq").cumcount()
     neg = neg.drop(seam_rank.index[seam_rank >= SEAM_PER_SEQ])
+    neg = neg[neg.groupby("seq").cumcount() < NEG_PER_SEQ]
     neg = neg[neg.groupby("pano_id").cumcount() < NEG_PER_PANO]
-    lab.loc[neg.index, "planned"] = "negative"
-    n_neg_juneau = len(neg) + int(len(r5["negatives"][r5["negatives"].pano_id.map(sp.set_index("pano_id").role) == "train"]))
-    pos_j = lab.loc[e_idx][lab.loc[e_idx].source.eq("jon_positive")]
-    lab.loc[pos_j.index, "planned"] = "positive"
-    n_pos_v5 = int(len(r5["positives"][r5["positives"].pano_id.map(sp.set_index("pano_id").role) == "train"]))
-    room = max(0, n_neg_juneau - len(pos_j) - n_pos_v5)                    # Juneau positives <= Juneau negatives
-    vp = lab.loc[e_idx][lab.loc[e_idx].source.eq("validator_positive_candidate")]
+    mined = neg[~neg.jon].head(MINED_CAP)
+    neg_jon = neg[neg.jon]
+    lab.loc[neg_jon.index, "planned"] = "negative"
+    lab.loc[mined.index, "planned"] = "mined_for_jon_page"
+    v5 = {k: v[v.pano_id.map(role) == "train"] for k, v in r5.items()}
+    n_neg_v5, n_pos_v5 = len(v5["negatives"]), len(v5["positives"])
+    gopro_neg = int((neg_jon.camera_model == GOPRO).sum() + (v5["negatives"].pano_id.map(cam) == GOPRO).sum())
+    # Positives: Jon's (PS votes and blind page verdicts) and every root_v5 positive; validator positives only on
+    # GoPro Max panos, GoPro-first, until GoPro positives >= GoPro negatives.
+    pos_j = E[E.source.eq("jon_positive")]
+    gopro_pos = int((pos_j.camera_model == GOPRO).sum() + (v5["positives"].pano_id.map(cam) == GOPRO).sum())
+    vp = E[E.source.eq("validator_positive_candidate") & (E.camera_model == GOPRO)]
     vp = vp.assign(r=rng.random(len(vp))).sort_values("r")
-    vp = vp[vp.groupby("pano_id").cumcount() < POS_PER_PANO].head(room)
+    vp = vp[vp.groupby("pano_id").cumcount() < POS_PER_PANO].head(max(0, gopro_neg - gopro_pos))
+    gopro_pos += len(vp)
+    gopro_neg_capped = 0
+    if gopro_pos < gopro_neg:      # not enough GoPro positives: cap GoPro negatives at the GoPro positive count
+        g = neg_jon[neg_jon.camera_model == GOPRO]
+        drop = g.index[len(g) - min(len(g), gopro_neg - gopro_pos):]    # the lowest-priority (last-ranked) ones
+        lab.loc[drop, "planned"] = ""
+        neg_jon = neg_jon.drop(drop)
+        gopro_neg_capped = len(drop)
+    lab.loc[pos_j.index, "planned"] = "positive"
     lab.loc[vp.index, "planned"] = "positive"
+    # Juneau positives <= Juneau negatives in every branch. When the rule binds, positives are dropped in a seeded
+    # order, tier by tier: (1) Jon's PS-vote positives on Trimble panos (not blind), (2) his blind page-verdict
+    # positives on Trimble panos, (3) only if both run out, root_v5 positives. GoPro positives keep the GoPro balance.
+    t1 = pos_j[pos_j.vote.notna() & (pos_j.camera_model != GOPRO)]
+    t2 = pos_j[pos_j.vote.isna() & (pos_j.camera_model != GOPRO)]
+    order = list(t1.assign(r=rng.random(len(t1))).sort_values("r").index) + \
+        list(t2.assign(r=rng.random(len(t2))).sort_values("r").index)
+    lab.loc[order, "pos_drop_rank"] = np.arange(1, len(order) + 1)
+
+    def branch(k_mined_neg):
+        n_neg = len(neg_jon) + n_neg_v5 + k_mined_neg
+        n_pos_all = len(pos_j) + n_pos_v5 + len(vp)
+        excess = max(0, n_pos_all - n_neg)
+        n_drop = min(len(order), excess)
+        v5_drop = min(n_pos_v5, excess - n_drop)
+        return {"negatives": n_neg, "positives": n_pos_all - n_drop - v5_drop,
+                "jon_positives_dropped": n_drop, "root_v5_positives_dropped": v5_drop,
+                "rule_holds": n_pos_all - n_drop - v5_drop <= n_neg}
+    k_min = next(k for k in range(len(mined) + 1) if branch(k)["root_v5_positives_dropped"] == 0)
+    branches = {"no_mined_card_becomes_a_negative": branch(0),
+                "half_become_negatives": branch(len(mined) // 2),
+                "all_become_negatives": branch(len(mined)),
+                "fewest_mined_negatives_that_keep_every_root_v5_positive": k_min}
+    # The all-mined branch's positives, written to the CSV: drop as many ranked Jon positives as it needs.
+    nd = branches["all_become_negatives"]["jon_positives_dropped"]
+    lab.loc[order[:nd], "planned"] = "positive_dropped_by_cap"
     cols = ["label_uid", "pano_id", "seq", "camera_model", "x", "y", "dip_deg", "confidence", "p_correct",
-            "p_incorrect", "vote", "page_verdict", "source", "role", "near_slice_by_position", "eligible",
-            "on_root_v5_pano", "neg_near_crosswalk", "rear_seam", "planned"]
+            "p_incorrect", "vote", "vote_user_id", "page_verdict", "source", "role", "near_slice_by_position",
+            "eligible", "on_recall285_or_ps_pano", "on_root_v5_pano", "neg_near_crosswalk", "rear_seam", "planned",
+            "pos_drop_rank"]
     os.makedirs(os.path.join(OUT, "pools"), exist_ok=True)
     lab[cols].to_csv(os.path.join(OUT, "pools", "candidates.csv"), index=False, lineterminator="\n")
     e = lab[eligible & ~lab.on_root_v5_pano]
     tab = e.groupby("source").agg(labels=("label_uid", "size"), panos=("pano_id", "nunique"),
-                                  gopro=("camera_model", lambda s: int((s == "GoPro Max").sum())),
+                                  gopro=("camera_model", lambda s: int((s == GOPRO).sum())),
                                   rear_seam=("rear_seam", "sum"), near_crosswalk=("neg_near_crosswalk", "sum"))
-    role = sp.set_index("pano_id").role
     r5c = {k: v.pano_id.map(role).value_counts().to_dict() for k, v in r5.items()}
-    r5p = {k: int(v[v.pano_id.map(role) == "train"].pano_id.nunique()) for k, v in r5.items()}
-    # In-sample precision of the validator against every Jon verdict (PS votes and carried page verdicts).
+    r5p = {k: int(v.pano_id.nunique()) for k, v in v5.items()}
+    # In-sample agreement of the validator with every Jon verdict (PS votes and carried page verdicts).
     jv = lab.vote.map({"Agree": "crosswalk", "Disagree": "not_crosswalk", "Unsure": "unsure"}).fillna(lab.page_verdict)
     sweep = []
     for kind, col, cuts in (("negative", "p_incorrect", (0.99, 0.999, 0.9999)), ("positive", "p_correct", (0.999, 0.9999, 0.99999))):
@@ -417,24 +507,32 @@ def cmd_pools(a):
                 m = (lab[col] > cut) & ((lab.dip_deg >= NEG_MIN_DIP) if near else True)
                 v = jv[m].value_counts()
                 good = v.get("not_crosswalk" if kind == "negative" else "crosswalk", 0)
+                rs = lab.random_sample & m & lab.vote.notna()
                 sweep.append({"kind": kind, "cut": cut, "near_field_only": near, "labels": int(m.sum()),
                               "jon_rated": int(v.sum()), "jon_agrees_with_validator": int(good),
+                              "random_sample_voted": int(rs.sum()),
+                              "random_sample_agrees": int((rs & lab.vote.eq("Disagree" if kind == "negative" else "Agree")).sum()),
                               "unrated_eligible": int((m & eligible & jv.isna()).sum())})
-    planned = lab[lab.planned != ""]
+    planned = lab[lab.planned.isin(["positive", "negative", "mined_for_jon_page"])]
     # Every other AI label on a planned pano becomes an ignore point, unless it sits within NEAR_R of a planned
     # positive (s5's merge rule: an ignore point that close would zero the positive's own loss).
-    rest = lab[lab.pano_id.isin(planned.pano_id) & (lab.planned == "")]
+    rest = lab[lab.pano_id.isin(planned.pano_id) & ~lab.index.isin(planned.index)]
     pos = planned[planned.planned == "positive"]
     near_pos = np.zeros(len(rest), bool)
     for k, (i, r) in enumerate(rest.iterrows()):
         g = pos[pos.pano_id == r.pano_id]
         near_pos[k] = bool(len(g)) and bool((np.hypot(wrap_dx(g.x, r.x), g.y - r.y) <= NEAR_R).any())
+    allneg = pd.concat([neg_jon, mined])
     summ = {
-            "planned_ignore_points": {"other_ai_labels_on_planned_panos": int(len(rest)),
-                                      "of_which_within_0.05_of_a_positive_(merged,_no_ignore_point)": int(near_pos.sum())},"cuts": {"validator_negative_p_incorrect_gt": NEG_CUT, "validator_negative_min_dip_deg": NEG_MIN_DIP,
-                     "validator_positive_p_correct_gt": POS_CUT, "rear_seam_negatives_per_sequence": SEAM_PER_SEQ,
+            "cuts": {"validator_mining_p_incorrect_gt": NEG_CUT, "validator_mining_min_dip_deg": NEG_MIN_DIP,
+                     "validator_positive_p_correct_gt": POS_CUT, "validator_positives_gopro_only": True,
+                     "rear_seam_negatives_per_sequence": SEAM_PER_SEQ, "negatives_per_sequence": NEG_PER_SEQ,
                      "negatives_per_pano": NEG_PER_PANO, "validator_positives_per_pano": POS_PER_PANO,
-                     "juneau_positives_le_juneau_negatives": True, "cap_seed": CAP_SEED},
+                     "mined_candidates_cap": MINED_CAP, "juneau_positives_le_juneau_negatives": "every branch",
+                     "cap_seed": CAP_SEED},
+            "vote_accounts": VOTE_ACCOUNTS,
+            "votes_by_account_eligible": lab[eligible].vote_user_id.map(
+                lambda u: VOTE_ACCOUNTS.get(u, {}).get("username")).value_counts().to_dict(),
             "excluded": {"slice_labels": int((lab.role == "slice").sum()), "buffer_labels": int((lab.role == "buffer").sum()),
                          "train_labels_near_slice_by_position": int((lab.role.eq("train") & lab.near_slice_by_position).sum()),
                          "train_labels_on_recall285_or_ps_labelled_panos": int((lab.role.eq("train") & lab.on_recall285_or_ps_pano).sum()),
@@ -443,16 +541,24 @@ def cmd_pools(a):
             "validator_cut_sweep": sweep,
             "root_v5_juneau_points_by_role": r5c, "root_v5_train_panos": r5p,
             "page_verdicts_carried": int(lab.page_verdict.notna().sum()),
-            "planned_from_ps_labels": {
-                "negatives_jon": int(((planned.planned == "negative") & (planned.source == "jon_negative")).sum()),
-                "negatives_validator": int(((planned.planned == "negative") & (planned.source == "validator_negative_candidate")).sum()),
-                "negatives_rear_seam": int(((planned.planned == "negative") & planned.rear_seam).sum()),
-                "positives_jon": int(((planned.planned == "positive") & (planned.source == "jon_positive")).sum()),
-                "positives_validator": int(((planned.planned == "positive") & (planned.source == "validator_positive_candidate")).sum()),
-                "panos": int(planned.pano_id.nunique())},
-            "planned_from_root_v5": {"positives": n_pos_v5, "negatives": n_neg_juneau - len(neg),
-                                     "panos": int(len((set(r5["positives"].pano_id) | set(r5["negatives"].pano_id))
-                                                      & set(role.index[role == "train"])))}}
+            "planned": {
+                "jon_negatives": len(neg_jon), "jon_negatives_rear_seam": int(neg_jon.rear_seam.sum()),
+                "jon_negatives_gopro": int((neg_jon.camera_model == GOPRO).sum()),
+                "gopro_negatives_dropped_by_balance": gopro_neg_capped,
+                "mined_candidates_for_jon_page": len(mined),
+                "mined_candidates_rear_seam": int(mined.rear_seam.sum()),
+                "mined_candidates_gopro": int((mined.camera_model == GOPRO).sum()),
+                "jon_positives": len(pos_j), "jon_positives_from_ps_votes": int(pos_j.vote.notna().sum()),
+                "validator_positives_gopro": len(vp),
+                "root_v5_negatives": n_neg_v5, "root_v5_positives": n_pos_v5, "root_v5_panos": len(
+                    (set(v5["positives"].pano_id) | set(v5["negatives"].pano_id))),
+                "gopro_positives": gopro_pos, "gopro_negatives_after_balance": gopro_neg - gopro_neg_capped,
+                "new_panos": int(planned.pano_id.nunique()),
+                "negatives_per_sequence_max": int(allneg.groupby("seq").size().max()),
+                "negatives_top3_sequences": allneg.groupby("seq").size().sort_values(ascending=False).head(3).to_dict(),
+                "branches": branches},
+            "planned_ignore_points": {"other_ai_labels_on_planned_panos": int(len(rest)),
+                                      "of_which_within_0.05_of_a_positive_(merged,_no_ignore_point)": int(near_pos.sum())}}
     json.dump(summ, open(os.path.join(OUT, "pools", "summary.json"), "w", newline="\n"), indent=1, default=int)
     print(json.dumps(summ, indent=1, default=int))
 
@@ -501,7 +607,8 @@ def cmd_cards(a):
         j = np.array([len(c["by"] & names_b) for c in cards])
         res[scope] = {"base_seed1_detections": int(len(ms[0][2])), "union_cards": len(cards),
                       "cards_per_base_seed1_detection": round(len(cards) / len(ms[0][2]), 2),
-                      "cards_with_unequal_counts": int((k != j).sum())}
+                      "cards_with_unequal_counts": int((k != j).sum()),
+                      "cards_with_equal_counts_(change_neither_primary_nor_guard_6)": int((k == j).sum())}
     os.makedirs(os.path.join(OUT, "cards"), exist_ok=True)
     json.dump(res, open(os.path.join(OUT, "cards", "summary.json"), "w", newline="\n"), indent=1)
     print(json.dumps(res, indent=1))
@@ -535,13 +642,44 @@ def cmd_power(a):
                              "s4_look_alikes_per_100_panos": round(per.mean() * 100, 1),
                              "p_primary_met": round(hits / a.sims, 3)})
     df = pd.DataFrame(rows)
+    # Conditional on the DRAWN 200-pano sample: s4's stand-in counts are fixed; only which look-alikes s8 removes
+    # or adds is random. Two intervals: the pre-registered pano bootstrap, and a sequence-block bootstrap
+    # (resampling whole capture sequences) as a sensitivity.
+    sample = open(os.path.join(OUT, "slice", "primary_sample.txt")).read().split()
+    seq_of = sp.set_index("pano_id").sequence_id
+    s4f = pd.Series(per, index=sl_panos).reindex(sample).to_numpy()
+    seqs = pd.Series(seq_of.reindex(sample).to_numpy())
+    blocks = [np.flatnonzero(seqs.eq(s).to_numpy()) for s in seqs.unique()]
+    crow = []
+    for f in a.removed:
+        for add in a.added:
+            hp = hb = 0
+            for _ in range(a.sims):
+                kept = rng.binomial(s4f.astype(int), 1 - f)
+                s8 = kept + rng.poisson(add * s4f.sum() / len(s4f), len(s4f))
+                d = (s8 - s4f).astype(float)
+                bs = d[rng.integers(0, len(d), (a.boot, len(d)))].mean(1) * 100
+                hp += np.quantile(bs, 0.975) < 0
+                bsum = np.array([d[b].sum() for b in blocks]); bn = np.array([len(b) for b in blocks])
+                pick = rng.integers(0, len(blocks), (a.boot, len(blocks)))
+                bb = bsum[pick].sum(1) / bn[pick].sum(1) * 100
+                hb += np.quantile(bb, 0.975) < 0
+            crow.append({"share_removed": f, "new_as_share_of_s4": add, "p_met_pano_bootstrap": round(hp / a.sims, 3),
+                         "p_met_sequence_block_bootstrap": round(hb / a.sims, 3)})
+    cdf = pd.DataFrame(crow)
     os.makedirs(os.path.join(OUT, "power"), exist_ok=True)
     df.to_csv(os.path.join(OUT, "power", "power.csv"), index=False, lineterminator="\n")
+    cdf.to_csv(os.path.join(OUT, "power", "power_drawn_sample.csv"), index=False, lineterminator="\n")
     json.dump({"seed": a.seed, "sims": a.sims, "boot": a.boot, "slice_panos": int(len(per)),
                "slice_look_alike_standin_per_100_panos": round(per.mean() * 100, 1),
+               "drawn_sample_panos": len(s4f), "drawn_sample_standins": int(s4f.sum()),
+               "drawn_sample_standin_panos": int((s4f > 0).sum()),
+               "drawn_sample_standin_per_100_panos": round(s4f.mean() * 100, 1),
+               "drawn_sample_sequences": len(blocks),
                "note": "Seed-to-seed noise is not modelled; the three-seed mean primary should be tighter than this."},
               open(os.path.join(OUT, "power", "summary.json"), "w", newline="\n"), indent=1)
     print(df.to_string(index=False))
+    print(cdf.to_string(index=False))
 
 
 def main(argv=None):
@@ -559,7 +697,7 @@ def main(argv=None):
     s.add_argument("--target", type=float, default=0.12, help="share of all AI labels in the slice")
     s.add_argument("--min-sep-m", type=float, default=400.0)
     s.add_argument("--cell-m", type=float, default=150.0, help="cell size for the dense/other strata")
-    s.add_argument("--buffer-m", type=float, default=50.0)
+    s.add_argument("--buffer-m", type=float, default=BUFFER_M)
     s.add_argument("--label-margin-m", type=float, default=35.0,
                    help="a training label whose stored position is this close to a slice pano is excluded")
     s.add_argument("--sample", type=int, default=200, help="slice panos in the primary's rated sample")

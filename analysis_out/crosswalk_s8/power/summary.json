@@ -4,5 +4,10 @@
  "boot": 1000,
  "slice_panos": 989,
  "slice_look_alike_standin_per_100_panos": 14.3,
+ "drawn_sample_panos": 200,
+ "drawn_sample_standins": 25,
+ "drawn_sample_standin_panos": 19,
+ "drawn_sample_standin_per_100_panos": 12.5,
+ "drawn_sample_sequences": 21,
  "note": "Seed-to-seed noise is not modelled; the three-seed mean primary should be tighter than this."
 }

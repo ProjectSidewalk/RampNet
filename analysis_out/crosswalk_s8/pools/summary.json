@@ -1,38 +1,52 @@
 {
- "planned_ignore_points": {
-  "other_ai_labels_on_planned_panos": 718,
-  "of_which_within_0.05_of_a_positive_(merged,_no_ignore_point)": 68
- },
  "cuts": {
-  "validator_negative_p_incorrect_gt": 0.9999,
-  "validator_negative_min_dip_deg": 8.4375,
+  "validator_mining_p_incorrect_gt": 0.9999,
+  "validator_mining_min_dip_deg": 8.4375,
   "validator_positive_p_correct_gt": 0.9999,
+  "validator_positives_gopro_only": true,
   "rear_seam_negatives_per_sequence": 10,
+  "negatives_per_sequence": 30,
   "negatives_per_pano": 3,
   "validator_positives_per_pano": 2,
-  "juneau_positives_le_juneau_negatives": true,
+  "mined_candidates_cap": 125,
+  "juneau_positives_le_juneau_negatives": "every branch",
   "cap_seed": 298
+ },
+ "vote_accounts": {
+  "2d8335ef-daff-4382-afe2-7e1eb6567fd9": {
+   "username": "jonfroehlich",
+   "confirmed": true
+  },
+  "4ff63c52-88d6-40bb-ad08-ceff4e14f8bc": {
+   "username": "29vs30oz1c7daxjc",
+   "confirmed": false,
+   "note": "auto-generated username; very likely Jon not logged in"
+  }
+ },
+ "votes_by_account_eligible": {
+  "29vs30oz1c7daxjc": 184,
+  "jonfroehlich": 83
  },
  "excluded": {
   "slice_labels": 437,
-  "buffer_labels": 275,
+  "buffer_labels": 311,
   "train_labels_near_slice_by_position": 0,
   "train_labels_on_recall285_or_ps_labelled_panos": 116,
-  "train_labels_on_root_v5_panos": 160
+  "train_labels_on_root_v5_panos": 158
  },
  "eligible_by_source": [
   {
    "source": "jon_negative",
-   "labels": 130,
-   "panos": 99,
+   "labels": 128,
+   "panos": 97,
    "gopro": 41,
-   "rear_seam": 40,
+   "rear_seam": 39,
    "near_crosswalk": 3
   },
   {
    "source": "jon_positive",
-   "labels": 173,
-   "panos": 117,
+   "labels": 172,
+   "panos": 116,
    "gopro": 5,
    "rear_seam": 30,
    "near_crosswalk": 0
@@ -47,26 +61,26 @@
   },
   {
    "source": "none",
-   "labels": 1066,
-   "panos": 558,
-   "gopro": 92,
-   "rear_seam": 175,
+   "labels": 1048,
+   "panos": 548,
+   "gopro": 89,
+   "rear_seam": 164,
    "near_crosswalk": 0
   },
   {
    "source": "validator_negative_candidate",
-   "labels": 253,
-   "panos": 147,
+   "labels": 250,
+   "panos": 144,
    "gopro": 0,
    "rear_seam": 7,
    "near_crosswalk": 2
   },
   {
    "source": "validator_positive_candidate",
-   "labels": 964,
-   "panos": 474,
+   "labels": 954,
+   "panos": 466,
    "gopro": 43,
-   "rear_seam": 200,
+   "rear_seam": 196,
    "near_crosswalk": 0
   }
  ],
@@ -78,7 +92,9 @@
    "labels": 887,
    "jon_rated": 124,
    "jon_agrees_with_validator": 111,
-   "unrated_eligible": 620
+   "random_sample_voted": 24,
+   "random_sample_agrees": 22,
+   "unrated_eligible": 615
   },
   {
    "kind": "negative",
@@ -87,7 +103,9 @@
    "labels": 657,
    "jon_rated": 86,
    "jon_agrees_with_validator": 78,
-   "unrated_eligible": 477
+   "random_sample_voted": 16,
+   "random_sample_agrees": 16,
+   "unrated_eligible": 474
   },
   {
    "kind": "negative",
@@ -96,7 +114,9 @@
    "labels": 372,
    "jon_rated": 41,
    "jon_agrees_with_validator": 34,
-   "unrated_eligible": 269
+   "random_sample_voted": 5,
+   "random_sample_agrees": 5,
+   "unrated_eligible": 266
   },
   {
    "kind": "negative",
@@ -105,7 +125,9 @@
    "labels": 848,
    "jon_rated": 117,
    "jon_agrees_with_validator": 105,
-   "unrated_eligible": 598
+   "random_sample_voted": 23,
+   "random_sample_agrees": 21,
+   "unrated_eligible": 593
   },
   {
    "kind": "negative",
@@ -114,7 +136,9 @@
    "labels": 637,
    "jon_rated": 84,
    "jon_agrees_with_validator": 77,
-   "unrated_eligible": 463
+   "random_sample_voted": 16,
+   "random_sample_agrees": 16,
+   "unrated_eligible": 460
   },
   {
    "kind": "negative",
@@ -123,7 +147,9 @@
    "labels": 358,
    "jon_rated": 39,
    "jon_agrees_with_validator": 33,
-   "unrated_eligible": 261
+   "random_sample_voted": 5,
+   "random_sample_agrees": 5,
+   "unrated_eligible": 258
   },
   {
    "kind": "positive",
@@ -132,7 +158,9 @@
    "labels": 2002,
    "jon_rated": 210,
    "jon_agrees_with_validator": 206,
-   "unrated_eligible": 1368
+   "random_sample_voted": 39,
+   "random_sample_agrees": 38,
+   "unrated_eligible": 1350
   },
   {
    "kind": "positive",
@@ -141,7 +169,9 @@
    "labels": 1535,
    "jon_rated": 166,
    "jon_agrees_with_validator": 165,
-   "unrated_eligible": 1028
+   "random_sample_voted": 31,
+   "random_sample_agrees": 31,
+   "unrated_eligible": 1017
   },
   {
    "kind": "positive",
@@ -150,7 +180,9 @@
    "labels": 648,
    "jon_rated": 71,
    "jon_agrees_with_validator": 71,
-   "unrated_eligible": 456
+   "random_sample_voted": 18,
+   "random_sample_agrees": 18,
+   "unrated_eligible": 451
   },
   {
    "kind": "positive",
@@ -159,7 +191,9 @@
    "labels": 1520,
    "jon_rated": 157,
    "jon_agrees_with_validator": 154,
-   "unrated_eligible": 1005
+   "random_sample_voted": 27,
+   "random_sample_agrees": 27,
+   "unrated_eligible": 991
   },
   {
    "kind": "positive",
@@ -168,7 +202,9 @@
    "labels": 1159,
    "jon_rated": 123,
    "jon_agrees_with_validator": 122,
-   "unrated_eligible": 746
+   "random_sample_voted": 21,
+   "random_sample_agrees": 21,
+   "unrated_eligible": 738
   },
   {
    "kind": "positive",
@@ -177,14 +213,16 @@
    "labels": 533,
    "jon_rated": 58,
    "jon_agrees_with_validator": 58,
-   "unrated_eligible": 360
+   "random_sample_voted": 12,
+   "random_sample_agrees": 12,
+   "unrated_eligible": 356
   }
  ],
  "root_v5_juneau_points_by_role": {
   "positives": {
-   "train": 130,
+   "train": 128,
    "slice": 23,
-   "buffer": 11
+   "buffer": 13
   },
   "negatives": {
    "train": 42,
@@ -198,22 +236,61 @@
   }
  },
  "root_v5_train_panos": {
-  "positives": 62,
+  "positives": 61,
   "negatives": 26,
   "ignore": 25
  },
  "page_verdicts_carried": 87,
- "planned_from_ps_labels": {
-  "negatives_jon": 108,
-  "negatives_validator": 226,
-  "negatives_rear_seam": 29,
-  "positives_jon": 173,
-  "positives_validator": 73,
-  "panos": 372
+ "planned": {
+  "jon_negatives": 106,
+  "jon_negatives_rear_seam": 22,
+  "jon_negatives_gopro": 24,
+  "gopro_negatives_dropped_by_balance": 0,
+  "mined_candidates_for_jon_page": 125,
+  "mined_candidates_rear_seam": 4,
+  "mined_candidates_gopro": 0,
+  "jon_positives": 172,
+  "jon_positives_from_ps_votes": 130,
+  "validator_positives_gopro": 21,
+  "root_v5_negatives": 42,
+  "root_v5_positives": 128,
+  "root_v5_panos": 76,
+  "gopro_positives": 33,
+  "gopro_negatives_after_balance": 33,
+  "new_panos": 255,
+  "negatives_per_sequence_max": 30,
+  "negatives_top3_sequences": {
+   "Koujxekyw1Smq5hfTgXlMH": 30,
+   "s94cUrNq2ovHfG3VwSK71B": 29,
+   "T4PazJkusVcWpdtnehAQIG": 29
+  },
+  "branches": {
+   "no_mined_card_becomes_a_negative": {
+    "negatives": 148,
+    "positives": 148,
+    "jon_positives_dropped": 167,
+    "root_v5_positives_dropped": 6,
+    "rule_holds": true
+   },
+   "half_become_negatives": {
+    "negatives": 210,
+    "positives": 210,
+    "jon_positives_dropped": 111,
+    "root_v5_positives_dropped": 0,
+    "rule_holds": true
+   },
+   "all_become_negatives": {
+    "negatives": 273,
+    "positives": 273,
+    "jon_positives_dropped": 48,
+    "root_v5_positives_dropped": 0,
+    "rule_holds": true
+   },
+   "fewest_mined_negatives_that_keep_every_root_v5_positive": 6
+  }
  },
- "planned_from_root_v5": {
-  "positives": 130,
-  "negatives": 42,
-  "panos": 77
+ "planned_ignore_points": {
+  "other_ai_labels_on_planned_panos": 475,
+  "of_which_within_0.05_of_a_positive_(merged,_no_ignore_point)": 36
  }
 }

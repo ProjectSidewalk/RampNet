@@ -21,7 +21,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1003004101385696,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 1000438531432728,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 1001562997983210,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,154.1,False,False,False,False,False
-1001417097608399,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,52.5,False,False,False,False,False
+1001417097608399,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,buffer,-1,other,52.5,False,False,False,False,False
 1000171521494486,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 1005148981015832,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,109.0,False,False,False,False,False
 1003881991409124,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,379.3,False,False,False,False,False
@@ -38,7 +38,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1002649181249768,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,288.9,False,False,False,False,False
 1004123177363900,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,69.6,False,False,False,False,False
 1001630171397360,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,slice,0,other,0.0,False,False,False,False,False
-1003994551299329,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,other,57.1,False,False,False,False,False
+1003994551299329,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,buffer,-1,other,57.1,False,False,False,False,False
 1004677594390863,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,291.1,False,True,False,False,False
 1004230294420307,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,519.7,False,False,False,False,False
 1001933561623701,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,320.6,False,False,False,False,False
@@ -67,7 +67,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1008931817262735,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,buffer,-1,dense,23.5,False,False,False,False,False
 1009061677546241,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,329.5,False,False,False,False,False
 1009200880848813,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
-1009244720741184,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,51.3,False,False,False,False,False
+1009244720741184,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,51.3,False,False,False,False,False
 1009419987217352,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,68.2,False,False,False,False,False
 1009661733833126,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,dense,31.5,False,False,False,False,False
 1009729107408558,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,468.7,False,False,False,False,False
@@ -172,7 +172,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1040315677497023,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,278.8,False,False,False,False,False
 1040500541609366,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,slice,2,other,0.0,False,False,False,False,False
 1042966760753577,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,842.1,False,False,False,False,False
-1043809464067142,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,55.9,False,False,False,False,False
+1043809464067142,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,55.9,False,False,False,False,False
 1045639853851661,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,dense,111.7,False,False,False,False,False
 1045945777097828,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,160.5,False,False,False,False,False
 1053727563343579,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,273.3,False,False,False,False,False
@@ -198,7 +198,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1085506129216242,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
 1085762945857343,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,282.2,False,False,False,False,False
 1086740833674813,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,569.4,False,False,False,False,False
-1088469925548463,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,57.2,False,False,False,False,False
+1088469925548463,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,57.2,False,False,False,False,False
 1090158596426752,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,389.9,False,False,False,False,False
 1092558406017517,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,307.6,False,False,True,False,False
 1092169398551946,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,93.4,False,False,False,False,False
@@ -276,7 +276,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1109588123446081,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,96.9,False,False,False,False,False
 1109608130095753,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,slice,1,other,0.0,False,False,False,False,False
 1109740043456453,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,156.0,True,False,False,False,False
-1109993106758973,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,51.6,False,False,False,False,False
+1109993106758973,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,other,51.6,False,False,False,False,False
 1110033583632014,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,dense,79.8,False,False,False,False,False
 1110162706716370,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,215.9,False,False,False,False,False
 1110413540059678,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,dense,218.5,True,False,False,False,False
@@ -354,7 +354,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1125147625409104,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,1229.3,False,False,False,False,False
 1125165648743863,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,dense,4.1,False,False,False,False,False
 1125178248705752,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,67.0,False,False,False,False,False
-1125372661845344,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,53.1,False,False,False,True,False
+1125372661845344,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,53.1,False,False,False,True,False
 1125635768693812,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
 1126198588940387,juneau_crosswalk,GoPro Max,7HDENLOQuFs3McR6JBybG5,train,-1,other,369.3,True,False,False,False,False
 1126320608703448,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,61.4,False,False,False,False,False
@@ -379,7 +379,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1128454375131618,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,16.2,False,False,False,False,False
 1128506825073890,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,dense,249.9,False,False,False,False,False
 1128552738432942,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,241.3,False,False,False,False,False
-1128601114923444,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,51.6,False,False,False,False,False
+1128601114923444,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,51.6,False,False,False,False,False
 1128797155066203,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,510.8,False,False,False,False,False
 1129366665740305,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,buffer,-1,other,36.4,False,False,False,False,False
 1129234784795744,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,236.9,False,False,False,False,False
@@ -396,7 +396,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1131705164767789,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,99.6,False,False,False,False,False
 1131950522325956,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,244.1,False,False,False,False,False
 1132380541419540,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
-1132432744650942,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,58.7,False,False,False,False,False
+1132432744650942,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,58.7,False,False,False,False,False
 1132479644449874,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,187.5,False,False,False,False,False
 1132449951312899,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,376.7,False,False,False,False,False
 1132850967758678,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
@@ -412,7 +412,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1134478174509887,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 1134996084381515,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,265.4,False,False,False,False,False
 1134903561094260,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,73.8,False,False,False,False,False
-1135121681040019,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,train,-1,other,55.7,False,False,False,False,False
+1135121681040019,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,buffer,-1,other,55.7,False,False,False,False,False
 1135194577681081,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,291.3,False,False,False,False,False
 1135284811025444,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,449.8,False,False,False,False,False
 1135590697511123,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,dense,16.3,False,False,False,False,False
@@ -423,10 +423,10 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1136106794353138,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,train,-1,other,67.5,False,False,False,False,False
 1136511660802329,juneau_crosswalk,Trimble mx7,2Pkx8NrtRVgwqSOJZiyEB7,train,-1,other,430.3,False,False,False,False,False
 1136515390886522,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,114.4,False,False,False,False,False
-1136945370690359,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,56.3,False,False,False,False,False
+1136945370690359,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,56.3,False,False,False,False,False
 1137052934217848,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,79.8,False,False,False,False,False
 1137101717442897,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,178.5,False,False,False,False,False
-1137213387718301,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,52.4,False,False,False,True,False
+1137213387718301,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,52.4,False,False,False,True,False
 1137104904279999,juneau_crosswalk,Trimble mx7,NWzTFGtJkpIKDn4d5w7R0g,slice,2,other,0.0,False,False,False,False,False
 1137321060867958,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,244.9,False,False,False,False,False
 1137549027492585,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,151.7,False,False,False,False,False
@@ -460,7 +460,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1143585600248511,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
 1143866284353054,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,344.0,False,False,False,False,False
 1144260316812001,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,155.1,False,False,False,False,False
-1144559906754271,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,57.2,False,False,False,False,False
+1144559906754271,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,57.2,False,False,False,False,False
 1144966790162487,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,233.1,False,False,False,False,False
 1145620226657101,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,dense,18.6,False,False,False,False,False
 1145679344179200,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,302.8,False,False,False,False,False
@@ -539,7 +539,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1160872845102676,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,buffer,-1,other,11.8,False,False,False,False,False
 1161111098425985,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,222.4,False,False,False,False,False
 1161281981843193,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,371.4,False,False,False,False,False
-1161326888335948,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,58.3,False,False,False,False,False
+1161326888335948,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,58.3,False,False,False,False,False
 1161538271755947,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,154.2,False,False,False,False,False
 1161553361931856,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,115.0,False,False,False,False,False
 1160025908666814,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,629.3,False,False,False,False,False
@@ -617,7 +617,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1174818123869169,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,slice,0,dense,0.0,False,False,False,False,False
 1174874123512964,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,other,153.4,False,False,False,False,False
 1175190510160643,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,49.9,False,False,False,False,False
-1175652047192501,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,52.4,False,False,False,False,False
+1175652047192501,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,buffer,-1,other,52.4,False,False,False,False,False
 1175685376794052,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,745.1,False,False,False,False,False
 1175835627093880,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,dense,68.3,False,False,False,False,False
 1175997370519919,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
@@ -637,7 +637,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1178135983212350,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,1282.7,False,False,False,False,False
 1178408566521206,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,138.6,False,False,False,False,False
 1178654023139709,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,dense,185.6,False,False,False,False,False
-1178899880195299,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,59.9,False,False,False,False,False
+1178899880195299,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,59.9,False,False,False,False,False
 1179068189786279,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,149.5,False,False,False,False,False
 1179278220694232,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,slice,2,other,0.0,False,False,False,False,False
 1179520857321103,juneau_crosswalk,GoPro Max,7HDENLOQuFs3McR6JBybG5,train,-1,other,352.5,False,False,False,False,False
@@ -655,7 +655,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1181288909554729,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,236.7,False,False,False,False,False
 1181341016632223,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,224.5,False,False,False,False,False
 1181360872987415,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,slice,0,dense,0.0,False,False,False,False,False
-1181402763282967,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,57.6,False,False,False,False,False
+1181402763282967,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,other,57.6,False,False,False,False,False
 1181797642952362,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,train,-1,other,111.4,True,False,False,False,False
 1181579256351165,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,662.2,False,False,False,False,False
 1182147639810903,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,80.8,False,False,False,False,False
@@ -721,7 +721,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1192425731935294,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,101.1,False,False,False,True,False
 1192529581634276,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 1193524215339199,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,other,153.0,False,False,False,False,False
-1193594095149529,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,53.5,False,False,False,False,False
+1193594095149529,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,53.5,False,False,False,False,False
 1193600205401319,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,236.1,False,False,False,False,False
 1193773042049649,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,70.8,False,False,False,False,False
 1193773961629757,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,112.7,False,False,False,False,False
@@ -779,7 +779,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1208239773533283,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,335.1,False,False,False,False,False
 1208750473623423,juneau_crosswalk,Trimble mx7,2Pkx8NrtRVgwqSOJZiyEB7,train,-1,other,352.1,False,False,False,False,False
 1208333113663324,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,324.0,False,False,False,False,False
-1209096857122955,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,56.7,False,False,False,False,False
+1209096857122955,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,56.7,False,False,False,False,False
 1209240003780873,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,108.8,False,False,False,False,False
 1209959600023816,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,train,-1,other,111.6,False,False,False,False,False
 1209751483537024,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,283.8,False,False,False,False,False
@@ -791,7 +791,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1212039234064043,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,132.7,False,False,False,False,False
 1212096939761597,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 1212290383482086,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,192.1,False,False,False,False,False
-1212505733450564,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,51.5,False,False,False,False,False
+1212505733450564,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,51.5,False,False,False,False,False
 1213222866335439,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,103.6,False,False,False,False,False
 1213451926692693,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,dense,160.2,False,False,False,False,False
 1214464666526520,juneau_crosswalk,Trimble mx7,2Pkx8NrtRVgwqSOJZiyEB7,train,-1,other,390.9,False,False,False,False,False
@@ -853,7 +853,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1248469172791777,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,slice,1,other,0.0,False,False,False,False,False
 1248661429845590,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,209.2,False,False,False,False,False
 1249400296436985,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,slice,0,dense,0.0,False,False,False,False,False
-1250181656269793,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,dense,56.0,False,False,False,False,False
+1250181656269793,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,dense,56.0,False,False,False,False,False
 1250835019230380,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
 1251169869193472,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,slice,0,dense,0.0,False,False,False,False,False
 1251207105856690,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,95.0,False,False,False,False,False
@@ -861,7 +861,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1255478128758570,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 1255356595849353,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
 1255675755845590,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,562.4,False,False,False,False,False
-1256252972020742,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,58.0,False,False,False,False,False
+1256252972020742,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,58.0,False,False,False,False,False
 1257177955244936,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,307.0,False,False,False,False,False
 1257762032773522,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,294.8,False,False,False,False,False
 1257929878518904,juneau_crosswalk,Trimble mx7,YnKNOVedxkqM5umcJp8ztZ,train,-1,other,81.1,False,False,False,False,False
@@ -968,7 +968,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1380580942545759,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,1102.4,False,False,True,False,False
 1382020435840844,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,12.2,False,False,False,False,False
 1382213065779497,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
-1382317536504207,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,56.3,False,False,False,False,False
+1382317536504207,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,56.3,False,False,False,False,False
 1383113562357665,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,102.0,False,False,False,False,False
 1385394835509347,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
 1386277136095843,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,260.0,False,True,False,False,False
@@ -1007,7 +1007,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1399250460647079,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,True,False,False,False
 1399378874114298,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,131.5,False,False,False,False,False
 1399761460730447,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,158.0,False,False,False,False,False
-1401291744603619,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,56.4,False,False,False,False,False
+1401291744603619,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,56.4,False,False,False,False,False
 1402041927124080,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,242.2,False,False,False,True,False
 1404526016922316,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,36.1,False,False,False,False,False
 1402278180477121,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,159.5,False,False,False,True,False
@@ -1135,7 +1135,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1470862953960322,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,345.7,False,False,False,False,False
 1470840796858624,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,165.2,False,False,False,False,False
 1471208310889912,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,265.7,False,False,False,False,False
-1471221300436803,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,53.4,False,False,False,False,False
+1471221300436803,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,buffer,-1,other,53.4,False,False,False,False,False
 1471844376870432,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,274.4,False,False,False,False,False
 1472078286728018,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,271.0,False,False,False,False,False
 1472646316709708,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,100.0,False,False,False,False,False
@@ -1174,9 +1174,9 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1486957492195995,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,dense,14.9,True,False,False,False,False
 1486976799282580,juneau_crosswalk,GoPro Max,7HDENLOQuFs3McR6JBybG5,train,-1,other,335.4,False,False,False,False,False
 1487325895201044,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,202.5,False,False,False,False,False
-1487410215223160,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,59.9,False,False,False,False,False
+1487410215223160,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,59.9,False,False,False,False,False
 1487717542672746,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,355.4,False,False,False,True,False
-1487351818538604,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,53.6,False,False,False,True,False
+1487351818538604,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,buffer,-1,other,53.6,False,False,False,True,False
 1487584511836028,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
 1487909635436366,juneau_crosswalk,Trimble mx7,hUPMwJiBL9E3Cp8QDIWvZ4,train,-1,other,467.1,False,False,False,False,False
 1488358765397397,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,137.6,False,False,False,False,False
@@ -1211,7 +1211,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1495708067990216,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,108.0,False,False,False,False,False
 1496112334317401,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,dense,247.7,False,False,False,True,False
 1496438961300761,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,16.0,False,False,False,False,False
-1496760707616920,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,56.0,False,False,False,True,False
+1496760707616920,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,buffer,-1,other,56.0,False,False,False,True,False
 1496952647863518,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,other,380.9,False,False,False,False,False
 1497289270893246,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,slice,0,dense,0.0,False,False,False,False,False
 1497671107847203,juneau_crosswalk,Trimble mx7,Fwa7Pb5WuVH3o9JGSDTixU,train,-1,other,388.3,False,False,False,False,False
@@ -1262,7 +1262,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1510167849878654,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,146.5,False,False,False,False,False
 1511662519463333,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,dense,18.9,False,False,False,False,False
 1511592356506195,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,582.5,False,False,False,False,False
-1512122259401603,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,53.4,False,False,False,False,False
+1512122259401603,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,buffer,-1,dense,53.4,False,False,False,False,False
 1512125289725375,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
 1512377092994927,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,271.8,False,False,False,False,False
 1513384019698705,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,353.3,False,False,False,False,False
@@ -1302,7 +1302,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1526118641636461,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,dense,33.8,False,False,False,False,False
 1526180978246277,juneau_crosswalk,Trimble mx7,y3WPBat0k5Xm4LNTiJHfsC,buffer,-1,other,4.0,False,False,False,False,False
 1527269914490552,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,dense,136.5,False,False,False,False,False
-1527428644470703,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,56.4,False,False,False,False,False
+1527428644470703,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,56.4,False,False,False,False,False
 1527460528174587,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,561.1,False,False,False,False,False
 1527673441506498,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,19.8,False,False,False,False,False
 1527981481117512,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,104.1,False,False,False,False,False
@@ -1432,7 +1432,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1612291136165307,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,292.8,False,False,False,False,False
 1613070059491186,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,202.6,False,False,False,True,False
 1613091796193974,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,37.6,False,False,False,False,False
-1613150292606213,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,56.5,False,False,False,False,False
+1613150292606213,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,56.5,False,False,False,False,False
 1615408662366426,juneau_crosswalk,Trimble mx7,hUPMwJiBL9E3Cp8QDIWvZ4,train,-1,other,412.3,False,False,False,False,False
 1615773415656412,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,322.1,False,False,False,False,False
 1615833792507310,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,232.8,False,True,False,False,False
@@ -1504,7 +1504,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1642211729860491,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
 1642447426567360,juneau_crosswalk,Trimble mx7,hUPMwJiBL9E3Cp8QDIWvZ4,train,-1,other,425.1,False,False,False,False,False
 1642825526492809,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
-1642990923164647,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,59.4,False,False,False,False,False
+1642990923164647,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,other,59.4,False,False,False,False,False
 1643543286472306,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,345.4,False,False,True,False,False
 1644183883082016,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,666.3,False,False,True,False,False
 1645231829561515,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
@@ -1560,7 +1560,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1679903732814325,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,110.3,False,False,False,False,False
 1680906045779544,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
 1682511688951050,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,dense,189.8,False,False,False,False,False
-1682995562507679,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,58.8,False,False,False,True,False
+1682995562507679,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,58.8,False,False,False,True,False
 1683891445772985,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,310.7,False,False,False,False,False
 1685028618695120,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,193.3,False,False,False,False,False
 1685431245325130,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,282.7,False,False,False,False,False
@@ -1588,7 +1588,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1708945159642612,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,slice,1,other,0.0,False,False,False,False,False
 1710025062865563,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,70.5,False,False,False,False,False
 1710070652976077,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,307.8,False,False,False,False,False
-1711700729573148,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,58.0,False,False,False,False,False
+1711700729573148,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,58.0,False,False,False,False,False
 1711977595999585,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,66.5,False,False,False,False,False
 1715109802629433,juneau_crosswalk,Trimble mx7,gbBLpmJrk8ZE0q7hF9VixR,train,-1,other,332.8,False,False,False,False,False
 1715247762630137,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,241.2,False,False,False,False,False
@@ -1669,7 +1669,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1819326815245542,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,128.7,False,False,False,False,False
 1819392818571539,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,154.9,False,False,False,False,False
 1819964855139012,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,195.7,False,False,False,False,False
-1820578681758830,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,55.1,False,False,False,False,False
+1820578681758830,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,55.1,False,False,False,False,False
 1821246235062548,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,211.8,False,False,False,False,False
 1822161461604902,juneau_crosswalk,Trimble mx7,YnKNOVedxkqM5umcJp8ztZ,slice,1,other,0.0,False,False,False,False,False
 1822651371549599,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,219.1,False,False,False,False,False
@@ -1697,14 +1697,14 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1841569306308936,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,slice,2,other,0.0,False,False,False,False,False
 1843478716150195,juneau_crosswalk,Trimble mx7,YnKNOVedxkqM5umcJp8ztZ,buffer,-1,other,11.5,False,False,False,False,False
 1844948359336638,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
-1845815929233997,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,train,-1,other,52.0,False,False,False,False,False
+1845815929233997,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,buffer,-1,other,52.0,False,False,False,False,False
 1846975832432017,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,260.1,False,False,False,False,False
 1847590325744825,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,140.1,False,False,False,False,False
 1848185412316560,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,251.2,False,False,False,False,False
 1849632022217318,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
 1850155188817014,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,137.7,False,False,False,False,False
 1850692875432141,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,248.8,False,False,False,False,False
-1851619528661934,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,51.9,False,False,False,False,False
+1851619528661934,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,51.9,False,False,False,False,False
 1852584138593115,juneau_crosswalk,Trimble mx7,ouYRqLI3Fz70Sd8lnDjUJr,train,-1,other,199.0,False,False,False,False,False
 1852955442102468,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,slice,2,other,0.0,False,False,False,False,False
 1853585658703335,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,349.1,False,False,False,False,False
@@ -1760,7 +1760,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1882287878874455,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 1882238845586138,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
 1882982348816561,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,1046.0,False,False,False,False,False
-1883373212125289,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,51.7,False,False,False,False,False
+1883373212125289,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,buffer,-1,dense,51.7,False,False,False,False,False
 1886524058531366,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,295.3,False,False,False,False,False
 1885111361902933,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,slice,0,other,0.0,False,False,False,False,False
 1887398748386338,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,1197.8,False,False,False,False,False
@@ -1774,7 +1774,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1894505977661326,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,dense,68.0,False,False,False,False,False
 1895454614231187,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,106.4,False,False,False,False,False
 1895864290929486,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,253.9,False,False,False,False,False
-1896886284114169,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,60.0,False,False,False,False,False
+1896886284114169,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,buffer,-1,other,60.0,False,False,False,False,False
 1898676097247757,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,112.1,False,False,False,False,False
 1901417257384706,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,333.3,False,False,False,False,False
 1901971540247081,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,138.4,False,False,False,False,False
@@ -1819,7 +1819,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 1937794513350155,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,buffer,-1,other,42.4,False,False,False,True,False
 1940235500133737,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,slice,0,other,0.0,False,False,False,False,False
 1940690503036590,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,207.5,False,False,False,False,False
-1943041489482446,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,52.2,False,False,False,True,False
+1943041489482446,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,buffer,-1,other,52.2,False,False,False,True,False
 1944999042585290,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,slice,1,other,0.0,False,False,False,True,False
 1946173192504934,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,other,152.9,False,False,False,False,False
 1947236372429849,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,233.3,False,False,False,False,False
@@ -1886,19 +1886,19 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 2129270954109946,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,374.0,False,False,False,False,False
 2129547934113085,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,173.6,False,False,False,False,False
 2130101150699709,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,239.9,False,False,False,False,False
-2132803700539994,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,57.7,False,False,False,False,False
+2132803700539994,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,buffer,-1,other,57.7,False,False,False,False,False
 2132133793846638,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,260.6,False,False,False,False,False
 2136534213450372,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,249.7,False,False,False,False,False
 2137474586625091,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,145.0,False,False,False,False,False
 2138768143151878,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,224.6,False,False,False,False,False
 2139181563129190,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,191.8,False,False,False,False,False
-2139508006416589,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,50.5,False,False,False,True,False
+2139508006416589,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,50.5,False,False,False,True,False
 2140250706373878,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,294.2,False,False,False,False,False
 2140496182984862,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,249.3,False,False,False,False,False
 2142357612796320,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,slice,1,other,0.0,False,False,False,False,False
 2140791072953570,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,181.6,False,False,False,False,False
 2142476639459187,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,dense,214.6,False,False,False,False,False
-2144298855952825,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,50.6,False,False,False,False,False
+2144298855952825,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,buffer,-1,other,50.6,False,False,False,False,False
 2145862619111741,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,318.8,False,False,True,False,False
 2148411128824942,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,train,-1,other,79.3,False,False,False,False,False
 2147392215659899,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,dense,133.2,False,False,False,False,False
@@ -1933,7 +1933,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 2185165145154480,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,225.6,False,False,False,False,False
 2185681645148659,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,232.0,False,False,False,False,False
 2186443425046674,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,True,False,False,False
-2189323191408077,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,51.5,False,False,False,False,False
+2189323191408077,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,51.5,False,False,False,False,False
 2187482261618253,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
 2190362594660383,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,True,False
 2191160464590349,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,298.0,False,False,False,False,False
@@ -2053,7 +2053,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 2543787122488901,juneau_crosswalk,Trimble mx7,NWzTFGtJkpIKDn4d5w7R0g,slice,2,other,0.0,False,False,False,False,False
 2546756468830243,juneau_crosswalk,Trimble mx7,YnKNOVedxkqM5umcJp8ztZ,slice,1,other,0.0,False,False,False,False,False
 2547160878779032,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
-2549386001920681,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,57.9,False,False,False,False,False
+2549386001920681,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,other,57.9,False,False,False,False,False
 2549419581903850,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 2549721381871423,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,249.3,False,False,False,False,False
 25508088492114648,juneau_crosswalk,GoPro Max,7HDENLOQuFs3McR6JBybG5,train,-1,other,346.9,False,False,False,False,False
@@ -2066,16 +2066,16 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 2567476320292165,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,322.0,False,False,False,False,False
 25675942758718432,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,78.2,False,False,False,False,False
 2568593126658742,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,88.3,False,False,False,False,False
-257181340784975,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,53.7,False,False,False,False,False
+257181340784975,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,other,53.7,False,False,False,False,False
 257227440783032,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,170.3,False,False,False,False,False
 2572420616268914,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,8.2,False,False,False,False,False
 2576840405856615,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,dense,234.9,False,False,False,False,False
 2572709089576499,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,46.6,False,False,False,False,False
 2577214175983803,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,372.4,False,False,False,False,False
 25885934607716622,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,169.8,False,False,False,False,False
-2591368107712623,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,54.8,False,False,False,False,False
+2591368107712623,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,54.8,False,False,False,False,False
 25979989864947957,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,slice,2,other,0.0,False,False,False,False,False
-2591436661036535,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,56.0,False,False,False,True,False
+2591436661036535,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,56.0,False,False,False,True,False
 26059765980288543,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 2610999115755171,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,164.1,False,False,False,False,False
 2615013828700389,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,320.8,False,False,False,False,False
@@ -2110,7 +2110,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 27343453365254042,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,4.1,False,False,False,False,False
 2740101546165420,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,slice,0,dense,0.0,False,False,False,False,False
 2744266352401019,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,130.9,False,False,False,True,False
-2748416505311654,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,50.9,False,False,False,False,False
+2748416505311654,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,50.9,False,False,False,False,False
 274449662429377,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,dense,205.1,False,False,False,False,False
 2748889228620443,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,281.2,False,False,False,False,False
 2761157424074400,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,536.9,False,False,False,False,False
@@ -2187,7 +2187,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 306121619135705,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,989.6,False,False,False,False,False
 307050165708664,juneau_crosswalk,Trimble mx7,YnKNOVedxkqM5umcJp8ztZ,slice,1,other,0.0,False,False,False,False,False
 307251422337280,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,229.7,False,False,False,False,False
-307723675721596,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,55.3,False,False,False,False,False
+307723675721596,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,55.3,False,False,False,False,False
 307823758983472,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 3085346921602354,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,127.8,False,False,False,False,False
 3086903724779343,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,327.9,False,False,False,False,False
@@ -2214,14 +2214,14 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 3129217497237545,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,272.0,False,False,False,True,False
 313309418495470,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,dense,103.5,False,False,False,True,False
 313462585145680,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,496.0,False,False,False,False,False
-313505025134334,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,56.2,False,False,False,False,False
+313505025134334,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,56.2,False,False,False,False,False
 313566698355886,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,32.5,False,False,False,False,False
 313776934999763,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,281.4,False,False,False,False,False
 3142161082587948,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,282.9,False,False,False,False,False
 314255808398048,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
 314628384914369,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,16.3,False,False,False,False,False
 314418484935552,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,169.6,False,False,False,False,False
-314782251673391,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,57.9,False,False,False,False,False
+314782251673391,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,57.9,False,False,False,False,False
 315006548318117,juneau_crosswalk,Trimble mx7,NWzTFGtJkpIKDn4d5w7R0g,slice,2,other,0.0,False,False,False,False,False
 3152447844890673,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,156.2,False,False,False,False,False
 315299828293967,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,314.3,False,False,False,False,False
@@ -2238,7 +2238,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 320029721171484,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,363.7,False,False,False,False,False
 320246547787563,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,70.0,False,False,True,False,False
 3204855162982455,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,60.3,False,False,False,False,False
-320515267760296,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,58.6,False,False,False,False,False
+320515267760296,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,58.6,False,False,False,False,False
 320550814324645,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,train,-1,other,107.9,False,False,False,False,False
 320621454444244,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
 320736524424453,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,226.5,False,False,False,False,False
@@ -2275,7 +2275,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 329509400185713,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,257.5,False,False,False,False,False
 329582116855349,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,dense,72.1,False,False,False,False,False
 329880343474041,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,185.7,False,False,False,False,False
-3300879683390033,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,53.3,False,False,False,False,False
+3300879683390033,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,53.3,False,False,False,False,False
 330104450121462,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,457.3,False,False,True,False,False
 3305571963082653,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,216.3,False,False,False,False,False
 3307232149570512,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,69.8,False,False,False,False,False
@@ -2287,14 +2287,14 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 331705313127010,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,dense,25.7,False,False,False,False,False
 331755629946129,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,68.4,False,False,False,False,False
 332064626412900,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,142.5,False,False,False,False,False
-3321348164675849,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,51.2,False,False,False,False,False
+3321348164675849,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,51.2,False,False,False,False,False
 332207303059102,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,dense,149.3,False,False,False,False,False
 3322468441389992,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,97.2,False,False,False,False,False
 332559173197871,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,441.5,False,False,False,False,False
 332630719865452,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,294.4,False,False,False,False,False
 332701416329527,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,True,False
 332709026541050,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,222.0,False,False,False,False,False
-332725019664339,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,57.5,False,False,False,False,False
+332725019664339,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,57.5,False,False,False,False,False
 332798446339520,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,95.5,False,False,False,False,False
 332922112978328,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,71.0,False,False,False,False,False
 332979296490594,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,41.7,False,False,False,False,False
@@ -2378,7 +2378,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 348582217948663,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
 348890541556993,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,408.9,False,False,False,False,False
 349230848182871,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,134.0,False,False,False,True,False
-349743268134597,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,57.1,False,False,False,False,False
+349743268134597,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,57.1,False,False,False,False,False
 349961721096183,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,233.1,False,False,False,False,False
 350084994489408,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,210.1,False,False,False,False,False
 350300034395409,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,199.0,False,False,False,False,False
@@ -2436,7 +2436,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 3627486887505394,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,32.6,False,False,False,False,False
 363127006360252,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,slice,1,other,0.0,False,False,False,False,False
 363268373012667,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,111.6,False,False,False,False,False
-3635466946768221,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,55.8,False,False,False,False,False
+3635466946768221,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,55.8,False,False,False,False,False
 3633572210219279,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,136.2,False,False,False,False,False
 3636083036660554,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,slice,0,dense,0.0,False,False,False,False,False
 363626706732094,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
@@ -2526,7 +2526,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 3738304386425743,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,buffer,-1,other,41.7,False,False,False,False,False
 373861662357678,juneau_crosswalk,Trimble mx7,NWzTFGtJkpIKDn4d5w7R0g,slice,2,other,0.0,False,False,False,False,False
 3740691459509704,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
-374147208988636,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,56.6,False,False,False,False,False
+374147208988636,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,buffer,-1,other,56.6,False,False,False,False,False
 3743151615903784,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
 374377998980697,juneau_crosswalk,Trimble mx7,PBpRQaqTtfZOW8v4xe2KlG,train,-1,other,413.3,False,False,False,False,False
 3744053609196524,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,215.7,False,False,False,False,False
@@ -2576,7 +2576,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 378096464736553,juneau_crosswalk,Trimble mx7,YnKNOVedxkqM5umcJp8ztZ,slice,1,other,0.0,False,False,False,False,False
 3779005439051335,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,31.5,False,False,False,False,False
 378110315260357,juneau_crosswalk,Trimble mx7,hUPMwJiBL9E3Cp8QDIWvZ4,train,-1,other,323.1,False,False,False,False,False
-3781256155449772,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,other,53.9,False,False,False,False,False
+3781256155449772,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,buffer,-1,other,53.9,False,False,False,False,False
 3784457591876267,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
 3785822188320459,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,69.9,False,False,False,False,False
 378454101394015,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,644.5,False,False,False,False,False
@@ -2590,7 +2590,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 379775231181987,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,143.6,False,False,False,False,False
 380071834484672,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
 380096184495079,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,buffer,-1,dense,37.4,False,False,False,False,False
-380175201696224,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,54.0,False,False,False,False,False
+380175201696224,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,54.0,False,False,False,False,False
 3807057172908079,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,311.0,False,False,False,False,False
 3807225522840384,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,True,False
 3809254962737213,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,dense,44.8,False,False,False,False,False
@@ -2661,7 +2661,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 391769483185586,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,True,False,False,False
 391776986516426,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,102.1,False,False,False,False,False
 392108447143435,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,91.4,False,False,False,False,False
-3918704885026775,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,52.4,False,False,False,True,False
+3918704885026775,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,52.4,False,False,False,True,False
 393546636978350,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,dense,244.6,False,False,False,False,False
 395352022856806,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,195.6,False,False,False,False,False
 395537906856241,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,86.1,False,False,False,False,False
@@ -2681,7 +2681,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 399635203072835,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,143.1,False,False,False,False,False
 3998695277051992,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,466.3,False,False,False,False,False
 399689056359724,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,131.2,False,False,False,False,False
-400032169014328,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,52.6,False,False,False,False,False
+400032169014328,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,52.6,False,False,False,False,False
 4014183898809295,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,250.5,False,False,False,False,False
 401317326235959,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,318.4,False,False,False,False,False
 401618216198046,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,69.8,False,False,False,False,False
@@ -2725,7 +2725,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 413252731538857,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,221.4,False,False,False,False,False
 413328745006866,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
 413395161649982,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,88.1,False,False,False,False,False
-413680888308215,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,52.3,False,False,False,False,False
+413680888308215,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,other,52.3,False,False,False,False,False
 413945718281425,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,79.4,False,False,False,False,False
 414199321452662,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,214.0,False,False,False,False,False
 414218308107959,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,176.9,False,False,False,False,False
@@ -2741,7 +2741,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 415185288159624,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,210.2,False,False,False,False,False
 416556151197559,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,232.1,False,False,False,False,False
 416568867954782,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,109.8,False,False,False,False,False
-416877617918036,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,50.7,False,False,False,False,False
+416877617918036,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,50.7,False,False,False,False,False
 417191077956040,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
 417217044546217,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,188.7,False,False,False,False,False
 417393021130053,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,320.9,False,False,False,False,False
@@ -2784,7 +2784,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 422638237323106,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,133.0,False,False,False,True,False
 422642557320806,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,dense,220.7,False,False,True,False,False
 422779074005635,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
-422990433962976,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,53.8,False,False,False,False,False
+422990433962976,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,53.8,False,False,False,False,False
 423319573960150,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,dense,175.5,False,False,False,False,False
 423393280527655,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,slice,2,other,0.0,False,False,False,False,False
 423166070538548,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,132.6,False,False,False,False,False
@@ -2871,7 +2871,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 430941093085537,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,other,381.6,False,False,False,False,False
 430989839901062,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,72.7,False,False,False,False,False
 431039656518024,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,140.6,False,False,False,False,False
-431094533054746,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,56.4,False,False,False,False,False
+431094533054746,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,56.4,False,False,False,False,False
 431123936388443,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,dense,224.9,False,False,False,True,False
 431268446464124,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,158.5,False,False,False,False,False
 431291889762316,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,296.1,False,False,False,False,False
@@ -2900,7 +2900,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 433422466213652,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,186.4,False,False,False,False,False
 433445649469343,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,100.2,False,False,False,False,False
 433531156206433,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,162.6,False,False,False,False,False
-433626076220100,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,other,52.2,False,False,False,False,False
+433626076220100,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,other,52.2,False,False,False,False,False
 433915629529962,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,1029.4,False,False,False,False,False
 433889496019071,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,65.0,False,False,False,False,False
 434086149514488,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,other,174.4,False,False,False,False,False
@@ -3029,7 +3029,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 446951177971397,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
 447011071306166,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,slice,1,other,0.0,False,False,False,False,False
 447088114611688,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,dense,64.1,False,False,False,False,False
-447139418027731,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,other,55.7,False,False,False,False,False
+447139418027731,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,other,55.7,False,False,False,False,False
 447225001245577,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,204.5,True,False,False,False,False
 447245354564010,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
 447383184562109,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,267.3,False,False,False,False,False
@@ -3096,7 +3096,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 456925566917509,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 456855086934983,juneau_crosswalk,Trimble mx7,PBpRQaqTtfZOW8v4xe2KlG,train,-1,other,408.0,False,False,False,False,False
 457154170191986,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,289.7,False,False,False,False,False
-457278087007332,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,train,-1,other,56.4,False,False,False,False,False
+457278087007332,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,buffer,-1,other,56.4,False,False,False,False,False
 457449970200543,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,dense,159.3,False,False,False,False,False
 457471050307406,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,301.4,False,False,False,False,False
 457541467040144,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,167.3,False,False,False,False,False
@@ -3132,15 +3132,15 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 462429846193087,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,105.1,False,False,False,False,False
 462544189466753,juneau_crosswalk,Trimble mx7,gbBLpmJrk8ZE0q7hF9VixR,train,-1,other,273.4,False,False,False,False,False
 462440776330927,juneau_crosswalk,Trimble mx7,NWzTFGtJkpIKDn4d5w7R0g,slice,2,other,0.0,False,False,False,False,False
-462590269625339,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,56.2,False,True,False,False,False
+462590269625339,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,buffer,-1,other,56.2,False,True,False,False,False
 462643073083927,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,slice,0,other,0.0,False,False,False,False,False
 462759089451496,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,480.4,False,False,False,False,False
 462942579617293,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,140.8,False,False,False,False,False
-462875762959425,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,58.1,False,False,False,False,False
+462875762959425,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,58.1,False,False,False,False,False
 462949946104131,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,203.5,False,False,False,False,False
 463332299725430,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,1243.7,False,False,False,False,False
 463119469457588,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,137.8,False,False,False,False,False
-463508786162884,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,55.3,False,False,False,False,False
+463508786162884,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,55.3,False,False,False,False,False
 463518373075352,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,579.2,False,False,False,False,False
 463836352804173,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,350.3,False,False,False,False,False
 463722529670859,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,142.2,False,False,False,False,False
@@ -3233,7 +3233,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 470249915475674,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,160.1,False,False,False,False,False
 470335055488219,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
 469635105595233,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
-470528435339998,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,58.9,False,False,False,False,False
+470528435339998,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,58.9,False,False,False,False,False
 470570508997160,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,train,-1,other,75.4,False,False,False,False,False
 470618338795051,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,108.6,False,False,False,False,False
 470606915628466,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,178.0,False,False,False,False,False
@@ -3266,7 +3266,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 472002295355706,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 472069208612749,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,354.2,False,False,False,False,False
 472195485245901,juneau_crosswalk,Trimble mx7,hUPMwJiBL9E3Cp8QDIWvZ4,train,-1,other,317.6,True,False,False,False,False
-472463132031275,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,50.9,False,False,False,False,False
+472463132031275,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,50.9,False,False,False,False,False
 472538358564446,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,264.6,False,False,False,False,False
 472564105302141,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,96.9,False,False,False,False,False
 472668115160237,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,273.9,False,False,False,True,False
@@ -3308,7 +3308,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 475062888806228,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,113.4,False,False,False,False,False
 474915811694559,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,67.2,False,False,False,False,False
 475070361557008,juneau_crosswalk,Trimble mx7,2Pkx8NrtRVgwqSOJZiyEB7,train,-1,other,386.9,False,False,False,False,False
-475154048381796,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,57.6,False,False,False,False,False
+475154048381796,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,buffer,-1,dense,57.6,False,False,False,False,False
 475386068394399,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,73.5,False,False,False,True,False
 475391444888576,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,592.5,False,False,False,False,False
 475560165157432,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,slice,0,dense,0.0,False,False,False,False,False
@@ -3343,7 +3343,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 477289748019578,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,slice,0,dense,0.0,False,False,False,False,False
 477111378204880,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,95.8,False,False,False,False,False
 477330321320345,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,71.2,False,False,False,False,False
-477383531430378,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,train,-1,other,52.2,False,False,False,False,False
+477383531430378,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,52.2,False,False,False,False,False
 477346361421188,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,True,False
 477457014959978,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,163.0,False,False,False,False,False
 477624881407341,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,284.2,False,False,False,False,False
@@ -3351,10 +3351,10 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 477816671492636,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,256.1,False,False,False,False,False
 477889151376155,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,230.0,False,False,True,False,False
 477915311481164,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,171.2,False,False,False,False,False
-477088278067783,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,55.5,False,False,False,False,False
+477088278067783,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,other,55.5,False,False,False,False,False
 477931388066506,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,slice,1,other,0.0,False,False,False,False,False
 477932734920404,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,184.4,False,False,False,False,False
-477987004743170,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,dense,52.0,False,False,False,False,False
+477987004743170,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,dense,52.0,False,False,False,False,False
 478122368052181,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,521.2,False,False,False,False,False
 478147541275669,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,678.5,False,False,False,False,False
 478246441319958,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,306.8,False,False,False,False,False
@@ -3364,13 +3364,13 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 478599338183338,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 478721711276148,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
 478799841174411,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
-478910521301285,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,52.0,False,False,False,False,False
+478910521301285,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,52.0,False,False,False,False,False
 478758317962585,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
 478922791221811,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,106.4,False,False,False,False,False
 478934634539406,juneau_crosswalk,Trimble mx7,y3WPBat0k5Xm4LNTiJHfsC,slice,1,other,0.0,False,False,False,False,False
 479103997793452,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,289.2,False,False,False,False,False
 479178691436602,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,235.8,False,False,True,False,False
-479193574466538,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,dense,60.0,False,False,False,False,False
+479193574466538,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,buffer,-1,dense,60.0,False,False,False,False,False
 479207431240426,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,189.9,False,False,False,False,False
 479235824558405,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,slice,1,other,0.0,False,False,False,False,False
 479297761328608,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,train,-1,other,87.0,False,False,False,False,False
@@ -3390,7 +3390,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 480688031062338,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,208.2,False,False,False,False,False
 480871824518076,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,490.2,False,False,False,False,False
 480955360953646,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,278.3,False,False,False,False,False
-480960221268734,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,54.4,False,False,False,False,False
+480960221268734,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,54.4,False,False,False,False,False
 481028257922906,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,126.6,False,False,False,False,False
 481069084368575,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,206.5,False,False,False,False,False
 481471527779195,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
@@ -3518,7 +3518,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 509919371700757,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,149.7,False,False,False,False,False
 508917684799024,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
 510953374591088,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,137.2,False,False,False,False,False
-512710251327099,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,54.6,False,False,False,False,False
+512710251327099,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,buffer,-1,other,54.6,False,False,False,False,False
 516081837659394,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,1069.3,False,False,False,False,False
 517426930614310,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,121.9,False,False,False,False,False
 519856923699257,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
@@ -3554,7 +3554,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 662666396048721,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,dense,174.7,False,False,False,False,False
 663943753398897,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,463.7,False,False,False,False,False
 666258552735651,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,317.3,False,False,False,False,False
-672337968462806,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,54.3,False,False,False,False,False
+672337968462806,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,buffer,-1,other,54.3,False,False,False,False,False
 666839295595917,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,slice,2,other,0.0,False,False,False,False,False
 671093375199183,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,111.6,False,False,False,False,False
 679452785174077,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,297.0,False,False,False,False,False
@@ -3574,7 +3574,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 692692187125763,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,447.2,False,False,False,False,False
 693815910339893,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,74.6,False,False,False,False,False
 693431419548334,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,348.5,False,False,False,False,False
-6927149357388419,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,other,59.7,False,False,False,False,False
+6927149357388419,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,other,59.7,False,False,False,False,False
 695970002902509,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,118.7,False,False,False,False,False
 697844546603104,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,slice,2,other,0.0,False,False,False,False,False
 6965204353579063,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,buffer,-1,other,7.9,False,False,False,False,False
@@ -3604,7 +3604,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 726578559457461,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,slice,2,other,0.0,False,False,False,False,False
 727811655998787,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,7.9,False,False,False,False,False
 7284897108281354,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,673.8,False,False,False,False,False
-7286145221495196,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,59.2,False,False,False,False,False
+7286145221495196,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,59.2,False,False,False,False,False
 728747413482557,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,train,-1,other,103.1,False,False,False,False,False
 7290867384351526,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,311.3,False,False,False,False,False
 7324805380980785,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,299.4,False,False,False,False,False
@@ -3618,7 +3618,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 736942989316822,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,64.7,False,False,False,False,False
 737463568321275,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,389.9,False,False,False,False,False
 737486744989730,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,91.0,False,False,False,False,False
-7377530819023768,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,56.8,True,False,False,False,False
+7377530819023768,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,buffer,-1,other,56.8,True,False,False,False,False
 738792524862301,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,159.2,False,False,False,False,False
 7388220867943448,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 738856378203886,juneau_crosswalk,Trimble mx7,YnKNOVedxkqM5umcJp8ztZ,train,-1,other,89.1,False,False,True,False,False
@@ -3827,7 +3827,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 771202985120621,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,dense,142.4,False,False,False,False,False
 771253381782279,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,dense,179.2,False,False,False,False,False
 771273438515264,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,689.2,False,False,False,False,False
-771291311832813,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,train,-1,other,59.6,False,False,False,False,False
+771291311832813,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,buffer,-1,other,59.6,False,False,False,False,False
 771347045145439,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,11.0,False,False,False,False,False
 771359055162902,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,157.6,False,False,False,False,False
 7715032671947252,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,buffer,-1,other,15.7,False,False,False,False,False
@@ -3848,12 +3848,12 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 773426387935455,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,71.0,False,False,False,True,False
 773455392187066,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,315.5,False,False,False,False,False
 773553054848642,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,84.2,False,True,False,False,False
-773697621626344,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,58.2,False,False,False,False,False
+773697621626344,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,58.2,False,False,False,False,False
 773733184739336,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,218.5,False,False,False,False,False
 773739208219921,juneau_crosswalk,Trimble mx7,hUPMwJiBL9E3Cp8QDIWvZ4,train,-1,other,400.0,False,False,False,False,False
 773783618199867,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,97.7,False,False,False,False,False
 773973838222263,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
-7741625492579742,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,other,51.9,False,False,False,False,False
+7741625492579742,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,other,51.9,False,False,False,False,False
 774223427828839,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,268.5,False,False,False,False,False
 7744888908923078,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,223.8,False,False,False,False,False
 774795918876707,juneau_crosswalk,GoPro Max,cVg2pQ4dBkH76GWhDn8AS3,train,-1,other,338.0,False,False,False,False,False
@@ -3963,10 +3963,10 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 786145023652793,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,8.0,False,False,False,False,False
 786206503276319,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,dense,182.4,False,False,False,False,False
 786279246902982,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,147.4,False,False,False,False,False
-786280573585929,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,other,55.2,False,False,False,False,False
+786280573585929,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,other,55.2,False,False,False,False,False
 786349860320602,juneau_crosswalk,Trimble mx7,Fwa7Pb5WuVH3o9JGSDTixU,train,-1,other,347.7,False,False,False,False,False
 787224426867425,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,buffer,-1,other,7.8,False,False,False,False,False
-786982000194586,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,train,-1,other,56.2,False,False,False,False,False
+786982000194586,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,56.2,False,False,False,False,False
 787434756865403,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,buffer,-1,other,23.0,False,False,False,False,False
 7876928029018331,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,321.8,False,False,False,False,False
 788217973411268,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
@@ -3980,7 +3980,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 789690606852354,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,buffer,-1,other,44.4,False,False,False,False,False
 789758423289590,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,135.7,False,False,False,False,False
 789835036853521,juneau_crosswalk,GoPro Max,7HDENLOQuFs3McR6JBybG5,train,-1,other,333.0,False,True,False,False,False
-789875746457145,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,53.3,False,False,False,False,False
+789875746457145,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,other,53.3,False,False,False,False,False
 790000496569305,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,1184.2,True,False,False,False,False
 790337810346234,juneau_crosswalk,GoPro Max,9hLvjleCpqNisY1EJdm7nS,slice,2,other,0.0,False,False,False,False,False
 790407073341854,juneau_crosswalk,GoPro Max,eLOsiMypD8rIQc0qlHVAPg,train,-1,other,156.5,False,False,False,False,False
@@ -4048,11 +4048,11 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 802626718746532,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,73.4,False,False,False,False,False
 8029921687020856,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,330.4,False,False,False,False,False
 802662675157607,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,131.3,False,False,False,False,False
-803128681493229,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,56.4,False,False,False,False,False
+803128681493229,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,56.4,False,False,False,False,False
 803267125113332,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,553.7,False,False,False,False,False
 803415301468013,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,141.7,False,False,False,False,False
 803472905084570,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,304.5,False,False,False,False,False
-803546214782524,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,53.5,False,False,False,False,False
+803546214782524,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,53.5,False,False,False,False,False
 8035505266472707,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,other,332.2,False,False,False,False,False
 803781268127278,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,154.8,False,False,False,False,False
 803939745028312,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,202.8,False,False,False,False,False
@@ -4102,9 +4102,9 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 810172684412771,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,295.3,False,False,False,False,False
 810220807719825,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,11.9,False,False,False,False,False
 810562154356055,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
-810651950980424,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,51.1,False,False,False,False,False
+810651950980424,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,other,51.1,False,False,False,False,False
 811141290984144,juneau_crosswalk,Trimble mx7,Vo4Oc2Z8wI09RuygjXNbfD,train,-1,other,105.9,False,False,False,False,False
-811318690926503,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,57.1,False,False,False,False,False
+811318690926503,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,57.1,False,False,False,False,False
 811724163890062,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,other,253.9,False,False,False,False,False
 811863194205684,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,152.7,False,False,False,False,False
 811914657568185,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,114.9,False,False,False,False,False
@@ -4198,7 +4198,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 822067663169429,juneau_crosswalk,Trimble mx7,gbBLpmJrk8ZE0q7hF9VixR,train,-1,other,317.1,False,False,False,False,False
 822272979450269,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,other,47.4,False,False,False,False,False
 822398329343103,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,74.0,False,True,False,False,False
-822572825981785,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,other,55.5,False,False,False,False,False
+822572825981785,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,other,55.5,False,False,False,False,False
 822637189736831,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,114.1,False,False,False,False,False
 822742065994083,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,137.9,False,False,False,False,False
 822637825959967,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,262.8,False,False,False,False,False
@@ -4220,7 +4220,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 823956432490254,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,537.1,False,False,False,False,False
 8239037139464297,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,276.4,False,False,False,False,False
 823993699173859,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,280.5,False,False,False,False,False
-824009469264228,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,train,-1,other,52.3,False,False,False,False,False
+824009469264228,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,buffer,-1,other,52.3,False,False,False,False,False
 824026846314047,juneau_crosswalk,Trimble mx7,NWzTFGtJkpIKDn4d5w7R0g,train,-1,other,214.4,False,False,False,False,False
 824092959109899,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,24.2,False,False,True,False,False
 824101559108067,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,106.8,False,False,False,False,False
@@ -4379,7 +4379,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 839740538001733,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,70.4,False,False,False,False,False
 839753924726003,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,194.7,False,False,False,False,False
 839832060839280,juneau_crosswalk,Trimble mx7,y3WPBat0k5Xm4LNTiJHfsC,slice,1,other,0.0,False,False,False,False,False
-840068371299855,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,54.6,False,False,False,False,False
+840068371299855,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,buffer,-1,dense,54.6,False,False,False,False,False
 840873411276953,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,387.6,False,False,False,False,False
 840460514799436,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,63.4,False,False,False,False,False
 840929454761574,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,train,-1,dense,116.8,False,False,False,False,False
@@ -4414,7 +4414,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 849273647246326,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,other,129.2,False,False,False,True,False
 8493000830717011,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,476.6,False,False,False,True,False
 850302007131718,juneau_crosswalk,Trimble mx7,2Pkx8NrtRVgwqSOJZiyEB7,train,-1,other,406.6,False,False,False,False,False
-850599977117110,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,train,-1,other,59.7,False,False,False,False,False
+850599977117110,juneau_crosswalk,Trimble mx7,SdkagLVtXw54D1buj3KsTI,buffer,-1,other,59.7,False,False,False,False,False
 850583540291347,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,563.7,False,False,False,False,False
 851106626861402,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,129.5,False,False,False,False,False
 850867687062079,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,187.6,False,True,False,False,False
@@ -4434,7 +4434,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 854670633141645,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 854712383137207,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,420.7,False,False,False,False,False
 854924696462252,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,214.0,False,False,False,False,False
-856367693177528,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,50.9,False,False,False,False,False
+856367693177528,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,50.9,False,False,False,False,False
 856544046313986,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,slice,1,other,0.0,False,False,False,False,False
 854853976668698,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,42.2,False,False,False,False,False
 856556669627323,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
@@ -4468,11 +4468,11 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 872429111387960,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,47.3,False,False,False,False,False
 873354348142470,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,283.4,False,False,False,False,False
 873571201167447,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,285.7,False,False,False,False,False
-874195467873320,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,other,58.5,False,False,False,False,False
+874195467873320,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,other,58.5,False,False,False,False,False
 875068567971100,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,267.6,False,False,False,False,False
 875472947956124,juneau_crosswalk,Trimble mx7,wKm2as7qXvtxhIFuok0AcB,train,-1,other,64.6,False,False,False,False,False
 876006647620134,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,227.4,False,False,False,False,False
-877542454182861,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,59.0,False,False,False,False,False
+877542454182861,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,59.0,False,False,False,False,False
 878448417422099,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,223.1,False,True,False,False,False
 879830434166650,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,48.4,False,False,False,False,False
 882379910324812,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,slice,0,dense,0.0,False,False,False,False,False
@@ -4501,7 +4501,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 900773692094489,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,185.5,False,False,False,False,False
 901074108490439,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,210.4,False,False,False,True,False
 902577891636243,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
-906212444605899,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,57.8,False,False,False,True,False
+906212444605899,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,57.8,False,False,False,True,False
 907319467863049,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,128.0,False,False,False,False,False
 907958994678779,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,685.2,False,False,False,False,False
 911226780809077,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,slice,0,other,0.0,False,False,False,True,False
@@ -4582,7 +4582,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 956178412970130,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,140.3,False,False,False,False,False
 956435242923901,juneau_crosswalk,Trimble mx7,TaGtSyBufw5qDPe2QjM04v,train,-1,other,113.7,False,False,False,False,False
 957121329484032,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,slice,2,other,0.0,False,True,False,False,False
-957293132759017,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,57.3,False,False,False,False,False
+957293132759017,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,buffer,-1,other,57.3,False,False,False,False,False
 957398745836947,juneau_crosswalk,Trimble mx7,v7HoeE63RFKISwb18mdqUu,train,-1,other,150.9,False,False,False,False,False
 957985652792608,juneau_crosswalk,Trimble mx7,vkw7shaD1JTcCLINRyOpzY,slice,1,other,0.0,False,False,False,False,False
 958049002670507,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,319.8,False,False,False,False,False
@@ -4649,7 +4649,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 969990708182381,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,289.9,False,False,False,False,False
 970000034586522,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,dense,20.3,False,False,False,False,False
 970063888247776,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,412.2,False,False,False,False,False
-970370301547595,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,other,51.8,False,False,False,False,False
+970370301547595,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,other,51.8,False,False,False,False,False
 970466211200000,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,slice,0,dense,0.0,False,False,False,False,False
 970555977889676,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,76.6,False,False,False,False,False
 970604177900121,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,730.2,False,False,False,False,False
@@ -4702,7 +4702,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 975813924328345,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,195.2,False,False,False,False,False
 976052427517220,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,139.9,False,False,False,False,False
 976117127331981,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,train,-1,other,76.5,False,False,False,False,False
-976145497300709,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,54.8,False,False,False,False,False
+976145497300709,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,54.8,False,False,False,False,False
 976174254136975,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,44.1,False,True,False,False,False
 976229687216418,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,dense,111.4,False,False,False,False,False
 976280547842088,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,322.8,False,False,False,False,False
@@ -4723,7 +4723,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 977583403636201,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,206.9,False,True,False,False,False
 977728583567012,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,196.7,False,False,False,False,False
 977977957067847,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,other,405.9,False,False,False,False,False
-977920153573813,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,train,-1,other,53.0,False,False,True,False,False
+977920153573813,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,53.0,False,False,True,False,False
 978044050472476,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,slice,0,dense,0.0,False,False,False,False,False
 978072590452936,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,575.5,False,False,False,False,False
 978049087359938,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,291.5,False,False,False,False,False
@@ -4732,12 +4732,12 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 978343766843414,juneau_crosswalk,Trimble mx7,MIqYZbDJNl0W8twH4COj2X,buffer,-1,other,44.3,False,False,False,False,False
 978359406989514,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,235.6,False,False,False,False,False
 978507683744761,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,139.9,True,False,False,False,False
-978544176931010,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,54.4,False,False,False,False,False
+978544176931010,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,buffer,-1,other,54.4,False,False,False,False,False
 978515287183489,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,dense,244.1,False,False,False,False,False
 978598200482440,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
 978699023467129,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,131.5,False,False,False,False,False
 978716403653952,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,buffer,-1,other,12.0,False,False,False,False,False
-978864363434258,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,58.7,False,False,False,False,False
+978864363434258,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,58.7,False,False,False,False,False
 978949100365112,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,654.0,False,False,False,False,False
 979064320680898,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
 979200703501328,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,slice,1,other,0.0,False,False,False,False,False
@@ -4790,7 +4790,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 983279026542467,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 983354183429791,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,35.3,False,False,False,False,False
 983622046735104,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,69.8,False,False,False,False,False
-983492946520455,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,51.8,False,False,False,False,False
+983492946520455,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,51.8,False,False,False,False,False
 983679109676182,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,other,65.3,False,False,False,False,False
 983769059563910,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,118.1,False,False,False,False,False
 983743772951673,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,68.6,False,False,False,False,False
@@ -4850,7 +4850,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 988003959715120,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,35.6,False,False,True,False,False
 988022419665063,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,296.5,False,False,False,False,False
 988046105989267,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,dense,147.1,False,False,False,False,False
-988069242836547,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,56.8,False,False,False,True,False
+988069242836547,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,56.8,False,False,False,True,False
 988263122893451,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,train,-1,other,86.9,False,False,False,False,False
 988326996078264,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,296.7,False,False,False,False,False
 988338736068877,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,130.7,False,False,False,False,False
@@ -4874,7 +4874,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 989243752746585,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,buffer,-1,other,40.7,False,False,False,False,False
 989254899106191,juneau_crosswalk,Trimble mx7,PvyuRBGrbAjM8sdc03EOoJ,buffer,-1,other,44.8,False,False,False,False,False
 989375592366095,juneau_crosswalk,Trimble mx7,T4PazJkusVcWpdtnehAQIG,train,-1,dense,168.3,False,False,False,False,False
-993721388860532,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,train,-1,other,56.9,False,False,False,False,False
+993721388860532,juneau_crosswalk,Trimble mx7,t7vUiqgHsJdxnjy9hCRoVl,buffer,-1,other,56.9,False,False,False,False,False
 989696332532555,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,train,-1,other,77.0,False,False,False,False,False
 989764089418500,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
 989790482747005,juneau_crosswalk,Trimble mx7,FdVywY6GqRgsaxhJk2jQ7K,slice,1,other,0.0,False,False,False,False,False
@@ -4889,7 +4889,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 990432702116937,juneau_crosswalk,Trimble mx7,gv4OnC82iftVAMJs3epIcH,train,-1,other,68.2,False,False,False,False,False
 990434566083205,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,244.9,False,False,False,False,False
 990702795801807,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,train,-1,other,110.4,False,False,False,False,False
-990721482594766,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,train,-1,other,59.7,False,False,False,False,False
+990721482594766,juneau_crosswalk,Trimble mx7,NH6w12SULg4VD3Q7zKlPnv,buffer,-1,other,59.7,False,False,False,False,False
 990952065506861,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,141.6,False,False,False,False,False
 991290745393114,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,286.6,False,False,False,False,False
 991296875973858,juneau_crosswalk,Trimble mx7,Wy3jnA0M6O7dUw21thZCLr,train,-1,other,113.4,False,False,False,False,False
@@ -4933,7 +4933,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 994206698783167,juneau_crosswalk,Trimble mx7,B2mpVfktjTxFvACsluiwqh,train,-1,other,203.3,False,False,False,False,False
 994258501747340,juneau_crosswalk,Trimble mx7,Otmr6kXyQwHeuSBMg28bc3,train,-1,other,132.5,False,False,False,False,False
 994376892341085,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,159.7,False,False,False,False,False
-994408728970271,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,train,-1,other,56.7,False,False,False,False,False
+994408728970271,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,56.7,False,False,False,False,False
 994470562279849,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,slice,1,other,0.0,False,False,False,False,False
 994699768691258,juneau_crosswalk,Trimble mx7,ysTCYVa9rxFSBD4L31mHwk,buffer,-1,other,12.1,False,False,False,False,False
 994656585402953,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,275.0,False,False,True,False,False
@@ -4955,7 +4955,7 @@ pano_id,run,camera_model,sequence_id,role,area,stratum,dist_to_slice_m,recall285
 996178662104219,juneau_crosswalk,Trimble mx7,NWzTFGtJkpIKDn4d5w7R0g,train,-1,other,212.2,False,False,False,False,False
 996385068661599,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,722.5,False,False,False,True,False
 996397688657624,juneau_crosswalk,Trimble mx7,Koujxekyw1Smq5hfTgXlMH,train,-1,other,382.4,False,False,False,False,False
-996405211531868,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,train,-1,other,56.2,False,False,True,False,False
+996405211531868,juneau_crosswalk,Trimble mx7,MRvc7G1ZXBJskupInUy4dY,buffer,-1,other,56.2,False,False,True,False,False
 996532118736610,juneau_crosswalk,Trimble mx7,M4T1pPKRnhy6fNHQSlba5k,train,-1,other,415.2,False,False,True,False,False
 996610525522221,juneau_crosswalk,Trimble mx7,tvSNsL43jAlKpD6uMZIxVH,train,-1,other,491.9,False,False,False,False,False
 996534938740113,juneau_crosswalk,Trimble mx7,s94cUrNq2ovHfG3VwSK71B,train,-1,dense,140.3,False,False,False,False,False
