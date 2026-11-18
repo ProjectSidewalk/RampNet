@@ -1,0 +1,33 @@
+{
+ "city": "laurens-ia",
+ "seed": 285,
+ "merge_m": 20.0,
+ "near_m": 15.0,
+ "min_degree": 3,
+ "take": "all",
+ "all_of": "",
+ "streets": "osm_streets.json",
+ "records": [
+  "results.raw.jsonl"
+ ],
+ "exclude": [
+  "cities_draw.txt",
+  "laurens_mine_draw.txt",
+  "panos.txt"
+ ],
+ "flag": [],
+ "panos_in_records": 4495,
+ "panos_excluded_by_draw": 389,
+ "intersections": 101,
+ "status": {
+  "pano": 95,
+  "no_pano_within": 6
+ },
+ "drawn": 95,
+ "drawn_by_camera": {
+  "GoPro Max": 95
+ },
+ "drawn_not_nearest": 12,
+ "drawn_flagged": 0,
+ "drawn_sequences": 18
+}

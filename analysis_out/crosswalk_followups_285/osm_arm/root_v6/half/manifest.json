@@ -1,0 +1,31 @@
+{
+ "src_root": "D:/Git/sal-scratch-keep/crosswalk274-root_v4",
+ "root": "D:/Git/sal-scratch-keep/crosswalk274-root_v6_half",
+ "new_panos": 852,
+ "panos_by_kind_city": {
+  "train/positives/brussels-be": 362,
+  "train/positives/kaysville-ut": 126,
+  "train/positives/sacramento-ca": 364
+ },
+ "positives": 1517,
+ "negatives": 0,
+ "ignore_points": 406,
+ "dropped_near_phase1_gt": [],
+ "phase1_exclusion_m": 35.0,
+ "inputs_sha256": {
+  "analysis_out/crosswalk_followups_285/osm_arm/root_v6/positives_half.csv": "d6bf07e77899beef25578d0320471ce95250939eae835db61f58f87817be857f",
+  "analysis_out/crosswalk_followups_285/osm_arm/root_v6/positions.csv": "b5875c3e7b23e67dcbab78e6af87398f49709beaf86bf3e28af98c86a0822c1f",
+  "D:/Git/RampNet-wt/crosswalk-gt-phase1/analysis_out/crosswalk_gt_phase1_274/sheet.csv": "53eb4b8cc18a7f726d2ae9e44f752c12d6c1673d85b01e4b5f15afbcf717eb62",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/seattle/draw.txt": "4ed19f7ca68328e15711cb2dc869ed9efc110e8016f5526880e974fd12e70b7f",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/juneau/draw.txt": "dd182d5e6c6f50419d70e6f46fb117ec251b60d506d316255eefa0c7aefb6baf",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/laurens_gsv/draw.txt": "0fb74427b319cde281a92b3e0f2d8dde993ef44eb54fb3ced43ed701c43bfa1c",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/laurens_mly/draw.txt": "05a6fe2d725cf6d48392a1d0f44346d28ea55e7fa9418c904b489ffa5a50380f",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/ps_labels/panos.txt": "cd8efe5cbb01e6d24d74675a81170c80d9c6d28d78215eea58c1c8763f163272",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/s5_inputs/juneau_eval_draw.txt": "15c541fe4afad4c1d990a1f502ea04a10f03bc573282188bf6bcc20bd604ef49",
+  "analysis_out/stage1_crosswalk_detector_274/hardneg/s5_inputs/juneau_mine_draw.txt": "165d05c0b060f1ae7759708e308c8151a67a7bf61057b5b915ff688640680a6d",
+  "analysis_out/crosswalk_followups_285/osm_arm/root_v6/ignore.csv": "026affb7ee07566744cb3ce461866e2b384253b35025e366db2fadff02aba491"
+ },
+ "labels_digest": "b1aa92b87461302bb34326ed4f1317c64cbab77b3f84caf72b499ea38def0ec0",
+ "labels_digest_rule": "sha256 over sorted lines '<split>/<id>.json <sha256 of the file>\\n'",
+ "built_utc": "2026-11-13T15:03:22Z"
+}

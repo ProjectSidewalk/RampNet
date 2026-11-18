@@ -1,0 +1,41 @@
+arm,label_set,mount,labels,hidden
+arm0_rig_mask_0.772,bayonne_labels,gsv|bayonne-fr,1,0
+arm0_rig_mask_0.772,bayonne_labels,max|bayonne-fr,8,0
+arm0_rig_mask_0.772,ps_labels,gopro max|laurens-ia,16,0
+arm0_rig_mask_0.772,ps_labels,trimble mx7|juneau-ak,5,0
+arm0_rig_mask_0.772,richmond_positives,gopro max|richmond-va,19,0
+arm0_rig_mask_0.772,richmond_positives,istar pulsar|richmond-va,12,0
+arm0_rig_mask_0.772,richmond_positives,none|richmond-va,1,0
+arm0_rig_mask_0.772,richmond_positives,unknown|richmond-va,57,0
+arm1_y>=0.70,bayonne_labels,gsv|bayonne-fr,1,0
+arm1_y>=0.70,bayonne_labels,max|bayonne-fr,8,1
+arm1_y>=0.70,ps_labels,gopro max|laurens-ia,16,1
+arm1_y>=0.70,ps_labels,trimble mx7|juneau-ak,5,0
+arm1_y>=0.70,richmond_positives,gopro max|richmond-va,19,0
+arm1_y>=0.70,richmond_positives,istar pulsar|richmond-va,12,0
+arm1_y>=0.70,richmond_positives,none|richmond-va,1,0
+arm1_y>=0.70,richmond_positives,unknown|richmond-va,57,1
+arm1_y>=0.74,bayonne_labels,gsv|bayonne-fr,1,0
+arm1_y>=0.74,bayonne_labels,max|bayonne-fr,8,0
+arm1_y>=0.74,ps_labels,gopro max|laurens-ia,16,0
+arm1_y>=0.74,ps_labels,trimble mx7|juneau-ak,5,0
+arm1_y>=0.74,richmond_positives,gopro max|richmond-va,19,0
+arm1_y>=0.74,richmond_positives,istar pulsar|richmond-va,12,0
+arm1_y>=0.74,richmond_positives,none|richmond-va,1,0
+arm1_y>=0.74,richmond_positives,unknown|richmond-va,57,0
+arm2_mount_boxes,bayonne_labels,gsv|bayonne-fr,1,0
+arm2_mount_boxes,bayonne_labels,max|bayonne-fr,8,0
+arm2_mount_boxes,ps_labels,gopro max|laurens-ia,16,0
+arm2_mount_boxes,ps_labels,trimble mx7|juneau-ak,5,0
+arm2_mount_boxes,richmond_positives,gopro max|richmond-va,19,0
+arm2_mount_boxes,richmond_positives,istar pulsar|richmond-va,12,0
+arm2_mount_boxes,richmond_positives,none|richmond-va,1,0
+arm2_mount_boxes,richmond_positives,unknown|richmond-va,57,0
+arm0+arm2,bayonne_labels,gsv|bayonne-fr,1,0
+arm0+arm2,bayonne_labels,max|bayonne-fr,8,0
+arm0+arm2,ps_labels,gopro max|laurens-ia,16,0
+arm0+arm2,ps_labels,trimble mx7|juneau-ak,5,0
+arm0+arm2,richmond_positives,gopro max|richmond-va,19,0
+arm0+arm2,richmond_positives,istar pulsar|richmond-va,12,0
+arm0+arm2,richmond_positives,none|richmond-va,1,0
+arm0+arm2,richmond_positives,unknown|richmond-va,57,0

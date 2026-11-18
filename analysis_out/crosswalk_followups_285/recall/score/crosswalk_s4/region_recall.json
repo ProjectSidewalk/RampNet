@@ -1,0 +1,648 @@
+{
+ "label": "crosswalk_s4",
+ "tol": 0.022,
+ "close_px": 15,
+ "radius": 0.05,
+ "groups": {
+  "ALL": {
+   "radius": {
+    "marks": 121,
+    "hit": 64,
+    "recall": 0.529,
+    "panos": 51,
+    "ci95": [
+     0.422,
+     0.634
+    ]
+   },
+   "region": {
+    "marks": 121,
+    "hit": 67,
+    "recall": 0.554,
+    "panos": 51,
+    "ci95": [
+     0.433,
+     0.667
+    ]
+   },
+   "region_tol0": {
+    "marks": 121,
+    "hit": 59,
+    "recall": 0.488,
+    "panos": 51,
+    "ci95": [
+     0.386,
+     0.588
+    ]
+   }
+  },
+  "juneau-ak": {
+   "radius": {
+    "marks": 110,
+    "hit": 63,
+    "recall": 0.573,
+    "panos": 48,
+    "ci95": [
+     0.472,
+     0.67
+    ]
+   },
+   "region": {
+    "marks": 110,
+    "hit": 66,
+    "recall": 0.6,
+    "panos": 48,
+    "ci95": [
+     0.491,
+     0.711
+    ]
+   },
+   "region_tol0": {
+    "marks": 110,
+    "hit": 58,
+    "recall": 0.527,
+    "panos": 48,
+    "ci95": [
+     0.434,
+     0.627
+    ]
+   }
+  },
+  "juneau-ak | Trimble mx7": {
+   "radius": {
+    "marks": 104,
+    "hit": 59,
+    "recall": 0.567,
+    "panos": 44,
+    "ci95": [
+     0.458,
+     0.67
+    ]
+   },
+   "region": {
+    "marks": 104,
+    "hit": 63,
+    "recall": 0.606,
+    "panos": 44,
+    "ci95": [
+     0.49,
+     0.719
+    ]
+   },
+   "region_tol0": {
+    "marks": 104,
+    "hit": 56,
+    "recall": 0.538,
+    "panos": 44,
+    "ci95": [
+     0.433,
+     0.636
+    ]
+   }
+  },
+  "juneau-ak | near mining pano=1": {
+   "radius": {
+    "marks": 89,
+    "hit": 46,
+    "recall": 0.517,
+    "panos": 36,
+    "ci95": [
+     0.398,
+     0.622
+    ]
+   },
+   "region": {
+    "marks": 89,
+    "hit": 48,
+    "recall": 0.539,
+    "panos": 36,
+    "ci95": [
+     0.411,
+     0.663
+    ]
+   },
+   "region_tol0": {
+    "marks": 89,
+    "hit": 41,
+    "recall": 0.461,
+    "panos": 36,
+    "ci95": [
+     0.351,
+     0.56
+    ]
+   }
+  },
+  "juneau-ak | 6 to 10 m": {
+   "radius": {
+    "marks": 45,
+    "hit": 27,
+    "recall": 0.6,
+    "panos": 32,
+    "ci95": [
+     0.447,
+     0.741
+    ]
+   },
+   "region": {
+    "marks": 45,
+    "hit": 27,
+    "recall": 0.6,
+    "panos": 32,
+    "ci95": [
+     0.447,
+     0.741
+    ]
+   },
+   "region_tol0": {
+    "marks": 45,
+    "hit": 27,
+    "recall": 0.6,
+    "panos": 32,
+    "ci95": [
+     0.447,
+     0.741
+    ]
+   }
+  },
+  "juneau-ak | region_found=1": {
+   "radius": {
+    "marks": 89,
+    "hit": 56,
+    "recall": 0.629,
+    "panos": 46,
+    "ci95": [
+     0.512,
+     0.739
+    ]
+   },
+   "region": {
+    "marks": 89,
+    "hit": 59,
+    "recall": 0.663,
+    "panos": 46,
+    "ci95": [
+     0.535,
+     0.782
+    ]
+   },
+   "region_tol0": {
+    "marks": 89,
+    "hit": 51,
+    "recall": 0.573,
+    "panos": 46,
+    "ci95": [
+     0.459,
+     0.678
+    ]
+   }
+  },
+  "juneau-ak | nearer than 6 m": {
+   "radius": {
+    "marks": 29,
+    "hit": 10,
+    "recall": 0.345,
+    "panos": 19,
+    "ci95": [
+     0.185,
+     0.5
+    ]
+   },
+   "region": {
+    "marks": 29,
+    "hit": 13,
+    "recall": 0.448,
+    "panos": 19,
+    "ci95": [
+     0.259,
+     0.633
+    ]
+   },
+   "region_tol0": {
+    "marks": 29,
+    "hit": 11,
+    "recall": 0.379,
+    "panos": 19,
+    "ci95": [
+     0.217,
+     0.536
+    ]
+   }
+  },
+  "juneau-ak | 10 to 25 m": {
+   "radius": {
+    "marks": 36,
+    "hit": 26,
+    "recall": 0.722,
+    "panos": 24,
+    "ci95": [
+     0.556,
+     0.854
+    ]
+   },
+   "region": {
+    "marks": 36,
+    "hit": 26,
+    "recall": 0.722,
+    "panos": 24,
+    "ci95": [
+     0.545,
+     0.86
+    ]
+   },
+   "region_tol0": {
+    "marks": 36,
+    "hit": 20,
+    "recall": 0.556,
+    "panos": 24,
+    "ci95": [
+     0.387,
+     0.7
+    ]
+   }
+  },
+  "juneau-ak | near mining pano=0": {
+   "radius": {
+    "marks": 21,
+    "hit": 17,
+    "recall": 0.81,
+    "panos": 12,
+    "ci95": [
+     0.6,
+     0.957
+    ]
+   },
+   "region": {
+    "marks": 21,
+    "hit": 18,
+    "recall": 0.857,
+    "panos": 12,
+    "ci95": [
+     0.684,
+     1.0
+    ]
+   },
+   "region_tol0": {
+    "marks": 21,
+    "hit": 17,
+    "recall": 0.81,
+    "panos": 12,
+    "ci95": [
+     0.632,
+     0.952
+    ]
+   }
+  },
+  "juneau-ak | region_found=0": {
+   "radius": {
+    "marks": 21,
+    "hit": 7,
+    "recall": 0.333,
+    "panos": 15,
+    "ci95": [
+     0.176,
+     0.5
+    ]
+   },
+   "region": {
+    "marks": 21,
+    "hit": 7,
+    "recall": 0.333,
+    "panos": 15,
+    "ci95": [
+     0.176,
+     0.5
+    ]
+   },
+   "region_tol0": {
+    "marks": 21,
+    "hit": 7,
+    "recall": 0.333,
+    "panos": 15,
+    "ci95": [
+     0.176,
+     0.5
+    ]
+   }
+  },
+  "juneau-ak | GoPro Max": {
+   "radius": {
+    "marks": 6,
+    "hit": 4,
+    "recall": 0.667,
+    "panos": 4,
+    "ci95": [
+     0.25,
+     1.0
+    ]
+   },
+   "region": {
+    "marks": 6,
+    "hit": 3,
+    "recall": 0.5,
+    "panos": 4,
+    "ci95": [
+     0.2,
+     0.75
+    ]
+   },
+   "region_tol0": {
+    "marks": 6,
+    "hit": 2,
+    "recall": 0.333,
+    "panos": 4,
+    "ci95": [
+     0.0,
+     0.75
+    ]
+   }
+  },
+  "laurens-ia": {
+   "radius": {
+    "marks": 11,
+    "hit": 1,
+    "recall": 0.091,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.25
+    ]
+   },
+   "region": {
+    "marks": 11,
+    "hit": 1,
+    "recall": 0.091,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.25
+    ]
+   },
+   "region_tol0": {
+    "marks": 11,
+    "hit": 1,
+    "recall": 0.091,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.25
+    ]
+   }
+  },
+  "laurens-ia | GoPro Max": {
+   "radius": {
+    "marks": 11,
+    "hit": 1,
+    "recall": 0.091,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.25
+    ]
+   },
+   "region": {
+    "marks": 11,
+    "hit": 1,
+    "recall": 0.091,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.25
+    ]
+   },
+   "region_tol0": {
+    "marks": 11,
+    "hit": 1,
+    "recall": 0.091,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.25
+    ]
+   }
+  },
+  "laurens-ia | near mining pano=0": {
+   "radius": {
+    "marks": 11,
+    "hit": 1,
+    "recall": 0.091,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.25
+    ]
+   },
+   "region": {
+    "marks": 11,
+    "hit": 1,
+    "recall": 0.091,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.25
+    ]
+   },
+   "region_tol0": {
+    "marks": 11,
+    "hit": 1,
+    "recall": 0.091,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.25
+    ]
+   }
+  },
+  "laurens-ia | nearer than 6 m": {
+   "radius": {
+    "marks": 4,
+    "hit": 1,
+    "recall": 0.25,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     1.0
+    ]
+   },
+   "region": {
+    "marks": 4,
+    "hit": 1,
+    "recall": 0.25,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     1.0
+    ]
+   },
+   "region_tol0": {
+    "marks": 4,
+    "hit": 1,
+    "recall": 0.25,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "laurens-ia | region_found=0": {
+   "radius": {
+    "marks": 9,
+    "hit": 1,
+    "recall": 0.111,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.5
+    ]
+   },
+   "region": {
+    "marks": 9,
+    "hit": 1,
+    "recall": 0.111,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.5
+    ]
+   },
+   "region_tol0": {
+    "marks": 9,
+    "hit": 1,
+    "recall": 0.111,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.5
+    ]
+   }
+  },
+  "laurens-ia | 10 to 25 m": {
+   "radius": {
+    "marks": 5,
+    "hit": 0,
+    "recall": 0.0,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "region": {
+    "marks": 5,
+    "hit": 0,
+    "recall": 0.0,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "region_tol0": {
+    "marks": 5,
+    "hit": 0,
+    "recall": 0.0,
+    "panos": 3,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "laurens-ia | region_found=1": {
+   "radius": {
+    "marks": 2,
+    "hit": 0,
+    "recall": 0.0,
+    "panos": 1,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "region": {
+    "marks": 2,
+    "hit": 0,
+    "recall": 0.0,
+    "panos": 1,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "region_tol0": {
+    "marks": 2,
+    "hit": 0,
+    "recall": 0.0,
+    "panos": 1,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "laurens-ia | 6 to 10 m": {
+   "radius": {
+    "marks": 2,
+    "hit": 0,
+    "recall": 0.0,
+    "panos": 2,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "region": {
+    "marks": 2,
+    "hit": 0,
+    "recall": 0.0,
+    "panos": 2,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "region_tol0": {
+    "marks": 2,
+    "hit": 0,
+    "recall": 0.0,
+    "panos": 2,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "beyond 25 m": {
+   "radius": {
+    "marks": 30,
+    "hit": 11,
+    "recall": 0.367,
+    "panos": 17,
+    "ci95": [
+     0.167,
+     0.581
+    ]
+   },
+   "region": {
+    "marks": 30,
+    "hit": 10,
+    "recall": 0.333,
+    "panos": 17,
+    "ci95": [
+     0.161,
+     0.519
+    ]
+   },
+   "region_tol0": {
+    "marks": 30,
+    "hit": 4,
+    "recall": 0.133,
+    "panos": 17,
+    "ci95": [
+     0.033,
+     0.25
+    ]
+   }
+  }
+ }
+}

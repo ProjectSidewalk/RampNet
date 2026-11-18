@@ -1,0 +1,22 @@
+{
+ "ratings": "analysis_out/stage1_crosswalk_detector_274/hardneg/s5_inputs/juneau_eval/s4/ratings.csv",
+ "confirmed": 43,
+ "models": {
+  "crosswalk_s4": {
+   "threshold": 0.23,
+   "kept": 43,
+   "retention": 1.0
+  },
+  "crosswalk_s4_seed2": {
+   "threshold": 0.3,
+   "kept": 43,
+   "retention": 1.0
+  },
+  "crosswalk_s4_seed3": {
+   "threshold": 0.13,
+   "kept": 42,
+   "retention": 0.9767
+  }
+ },
+ "seed_spread": 1
+}

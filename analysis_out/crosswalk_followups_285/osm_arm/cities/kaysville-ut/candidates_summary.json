@@ -1,0 +1,13 @@
+{
+ "seed": 285,
+ "sampled_crossings": 107,
+ "near_m": 20.0,
+ "per_crossing": 3,
+ "pano_source": "kaysville--utah--united-states_width_8018_height_7277_step_20_mapillary_2026-10-03.csv.gz",
+ "tiles": 0,
+ "panos_in_range": 4346,
+ "panos_after_thinning": 1643,
+ "crossings_with_a_pano": 107,
+ "candidate_pairs": 321,
+ "candidate_panos": 300
+}

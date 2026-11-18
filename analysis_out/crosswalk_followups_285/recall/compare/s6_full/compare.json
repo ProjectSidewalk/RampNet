@@ -1,0 +1,102 @@
+{
+ "primary_city": "juneau-ak",
+ "radius": 0.05,
+ "marks": 110,
+ "panos_with_marks": 48,
+ "empty_panos": 119,
+ "empty_panos_by_city": {
+  "juneau-ak": 27,
+  "laurens-ia": 92
+ },
+ "models": {
+  "crosswalk_s4_klone@0.23": {
+   "side": "base",
+   "hit": 63,
+   "recall": 0.5727,
+   "empty_false_alarms": 29,
+   "empty_false_alarms_rig_masked": 6,
+   "empty_panos_with_one": 22
+  },
+  "crosswalk_s4_seed2@0.3": {
+   "side": "base",
+   "hit": 59,
+   "recall": 0.5364,
+   "empty_false_alarms": 8,
+   "empty_false_alarms_rig_masked": 4,
+   "empty_panos_with_one": 8
+  },
+  "crosswalk_s4_seed3@0.13": {
+   "side": "base",
+   "hit": 77,
+   "recall": 0.7,
+   "empty_false_alarms": 11,
+   "empty_false_alarms_rig_masked": 10,
+   "empty_panos_with_one": 10
+  },
+  "crosswalk_s6full@0.17": {
+   "side": "new",
+   "hit": 94,
+   "recall": 0.8545,
+   "empty_false_alarms": 309,
+   "empty_false_alarms_rig_masked": 234,
+   "empty_panos_with_one": 94
+  },
+  "crosswalk_s6full_seed2@0.27": {
+   "side": "new",
+   "hit": 71,
+   "recall": 0.6455,
+   "empty_false_alarms": 52,
+   "empty_false_alarms_rig_masked": 41,
+   "empty_panos_with_one": 27
+  },
+  "crosswalk_s6full_seed3@0.24": {
+   "side": "new",
+   "hit": 72,
+   "recall": 0.6545,
+   "empty_false_alarms": 61,
+   "empty_false_alarms_rig_masked": 61,
+   "empty_panos_with_one": 29
+  }
+ },
+ "base": {
+  "seeds": [
+   "crosswalk_s4_klone@0.23",
+   "crosswalk_s4_seed2@0.3",
+   "crosswalk_s4_seed3@0.13"
+  ],
+  "mean_recall": 0.603,
+  "mean_empty_false_alarms": 16.0,
+  "mean_empty_false_alarms_rig_masked": 6.667,
+  "seed_spread": {
+   "hit": 14,
+   "empty_false_alarms": 21,
+   "empty_false_alarms_rig_masked": 4
+  }
+ },
+ "new": {
+  "seeds": [
+   "crosswalk_s6full@0.17",
+   "crosswalk_s6full_seed2@0.27",
+   "crosswalk_s6full_seed3@0.24"
+  ],
+  "mean_recall": 0.7182,
+  "mean_empty_false_alarms": 140.667,
+  "mean_empty_false_alarms_rig_masked": 112.0,
+  "seed_spread": {
+   "hit": 23,
+   "empty_false_alarms": 257,
+   "empty_false_alarms_rig_masked": 193
+  }
+ },
+ "new_minus_base": {
+  "mean_recall_diff": 0.1152,
+  "ci95": [
+   0.0667,
+   0.1694
+  ],
+  "first_seed_recall_diff": 0.2818,
+  "primary_met": true,
+  "empty_false_alarms_diff": 124.667,
+  "empty_false_alarms_rig_masked_diff": 105.333
+ }
+}
