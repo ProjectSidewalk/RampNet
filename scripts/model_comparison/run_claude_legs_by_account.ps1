@@ -45,6 +45,22 @@
     # Opus 5.5 on two splits, paid by the claude5 org, stopping before $95 of spend
     .\scripts\model_comparison\run_claude_legs_by_account.ps1 -Account claude5 `
         -Model claude-opus-5-5 -PerPano 0.0665 -Cap 95 -Splits annapolis,bend
+
+.PARAMETER Effort
+    --claude-effort for every leg. Defaults to `low`, what every leg before the effort-high
+    campaign ran. Effort is part of the detection-cache key, so a `high` run never reuses
+    `low` detections.
+
+.PARAMETER MaxTokens
+    --claude-max-tokens. 0 (the default) passes nothing and keeps compare.py's own default.
+    Thinking bills against max_tokens, so raise it with -Effort high: a truncated call is
+    recorded as a failure, not cached, and costs money for nothing.
+
+.EXAMPLE
+    # Opus 5.5 at effort=high, paid by claude20, room for thinking
+    .\scripts\model_comparison\run_claude_legs_by_account.ps1 -Account claude20 `
+        -Model claude-opus-5-5 -Effort high -MaxTokens 32000 -PerPano 0.30 -Cap 200 `
+        -Splits richmond,bend
 #>
 param(
   [Parameter(Mandatory)][ValidateSet('claude5', 'claude20', 'claude-team')][string]$Account,
@@ -52,6 +68,8 @@ param(
   [Parameter(Mandatory)][double]$PerPano,
   [Parameter(Mandatory)][double]$Cap,
   [Parameter(Mandatory)][string[]]$Splits,
+  [ValidateSet('low', 'medium', 'high', 'xhigh', 'max')][string]$Effort = 'low',
+  [int]$MaxTokens = 0,
   [string]$DataRoot,
   [string]$Python
 )
@@ -111,10 +129,12 @@ foreach ($s in $Splits) {
   try {
     # --usage-log names the same file the cap reads; compare.py's own default is the code
     # checkout's canonical root, which is a different file whenever -DataRoot points elsewhere.
+    $extra = @()
+    if ($MaxTokens -gt 0) { $extra = @('--claude-max-tokens', "$MaxTokens") }
     & $Python (Join-Path $code 'scripts\model_comparison\compare.py') (Join-Path $DataRoot "benchmark\$s") `
-        --models "claude:$Model" --claude-serving-path anthropic --claude-effort low `
+        --models "claude:$Model" --claude-serving-path anthropic --claude-effort $Effort `
         --api-account $Account --cache-dir (Join-Path $DataRoot '.model_cache') `
-        --usage-log $ledger 2>&1 |
+        --usage-log $ledger @extra 2>&1 |
       ForEach-Object { "$_" } |
       Select-String -Pattern 'usage logged|ledger now|failure|Error|WARNING|not runnable|INCOMPLETE|^claude-' |
       ForEach-Object { "  $($_.Line)" }
