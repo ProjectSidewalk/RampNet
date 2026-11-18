@@ -1,0 +1,16 @@
+{
+ "panos": 80,
+ "filters": "threshold (recall-matched, as A4), range gate y >= 0.53125, rig mask y <= 0.772",
+ "seed1_pair": {
+  "base_seed1_detections": 142,
+  "union_cards": 260,
+  "cards_per_base_seed1_detection": 1.83,
+  "cards_with_unequal_counts": 201
+ },
+ "three_seeds_each": {
+  "base_seed1_detections": 142,
+  "union_cards": 486,
+  "cards_per_base_seed1_detection": 3.42,
+  "cards_with_unequal_counts": 400
+ }
+}

@@ -1,0 +1,32 @@
+[
+ {
+  "area": 0,
+  "stratum": "dense",
+  "centre_pano": "3656210694644148",
+  "centre_lat": 58.303326145445,
+  "centre_lng": -134.40857137917,
+  "radius_m": 79.0,
+  "panos": 133,
+  "ai_labels": 146
+ },
+ {
+  "area": 1,
+  "stratum": "other",
+  "centre_pano": "428884450036407",
+  "centre_lat": 58.30338947543,
+  "centre_lng": -134.41735860397,
+  "radius_m": 185.6,
+  "panos": 743,
+  "ai_labels": 145
+ },
+ {
+  "area": 2,
+  "stratum": "other",
+  "centre_pano": "726578559457461",
+  "centre_lat": 58.30619721273,
+  "centre_lng": -134.43069967292,
+  "radius_m": 76.3,
+  "panos": 113,
+  "ai_labels": 146
+ }
+]

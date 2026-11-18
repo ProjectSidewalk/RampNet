@@ -680,3 +680,12 @@ analysis_out/crosswalk_supervision_s7/**/*.*
 !analysis_out/crosswalk_supervision_s7/**/*.json
 !analysis_out/crosswalk_supervision_s7/**/*.txt
 !analysis_out/crosswalk_supervision_s7/**/*.jsonl
+
+# crosswalk_s8 pre-registration prep (#298): input snapshot, slice, pools, card and power estimates (no imagery)
+!analysis_out/crosswalk_s8/
+analysis_out/crosswalk_s8/**/*.*
+!analysis_out/crosswalk_s8/**/
+!analysis_out/crosswalk_s8/**/*.csv
+!analysis_out/crosswalk_s8/**/*.json
+!analysis_out/crosswalk_s8/**/*.md
+!analysis_out/crosswalk_s8/**/*.txt

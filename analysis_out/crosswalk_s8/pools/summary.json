@@ -1,0 +1,219 @@
+{
+ "planned_ignore_points": {
+  "other_ai_labels_on_planned_panos": 718,
+  "of_which_within_0.05_of_a_positive_(merged,_no_ignore_point)": 68
+ },
+ "cuts": {
+  "validator_negative_p_incorrect_gt": 0.9999,
+  "validator_negative_min_dip_deg": 8.4375,
+  "validator_positive_p_correct_gt": 0.9999,
+  "rear_seam_negatives_per_sequence": 10,
+  "negatives_per_pano": 3,
+  "validator_positives_per_pano": 2,
+  "juneau_positives_le_juneau_negatives": true,
+  "cap_seed": 298
+ },
+ "excluded": {
+  "slice_labels": 437,
+  "buffer_labels": 275,
+  "train_labels_near_slice_by_position": 0,
+  "train_labels_on_recall285_or_ps_labelled_panos": 116,
+  "train_labels_on_root_v5_panos": 160
+ },
+ "eligible_by_source": [
+  {
+   "source": "jon_negative",
+   "labels": 130,
+   "panos": 99,
+   "gopro": 41,
+   "rear_seam": 40,
+   "near_crosswalk": 3
+  },
+  {
+   "source": "jon_positive",
+   "labels": 173,
+   "panos": 117,
+   "gopro": 5,
+   "rear_seam": 30,
+   "near_crosswalk": 0
+  },
+  {
+   "source": "jon_unsure",
+   "labels": 5,
+   "panos": 5,
+   "gopro": 0,
+   "rear_seam": 1,
+   "near_crosswalk": 0
+  },
+  {
+   "source": "none",
+   "labels": 1066,
+   "panos": 558,
+   "gopro": 92,
+   "rear_seam": 175,
+   "near_crosswalk": 0
+  },
+  {
+   "source": "validator_negative_candidate",
+   "labels": 253,
+   "panos": 147,
+   "gopro": 0,
+   "rear_seam": 7,
+   "near_crosswalk": 2
+  },
+  {
+   "source": "validator_positive_candidate",
+   "labels": 964,
+   "panos": 474,
+   "gopro": 43,
+   "rear_seam": 200,
+   "near_crosswalk": 0
+  }
+ ],
+ "validator_cut_sweep": [
+  {
+   "kind": "negative",
+   "cut": 0.99,
+   "near_field_only": false,
+   "labels": 887,
+   "jon_rated": 124,
+   "jon_agrees_with_validator": 111,
+   "unrated_eligible": 620
+  },
+  {
+   "kind": "negative",
+   "cut": 0.999,
+   "near_field_only": false,
+   "labels": 657,
+   "jon_rated": 86,
+   "jon_agrees_with_validator": 78,
+   "unrated_eligible": 477
+  },
+  {
+   "kind": "negative",
+   "cut": 0.9999,
+   "near_field_only": false,
+   "labels": 372,
+   "jon_rated": 41,
+   "jon_agrees_with_validator": 34,
+   "unrated_eligible": 269
+  },
+  {
+   "kind": "negative",
+   "cut": 0.99,
+   "near_field_only": true,
+   "labels": 848,
+   "jon_rated": 117,
+   "jon_agrees_with_validator": 105,
+   "unrated_eligible": 598
+  },
+  {
+   "kind": "negative",
+   "cut": 0.999,
+   "near_field_only": true,
+   "labels": 637,
+   "jon_rated": 84,
+   "jon_agrees_with_validator": 77,
+   "unrated_eligible": 463
+  },
+  {
+   "kind": "negative",
+   "cut": 0.9999,
+   "near_field_only": true,
+   "labels": 358,
+   "jon_rated": 39,
+   "jon_agrees_with_validator": 33,
+   "unrated_eligible": 261
+  },
+  {
+   "kind": "positive",
+   "cut": 0.999,
+   "near_field_only": false,
+   "labels": 2002,
+   "jon_rated": 210,
+   "jon_agrees_with_validator": 206,
+   "unrated_eligible": 1368
+  },
+  {
+   "kind": "positive",
+   "cut": 0.9999,
+   "near_field_only": false,
+   "labels": 1535,
+   "jon_rated": 166,
+   "jon_agrees_with_validator": 165,
+   "unrated_eligible": 1028
+  },
+  {
+   "kind": "positive",
+   "cut": 0.99999,
+   "near_field_only": false,
+   "labels": 648,
+   "jon_rated": 71,
+   "jon_agrees_with_validator": 71,
+   "unrated_eligible": 456
+  },
+  {
+   "kind": "positive",
+   "cut": 0.999,
+   "near_field_only": true,
+   "labels": 1520,
+   "jon_rated": 157,
+   "jon_agrees_with_validator": 154,
+   "unrated_eligible": 1005
+  },
+  {
+   "kind": "positive",
+   "cut": 0.9999,
+   "near_field_only": true,
+   "labels": 1159,
+   "jon_rated": 123,
+   "jon_agrees_with_validator": 122,
+   "unrated_eligible": 746
+  },
+  {
+   "kind": "positive",
+   "cut": 0.99999,
+   "near_field_only": true,
+   "labels": 533,
+   "jon_rated": 58,
+   "jon_agrees_with_validator": 58,
+   "unrated_eligible": 360
+  }
+ ],
+ "root_v5_juneau_points_by_role": {
+  "positives": {
+   "train": 130,
+   "slice": 23,
+   "buffer": 11
+  },
+  "negatives": {
+   "train": 42,
+   "buffer": 6,
+   "slice": 5
+  },
+  "ignore": {
+   "train": 29,
+   "slice": 11,
+   "buffer": 6
+  }
+ },
+ "root_v5_train_panos": {
+  "positives": 62,
+  "negatives": 26,
+  "ignore": 25
+ },
+ "page_verdicts_carried": 87,
+ "planned_from_ps_labels": {
+  "negatives_jon": 108,
+  "negatives_validator": 226,
+  "negatives_rear_seam": 29,
+  "positives_jon": 173,
+  "positives_validator": 73,
+  "panos": 372
+ },
+ "planned_from_root_v5": {
+  "positives": 130,
+  "negatives": 42,
+  "panos": 77
+ }
+}

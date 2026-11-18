@@ -1,0 +1,8 @@
+{
+ "seed": 298,
+ "sims": 300,
+ "boot": 1000,
+ "slice_panos": 989,
+ "slice_look_alike_standin_per_100_panos": 14.3,
+ "note": "Seed-to-seed noise is not modelled; the three-seed mean primary should be tighter than this."
+}

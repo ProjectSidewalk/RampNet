@@ -1,0 +1,24 @@
+{
+ "sources": {
+  "D:\\Git\\labeler-wt\\storexwalk\\runs\\juneau_crosswalk\\results.jsonl": "9a0d7421bfc4e9f0cf50ba12a38bbfc082b648d7bcf07723949b50170b26c165",
+  "D:\\Git\\labeler-wt\\storexwalk\\runs\\juneau_expansion_crosswalk\\results.jsonl": "fdeb7a50b47ef499c91975c58c3d2feba0b379ef8be23b49ab738e633ffe6dde",
+  "C:\\Users\\jonf\\AppData\\Local\\Temp\\claude\\785d6cc6bba9937c\\ec6f0265-4225-495c-996f-6964dff6c0b7\\scratchpad\\validator_xwalk\\results\\all_labels_scored.csv": "667718e1a7528f47539786b35bd9f1e4bcd3207a49318e63f36a6f6e5b433b8b",
+  "D:\\Git\\labeler-wt\\storexwalk\\runs\\juneau_crosswalk\\validation\\juneau_test_votes_2026-11-17.csv": "e94cdf5d66ecc8f39c702f3d27a17f6becf1c179b05bebb9cbcc88fce9f266f6",
+  "D:\\Git\\labeler-wt\\storexwalk\\runs\\juneau_crosswalk\\validation\\random_sample_2026-11-17.json": "2ac751e0037e3ac3125eab69d1d5c05259d62327ccd95a86a125a90999f89b76",
+  "C:\\Users\\jonf\\AppData\\Local\\Temp\\claude\\785d6cc6bba9937c\\ec6f0265-4225-495c-996f-6964dff6c0b7\\scratchpad\\validator_xwalk\\REPORT.md": "b7ed038cfe68a10e34e8246f14c45a1d2e3bd3eadba324b80df90f91b2516c69",
+  "C:\\Users\\jonf\\AppData\\Local\\Temp\\claude\\785d6cc6bba9937c\\ec6f0265-4225-495c-996f-6964dff6c0b7\\scratchpad\\validator_xwalk\\results\\tables.md": "3d1a54efaf3ab5277fbe0b62ca193c5c54ed84dee479c5b894d47da9cd79bf01"
+ },
+ "written": {
+  "juneau_panos.csv": "2b34384382901dce5e890e769e16893f58bcea04773639a21a1fcc8460f2d7e3",
+  "juneau_test_votes_2026-11-17.csv": "fdde23a5c53e08a22d15433901f245dbe01a6b6566aff33b33117b713906bdea",
+  "random_sample_2026-11-17.json": "ef1d89f457b0a72789c9cb4205a84a5660d71789c2eb8df47b7b5b309e115059",
+  "validator_REPORT.md": "b7ed038cfe68a10e34e8246f14c45a1d2e3bd3eadba324b80df90f91b2516c69",
+  "validator_all_labels_scored.csv": "6fa8cb38247675ee0aad1ab397a54db3a858d0a7a9bb1dc7e916b0d8bfd12b9b",
+  "validator_tables.md": "7a2861addf5fe10b26f30ff1a07075b5f2995bb5b77d26a23cb95fad38e80307"
+ },
+ "panos": 5333,
+ "panos_by_run": {
+  "juneau_crosswalk": 4999,
+  "juneau_expansion_crosswalk": 334
+ }
+}
