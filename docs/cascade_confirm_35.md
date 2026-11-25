@@ -2,19 +2,28 @@
 
 **Issue:** [#35](https://github.com/ProjectSidewalk/RampNet/issues/35). **Run date:** 2026-11-15.
 **Plan:** `open-weight-cascade-confirm-2026-11-15.md` (Claude Fable 5.2), with its review
-(Claude Opus 5.5) and "Changes after review". This note covers **Stage 0 only**.
+(Claude Opus 5.5) and "Changes after review". This note covers **Stage 0 only**. The plan
+file is not in the repository; its Stage 0 section (steps and rules) is reproduced in
+[Appendix A](#appendix-a-the-plans-stage-0-section-2026-11-15), and the run instruction that
+withholds Lyon and Kaysville in [Appendix B](#appendix-b-the-run-instruction-on-lyon-and-kaysville).
 **Script:** `scripts/analysis/cascade_confirm_35.py` (tests: `tests/test_cascade_confirm_35.py`;
 figure: `scripts/analysis/cascade_confirm_35_figures.py`).
 **Output:** `analysis_out/cascade_confirm_35/stage0.json` (plus `inputs.json`, the input hashes).
 **Compute:** CPU only, committed inputs only, about 3 s. No model call, no network, no spend.
-**Base:** branch `cascade-argon-b0` at `b3868c8e` ([RampNet#289](https://github.com/ProjectSidewalk/RampNet/pull/289)).
+**Base:** `main`. The branch was first stacked on the Argon study
+([RampNet#289](https://github.com/ProjectSidewalk/RampNet/pull/289)), which merged on 2026-11-17 (UTC).
 
 ## Result: N. Both T and C are dropped, and the work stops here.
+
+This rests on reading the plan's "pooled" as the four folds' counts summed into one F1. Under
+the other plain reading, the mean of the four per-split results, C survives Rule 2 and the outcome
+is "C only" (see [Rule 2 rests on one reading of "pooled"](#rule-2-rests-on-one-reading-of-pooled-open-jons-call)).
+Which reading governs is open, Jon's call.
 
 | rule | what it tests | reading | verdict |
 |---|---|---|---|
 | 1, drop T | rig key test fails, or pooled held-out T − N has a 95% lower bound ≤ 0 | rig key test does not pass; T − N = **−0.022 [−0.038, −0.003]** | **drop T** (on both counts) |
-| 2, drop C | pooled held-out C − max(N, T) < +0.03, or its lower bound ≤ 0, or C wins fewer than 2 of 4 splits | **+0.027 [+0.007, +0.043]**, wins 2 of 4 | **drop C** (below +0.03) |
+| 2, drop C | pooled held-out C − max(N, T) < +0.03, or its lower bound ≤ 0, or C wins fewer than 2 of 4 splits | **+0.027 [+0.007, +0.043]**, wins 2 of 4 (summed counts) | **drop C** (below +0.03; the per-split mean reading gives +0.031 and keeps C) |
 | 3, flag "one instance" | leaving out one Laurens sequence takes the gain below +0.02, or 5 panos carry over half the net promoted ramps | worst leave-one-out +0.079; top 5 panos carry 0.41 | not flagged |
 | 4, outcome | both dropped means N | | **N** |
 
@@ -27,6 +36,50 @@ splits hurts the fourth on three of the four folds.
 This is a screen on splits the earlier cascade study already inspected. It can end the work; it
 confirms nothing. The plan says what follows from N: B1 closes at no cost, and Stage 1 (Lyon) and
 Stage 2 (Kaysville) are not run.
+
+## Rule 2 rests on one reading of "pooled" (open, Jon's call)
+
+The plan's Rule 2 says "pooled held-out C minus max(N, T)" and does not define pooled. The stop
+above rests on one reading: the four folds' held-out counts (TP, FP, recall TP, recall GT) summed
+into one F1 per policy, as `cascade_argon_35` pools (Amendment 3). The other plain reading, the mean
+of the four held-out per-split deltas, clears the bar. Under it C survives Rule 2, the outcome is
+**C only**, and the plan would go on to Stage 1 (Lyon). Which reading governs is **open, Jon's
+call**. This note does not change the verdict or the bar.
+
+| reading of "pooled" | C − max(N, T) | 95% interval | resamples at or above +0.03 | splits won | Rule 2 | outcome |
+|---|---:|---|---:|---:|---|---|
+| summed counts (the rule as coded) | +0.0270 | [+0.0070, +0.0426] | 35.6% | 2 of 4 | drop C | **N** |
+| mean of the four per-split deltas | +0.0313 | [+0.0088, +0.0465] | 51.9% | 2 of 4 | C survives | C only |
+| mean F1 of C minus the larger of the mean F1 of N and T (context) | +0.0326 | [+0.0108, +0.0488] | 58.5% | 2 of 4 | C survives | C only |
+
+All three intervals come from the same 2,000 resamples (seed 0), with `t*` and the C candidate
+re-chosen inside each. Rule 1 does not depend on the reading: the rig key test does not pass,
+which drops T whatever the T − N interval shows.
+
+What the 0.003 gap is worth:
+
+- **In counts, the margin is small.** Summed C is 762 TP and 225 FP. It reaches +0.03 (F1 0.7274)
+  with 768 TP at the same FP, 6 more of 1,117 GT ramps, or with 216 FP at the same TP, 9 fewer.
+- **The choice of candidate is close, and it matters.** On the training splits the chosen and
+  the second-best candidates are within 0.0023 F1 of each other in every fold. On the held-out
+  split the second-best scores higher in all four folds. Had every fold taken its second-best,
+  summed-count C − max(N, T) would be +0.0311.
+
+  | held out | chosen candidate: training F1 → held-out F1 | second-best: training F1 → held-out F1 |
+  |---|---|---|
+  | laurens_mapillary | y11x 0.10 / 0.022 / 0.05: 0.7223 → 0.7558 | y11l 0.10 / 0.011 / 0.05: 0.7200 → 0.7615 |
+  | bayonne | y11l 0.10 / 0.011 / 0.05: 0.7556 → 0.6506 | y11l 0.10 / 0.022 / 0.05: 0.7551 → 0.6543 |
+  | budapest_district5 | y11x 0.10 / 0.022 / 0.05: 0.7543 → 0.6667 | y11l 0.10 / 0.022 / 0.05: 0.7536 → 0.6689 |
+  | morgantown | y11x 0.10 / 0.022 / 0.05: 0.6923 → 0.8403 | y11l 0.10 / 0.022 / 0.05: 0.6906 → 0.8453 |
+
+- **One arm at a time** (the same procedure over that arm's 48 candidates; read after the data,
+  used by no rule), summed-count C − max(N, T) is +0.0302 for `y11l_pano`, +0.0200 for
+  `y11x_pano_h200` and +0.0138 for `y26_pano` (per-split means +0.0346, +0.0233, +0.0171). Each
+  wins 2 of 4.
+
+None of this shows that C works. The gain still comes from two splits, the screen is on data the
+cascade study inspected, and the +0.03 bar is Jon's to revisit (Caveats). What it shows is that N
+is the outcome under one of two plain readings of an undefined word, by 0.003.
 
 ![Held-out F1 per split and the pooled gate quantities](figures/cascade_confirm_35/heldout.png)
 
@@ -150,7 +203,10 @@ record it here, and give both readings where they disagree.
    recall TP, recall GT), then F1, as `cascade_argon_35` pools. The pooled comparison uses
    max(pooled N, pooled T); the "splits won" count uses each split's own max(N, T). The alternative
    reading that compares C with N alone, since T is dropped, gives the same verdict: +0.0270
-   [+0.0071, +0.0428], 2 wins, below +0.03.
+   [+0.0071, +0.0428], 2 wins, below +0.03. Reading "pooled" as the mean of the four per-split
+   results does **not** give the same verdict: +0.0313 [+0.0088, +0.0465], and C survives. That
+   disagreement is set out in [Rule 2 rests on one reading of "pooled"](#rule-2-rests-on-one-reading-of-pooled-open-jons-call)
+   and left to Jon.
 4. **Bootstrap unit.** Panos, stratified by split, 2,000 resamples, seed 0, both selections
    repeated per resample. The account-level bootstrap in the plan belongs to Stage 1.
 5. **Ties.** `t*` ties go to the lowest threshold (`cascade_cost_35`'s convention), candidate ties
@@ -180,6 +236,9 @@ All keys are in `analysis_out/cascade_confirm_35/stage0.json`.
 | number | key |
 |---|---|
 | rule verdicts | `rules.{1_drop_T,2_drop_C,2_alt_C_vs_N,3_one_instance,4_outcome}` |
+| the rule thresholds | `bars` |
+| the three readings of "pooled", resample shares at or above +0.03, the count margin | `pooling_readings.{summed_counts,per_split_mean,mean_F1}`, `pooling_readings.summed_counts.count_margin` |
+| chosen and second-best candidates per fold, the second-best pooled gain, one arm at a time | `selection_sensitivity.{runner_up,runner_up_pooled_C_minus_maxNT,per_arm}` |
 | held-out N / T / C per split, chosen settings, per-split intervals, selection stability | `folds[]` |
 | pooled N / T / C and the three pooled deltas with intervals | `pooled` |
 | in-sample context table | `in_sample.<split>` |
@@ -197,7 +256,7 @@ All keys are in `analysis_out/cascade_confirm_35/stage0.json`.
 python scripts/analysis/cascade_cost_35.py --check       # step 1 (~13 min)
 python scripts/analysis/cascade_argon_35.py --check      # step 1 (~3 min)
 python scripts/analysis/cascade_confirm_35.py            # writes stage0.json + inputs.json (~3 s)
-python scripts/analysis/cascade_confirm_35.py --check    # regenerate stage0.json, byte-compare
+python scripts/analysis/cascade_confirm_35.py --check    # regenerate stage0.json + inputs.json, byte-compare
 python scripts/analysis/cascade_confirm_35_figures.py    # the figure, from stage0.json (needs matplotlib)
 python scripts/check_all.py --only cascade_confirm_35
 pytest -q tests/test_cascade_confirm_35.py
@@ -205,9 +264,48 @@ pytest -q tests/test_cascade_confirm_35.py
 
 Inputs (sha256 in `inputs.json`): for each of the four splits, `benchmark/<split>/records.jsonl`,
 `benchmark/<split>/verdicts.json`, `analysis_out/op_cache/<split>.json`, and
-`benchmark/model_detections/{y11l_pano,y11x_pano_h200,y26_pano}__<split>.json`. `--check` does not
-compare the hashes, because a checkout with `core.autocrlf=true` rewrites `records.jsonl` line
-endings without changing any number. The figure is not byte-compared; every plotted value is in the
-tables above.
+`benchmark/model_detections/{y11l_pano,y11x_pano_h200,y26_pano}__<split>.json`. `--check` compares
+`inputs.json` as well. The hashes read CRLF as LF, so a checkout with `core.autocrlf=true`, which
+rewrites `records.jsonl` line endings, gives the same values; no input contains a CR in the
+repository, so each value is also the plain sha256 of the committed file. The figure is not
+byte-compared; every plotted value is in the tables above.
 
-*Run by Claude Opus 5.5 (`claude-opus-5-5`) under the plan's Stage 0 approval.*
+## Appendix A: the plan's Stage 0 section (2026-11-15)
+
+Copied verbatim from section 3 of `open-weight-cascade-confirm-2026-11-15.md` (Claude Fable 5.2,
+revised the same day after review). The plan file was last modified at 08:48 Pacific on 2026-11-15,
+and the Stage 0 commit (`1ff8b217`) is from 11:57 the same day, so the bars, the grid and the steps
+below predate the result. "The review" is that plan's review (Claude Opus 5.5). Paths are relative
+to the repository root.
+
+> ## 3. Stage 0: existing files, CPU, no rating (one day)
+>
+> New script `scripts/analysis/cascade_confirm_35.py`, reusing `cascade_cost_35.py`.
+>
+> 1. **Reproduce.** Both `--check` commands report 0 differences.
+> 2. **Grid, fixed here.** Arms `y11l_pano`, `y11x_pano_h200`, `y26_pano`. T_lo in {0.10, 0.15, 0.20, 0.25}. r_gate in {R/2, R, 2R}. c_min as an absolute score in {0.05, 0.15, 0.25, 0.40}. That is 144 candidates. The 49 degree rig mask is applied.
+> 3. **Leave-one-split-out** over the four GoPro Max splits. On the other three, by summed-count F1, choose one threshold t* from 0.10 to 0.55 and one of the 144 candidates. Score N, T and C on the held-out split, with the selection repeated inside each bootstrap resample.
+> 4. **Rig key test, no ground truth.** For each contributor in the four splits and Lyon, compute the share of peaks at 0.30 or above that the nadir rig mask removes. The mask was found on the Laurens roof rack. It passes only if one cut puts `laurens_mapillary` and ecartip on one side and morgantown and budapest on the other.
+> 5. **Concentration.** On `laurens_mapillary`, score each panorama by net promoted ramps (true minus false). Recompute the gain leaving out each sequence in turn.
+>
+> Rules:
+>
+> - **Drop T** if the rig key test fails, or pooled held-out T minus N has a 95% lower bound at or below 0.
+> - **Drop C** if pooled held-out C minus max(N, T) is below +0.03, or its lower bound is at or below 0, or C beats max(N, T) on fewer than two of the four splits.
+> - **Flag "one instance"** if leaving out one sequence takes the Laurens gain below +0.02, or five panoramas carry over half the net promoted ramps.
+> - Both dropped means **N**, and the work stops.
+>
+> **Expected outcome: N.** T probably fails: best thresholds disagree across one camera model. C probably fails too. The review's crude run puts held-out C minus N at −0.008 on budapest and morgantown, and the Laurens gain that can ship is +0.022 against a +0.03 bar. I put C surviving Stage 0 at about one in three. That closes B1 at no cost. Stage 0 is a screen on inspected splits: it can end the work and confirms nothing.
+
+## Appendix B: the run instruction on Lyon and Kaysville
+
+The instruction for the Stage 0 run of 2026-11-15 said not to read Lyon or Kaysville at Stage 0,
+because the plan keeps them as the Stage 1 (Lyon) and Stage 2 (Kaysville) confirmation sets. The
+common rules for the run said to take the most literal reading wherever the plan is ambiguous,
+record it under Amendments, and give both readings where they disagree. Both are restated here;
+their original wording is not in the repository. The first is why step 4 is run without ecartip
+(Amendment 1), and why the script hard-codes its four splits and never globs `benchmark/`.
+
+*Run by Claude Opus 5.5 (`claude-opus-5-5`) under the plan's Stage 0 approval. Review-1 fixes
+(the second reading of "pooled", the appendices, the rule tests) by Claude Opus 5.5
+(`claude-opus-5-5`).*
