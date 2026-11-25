@@ -62,3 +62,7 @@ scikit-learn
 # (rdflib, etils, absl-py, jsonpath-rw, pandas-stubs). Validation reads no data and makes no
 # network call.
 mlcroissant>=1.1,<1.2
+# Stage 1 geodesy: tests/test_stage1_bearing_residual.py checks the dependency-free bearing
+# against pyproj.Geod, and check_274.py (the stage1_crosswalk_274 entry of check_all.py)
+# re-derives the (b') guard nodes with it. Without it both skip on CI.
+pyproj
