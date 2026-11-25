@@ -29,7 +29,7 @@ Fit / test
 Usage (from the repo root)::
 
     python scripts/analysis/stage1_crosswalk_sdot_274/cartop_mask.py lookup \
-        --records D:/Git/sal-juneau/runs/juneau/results.jsonl ...   # once; writes camera_lookup.csv
+        --records <sal-juneau>/runs/juneau/results.jsonl ...   # once; writes camera_lookup.csv
     python scripts/analysis/stage1_crosswalk_sdot_274/cartop_mask.py score
     python scripts/analysis/stage1_crosswalk_sdot_274/cartop_mask.py figures
 """

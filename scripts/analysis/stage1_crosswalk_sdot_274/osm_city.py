@@ -25,8 +25,8 @@ Usage::
     PY=<sidewalk-auto-labeler env>/python.exe;  L=<sidewalk-auto-labeler checkout>
     $PY osm_city.py crossings --city sacramento-ca --wikidata Q18013
     $PY osm_city.py panos --city sacramento-ca --labeler $L --take 300
-    $PY osm_city.py meta --city sacramento-ca --labeler $L --keep D:/Git/sal-scratch-keep
-    $PY osm_city.py store --city sacramento-ca --labeler $L --keep D:/Git/sal-scratch-keep \
+    $PY osm_city.py meta --city sacramento-ca --labeler $L --keep <keep>
+    $PY osm_city.py store --city sacramento-ca --labeler $L --keep <keep> \
         --pano-tools <sidewalk-panorama-tools checkout> --python <its python>
 """
 import argparse

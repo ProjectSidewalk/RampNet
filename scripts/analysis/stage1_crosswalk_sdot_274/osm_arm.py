@@ -14,7 +14,7 @@ style with a low share cannot be supplied by OSM + Vistas, however well a city i
 Usage (GPU; about 1 s per label on an RTX 3070)::
 
     python scripts/analysis/stage1_crosswalk_sdot_274/osm_arm.py style-check \
-        --keep D:/Git/sal-scratch-keep
+        --keep <keep>
 """
 import argparse
 import csv

@@ -155,3 +155,12 @@ docs/data/hf_cards/*.md text eol=lf
 
 # #248 seam NMS default study: JSON / markdown only (no images are committed)
 analysis_out/seam_nms_default_248/** text eol=lf
+
+# #285: root_v6/{full,half}/manifest.json pin the sha256 of root_v6's input CSVs and of the draw lists they
+# exclude, and check_285.py byte-compares the #285 decision outputs, all written LF on every platform. An
+# autocrlf=true clone would otherwise check them out CRLF and fail both for files that are byte-correct.
+analysis_out/crosswalk_followups_285/** text eol=lf
+analysis_out/stage1_crosswalk_detector_274/hardneg/s6_eval/** text eol=lf
+analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/*/draw.txt text eol=lf
+analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/ps_labels/panos.txt text eol=lf
+analysis_out/stage1_crosswalk_detector_274/hardneg/s5_inputs/juneau_*_draw.txt text eol=lf

@@ -2,7 +2,8 @@
 
 Three pieces of work that follow `crosswalk_s5` (see
 [`stage1_crosswalk_sdot_274.md`](stage1_crosswalk_sdot_274.md)). `crosswalk_s4` (seed 1, threshold 0.23)
-is the detector of record throughout. Plan approved by Jon on 2026-11-10 after an adversarial review.
+is the detector of record throughout. Jon approved the plan on 2026-11-10 after an adversarial review; that
+approval is not recorded in writing (#285 has no comments).
 
 | Part | Question | Status |
 |---|---|---|
@@ -157,9 +158,9 @@ crossings or parking lots.
 **Page.** `recall_check.py page` builds a bundle with every detection stripped and runs `gt_gallery.py`
 over it, then swaps the gallery's curb-ramp wording for crosswalk wording and replaces its instructions.
 The reviewer clicks the centre of each marked crosswalk (brick and paver count) or confirms none. The
-page is local HTML outside the repo: `D:/Git/sal-scratch-keep/recall285/page/index.html`. Checked so
-far: 175 entries, none with a detection crop, and the page's JavaScript parses. It has not been opened
-in a browser by the author.
+page is local HTML outside the repo: `<keep>/recall285/page/index.html`. Checked before rating: 175
+entries, none with a detection crop, and the page's JavaScript parses. Jon then rated all 175 on it (results
+below).
 
 **Scoring, fixed before rating** (`recall_check.py score`): one-to-one matching of marks to detections
 at or above 0.23, radius 0.05 (0.03 and 0.08 as sensitivity); primary population is marks at
@@ -172,6 +173,8 @@ per city and per camera with a pano bootstrap. s4's predictions on the 175 panos
 
 Jon marked 162 crosswalks on 55 panos (11 of them unsure) and confirmed none on 119 panos. One further
 pano carries only an unsure mark. Of the 151 sure marks, 121 are within 25 m and 30 are beyond it.
+(`score/crosswalk_s4/recall.json` gives `panos_with_no_crosswalk: 120`: `score` counts every pano with no
+sure mark, so that 120 includes the unsure-only pano. Guard 6's 119 confirmed-empty panos exclude it.)
 
 | Group | Panos with a sure mark within 25 m | Marks within 25 m | s4 finds (radius 0.05) | Recall | 95% interval (pano bootstrap) | Radius 0.03 | Radius 0.08 |
 |---|---|---|---|---|---|---|---|
@@ -203,7 +206,9 @@ pano carries only an unsure mark. Of the 151 sure marks, 121 are within 25 m and
   mining panos were drawn downtown, where crosswalks are denser.
 - s5 was not scored on these panos.
 
-Ratings: `analysis_out/crosswalk_followups_285/recall/ratings/recall285_verdicts_jon_2026-11-11.json`.
+Ratings: `analysis_out/crosswalk_followups_285/recall/ratings/recall285_verdicts_jon_2026-11-11.json`. The
+instruction text this page and the three A3 gate pages were rated under is recorded per file in
+`analysis_out/crosswalk_followups_285/ratings_definitions.csv` (checked by `tests/test_crosswalk_285_decisions.py`).
 Scores: `analysis_out/crosswalk_followups_285/recall/score/crosswalk_s4/{marks.csv,recall.json}`. The
 height-band table and the empty-pano counts were computed from `marks.csv`, the ratings and the s4
 predictions with ad hoc code; they are not yet a `recall_check.py` command.
@@ -405,9 +410,18 @@ not yet scripted in the repo.
 ## A, continued. Sacramento pilot (started 2026-11-11)
 
 Jon chose Sacramento as the first pilot city on 2026-11-11, with no auto-negatives: the pilot's panos train
-as `sparse`, positives only.
+as `sparse`, positives only. (The choice is not recorded in writing.)
 
-### Precision gate, written before any placement was looked at
+### Precision gate
+
+**When this was written.** The plan on #285 (step 4) said a bar would be pre-registered, with no number. This
+section and its 91 bar first appear in commit `a92264d8` (2026-11-12 07:05 PST), together with
+`osm_arm.py city-score` and its default of 91. That is after Sacramento's 100 cards were rated (2026-11-11 13:53
+to 13:56 PST) and after Kaysville's (2026-11-12 06:57 to 07:02 PST), by the `rated_at` times in the committed
+ratings CSVs. No earlier written copy of the gate exists in the repo or on GitHub, so for those two cities the
+history cannot show that it was fixed before the cards were seen. Only Brussels (rated 2026-11-12 15:53 to
+15:57 PST) was rated under text already committed. (This paragraph replaces the heading's earlier claim,
+"written before any placement was looked at", on 2026-11-25 in review.)
 
 - **Sample:** 100 placements drawn with seed 285 from the pilot's positives (a marked, at-grade OSM crossing
   within 20 m of the pano whose projected point snaps to a segmenter component, first claim on that paint).
@@ -416,8 +430,8 @@ as `sparse`, positives only.
   camera, and the order is shuffled.
 - **Question:** is the outlined cross on a marked crosswalk? A snap onto a neighbouring real crosswalk
   counts as correct, because the training label is the paint, not the OSM node. Unsure counts as not correct.
-- **Bar:** the city enters training if at least 91 of 100 are correct (Wilson lower bound 0.838). This is the
-  proposed bar; Jon has not confirmed it.
+- **Bar:** the city enters training if at least 91 of 100 are correct (Wilson lower bound 0.838). Jon has not
+  confirmed this bar in writing; the A4 pre-registration below admits all three cities on it.
 - **Notes to record on a wrong card:** stop line, paint removed, mark off the paint, other.
 
 ### What was run (2026-11-11)
@@ -452,8 +466,8 @@ as `sparse`, positives only.
 ### Rated result (Jon, 2026-11-11): 97 of 100, the gate passes
 
 Jon rated all 100 cards: 97 crosswalk, 1 not a crosswalk, 2 unsure. With unsure counted as not correct, as
-the gate says, 97 of 100 are correct (interval 0.915 to 0.990), above the bar of 91. The bar itself is still
-the proposed one.
+the gate says, 97 of 100 are correct (interval 0.915 to 0.990), above the bar of 91. The bar is not confirmed in
+writing (see the gate above).
 
 | Split | Correct |
 |---|---|
@@ -490,7 +504,8 @@ L=<sidewalk-auto-labeler checkout>; PYL=<its environment's python>; S=scripts/an
 $PYL $S/osm_city.py crossings --city sacramento-ca --wikidata Q18013
 $PYL $S/osm_city.py panos --city sacramento-ca --labeler $L --take 300      # Mapillary coverage changes over time
 $PYL $S/osm_city.py meta --city sacramento-ca --labeler $L --keep <keep>    # positions and headings, no images
-$PYL $S/osm_city.py store --city sacramento-ca --labeler $L --keep <keep> \n    --pano-tools <sidewalk-panorama-tools checkout> --python <its python>   # 830 panos, 2.5 GB
+$PYL $S/osm_city.py store --city sacramento-ca --labeler $L --keep <keep> \
+    --pano-tools <sidewalk-panorama-tools checkout> --python <its python>   # 830 panos, 2.5 GB
 python $S/osm_arm.py city-place --city sacramento-ca --keep <keep>          # GPU (RTX 3070); resumable
 python $S/osm_arm.py city-report --city sacramento-ca --keep <keep>
 python $S/score_274.py cards --candidates <the a3_candidates.csv above> --label a3_sacramento --blind \
@@ -646,7 +661,10 @@ pixels of the 4096-wide pano the placer works on):
 - **This cut was chosen after seeing the ratings,** on 20 rated cards, so it is a proposal for the training
   pre-registration, not a tested rule. The Sacramento section above judged its own six cards too few to set a
   minimum; the Brussels cards are what changed that.
-- **The other three misses:** two on the capture vehicle (Kaysville, see above) and one Sacramento near miss.
+- **The other three misses**, on regions over 100 px: two in Sacramento (the median between two crosswalks,
+  14,992 px; the curb ramp, 130,592 px) and one Kaysville capture-vehicle card (469,184 px). The other Kaysville
+  vehicle card is on a 16 px region and is among the seven. (Corrected 2026-11-25 in review; the sentence first
+  said two vehicle cards and one Sacramento near miss.)
 
 Counted ad hoc by matching each rated card to its row in `placements_kinds.csv` (pano id and position).
 
@@ -655,10 +673,12 @@ Files, under `analysis_out/crosswalk_followups_285/osm_arm/cities/brussels-be/`:
 The page is local: `<keep>/osm285/brussels-be/page/rate_a3_brussels.html`. Commands are Kaysville's with
 `brussels-be` and `a3_brussels`.
 
-## A4. `crosswalk_s6` pre-registration (fixed 2026-11-13: Jon approved this text before any calibration run or s6 job)
+## A4. `crosswalk_s6` pre-registration (fixed 2026-11-13)
 
-Drafted 2026-11-12, reviewed adversarially by a second agent (14 findings, folded in) and approved by Jon as
-written. The counts in the table and the s4 numbers quoted were read from the committed placements, ratings and
+Drafted 2026-11-12 and reviewed adversarially by a second agent (14 findings, folded in). The text was committed
+in `743cfba4` at 06:48 PST on 2026-11-13, before the first calibration job was submitted (06:52) and the first
+training job (07:12; Slurm submit times in `docs/data/compute/sacct_klone_2026-11-25_cw285.txt`). Jon approved it
+as written before those jobs; that approval is not recorded in writing. The counts in the table and the s4 numbers quoted were read from the committed placements, ratings and
 scores before the text was fixed. "The two draws below" in the calibration paragraph are the Seattle confirmation
 draw and the fresh Juneau draw of guards 4 and 5.
 
@@ -667,7 +687,8 @@ automatically from OSM marked crossings in three new cities. It is not expected 
 auto-labelled panos train only inside discs around their positives.
 
 **Training data, `root_v6`.** `root_v4` (not `root_v5`), plus new train panos only. Every val, test and
-(b′) file stays byte for byte the same. Juneau and Laurens contribute nothing (Jon, 2026-11-12).
+(b′) file stays byte for byte the same. Juneau and Laurens contribute nothing (Jon's decision of 2026-11-12,
+not recorded in writing).
 
 A placement from `placements_kinds.csv` becomes a positive when all of these hold:
 - its kind is `positive` (marked at-grade crossing within 20 m, snapped to a segmenter region, first
@@ -960,8 +981,12 @@ anyone is asked to rate.
 
 ### A4 follow-up 2 (2026-11-15, exploratory): do the auto-placed training positives sit on visible paint?
 
-**Pre-registration, written and committed before any crop was built or looked at.** Nothing here changes the A4
-outcome (s4 stays). It tests the hypothesis at the end of the follow-up above: some of the 3,040 auto positives
+**Pre-registration, committed in `10884acf` (2026-11-15 06:24:58 PST).** The result commit `98d3f376` followed
+7 min 58 s later, so the history cannot show that no crop was built or looked at before this text was written;
+the order rests on the working session's own account, not on a record. What the history does show is that
+`pos_sheet.tally` and its three rule constants are identical in both commits. (Restated on 2026-11-25 in review;
+the heading first said "written and committed before any crop was built or looked at".) Nothing here changes
+the A4 outcome (s4 stays). It tests the hypothesis at the end of the follow-up above: some of the 3,040 auto positives
 sit where no crosswalk paint is visible, so `crosswalk_s6` learned "road surface at a junction".
 
 **Prior, stated up front.** Jon's three A3 gate pages already rated 300 random placements (before the two cuts)
@@ -1017,7 +1042,9 @@ auto, the snap puts points on asphalt in s4's data too, so it cannot by itself e
   on his tags.
 
 The rule is also coded in `pos_sheet.tally` (constants `SUPPORT_MIN`, `NOT_SUPPORTED_MARGIN`, `POINT_FLAG_MARGIN`)
-and pinned by `tests/test_pos_sheet_285.py`.
+and pinned by `tests/test_pos_sheet_285.py`. (Added 2026-11-25 in review: that file did not pin
+`POINT_FLAG_MARGIN` or the point flag's both-strata condition; `tests/test_crosswalk_285_decisions.py` now pins all
+three constants and both branches of each rule.)
 
 #### Result (2026-11-15): not supported; the point-placement flag is raised, and crossing style drives it
 

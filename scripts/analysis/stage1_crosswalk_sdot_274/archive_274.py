@@ -174,10 +174,11 @@ SOURCES = [
      "fresh Juneau draw + Jon's first export and his re-export with one card corrected (2026-11-10)", None),
     # #285 A4: crosswalk_s6 (auto-placed OSM crossings) and the missed-crosswalk recall check, added 2026-11-14.
     # s6 failed guard 6; s4 stays (docs/crosswalk_followups_285.md, "A4 result" and "A4 follow-up").
-    ("stage2_root/labels_v6_full", f"{SK}/crosswalk274-root_v6_full", "v6 full-dose label JSONs: v5 plus 1,603 "
-     "auto-placed Sacramento, Kaysville and Brussels train panos (5,999 train; digest 9b420ac04286). The new JPEGs "
+    ("stage2_root/labels_v6_full", f"{SK}/crosswalk274-root_v6_full", "v6 full-dose label JSONs: root_v4 plus "
+     "1,705 auto-placed Sacramento, Kaysville and Brussels train panos (4,294 + 1,705 = 5,999 train; digest "
+     "9b420ac04286). The new JPEGs "
      "are s6_osm/panos_4096; the rest are earlier versions' images", "json"),
-    ("stage2_root/labels_v6_half", f"{SK}/crosswalk274-root_v6_half", "v6 half-dose label JSONs (5,146 train; "
+    ("stage2_root/labels_v6_half", f"{SK}/crosswalk274-root_v6_half", "v6 half-dose label JSONs: root_v4 plus 852 of the same panos (5,146 train; "
      "digest b1aa92b87461)", "json"),
     ("s6_osm/panos_4096", f"{SK}/crosswalk274-root_v6_prep_4096", "the auto-labelled Sacramento, Kaysville and "
      "Brussels panos, 4096x2048 as trained; natives in store_natives/<city>", None),
@@ -404,7 +405,7 @@ def write_readme(out, entries):
     rows = "\n".join(f"| `{k}/` | {n:,} | {b / 1e6:,.0f} MB |" for k, (n, b) in sorted(by.items()))
     text = f"""# RampNet#274 crosswalk detector study: archive
 
-Everything the study needs that the RampNet repo (branch `stage1-label-type-274`) does not hold. Code,
+Everything the study needs that the RampNet repo does not hold. Code,
 predictions, scores, verdict CSVs and the study doc (`docs/stage1_crosswalk_sdot_274.md`) are in the repo. Built by
 `scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py`; its source table records where each piece came from,
 and manifest.json repeats it per file.
@@ -437,7 +438,7 @@ and manifest.json repeats it per file.
   they were fetched from.
 - `s6_osm/`, `stage2_root/labels_v6_{{full,half}}/`, `recall285/`, `rating_pages/{{recall285,s6_fa_sheet}}/`: the
   #285 A4 additions (`crosswalk_s6`, which failed guard 6; s4 stays). See `docs/crosswalk_followups_285.md`
-  on branch `crosswalk-followups-285`.
+  in the RampNet repo.
 
 ## A second rater
 
