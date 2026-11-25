@@ -49,10 +49,20 @@ for p in (REPO, STAGE1, os.path.join(REPO, "scripts", "model_comparison"),
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from pyproj import Geod  # noqa: E402
 import sdot_source  # noqa: E402
 
-GEOD = Geod(ellps="WGS84")
+GEOD = None     # pyproj.Geod(ellps="WGS84"), built by geod() on first use, so importing pilot needs no pyproj
+
+
+def geod():
+    """The WGS84 geodesic every projection here uses (pyproj, imported on first call)."""
+    global GEOD
+    if GEOD is None:
+        from pyproj import Geod
+        GEOD = Geod(ellps="WGS84")
+    return GEOD
+
+
 SEED = 274
 # Strata (drawn in this order, without replacement; mid-block first so it is not starved).
 STRATA = (("midblock", 20, lambda r: r["midblock"] == "Y"),
@@ -214,7 +224,7 @@ def project(pano_lat, pano_lng, heading_deg, lat, lng, camera_h=None):
     """
     from rampnet.gsv import heading_to_azimuth
     h = CAMERA_HEIGHT_M if camera_h is None else camera_h
-    az, _, d = GEOD.inv(pano_lng, pano_lat, lng, lat)
+    az, _, d = geod().inv(pano_lng, pano_lat, lng, lat)
     rel = az - heading_to_azimuth(heading_deg)
     x = (0.5 + rel / 360.0) % 1.0
     y = 0.5 + math.degrees(math.atan2(h, d)) / 180.0

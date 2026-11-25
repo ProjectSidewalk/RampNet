@@ -1240,6 +1240,12 @@ and a makelab routing fault the same day kept the copy to the lab share from run
 
 ## Replication
 
+The decision numbers that need no GPU, Stage 2 root or pano export (P1, the s3 and s4 confirmation draws with P2,
+the s3 audit and its retention guard, the Juneau eval draw, root_v3's negatives) are re-derived from committed files
+and compared byte for byte by `python scripts/analysis/stage1_crosswalk_sdot_274/check_274.py`, about 10 s on CPU.
+It is the `stage1_crosswalk_274` entry of `scripts/check_all.py` and runs in CI. The commands below are the full
+chain.
+
 ```bash
 P=scripts/analysis/stage1_crosswalk_sdot_274/pilot.py; OUT=analysis_out/stage1_crosswalk_sdot_274
 INV=<crosswalk-inventory-274>/analysis_out/crosswalk_inventory_274

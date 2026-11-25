@@ -157,6 +157,13 @@ REGISTRY: list = [
             "benchmark/manual_gold/records.jsonl", "benchmark/manual_gold/detections_meta.json",
             "benchmark/manual_gold/seam_verdicts__jon.json", "manual_labels/",
             "docs/data/seam_nms_default_248_figure.csv") + GT),
+    E("stage1_crosswalk_274", (AN + "stage1_crosswalk_sdot_274/check_274.py",),
+      "the #274 crosswalk detector's decision numbers re-derive byte for byte from committed verdicts and "
+      "predictions: P1 (Columbia label recall), the s3 and s4 confirmation draws (P2 included), the s3 audit and "
+      "its retention guard, the Juneau eval draw, and root_v3's 166 negatives",
+      pins=("analysis_out/stage1_crosswalk_detector_274/hardneg/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s3/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s4/")),
     E("yolo_geometry_51", (AN + "yolo_geometry_51.py", "--check"),
       "YOLO control leg reproduces its scoreboard row; committed JSON matches a fresh read (#51)",
       pins=("docs/data/yolo_geometry_51/", "docs/data/yolo_geometry_51.json")),

@@ -328,7 +328,7 @@ def ground_point(pano_lat, pano_lng, heading_deg, x, y, camera_h=CAMERA_H, max_r
     >>> ground_point(47.6, -122.3, 75.0, 0.3, 0.5) is None, ground_point(47.6, -122.3, 75.0, 0.3, 0.51) is None
     (True, True)
     """
-    from pilot import GEOD
+    from pilot import geod
     from rampnet.gsv import heading_to_azimuth
     dip = math.radians((y - 0.5) * 180.0)
     if dip <= 0:
@@ -337,7 +337,7 @@ def ground_point(pano_lat, pano_lng, heading_deg, x, y, camera_h=CAMERA_H, max_r
     if rng > max_range:
         return None
     az = heading_to_azimuth(heading_deg) + (x - 0.5) * 360.0
-    lng, lat, _ = GEOD.fwd(pano_lng, pano_lat, az, rng)
+    lng, lat, _ = geod().fwd(pano_lng, pano_lat, az, rng)
     return lat, lng, rng
 
 
@@ -486,7 +486,8 @@ def fmt(v, nd=3):
 
 
 def cmd_score(a):
-    import pilot  # noqa: F401  (Grid, GEOD: imported lazily below; fail fast if pyproj is missing)
+    import pilot  # noqa: F401  (Grid, geod: imported lazily below)
+    import pyproj  # noqa: F401  (fail fast if pyproj is missing: geod() needs it)
     labels = a.labels.split(",")
     fixed = {k: float(v) for k, v in (x.split("=", 1) for x in a.fixed_threshold)}
     if set(fixed) - set(labels):

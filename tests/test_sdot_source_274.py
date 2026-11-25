@@ -80,40 +80,20 @@ def test_b1_x_matches_the_production_renderer():
         assert len(cols) and abs(cols.mean() - 31.5) <= 2.0, (rel, cols)
 
 
-def _load_crowd_arm(monkeypatch):
-    """crowd_arm imports pilot, which imports pyproj at module level for GEOD. explained() and pano_dist() do not
-    use it, so where pyproj is absent (CI's requirements-dev.txt) a stub stands in for the import only. The stub's
-    Geod raises if anything calls it, and the modules loaded against it are dropped afterwards."""
-    stubbed = importlib.util.find_spec("pyproj") is None
-    if stubbed:
-        import types
-
-        stub = types.ModuleType("pyproj")
-
-        class Geod:
-            def __init__(self, *a, **k):
-                pass
-
-            def __getattr__(self, name):
-                raise AssertionError("pyproj stub: GEOD used by a test that should not need it")
-
-        stub.Geod = Geod
-        monkeypatch.setitem(sys.modules, "pyproj", stub)
-    before = set(sys.modules)
+def _load_crowd_arm():
+    """crowd_arm, loaded from its file. It imports pilot, whose pyproj geodesic is built on first use (pilot.geod),
+    so this needs no pyproj: CI's requirements-dev.txt has none, and explained() does not use it."""
     path = os.path.join(REPO, "scripts", "analysis", "stage1_crosswalk_sdot_274", "crowd_arm.py")
     spec = importlib.util.spec_from_file_location("crowd_arm274", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    if stubbed:     # nothing later in the session may see a pilot bound to the stub
-        for name in set(sys.modules) - before:
-            sys.modules.pop(name, None)
     return mod
 
 
-def test_crowd_arm_explained_rule(monkeypatch):
+def test_crowd_arm_explained_rule():
     """A Vistas component is explained by a mark within EXPLAIN_R of its centroid or inside its (seam-aware) extent
     padded by EXPLAIN_PAD. The rule as adopted for the v2 labels (f1a933d6): 0.01 and 0.01."""
-    mod = _load_crowd_arm(monkeypatch)
+    mod = _load_crowd_arm()
     assert (mod.EXPLAIN_R, mod.EXPLAIN_PAD) == (0.01, 0.01)
     long_near = {"x": 0.50, "y": 0.80, "x_left": 0.35, "x_right": 0.65}
     assert mod.explained(long_near, [(0.38, 0.81)])            # click at one end of a long near crosswalk
@@ -127,11 +107,11 @@ def test_crowd_arm_explained_rule(monkeypatch):
     assert not mod.explained(point, [(0.2, 0.64)])             # y counts half: 0.02 in matcher units, still too far
 
 
-def test_crowd_arm_far_click_does_not_explain_the_near_crosswalk(monkeypatch):
+def test_crowd_arm_far_click_does_not_explain_the_near_crosswalk():
     """The case the tightening was for: a click on a far crosswalk, a little above a near one on the same heading.
     Under the old rule (r = SNAP_R = 0.05, a +-0.04 vertical band) it explained the near paint, so that unlabelled
     paint trained as background. Under the adopted rule it does not, and the near paint becomes an ignore region."""
-    mod = _load_crowd_arm(monkeypatch)
+    mod = _load_crowd_arm()
     near = {"x": 0.50, "y": 0.59, "x_left": 0.47, "x_right": 0.53, "y_left": 0.58, "y_right": 0.60}
     far_click = (0.509, 0.556)
     assert not mod.explained(near, [far_click])
