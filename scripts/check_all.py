@@ -169,7 +169,7 @@ REGISTRY: list = [
             "analysis_out/stage1_crosswalk_detector_274/v2_labels/s5_matched/",
             "analysis_out/stage1_crosswalk_detector_274/v2_labels/scores.json"),
       note="the (b') part (bprime-score) runs only where pyproj is installed; CI skips it and says so"),
-    E("crosswalk_followups_285", (AN + "stage1_crosswalk_sdot_274/check_285.py",),
+    E("crosswalk_followups_285", (AN + "stage1_crosswalk_sdot_274/check_285.py", "--check"),
       "the #285 decision numbers re-derive byte for byte from committed verdicts, ratings and predictions: "
       "crosswalk_s6's primary and guard 6 (four compare.json), guards 4 and 5 (eight retention.json), guard 3 "
       "(Columbia, three arms), the section C recall and region scores, the car-top rule, and the three A3 gates",

@@ -99,6 +99,15 @@ def finite(v):
     return v
 
 
+def card_image_path(pid, pano_dir, root=None, split=None):
+    """The JPEG `cards` reads for a pano: with a pano dir, flat `<dir>/<id>.jpg` if it exists, else a pano store's
+    sharded `<dir>/<id[:2]>/<id>.jpg`; without one, the Stage 2 root's `<root>/<split>/<id>.jpg`."""
+    if pano_dir:
+        flat = os.path.join(pano_dir, f"{pid}.jpg")
+        return flat if os.path.exists(flat) else os.path.join(pano_dir, pid[:2], f"{pid}.jpg")
+    return os.path.join(root, split, f"{pid}.jpg")
+
+
 def write_json(path, obj):
     """Every committed JSON goes through here: LF on every OS (newline=""), indent 1, and NaN written as null
     (`finite`); allow_nan=False makes a missed non-finite value an error rather than invalid JSON."""
@@ -1227,10 +1236,7 @@ def cmd_cards(a):
     prefill = prefill_for(items, load_prefill(a.prefill))
 
     def image_path(pid):
-        if a.pano_dir:                      # flat, or a pano store's <id[:2]>/<id>.jpg
-            flat = os.path.join(a.pano_dir, f"{pid}.jpg")
-            return flat if os.path.exists(flat) else os.path.join(a.pano_dir, pid[:2], f"{pid}.jpg")
-        return os.path.join(a.root, a.split, f"{pid}.jpg")
+        return card_image_path(pid, a.pano_dir, a.root, a.split)
 
     os.makedirs(a.out, exist_ok=True)
     title, question = SECTION_HEAD["det"]

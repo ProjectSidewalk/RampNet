@@ -27,10 +27,12 @@ def _load(name):
     return mod
 
 
-@pytest.mark.parametrize("name", ["score_274", "brick_positives", "crowd_arm", "pilot"])
+@pytest.mark.parametrize("name", ["score_274", "brick_positives", "crowd_arm", "pilot",
+                                  "recall_check", "recall_region", "pos_sheet", "osm_arm"])
 def test_doctests(name):
     """`python -m doctest` on each script, which plain pytest does not collect. score_274's doctests pin
-    label_hits, paired_recall_diff, pct_interval, audit_rates, recall_matched_threshold and finite."""
+    label_hits, paired_recall_diff, pct_interval, audit_rates, recall_matched_threshold and finite; the #285
+    modules' pin match_one_to_one and wrap_dist, _family and _spots, greedy, tally and skim, and osm_arm's rules."""
     mod = _load(name)
     finder, runner = doctest.DocTestFinder(), doctest.DocTestRunner(optionflags=doctest.ELLIPSIS)
     ran = 0

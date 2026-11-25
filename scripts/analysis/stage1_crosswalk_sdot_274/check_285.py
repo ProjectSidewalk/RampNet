@@ -18,8 +18,8 @@ data, which are not in the repo), the A4 follow-up sheets (they need imagery; `t
 re-derives follow-up 2's summary from the committed tags, and `tests/test_fa_sheet_285.py` pins follow-up 1's
 spot counts), and every GPU step (inference, placement, the segmenter pairs).
 
-    python scripts/analysis/stage1_crosswalk_sdot_274/check_285.py            # exit 1 on any difference
-    python scripts/analysis/stage1_crosswalk_sdot_274/check_285.py --keep DIR # leave the regenerated files in DIR
+    python scripts/analysis/stage1_crosswalk_sdot_274/check_285.py --check            # exit 1 on any difference
+    python scripts/analysis/stage1_crosswalk_sdot_274/check_285.py --check --keep DIR # keep the regenerated files
 
 It is the `crosswalk_followups_285` entry of scripts/check_all.py (in --ci).
 """
@@ -194,6 +194,8 @@ def run(tmp):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--check", action="store_true",
+                    help="compare and exit 1 on any difference (what the script always does; named for the index)")
     ap.add_argument("--keep", help="write the regenerated files here instead of a temporary directory")
     a = ap.parse_args()
     tmp = a.keep or tempfile.mkdtemp(prefix="check285_")
