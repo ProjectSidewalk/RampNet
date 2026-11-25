@@ -438,7 +438,9 @@ def test_the_newest_ids_cost_figures_are_what_the_ledger_says():
     models' 14 splits; the 28th, Fable 5.1 on annapolis, is #156's untagged row.)"""
     with open(NEWEST_DOC, encoding="utf-8") as fh:
         doc = fh.read()
-    rows = [r for r in _ledger_rows() if r.get("api_account")]
+    # The campaign's rows only (2026-10-19/20): the same orgs paid for later work, such as
+    # the 2026-11-17 effort=high leg of the same model (docs/claude_effort_high.md).
+    rows = [r for r in _ledger_rows() if r.get("api_account") and r["ts"] < "2026-10-21"]
     by = {}
     for r in rows:
         by.setdefault((r["model_id"], r["bundle"]), []).append(r)

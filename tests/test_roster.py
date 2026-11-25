@@ -339,7 +339,8 @@ def test_off_roster_entries_are_published_but_not_scored():
 def test_study_legs_are_registered_published_and_off_the_board():
     """A study leg (#276 Step 5) is standing=False, pinned, names its study doc, and is
     not a seed leg; the scoreboard and the Laurens record skip it (their own tests)."""
-    assert len(roster.STUDY_LEGS) == 7
+    assert sum(c.study == "vlm_prompt_276" for c in roster.STUDY_LEGS) == 7
+    assert sum(c.study == "claude_effort_high" for c in roster.STUDY_LEGS) == 1
     for c in roster.STUDY_LEGS:
         assert not c.standing and c.pins and not c.seed_of, c.published_as
         assert (REPO / "docs" / f"{c.study}.md").exists(), c.study
