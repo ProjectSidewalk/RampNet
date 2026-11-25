@@ -1108,7 +1108,7 @@ Every #285 job on klone (all named `cw285_*`) belongs to the A4 `crosswalk_s6` t
 of it is in `analysis_out/compute_log.jsonl`: 71 records, 65.39 GPU-hours, all on the free `ckpt-all` partition, so $0.
 Training is 60.55 of that (14 four-GPU records: the smoke run, the seven finished runs, and the six first runs that
 failed on the scrubbed quota error, which alone cost 18.30 GPU-hours before they were started again from step 0).
-Inference is 4.84: the ten `crosswalk_s4` calibration jobs (0.48) and 47 jobs for the seven s6 models (4.36). A
+Inference is 4.83: the ten `crosswalk_s4` calibration jobs (0.48) and 47 jobs for the seven s6 models (4.36). A
 finished run took 3.7 to 8.5 GPU-hours, depending on dose and on whether it landed on A100s, A40s or L40Ss. The
 per-job table, the committed `sacct` dump and the command that rebuilds the rows are in
 [`compute_cost.md`](compute_cost.md) (klone, 2026-11-13). The rows were pulled on 2026-11-25, during review of

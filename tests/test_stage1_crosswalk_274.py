@@ -3,6 +3,7 @@ the scripts copy from the trainer (RampNet#274). CPU only, no network, committed
 import doctest
 import importlib
 import importlib.util
+import math
 import os
 import subprocess
 import sys
@@ -158,9 +159,11 @@ def test_compute_cost_tables_match_the_ledger_285():
     for jobs, _, n, gpu_h in infer:
         lo, hi = jobs.split("-")
         sel = [r for r in one if lo <= r["job_id"] <= hi]
-        assert (int(n), gpu_h) == (len(sel), f"{sum(r['gpu_hours'] for r in sel):.2f}"), jobs
+        # math.fsum: the s6 range sums to 4.355 exactly, which a naive sum (Python < 3.12) rounds down
+        assert (int(n), gpu_h) == (len(sel), f"{math.fsum(r['gpu_hours'] for r in sel):.2f}"), jobs
     assert sum(int(t[2]) for t in infer) == len(one) == 57
-    assert f"{sum(r['gpu_hours'] for r in rows):.2f}" == "65.39" and "65.39 GPU-hours" in sec
+    assert f"{math.fsum(r['gpu_hours'] for r in one):.2f}" == "4.83" and "4.83 GPU-h over 57 jobs" in sec
+    assert f"{math.fsum(r['gpu_hours'] for r in rows):.2f}" == "65.39" and "65.39 GPU-hours" in sec
 
 
 # score_274.py's `cards --definition` (and DEFINITIONS["paint_brick"]) arrived in f1e2f21b, 2026-11-08 07:52:58 -0800.

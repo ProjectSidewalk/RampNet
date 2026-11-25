@@ -691,6 +691,13 @@ analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/*
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/s5/
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/s5_matched/
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s5/
+# crosswalk_s6 (#285): the same three outputs, for both doses and the step control (seeds 2 and 3 are
+# covered by crosswalk_s*_seed* above)
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s6/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s6_matched/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s6full/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s6half/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s4_steps1397/
 # #274 hard negatives: CSV/JSON/MD outputs at any depth (no imagery is written here)
 !analysis_out/stage1_crosswalk_detector_274/hardneg/
 analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.*

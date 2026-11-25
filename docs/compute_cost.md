@@ -621,7 +621,8 @@ Inference, 1 GPU per job:
 
 Training 60.55 GPU-h over 14 records, 18.30 of it in the six runs that failed on the storage error
 and were started again from step 0; the seven finished runs and the smoke run are 42.25. Inference
-4.84 GPU-h over 57 jobs. Unlike #274, none was preempted, so `-D` adds no incarnation here. The
+4.83 GPU-h over 57 jobs (the two ranges above round to 0.48 and 4.36 on their own; the s6 range is
+4.355 exactly). Unlike #274, none was preempted, so `-D` adds no incarnation here. The
 #285 work that ran locally, on the CPU or the RTX 3070 (the car-top rule, the missed-crosswalk
 page and s4's committed Juneau and Laurens predictions, the OSM placement passes, the A4 build, and
 the A4 follow-up sheets), has no Slurm record and no `usage_log.jsonl` row; the study doc says so

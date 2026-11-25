@@ -434,14 +434,18 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     # GPU-hours, all on ckpt-all and free. 14 four-GPU training records (60.55 GPU-h; 18.30 of it
     # the six runs that failed on the scrubbed quota error and were rerun), 10 calibration jobs
     # (0.48) and 47 inference jobs (4.36). Selected by job name.
+    # math.fsum, not sum: the s6 inference total is 4.355 exactly, a rounding tie that Python 3.12's
+    # compensated sum() rounds to 4.36 and 3.10's naive sum() to 4.35.
+    import math
     c6 = [r for r in committed if r["cluster"] == "klone" and r["job_name"].startswith("cw285_")]
     assert len(c6) == 71 and all(r["est_cost_usd"] == 0.0 for r in c6)
-    assert round(sum(r["gpu_hours"] for r in c6), 2) == 65.39
+    assert round(math.fsum(r["gpu_hours"] for r in c6), 2) == 65.39
     c6_train = [r for r in c6 if r["gpus"] == 4]
-    assert len(c6_train) == 14 and round(sum(r["gpu_hours"] for r in c6_train), 2) == 60.55
-    assert round(sum(r["gpu_hours"] for r in c6_train if r["state"] == "FAILED"), 2) == 18.30
-    assert round(sum(r["gpu_hours"] for r in c6 if r["job_name"].startswith("cw285_cal_")), 2) == 0.48
-    assert round(sum(r["gpu_hours"] for r in c6 if r["job_name"].startswith("cw285_inf_")), 2) == 4.36
+    assert len(c6_train) == 14 and round(math.fsum(r["gpu_hours"] for r in c6_train), 2) == 60.55
+    assert round(math.fsum(r["gpu_hours"] for r in c6_train if r["state"] == "FAILED"), 2) == 18.30
+    assert round(math.fsum(r["gpu_hours"] for r in c6 if r["job_name"].startswith("cw285_cal_")), 2) == 0.48
+    assert round(math.fsum(r["gpu_hours"] for r in c6 if r["job_name"].startswith("cw285_inf_")), 2) == 4.36
+    assert round(math.fsum(r["gpu_hours"] for r in c6 if r["gpus"] == 1), 2) == 4.83
     # The #258 validator scoring job and its richmond 4096 control (docs/verifier_258.md,
     # klone 2026-10-22): one row each, both free.
     v258 = [r for r in committed if r["job_id"] in ("42152480", "42153716")]
