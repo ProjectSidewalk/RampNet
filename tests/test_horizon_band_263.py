@@ -294,55 +294,341 @@ def test_committed_simulate_reproduces():
 # --------------------------------------------------------------------------- #
 # calibrate -> report, end to end on synthetic caches (no GPU, no real held-out data)
 # --------------------------------------------------------------------------- #
-def _fake_cache(root, split, rng, n=12, held_out=False, cal_sha=None):
-    """Panos with one near and one far ramp each. The 1x pass finds the near ramp and
-    misses the far one; every strip finds the far one; full passes equal the strips."""
+# Every synthetic pano has the same three ramps and the same peaks, so every bootstrap interval
+# collapses to its observed value and each verdict below is exact, not a sampling outcome.
+NEAR, MID, FAR = (0.20, 0.75), (0.80, 0.55), (0.50, 0.52)   # MID and FAR are in both cores
+FP_1X = (0.35, 0.80)       # near field, outside every core: never dropped by the ignore bound
+FP_STRIP = (0.65, 0.50)    # inside every core
+
+
+def _one_x_default(i):
+    """1x finds NEAR and the in-core MID ramp at 0.30; FAR only at 0.08; an FP at 0.15."""
+    return [(*NEAR, 0.8), (*MID, 0.7), (*FAR, 0.08), (*FP_1X, 0.15)]
+
+
+def _strip_default(name, i):
+    """Every strip and full pass finds FAR and MID; an in-core FP at 0.40 on every fourth pano."""
+    return [(*FAR, 0.6), (*MID, 0.7)] + ([(*FP_STRIP, 0.4)] if i % 4 == 0 else [])
+
+
+def _write_cache(root, split, n=12, cal_sha=None, one_x=_one_x_default, strip=_strip_default,
+                 full=None, s_base=0.5, s_strip=0.25):
+    """A synthetic Stage 0c cache. ``full`` defaults to the strip's peaks (perfect context).
+    Timings are powers of two so the cost multiple is exact."""
+    names = hb.passes_for(split, hb.CONFIGS_0C)
     panos = []
     for i in range(n):
-        near, far = (rng.uniform(0.05, 0.95), 0.75), (rng.uniform(0.05, 0.95), 0.52)
-        fp = (rng.uniform(0.05, 0.95), 0.50)
-        passes = {"r2048": [(near[0], near[1], 0.8), (far[0], far[1], 0.1)]}
-        names = hb.passes_for(split, hb.CONFIGS_0C)
+        passes = {"r2048": one_x(i)}
         for name in names[1:]:
-            passes[name] = [(far[0], far[1], 0.6)] + ([(fp[0], fp[1], 0.4)] if i % 4 == 0 else [])
+            if name.startswith("full@"):
+                cfg = next(c for c in hb.CONFIGS_0C if c.startswith(name[len("full@"):] + "-"))
+                passes[name] = (full or strip)(f"strip@{cfg}", i)
+            else:
+                passes[name] = strip(name, i)
         panos.append({"pano": f"{split}-{i:03d}",
-                      "gt": {"gt_points": [list(near), list(far)], "ignore_points": [],
-                             "fn_confirmed": True},
+                      "gt": {"gt_points": [list(NEAR), list(MID), list(FAR)],
+                             "ignore_points": [], "fn_confirmed": True},
                       "passes": {k: [list(t) for t in v] for k, v in passes.items()}})
-    timing = {name: {"elapsed_s": 0.6 * n if name == "r2048" else 0.3 * n, "n": n,
-                     "s_per_pano": 0.6 if name == "r2048" else 0.3, "peak_mem_gib": 5.0}
-              for name in hb.passes_for(split, hb.CONFIGS_0C)}
-    meta = {"split": split, "held_out": held_out, "calibration_sha256": cal_sha, "limit": 0,
-            "configs": list(hb.CONFIGS_0C), "timing": timing}
+    timing = {name: {"elapsed_s": (s_base if name == "r2048" else s_strip) * n, "n": n,
+                     "s_per_pano": s_base if name == "r2048" else s_strip, "peak_mem_gib": 5.0}
+              for name in names}
+    meta = {"split": split, "held_out": cal_sha is not None, "calibration_sha256": cal_sha,
+            "limit": 0, "configs": list(hb.CONFIGS_0C), "timing": timing}
     with open(hb.cache_file(root, split), "w", encoding="utf-8") as f:
         json.dump({"city": split, "meta": meta, "panos": panos}, f)
 
 
-def test_calibrate_then_report_end_to_end(tmp_path):
-    rng = np.random.default_rng(0)
-    root = str(tmp_path)
+def _calibrate(root, edit=None, **cache_kw):
+    """Selection caches -> calibration.json (through the CLI, as run0c does). ``edit`` may
+    change the parsed calibration before it is rewritten. Returns (path, sha256)."""
     for s in hb.SELECTION:
-        _fake_cache(root, s, rng)
-    cal = hb.build_calibration(root)
+        _write_cache(root, s, **cache_kw)
+    path = os.path.join(root, "calibration.json")
+    assert hb.main(["calibrate", "--cache-root", root, "--out", path]) == 0
+    if edit:
+        with open(path, encoding="utf-8") as f:
+            cal = json.load(f)
+        edit(cal)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(cal, f)
+    return path, hb.sha256_file(path)
+
+
+def _held_out(root, sha, **kw):
+    for s in hb.HELD_OUT:
+        _write_cache(root, s, n=30, cal_sha=sha, **kw)
+
+
+def test_calibrate_then_report_end_to_end(tmp_path):
+    root = str(tmp_path)
+    path, sha = _calibrate(root)
+    with open(path, encoding="utf-8") as f:
+        cal = json.load(f)
     assert cal["smoke"] is False
     for cfg in hb.CONFIGS_0C:
         assert cal["context"][cfg]["passes"] and cal["context"][cfg]["median_score_shift"] == 0.0
-        assert cal["calibration"][cfg]["threshold_set"]            # 1x score 0.1 vs strip 0.6
-    path = os.path.join(root, "calibration.json")
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(cal, f)
-    sha = hb.sha256_file(path)
-    for s in hb.HELD_OUT:
-        _fake_cache(root, s, rng, n=30, held_out=True, cal_sha=sha)
+        c = cal["calibration"][cfg]
+        # 1x in-core precision at 0.30 is 1.0 (MID only); the strip's is 24/27, so the
+        # threshold is set, at the lowest grid value above the FP's 0.40
+        assert c["precision_1x_in_core_at_030"] == 1.0 and c["n_1x_in_core_at_030"] == 12
+        assert c["threshold_set"] and c["band_threshold"] == 0.41
+    _held_out(root, sha)
     rep = hb.build_gate(root, path)
-    g = rep["gate"][hb.PRIMARY_0C]
-    assert g["ramps_gained_manual_gold"] == 30
+    for cfg in hb.CONFIGS_0C:
+        g = rep["gate"][cfg]
+        assert g["verdict"] == "PASS" and g["open_rig"] == "OFFERED"
+        assert all(b["passes"] for b in g["bounds"].values())
+        e = rep["manual_gold"]["configs"][cfg]["fp"]
+        # the calibrated 0.41 keeps the band's 0.40 FP out; at 0.30 it would add 8
+        assert e["ramps_gained"] == 30 and e["fps_added"] == 0
+    assert rep["decision"] == "band kept for the shipped weights"
     assert rep["cost"]["configs"][hb.PRIMARY_0C]["multiple"] == 1.5
     assert rep["two_x_rule"]["ratio"] == 1.0 and not rep["two_x_rule"]["gains_enough"]
-    assert g["verdict"] in ("PASS", "FAIL") and rep["decision"]
     hb.markdown_gate(rep)
     # a held-out cache read under another calibration is refused
     with open(path, "a", encoding="utf-8") as f:
         f.write(" ")
     with pytest.raises(SystemExit, match="calibration"):
         hb.build_gate(root, path)
+
+
+def test_binding_config_is_the_wide_1p5x_strip(tmp_path):
+    """The decision follows 1.5x-wide alone: here it fails (its strip finds nothing new on the
+    held-out splits) while the other two pass, and the band is dropped."""
+    assert hb.PRIMARY_0C == "1.5x-wide"
+    root = str(tmp_path)
+    path, sha = _calibrate(root)
+
+    def strip(name, i):
+        return [(*MID, 0.7)] if name == "strip@1.5x-wide" else _strip_default(name, i)
+    _held_out(root, sha, strip=strip)
+    rep = hb.build_gate(root, path)
+    assert rep["gate"]["1.5x-wide"]["verdict"] == "FAIL"
+    assert rep["gate"]["1.5x-narrow"]["verdict"] == "PASS"
+    assert rep["decision"].startswith("band dropped for the shipped weights")
+
+
+@pytest.mark.parametrize("s_strip,within", [(0.375, True), (0.4, False)])
+def test_cost_limit_is_reported_in_the_decision_not_enforced(tmp_path, s_strip, within):
+    root = str(tmp_path)
+    path, sha = _calibrate(root, s_strip=s_strip)        # cost pools every 0c cache
+    _held_out(root, sha, s_strip=s_strip)
+    rep = hb.build_gate(root, path)
+    c = rep["cost"]["configs"][hb.PRIMARY_0C]
+    assert c["multiple"] == (0.5 + s_strip) / 0.5 and c["within_limit"] is within
+    assert rep["gate"][hb.PRIMARY_0C]["verdict"] == "PASS"           # the gate ignores cost
+    if within:
+        assert rep["decision"] == "band kept for the shipped weights"
+    else:
+        assert rep["decision"].startswith("passes the gate; over the 1.75x cost limit")
+        assert "1.800x" in rep["decision"] and "Jon's call" in rep["decision"]
+
+
+def test_failed_context_override_is_named_in_the_decision(tmp_path):
+    root = str(tmp_path)
+
+    def fail_context(cal):
+        cal["context"][hb.PRIMARY_0C]["passes"] = False
+    path, sha = _calibrate(root, edit=fail_context)
+    _held_out(root, sha)
+    rep = hb.build_gate(root, path)
+    assert rep["gate"][hb.PRIMARY_0C]["verdict"] == "PASS"
+    assert "context rule failed" in rep["decision"] and "Jon's call" in rep["decision"]
+
+
+def test_uncalibratable_config_is_forced_to_fail(tmp_path, monkeypatch):
+    root = str(tmp_path)
+
+    def no_threshold(cal):
+        cal["calibration"][hb.PRIMARY_0C]["band_threshold"] = None
+    path, sha = _calibrate(root, edit=no_threshold)
+    _held_out(root, sha)
+    monkeypatch.setattr(hb, "gate_bound", lambda d_base, d_matched: {"passes": True})
+    rep = hb.build_gate(root, path)
+    assert rep["gate"][hb.PRIMARY_0C]["verdict"] == "FAIL"
+    assert rep["gate"]["1.5x-narrow"]["verdict"] == "PASS"
+
+
+def test_calibrate_refuses_without_1x_in_core_detections(tmp_path):
+    """No 1x in-core detection at 0.30 on sao_paulo leaves nothing for the band threshold to
+    equal: calibrate stops rather than return the grid floor."""
+    root = str(tmp_path)
+    for s in hb.SELECTION:
+        _write_cache(root, s, one_x=lambda i: [(*NEAR, 0.8), (*FAR, 0.08)])
+    with pytest.raises(SystemExit, match="no 1x in-core detection"):
+        hb.build_calibration(root)
+
+
+def test_context_bars():
+    full = [(0.009 * i, 0.52, 0.5) for i in range(100)]             # 100 reference peaks
+    assert hb.context_stats([(full, full[6:])], RSQ)["passes"] is False     # 94%
+    assert hb.context_stats([(full, full[5:])], RSQ)["passes"] is True      # 95%
+    lower = [(x, y, s - 0.06) for x, y, s in full]
+    assert hb.context_stats([(full, lower)], RSQ)["passes"] is False
+    lower = [(x, y, s - 0.049) for x, y, s in full]
+    assert hb.context_stats([(full, lower)], RSQ)["passes"] is True
+
+
+def test_calibration_bytes_do_not_depend_on_git_head(tmp_path, monkeypatch):
+    """Committing calibration.json moves HEAD; --check must still pass afterwards."""
+    root = str(tmp_path)
+    path, _ = _calibrate(root)
+    monkeypatch.setattr(hb, "git_head", lambda: "0" * 40)
+    assert hb.main(["calibrate", "--cache-root", root, "--out", path, "--check"]) == 0
+
+
+# --------------------------------------------------------------------------- #
+# run0c on a fake extract (the real one needs the GPU and the panos)
+# --------------------------------------------------------------------------- #
+def _fake_extract(calls, die_at=None, **cache_kw):
+    """Stands in for cmd_extract: the real guard, then a synthetic cache per split. ``die_at``
+    names a split at which the run dies before writing its cache."""
+    def fake(args):
+        splits = hb.resolve_splits(args.splits)
+        calls.append(splits)
+        sha = hb.guard_extract(splits, args.heldout_read_once, args.cache_root,
+                               args.calibration, args.limit, args.force,
+                               args.despite_failed_context)
+        for s in splits:
+            if os.path.exists(hb.cache_file(args.cache_root, s)):
+                continue
+            if s == die_at:
+                raise SystemExit(f"{s}: died")
+            _write_cache(args.cache_root, s, n=30 if sha else 12, cal_sha=sha, **cache_kw)
+        return 0
+    return fake
+
+
+def _run0c(root):
+    return hb.main(["run0c", "--cache-root", root, "--panos-root", root,
+                    "--calibration", os.path.join(root, "calibration.json"),
+                    "--out", os.path.join(root, "gate_0c.json"), "--usage-log", "none"])
+
+
+def test_run0c_stops_before_the_held_out_read_when_the_context_rule_fails(tmp_path, monkeypatch):
+    root = str(tmp_path)
+    calls = []
+    monkeypatch.setattr(hb, "cmd_extract", _fake_extract(
+        calls, strip=lambda name, i: [(*MID, 0.7)], full=_strip_default))   # strip loses FAR
+    monkeypatch.setattr(hb, "cmd_report", lambda args: pytest.fail("report must not run"))
+    assert _run0c(root) == 4
+    assert calls == [list(hb.SELECTION)]
+    assert not any(os.path.exists(hb.cache_file(root, s)) for s in hb.HELD_OUT)
+
+
+def test_run0c_resumes_a_partial_held_out_read_and_keeps_its_calibration(tmp_path, monkeypatch):
+    root = str(tmp_path)
+    cal = os.path.join(root, "calibration.json")
+    calls = []
+    monkeypatch.setattr(hb, "cmd_extract", _fake_extract(calls, die_at="juneau"))
+    with pytest.raises(SystemExit, match="juneau: died"):
+        _run0c(root)
+    assert os.path.exists(hb.cache_file(root, "manual_gold"))
+    with open(cal, "rb") as f:
+        frozen = f.read()
+    # the second run: another HEAD (a commit happened), and juneau no longer dies
+    monkeypatch.setattr(hb, "git_head", lambda: "f" * 40)
+    calls.clear()
+    monkeypatch.setattr(hb, "cmd_extract", _fake_extract(calls))
+    assert _run0c(root) == 0
+    assert calls == [list(hb.SELECTION), ["juneau", "bayonne"]]  # manual_gold not read again
+    with open(cal, "rb") as f:
+        assert f.read() == frozen
+    with open(os.path.join(root, "gate_0c.json"), encoding="utf-8") as f:
+        assert json.load(f)["decision"] == "band kept for the shipped weights"
+
+
+def test_run0c_refuses_a_held_out_cache_from_another_calibration(tmp_path, monkeypatch):
+    root = str(tmp_path)
+    calls = []
+    monkeypatch.setattr(hb, "cmd_extract", _fake_extract(calls))
+    for s in hb.SELECTION:
+        _write_cache(root, s)
+    _write_cache(root, "manual_gold", n=30, cal_sha="0" * 64)
+    monkeypatch.setattr(hb, "cmd_report", lambda args: pytest.fail("report must not run"))
+    assert _run0c(root) != 0
+    assert calls == [list(hb.SELECTION)]
+
+
+# --------------------------------------------------------------------------- #
+# extract on a fake model (no checkpoint, no panos: zero tensors of the right shapes)
+# --------------------------------------------------------------------------- #
+class _ExtractHarness:
+    """Patches the model, the image decode and the GT reader so ``cmd_extract`` runs on the
+    CPU in seconds. ``fail_at`` = (split, pano index) at which decoding fails."""
+
+    def __init__(self, tmp_path, monkeypatch, fail_at=None):
+        torch = pytest.importorskip("torch")
+        import operating_point_curve
+        import threshold_sweep
+
+        class FakeModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.head = torch.nn.Sequential(torch.nn.Identity(), torch.nn.Identity(),
+                                                torch.nn.Upsample(size=(512, 1024)))
+
+            def forward(self, x):
+                return torch.zeros((x.shape[0], 1) + tuple(self.head[2].size))
+
+        def gts(city):
+            gt = GroundTruth([(0.5, 0.52)], [], True)
+            return {f"{city}-{i}": gt for i in range(2)}, None
+
+        def prefetch(paths, scales):
+            zero = torch.zeros(1, 1, 1)
+            for k, p in enumerate(paths):
+                if fail_at and os.path.basename(os.path.dirname(os.path.dirname(p))) == \
+                        fail_at[0] and k == fail_at[1]:
+                    yield p, None, None, OSError("bad jpeg")
+                    continue
+                t = {"r2048": zero.expand(1, 2048, 4096)}
+                for s in scales:
+                    t[s] = zero.expand(1, int(2048 * hb.SCALES[s]), int(4096 * hb.SCALES[s]))
+                yield p, (4096, 2048), t, None
+
+        monkeypatch.setattr(threshold_sweep, "load_model", lambda: FakeModel())
+        monkeypatch.setattr(operating_point_curve, "bundle_ground_truths", gts)
+        monkeypatch.setattr(hb, "_prefetch", prefetch)
+        self.root = str(tmp_path)
+        self.cache = os.path.join(self.root, "cache")
+        self.log = os.path.join(self.root, "usage.jsonl")
+        for city in hb.SELECTION:
+            d = os.path.join(self.root, "benchmark", city, "panos")
+            os.makedirs(d)
+            for i in range(2):
+                open(os.path.join(d, f"{city}-{i}.jpg"), "w").close()
+
+    def extract(self, splits):
+        return hb.main(["extract", "--splits", splits, "--configs", "1.5x-narrow",
+                        "--cache-root", self.cache, "--panos-root", self.root,
+                        "--usage-log", self.log, "--device", "cpu"])
+
+    def rows(self):
+        with open(self.log, encoding="utf-8") as f:
+            return {r["label"]: r for r in map(json.loads, f)}
+
+
+def test_extract_ledger_counts_the_split_it_died_in(tmp_path, monkeypatch):
+    h = _ExtractHarness(tmp_path, monkeypatch, fail_at=("richmond", 1))
+    with pytest.raises(SystemExit, match="bad jpeg"):
+        h.extract("sao_paulo,richmond")
+    assert os.path.exists(hb.cache_file(h.cache, "sao_paulo"))
+    assert not os.path.exists(hb.cache_file(h.cache, "richmond"))
+    rows = h.rows()
+    assert rows["horizon-band-263:r2048"]["status"] == "failed"
+    assert rows["horizon-band-263:r2048"]["panos_scored"] == 3       # 2 sao_paulo + 1 richmond
+    assert rows["horizon-band-263:full@1.5x"]["panos_scored"] == 1   # richmond only (S7)
+
+
+def test_extract_never_leaves_a_partial_cache_under_the_final_name(tmp_path, monkeypatch):
+    h = _ExtractHarness(tmp_path, monkeypatch)
+
+    def crash(src, dst):
+        raise OSError("disk full")
+    monkeypatch.setattr(hb.os, "replace", crash)
+    with pytest.raises(OSError, match="disk full"):
+        h.extract("sao_paulo")
+    assert not os.path.exists(hb.cache_file(h.cache, "sao_paulo"))
+
+

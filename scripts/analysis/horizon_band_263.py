@@ -528,6 +528,16 @@ def _d(c):
     return f"{c['observed']:+.3f} [{c['ci_lo']:+.3f}, {c['ci_hi']:+.3f}]"
 
 
+def write_atomic(path, text):
+    """Write ``text`` (LF, utf-8) to a temporary name beside ``path``, then rename it into place,
+    so a crash mid-write never leaves a truncated file under the final name (a truncated 0c
+    cache would otherwise count as cached, or as a held-out split already read)."""
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="") as f:
+        f.write(text)
+    os.replace(tmp, path)
+
+
 def check_or_write(paths_texts, check, label):
     if check:
         bad = []
@@ -547,8 +557,7 @@ def check_or_write(paths_texts, check, label):
         return 1 if bad else 0
     for path, text in paths_texts:
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8", newline="") as f:
-            f.write(text)
+        write_atomic(path, text)
         print(f"-> {path}")
     return 0
 
@@ -1118,7 +1127,14 @@ def cmd_extract(args):
         mem = torch.cuda.max_memory_allocated() / 2 ** 30 if device.type == "cuda" else None
         return pk, h.shape, dt, mem
 
+    def fold(stats):
+        for n, v in stats.items():
+            a = all_stats.setdefault(n, {"elapsed_s": 0.0, "n": 0})
+            a["elapsed_s"] += v["elapsed_s"]
+            a["n"] += v["n"]
+
     all_stats, attempted, status = {}, [], "failed"
+    stats = None              # the split in progress; folded into all_stats when it is done
     try:
         for city, (gts, pids, pdir) in plan.items():
             attempted.append(city)
@@ -1177,18 +1193,17 @@ def cmd_extract(args):
                     "gpus": gpus, "host": host, "torch": torch.__version__, "fp16": False,
                     "git_head": git_head(), "started": started}
             os.makedirs(args.cache_root, exist_ok=True)
-            with open(cache_file(args.cache_root, city), "w", encoding="utf-8", newline="") as f:
-                json.dump({"city": city, "meta": meta, "panos": out}, f)
-                f.write("\n")
-            for n, v in stats.items():
-                a = all_stats.setdefault(n, {"elapsed_s": 0.0, "n": 0})
-                a["elapsed_s"] += v["elapsed_s"]
-                a["n"] += v["n"]
+            write_atomic(cache_file(args.cache_root, city),
+                         json.dumps({"city": city, "meta": meta, "panos": out}) + "\n")
+            fold(stats)
             print(f"{city} done: " + ", ".join(
                 f"{n} {v['elapsed_s'] / max(1, v['n']):.3f} s/pano" for n, v in stats.items())
                 + f"; wall {time.perf_counter() - t_start:.0f}s", flush=True)
+            stats = None
         status = "ok"
     finally:
+        if stats is not None:  # the split that died: its finished panos still used the GPU
+            fold(stats)
         rows = usage_rows(all_stats, time.perf_counter() - t_start, host, gpus,
                           attempted or splits, started, status, held_out)
         if args.usage_log.lower() != "none" and rows:
@@ -1240,7 +1255,11 @@ def build_calibration(cache_root, smoke=False):
             shifts += paired_shifts([q for q in p["passes"]["r2048"] if in_core(q[1], CORES[core])],
                                     p["passes"][f"strip@{cfg}"], rsq)
         c1 = tsc.counts(base_core, rsq)
-        p1 = c1["tp"] / (c1["tp"] + c1["fp"]) if c1["tp"] + c1["fp"] else 0.0
+        if not c1["tp"] + c1["fp"]:
+            raise SystemExit(f"calibrate: no 1x in-core detection at {T_OP:.2f} on {CALIB_SPLIT} "
+                             f"for {cfg}, so there is no 1x precision for the band threshold to "
+                             "equal. Refused; this needs a look before any held-out read.")
+        p1 = c1["tp"] / (c1["tp"] + c1["fp"])
         prec = {}
         for t in MATCH_GRID:
             cs = tsc.counts([{"pano": p["pano"], "gt": p["gt"],
@@ -1263,7 +1282,7 @@ def build_calibration(cache_root, smoke=False):
                         "peak within the match radius; |median score shift| < 0.05",
         "calibration_rule": "sao_paulo: band threshold set to equal 1x in-core precision at 0.30 "
                             "if |median paired shift| > 0.03 or |precision diff at 0.30| > 0.05",
-        "primary": PRIMARY_0C, "inputs": inputs, "git_head": git_head()},
+        "primary": PRIMARY_0C, "inputs": inputs},
         "smoke": smoke, "context": context, "calibration": calib}
 
 
@@ -1357,8 +1376,16 @@ def build_gate(cache_root, calibration_path):
                "gains_enough": g15 > 0 and g2 >= TWO_X_MIN_GAIN_RATIO * g15,
                "within_limit": cost["configs"]["2x-wide"]["within_limit"]}
     primary = gate.get(PRIMARY_0C)
-    decision = ("band kept for the shipped weights" if primary and primary["verdict"] == "PASS"
-                else "band dropped for the shipped weights; kept only as a read for arm B")
+    if primary and primary["verdict"] == "PASS":
+        c = cost["configs"][PRIMARY_0C]
+        decision = ("band kept for the shipped weights" if c["within_limit"] else
+                    f"passes the gate; over the {COST_LIMIT:g}x cost limit "
+                    f"({c['multiple']:.3f}x), Jon's call")
+    else:
+        decision = "band dropped for the shipped weights; kept only as a read for arm B"
+    if primary and not primary["context_passes"]:
+        decision += (f"; the context rule failed for {PRIMARY_0C}, so the held-out read ran "
+                     "under --despite-failed-context: Jon's call")
     rep = {"protocol": {"plan": "detector-phase1-horizon-2x-2026-11-15.md section 4, Stage 0c",
                         "primary": PRIMARY_0C, "calibration_sha256": cal_sha, "inputs": inputs,
                         "n_reps": N_REPS, "seed": SEED, "far_ignore_m": FAR_IGNORE_M},
@@ -1420,21 +1447,54 @@ def cmd_run0c(args):
     rc = main(["extract", "--splits", "selection"] + base)
     if rc:
         return rc
-    rc = main(["calibrate", "--cache-root", args.cache_root, "--out", args.calibration])
-    if rc:
-        return rc
+    cal = load_calibration(args.calibration)
+    if cal is not None and not cal.get("smoke"):
+        # Never recalibrate over a frozen calibration: the held-out caches record its sha256.
+        # Check instead that it still reproduces from the selection caches.
+        print(f"{args.calibration} exists: checking it, not rewriting it", flush=True)
+        rc = main(["calibrate", "--cache-root", args.cache_root, "--out", args.calibration,
+                   "--check"])
+        if rc:
+            print("STOP: the frozen calibration.json does not reproduce from the selection "
+                  "caches. Nothing was rewritten; find out why before going on.", flush=True)
+            return rc
+    else:
+        rc = main(["calibrate", "--cache-root", args.cache_root, "--out", args.calibration])
+        if rc:
+            return rc
     cal = load_calibration(args.calibration)
     if not cal["context"][PRIMARY_0C]["passes"]:
         print(f"STOP: the context rule failed for {PRIMARY_0C}; the held-out splits were NOT "
               "read. Commit calibration.json and hand the decision to Jon.", flush=True)
         return 4
-    print("calibration.json frozen; commit it now if you can (the held-out caches record its "
-          "sha256). Reading the held-out splits once.", flush=True)
-    rc = main(["extract", "--splits", "heldout", "--heldout-read-once",
-               "--calibration", args.calibration] + base)
-    if rc:
-        return rc
-    return main(["report", "--cache-root", args.cache_root, "--calibration", args.calibration])
+    # Resume: a held-out split whose cache exists was read once already and is not named
+    # again (extract's guard would refuse it); it must have been read under this calibration.
+    # A split that died mid-read wrote no cache, so it is read from the start.
+    cal_sha = sha256_file(args.calibration)
+    done, todo = [], []
+    for s in HELD_OUT:
+        path = cache_file(args.cache_root, s)
+        if not os.path.exists(path):
+            todo.append(s)
+            continue
+        with open(path, encoding="utf-8") as f:
+            got = json.load(f)["meta"].get("calibration_sha256")
+        if got != cal_sha:
+            print(f"STOP: {path} was read under calibration {got}, not the current {cal_sha}. "
+                  "Nothing was read; Jon decides.", flush=True)
+            return 5
+        done.append(s)
+    if done:
+        print(f"{done}: already read once under this calibration; not read again", flush=True)
+    if todo:
+        print("calibration.json frozen; commit it now if you can (the held-out caches record "
+              f"its sha256). Reading {todo} once.", flush=True)
+        rc = main(["extract", "--splits", ",".join(todo), "--heldout-read-once",
+                   "--calibration", args.calibration] + base)
+        if rc:
+            return rc
+    return main(["report", "--cache-root", args.cache_root, "--calibration", args.calibration,
+                 "--out", args.out])
 
 
 # --------------------------------------------------------------------------- #
@@ -1491,6 +1551,7 @@ def main(argv=None):
     z = sub.add_parser("run0c", help="the whole of Stage 0c, in order")
     common_0c(z)
     z.add_argument("--calibration", default=CALIBRATION)
+    z.add_argument("--out", default=GATE_JSON, help="the gate json (and .md beside it)")
     z.add_argument("--device", default="auto", choices=("auto", "cuda", "cpu"))
 
     args = ap.parse_args(argv)
