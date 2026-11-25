@@ -1,0 +1,78 @@
+{
+ "city": "sacramento-ca",
+ "place_range_m": 20.0,
+ "camera_height_m": 2.6,
+ "panos_placed": 830,
+ "panos_with_a_crossing_in_range": 797,
+ "placements": 1820,
+ "kinds": {
+  "positive": 1458,
+  "ignore_collided": 92,
+  "ignore_no_component": 270
+ },
+ "panos_with_a_positive": 744,
+ "crossings_with_a_positive": 711,
+ "by_basis": {
+  "crossing": {
+   "positive": 109,
+   "placements": 132,
+   "share": 0.826
+  },
+  "crossing:markings": {
+   "positive": 1070,
+   "placements": 1339,
+   "share": 0.799
+  },
+  "signals_only": {
+   "positive": 279,
+   "placements": 349,
+   "share": 0.799
+  }
+ },
+ "by_range": {
+  "10 to 20 m": {
+   "positive": 1061,
+   "placements": 1228,
+   "share": 0.864
+  },
+  "under 10 m": {
+   "positive": 397,
+   "placements": 592,
+   "share": 0.671
+  }
+ },
+ "by_camera": {
+  "Labpano Pilot One": {
+   "positive": 1423,
+   "placements": 1769,
+   "share": 0.804
+  },
+  "none none": {
+   "positive": 35,
+   "placements": 51,
+   "share": 0.686
+  }
+ },
+ "by_capture_year": {
+  "2023": {
+   "positive": 26,
+   "placements": 41,
+   "share": 0.634
+  },
+  "2024": {
+   "positive": 616,
+   "placements": 751,
+   "share": 0.82
+  },
+  "2025": {
+   "positive": 789,
+   "placements": 994,
+   "share": 0.794
+  },
+  "2026": {
+   "positive": 27,
+   "placements": 34,
+   "share": 0.794
+  }
+ }
+}

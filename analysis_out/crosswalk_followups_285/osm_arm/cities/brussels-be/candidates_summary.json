@@ -1,0 +1,13 @@
+{
+ "seed": 285,
+ "sampled_crossings": 300,
+ "near_m": 20.0,
+ "per_crossing": 3,
+ "pano_source": "brussels--belgium_width_16800_height_16711_step_20_mapillary_2026-10-06.csv.gz",
+ "tiles": 0,
+ "panos_in_range": 12885,
+ "panos_after_thinning": 5494,
+ "crossings_with_a_pano": 295,
+ "candidate_pairs": 884,
+ "candidate_panos": 882
+}

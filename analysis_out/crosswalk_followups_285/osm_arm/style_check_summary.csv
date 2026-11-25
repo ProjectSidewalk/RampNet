@@ -1,0 +1,13 @@
+set,city,source,style,labels,on_paint,on_paint_share,on_paint_ci95,paint_within_tol,paint_within_tol_share,paint_within_tol_ci95,comp_found,comp_found_share,comp_found_ci95
+bayonne_labels,bayonne-fr,panoramax,ALL,9,9,1.0,"[0.701, 1.0]",9,1.0,"[0.701, 1.0]",9,1.0,"[0.701, 1.0]"
+bayonne_labels,bayonne-fr,panoramax,tags_unknown,9,9,1.0,"[0.701, 1.0]",9,1.0,"[0.701, 1.0]",9,1.0,"[0.701, 1.0]"
+columbia_gt,columbia-sc,gsv,ALL,210,117,0.557,"[0.49, 0.623]",166,0.79,"[0.73, 0.84]",171,0.814,"[0.756, 0.861]"
+columbia_gt,columbia-sc,gsv,brick_or_paver,210,117,0.557,"[0.49, 0.623]",166,0.79,"[0.73, 0.84]",171,0.814,"[0.756, 0.861]"
+ps_labels,juneau-ak,mapillary,ALL,5,5,1.0,"[0.566, 1.0]",5,1.0,"[0.566, 1.0]",5,1.0,"[0.566, 1.0]"
+ps_labels,juneau-ak,mapillary,tags_unknown,5,5,1.0,"[0.566, 1.0]",5,1.0,"[0.566, 1.0]",5,1.0,"[0.566, 1.0]"
+ps_labels,laurens-ia,mapillary,ALL,16,5,0.312,"[0.142, 0.556]",5,0.312,"[0.142, 0.556]",7,0.438,"[0.231, 0.668]"
+ps_labels,laurens-ia,mapillary,tags_unknown,16,5,0.312,"[0.142, 0.556]",5,0.312,"[0.142, 0.556]",7,0.438,"[0.231, 0.668]"
+richmond_positives,richmond-va,mapillary,ALL,89,79,0.888,"[0.805, 0.938]",86,0.966,"[0.906, 0.988]",86,0.966,"[0.906, 0.988]"
+richmond_positives,richmond-va,mapillary,brick_or_paver,9,6,0.667,"[0.354, 0.879]",7,0.778,"[0.453, 0.937]",7,0.778,"[0.453, 0.937]"
+richmond_positives,richmond-va,mapillary,other_or_untagged,49,46,0.939,"[0.835, 0.979]",49,1.0,"[0.927, 1.0]",49,1.0,"[0.927, 1.0]"
+richmond_positives,richmond-va,mapillary,paint_fading,31,27,0.871,"[0.711, 0.949]",30,0.968,"[0.838, 0.994]",30,0.968,"[0.838, 0.994]"

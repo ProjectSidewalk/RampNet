@@ -1,0 +1,14 @@
+{
+ "label": "crosswalk_s6half_seed2",
+ "checkpoint": "/gscratch/makelab/jonf/crosswalk274/v6half_s2/final_step_1198.pth",
+ "sha256": "e23360b1ee3313d3c257edefea45c55bce9ba454cee3be916bd732a931345c98",
+ "score_floor": 0.05,
+ "min_distance": 10,
+ "tta": false,
+ "fp16": false,
+ "extractor": "threshold_sweep.heatmap_for + peaks_to_dets",
+ "root": "/gscratch/scrubbed/jfroehli/crosswalk274/root_v4",
+ "device": "cuda",
+ "torch": "2.6.0",
+ "gpu": "NVIDIA L40"
+}

@@ -1,0 +1,38 @@
+{
+ "city": "juneau-ak",
+ "seed": 285,
+ "merge_m": 20.0,
+ "near_m": 15.0,
+ "min_degree": 3,
+ "take": "80",
+ "all_of": "GoPro Max",
+ "streets": "osm_streets.json",
+ "records": [
+  "results.jsonl"
+ ],
+ "exclude": [
+  "cities_draw.txt",
+  "juneau_mine_draw.txt",
+  "juneau_eval_draw.txt",
+  "panos.txt"
+ ],
+ "flag": [
+  "juneau_near_mine_30m.csv"
+ ],
+ "panos_in_records": 4999,
+ "panos_excluded_by_draw": 502,
+ "intersections": 152,
+ "status": {
+  "pano": 134,
+  "no_pano_within": 17,
+  "all_near_panos_excluded": 1
+ },
+ "drawn": 80,
+ "drawn_by_camera": {
+  "Trimble mx7": 69,
+  "GoPro Max": 11
+ },
+ "drawn_not_nearest": 12,
+ "drawn_flagged": 59,
+ "drawn_sequences": 28
+}

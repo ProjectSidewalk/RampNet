@@ -1,0 +1,42 @@
+{
+ "empty_panos": 119,
+ "panos_with_a_detection": 84,
+ "spots": 261,
+ "thresholds": {
+  "crosswalk_s4_klone": 0.23,
+  "crosswalk_s4_seed2": 0.3,
+  "crosswalk_s4_seed3": 0.13,
+  "crosswalk_s6full": 0.17,
+  "crosswalk_s6full_seed2": 0.27,
+  "crosswalk_s6full_seed3": 0.24,
+  "crosswalk_s6half": 0.23,
+  "crosswalk_s6half_seed2": 0.23,
+  "crosswalk_s6half_seed3": 0.25,
+  "crosswalk_s4_steps1397": 0.24
+ },
+ "detections": {
+  "crosswalk_s4_klone": 6,
+  "crosswalk_s4_seed2": 4,
+  "crosswalk_s4_seed3": 10,
+  "crosswalk_s6full": 234,
+  "crosswalk_s6full_seed2": 41,
+  "crosswalk_s6full_seed3": 61,
+  "crosswalk_s6half": 48,
+  "crosswalk_s6half_seed2": 20,
+  "crosswalk_s6half_seed3": 54,
+  "crosswalk_s4_steps1397": 9
+ },
+ "detections_by_city_family": {
+  "juneau-ak | s4": 18,
+  "juneau-ak | s4_steps1397": 8,
+  "juneau-ak | s6full": 117,
+  "juneau-ak | s6half": 69,
+  "laurens-ia | s4": 2,
+  "laurens-ia | s4_steps1397": 1,
+  "laurens-ia | s6full": 219,
+  "laurens-ia | s6half": 53
+ },
+ "spots_new_only": 249,
+ "spot_radius": 0.03,
+ "rig_mask_y": 0.7722
+}

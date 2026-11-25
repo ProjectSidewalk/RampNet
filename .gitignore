@@ -695,6 +695,13 @@ analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/*
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/s5/
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/s5_matched/
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s5/
+# crosswalk_s6 (#285): the same three outputs, for both doses and the step control (seeds 2 and 3 are
+# covered by crosswalk_s*_seed* above)
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s6/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s6_matched/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s6full/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s6half/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s4_steps1397/
 # #274 hard negatives: CSV/JSON/MD outputs at any depth (no imagery is written here)
 !analysis_out/stage1_crosswalk_detector_274/hardneg/
 analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.*
@@ -705,6 +712,15 @@ analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.*
 !analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.jsonl
 !analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.txt
 !analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.sha256
+# #285 follow-ups (car-top rule, recall page, OSM placer checks): CSV/JSON/MD outputs at any depth (no imagery)
+!analysis_out/crosswalk_followups_285/
+analysis_out/crosswalk_followups_285/**/*.*
+!analysis_out/crosswalk_followups_285/**/
+!analysis_out/crosswalk_followups_285/**/*.csv
+!analysis_out/crosswalk_followups_285/**/*.json
+!analysis_out/crosswalk_followups_285/**/*.md
+!analysis_out/crosswalk_followups_285/**/*.txt
+!analysis_out/crosswalk_followups_285/**/*.jsonl
 
 # Corner-level cluster review (#224): the bundle's text (snapshot.json, corners.jsonl,
 # crops_missing.csv, report.md, export_runs.json, assignments*.json) is tracked; the pixels

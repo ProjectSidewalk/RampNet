@@ -1,0 +1,103 @@
+{
+ "city": "brussels-be",
+ "place_range_m": 20.0,
+ "camera_height_m": 2.6,
+ "panos_placed": 882,
+ "panos_with_a_crossing_in_range": 881,
+ "placements": 2171,
+ "kinds": {
+  "positive": 1617,
+  "ignore_collided": 151,
+  "ignore_no_component": 403
+ },
+ "panos_with_a_positive": 778,
+ "crossings_with_a_positive": 849,
+ "by_basis": {
+  "crossing": {
+   "positive": 2,
+   "placements": 2,
+   "share": 1.0
+  },
+  "crossing:markings": {
+   "positive": 1597,
+   "placements": 2147,
+   "share": 0.744
+  },
+  "signals_only": {
+   "positive": 18,
+   "placements": 22,
+   "share": 0.818
+  }
+ },
+ "by_range": {
+  "10 to 20 m": {
+   "positive": 1014,
+   "placements": 1375,
+   "share": 0.737
+  },
+  "under 10 m": {
+   "positive": 603,
+   "placements": 796,
+   "share": 0.758
+  }
+ },
+ "by_camera": {
+  "GoPro GoPro Max": {
+   "positive": 1607,
+   "placements": 2159,
+   "share": 0.744
+  },
+  "RICOH                 RICOH THETA S": {
+   "positive": 8,
+   "placements": 10,
+   "share": 0.8
+  },
+  "RICOH RICOH THETA S": {
+   "positive": 2,
+   "placements": 2,
+   "share": 1.0
+  }
+ },
+ "by_capture_year": {
+  "2016": {
+   "positive": 6,
+   "placements": 6,
+   "share": 1.0
+  },
+  "2017": {
+   "positive": 2,
+   "placements": 4,
+   "share": 0.5
+  },
+  "2019": {
+   "positive": 2,
+   "placements": 2,
+   "share": 1.0
+  },
+  "2022": {
+   "positive": 250,
+   "placements": 350,
+   "share": 0.714
+  },
+  "2023": {
+   "positive": 332,
+   "placements": 418,
+   "share": 0.794
+  },
+  "2024": {
+   "positive": 273,
+   "placements": 382,
+   "share": 0.715
+  },
+  "2025": {
+   "positive": 436,
+   "placements": 596,
+   "share": 0.732
+  },
+  "2026": {
+   "positive": 316,
+   "placements": 413,
+   "share": 0.765
+  }
+ }
+}

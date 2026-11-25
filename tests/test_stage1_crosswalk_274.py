@@ -3,6 +3,7 @@ the scripts copy from the trainer (RampNet#274). CPU only, no network, committed
 import doctest
 import importlib
 import importlib.util
+import math
 import os
 import subprocess
 import sys
@@ -26,10 +27,12 @@ def _load(name):
     return mod
 
 
-@pytest.mark.parametrize("name", ["score_274", "brick_positives", "crowd_arm", "pilot"])
+@pytest.mark.parametrize("name", ["score_274", "brick_positives", "crowd_arm", "pilot",
+                                  "recall_check", "recall_region", "pos_sheet", "osm_arm"])
 def test_doctests(name):
     """`python -m doctest` on each script, which plain pytest does not collect. score_274's doctests pin
-    label_hits, paired_recall_diff, pct_interval, audit_rates, recall_matched_threshold and finite."""
+    label_hits, paired_recall_diff, pct_interval, audit_rates, recall_matched_threshold and finite; the #285
+    modules' pin match_one_to_one and wrap_dist, _family and _spots, greedy, tally and skim, and osm_arm's rules."""
     mod = _load(name)
     finder, runner = doctest.DocTestFinder(), doctest.DocTestRunner(optionflags=doctest.ELLIPSIS)
     ran = 0
@@ -133,6 +136,36 @@ def test_compute_cost_tables_match_the_ledger():
         assert (int(n), gpu_h) == (len(sel), f"{sum(r['gpu_hours'] for r in sel):.2f}"), jobs
     assert sum(int(t[2]) for t in infer) == len(one) == 42
     assert f"{sum(r['gpu_hours'] for r in rows):.2f}" == "84.09" and "84.09 GPU-hours" in sec
+
+
+def test_compute_cost_tables_match_the_ledger_285():
+    """The same for docs/compute_cost.md's #285 `crosswalk_s6` section (jobs named cw285_*): 14 training rows,
+    two inference ranges, 65.39 GPU-hours."""
+    sys.path.insert(0, REPO)
+    from rampnet import ledger
+    rows = [r for r in ledger.read_rows(os.path.join(REPO, "analysis_out", "compute_log.jsonl"))
+            if r["cluster"] == "klone" and r["job_name"].startswith("cw285_")]
+    sec = _section("compute_cost.md", "## klone, 2026-11-13: the #285 `crosswalk_s6` study")
+    table = [[c.strip() for c in ln.strip("|").split("|")] for ln in sec.splitlines()
+             if ln.startswith("| ") and ln[2:3].isdigit()]
+    train = [t for t in table if len(t) == 6]
+    infer = [t for t in table if len(t) == 4]
+    want = {r["job_id"]: r for r in rows if r["gpus"] == 4}
+    assert len(train) == len(want) == 14     # no job was requeued, so one row per job id
+    for job, _, state, gpus, wall, gpu_h in train:
+        r = want[job]
+        assert (state, gpus, wall, gpu_h) == (r["state"], f"4 {r['gpu_type'].upper()}", _wall(r["elapsed_s"]),
+                                              f"{r['gpu_hours']:.2f}"), job
+    assert len(infer) == 2
+    one = [r for r in rows if r["gpus"] == 1]
+    for jobs, _, n, gpu_h in infer:
+        lo, hi = jobs.split("-")
+        sel = [r for r in one if lo <= r["job_id"] <= hi]
+        # math.fsum: the s6 range sums to 4.355 exactly, which a naive sum (Python < 3.12) rounds down
+        assert (int(n), gpu_h) == (len(sel), f"{math.fsum(r['gpu_hours'] for r in sel):.2f}"), jobs
+    assert sum(int(t[2]) for t in infer) == len(one) == 57
+    assert f"{math.fsum(r['gpu_hours'] for r in one):.2f}" == "4.83" and "4.83 GPU-h over 57 jobs" in sec
+    assert f"{math.fsum(r['gpu_hours'] for r in rows):.2f}" == "65.39" and "65.39 GPU-hours" in sec
 
 
 # score_274.py's `cards --definition` (and DEFINITIONS["paint_brick"]) arrived in f1e2f21b, 2026-11-08 07:52:58 -0800.

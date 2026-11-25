@@ -1,0 +1,291 @@
+cell,stratum,uid,source,city,pano_id,x,y,range_m,comp_area_px,on_paint,shift,basis,camera_model,capture_date,a3_verdict,img_tight,img_context
+1,auto,osm:sacramento-ca:13286641630@1510545813280223,osm_vistas_auto,sacramento-ca,1510545813280223,0.798616,0.585881,17.3,34560,0,0.06049,crossing:markings,Pilot One,2025-09,,img/001_tight.jpg,img/001_context.jpg
+2,auto,osm:brussels-be:5667827442@1139934357094895,osm_vistas_auto,brussels-be,1139934357094895,0.946541,0.64083,15.1,203952,0,0.09485,crossing:markings,GoPro Max,2024-07,,img/002_tight.jpg,img/002_context.jpg
+3,auto,osm:brussels-be:2203596163@712945164339962,osm_vistas_auto,brussels-be,712945164339962,0.61553,0.674466,8.3,70096,0,0.1113,signals_only,GoPro Max,2024-03,,img/003_tight.jpg,img/003_context.jpg
+4,auto,osm:kaysville-ut:9376421122@4257714967881188,osm_vistas_auto,kaysville-ut,4257714967881188,0.70147,0.539797,13.9,2960,0,0.04682,crossing=marked,GoPro Max,2025-10,crosswalk,img/004_tight.jpg,img/004_context.jpg
+5,auto,osm:brussels-be:2248170117@256591964205131,osm_vistas_auto,brussels-be,256591964205131,0.460995,0.629778,16.4,1504,0,0.03996,crossing:markings,GoPro Max,2024-05,crosswalk,img/005_tight.jpg,img/005_context.jpg
+6,auto,osm:kaysville-ut:9389396601@9825683627531479,osm_vistas_auto,kaysville-ut,9825683627531479,0.928886,0.544923,12.5,6048,0,0.04805,crossing:markings,GoPro Max,2025-07,,img/006_tight.jpg,img/006_context.jpg
+7,human,amsterdam:29279@7i0ezM_Gu-X1OJdaQa04_g,crowd,amsterdam,7i0ezM_Gu-X1OJdaQa04_g,0.478088,0.544678,,,,,,,,,img/007_tight.jpg,img/007_context.jpg
+8,auto,osm:kaysville-ut:9376421006@1117211807170620,osm_vistas_auto,kaysville-ut,1117211807170620,0.60118,0.528064,11.8,1920,0,0.02109,crossing:markings,GoPro Max,2025-09,,img/008_tight.jpg,img/008_context.jpg
+9,auto,osm:brussels-be:5887771391@1701301570684564,osm_vistas_auto,brussels-be,1701301570684564,0.00706,0.48395,18.0,99664,0,0.08378,crossing:markings,GoPro Max,2024-09,,img/009_tight.jpg,img/009_context.jpg
+10,auto,osm:brussels-be:1676021589@833762085363239,osm_vistas_auto,brussels-be,833762085363239,0.741137,0.660071,6.5,160464,1,0.04826,crossing:markings,GoPro Max,2024-07,,img/010_tight.jpg,img/010_context.jpg
+11,auto,osm:kaysville-ut:10585701406@1607972967031443,osm_vistas_auto,kaysville-ut,1607972967031443,0.217753,0.607654,15.5,124080,0,0.05258,crossing:markings,GoPro Max,2025-11,,img/011_tight.jpg,img/011_context.jpg
+12,auto,osm:sacramento-ca:10013929031@793618233213052,osm_vistas_auto,sacramento-ca,793618233213052,0.862352,0.535206,19.7,4016,0,0.00353,crossing:markings,Pilot One,2025-09,,img/012_tight.jpg,img/012_context.jpg
+13,auto,osm:kaysville-ut:10585607604@731846836519145,osm_vistas_auto,kaysville-ut,731846836519145,0.382968,0.569928,10.0,39632,0,0.0768,crossing:markings,GoPro Max,2025-08,,img/013_tight.jpg,img/013_context.jpg
+14,sdot_b2,sdot:5144580@1huHDcaX_u5fttwWHop_IA,sdot_b2,seattle-wa,1huHDcaX_u5fttwWHop_IA,0.827794,0.577332,,,,,,,,,img/014_tight.jpg,img/014_context.jpg
+15,auto,osm:sacramento-ca:13286549778@766683616179299,osm_vistas_auto,sacramento-ca,766683616179299,0.450068,0.558107,14.6,11504,1,0.04756,crossing:markings,Pilot One,2025-09,,img/015_tight.jpg,img/015_context.jpg
+16,human,seattle-wa:231780@S5mWox5ehSvE-ksnnBk4Kg,crowd,seattle-wa,S5mWox5ehSvE-ksnnBk4Kg,0.549316,0.649536,,,,,,,,,img/016_tight.jpg,img/016_context.jpg
+17,human,amsterdam:23435@pHmcp-Qq6khCWIGLqSfd9g,crowd,amsterdam,pHmcp-Qq6khCWIGLqSfd9g,0.999634,0.605835,,,,,,,,,img/017_tight.jpg,img/017_context.jpg
+18,auto,osm:brussels-be:3994608258@1044981166643729,osm_vistas_auto,brussels-be,1044981166643729,0.465631,0.573616,15.4,2432,0,0.01421,crossing:markings,GoPro Max,2023-11,,img/018_tight.jpg,img/018_context.jpg
+19,auto,osm:kaysville-ut:10585607602@1568020870672045,osm_vistas_auto,kaysville-ut,1568020870672045,0.285743,0.542717,18.0,3536,0,0.04988,crossing:markings,GoPro Max,2025-08,,img/019_tight.jpg,img/019_context.jpg
+20,auto,osm:kaysville-ut:9376421126@1579439369893046,osm_vistas_auto,kaysville-ut,1579439369893046,0.253979,0.540831,13.3,3760,0,0.0441,crossing=marked,GoPro Max,2025-10,,img/020_tight.jpg,img/020_context.jpg
+21,auto,osm:brussels-be:7365338203@1104136946979632,osm_vistas_auto,brussels-be,1104136946979632,0.361531,0.542298,13.8,3024,0,0.02458,crossing:markings,GoPro Max,2022-07,,img/021_tight.jpg,img/021_context.jpg
+22,auto,osm:kaysville-ut:11784529661@1514729169523255,osm_vistas_auto,kaysville-ut,1514729169523255,0.986815,0.596909,6.3,36832,1,0.02348,crossing:markings,GoPro Max,2025-08,,img/022_tight.jpg,img/022_context.jpg
+23,auto,osm:brussels-be:5293466030@478054407589979,osm_vistas_auto,brussels-be,478054407589979,0.506333,0.558628,17.7,2096,0,0.01049,crossing:markings,GoPro Max,2022-10,,img/023_tight.jpg,img/023_context.jpg
+24,auto,osm:brussels-be:254986651@1426434875163450,osm_vistas_auto,brussels-be,1426434875163450,0.638679,0.560639,19.0,24752,1,0.01398,crossing:markings,GoPro Max,2025-06,,img/024_tight.jpg,img/024_context.jpg
+25,auto,osm:brussels-be:26084551@925180203005280,osm_vistas_auto,brussels-be,925180203005280,0.990896,0.470222,17.7,2048,0,0.04443,crossing:markings,GoPro Max,2024-10,,img/025_tight.jpg,img/025_context.jpg
+26,human,burnaby:8342@t90EYfbJN7zVB96JhOlyCQ,crowd,burnaby,t90EYfbJN7zVB96JhOlyCQ,0.76001,0.571045,,,,,,,,,img/026_tight.jpg,img/026_context.jpg
+27,auto,osm:sacramento-ca:9958448834@1162873021649226,osm_vistas_auto,sacramento-ca,1162873021649226,0.664167,0.590033,10.5,17408,1,0.03146,crossing:markings,Pilot One,2024-07,,img/027_tight.jpg,img/027_context.jpg
+28,auto,osm:brussels-be:4200124869@548067531234481,osm_vistas_auto,brussels-be,548067531234481,0.477909,0.622118,11.3,816,0,0.03648,crossing:markings,GoPro Max,2024-09,,img/028_tight.jpg,img/028_context.jpg
+29,auto,osm:kaysville-ut:10585657578@803667315416198,osm_vistas_auto,kaysville-ut,803667315416198,0.997015,0.575993,12.6,14112,0,0.09121,crossing:markings,GoPro Max,2025-08,crosswalk,img/029_tight.jpg,img/029_context.jpg
+30,auto,osm:sacramento-ca:13285806693@1175877616789064,osm_vistas_auto,sacramento-ca,1175877616789064,0.401551,0.54855,19.5,2384,0,0.0434,crossing:markings,Pilot One,2024-07,,img/030_tight.jpg,img/030_context.jpg
+31,sdot_b2,sdot:5146524@YlvQ5dK5p9ZK6UVGje7OcA,sdot_b2,seattle-wa,YlvQ5dK5p9ZK6UVGje7OcA,0.555793,0.564768,,,,,,,,,img/031_tight.jpg,img/031_context.jpg
+32,auto,osm:kaysville-ut:10557537437@2373871629739890,osm_vistas_auto,kaysville-ut,2373871629739890,0.331855,0.521822,18.8,3728,0,0.01222,crossing:markings,GoPro Max,2025-12,crosswalk,img/032_tight.jpg,img/032_context.jpg
+33,auto,osm:brussels-be:26086603@804853421855699,osm_vistas_auto,brussels-be,804853421855699,0.227379,0.561075,15.3,1472,0,0.00604,crossing:markings,GoPro Max,2024-07,,img/033_tight.jpg,img/033_context.jpg
+34,auto,osm:sacramento-ca:7065768537@457680370225861,osm_vistas_auto,sacramento-ca,457680370225861,0.353857,0.564384,9.6,8560,0,0.03318,crossing=marked,Pilot One,2024-07,,img/034_tight.jpg,img/034_context.jpg
+35,human,seattle-wa:288966@ykvtVu2xhROqVfr8i2l9ig,crowd,seattle-wa,ykvtVu2xhROqVfr8i2l9ig,0.483459,0.562012,,,,,,,,,img/035_tight.jpg,img/035_context.jpg
+36,auto,osm:sacramento-ca:10294446998@2293534924421393,osm_vistas_auto,sacramento-ca,2293534924421393,0.677527,0.559033,17.7,5104,0,0.02768,signals_only,Pilot One,2025-09,,img/036_tight.jpg,img/036_context.jpg
+37,auto,osm:sacramento-ca:7481829530@788978587440629,osm_vistas_auto,sacramento-ca,788978587440629,0.354268,0.551557,17.7,7184,1,0.01706,crossing=marked,Pilot One,2025-10,,img/037_tight.jpg,img/037_context.jpg
+38,auto,osm:sacramento-ca:4359359721@829928762940218,osm_vistas_auto,sacramento-ca,829928762940218,0.545024,0.582339,8.1,13248,0,0.03997,crossing:markings,Pilot One,2025-10,,img/038_tight.jpg,img/038_context.jpg
+39,auto,osm:kaysville-ut:11483975944@777238211575652,osm_vistas_auto,kaysville-ut,777238211575652,0.02333,0.55518,16.9,12752,0,0.06828,crossing:markings,GoPro Max,2025-09,,img/039_tight.jpg,img/039_context.jpg
+40,auto,osm:sacramento-ca:13286625367@1413508229219340,osm_vistas_auto,sacramento-ca,1413508229219340,0.972999,0.568833,9.8,9552,0,0.00692,crossing:markings,Pilot One,2024-08,,img/040_tight.jpg,img/040_context.jpg
+41,auto,osm:brussels-be:7823973536@2728749183975389,osm_vistas_auto,brussels-be,2728749183975389,0.586992,0.589978,18.0,2512,0,0.04004,crossing:markings,GoPro Max,2024-08,,img/041_tight.jpg,img/041_context.jpg
+42,auto,osm:brussels-be:1257844056@1081583788176748,osm_vistas_auto,brussels-be,1081583788176748,0.042127,0.528377,4.5,48496,0,0.07028,crossing:markings,GoPro Max,2026-10,,img/042_tight.jpg,img/042_context.jpg
+43,auto,osm:brussels-be:2203596168@712945164339962,osm_vistas_auto,brussels-be,712945164339962,0.358758,0.634991,16.3,6544,0,0.04313,signals_only,GoPro Max,2024-03,,img/043_tight.jpg,img/043_context.jpg
+44,auto,osm:kaysville-ut:10585701407@4723821014511127,osm_vistas_auto,kaysville-ut,4723821014511127,0.64882,0.58555,10.2,22848,1,0.03211,crossing:markings,GoPro Max,2025-11,,img/044_tight.jpg,img/044_context.jpg
+45,auto,osm:kaysville-ut:7494883035@701665946304572,osm_vistas_auto,kaysville-ut,701665946304572,0.17796,0.562503,12.5,29856,0,0.0861,crossing:markings,GoPro Max,2025-10,,img/045_tight.jpg,img/045_context.jpg
+46,sdot_b2,sdot:5146544@R321yGC23Tn2WxKeOdAabw,sdot_b2,seattle-wa,R321yGC23Tn2WxKeOdAabw,0.428911,0.538755,,,,,,,,,img/046_tight.jpg,img/046_context.jpg
+47,auto,osm:sacramento-ca:12479249046@24848853861432493,osm_vistas_auto,sacramento-ca,24848853861432493,0.834667,0.580503,13.0,11936,1,0.0327,crossing:markings,Pilot One,2025-10,,img/047_tight.jpg,img/047_context.jpg
+48,auto,osm:brussels-be:5632729168@1305587491685853,osm_vistas_auto,brussels-be,1305587491685853,0.928106,0.449318,18.5,416,0,0.05025,crossing:markings,GoPro Max,2026-06,,img/048_tight.jpg,img/048_context.jpg
+49,auto,osm:sacramento-ca:11875791502@768960992566166,osm_vistas_auto,sacramento-ca,768960992566166,0.813454,0.550752,14.4,4560,1,0.00323,crossing:markings,Pilot One,2025-10,,img/049_tight.jpg,img/049_context.jpg
+50,auto,osm:brussels-be:7069479039@661885989942155,osm_vistas_auto,brussels-be,661885989942155,0.044638,0.586917,6.4,36800,0,0.02018,crossing:markings,GoPro Max,2025-05,,img/050_tight.jpg,img/050_context.jpg
+51,auto,osm:kaysville-ut:9376420932@632247816341778,osm_vistas_auto,kaysville-ut,632247816341778,0.853206,0.578324,6.8,25408,0,0.07313,crossing:markings,GoPro Max,2025-09,crosswalk,img/051_tight.jpg,img/051_context.jpg
+52,human,cuenca:12784@AxsfaSUR7E3NVMyuSTqfcg,ps_crowd_jon_confirmed,cuenca,AxsfaSUR7E3NVMyuSTqfcg,0.3296,0.6088,,,,,,,,,img/052_tight.jpg,img/052_context.jpg
+53,auto,osm:kaysville-ut:10585657579@731533143118540,osm_vistas_auto,kaysville-ut,731533143118540,0.743202,0.562924,12.6,37792,0,0.03342,crossing=marked,GoPro Max,2025-08,,img/053_tight.jpg,img/053_context.jpg
+54,auto,osm:brussels-be:7344027572@952304393820702,osm_vistas_auto,brussels-be,952304393820702,0.928517,0.576337,7.9,106544,0,0.06347,crossing:markings,GoPro Max,2026-03,,img/054_tight.jpg,img/054_context.jpg
+55,auto,osm:kaysville-ut:10585697664@1513698726459214,osm_vistas_auto,kaysville-ut,1513698726459214,0.244179,0.711727,12.4,291136,1,0.09384,crossing:markings,GoPro Max,2025-07,crosswalk,img/055_tight.jpg,img/055_context.jpg
+56,auto,osm:kaysville-ut:13479953898@618016191151363,osm_vistas_auto,kaysville-ut,618016191151363,0.51005,0.576261,5.8,8272,0,0.0589,crossing:markings,GoPro Max,2025-08,crosswalk,img/056_tight.jpg,img/056_context.jpg
+57,auto,osm:kaysville-ut:11409927722@3704435809690540,osm_vistas_auto,kaysville-ut,3704435809690540,0.961824,0.550553,9.3,3552,0,0.04,crossing:markings,GoPro Max,2025-08,,img/057_tight.jpg,img/057_context.jpg
+58,auto,osm:brussels-be:5661016325@1131196948034314,osm_vistas_auto,brussels-be,1131196948034314,0.709661,0.604033,5.8,51648,0,0.06716,crossing:markings,GoPro Max,2024-03,,img/058_tight.jpg,img/058_context.jpg
+59,sdot_b2,sdot:5147170@JS4w9q_lA3y9mFtS3zfSpQ,sdot_b2,seattle-wa,JS4w9q_lA3y9mFtS3zfSpQ,0.882352,0.579593,,,,,,,,,img/059_tight.jpg,img/059_context.jpg
+60,human,burnaby:8769@_qvJ2bPb2V3QWnj5cLILYA,crowd,burnaby,_qvJ2bPb2V3QWnj5cLILYA,0.483849,0.598708,,,,,,,,,img/060_tight.jpg,img/060_context.jpg
+61,auto,osm:kaysville-ut:4545507060@1155091419823856,osm_vistas_auto,kaysville-ut,1155091419823856,0.089503,0.508092,16.3,976,0,0.02954,crossing:markings,GoPro Max,2025-08,crosswalk,img/061_tight.jpg,img/061_context.jpg
+62,auto,osm:kaysville-ut:10585625304@1237116784358797,osm_vistas_auto,kaysville-ut,1237116784358797,0.169565,0.595068,17.6,37776,0,0.03605,crossing:markings,GoPro Max,2025-07,,img/062_tight.jpg,img/062_context.jpg
+63,auto,osm:brussels-be:4684420953@1200985917337851,osm_vistas_auto,brussels-be,1200985917337851,0.961297,0.504783,14.3,1168,0,0.03315,crossing:markings,GoPro Max,2022-05,,img/063_tight.jpg,img/063_context.jpg
+64,human,amsterdam:8419@tYqozdPhApuLOPUleqeD6g,crowd,amsterdam,tYqozdPhApuLOPUleqeD6g,0.157288,0.62439,,,,,,,,,img/064_tight.jpg,img/064_context.jpg
+65,auto,osm:sacramento-ca:3100912150@875357401164734,osm_vistas_auto,sacramento-ca,875357401164734,0.707237,0.605907,9.9,39888,1,0.06228,signals_only,Pilot One,2024-07,,img/065_tight.jpg,img/065_context.jpg
+66,auto,osm:brussels-be:5433654963@1236495030470913,osm_vistas_auto,brussels-be,1236495030470913,0.901709,0.502471,18.9,224,0,0.02094,crossing:markings,GoPro Max,2022-07,,img/066_tight.jpg,img/066_context.jpg
+67,human,richmond-va:24998@1384536952760807,ps_crowd_jon_confirmed,richmond-va,1384536952760807,0.0863,0.6793,,,,,,,,,img/067_tight.jpg,img/067_context.jpg
+68,auto,osm:sacramento-ca:7403333619@808961438525945,osm_vistas_auto,sacramento-ca,808961438525945,0.639735,0.564952,15.4,9280,0,0.05772,crossing:markings,Pilot One,2025-10,crosswalk,img/068_tight.jpg,img/068_context.jpg
+69,auto,osm:brussels-be:5124098833@384097003055436,osm_vistas_auto,brussels-be,384097003055436,0.599903,0.581796,16.9,1104,0,0.02106,crossing:markings,GoPro Max,2022-03,,img/069_tight.jpg,img/069_context.jpg
+70,auto,osm:kaysville-ut:11409927724@3704435809690540,osm_vistas_auto,kaysville-ut,3704435809690540,0.235344,0.547739,14.5,7504,0,0.05861,crossing:markings,GoPro Max,2025-08,,img/070_tight.jpg,img/070_context.jpg
+71,auto,osm:kaysville-ut:6997842175@672267152492900,osm_vistas_auto,kaysville-ut,672267152492900,0.807902,0.607012,5.4,77744,0,0.04685,crossing:markings,GoPro Max,2025-07,,img/071_tight.jpg,img/071_context.jpg
+72,auto,osm:kaysville-ut:11784529661@1458484438604619,osm_vistas_auto,kaysville-ut,1458484438604619,0.599059,0.541883,8.5,37216,0,0.02835,crossing:markings,GoPro Max,2025-08,,img/072_tight.jpg,img/072_context.jpg
+73,sdot_b2,sdot:5146859@7ERkMC1zo4qsYZiHUtaJQA,sdot_b2,seattle-wa,7ERkMC1zo4qsYZiHUtaJQA,0.611831,0.569439,,,,,,,,,img/073_tight.jpg,img/073_context.jpg
+74,auto,osm:sacramento-ca:12706539209@1408066573209168,osm_vistas_auto,sacramento-ca,1408066573209168,0.453609,0.561118,13.6,4688,1,0.0411,crossing:markings,Pilot One,2024-07,crosswalk,img/074_tight.jpg,img/074_context.jpg
+75,auto,osm:sacramento-ca:3190994260@923276486148349,osm_vistas_auto,sacramento-ca,923276486148349,0.618787,0.533907,18.7,512,0,0.04416,crossing:markings,Pilot One,2024-08,,img/075_tight.jpg,img/075_context.jpg
+76,auto,osm:sacramento-ca:13348491989@816340890672774,osm_vistas_auto,sacramento-ca,816340890672774,0.439508,0.577041,11.5,9456,1,0.03803,crossing:markings,Pilot One,2024-07,,img/076_tight.jpg,img/076_context.jpg
+77,auto,osm:brussels-be:5073329579@1908280353248878,osm_vistas_auto,brussels-be,1908280353248878,0.468495,0.594548,13.7,7920,0,0.02544,crossing:markings,GoPro Max,2025-04,,img/077_tight.jpg,img/077_context.jpg
+78,human,chicago-il:82807@enA7AWpPd_9QsT8YEBotZg,ps_crowd_jon_confirmed,chicago-il,enA7AWpPd_9QsT8YEBotZg,0.7426,0.5786,,,,,,,,,img/078_tight.jpg,img/078_context.jpg
+79,auto,osm:kaysville-ut:11483975942@1315602916939028,osm_vistas_auto,kaysville-ut,1315602916939028,0.075259,0.557628,14.2,14208,1,0.03847,crossing:markings,GoPro Max,2025-08,crosswalk,img/079_tight.jpg,img/079_context.jpg
+80,auto,osm:kaysville-ut:11784529660@1407115210581471,osm_vistas_auto,kaysville-ut,1407115210581471,0.397656,0.539223,16.2,3840,0,0.02044,crossing:markings,GoPro Max,2025-08,,img/080_tight.jpg,img/080_context.jpg
+81,auto,osm:brussels-be:4551123352@969246732699253,osm_vistas_auto,brussels-be,969246732699253,0.14928,0.550515,18.7,1216,0,0.00323,crossing:markings,GoPro Max,2026-05,,img/081_tight.jpg,img/081_context.jpg
+82,sdot_b2,sdot:5148143@lhwG82KQZ2Cw5qhLvBQhfw,sdot_b2,seattle-wa,lhwG82KQZ2Cw5qhLvBQhfw,0.048612,0.528643,,,,,,,,,img/082_tight.jpg,img/082_context.jpg
+83,auto,osm:kaysville-ut:12700565415@748965958111551,osm_vistas_auto,kaysville-ut,748965958111551,0.842507,0.525171,11.7,1984,0,0.02741,crossing:markings,GoPro Max,2025-07,,img/083_tight.jpg,img/083_context.jpg
+84,auto,osm:sacramento-ca:5265825064@1474303313827984,osm_vistas_auto,sacramento-ca,1474303313827984,0.228939,0.568164,14.2,22432,1,0.02139,crossing:markings,Pilot One,2025-10,,img/084_tight.jpg,img/084_context.jpg
+85,auto,osm:brussels-be:6588404702@118508140816005,osm_vistas_auto,brussels-be,118508140816005,0.174042,0.608168,9.2,27328,1,0.01147,crossing:markings,GoPro Max,2022-04,,img/085_tight.jpg,img/085_context.jpg
+86,sdot_b2,sdot:5144650@94CEBZLBfROPwGJTZjHRtg,sdot_b2,seattle-wa,94CEBZLBfROPwGJTZjHRtg,0.023738,0.599209,,,,,,,,,img/086_tight.jpg,img/086_context.jpg
+87,auto,osm:sacramento-ca:13353956837@1571464087115568,osm_vistas_auto,sacramento-ca,1571464087115568,0.714437,0.582905,11.9,20048,0,0.06813,crossing:markings,Pilot One,2024-07,,img/087_tight.jpg,img/087_context.jpg
+88,auto,osm:kaysville-ut:12700565427@1078337487723634,osm_vistas_auto,kaysville-ut,1078337487723634,0.864366,0.527338,11.5,2496,0,0.02224,crossing:markings,GoPro Max,2025-07,,img/088_tight.jpg,img/088_context.jpg
+89,sdot_b2,sdot:5144922@mYCoVgUwmT8HVS2T-dmgTw,sdot_b2,seattle-wa,mYCoVgUwmT8HVS2T-dmgTw,0.745926,0.651186,,,,,,,,,img/089_tight.jpg,img/089_context.jpg
+90,auto,osm:kaysville-ut:4545507063@1814035532563660,osm_vistas_auto,kaysville-ut,1814035532563660,0.526303,0.577168,15.4,11744,0,0.07959,crossing:markings,GoPro Max,2025-11,,img/090_tight.jpg,img/090_context.jpg
+91,auto,osm:sacramento-ca:8904914217@791937486975384,osm_vistas_auto,sacramento-ca,791937486975384,0.513057,0.628788,4.8,112,0,0.01676,crossing=marked,Pilot One,2025-10,,img/091_tight.jpg,img/091_context.jpg
+92,human,cuenca:4299@z9JAIOCw_Uk360EI8Dr_ag,ps_crowd_jon_confirmed,cuenca,z9JAIOCw_Uk360EI8Dr_ag,0.7933,0.7263,,,,,,,,,img/092_tight.jpg,img/092_context.jpg
+93,auto,osm:sacramento-ca:10080918332@1115061540601399,osm_vistas_auto,sacramento-ca,1115061540601399,0.141963,0.536005,15.3,432,0,0.01823,crossing=marked,Pilot One,2025-09,,img/093_tight.jpg,img/093_context.jpg
+94,auto,osm:brussels-be:5905475677@186019960657077,osm_vistas_auto,brussels-be,186019960657077,0.902076,0.470887,11.6,12208,0,0.04997,crossing:markings,GoPro Max,2022-10,,img/094_tight.jpg,img/094_context.jpg
+95,auto,osm:kaysville-ut:6997842175@921007514426627,osm_vistas_auto,kaysville-ut,921007514426627,0.63408,0.597579,9.1,24800,1,0.04441,crossing:markings,GoPro Max,2025-11,,img/095_tight.jpg,img/095_context.jpg
+96,human,seattle-wa:280188@IjNRAa6L7nWoB7QLIEaeiA,crowd,seattle-wa,IjNRAa6L7nWoB7QLIEaeiA,0.464783,0.577393,,,,,,,,,img/096_tight.jpg,img/096_context.jpg
+97,auto,osm:kaysville-ut:10585657578@731533143118540,osm_vistas_auto,kaysville-ut,731533143118540,0.620402,0.568697,12.6,63808,1,0.04557,crossing:markings,GoPro Max,2025-08,,img/097_tight.jpg,img/097_context.jpg
+98,auto,osm:sacramento-ca:10076097961@1529948127622630,osm_vistas_auto,sacramento-ca,1529948127622630,0.374616,0.556698,17.7,3456,0,0.00648,crossing:markings,Pilot One,2024-09,,img/098_tight.jpg,img/098_context.jpg
+99,auto,osm:brussels-be:4470461214@435543178978403,osm_vistas_auto,brussels-be,435543178978403,0.863112,0.548487,8.9,14496,0,0.04418,crossing:markings,GoPro Max,2024-04,,img/099_tight.jpg,img/099_context.jpg
+100,auto,osm:sacramento-ca:13286570301@735018079563958,osm_vistas_auto,sacramento-ca,735018079563958,0.986686,0.582212,13.1,13856,0,0.05037,crossing:markings,Pilot One,2025-10,,img/100_tight.jpg,img/100_context.jpg
+101,human,burnaby:3251@Gk14GyC96bHHGuyv3x5gRQ,crowd,burnaby,Gk14GyC96bHHGuyv3x5gRQ,0.396912,0.622925,,,,,,,,,img/101_tight.jpg,img/101_context.jpg
+102,auto,osm:kaysville-ut:13730476462@1214400140371019,osm_vistas_auto,kaysville-ut,1214400140371019,0.711015,0.57154,7.8,32608,0,0.03102,crossing:markings,GoPro Max,2025-08,,img/102_tight.jpg,img/102_context.jpg
+103,auto,osm:kaysville-ut:11784529660@1256570205790003,osm_vistas_auto,kaysville-ut,1256570205790003,0.230501,0.597353,9.3,56816,1,0.04455,crossing:markings,GoPro Max,2025-08,,img/103_tight.jpg,img/103_context.jpg
+104,human,seattle-wa:274515@qvMd7YxmvHjnPfhMKyig4w,crowd,seattle-wa,qvMd7YxmvHjnPfhMKyig4w,0.916077,0.563599,,,,,,,,,img/104_tight.jpg,img/104_context.jpg
+105,human,seattle-wa:300560@AnAcXRTu8RO3vp4fP-rwzw,crowd,seattle-wa,AnAcXRTu8RO3vp4fP-rwzw,0.08606,0.607056,,,,,,,,,img/105_tight.jpg,img/105_context.jpg
+106,auto,osm:kaysville-ut:9376420986@1049706763707231,osm_vistas_auto,kaysville-ut,1049706763707231,0.103203,0.569466,14.0,6576,0,0.00831,crossing:markings,GoPro Max,2025-09,,img/106_tight.jpg,img/106_context.jpg
+107,auto,osm:brussels-be:9223251126@695945964868021,osm_vistas_auto,brussels-be,695945964868021,0.670873,0.624754,10.8,6496,0,0.07167,crossing:markings,GoPro Max,2022-03,,img/107_tight.jpg,img/107_context.jpg
+108,auto,osm:sacramento-ca:10097218317@759621053735931,osm_vistas_auto,sacramento-ca,759621053735931,0.458217,0.633485,8.5,6736,0,0.02906,crossing:markings,Pilot One,2025-09,,img/108_tight.jpg,img/108_context.jpg
+109,human,seattle-wa:263883@_Eu71fCxt2esWwhMd2xIuQ,crowd,seattle-wa,_Eu71fCxt2esWwhMd2xIuQ,0.477173,0.568481,,,,,,,,,img/109_tight.jpg,img/109_context.jpg
+110,auto,osm:kaysville-ut:11409927721@3704435809690540,osm_vistas_auto,kaysville-ut,3704435809690540,0.667165,0.57695,9.8,36768,0,0.05696,crossing:markings,GoPro Max,2025-08,crosswalk,img/110_tight.jpg,img/110_context.jpg
+111,auto,osm:sacramento-ca:12377033369@1079740327368121,osm_vistas_auto,sacramento-ca,1079740327368121,0.296097,0.543133,5.9,6592,0,0.04446,crossing:markings,Pilot One,2025-10,,img/111_tight.jpg,img/111_context.jpg
+112,auto,osm:sacramento-ca:13286609344@232700292719045,osm_vistas_auto,sacramento-ca,232700292719045,0.318644,0.560691,10.9,46304,0,0.05248,crossing:markings,none,2023-09,,img/112_tight.jpg,img/112_context.jpg
+113,auto,osm:brussels-be:5305367201@973184930643636,osm_vistas_auto,brussels-be,973184930643636,0.063194,0.462621,14.8,3504,0,0.05251,crossing:markings,GoPro Max,2024-05,,img/113_tight.jpg,img/113_context.jpg
+114,auto,osm:brussels-be:6343047070@283529510688863,osm_vistas_auto,brussels-be,283529510688863,0.359662,0.545465,12.9,2592,0,0.01317,crossing:markings,GoPro Max,2023-11,,img/114_tight.jpg,img/114_context.jpg
+115,sdot_b2,sdot:5147243@LmGGHahCvw8e2TpLEBm9OQ,sdot_b2,seattle-wa,LmGGHahCvw8e2TpLEBm9OQ,0.968635,0.52617,,,,,,,,,img/115_tight.jpg,img/115_context.jpg
+116,human,teaneck-nj:2513@n6k2_hFFT6J0yWd_qMnflg,crowd,teaneck-nj,n6k2_hFFT6J0yWd_qMnflg,0.455994,0.648315,,,,,,,,,img/116_tight.jpg,img/116_context.jpg
+117,human,burnaby:18776@4BsH6J-Uvp8-JjIpTC82fw,crowd,burnaby,4BsH6J-Uvp8-JjIpTC82fw,0.881226,0.689331,,,,,,,,,img/117_tight.jpg,img/117_context.jpg
+118,auto,osm:brussels-be:3132140873@1437018351253012,osm_vistas_auto,brussels-be,1437018351253012,0.995021,0.691477,3.5,43696,1,0.00742,crossing:markings,GoPro Max,2026-02,,img/118_tight.jpg,img/118_context.jpg
+119,human,seattle-wa:289465@5dwtlMmvmVkjEeWz91CT0A,crowd,seattle-wa,5dwtlMmvmVkjEeWz91CT0A,0.648071,0.577148,,,,,,,,,img/119_tight.jpg,img/119_context.jpg
+120,sdot_b2,sdot:5149467@P2U4qzBNYloGtij7Gg1-xA,sdot_b2,seattle-wa,P2U4qzBNYloGtij7Gg1-xA,0.45567,0.586803,,,,,,,,,img/120_tight.jpg,img/120_context.jpg
+121,auto,osm:brussels-be:5647606989@632187104805341,osm_vistas_auto,brussels-be,632187104805341,0.848031,0.538906,8.8,26848,0,0.07231,crossing:markings,GoPro Max,2022-08,,img/121_tight.jpg,img/121_context.jpg
+122,auto,osm:kaysville-ut:10585697665@1440662580537102,osm_vistas_auto,kaysville-ut,1440662580537102,0.093068,0.540588,14.0,14544,0,0.03763,crossing:markings,GoPro Max,2025-07,,img/122_tight.jpg,img/122_context.jpg
+123,human,seattle-wa:310903@AaoXqQj_hoSoBLYtz5iwsQ,crowd,seattle-wa,AaoXqQj_hoSoBLYtz5iwsQ,0.208008,0.593872,,,,,,,,,img/123_tight.jpg,img/123_context.jpg
+124,auto,osm:sacramento-ca:1352826210@370596802736546,osm_vistas_auto,sacramento-ca,370596802736546,0.457382,0.562976,16.5,4208,0,0.03013,signals_only,Pilot One,2024-08,,img/124_tight.jpg,img/124_context.jpg
+125,auto,osm:brussels-be:26086605@804853421855699,osm_vistas_auto,brussels-be,804853421855699,0.362639,0.634349,13.7,2224,0,0.0373,crossing:markings,GoPro Max,2024-07,,img/125_tight.jpg,img/125_context.jpg
+126,auto,osm:sacramento-ca:4940637065@760323990125914,osm_vistas_auto,sacramento-ca,760323990125914,0.781815,0.574278,14.7,14800,1,0.08037,signals_only,Pilot One,2025-09,,img/126_tight.jpg,img/126_context.jpg
+127,auto,osm:sacramento-ca:10794029957@1192103508599823,osm_vistas_auto,sacramento-ca,1192103508599823,0.717127,0.617805,6.7,56176,1,0.02248,crossing:markings,Pilot One,2024-08,,img/127_tight.jpg,img/127_context.jpg
+128,human,seattle-wa:315435@fEhhbkC3i38jbA3k0vEVwQ,crowd,seattle-wa,fEhhbkC3i38jbA3k0vEVwQ,0.111755,0.627197,,,,,,,,,img/128_tight.jpg,img/128_context.jpg
+129,auto,osm:sacramento-ca:13285948698@2263010944137940,osm_vistas_auto,sacramento-ca,2263010944137940,0.863125,0.591526,7.8,23056,1,0.04149,crossing:markings,Pilot One,2025-09,,img/129_tight.jpg,img/129_context.jpg
+130,auto,osm:sacramento-ca:12185155748@1463631374861981,osm_vistas_auto,sacramento-ca,1463631374861981,0.854009,0.574484,13.4,12160,1,0.07235,crossing:markings,Pilot One,2025-10,crosswalk,img/130_tight.jpg,img/130_context.jpg
+131,auto,osm:kaysville-ut:11784529662@1296598945394105,osm_vistas_auto,kaysville-ut,1296598945394105,0.777321,0.669982,4.3,123264,0,0.09568,crossing:markings,GoPro Max,2025-08,,img/131_tight.jpg,img/131_context.jpg
+132,auto,osm:kaysville-ut:6997842180@1108713271354563,osm_vistas_auto,kaysville-ut,1108713271354563,0.219307,0.540916,18.6,2864,0,0.01671,crossing:markings,GoPro Max,2025-07,,img/132_tight.jpg,img/132_context.jpg
+133,auto,osm:brussels-be:13390424406@1661666105637026,osm_vistas_auto,brussels-be,1661666105637026,0.007493,0.555453,8.9,19600,0,0.0302,crossing:markings,GoPro Max,2026-05,,img/133_tight.jpg,img/133_context.jpg
+134,sdot_b2,sdot:5146177@mYCoVgUwmT8HVS2T-dmgTw,sdot_b2,seattle-wa,mYCoVgUwmT8HVS2T-dmgTw,0.34783,0.553624,,,,,,,,,img/134_tight.jpg,img/134_context.jpg
+135,auto,osm:kaysville-ut:10585697664@1440662580537102,osm_vistas_auto,kaysville-ut,1440662580537102,0.549111,0.58539,7.9,38320,0,0.04446,crossing:markings,GoPro Max,2025-07,crosswalk,img/135_tight.jpg,img/135_context.jpg
+136,auto,osm:sacramento-ca:7155331007@831733959532542,osm_vistas_auto,sacramento-ca,831733959532542,0.739178,0.587684,11.2,22048,0,0.02096,crossing:markings,Pilot One,2025-10,,img/136_tight.jpg,img/136_context.jpg
+137,sdot_b2,sdot:5145870@6cUAwyshbNKIoBZ-eLzzpw,sdot_b2,seattle-wa,6cUAwyshbNKIoBZ-eLzzpw,0.87081,0.610271,,,,,,,,,img/137_tight.jpg,img/137_context.jpg
+138,auto,osm:brussels-be:2135360281@1012785193158220,osm_vistas_auto,brussels-be,1012785193158220,0.611557,0.586475,14.5,2576,0,0.01742,crossing:markings,GoPro Max,2023-12,,img/138_tight.jpg,img/138_context.jpg
+139,auto,osm:kaysville-ut:4545507061@966385672222636,osm_vistas_auto,kaysville-ut,966385672222636,0.306063,0.557148,18.1,4384,0,0.032,crossing:markings,GoPro Max,2025-07,,img/139_tight.jpg,img/139_context.jpg
+140,human,amsterdam:29217@sYYU5AvzMtZ4OLdR5UNeEg,crowd,amsterdam,sYYU5AvzMtZ4OLdR5UNeEg,0.006226,0.632568,,,,,,,,,img/140_tight.jpg,img/140_context.jpg
+141,auto,osm:sacramento-ca:13286641630@1511827373155203,osm_vistas_auto,sacramento-ca,1511827373155203,0.738101,0.590966,13.5,47248,0,0.01648,crossing:markings,Pilot One,2025-09,,img/141_tight.jpg,img/141_context.jpg
+142,auto,osm:sacramento-ca:12851985018@997443835250977,osm_vistas_auto,sacramento-ca,997443835250977,0.724984,0.631829,7.6,72896,1,0.06847,crossing:markings,Pilot One,2024-07,,img/142_tight.jpg,img/142_context.jpg
+143,sdot_b2,sdot:5149937@jfGitwb9TJ79Cw5Sh1VQrQ,sdot_b2,seattle-wa,jfGitwb9TJ79Cw5Sh1VQrQ,0.571357,0.607236,,,,,,,,,img/143_tight.jpg,img/143_context.jpg
+144,sdot_b2,sdot:5148208@ZpvpogZqxVXwVvhtDr-IyA,sdot_b2,seattle-wa,ZpvpogZqxVXwVvhtDr-IyA,0.991783,0.531404,,,,,,,,,img/144_tight.jpg,img/144_context.jpg
+145,auto,osm:sacramento-ca:9981016567@1519393889404850,osm_vistas_auto,sacramento-ca,1519393889404850,0.074765,0.536167,13.3,5168,0,0.09223,signals_only,Pilot One,2025-09,,img/145_tight.jpg,img/145_context.jpg
+146,human,burnaby:12950@xYqwaH8qzb4-pWrEgj4lJg,crowd,burnaby,xYqwaH8qzb4-pWrEgj4lJg,0.698425,0.632568,,,,,,,,,img/146_tight.jpg,img/146_context.jpg
+147,auto,osm:kaysville-ut:9376421130@1579439369893046,osm_vistas_auto,kaysville-ut,1579439369893046,0.560213,0.617352,5.2,23344,0,0.0471,crossing=marked,GoPro Max,2025-10,crosswalk,img/147_tight.jpg,img/147_context.jpg
+148,auto,osm:brussels-be:3115600985@491548866651170,osm_vistas_auto,brussels-be,491548866651170,0.993498,0.474957,14.7,1824,0,0.04269,crossing:markings,GoPro Max,2024-06,,img/148_tight.jpg,img/148_context.jpg
+149,auto,osm:brussels-be:5661016325@753678653574372,osm_vistas_auto,brussels-be,753678653574372,0.930512,0.569422,17.9,78400,1,0.06063,crossing:markings,GoPro Max,2024-03,,img/149_tight.jpg,img/149_context.jpg
+150,auto,osm:kaysville-ut:10585701407@1155149153469787,osm_vistas_auto,kaysville-ut,1155149153469787,0.558601,0.694764,7.8,138656,1,0.04779,crossing:markings,GoPro Max,2025-11,,img/150_tight.jpg,img/150_context.jpg
+151,auto,osm:kaysville-ut:9389396605@1255328826052012,osm_vistas_auto,kaysville-ut,1255328826052012,0.055367,0.559663,18.0,2736,0,0.02692,crossing:markings,GoPro Max,2025-07,crosswalk,img/151_tight.jpg,img/151_context.jpg
+152,auto,osm:brussels-be:9838885029@148332371140634,osm_vistas_auto,brussels-be,148332371140634,0.457409,0.587598,14.1,2880,0,0.01684,crossing:markings,GoPro Max,2022-07,,img/152_tight.jpg,img/152_context.jpg
+153,human,seattle-wa:201009@4xQS5uEtlAdjF_o4GHq4uA,crowd,seattle-wa,4xQS5uEtlAdjF_o4GHq4uA,0.488953,0.591675,,,,,,,,,img/153_tight.jpg,img/153_context.jpg
+154,sdot_b2,sdot:5146585@_km9a1Bdbj3mZ9IeowCJwQ,sdot_b2,seattle-wa,_km9a1Bdbj3mZ9IeowCJwQ,0.749888,0.593475,,,,,,,,,img/154_tight.jpg,img/154_context.jpg
+155,auto,osm:brussels-be:2532122259@769230998101898,osm_vistas_auto,brussels-be,769230998101898,0.869034,0.584164,15.3,1568,0,0.0289,crossing:markings,GoPro Max,2023-04,,img/155_tight.jpg,img/155_context.jpg
+156,auto,osm:brussels-be:1271954967@352923856329863,osm_vistas_auto,brussels-be,352923856329863,0.045334,0.541218,7.9,58576,0,0.03202,crossing:markings,GoPro Max,2022-01,,img/156_tight.jpg,img/156_context.jpg
+157,auto,osm:kaysville-ut:11669695718@1496368604803728,osm_vistas_auto,kaysville-ut,1496368604803728,0.655172,0.590359,7.5,46912,1,0.02565,crossing:markings,GoPro Max,2025-12,,img/157_tight.jpg,img/157_context.jpg
+158,auto,osm:kaysville-ut:6997842175@1380411183481026,osm_vistas_auto,kaysville-ut,1380411183481026,0.276232,0.538304,11.0,26832,0,0.0802,crossing:markings,GoPro Max,2025-11,,img/158_tight.jpg,img/158_context.jpg
+159,auto,osm:kaysville-ut:5065324070@695676513128987,osm_vistas_auto,kaysville-ut,695676513128987,0.319962,0.543914,8.5,32304,0,0.05771,crossing:markings,GoPro Max,2025-10,,img/159_tight.jpg,img/159_context.jpg
+160,auto,osm:kaysville-ut:10585697477@1332353554875244,osm_vistas_auto,kaysville-ut,1332353554875244,0.360274,0.507447,16.2,448,0,0.03267,crossing:markings,GoPro Max,2025-11,,img/160_tight.jpg,img/160_context.jpg
+161,auto,osm:brussels-be:1398771074@674409183614000,osm_vistas_auto,brussels-be,674409183614000,0.24883,0.598273,16.1,72672,0,0.05261,crossing:markings,GoPro Max,2022-09,,img/161_tight.jpg,img/161_context.jpg
+162,human,seattle-wa:207439@_lytetM5_1we21zb5UHMVg,crowd,seattle-wa,_lytetM5_1we21zb5UHMVg,0.88916,0.546265,,,,,,,,,img/162_tight.jpg,img/162_context.jpg
+163,auto,osm:sacramento-ca:10288211234@1469441020606159,osm_vistas_auto,sacramento-ca,1469441020606159,0.765375,0.553593,13.7,2960,0,0.00739,crossing:markings,Pilot One,2024-07,,img/163_tight.jpg,img/163_context.jpg
+164,human,seattle-wa:311868@KjBLwesThDVWNYkpC0Q_jQ,crowd,seattle-wa,KjBLwesThDVWNYkpC0Q_jQ,0.036194,0.545654,,,,,,,,,img/164_tight.jpg,img/164_context.jpg
+165,auto,osm:brussels-be:7629310482@3047263418771308,osm_vistas_auto,brussels-be,3047263418771308,0.863529,0.505913,16.7,2160,0,0.02188,crossing:markings,GoPro Max,2025-06,,img/165_tight.jpg,img/165_context.jpg
+166,auto,osm:brussels-be:13827072663@1310707750838155,osm_vistas_auto,brussels-be,1310707750838155,0.459703,0.597256,12.6,4992,0,0.01991,crossing:markings,GoPro Max,2026-03,,img/166_tight.jpg,img/166_context.jpg
+167,sdot_b2,sdot:5145950@tfCzi8Fm4dzkcfGptRHw-A,sdot_b2,seattle-wa,tfCzi8Fm4dzkcfGptRHw-A,0.315451,0.537089,,,,,,,,,img/167_tight.jpg,img/167_context.jpg
+168,auto,osm:sacramento-ca:1352826267@1201927338467383,osm_vistas_auto,sacramento-ca,1201927338467383,0.550646,0.541442,16.1,1696,1,0.00679,crossing:markings,Pilot One,2025-10,,img/168_tight.jpg,img/168_context.jpg
+169,sdot_b2,sdot:5148443@K4WVlb20dKHAmQzHT4zLNw,sdot_b2,seattle-wa,K4WVlb20dKHAmQzHT4zLNw,0.365845,0.568071,,,,,,,,,img/169_tight.jpg,img/169_context.jpg
+170,auto,osm:kaysville-ut:10585701405@1607972967031443,osm_vistas_auto,kaysville-ut,1607972967031443,0.342561,0.589912,8.7,65920,0,0.08483,crossing:markings,GoPro Max,2025-11,,img/170_tight.jpg,img/170_context.jpg
+171,human,teaneck-nj:2581@WHLwEIda-_3EoRehWjZcIg,crowd,teaneck-nj,WHLwEIda-_3EoRehWjZcIg,0.499146,0.580078,,,,,,,,,img/171_tight.jpg,img/171_context.jpg
+172,auto,osm:sacramento-ca:12642889674@833120985805093,osm_vistas_auto,sacramento-ca,833120985805093,0.752501,0.593299,10.3,23936,1,0.07108,crossing:markings,Pilot One,2025-10,,img/172_tight.jpg,img/172_context.jpg
+173,auto,osm:kaysville-ut:10585697664@658292489888554,osm_vistas_auto,kaysville-ut,658292489888554,0.687415,0.545056,14.6,10880,0,0.04266,crossing:markings,GoPro Max,2025-07,,img/173_tight.jpg,img/173_context.jpg
+174,auto,osm:sacramento-ca:10097218320@1311068337220829,osm_vistas_auto,sacramento-ca,1311068337220829,0.013582,0.558965,15.5,3728,0,0.0215,crossing:markings,Pilot One,2025-09,,img/174_tight.jpg,img/174_context.jpg
+175,auto,osm:sacramento-ca:7081672734@1018253796973690,osm_vistas_auto,sacramento-ca,1018253796973690,0.972567,0.684404,2.0,176112,0,0.07986,crossing:markings,Pilot One,2024-07,,img/175_tight.jpg,img/175_context.jpg
+176,auto,osm:brussels-be:3136263375@651014201314150,osm_vistas_auto,brussels-be,651014201314150,0.815861,0.651292,2.9,240432,0,0.06628,crossing:markings,GoPro Max,2025-06,,img/176_tight.jpg,img/176_context.jpg
+177,human,amsterdam:13100@p0qSHpafHa5nv9vygiblbA,crowd,amsterdam,p0qSHpafHa5nv9vygiblbA,0.13678,0.594116,,,,,,,,,img/177_tight.jpg,img/177_context.jpg
+178,human,seattle-wa:239499@7MMXId1GuFr7ikiKzyP1bw,crowd,seattle-wa,7MMXId1GuFr7ikiKzyP1bw,0.035217,0.540527,,,,,,,,,img/178_tight.jpg,img/178_context.jpg
+179,auto,osm:brussels-be:9372972883@1436504757482853,osm_vistas_auto,brussels-be,1436504757482853,0.004913,0.660428,10.8,8720,0,0.05369,crossing:markings,GoPro Max,2025-06,,img/179_tight.jpg,img/179_context.jpg
+180,human,seattle-wa:271370@isydYBxFxDBVz_ZaU2-GMQ,crowd,seattle-wa,isydYBxFxDBVz_ZaU2-GMQ,0.863159,0.672119,,,,,,,,,img/180_tight.jpg,img/180_context.jpg
+181,human,teaneck-nj:11719@Yizlou3o3oF117CxJ6iJAw,crowd,teaneck-nj,Yizlou3o3oF117CxJ6iJAw,0.184814,0.588867,,,,,,,,,img/181_tight.jpg,img/181_context.jpg
+182,auto,osm:kaysville-ut:10585701405@1183442196578083,osm_vistas_auto,kaysville-ut,1183442196578083,0.61888,0.599534,9.5,24256,1,0.0323,crossing:markings,GoPro Max,2025-11,,img/182_tight.jpg,img/182_context.jpg
+183,auto,osm:sacramento-ca:10093902967@1765091534019260,osm_vistas_auto,sacramento-ca,1765091534019260,0.879515,0.552531,19.2,10896,0,0.0386,crossing:markings,Pilot One,2024-07,,img/183_tight.jpg,img/183_context.jpg
+184,human,amsterdam:11967@tLrxeZH1IAHR5f9EOYEfiw,crowd,amsterdam,tLrxeZH1IAHR5f9EOYEfiw,0.27887,0.584473,,,,,,,,,img/184_tight.jpg,img/184_context.jpg
+185,auto,osm:sacramento-ca:14170632346@1165064742226648,osm_vistas_auto,sacramento-ca,1165064742226648,0.14793,0.637899,9.3,61392,0,0.10165,crossing:markings,Pilot One,2025-10,,img/185_tight.jpg,img/185_context.jpg
+186,auto,osm:brussels-be:507082000@1307569711380201,osm_vistas_auto,brussels-be,1307569711380201,0.279063,0.643159,7.3,17760,0,0.02742,crossing:markings,GoPro Max,2025-09,crosswalk,img/186_tight.jpg,img/186_context.jpg
+187,human,richmond-va:38609@1073043804328622,ps_crowd_jon_confirmed,richmond-va,1073043804328622,0.0476,0.6045,,,,,,,,,img/187_tight.jpg,img/187_context.jpg
+188,auto,osm:sacramento-ca:13253443866@4178362475777131,osm_vistas_auto,sacramento-ca,4178362475777131,0.483857,0.541192,18.6,4720,0,0.03161,crossing:markings,Pilot One,2025-10,,img/188_tight.jpg,img/188_context.jpg
+189,auto,osm:kaysville-ut:11409927722@751767797471031,osm_vistas_auto,kaysville-ut,751767797471031,0.970639,0.541296,11.4,2544,0,0.02805,crossing:markings,GoPro Max,2025-08,crosswalk,img/189_tight.jpg,img/189_context.jpg
+190,auto,osm:sacramento-ca:12641831255@512069841547580,osm_vistas_auto,sacramento-ca,512069841547580,0.634058,0.569918,15.5,9072,1,0.02353,crossing:markings,Pilot One,2024-08,,img/190_tight.jpg,img/190_context.jpg
+191,auto,osm:brussels-be:1864285164@2146835155511432,osm_vistas_auto,brussels-be,2146835155511432,0.717907,0.701683,4.7,320768,1,0.08435,signals_only,GoPro Max,2023-04,,img/191_tight.jpg,img/191_context.jpg
+192,auto,osm:kaysville-ut:7006682057@1261380971898814,osm_vistas_auto,kaysville-ut,1261380971898814,0.360053,0.560081,10.4,71952,0,0.08653,crossing:markings,GoPro Max,2025-07,,img/192_tight.jpg,img/192_context.jpg
+193,auto,osm:sacramento-ca:13741654577@1425749998111290,osm_vistas_auto,sacramento-ca,1425749998111290,0.390213,0.612957,8.0,20320,0,0.08557,crossing:markings,Pilot One,2024-08,,img/193_tight.jpg,img/193_context.jpg
+194,human,seattle-wa:289693@Nan6WTZZUoZ81p0GPJ-Ceg,crowd,seattle-wa,Nan6WTZZUoZ81p0GPJ-Ceg,0.29248,0.552979,,,,,,,,,img/194_tight.jpg,img/194_context.jpg
+195,auto,osm:brussels-be:3132140907@1437018351253012,osm_vistas_auto,brussels-be,1437018351253012,0.110239,0.677201,10.3,9328,0,0.05389,crossing:markings,GoPro Max,2026-02,,img/195_tight.jpg,img/195_context.jpg
+196,auto,osm:brussels-be:4948529633@503347772005577,osm_vistas_auto,brussels-be,503347772005577,0.803299,0.549923,15.3,256,0,0.00867,crossing:markings,GoPro Max,2023-04,,img/196_tight.jpg,img/196_context.jpg
+197,sdot_b2,sdot:5146068@B6ZflEgJW1L863hrBiMnww,sdot_b2,seattle-wa,B6ZflEgJW1L863hrBiMnww,0.01637,0.542323,,,,,,,,,img/197_tight.jpg,img/197_context.jpg
+198,auto,osm:brussels-be:8213427191@941493227042373,osm_vistas_auto,brussels-be,941493227042373,0.346283,0.569307,11.2,8800,1,0.00833,crossing:markings,GoPro Max,2023-04,,img/198_tight.jpg,img/198_context.jpg
+199,auto,osm:kaysville-ut:10585699622@761245049941169,osm_vistas_auto,kaysville-ut,761245049941169,0.403434,0.546333,17.6,2720,0,0.04167,crossing:markings,GoPro Max,2025-08,,img/199_tight.jpg,img/199_context.jpg
+200,sdot_b2,sdot:5148677@HNYQbwkuZn6vOEzG8tl98w,sdot_b2,seattle-wa,HNYQbwkuZn6vOEzG8tl98w,0.009092,0.52432,,,,,,,,,img/200_tight.jpg,img/200_context.jpg
+201,auto,osm:brussels-be:8883179931@322093176526629,osm_vistas_auto,brussels-be,322093176526629,0.033485,0.552471,10.8,2512,0,0.02713,crossing:markings,GoPro Max,2022-02,,img/201_tight.jpg,img/201_context.jpg
+202,auto,osm:sacramento-ca:8553714374@827907996444589,osm_vistas_auto,sacramento-ca,827907996444589,0.426649,0.553446,15.9,11088,0,0.06421,crossing:markings,Pilot One,2025-10,,img/202_tight.jpg,img/202_context.jpg
+203,human,amsterdam:28716@oPqyP9tPCu7c52uphr-Xvg,crowd,amsterdam,oPqyP9tPCu7c52uphr-Xvg,0.670898,0.549927,,,,,,,,,img/203_tight.jpg,img/203_context.jpg
+204,sdot_b2,sdot:5146514@3jUz-jLmkKe_kFIAmaK7tQ,sdot_b2,seattle-wa,3jUz-jLmkKe_kFIAmaK7tQ,0.450501,0.581818,,,,,,,,,img/204_tight.jpg,img/204_context.jpg
+205,auto,osm:sacramento-ca:11532144435@1210904653526614,osm_vistas_auto,sacramento-ca,1210904653526614,0.340658,0.564243,5.9,8096,0,0.05233,crossing:markings,Pilot One,2024-08,,img/205_tight.jpg,img/205_context.jpg
+206,sdot_b2,sdot:5149449@l7PMWnO8DB5-ZLqlZbKZ6Q,sdot_b2,seattle-wa,l7PMWnO8DB5-ZLqlZbKZ6Q,0.037111,0.53736,,,,,,,,,img/206_tight.jpg,img/206_context.jpg
+207,auto,osm:sacramento-ca:12878335640@2062721454533800,osm_vistas_auto,sacramento-ca,2062721454533800,0.779069,0.563579,11.1,10944,0,0.05901,crossing:markings,Pilot One,2025-10,,img/207_tight.jpg,img/207_context.jpg
+208,auto,osm:sacramento-ca:10097218303@1930725290804042,osm_vistas_auto,sacramento-ca,1930725290804042,0.837897,0.640364,12.2,70912,1,0.09215,crossing:markings,Pilot One,2025-10,,img/208_tight.jpg,img/208_context.jpg
+209,auto,osm:kaysville-ut:6997842182@741881905370428,osm_vistas_auto,kaysville-ut,741881905370428,0.796346,0.542522,14.2,23424,0,0.06622,crossing:markings,GoPro Max,2025-07,crosswalk,img/209_tight.jpg,img/209_context.jpg
+210,sdot_b2,sdot:5149874@At1ujRTcIPWuTFpIp-j8TQ,sdot_b2,seattle-wa,At1ujRTcIPWuTFpIp-j8TQ,0.363527,0.63204,,,,,,,,,img/210_tight.jpg,img/210_context.jpg
+211,human,seattle-wa:308011@f4F_4PWFItiSyqYkOGq0lg,crowd,seattle-wa,f4F_4PWFItiSyqYkOGq0lg,0.310181,0.581787,,,,,,,,,img/211_tight.jpg,img/211_context.jpg
+212,human,seattle-wa:280548@LR9S-n1QAmWwKLSMidK8cA,crowd,seattle-wa,LR9S-n1QAmWwKLSMidK8cA,0.469482,0.578369,,,,,,,,,img/212_tight.jpg,img/212_context.jpg
+213,auto,osm:sacramento-ca:7524727245@4024681884418336,osm_vistas_auto,sacramento-ca,4024681884418336,0.832891,0.593496,8.1,21424,1,0.06739,crossing:markings,Pilot One,2024-08,,img/213_tight.jpg,img/213_context.jpg
+214,auto,osm:sacramento-ca:12787486371@795662902955836,osm_vistas_auto,sacramento-ca,795662902955836,0.898212,0.543999,14.9,4432,0,0.04089,crossing:markings,Pilot One,2025-09,,img/214_tight.jpg,img/214_context.jpg
+215,auto,osm:brussels-be:5316256886@769230998101898,osm_vistas_auto,brussels-be,769230998101898,0.775781,0.555558,18.5,2032,0,0.0196,crossing:markings,GoPro Max,2023-04,,img/215_tight.jpg,img/215_context.jpg
+216,human,burnaby:19572@AKT1D84mVabZjcexSXCfYA,crowd,burnaby,AKT1D84mVabZjcexSXCfYA,0.096008,0.542114,,,,,,,,,img/216_tight.jpg,img/216_context.jpg
+217,auto,osm:kaysville-ut:11409927721@1082499000531462,osm_vistas_auto,kaysville-ut,1082499000531462,0.413909,0.60431,7.9,38864,1,0.04772,crossing:markings,GoPro Max,2025-08,,img/217_tight.jpg,img/217_context.jpg
+218,auto,osm:kaysville-ut:11669695721@1081368743715295,osm_vistas_auto,kaysville-ut,1081368743715295,0.529223,0.537413,19.4,3520,0,0.00999,crossing:markings,GoPro Max,2025-08,,img/218_tight.jpg,img/218_context.jpg
+219,auto,osm:sacramento-ca:10257722853@7176660842437198,osm_vistas_auto,sacramento-ca,7176660842437198,0.127352,0.545928,13.6,11616,1,0.02091,signals_only,Pilot One,2024-08,,img/219_tight.jpg,img/219_context.jpg
+220,auto,osm:brussels-be:11335369566@317338264569087,osm_vistas_auto,brussels-be,317338264569087,0.606177,0.476123,17.5,704,0,0.03723,crossing:markings,GoPro Max,2023-11,crosswalk,img/220_tight.jpg,img/220_context.jpg
+221,human,seattle-wa:263462@SI6K6MMg-HM_tlbJuCtLyA,crowd,seattle-wa,SI6K6MMg-HM_tlbJuCtLyA,0.482727,0.574463,,,,,,,,,img/221_tight.jpg,img/221_context.jpg
+222,auto,osm:sacramento-ca:10288213240@849943953861374,osm_vistas_auto,sacramento-ca,849943953861374,0.031851,0.70326,4.0,96448,1,0.01306,crossing:markings,Pilot One,2024-07,,img/222_tight.jpg,img/222_context.jpg
+223,auto,osm:brussels-be:7195151201@1448459089502923,osm_vistas_auto,brussels-be,1448459089502923,0.317822,0.501824,18.2,1456,0,0.02328,crossing:markings,GoPro Max,2025-06,,img/223_tight.jpg,img/223_context.jpg
+224,sdot_b2,sdot:5147599@r6_O9vMYziG_XGClnv0nLQ,sdot_b2,seattle-wa,r6_O9vMYziG_XGClnv0nLQ,0.480368,0.577423,,,,,,,,,img/224_tight.jpg,img/224_context.jpg
+225,sdot_b2,sdot:5146391@4D6S4mTpbac6YFoYnaOfRw,sdot_b2,seattle-wa,4D6S4mTpbac6YFoYnaOfRw,0.494973,0.588578,,,,,,,,,img/225_tight.jpg,img/225_context.jpg
+226,human,seattle-wa:314894@pkX8Rz35Z2z3uA_TpscL4A,crowd,seattle-wa,pkX8Rz35Z2z3uA_TpscL4A,0.217224,0.55127,,,,,,,,,img/226_tight.jpg,img/226_context.jpg
+227,human,cuenca:7111@SgqTYQH8i0ZAxn_hr_aHQw,ps_crowd_jon_confirmed,cuenca,SgqTYQH8i0ZAxn_hr_aHQw,0.1607,0.6522,,,,,,,,,img/227_tight.jpg,img/227_context.jpg
+228,auto,osm:sacramento-ca:13346725152@3055638054578044,osm_vistas_auto,sacramento-ca,3055638054578044,0.021541,0.649726,10.0,122864,0,0.03576,crossing:markings,Pilot One,2024-07,,img/228_tight.jpg,img/228_context.jpg
+229,auto,osm:brussels-be:330199697@503283331525003,osm_vistas_auto,brussels-be,503283331525003,0.521884,0.592273,4.7,48752,0,0.1028,crossing:markings,GoPro Max,2022-05,,img/229_tight.jpg,img/229_context.jpg
+230,sdot_b2,sdot:5144182@VcHHfdJEko5BmoHcqNmgLw,sdot_b2,seattle-wa,VcHHfdJEko5BmoHcqNmgLw,0.592764,0.560081,,,,,,,,,img/230_tight.jpg,img/230_context.jpg
+231,auto,osm:kaysville-ut:11784529663@1296598945394105,osm_vistas_auto,kaysville-ut,1296598945394105,0.816432,0.561582,17.9,5264,0,0.00854,crossing:markings,GoPro Max,2025-08,crosswalk,img/231_tight.jpg,img/231_context.jpg
+232,human,seattle-wa:289474@jpCeV945X-QjfwD5l7-7Hg,crowd,seattle-wa,jpCeV945X-QjfwD5l7-7Hg,0.001282,0.572754,,,,,,,,,img/232_tight.jpg,img/232_context.jpg
+233,auto,osm:sacramento-ca:10241207190@1197200302240801,osm_vistas_auto,sacramento-ca,1197200302240801,0.604597,0.550216,14.9,576,0,0.00296,signals_only,Pilot One,2025-10,,img/233_tight.jpg,img/233_context.jpg
+234,auto,osm:kaysville-ut:11784564243@1686738615370402,osm_vistas_auto,kaysville-ut,1686738615370402,0.546646,0.572784,19.4,6144,0,0.04833,crossing:markings,GoPro Max,2025-08,,img/234_tight.jpg,img/234_context.jpg
+235,auto,osm:brussels-be:2619909335@1432858747549288,osm_vistas_auto,brussels-be,1432858747549288,0.610667,0.677145,2.9,184816,0,0.0812,crossing:markings,GoPro Max,2023-06,,img/235_tight.jpg,img/235_context.jpg
+236,auto,osm:kaysville-ut:9376421134@1579439369893046,osm_vistas_auto,kaysville-ut,1579439369893046,0.712985,0.534367,15.1,2032,0,0.03588,crossing=marked,GoPro Max,2025-10,crosswalk,img/236_tight.jpg,img/236_context.jpg
+237,auto,osm:kaysville-ut:4545507062@966385672222636,osm_vistas_auto,kaysville-ut,966385672222636,0.527082,0.695363,11.6,146416,1,0.11573,crossing:markings,GoPro Max,2025-07,,img/237_tight.jpg,img/237_context.jpg
+238,auto,osm:kaysville-ut:4545507062@2195508274283321,osm_vistas_auto,kaysville-ut,2195508274283321,0.475719,0.565353,18.3,3232,0,0.01274,crossing:markings,GoPro Max,2025-08,,img/238_tight.jpg,img/238_context.jpg
+239,auto,osm:sacramento-ca:13286529522@480922191252900,osm_vistas_auto,sacramento-ca,480922191252900,0.70235,0.574169,13.6,19584,1,0.06497,crossing:markings,Pilot One,2024-07,,img/239_tight.jpg,img/239_context.jpg
+240,auto,osm:sacramento-ca:14137675323@1001635718004984,osm_vistas_auto,sacramento-ca,1001635718004984,0.331953,0.550884,16.0,6720,1,0.0268,crossing:markings,Pilot One,2024-07,,img/240_tight.jpg,img/240_context.jpg
+241,auto,osm:sacramento-ca:7474281832@459168913538146,osm_vistas_auto,sacramento-ca,459168913538146,0.816704,0.593058,7.3,33696,1,0.05468,crossing=marked,Pilot One,2024-07,,img/241_tight.jpg,img/241_context.jpg
+242,human,chicago-il:39448@s7-gNPSdX89YvC-cFLeJ_Q,ps_crowd_jon_confirmed,chicago-il,s7-gNPSdX89YvC-cFLeJ_Q,0.5294,0.6099,,,,,,,,,img/242_tight.jpg,img/242_context.jpg
+243,auto,osm:sacramento-ca:7194560666@1864677597790552,osm_vistas_auto,sacramento-ca,1864677597790552,0.015503,0.548402,11.3,7552,0,0.04819,signals_only,Pilot One,2025-09,,img/243_tight.jpg,img/243_context.jpg
+244,auto,osm:kaysville-ut:11483975942@25015318024800977,osm_vistas_auto,kaysville-ut,25015318024800977,0.772951,0.532738,18.2,9472,0,0.07268,crossing:markings,GoPro Max,2025-10,,img/244_tight.jpg,img/244_context.jpg
+245,human,seattle-wa:259167@wdu_ymxT5xIp4gdM1bMw-A,crowd,seattle-wa,wdu_ymxT5xIp4gdM1bMw-A,0.659058,0.613281,,,,,,,,,img/245_tight.jpg,img/245_context.jpg
+246,sdot_b2,sdot:5143814@7jmSc9NALHmndhYjYii3gA,sdot_b2,seattle-wa,7jmSc9NALHmndhYjYii3gA,0.312955,0.530927,,,,,,,,,img/246_tight.jpg,img/246_context.jpg
+247,auto,osm:sacramento-ca:8553658822@4131961677131415,osm_vistas_auto,sacramento-ca,4131961677131415,0.860703,0.566224,15.0,10400,1,0.02311,crossing:markings,Pilot One,2025-09,,img/247_tight.jpg,img/247_context.jpg
+248,sdot_b2,sdot:5147650@Oc0V00do83_mycN9xAuHIA,sdot_b2,seattle-wa,Oc0V00do83_mycN9xAuHIA,0.478064,0.592041,,,,,,,,,img/248_tight.jpg,img/248_context.jpg
+249,human,burnaby:2278@yFqziKl3DwTodrsgbK3qTQ,crowd,burnaby,yFqziKl3DwTodrsgbK3qTQ,0.345337,0.545532,,,,,,,,,img/249_tight.jpg,img/249_context.jpg
+250,auto,osm:sacramento-ca:13348500654@1041832934210724,osm_vistas_auto,sacramento-ca,1041832934210724,0.146846,0.69266,7.0,161520,1,0.08876,crossing:markings,Pilot One,2024-07,,img/250_tight.jpg,img/250_context.jpg
+251,auto,osm:brussels-be:6173410185@311721944479137,osm_vistas_auto,brussels-be,311721944479137,0.161283,0.567314,11.3,14288,1,0.00241,crossing:markings,GoPro Max,2022-05,,img/251_tight.jpg,img/251_context.jpg
+252,auto,osm:kaysville-ut:9376421006@732796433094728,osm_vistas_auto,kaysville-ut,732796433094728,0.60134,0.535643,8.6,3296,0,0.0291,crossing:markings,GoPro Max,2025-09,,img/252_tight.jpg,img/252_context.jpg
+253,auto,osm:kaysville-ut:10585654127@1119922700069129,osm_vistas_auto,kaysville-ut,1119922700069129,0.740472,0.542334,18.0,6368,0,0.00202,crossing:markings,GoPro Max,2025-08,,img/253_tight.jpg,img/253_context.jpg
+254,auto,osm:kaysville-ut:11409927722@1231777685113237,osm_vistas_auto,kaysville-ut,1231777685113237,0.716743,0.533565,19.1,2224,0,0.02953,crossing:markings,GoPro Max,2025-07,,img/254_tight.jpg,img/254_context.jpg
+255,auto,osm:brussels-be:2108642254@140738501737448,osm_vistas_auto,brussels-be,140738501737448,0.459815,0.701656,4.6,18336,0,0.01935,crossing:markings,GoPro Max,2022-02,,img/255_tight.jpg,img/255_context.jpg
+256,auto,osm:sacramento-ca:3100912166@502743385633403,osm_vistas_auto,sacramento-ca,502743385633403,0.635937,0.567133,15.4,10256,1,0.03161,signals_only,Pilot One,2024-07,crosswalk,img/256_tight.jpg,img/256_context.jpg
+257,sdot_b2,sdot:5148240@JSapnDZQ_CvT3JOgRAV3uw,sdot_b2,seattle-wa,JSapnDZQ_CvT3JOgRAV3uw,0.131209,0.549099,,,,,,,,,img/257_tight.jpg,img/257_context.jpg
+258,auto,osm:sacramento-ca:12657638899@858433272360941,osm_vistas_auto,sacramento-ca,858433272360941,0.167791,0.554198,15.9,6336,1,0.00258,crossing:markings,Pilot One,2024-08,,img/258_tight.jpg,img/258_context.jpg
+259,auto,osm:brussels-be:5905475677@2775109545981373,osm_vistas_auto,brussels-be,2775109545981373,0.786383,0.559489,8.1,34944,0,0.02894,crossing:markings,GoPro Max,2024-02,,img/259_tight.jpg,img/259_context.jpg
+260,auto,osm:brussels-be:7609620002@1538762997605875,osm_vistas_auto,brussels-be,1538762997605875,0.578948,0.607491,5.0,31200,0,0.02605,crossing:markings,GoPro Max,2026-05,,img/260_tight.jpg,img/260_context.jpg
+261,auto,osm:kaysville-ut:9376421134@1258304849359032,osm_vistas_auto,kaysville-ut,1258304849359032,0.024275,0.610301,9.7,21120,0,0.03525,crossing=marked,GoPro Max,2025-10,,img/261_tight.jpg,img/261_context.jpg
+262,auto,osm:kaysville-ut:10557537430@4060958970810099,osm_vistas_auto,kaysville-ut,4060958970810099,0.633315,0.558488,19.3,3360,0,0.00891,crossing=marked,GoPro Max,2025-07,,img/262_tight.jpg,img/262_context.jpg
+263,auto,osm:sacramento-ca:3620072705@1288722219397349,osm_vistas_auto,sacramento-ca,1288722219397349,0.166823,0.627411,4.6,82864,0,0.06584,signals_only,Pilot One,2025-09,,img/263_tight.jpg,img/263_context.jpg
+264,human,seattle-wa:309196@idxmeX-h5psw1jn8QPKWlQ,crowd,seattle-wa,idxmeX-h5psw1jn8QPKWlQ,0.349121,0.552002,,,,,,,,,img/264_tight.jpg,img/264_context.jpg
+265,auto,osm:kaysville-ut:11483975944@1295634958732229,osm_vistas_auto,kaysville-ut,1295634958732229,0.85898,0.550778,16.5,8080,0,0.03439,crossing:markings,GoPro Max,2025-09,,img/265_tight.jpg,img/265_context.jpg
+266,auto,osm:brussels-be:5667827441@770149664773581,osm_vistas_auto,brussels-be,770149664773581,0.765302,0.55326,4.5,23280,0,0.06192,crossing:markings,GoPro Max,2023-04,,img/266_tight.jpg,img/266_context.jpg
+267,auto,osm:brussels-be:12662358773@1551502325531898,osm_vistas_auto,brussels-be,1551502325531898,0.007521,0.567379,7.0,81632,1,0.05913,crossing:markings,GoPro Max,2025-03,,img/267_tight.jpg,img/267_context.jpg
+268,auto,osm:brussels-be:251283205@2454644581616578,osm_vistas_auto,brussels-be,2454644581616578,0.212705,0.531539,19.4,5296,0,0.02424,crossing:markings,GoPro Max,2026-03,,img/268_tight.jpg,img/268_context.jpg
+269,auto,osm:brussels-be:1578603653@1256255835853285,osm_vistas_auto,brussels-be,1256255835853285,0.045862,0.568134,15.7,1664,0,0.01849,crossing:markings,GoPro Max,2025-07,crosswalk,img/269_tight.jpg,img/269_context.jpg
+270,human,amsterdam:18969@xFLE9CZhEDPGo21v9DhbPw,crowd,amsterdam,xFLE9CZhEDPGo21v9DhbPw,0.758484,0.725098,,,,,,,,,img/270_tight.jpg,img/270_context.jpg
+271,auto,osm:brussels-be:2883418721@253896664123488,osm_vistas_auto,brussels-be,253896664123488,0.512727,0.487841,13.8,4656,0,0.03593,crossing:markings,GoPro Max,2023-07,,img/271_tight.jpg,img/271_context.jpg
+272,human,seattle-wa:216229@FRtjPnD6dmxPQXiFeg3r3g,crowd,seattle-wa,FRtjPnD6dmxPQXiFeg3r3g,0.591309,0.560181,,,,,,,,,img/272_tight.jpg,img/272_context.jpg
+273,auto,osm:kaysville-ut:7006682056@1307142681414085,osm_vistas_auto,kaysville-ut,1307142681414085,0.86401,0.681414,4.1,271216,1,0.02557,crossing:markings,GoPro Max,2025-07,,img/273_tight.jpg,img/273_context.jpg
+274,auto,osm:sacramento-ca:13286917779@1578357463127721,osm_vistas_auto,sacramento-ca,1578357463127721,0.549363,0.512326,18.8,912,0,0.03688,crossing:markings,Pilot One,2025-10,,img/274_tight.jpg,img/274_context.jpg
+275,auto,osm:sacramento-ca:13541833203@2633239567035945,osm_vistas_auto,sacramento-ca,2633239567035945,0.473561,0.531273,16.9,6208,0,0.07395,crossing:markings,Pilot One,2025-10,,img/275_tight.jpg,img/275_context.jpg
+276,auto,osm:brussels-be:5914863589@26354319410875917,osm_vistas_auto,brussels-be,26354319410875917,0.03638,0.497459,7.6,19216,0,0.07611,crossing:markings,GoPro Max,2026-04,,img/276_tight.jpg,img/276_context.jpg
+277,auto,osm:brussels-be:10980726154@470066624901961,osm_vistas_auto,brussels-be,470066624901961,0.686647,0.509967,13.1,1744,0,0.03013,crossing:markings,GoPro Max,2022-03,,img/277_tight.jpg,img/277_context.jpg
+278,auto,osm:sacramento-ca:13286938518@808519728125339,osm_vistas_auto,sacramento-ca,808519728125339,0.107714,0.55005,17.7,976,0,0.02379,crossing:markings,Pilot One,2024-07,,img/278_tight.jpg,img/278_context.jpg
+279,sdot_b2,sdot:5146759@rdrUzxPjvuRHIIRSTFY0iA,sdot_b2,seattle-wa,rdrUzxPjvuRHIIRSTFY0iA,0.155627,0.658621,,,,,,,,,img/279_tight.jpg,img/279_context.jpg
+280,auto,osm:sacramento-ca:7194560666@1842060856520185,osm_vistas_auto,sacramento-ca,1842060856520185,0.303849,0.664454,16.3,73712,0,0.07044,signals_only,Pilot One,2025-09,,img/280_tight.jpg,img/280_context.jpg
+281,auto,osm:brussels-be:1828071781@1163641355913299,osm_vistas_auto,brussels-be,1163641355913299,0.252399,0.587272,15.4,2912,0,0.02089,crossing:markings,GoPro Max,2025-11,crosswalk,img/281_tight.jpg,img/281_context.jpg
+282,auto,osm:sacramento-ca:12078642239@1581795243191269,osm_vistas_auto,sacramento-ca,1581795243191269,0.452275,0.555488,13.0,6800,1,0.01452,crossing:markings,Pilot One,2025-10,,img/282_tight.jpg,img/282_context.jpg
+283,human,amsterdam:34411@N7uLpWpwDnWu8Xr7lwinIQ,crowd,amsterdam,N7uLpWpwDnWu8Xr7lwinIQ,0.001221,0.548462,,,,,,,,,img/283_tight.jpg,img/283_context.jpg
+284,sdot_b2,sdot:5146478@LSBl2o9EETnb_DkE23vqiw,sdot_b2,seattle-wa,LSBl2o9EETnb_DkE23vqiw,0.126529,0.548709,,,,,,,,,img/284_tight.jpg,img/284_context.jpg
+285,human,amsterdam:8298@Jm4b8BuFP3Wc5tlsKtjmkg,crowd,amsterdam,Jm4b8BuFP3Wc5tlsKtjmkg,0.60968,0.594482,,,,,,,,,img/285_tight.jpg,img/285_context.jpg
+286,auto,osm:sacramento-ca:13353881490@2752366768250719,osm_vistas_auto,sacramento-ca,2752366768250719,0.447202,0.565392,11.7,8688,0,0.05419,crossing:markings,Pilot One,2024-07,,img/286_tight.jpg,img/286_context.jpg
+287,auto,osm:brussels-be:2328564105@721075817217862,osm_vistas_auto,brussels-be,721075817217862,0.877265,0.575249,9.3,14752,0,0.01054,crossing:markings,GoPro Max,2025-07,,img/287_tight.jpg,img/287_context.jpg
+288,auto,osm:kaysville-ut:6997842175@4205677639751573,osm_vistas_auto,kaysville-ut,4205677639751573,0.248643,0.509886,18.9,4752,0,0.05381,crossing:markings,GoPro Max,2025-11,,img/288_tight.jpg,img/288_context.jpg
+289,auto,osm:kaysville-ut:11784529661@1880608725848047,osm_vistas_auto,kaysville-ut,1880608725848047,0.518617,0.557459,19.0,14192,1,0.08768,crossing:markings,GoPro Max,2025-08,,img/289_tight.jpg,img/289_context.jpg
+290,auto,osm:brussels-be:8550789515@707542895183307,osm_vistas_auto,brussels-be,707542895183307,0.094238,0.605802,8.6,4672,1,0.02422,crossing:markings,GoPro Max,2025-04,,img/290_tight.jpg,img/290_context.jpg

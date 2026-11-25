@@ -1,0 +1,23 @@
+{
+ "city": "kaysville-ut",
+ "wikidata": "Q482516",
+ "osm_timestamp": "2026-11-12T01:18:05Z",
+ "crossing_nodes": 1346,
+ "marked": 107,
+ "marked_at_grade": 107,
+ "grade_separated": 0,
+ "by_class_and_basis": {
+  "marked/crossing": 9,
+  "marked/crossing:markings": 97,
+  "marked/signals_only": 1,
+  "unknown/none": 150,
+  "unmarked/crossing": 9,
+  "unmarked/markings": 1080
+ },
+ "bbox": [
+  40.9960705,
+  -111.990666,
+  41.0590874,
+  -111.90477
+ ]
+}

@@ -1,0 +1,340 @@
+{
+ "label": "crosswalk_s4",
+ "threshold": 0.23,
+ "panos_scored": 175,
+ "panos_with_no_crosswalk": 120,
+ "skipped": {},
+ "groups": {
+  "ALL": {
+   "within_25m": {
+    "r0.05": {
+     "marks": 121,
+     "hit": 64,
+     "recall": 0.529,
+     "panos_with_marks": 51,
+     "ci95": [
+      0.422,
+      0.634
+     ]
+    },
+    "r0.03": {
+     "marks": 121,
+     "hit": 56,
+     "recall": 0.463,
+     "panos_with_marks": 51,
+     "ci95": [
+      0.357,
+      0.568
+     ]
+    },
+    "r0.08": {
+     "marks": 121,
+     "hit": 70,
+     "recall": 0.579,
+     "panos_with_marks": 51,
+     "ci95": [
+      0.472,
+      0.685
+     ]
+    }
+   },
+   "beyond_25m": {
+    "marks": 30,
+    "hit": 11,
+    "recall": 0.367,
+    "panos_with_marks": 17,
+    "ci95": [
+     0.167,
+     0.581
+    ]
+   }
+  },
+  "juneau-ak": {
+   "within_25m": {
+    "r0.05": {
+     "marks": 110,
+     "hit": 63,
+     "recall": 0.573,
+     "panos_with_marks": 48,
+     "ci95": [
+      0.472,
+      0.67
+     ]
+    },
+    "r0.03": {
+     "marks": 110,
+     "hit": 56,
+     "recall": 0.509,
+     "panos_with_marks": 48,
+     "ci95": [
+      0.409,
+      0.615
+     ]
+    },
+    "r0.08": {
+     "marks": 110,
+     "hit": 69,
+     "recall": 0.627,
+     "panos_with_marks": 48,
+     "ci95": [
+      0.526,
+      0.725
+     ]
+    }
+   },
+   "beyond_25m": {
+    "marks": 30,
+    "hit": 11,
+    "recall": 0.367,
+    "panos_with_marks": 17,
+    "ci95": [
+     0.167,
+     0.581
+    ]
+   }
+  },
+  "juneau-ak | Trimble mx7": {
+   "within_25m": {
+    "r0.05": {
+     "marks": 104,
+     "hit": 59,
+     "recall": 0.567,
+     "panos_with_marks": 44,
+     "ci95": [
+      0.458,
+      0.67
+     ]
+    },
+    "r0.03": {
+     "marks": 104,
+     "hit": 53,
+     "recall": 0.51,
+     "panos_with_marks": 44,
+     "ci95": [
+      0.398,
+      0.619
+     ]
+    },
+    "r0.08": {
+     "marks": 104,
+     "hit": 65,
+     "recall": 0.625,
+     "panos_with_marks": 44,
+     "ci95": [
+      0.52,
+      0.724
+     ]
+    }
+   },
+   "beyond_25m": {
+    "marks": 17,
+    "hit": 7,
+    "recall": 0.412,
+    "panos_with_marks": 10,
+    "ci95": [
+     0.071,
+     0.722
+    ]
+   }
+  },
+  "laurens-ia": {
+   "within_25m": {
+    "r0.05": {
+     "marks": 11,
+     "hit": 1,
+     "recall": 0.091,
+     "panos_with_marks": 3,
+     "ci95": [
+      0.0,
+      0.25
+     ]
+    },
+    "r0.03": {
+     "marks": 11,
+     "hit": 0,
+     "recall": 0.0,
+     "panos_with_marks": 3,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "r0.08": {
+     "marks": 11,
+     "hit": 1,
+     "recall": 0.091,
+     "panos_with_marks": 3,
+     "ci95": [
+      0.0,
+      0.25
+     ]
+    }
+   },
+   "beyond_25m": {
+    "marks": 0
+   }
+  },
+  "laurens-ia | GoPro Max": {
+   "within_25m": {
+    "r0.05": {
+     "marks": 11,
+     "hit": 1,
+     "recall": 0.091,
+     "panos_with_marks": 3,
+     "ci95": [
+      0.0,
+      0.25
+     ]
+    },
+    "r0.03": {
+     "marks": 11,
+     "hit": 0,
+     "recall": 0.0,
+     "panos_with_marks": 3,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "r0.08": {
+     "marks": 11,
+     "hit": 1,
+     "recall": 0.091,
+     "panos_with_marks": 3,
+     "ci95": [
+      0.0,
+      0.25
+     ]
+    }
+   },
+   "beyond_25m": {
+    "marks": 0
+   }
+  },
+  "laurens-ia | not within 30 m of a mining pano": {
+   "within_25m": {
+    "r0.05": {
+     "marks": 11,
+     "hit": 1,
+     "recall": 0.091,
+     "panos_with_marks": 3,
+     "ci95": [
+      0.0,
+      0.25
+     ]
+    },
+    "r0.03": {
+     "marks": 11,
+     "hit": 0,
+     "recall": 0.0,
+     "panos_with_marks": 3,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "r0.08": {
+     "marks": 11,
+     "hit": 1,
+     "recall": 0.091,
+     "panos_with_marks": 3,
+     "ci95": [
+      0.0,
+      0.25
+     ]
+    }
+   },
+   "beyond_25m": {
+    "marks": 0
+   }
+  },
+  "juneau-ak | not within 30 m of a mining pano": {
+   "within_25m": {
+    "r0.05": {
+     "marks": 21,
+     "hit": 17,
+     "recall": 0.81,
+     "panos_with_marks": 12,
+     "ci95": [
+      0.6,
+      0.957
+     ]
+    },
+    "r0.03": {
+     "marks": 21,
+     "hit": 16,
+     "recall": 0.762,
+     "panos_with_marks": 12,
+     "ci95": [
+      0.588,
+      0.905
+     ]
+    },
+    "r0.08": {
+     "marks": 21,
+     "hit": 18,
+     "recall": 0.857,
+     "panos_with_marks": 12,
+     "ci95": [
+      0.684,
+      1.0
+     ]
+    }
+   },
+   "beyond_25m": {
+    "marks": 11,
+    "hit": 2,
+    "recall": 0.182,
+    "panos_with_marks": 7,
+    "ci95": [
+     0.0,
+     0.4
+    ]
+   }
+  },
+  "juneau-ak | GoPro Max": {
+   "within_25m": {
+    "r0.05": {
+     "marks": 6,
+     "hit": 4,
+     "recall": 0.667,
+     "panos_with_marks": 4,
+     "ci95": [
+      0.25,
+      1.0
+     ]
+    },
+    "r0.03": {
+     "marks": 6,
+     "hit": 3,
+     "recall": 0.5,
+     "panos_with_marks": 4,
+     "ci95": [
+      0.2,
+      0.75
+     ]
+    },
+    "r0.08": {
+     "marks": 6,
+     "hit": 4,
+     "recall": 0.667,
+     "panos_with_marks": 4,
+     "ci95": [
+      0.25,
+      1.0
+     ]
+    }
+   },
+   "beyond_25m": {
+    "marks": 13,
+    "hit": 4,
+    "recall": 0.308,
+    "panos_with_marks": 7,
+    "ci95": [
+     0.133,
+     0.556
+    ]
+   }
+  }
+ }
+}

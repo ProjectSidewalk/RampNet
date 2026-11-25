@@ -172,6 +172,49 @@ SOURCES = [
     ("s5_eval/panos_4096", f"{SK}/s5-mine/eval_4096", "the same, 4096x2048 as inferred (Step B's --pano-dir)", None),
     ("rating_pages/s5_stepB", f"{SK}/s5-stepB/page", "s5 Step B: blind page of s4 (0.23) and s5 (0.26) cards on the "
      "fresh Juneau draw + Jon's first export and his re-export with one card corrected (2026-11-10)", None),
+    # #285 A4: crosswalk_s6 (auto-placed OSM crossings) and the missed-crosswalk recall check, added 2026-11-14.
+    # s6 failed guard 6; s4 stays (docs/crosswalk_followups_285.md, "A4 result" and "A4 follow-up").
+    ("stage2_root/labels_v6_full", f"{SK}/crosswalk274-root_v6_full", "v6 full-dose label JSONs: root_v4 plus "
+     "1,705 auto-placed Sacramento, Kaysville and Brussels train panos (4,294 + 1,705 = 5,999 train; digest "
+     "9b420ac04286). The new JPEGs "
+     "are s6_osm/panos_4096; the rest are earlier versions' images", "json"),
+    ("stage2_root/labels_v6_half", f"{SK}/crosswalk274-root_v6_half", "v6 half-dose label JSONs: root_v4 plus 852 of the same panos (5,146 train; "
+     "digest b1aa92b87461)", "json"),
+    ("s6_osm/panos_4096", f"{SK}/crosswalk274-root_v6_prep_4096", "the auto-labelled Sacramento, Kaysville and "
+     "Brussels panos, 4096x2048 as trained; natives in store_natives/<city>", None),
+    ("s6_osm/work", f"{SK}/s6-work", "root_v6_new.tar sha256, its file list, and the half-dose pano ids", None),
+    ("work/s6_preds", f"{SK}/crosswalk274-klone/s6_preds", "every s6-era prediction file as pulled from klone "
+     "(s6_preds.tgz unpacked); the scored ones are also committed in the repo", None),
+    ("work/s6_calibration_preds", f"{SK}/crosswalk274-klone/s6_cal", "s4 seed calibration predictions for the A4 "
+     "guards (s6_calibration_preds.tgz unpacked)", None),
+    ("checkpoints/crosswalk_s6full", f"{SK}/crosswalk274-klone/x6/ckpts/v6full_s1", "crosswalk_s6 full dose, seed 1 "
+     "(final_step_1397, sha256 08cbfabfc99d...) + TensorBoard runs/ (klone /gscratch/makelab/jonf/crosswalk274/"
+     "v6full_s1)", None),
+    ("checkpoints/crosswalk_s6full_seed2", f"{SK}/crosswalk274-klone/x6/ckpts/v6full_s2", "full dose, seed 2 "
+     "(final_step_1397, sha256 14817415cb7a...)", None),
+    ("checkpoints/crosswalk_s6full_seed3", f"{SK}/crosswalk274-klone/x6/ckpts/v6full_s3", "full dose, seed 3 "
+     "(final_step_1397, sha256 93108fbd7fd4...)", None),
+    ("checkpoints/crosswalk_s6half", f"{SK}/crosswalk274-klone/x6/ckpts/v6half_s1", "crosswalk_s6 half dose, seed 1 "
+     "(final_step_1198, sha256 821970cf726a...)", None),
+    ("checkpoints/crosswalk_s6half_seed2", f"{SK}/crosswalk274-klone/x6/ckpts/v6half_s2", "half dose, seed 2 "
+     "(final_step_1198, sha256 e23360b1ee33...)", None),
+    ("checkpoints/crosswalk_s6half_seed3", f"{SK}/crosswalk274-klone/x6/ckpts/v6half_s3", "half dose, seed 3 "
+     "(final_step_1198, sha256 eca55ffdacb2...)", None),
+    ("checkpoints/crosswalk_s4_steps1397", f"{SK}/crosswalk274-klone/x6/ckpts/v4steps1397_s1", "step control: "
+     "root_v4 trained 1,397 steps, seed 1 (final_step_1397, sha256 039379384824...)", None),
+    ("logs/slurm_2026-11-13", f"{SK}/crosswalk274-klone/x6/logs/logs", "every #285 A4 slurm .out/.err (s4 seed "
+     "calibration 43218286-95, s6 smoke + training incl. the six quota failures and their reruns, s6 inference and "
+     "scoring); klone RampNet274/logs files newer than 2026-11-12 18:00", None),
+    ("recall285/natives/laurens-ia", f"{SK}/recall285/laurens-ia_native", "missed-crosswalk check, Laurens draw at "
+     "native res (Mapillary GoPro Max; export_benchmark.py --out)", None),
+    ("recall285/natives/juneau-ak", f"{SK}/recall285/juneau-ak_native", "the same, Juneau draw", None),
+    ("recall285/panos_4096", f"{SK}/recall285/prep_4096", "both draws, 4096x2048 as inferred", None),
+    ("recall285/draw_records", f"{SK}/recall285", "the draws' labeler records and pano id lists", "jsonl"),
+    ("recall285/draw_records", f"{SK}/recall285", "the draws' pano id lists", "txt"),
+    ("rating_pages/recall285", f"{SK}/recall285/page", "Jon's blind missed-crosswalk page (2026-11-11); his export "
+     "is committed as recall/ratings/recall285_verdicts_jon_2026-11-11.json", None),
+    ("rating_pages/s6_fa_sheet", f"{SK}/recall285/fa_sheet_s6", "guard 6 contact sheet: every s4/s6 detection on "
+     "the 119 confirmed-empty panos (recall_check.py fa-sheet; looked at, not rated)", None),
     ("worktree_untracked/stage1-label-type-274", f"{WT}/stage1-label-type-274", "gitignored #274 outputs at "
      "their repo paths (SDOT pilot pixels/views, arm C thumbs, logs, galleries)", "ignored"),
     ("worktree_untracked/crosswalk-inventory-274", f"{WT}/crosswalk-inventory-274", "gitignored inventory inputs",
@@ -186,6 +229,9 @@ NATIVES = [
     ("amsterdam", f"{SK}/crowd-stores/amsterdam"),
     ("burnaby", f"{SK}/crowd-stores/burnaby"),
     ("teaneck-nj", f"{SK}/crowd-stores/teaneck-nj"),
+    ("sacramento-ca", f"{SK}/pano_store/sacramento-ca"),       # #285 A: the auto-placed OSM cities (s6 training)
+    ("kaysville-ut", f"{SK}/pano_store/kaysville-ut"),
+    ("brussels-be", f"{SK}/pano_store/brussels-be"),
 ]
 
 
@@ -359,7 +405,7 @@ def write_readme(out, entries):
     rows = "\n".join(f"| `{k}/` | {n:,} | {b / 1e6:,.0f} MB |" for k, (n, b) in sorted(by.items()))
     text = f"""# RampNet#274 crosswalk detector study: archive
 
-Everything the study needs that the RampNet repo (branch `stage1-label-type-274`) does not hold. Code,
+Everything the study needs that the RampNet repo does not hold. Code,
 predictions, scores, verdict CSVs and the study doc (`docs/stage1_crosswalk_sdot_274.md`) are in the repo. Built by
 `scripts/analysis/stage1_crosswalk_sdot_274/archive_274.py`; its source table records where each piece came from,
 and manifest.json repeats it per file.
@@ -379,7 +425,8 @@ and manifest.json repeats it per file.
   `labels_v1/` and `labels_v2/` hold each label version's `<split>/<pano>.json`; a later version adds `labels_v3/`.
 - `bprime/images_4096/`: the (b') node-sample panos as inferred.
 - `checkpoints/<label>/final_step_1000.pth` (+ `.sha256`, TensorBoard `runs/`): the only checkpoint each run scores.
-  Per-step checkpoints were not kept (the pre-registration scores the final one only).
+  Per-step checkpoints were not kept (the pre-registration scores the final one only). The s6 runs and the
+  step control end at `final_step_1397.pth` (full dose) or `final_step_1198.pth` (half dose) instead.
 - `logs/slurm/`: every train and score job's stdout/stderr.
 - `rating_pages/<audit>/`: the HTML pages Jon rated (crops embedded, open offline) and his CSV exports.
 - `work/`, `inputs/`: working files and the prod/web pulls (`seattle_pano_data.psv` is a read-only export of
@@ -389,6 +436,9 @@ and manifest.json repeats it per file.
 - `confirm_s3/`: the s3 confirmation's imagery. `panos_4096/` is every pano on its rating page as inferred;
   `natives/` the Juneau and Laurens draws at native resolution as fetched; `draw_records/` the labeler records
   they were fetched from.
+- `s6_osm/`, `stage2_root/labels_v6_{{full,half}}/`, `recall285/`, `rating_pages/{{recall285,s6_fa_sheet}}/`: the
+  #285 A4 additions (`crosswalk_s6`, which failed guard 6; s4 stays). See `docs/crosswalk_followups_285.md`
+  in the RampNet repo.
 
 ## A second rater
 
