@@ -83,6 +83,8 @@ def test_loso_selects_on_the_other_splits_only():
     assert d["C_minus_N"][0] == pytest.approx(0.3)
     # per split, C - max(N, T): A 0.7 - 0.2, B 0.1 - 0.7, C 0.7 - 0.7
     assert d["split_C_minus_maxNT"][0].tolist() == pytest.approx([0.5, -0.6, 0.0])
+    # per split, C - N: A 0.7 - 0.2, B 0.1 - 0.2, C 0.7 - 0.2
+    assert d["split_C_minus_N"][0].tolist() == pytest.approx([0.5, -0.1, 0.5])
 
 
 # ----------------------------------------------------------------- the rules
@@ -139,16 +141,19 @@ def test_rule4_outcome_labels():
     assert s0.outcome(False, False) == "T and C"
 
 
-def _deltas(t_n, c_max, c_n, split_c_max, split_c_n, B=40, spread=0.01):
+def _deltas(t_n, c_max, c_n, split_c_max, split_c_n, B=40, spread=0.01, spreads=None):
     """Hand-made ``deltas`` output: point values ``[1]`` / ``[1, S]``, and a bootstrap whose
-    95% interval is the point plus or minus about ``spread``."""
-    jitter = np.linspace(-spread, spread, B)
+    95% interval is the point plus or minus about ``spread`` (``spreads`` overrides it per
+    key)."""
+    spreads = spreads or {}
     dp = {"T_minus_N": np.array([t_n]), "C_minus_maxNT": np.array([c_max]),
           "C_minus_N": np.array([c_n]),
           "split_C_minus_maxNT": np.array([split_c_max]),
           "split_C_minus_N": np.array([split_c_n])}
-    db = {k: (v[0] + jitter if v.ndim == 1 else v[0][None, :] + jitter[:, None])
-          for k, v in dp.items()}
+    db = {}
+    for k, v in dp.items():
+        jitter = np.linspace(-spreads.get(k, spread), spreads.get(k, spread), B)
+        db[k] = v[0] + jitter if v.ndim == 1 else v[0][None, :] + jitter[:, None]
     return dp, db
 
 
@@ -231,6 +236,96 @@ def test_loso_weights_scale_like_duplicated_panos():
     Td = [np.stack([x, x]) for x in dup]
     a, b = s0.loso(one, Tm, Tm, w), s0.loso(dup, Td, Td)
     assert a["n_pool"].tolist() == b["n_pool"].tolist()
+
+
+def test_rule2_reads_the_lower_bound_of_C_minus_max_N_T():
+    """Review 2, nit 1. The C - max(N, T) interval straddles 0 (about [-0.057, +0.157])
+    while the C - N interval does not (about [+0.04, +0.06]): Rule 2 must read the lower
+    bound of C - max(N, T) and drop C."""
+    dp, db = _deltas(t_n=0.05, c_max=0.05, c_n=0.05, split_c_max=[0.05] * 4,
+                     split_c_n=[0.05] * 4, spreads={"C_minus_maxNT": 0.11})
+    r = s0.rules_from_deltas(dp, db, rig_key_passes=True, worst_loo_gain=0.05, top_share=0.3)
+    assert r["2_drop_C"]["C_minus_maxNT_lower"] < 0
+    assert r["2_drop_C"]["lower_le_0"] and r["2_drop_C"]["drop_C"]
+    assert not r["2_alt_C_vs_N"]["drop_C"]
+    assert r["4_outcome"] == "T only"
+
+
+def test_rule3_gain_exactly_at_the_bar_is_not_below_it():
+    assert s0.one_instance(0.02, 0.3) == (False, False)
+
+
+def test_per_split_mean_reading_keeps_rule_1_and_its_own_interval():
+    """The outcome follows Rule 1's verdict, and the interval comes from the per-split
+    resamples, not the pooled ones (here the pooled interval is wide enough to cross 0)."""
+    dp, db = _deltas(t_n=0.05, c_max=0.027, c_n=0.027,
+                     split_c_max=[0.09, 0.05, -0.008, -0.008], split_c_n=[0.09, 0.05, 0.0, 0.0],
+                     spreads={"C_minus_maxNT": 0.1})
+    r = s0.per_split_mean_reading(dp, db, drop_t=False)
+    assert r["C_minus_maxNT_ci95"][0] > 0.015
+    assert not r["drop_C"] and r["outcome"] == "T and C"
+
+
+def test_mean_f1_reading():
+    """Mean F1 over the four splits: N 0.6, T 0.7, C 0.75, so the gap is 0.05 against
+    max(N, T) (0.15 against N alone). The resamples move each row, so the interval has
+    width."""
+    B = 40
+    jitter = np.linspace(-0.01, 0.01, B)[:, None]
+    dp = {"split_F1_N": np.full((1, 4), 0.6), "split_F1_T": np.full((1, 4), 0.7),
+          "split_F1_C": np.full((1, 4), 0.75), "split_C_minus_maxNT": np.full((1, 4), 0.05)}
+    db = {k: np.repeat(v, B, axis=0) + (jitter if k == "split_F1_C" else 0.0)
+          for k, v in dp.items()}
+    r = s0.mean_f1_reading(dp, db, drop_t=True)
+    assert r["C_minus_maxNT"] == pytest.approx(0.05)
+    lo, hi = r["C_minus_maxNT_ci95"]
+    assert hi - lo > 0.01 and lo > 0.035 and hi < 0.065
+    assert r["splits_won"] == 4 and not r["drop_C"] and r["outcome"] == "C only"
+
+
+def test_selection_sensitivity_on_hand_made_counts():
+    """Three splits, one pano each (10 GT). N is F1 0.2 and both thresholds 0.5, so
+    max(N, T) is T. Of the 144 candidates, four score well and alike on every split:
+    0 (y11l, F1 0.9) > 1 (y11l, 0.8) > 48 (y11x, 0.7) > 96 (y26, 0.6); the rest score 0.1.
+    Every fold picks 0 with 1 as its runner-up (0.8 held out, 0.3 above T pooled); one arm
+    at a time gives 0.4, 0.2 and 0.1 above T."""
+    K = len(s0.CANDIDATES)
+    N = [np.array([_c(2, 8, 10)]) for _ in range(3)]
+    T = [np.array([[_c(5, 5, 10)], [_c(5, 5, 10)]]) for _ in range(3)]
+    C = []
+    for _ in range(3):
+        c = np.tile(np.array([[_c(1, 9, 10)]]), (K, 1, 1))
+        for i, (tp, fp) in {0: (9, 1), 1: (8, 2), 48: (7, 3), 96: (6, 4)}.items():
+            c[i, 0] = _c(tp, fp, 10)
+        C.append(c)
+    assert [s0.CANDIDATES[i][0] for i in (0, 1, 48, 96)] == [
+        "y11l_pano", "y11l_pano", "y11x_pano_h200", "y26_pano"]
+    point = s0.loso(N, T, C)
+    out = s0.selection_sensitivity(N, T, C, point, s0.deltas(point))
+    for row in out["runner_up"]:
+        assert row["chosen"] == s0._cand(0) and row["runner_up"] == s0._cand(1)
+        assert row["runner_up_held_out_F1"] == pytest.approx(0.8)
+        assert not row["runner_up_better_held_out"]
+    assert out["runner_up_pooled_C_minus_maxNT"] == pytest.approx(0.3)
+    arms = out["per_arm"]
+    assert arms["y11l_pano"]["C_minus_maxNT"] == pytest.approx(0.4)
+    assert arms["y11x_pano_h200"]["C_minus_maxNT"] == pytest.approx(0.2)
+    assert arms["y26_pano"]["C_minus_maxNT"] == pytest.approx(0.1)
+    assert arms["y26_pano"]["candidates"] == [s0._cand(96)] * 3
+
+
+def test_check_exits_1_when_either_file_differs(tmp_path, monkeypatch, capsys):
+    """``main --check`` against a scratch directory holding a fresh stage0.json (from
+    ``run()``, so this tests the exit logic, not the committed file) and a changed
+    inputs.json: one DIFF must fail the check."""
+    (tmp_path / s0.RESULT).write_bytes(cc.dumps(s0.run()).encode("utf-8"))
+    (tmp_path / s0.INPUTS).write_bytes(b"{}\n")
+    monkeypatch.setattr(sys, "argv", ["cascade_confirm_35.py", "--check", "--out", str(tmp_path)])
+    with pytest.raises(SystemExit) as e:
+        s0.main()
+    assert e.value.code == 1
+    out = capsys.readouterr().out
+    assert out.count("same  ") == 1 and out.count("DIFF  ") == 1
 
 
 # ----------------------------------------------------------------- committed data

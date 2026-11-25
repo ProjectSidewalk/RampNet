@@ -267,8 +267,10 @@ Inputs (sha256 in `inputs.json`): for each of the four splits, `benchmark/<split
 `benchmark/model_detections/{y11l_pano,y11x_pano_h200,y26_pano}__<split>.json`. `--check` compares
 `inputs.json` as well. The hashes read CRLF as LF, so a checkout with `core.autocrlf=true`, which
 rewrites `records.jsonl` line endings, gives the same values; no input contains a CR in the
-repository, so each value is also the plain sha256 of the committed file. The figure is not
-byte-compared; every plotted value is in the tables above.
+repository, so each value is also the plain sha256 of the committed file. That holds for the hash
+values only: `--check` compares `stage0.json` and `inputs.json` themselves byte for byte, so in a
+`core.autocrlf=true` checkout, where those two files are written out with CRLF, it reports `DIFF`
+for both. The figure is not byte-compared; every plotted value is in the tables above.
 
 ## Appendix A: the plan's Stage 0 section (2026-11-15)
 
