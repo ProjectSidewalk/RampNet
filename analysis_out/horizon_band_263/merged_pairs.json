@@ -1,0 +1,1670 @@
+{
+ "protocol": {
+  "plan": "detector-phase1-horizon-2x-2026-11-15.md, section 4, Stage 0a",
+  "threshold": 0.3,
+  "pool": [
+   "richmond",
+   "annapolis",
+   "clovis",
+   "morgantown",
+   "bend",
+   "paterson",
+   "gainesville",
+   "laurens_mapillary"
+  ],
+  "held_out_not_read": [
+   "juneau"
+  ],
+  "cell_px": 8.0,
+  "sigma_old": 10.0,
+  "sigma_new": 6.0,
+  "arm_c_rule": "fraction of pairs under 8 px > 1/3",
+  "arm_a_rule": "pairs outside paterson at >= 12 px >= 30",
+  "units": "heatmap px on the 512x1024 grid",
+  "plan_9split_quoted": {
+   "n_pairs": 146,
+   "under_8px_chebyshev": 25
+  },
+  "inputs": {
+   "richmond": "70521f84493a246597d5315c5754a9a1de99d56f21cb4cd93f2a5028ce91529a",
+   "annapolis": "fee5a2a4ccbc8d292651895cd7389e70e42167c997df162c1533ac0437ed06ed",
+   "clovis": "31b008716ac894af2e70dfb4f24246aabc214ff02e860f053ddb68df8413dc8b",
+   "morgantown": "7f13d73f3c29851824f325f3e99bdf15543e22a87966ac6066297fb8ce94c92a",
+   "bend": "5d5e02be023e934ce34aa2e37059eb7cd599274faf9c90ac5854de62050bb15a",
+   "paterson": "57d3145840fa6fb3630bf0390adce3c75363ffbe5439e2e563b6c659f1f8d94d",
+   "gainesville": "cc1f0dddfe7cfee54d6275a2663fb53117f782ffa01044d03de1c2c4bf8d1c4f",
+   "laurens_mapillary": "667be0d7ee06fce87452df358689dbc5e7e8d9310f2d7e3101c6b26dce93a27a"
+  }
+ },
+ "pool_8": {
+  "triggers": {
+   "chebyshev": {
+    "n_pairs": 136,
+    "under_8px": 25,
+    "under_8px_fraction": 0.1838,
+    "arm_c_triggered": false,
+    "ge_12px_outside_paterson": 38,
+    "ge_12px_all": 62,
+    "between_8_and_12px": 49,
+    "arm_a_runs": true
+   },
+   "euclidean": {
+    "n_pairs": 136,
+    "under_8px": 17,
+    "under_8px_fraction": 0.125,
+    "arm_c_triggered": false,
+    "ge_12px_outside_paterson": 44,
+    "ge_12px_all": 73,
+    "between_8_and_12px": 46,
+    "arm_a_runs": true
+   }
+  },
+  "histogram": {
+   "chebyshev": [
+    [
+     0.0,
+     1.0,
+     0
+    ],
+    [
+     1.0,
+     2.0,
+     0
+    ],
+    [
+     2.0,
+     3.0,
+     0
+    ],
+    [
+     3.0,
+     4.0,
+     1
+    ],
+    [
+     4.0,
+     5.0,
+     2
+    ],
+    [
+     5.0,
+     6.0,
+     5
+    ],
+    [
+     6.0,
+     7.0,
+     6
+    ],
+    [
+     7.0,
+     8.0,
+     11
+    ],
+    [
+     8.0,
+     9.0,
+     12
+    ],
+    [
+     9.0,
+     10.0,
+     11
+    ],
+    [
+     10.0,
+     11.0,
+     17
+    ],
+    [
+     11.0,
+     12.0,
+     9
+    ],
+    [
+     12.0,
+     13.0,
+     7
+    ],
+    [
+     13.0,
+     14.0,
+     6
+    ],
+    [
+     14.0,
+     15.0,
+     10
+    ],
+    [
+     15.0,
+     16.0,
+     6
+    ],
+    [
+     16.0,
+     17.0,
+     6
+    ],
+    [
+     17.0,
+     18.0,
+     10
+    ],
+    [
+     18.0,
+     19.0,
+     4
+    ],
+    [
+     19.0,
+     20.0,
+     3
+    ],
+    [
+     20.0,
+     21.0,
+     4
+    ],
+    [
+     21.0,
+     22.0,
+     2
+    ],
+    [
+     22.0,
+     23.0,
+     2
+    ],
+    [
+     23.0,
+     24.0,
+     1
+    ],
+    [
+     24.0,
+     25.0,
+     0
+    ],
+    [
+     25.0,
+     26.0,
+     1
+    ],
+    [
+     26.0,
+     27.0,
+     0
+    ]
+   ],
+   "euclidean": [
+    [
+     0.0,
+     1.0,
+     0
+    ],
+    [
+     1.0,
+     2.0,
+     0
+    ],
+    [
+     2.0,
+     3.0,
+     0
+    ],
+    [
+     3.0,
+     4.0,
+     0
+    ],
+    [
+     4.0,
+     5.0,
+     1
+    ],
+    [
+     5.0,
+     6.0,
+     5
+    ],
+    [
+     6.0,
+     7.0,
+     3
+    ],
+    [
+     7.0,
+     8.0,
+     8
+    ],
+    [
+     8.0,
+     9.0,
+     12
+    ],
+    [
+     9.0,
+     10.0,
+     7
+    ],
+    [
+     10.0,
+     11.0,
+     14
+    ],
+    [
+     11.0,
+     12.0,
+     13
+    ],
+    [
+     12.0,
+     13.0,
+     9
+    ],
+    [
+     13.0,
+     14.0,
+     6
+    ],
+    [
+     14.0,
+     15.0,
+     9
+    ],
+    [
+     15.0,
+     16.0,
+     7
+    ],
+    [
+     16.0,
+     17.0,
+     7
+    ],
+    [
+     17.0,
+     18.0,
+     4
+    ],
+    [
+     18.0,
+     19.0,
+     7
+    ],
+    [
+     19.0,
+     20.0,
+     6
+    ],
+    [
+     20.0,
+     21.0,
+     8
+    ],
+    [
+     21.0,
+     22.0,
+     4
+    ],
+    [
+     22.0,
+     23.0,
+     3
+    ],
+    [
+     23.0,
+     24.0,
+     1
+    ],
+    [
+     24.0,
+     25.0,
+     1
+    ],
+    [
+     25.0,
+     26.0,
+     1
+    ],
+    [
+     26.0,
+     27.0,
+     0
+    ]
+   ]
+  },
+  "per_city": {
+   "richmond": {
+    "n_pairs": 10,
+    "under_8px_chebyshev": 0,
+    "ge_12px_chebyshev": 10,
+    "under_8px_euclidean": 0,
+    "ge_12px_euclidean": 10
+   },
+   "annapolis": {
+    "n_pairs": 5,
+    "under_8px_chebyshev": 0,
+    "ge_12px_chebyshev": 3,
+    "under_8px_euclidean": 0,
+    "ge_12px_euclidean": 4
+   },
+   "clovis": {
+    "n_pairs": 1,
+    "under_8px_chebyshev": 0,
+    "ge_12px_chebyshev": 1,
+    "under_8px_euclidean": 0,
+    "ge_12px_euclidean": 1
+   },
+   "morgantown": {
+    "n_pairs": 9,
+    "under_8px_chebyshev": 2,
+    "ge_12px_chebyshev": 4,
+    "under_8px_euclidean": 1,
+    "ge_12px_euclidean": 5
+   },
+   "bend": {
+    "n_pairs": 14,
+    "under_8px_chebyshev": 2,
+    "ge_12px_chebyshev": 9,
+    "under_8px_euclidean": 1,
+    "ge_12px_euclidean": 11
+   },
+   "paterson": {
+    "n_pairs": 80,
+    "under_8px_chebyshev": 20,
+    "ge_12px_chebyshev": 24,
+    "under_8px_euclidean": 14,
+    "ge_12px_euclidean": 29
+   },
+   "gainesville": {
+    "n_pairs": 5,
+    "under_8px_chebyshev": 0,
+    "ge_12px_chebyshev": 4,
+    "under_8px_euclidean": 0,
+    "ge_12px_euclidean": 4
+   },
+   "laurens_mapillary": {
+    "n_pairs": 12,
+    "under_8px_chebyshev": 1,
+    "ge_12px_chebyshev": 7,
+    "under_8px_euclidean": 1,
+    "ge_12px_euclidean": 9
+   }
+  },
+  "merged_misses": {
+   "richmond": 10,
+   "annapolis": 5,
+   "clovis": 1,
+   "morgantown": 9,
+   "bend": 14,
+   "paterson": 80,
+   "gainesville": 5,
+   "laurens_mapillary": 12
+  }
+ },
+ "context_S7": {
+  "triggers": {
+   "chebyshev": {
+    "n_pairs": 124,
+    "under_8px": 24,
+    "under_8px_fraction": 0.1935,
+    "arm_c_triggered": false,
+    "ge_12px_outside_paterson": 31,
+    "ge_12px_all": 55,
+    "between_8_and_12px": 45,
+    "arm_a_runs": true
+   },
+   "euclidean": {
+    "n_pairs": 124,
+    "under_8px": 16,
+    "under_8px_fraction": 0.129,
+    "arm_c_triggered": false,
+    "ge_12px_outside_paterson": 35,
+    "ge_12px_all": 64,
+    "between_8_and_12px": 44,
+    "arm_a_runs": true
+   }
+  }
+ },
+ "cross_check": {
+  "committed_miss_taxonomy_json": {
+   "n": 124,
+   "chebyshev_median": 11.445210970810876,
+   "euclidean_median": 12.189758594756155,
+   "above_min_distance": 78
+  },
+  "recomputed_S7": {
+   "n": 124,
+   "above_min_distance": 78
+  },
+  "agrees": true
+ },
+ "pairs": [
+  {
+   "city": "richmond",
+   "pano": "1273933840289887",
+   "x": 0.593566,
+   "y": 0.538464,
+   "dist_m": 20.588,
+   "chebyshev": 19.188,
+   "euclidean": 19.1904
+  },
+  {
+   "city": "richmond",
+   "pano": "1309093164014619",
+   "x": 0.886465,
+   "y": 0.576566,
+   "dist_m": 10.192,
+   "chebyshev": 16.7398,
+   "euclidean": 17.1653
+  },
+  {
+   "city": "richmond",
+   "pano": "1092133469495462",
+   "x": 0.282828,
+   "y": 0.591919,
+   "dist_m": 8.415,
+   "chebyshev": 18.3838,
+   "euclidean": 21.988
+  },
+  {
+   "city": "richmond",
+   "pano": "433987753066526",
+   "x": 0.241942,
+   "y": 0.545031,
+   "dist_m": 17.554,
+   "chebyshev": 12.9442,
+   "euclidean": 13.476
+  },
+  {
+   "city": "richmond",
+   "pano": "1759178911495771",
+   "x": 0.446076,
+   "y": 0.523349,
+   "dist_m": 34.021,
+   "chebyshev": 13.2397,
+   "euclidean": 13.2643
+  },
+  {
+   "city": "richmond",
+   "pano": "383880874806933",
+   "x": 0.193939,
+   "y": 0.529798,
+   "dist_m": 26.628,
+   "chebyshev": 19.0319,
+   "euclidean": 19.3088
+  },
+  {
+   "city": "richmond",
+   "pano": "3956582084664486",
+   "x": 0.540285,
+   "y": 0.518251,
+   "dist_m": 43.554,
+   "chebyshev": 17.6556,
+   "euclidean": 20.6698
+  },
+  {
+   "city": "richmond",
+   "pano": "3980741912187626",
+   "x": 0.610894,
+   "y": 0.570913,
+   "dist_m": 11.036,
+   "chebyshev": 18.2025,
+   "euclidean": 18.318
+  },
+  {
+   "city": "richmond",
+   "pano": "423989957171190",
+   "x": 0.547437,
+   "y": 0.543892,
+   "dist_m": 18.015,
+   "chebyshev": 13.5751,
+   "euclidean": 18.4722
+  },
+  {
+   "city": "richmond",
+   "pano": "1441274599876577",
+   "x": 0.050263,
+   "y": 0.526392,
+   "dist_m": 30.083,
+   "chebyshev": 15.5303,
+   "euclidean": 16.8308
+  },
+  {
+   "city": "annapolis",
+   "pano": "1040516234061456",
+   "x": 0.089015,
+   "y": 0.559747,
+   "dist_m": 13.162,
+   "chebyshev": 14.4488,
+   "euclidean": 16.414
+  },
+  {
+   "city": "annapolis",
+   "pano": "263456786691932",
+   "x": 0.575312,
+   "y": 0.538273,
+   "dist_m": 20.692,
+   "chebyshev": 17.1192,
+   "euclidean": 18.6518
+  },
+  {
+   "city": "annapolis",
+   "pano": "1130786224993585",
+   "x": 0.011616,
+   "y": 0.541221,
+   "dist_m": 19.197,
+   "chebyshev": 16.105,
+   "euclidean": 21.2707
+  },
+  {
+   "city": "annapolis",
+   "pano": "270044664458604",
+   "x": 0.791295,
+   "y": 0.527035,
+   "dist_m": 29.364,
+   "chebyshev": 9.7141,
+   "euclidean": 11.5015
+  },
+  {
+   "city": "annapolis",
+   "pano": "1265191387234427",
+   "x": 0.564125,
+   "y": 0.508693,
+   "dist_m": 91.522,
+   "chebyshev": 10.3361,
+   "euclidean": 12.7995
+  },
+  {
+   "city": "clovis",
+   "pano": "1243806399391315",
+   "x": 0.328053,
+   "y": 0.550685,
+   "dist_m": 15.567,
+   "chebyshev": 17.0491,
+   "euclidean": 17.7464
+  },
+  {
+   "city": "morgantown",
+   "pano": "283488671383320",
+   "x": 0.178965,
+   "y": 0.553776,
+   "dist_m": 14.657,
+   "chebyshev": 20.7398,
+   "euclidean": 22.0429
+  },
+  {
+   "city": "morgantown",
+   "pano": "559825463037840",
+   "x": 0.456372,
+   "y": 0.523203,
+   "dist_m": 34.236,
+   "chebyshev": 8.3254,
+   "euclidean": 10.9549
+  },
+  {
+   "city": "morgantown",
+   "pano": "730248625779882",
+   "x": 0.91594,
+   "y": 0.571051,
+   "dist_m": 11.013,
+   "chebyshev": 7.6221,
+   "euclidean": 7.9
+  },
+  {
+   "city": "morgantown",
+   "pano": "1361874984449863",
+   "x": 0.092685,
+   "y": 0.589719,
+   "dist_m": 8.634,
+   "chebyshev": 13.0641,
+   "euclidean": 13.6363
+  },
+  {
+   "city": "morgantown",
+   "pano": "1763097830781857",
+   "x": 0.14368,
+   "y": 0.538093,
+   "dist_m": 20.791,
+   "chebyshev": 17.6286,
+   "euclidean": 18.1795
+  },
+  {
+   "city": "morgantown",
+   "pano": "396936476205103",
+   "x": 0.52098,
+   "y": 0.522202,
+   "dist_m": 35.784,
+   "chebyshev": 14.5167,
+   "euclidean": 16.8895
+  },
+  {
+   "city": "morgantown",
+   "pano": "396936476205103",
+   "x": 0.545185,
+   "y": 0.535735,
+   "dist_m": 22.175,
+   "chebyshev": 10.2693,
+   "euclidean": 10.4097
+  },
+  {
+   "city": "morgantown",
+   "pano": "759399502183549",
+   "x": 0.214821,
+   "y": 0.557861,
+   "dist_m": 13.601,
+   "chebyshev": 9.6246,
+   "euclidean": 12.5302
+  },
+  {
+   "city": "morgantown",
+   "pano": "7393628424017132",
+   "x": 0.388828,
+   "y": 0.569425,
+   "dist_m": 11.28,
+   "chebyshev": 7.4542,
+   "euclidean": 8.0962
+  },
+  {
+   "city": "bend",
+   "pano": "0CvMs02xHlg3mCMHJdc6Xg",
+   "x": 0.474343,
+   "y": 0.56202,
+   "dist_m": 12.668,
+   "chebyshev": 23.583,
+   "euclidean": 23.7863
+  },
+  {
+   "city": "bend",
+   "pano": "9DA1aapwjQcdUP2HEfrhfg",
+   "x": 0.070707,
+   "y": 0.569293,
+   "dist_m": 11.302,
+   "chebyshev": 21.404,
+   "euclidean": 21.4104
+  },
+  {
+   "city": "bend",
+   "pano": "PgOXmiCTtEV4ip7AJDqf2Q",
+   "x": 0.044444,
+   "y": 0.539495,
+   "dist_m": 20.045,
+   "chebyshev": 20.2585,
+   "euclidean": 20.3161
+  },
+  {
+   "city": "bend",
+   "pano": "nd-z43_liOX80bmhO15urg",
+   "x": 0.922909,
+   "y": 0.536453,
+   "dist_m": 21.735,
+   "chebyshev": 10.9416,
+   "euclidean": 13.7555
+  },
+  {
+   "city": "bend",
+   "pano": "0SgaioiGd5Yi_5wc6m-nJg",
+   "x": 0.463246,
+   "y": 0.534655,
+   "dist_m": 22.872,
+   "chebyshev": 15.915,
+   "euclidean": 16.1664
+  },
+  {
+   "city": "bend",
+   "pano": "0SgaioiGd5Yi_5wc6m-nJg",
+   "x": 0.563194,
+   "y": 0.524893,
+   "dist_m": 31.902,
+   "chebyshev": 6.2546,
+   "euclidean": 7.8303
+  },
+  {
+   "city": "bend",
+   "pano": "0SgaioiGd5Yi_5wc6m-nJg",
+   "x": 0.579911,
+   "y": 0.533266,
+   "dist_m": 23.834,
+   "chebyshev": 21.8284,
+   "euclidean": 21.9169
+  },
+  {
+   "city": "bend",
+   "pano": "LhpYKYMPIDXskyHjHW1nOQ",
+   "x": 0.563636,
+   "y": 0.520808,
+   "dist_m": 38.189,
+   "chebyshev": 14.8945,
+   "euclidean": 14.8945
+  },
+  {
+   "city": "bend",
+   "pano": "NzRL8weHSGkfduBHnrgd5g",
+   "x": 0.035758,
+   "y": 0.53899,
+   "dist_m": 20.308,
+   "chebyshev": 25.4448,
+   "euclidean": 25.4524
+  },
+  {
+   "city": "bend",
+   "pano": "X769L3ombUWjLtZDlE2fqg",
+   "x": 0.44,
+   "y": 0.535354,
+   "dist_m": 22.416,
+   "chebyshev": 17.899,
+   "euclidean": 19.7891
+  },
+  {
+   "city": "bend",
+   "pano": "gTM14tSsKuUwbSxtTb4xoQ",
+   "x": 0.457463,
+   "y": 0.531594,
+   "dist_m": 25.104,
+   "chebyshev": 7.5578,
+   "euclidean": 8.0681
+  },
+  {
+   "city": "bend",
+   "pano": "oKUCusv3jdVCLmevp-P3zw",
+   "x": 0.560606,
+   "y": 0.532929,
+   "dist_m": 24.08,
+   "chebyshev": 18.1402,
+   "euclidean": 20.7433
+  },
+  {
+   "city": "bend",
+   "pano": "sUMfdZmScVLBGMjvZ0MjCA",
+   "x": 0.956604,
+   "y": 0.530306,
+   "dist_m": 26.179,
+   "chebyshev": 8.4376,
+   "euclidean": 9.5549
+  },
+  {
+   "city": "bend",
+   "pano": "sUMfdZmScVLBGMjvZ0MjCA",
+   "x": 0.036794,
+   "y": 0.521473,
+   "dist_m": 37.003,
+   "chebyshev": 11.4511,
+   "euclidean": 12.1849
+  },
+  {
+   "city": "paterson",
+   "pano": "21Gw_VuYrSK42PCF32UGUw",
+   "x": 0.38771,
+   "y": 0.532937,
+   "dist_m": 24.074,
+   "chebyshev": 9.0149,
+   "euclidean": 10.2432
+  },
+  {
+   "city": "paterson",
+   "pano": "21Gw_VuYrSK42PCF32UGUw",
+   "x": 0.544412,
+   "y": 0.540386,
+   "dist_m": 19.598,
+   "chebyshev": 9.4781,
+   "euclidean": 9.5023
+  },
+  {
+   "city": "paterson",
+   "pano": "zzWJ9LWjpfDZLBT7W8o8zw",
+   "x": 0.090758,
+   "y": 0.565051,
+   "dist_m": 12.062,
+   "chebyshev": 15.0642,
+   "euclidean": 15.1592
+  },
+  {
+   "city": "paterson",
+   "pano": "3Tw1W-lv133l2efDeoEAYQ",
+   "x": 0.522193,
+   "y": 0.510392,
+   "dist_m": 76.549,
+   "chebyshev": 13.274,
+   "euclidean": 14.8598
+  },
+  {
+   "city": "paterson",
+   "pano": "fGd6JE4qvoG1uOVvOjBBmg",
+   "x": 0.372023,
+   "y": 0.530494,
+   "dist_m": 26.016,
+   "chebyshev": 14.0486,
+   "euclidean": 14.5057
+  },
+  {
+   "city": "paterson",
+   "pano": "fGd6JE4qvoG1uOVvOjBBmg",
+   "x": 0.500519,
+   "y": 0.528215,
+   "dist_m": 28.13,
+   "chebyshev": 10.4686,
+   "euclidean": 11.4162
+  },
+  {
+   "city": "paterson",
+   "pano": "Xs3lDDc1o50wJmW9eGx_WA",
+   "x": 0.96227,
+   "y": 0.549591,
+   "dist_m": 15.917,
+   "chebyshev": 22.365,
+   "euclidean": 22.4228
+  },
+  {
+   "city": "paterson",
+   "pano": "4cXVf74zyKLTQLiQtBObww",
+   "x": 0.050781,
+   "y": 0.537109,
+   "dist_m": 21.347,
+   "chebyshev": 7.6143,
+   "euclidean": 8.1629
+  },
+  {
+   "city": "paterson",
+   "pano": "4cXVf74zyKLTQLiQtBObww",
+   "x": 0.184778,
+   "y": 0.524323,
+   "dist_m": 32.653,
+   "chebyshev": 10.2122,
+   "euclidean": 10.2223
+  },
+  {
+   "city": "paterson",
+   "pano": "HFYowXmV7u1c0TMp-p_pgQ",
+   "x": 0.449232,
+   "y": 0.532554,
+   "dist_m": 24.359,
+   "chebyshev": 7.9861,
+   "euclidean": 8.3197
+  },
+  {
+   "city": "paterson",
+   "pano": "HFYowXmV7u1c0TMp-p_pgQ",
+   "x": 0.465766,
+   "y": 0.520934,
+   "dist_m": 37.958,
+   "chebyshev": 8.9446,
+   "euclidean": 12.1898
+  },
+  {
+   "city": "paterson",
+   "pano": "HFYowXmV7u1c0TMp-p_pgQ",
+   "x": 0.473543,
+   "y": 0.519864,
+   "dist_m": 40.009,
+   "chebyshev": 16.9078,
+   "euclidean": 19.0744
+  },
+  {
+   "city": "paterson",
+   "pano": "jtPd8YX0gkDeQe6dq9mk4A",
+   "x": 0.570623,
+   "y": 0.53346,
+   "dist_m": 23.695,
+   "chebyshev": 4.3183,
+   "euclidean": 5.1841
+  },
+  {
+   "city": "paterson",
+   "pano": "UOMaPWpm2CRHbfqMgY_hbQ",
+   "x": 0.917969,
+   "y": 0.568359,
+   "dist_m": 11.462,
+   "chebyshev": 8.5513,
+   "euclidean": 8.9534
+  },
+  {
+   "city": "paterson",
+   "pano": "0-zmUwLwl5ENJgqxheDklQ",
+   "x": 0.125394,
+   "y": 0.588422,
+   "dist_m": 8.767,
+   "chebyshev": 9.2718,
+   "euclidean": 9.6287
+  },
+  {
+   "city": "paterson",
+   "pano": "0-zmUwLwl5ENJgqxheDklQ",
+   "x": 0.917678,
+   "y": 0.568847,
+   "dist_m": 11.378,
+   "chebyshev": 8.2982,
+   "euclidean": 11.3547
+  },
+  {
+   "city": "paterson",
+   "pano": "ycJKMD6I5D8glf_jMPqkDQ",
+   "x": 0.389065,
+   "y": 0.541669,
+   "dist_m": 18.988,
+   "chebyshev": 13.6653,
+   "euclidean": 14.0824
+  },
+  {
+   "city": "paterson",
+   "pano": "ycJKMD6I5D8glf_jMPqkDQ",
+   "x": 0.384159,
+   "y": 0.52805,
+   "dist_m": 28.297,
+   "chebyshev": 20.6386,
+   "euclidean": 20.7022
+  },
+  {
+   "city": "paterson",
+   "pano": "1FJQJxlHdC_TzHOH9ynMFw",
+   "x": 0.409638,
+   "y": 0.526919,
+   "dist_m": 29.491,
+   "chebyshev": 7.5306,
+   "euclidean": 7.7388
+  },
+  {
+   "city": "paterson",
+   "pano": "1FJQJxlHdC_TzHOH9ynMFw",
+   "x": 0.538544,
+   "y": 0.527109,
+   "dist_m": 29.283,
+   "chebyshev": 11.5312,
+   "euclidean": 11.6835
+  },
+  {
+   "city": "paterson",
+   "pano": "as5xCAJAYMT35sgs0rx2_w",
+   "x": 0.33585,
+   "y": 0.565398,
+   "dist_m": 11.997,
+   "chebyshev": 11.9102,
+   "euclidean": 12.1732
+  },
+  {
+   "city": "paterson",
+   "pano": "as5xCAJAYMT35sgs0rx2_w",
+   "x": 0.435886,
+   "y": 0.529933,
+   "dist_m": 26.507,
+   "chebyshev": 11.3475,
+   "euclidean": 11.8248
+  },
+  {
+   "city": "paterson",
+   "pano": "as5xCAJAYMT35sgs0rx2_w",
+   "x": 0.534672,
+   "y": 0.526364,
+   "dist_m": 30.116,
+   "chebyshev": 7.4962,
+   "euclidean": 7.6444
+  },
+  {
+   "city": "paterson",
+   "pano": "as5xCAJAYMT35sgs0rx2_w",
+   "x": 0.628773,
+   "y": 0.574165,
+   "dist_m": 10.535,
+   "chebyshev": 13.0277,
+   "euclidean": 14.8544
+  },
+  {
+   "city": "paterson",
+   "pano": "ixm9RoZTI443YB7QoJ6nLQ",
+   "x": 0.574052,
+   "y": 0.55215,
+   "dist_m": 15.123,
+   "chebyshev": 6.7006,
+   "euclidean": 6.7028
+  },
+  {
+   "city": "paterson",
+   "pano": "ixm9RoZTI443YB7QoJ6nLQ",
+   "x": 0.426575,
+   "y": 0.556173,
+   "dist_m": 14.019,
+   "chebyshev": 8.7605,
+   "euclidean": 8.9461
+  },
+  {
+   "city": "paterson",
+   "pano": "2lovLRC7Pv6S94tMW3mDug",
+   "x": 0.323178,
+   "y": 0.558149,
+   "dist_m": 13.533,
+   "chebyshev": 7.9347,
+   "euclidean": 10.0869
+  },
+  {
+   "city": "paterson",
+   "pano": "2lovLRC7Pv6S94tMW3mDug",
+   "x": 0.433414,
+   "y": 0.513805,
+   "dist_m": 57.61,
+   "chebyshev": 8.1839,
+   "euclidean": 8.7401
+  },
+  {
+   "city": "paterson",
+   "pano": "2lovLRC7Pv6S94tMW3mDug",
+   "x": 0.539194,
+   "y": 0.512993,
+   "dist_m": 61.214,
+   "chebyshev": 10.8655,
+   "euclidean": 11.1845
+  },
+  {
+   "city": "paterson",
+   "pano": "2lovLRC7Pv6S94tMW3mDug",
+   "x": 0.656202,
+   "y": 0.567951,
+   "dist_m": 11.533,
+   "chebyshev": 12.0495,
+   "euclidean": 15.1656
+  },
+  {
+   "city": "paterson",
+   "pano": "hV6LwTvkCzyX_vQF3ZG5qQ",
+   "x": 0.264027,
+   "y": 0.553978,
+   "dist_m": 14.601,
+   "chebyshev": 5.6366,
+   "euclidean": 5.6483
+  },
+  {
+   "city": "paterson",
+   "pano": "vRVQrenH_9eL4n4O4Gp_oQ",
+   "x": 0.523729,
+   "y": 0.522146,
+   "dist_m": 35.874,
+   "chebyshev": 11.7016,
+   "euclidean": 13.9864
+  },
+  {
+   "city": "paterson",
+   "pano": "vRVQrenH_9eL4n4O4Gp_oQ",
+   "x": 0.539009,
+   "y": 0.533884,
+   "dist_m": 23.397,
+   "chebyshev": 3.945,
+   "euclidean": 4.2767
+  },
+  {
+   "city": "paterson",
+   "pano": "fSQ5B3z1vT-Ym1-siL8iOA",
+   "x": 0.38285,
+   "y": 0.551455,
+   "dist_m": 15.33,
+   "chebyshev": 11.9621,
+   "euclidean": 11.98
+  },
+  {
+   "city": "paterson",
+   "pano": "qL5hz8oXZM0g4pKxGR3Yyw",
+   "x": 0.526313,
+   "y": 0.551566,
+   "dist_m": 15.297,
+   "chebyshev": 17.0554,
+   "euclidean": 17.1301
+  },
+  {
+   "city": "paterson",
+   "pano": "qL5hz8oXZM0g4pKxGR3Yyw",
+   "x": 0.626367,
+   "y": 0.596905,
+   "dist_m": 7.957,
+   "chebyshev": 17.3846,
+   "euclidean": 20.3616
+  },
+  {
+   "city": "paterson",
+   "pano": "IXCSjRuAqY4_iyOU_2rxeQ",
+   "x": 0.524055,
+   "y": 0.527609,
+   "dist_m": 28.751,
+   "chebyshev": 5.8643,
+   "euclidean": 6.7624
+  },
+  {
+   "city": "paterson",
+   "pano": "IXCSjRuAqY4_iyOU_2rxeQ",
+   "x": 0.517694,
+   "y": 0.527438,
+   "dist_m": 28.931,
+   "chebyshev": 9.8809,
+   "euclidean": 11.535
+  },
+  {
+   "city": "paterson",
+   "pano": "bfc5Mq-kfwj29vGpOPKS2A",
+   "x": 0.138564,
+   "y": 0.61464,
+   "dist_m": 6.639,
+   "chebyshev": 14.7415,
+   "euclidean": 19.7109
+  },
+  {
+   "city": "paterson",
+   "pano": "bfc5Mq-kfwj29vGpOPKS2A",
+   "x": 0.903045,
+   "y": 0.57991,
+   "dist_m": 9.748,
+   "chebyshev": 10.0862,
+   "euclidean": 12.4403
+  },
+  {
+   "city": "paterson",
+   "pano": "PS-Atz2shq5v6QtlJs6OlA",
+   "x": 0.910822,
+   "y": 0.539948,
+   "dist_m": 19.815,
+   "chebyshev": 14.3186,
+   "euclidean": 14.3258
+  },
+  {
+   "city": "paterson",
+   "pano": "RGAxlzGeyK3ncjFZ9VXpBA",
+   "x": 0.123491,
+   "y": 0.547138,
+   "dist_m": 16.758,
+   "chebyshev": 4.5456,
+   "euclidean": 5.9668
+  },
+  {
+   "city": "paterson",
+   "pano": "RGAxlzGeyK3ncjFZ9VXpBA",
+   "x": 0.922845,
+   "y": 0.551568,
+   "dist_m": 15.296,
+   "chebyshev": 8.5971,
+   "euclidean": 8.8281
+  },
+  {
+   "city": "paterson",
+   "pano": "iPgLrrQ5XDrWWlTXzI5MLQ",
+   "x": 0.990701,
+   "y": 0.528969,
+   "dist_m": 27.394,
+   "chebyshev": 10.4777,
+   "euclidean": 10.8537
+  },
+  {
+   "city": "paterson",
+   "pano": "BwpJfUUUcWanSPtttY4KJw",
+   "x": 0.426667,
+   "y": 0.537879,
+   "dist_m": 20.909,
+   "chebyshev": 17.9067,
+   "euclidean": 17.911
+  },
+  {
+   "city": "paterson",
+   "pano": "XRsv_X3jYvAM1BPI-oQJUg",
+   "x": 0.04261,
+   "y": 0.529745,
+   "dist_m": 26.675,
+   "chebyshev": 15.3677,
+   "euclidean": 15.7034
+  },
+  {
+   "city": "paterson",
+   "pano": "ZcGyifqcyvUwLtCYGTr3oA",
+   "x": 0.123478,
+   "y": 0.590367,
+   "dist_m": 8.568,
+   "chebyshev": 12.7322,
+   "euclidean": 13.8927
+  },
+  {
+   "city": "paterson",
+   "pano": "ZcGyifqcyvUwLtCYGTr3oA",
+   "x": 0.03705,
+   "y": 0.54299,
+   "dist_m": 18.398,
+   "chebyshev": 9.9393,
+   "euclidean": 10.1407
+  },
+  {
+   "city": "paterson",
+   "pano": "ZcGyifqcyvUwLtCYGTr3oA",
+   "x": 0.834868,
+   "y": 0.592262,
+   "dist_m": 8.382,
+   "chebyshev": 10.9044,
+   "euclidean": 11.8989
+  },
+  {
+   "city": "paterson",
+   "pano": "ZcGyifqcyvUwLtCYGTr3oA",
+   "x": 0.927472,
+   "y": 0.539448,
+   "dist_m": 20.069,
+   "chebyshev": 10.7317,
+   "euclidean": 10.7335
+  },
+  {
+   "city": "paterson",
+   "pano": "WNiUHjkafGBEnMc0nc4wkQ",
+   "x": 0.941928,
+   "y": 0.542824,
+   "dist_m": 18.47,
+   "chebyshev": 6.4652,
+   "euclidean": 6.746
+  },
+  {
+   "city": "paterson",
+   "pano": "WNiUHjkafGBEnMc0nc4wkQ",
+   "x": 0.964985,
+   "y": 0.518465,
+   "dist_m": 43.048,
+   "chebyshev": 8.8898,
+   "euclidean": 8.8906
+  },
+  {
+   "city": "paterson",
+   "pano": "ijlwBkjXDfD2wCO_jSjCGA",
+   "x": 0.954077,
+   "y": 0.525819,
+   "dist_m": 30.754,
+   "chebyshev": 12.9747,
+   "euclidean": 14.2043
+  },
+  {
+   "city": "paterson",
+   "pano": "Z929dNP7sDp8cU6sjIeKAw",
+   "x": 0.535719,
+   "y": 0.539868,
+   "dist_m": 19.856,
+   "chebyshev": 15.4241,
+   "euclidean": 15.4296
+  },
+  {
+   "city": "paterson",
+   "pano": "sZDQ4gAO200kPfWhz1st9g",
+   "x": 0.97694,
+   "y": 0.537377,
+   "dist_m": 21.192,
+   "chebyshev": 20.3862,
+   "euclidean": 20.3867
+  },
+  {
+   "city": "paterson",
+   "pano": "aZxwqPZnkC3sv5dTZOEomA",
+   "x": 0.383047,
+   "y": 0.551455,
+   "dist_m": 15.331,
+   "chebyshev": 6.3448,
+   "euclidean": 7.6309
+  },
+  {
+   "city": "paterson",
+   "pano": "3dq9TqRXzopD0yvztHg8rg",
+   "x": 0.158568,
+   "y": 0.55874,
+   "dist_m": 13.393,
+   "chebyshev": 8.6267,
+   "euclidean": 9.9337
+  },
+  {
+   "city": "paterson",
+   "pano": "3dq9TqRXzopD0yvztHg8rg",
+   "x": 0.937909,
+   "y": 0.579157,
+   "dist_m": 9.845,
+   "chebyshev": 10.4716,
+   "euclidean": 11.3658
+  },
+  {
+   "city": "paterson",
+   "pano": "3dq9TqRXzopD0yvztHg8rg",
+   "x": 0.997933,
+   "y": 0.528875,
+   "dist_m": 27.484,
+   "chebyshev": 9.8831,
+   "euclidean": 10.2677
+  },
+  {
+   "city": "paterson",
+   "pano": "eIw8Y1zl7qgUW6bTPzk3gA",
+   "x": 0.089844,
+   "y": 0.570312,
+   "dist_m": 11.133,
+   "chebyshev": 5.7511,
+   "euclidean": 7.6528
+  },
+  {
+   "city": "paterson",
+   "pano": "eIw8Y1zl7qgUW6bTPzk3gA",
+   "x": 0.034233,
+   "y": 0.52959,
+   "dist_m": 26.815,
+   "chebyshev": 7.0549,
+   "euclidean": 7.7263
+  },
+  {
+   "city": "paterson",
+   "pano": "q10dxfl-oC7RkRFUVKU_RA",
+   "x": 0.4311,
+   "y": 0.521461,
+   "dist_m": 37.023,
+   "chebyshev": 9.5533,
+   "euclidean": 9.6067
+  },
+  {
+   "city": "paterson",
+   "pano": "7ZSHYN4Na-esoxvqvTzjwQ",
+   "x": 0.848296,
+   "y": 0.60778,
+   "dist_m": 7.099,
+   "chebyshev": 11.8165,
+   "euclidean": 15.2597
+  },
+  {
+   "city": "paterson",
+   "pano": "7ZSHYN4Na-esoxvqvTzjwQ",
+   "x": 0.966801,
+   "y": 0.550583,
+   "dist_m": 15.6,
+   "chebyshev": 18.0047,
+   "euclidean": 18.127
+  },
+  {
+   "city": "paterson",
+   "pano": "zB7_9mtLQuVbRyZrttlMXg",
+   "x": 0.026435,
+   "y": 0.526455,
+   "dist_m": 30.011,
+   "chebyshev": 7.9308,
+   "euclidean": 8.0799
+  },
+  {
+   "city": "paterson",
+   "pano": "zB7_9mtLQuVbRyZrttlMXg",
+   "x": 0.07604,
+   "y": 0.547688,
+   "dist_m": 16.562,
+   "chebyshev": 9.8653,
+   "euclidean": 10.198
+  },
+  {
+   "city": "paterson",
+   "pano": "0s94i47Wdggc9cHmBjEe8w",
+   "x": 0.933594,
+   "y": 0.554688,
+   "dist_m": 14.408,
+   "chebyshev": 7.4958,
+   "euclidean": 7.8923
+  },
+  {
+   "city": "paterson",
+   "pano": "0s94i47Wdggc9cHmBjEe8w",
+   "x": 0.083623,
+   "y": 0.566855,
+   "dist_m": 11.727,
+   "chebyshev": 6.2298,
+   "euclidean": 8.2248
+  },
+  {
+   "city": "paterson",
+   "pano": "0s94i47Wdggc9cHmBjEe8w",
+   "x": 0.963358,
+   "y": 0.52879,
+   "dist_m": 27.566,
+   "chebyshev": 10.5621,
+   "euclidean": 10.5833
+  },
+  {
+   "city": "paterson",
+   "pano": "k3ipUDBk_fu7EXSVSNGaig",
+   "x": 0.420246,
+   "y": 0.535156,
+   "dist_m": 22.543,
+   "chebyshev": 5.6682,
+   "euclidean": 5.7557
+  },
+  {
+   "city": "paterson",
+   "pano": "k3ipUDBk_fu7EXSVSNGaig",
+   "x": 0.543192,
+   "y": 0.532318,
+   "dist_m": 24.539,
+   "chebyshev": 14.7709,
+   "euclidean": 14.9733
+  },
+  {
+   "city": "paterson",
+   "pano": "k3ipUDBk_fu7EXSVSNGaig",
+   "x": 0.335354,
+   "y": 0.566162,
+   "dist_m": 11.854,
+   "chebyshev": 19.402,
+   "euclidean": 19.5181
+  },
+  {
+   "city": "paterson",
+   "pano": "k3ipUDBk_fu7EXSVSNGaig",
+   "x": 0.648285,
+   "y": 0.564136,
+   "dist_m": 12.239,
+   "chebyshev": 11.1623,
+   "euclidean": 11.6
+  },
+  {
+   "city": "paterson",
+   "pano": "bwpW8jgnlIbAQC0HRy99JA",
+   "x": 0.071218,
+   "y": 0.533934,
+   "dist_m": 23.362,
+   "chebyshev": 10.0731,
+   "euclidean": 10.2034
+  },
+  {
+   "city": "paterson",
+   "pano": "bwpW8jgnlIbAQC0HRy99JA",
+   "x": 0.931128,
+   "y": 0.540058,
+   "dist_m": 19.761,
+   "chebyshev": 16.8643,
+   "euclidean": 16.8706
+  },
+  {
+   "city": "paterson",
+   "pano": "WJObi8mVH47hu4RDg_PEOQ",
+   "x": 0.33697,
+   "y": 0.575859,
+   "dist_m": 10.291,
+   "chebyshev": 14.057,
+   "euclidean": 18.5869
+  },
+  {
+   "city": "paterson",
+   "pano": "e2tMNl4AQvYcYtzyd9aTOg",
+   "x": 0.083898,
+   "y": 0.582759,
+   "dist_m": 9.398,
+   "chebyshev": 6.3728,
+   "euclidean": 8.1554
+  },
+  {
+   "city": "paterson",
+   "pano": "e2tMNl4AQvYcYtzyd9aTOg",
+   "x": 0.061176,
+   "y": 0.543163,
+   "dist_m": 18.323,
+   "chebyshev": 10.6447,
+   "euclidean": 10.8497
+  },
+  {
+   "city": "paterson",
+   "pano": "e2tMNl4AQvYcYtzyd9aTOg",
+   "x": 0.93513,
+   "y": 0.579213,
+   "dist_m": 9.838,
+   "chebyshev": 9.5733,
+   "euclidean": 10.6026
+  },
+  {
+   "city": "paterson",
+   "pano": "e2tMNl4AQvYcYtzyd9aTOg",
+   "x": 0.968208,
+   "y": 0.538282,
+   "dist_m": 20.687,
+   "chebyshev": 11.4452,
+   "euclidean": 11.4522
+  },
+  {
+   "city": "gainesville",
+   "pano": "q2yX7pwQF7_3SFGxEqlDHQ",
+   "x": 0.269582,
+   "y": 0.526453,
+   "dist_m": 30.014,
+   "chebyshev": 16.0518,
+   "euclidean": 16.1259
+  },
+  {
+   "city": "gainesville",
+   "pano": "4My9h4mmpjE82U1up3jWOA",
+   "x": 0.142976,
+   "y": 0.534959,
+   "dist_m": 22.672,
+   "chebyshev": 22.407,
+   "euclidean": 22.434
+  },
+  {
+   "city": "gainesville",
+   "pano": "jL3wxV95A0lO2xKUQukpIg",
+   "x": 0.539673,
+   "y": 0.521422,
+   "dist_m": 37.091,
+   "chebyshev": 8.0319,
+   "euclidean": 9.8058
+  },
+  {
+   "city": "gainesville",
+   "pano": "Mm5gyUYqmJmjeGopC1IgKg",
+   "x": 0.425628,
+   "y": 0.525978,
+   "dist_m": 30.565,
+   "chebyshev": 15.8429,
+   "euclidean": 20.9445
+  },
+  {
+   "city": "gainesville",
+   "pano": "KEwb17BzIjKVur60MpItuA",
+   "x": 0.560995,
+   "y": 0.525576,
+   "dist_m": 31.047,
+   "chebyshev": 14.9051,
+   "euclidean": 15.3013
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "1518788286020997",
+   "x": 0.536255,
+   "y": 0.535548,
+   "dist_m": 22.293,
+   "chebyshev": 17.7994,
+   "euclidean": 18.7439
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "1894850657819898",
+   "x": 0.904764,
+   "y": 0.564159,
+   "dist_m": 12.235,
+   "chebyshev": 10.4787,
+   "euclidean": 14.5888
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "2252974625208346",
+   "x": 0.351239,
+   "y": 0.559772,
+   "dist_m": 13.157,
+   "chebyshev": 10.8983,
+   "euclidean": 12.5285
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "1973123443230745",
+   "x": 0.436915,
+   "y": 0.520359,
+   "dist_m": 39.034,
+   "chebyshev": 8.5761,
+   "euclidean": 9.6392
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "4216189052043049",
+   "x": 0.303053,
+   "y": 0.588591,
+   "dist_m": 8.749,
+   "chebyshev": 10.3261,
+   "euclidean": 11.7668
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "853035244088834",
+   "x": 0.400516,
+   "y": 0.547851,
+   "dist_m": 16.505,
+   "chebyshev": 12.7155,
+   "euclidean": 16.6114
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "853035244088834",
+   "x": 0.429382,
+   "y": 0.534178,
+   "dist_m": 23.194,
+   "chebyshev": 17.6895,
+   "euclidean": 24.4254
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "853035244088834",
+   "x": 0.532362,
+   "y": 0.526668,
+   "dist_m": 29.77,
+   "chebyshev": 14.3457,
+   "euclidean": 15.6038
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "1539829630297717",
+   "x": 0.912859,
+   "y": 0.547503,
+   "dist_m": 16.628,
+   "chebyshev": 12.2319,
+   "euclidean": 12.7731
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "1539829630297717",
+   "x": 0.941354,
+   "y": 0.533632,
+   "dist_m": 23.573,
+   "chebyshev": 16.9468,
+   "euclidean": 20.0851
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "858125493614092",
+   "x": 0.375665,
+   "y": 0.575587,
+   "dist_m": 10.329,
+   "chebyshev": 5.2993,
+   "euclidean": 5.7846
+  },
+  {
+   "city": "laurens_mapillary",
+   "pano": "1568453127905099",
+   "x": 0.952601,
+   "y": 0.560696,
+   "dist_m": 12.952,
+   "chebyshev": 12.0761,
+   "euclidean": 12.9
+  }
+ ]
+}
