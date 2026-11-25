@@ -1,18 +1,36 @@
 {
  "bootstrap": {
+  "boundary_seed_check": {
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "within": 0.002
+  },
+  "covers": "pano sampling only; each leg is one run, so run-to-run variation is not in these intervals",
   "interval": "percentile 2.5 / 97.5",
   "n_draws": 10000,
   "rng": "random.Random(SEED), one per split and one per pool; pools resample within each split",
   "seed": 0,
   "unit": "pano"
  },
- "high_total_usd": 122.18,
+ "high_total_usd": 122.2,
  "legs": [
   "claude-opus-5-5-effort-low-anthropic",
   "claude-opus-5-5-effort-high-anthropic-maxtokens-20000"
  ],
  "per_split": {
   "annapolis": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 366,
+    "claude-opus-5-5-effort-low-anthropic": 328
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.928,
     "claude-opus-5-5-effort-low-anthropic": 2.624
@@ -78,6 +96,10 @@
    }
   },
   "bayonne": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 347,
+    "claude-opus-5-5-effort-low-anthropic": 311
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.776,
     "claude-opus-5-5-effort-low-anthropic": 2.488
@@ -143,6 +165,10 @@
    }
   },
   "bend": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 395,
+    "claude-opus-5-5-effort-low-anthropic": 365
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 3.591,
     "claude-opus-5-5-effort-low-anthropic": 3.318
@@ -208,6 +234,10 @@
    }
   },
   "budapest_district5": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 267,
+    "claude-opus-5-5-effort-low-anthropic": 240
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.136,
     "claude-opus-5-5-effort-low-anthropic": 1.92
@@ -273,6 +303,10 @@
    }
   },
   "clovis": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 301,
+    "claude-opus-5-5-effort-low-anthropic": 245
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.408,
     "claude-opus-5-5-effort-low-anthropic": 1.96
@@ -298,6 +332,53 @@
     ],
     "ci_excludes_zero": false,
     "diff": -0.0472,
+    "seed_check": {
+     "ci95_by_seed": [
+      [
+       -0.0964,
+       0.0008
+      ],
+      [
+       -0.0956,
+       -0.0005
+      ],
+      [
+       -0.0972,
+       -0.0004
+      ],
+      [
+       -0.097,
+       -0.0004
+      ],
+      [
+       -0.0963,
+       0.0011
+      ],
+      [
+       -0.0971,
+       0.0003
+      ],
+      [
+       -0.0963,
+       -0.0003
+      ],
+      [
+       -0.097,
+       -0.0002
+      ]
+     ],
+     "n_excluding_zero": 5,
+     "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+     ]
+    },
     "share_draws_above_zero": 0.0271
    },
    "n_panos": 125,
@@ -338,6 +419,10 @@
    }
   },
   "gainesville": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 371,
+    "claude-opus-5-5-effort-low-anthropic": 347
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.968,
     "claude-opus-5-5-effort-low-anthropic": 2.776
@@ -403,6 +488,10 @@
    }
   },
   "juneau": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 315,
+    "claude-opus-5-5-effort-low-anthropic": 304
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.52,
     "claude-opus-5-5-effort-low-anthropic": 2.432
@@ -468,6 +557,10 @@
    }
   },
   "laurens_gsv": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 221,
+    "claude-opus-5-5-effort-low-anthropic": 208
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.57,
     "claude-opus-5-5-effort-low-anthropic": 2.419
@@ -533,6 +626,10 @@
    }
   },
   "laurens_mapillary": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 258,
+    "claude-opus-5-5-effort-low-anthropic": 237
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.745,
     "claude-opus-5-5-effort-low-anthropic": 2.521
@@ -598,6 +695,10 @@
    }
   },
   "morgantown": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 309,
+    "claude-opus-5-5-effort-low-anthropic": 300
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.472,
     "claude-opus-5-5-effort-low-anthropic": 2.4
@@ -663,6 +764,10 @@
    }
   },
   "paterson": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 350,
+    "claude-opus-5-5-effort-low-anthropic": 330
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.8,
     "claude-opus-5-5-effort-low-anthropic": 2.64
@@ -728,6 +833,10 @@
    }
   },
   "richmond": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 446,
+    "claude-opus-5-5-effort-low-anthropic": 444
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 3.597,
     "claude-opus-5-5-effort-low-anthropic": 3.581
@@ -793,6 +902,10 @@
    }
   },
   "sao_paulo": {
+   "boxes_emitted": {
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 311,
+    "claude-opus-5-5-effort-low-anthropic": 283
+   },
    "boxes_per_pano": {
     "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 2.488,
     "claude-opus-5-5-effort-low-anthropic": 2.264
@@ -858,7 +971,7 @@
    }
   }
  },
- "per_split_sha256": "4c9b015c3ebb9fd0d29d7b4bd0b9762cc46dc99db0a03a0ca50c798ad06e3e9c",
+ "per_split_sha256": "d044c5d82da2839c322e68b5f2d05666461721fd3e8b2918d873a25e785736d1",
  "pooled_all_cities": {
   "high_minus_low": {
    "ci95": [
@@ -869,12 +982,20 @@
    "diff": -0.0066,
    "share_draws_above_zero": 0.0671
   },
+  "high_minus_low_macro": {
+   "ci95": [
+    -0.0152,
+    0.0027
+   ],
+   "ci_excludes_zero": false,
+   "diff": -0.0062,
+   "share_draws_above_zero": 0.0833
+  },
   "macro_f1": {
    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 0.672489,
    "claude-opus-5-5-effort-low-anthropic": 0.67865,
    "rampnet": 0.748638
   },
-  "macro_high_minus_low": -0.0062,
   "n_panos": 1539,
   "scores": {
    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": {
@@ -928,12 +1049,20 @@
    "diff": 0.0192,
    "share_draws_above_zero": 0.9818
   },
+  "high_minus_low_macro": {
+   "ci95": [
+    -0.0008,
+    0.0351
+   ],
+   "ci_excludes_zero": false,
+   "diff": 0.0175,
+   "share_draws_above_zero": 0.9684
+  },
   "macro_f1": {
    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 0.621799,
    "claude-opus-5-5-effort-low-anthropic": 0.604315,
    "rampnet": 0.649214
   },
-  "macro_high_minus_low": 0.0175,
   "n_panos": 461,
   "scores": {
    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": {
@@ -978,12 +1107,20 @@
    "diff": -0.0167,
    "share_draws_above_zero": 0.0005
   },
+  "high_minus_low_macro": {
+   "ci95": [
+    -0.0269,
+    -0.0061
+   ],
+   "ci_excludes_zero": true,
+   "diff": -0.0167,
+   "share_draws_above_zero": 0.0007
+  },
   "macro_f1": {
    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": 0.695018,
    "claude-opus-5-5-effort-low-anthropic": 0.711688,
    "rampnet": 0.792826
   },
-  "macro_high_minus_low": -0.0167,
   "n_panos": 1078,
   "scores": {
    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": {

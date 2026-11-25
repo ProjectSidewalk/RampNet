@@ -13,8 +13,9 @@ From committed files only -- the bundles, the published detections in
 1. **Per split, high minus low in F1**, with a pano-level paired bootstrap (resample the split's
    panos with replacement, recompute both F1s on the same draw).
 2. **Pooled**, over ``rampnet.eval.POOLED_SPLITS`` (the nine US cities) and over the four other
-   city splits: micro-pooled tp/fp/fn, with a stratified bootstrap (each split's panos resampled
-   within that split, every draw summed across splits).
+   city splits: a stratified bootstrap (each split's panos resampled within that split) of
+   both aggregations on the same draws -- micro (tp/fp/fn summed across splits) and macro (the
+   mean of per-split F1s, the scoreboard's headline aggregation).
 3. **High against RampNet** per split, the same paired construction as ``claude_newest_ids_261``
    (RampNet at the deployed 0.55), so the high leg's standing is stated against the reference and
    not only against its own low sibling.
@@ -22,7 +23,10 @@ From committed files only -- the bundles, the published detections in
    from the ledger rows of each leg.
 
 Bootstrap: ``random.Random(SEED)``, ``N_BOOT`` draws, percentile 2.5 / 97.5, one generator per
-split for the per-split intervals and one per pool for the pooled ones.
+split for the per-split intervals and one per pool for the pooled ones. A per-split high-minus-
+low interval with an end within ``BOUNDARY`` of zero is re-drawn at ``SEED_CHECK_SEEDS``, so
+whether it "excludes zero" is not read off one seed. These intervals resample panos only: each
+leg is one run at the provider's default temperature, so run-to-run variation is not in them.
 
 Every low-leg city cell at r=0.022 is asserted equal to ``analysis_out/scoreboard.json``, so this
 script and the scoreboard cannot drift apart.
@@ -70,6 +74,10 @@ CITY_SPLITS = tuple(POOLED_SPLITS) + OTHER_SPLITS
 SPLITS = CITY_SPLITS
 N_BOOT = 10_000
 SEED = 0
+#: An interval end this close to zero is on the boundary: whether it excludes zero
+#: depends on the seed (clovis's upper end is +0.0008 at seed 0; review 1 of #299).
+BOUNDARY = 0.002
+SEED_CHECK_SEEDS = tuple(range(8))
 
 
 def _r(x, nd=4):
@@ -96,6 +104,32 @@ def paired(rows_a, rows_b, panos, rng):
         diffs.append(f1_of(rows_a, draw) - f1_of(rows_b, draw))
     diffs.sort()
     return interval(diffs, f1_of(rows_a, panos) - f1_of(rows_b, panos))
+
+
+def on_boundary(ci95):
+    """True when either end of an interval is within ``BOUNDARY`` of zero."""
+    return min(abs(e) for e in ci95) <= BOUNDARY
+
+
+def total_usd(cost, leg):
+    """A leg's city-split total: the unrounded ledger costs summed, then rounded once.
+    (The per-split ``usd`` figures are rounded to cents; summing those instead came out
+    2 cents short, $122.18 against $122.20; review 1 of #299.)"""
+    return _r(sum(cost[(leg, s)]["usd"] for s in SPLITS if (leg, s) in cost), 2)
+
+
+def seed_check(rows_a, rows_b, panos):
+    """The paired interval re-drawn at every seed in ``SEED_CHECK_SEEDS``."""
+    cis = [paired(rows_a, rows_b, panos, random.Random(s))["ci95"] for s in SEED_CHECK_SEEDS]
+    return {"seeds": list(SEED_CHECK_SEEDS), "ci95_by_seed": cis,
+            "n_excluding_zero": sum(lo > 0 or hi < 0 for lo, hi in cis)}
+
+
+def assert_low_matches_scoreboard(split, low_cell, board):
+    """The low leg is the scoreboard's leg: its cell here must be the board's cell."""
+    sb = board[LOW][split]
+    assert abs(low_cell["f1"] - sb["f1"]) < 1e-5, (split, sb["f1"])
+    assert (low_cell["tp"], low_cell["fp"]) == (sb["tp"], sb["fp"]), split
 
 
 def load_split(split):
@@ -137,8 +171,17 @@ def ledger_cost():
     return out
 
 
+def _add(a, b):
+    return tuple(x + y for x, y in zip(a, b))
+
+
 def pooled(per, splits, seed):
-    """Micro-pooled F1 for each leg, high minus low with a stratified bootstrap."""
+    """Micro- and macro-pooled F1 for each leg; high minus low under both aggregations,
+    with one stratified bootstrap (each split's panos resampled within that split).
+
+    The scoreboard's headline pooled F1 is the MACRO mean of per-split F1s, so the macro
+    difference gets its own interval from the same draws as the micro one; the two can
+    disagree on whether an interval excludes zero (the four non-US splits do)."""
     keyed = {m: {} for m in (LOW, HIGH, RAMPNET)}
     strata = []
     for s in splits:
@@ -148,19 +191,26 @@ def pooled(per, splits, seed):
         strata.append([(s, p) for p in panos])
     allp = [k for st in strata for k in st]
     rng = random.Random(seed)
-    diffs = []
+    micro, macro_d = [], []
     for _ in range(N_BOOT):
-        draw = [st[rng.randrange(len(st))] for st in strata for _ in st]
-        diffs.append(f1_of(keyed[HIGH], draw) - f1_of(keyed[LOW], draw))
-    diffs.sort()
-    # The scoreboard's headline pooled F1 is the MACRO mean of per-split F1s; the interval
-    # is on the micro (count-pooled) F1. Both are recorded so either can be quoted.
-    macro = {m: _r(sum(f1_of(per[s][0][m], per[s][1]) for s in splits) / len(splits), 6)
-             for m in keyed}
+        hi_t, lo_t, per_split = (0, 0, 0, 0), (0, 0, 0, 0), 0.0
+        for st in strata:
+            sub = [st[rng.randrange(len(st))] for _ in st]
+            h, lo = totals(keyed[HIGH], sub), totals(keyed[LOW], sub)
+            hi_t, lo_t = _add(hi_t, h), _add(lo_t, lo)
+            per_split += prf(*h)[2] - prf(*lo)[2]
+        micro.append(prf(*hi_t)[2] - prf(*lo_t)[2])
+        macro_d.append(per_split / len(strata))
+    micro.sort()
+    macro_d.sort()
+    f1s = {m: [f1_of(per[s][0][m], per[s][1]) for s in splits] for m in keyed}
+    macro = {m: _r(sum(v) / len(splits), 6) for m, v in f1s.items()}
+    macro_point = sum(h - lo for h, lo in zip(f1s[HIGH], f1s[LOW])) / len(splits)
     return {"splits": list(splits), "n_panos": len(allp),
             "scores": {m: cell(keyed[m], allp) for m in keyed},
-            "macro_f1": macro, "macro_high_minus_low": _r(macro[HIGH] - macro[LOW]),
-            "high_minus_low": interval(diffs, f1_of(keyed[HIGH], allp) - f1_of(keyed[LOW], allp))}
+            "macro_f1": macro,
+            "high_minus_low": interval(micro, f1_of(keyed[HIGH], allp) - f1_of(keyed[LOW], allp)),
+            "high_minus_low_macro": interval(macro_d, macro_point)}
 
 
 def build():
@@ -172,21 +222,26 @@ def build():
            "bootstrap": {"unit": "pano", "n_draws": N_BOOT, "seed": SEED,
                          "rng": "random.Random(SEED), one per split and one per pool; pools "
                                 "resample within each split",
-                         "interval": "percentile 2.5 / 97.5"},
+                         "interval": "percentile 2.5 / 97.5",
+                         "covers": "pano sampling only; each leg is one run, so run-to-run "
+                                   "variation is not in these intervals",
+                         "boundary_seed_check": {"within": BOUNDARY,
+                                                 "seeds": list(SEED_CHECK_SEEDS)}},
            "per_split": {}}
     per = {}
     for split in SPLITS:
         rows, panos, emitted = load_split(split)
         per[split] = (rows, panos)
         cells = {m: cell(rows[m], panos) for m in rows}
-        sb = board[LOW][split]
-        assert abs(cells[LOW]["f1"] - sb["f1"]) < 1e-5, (split, sb["f1"])
-        assert (cells[LOW]["tp"], cells[LOW]["fp"]) == (sb["tp"], sb["fp"]), split
+        assert_low_matches_scoreboard(split, cells[LOW], board)
         rng = random.Random(SEED)
         res = {"n_panos": len(panos), "scores": cells,
+               "boxes_emitted": dict(emitted),
                "boxes_per_pano": {leg: _r(emitted[leg] / len(panos), 3) for leg in LEGS},
                "high_minus_low": paired(rows[HIGH], rows[LOW], panos, rng),
                "rampnet_minus_high": paired(rows[RAMPNET], rows[HIGH], panos, rng)}
+        if on_boundary(res["high_minus_low"]["ci95"]):
+            res["high_minus_low"]["seed_check"] = seed_check(rows[HIGH], rows[LOW], panos)
         c = {}
         for leg in LEGS:
             a = cost.get((leg, split))
@@ -199,8 +254,7 @@ def build():
     out["pooled_us"] = pooled(per, POOLED_SPLITS, SEED)
     out["pooled_other"] = pooled(per, OTHER_SPLITS, SEED + 1)
     out["pooled_all_cities"] = pooled(per, CITY_SPLITS, SEED + 2)
-    hi = [v["cost"].get(HIGH, {}) for v in out["per_split"].values()]
-    out["high_total_usd"] = _r(sum(h.get("usd", 0) for h in hi), 2)
+    out["high_total_usd"] = total_usd(cost, HIGH)
     blob = json.dumps(out["per_split"], sort_keys=True).encode()
     out["per_split_sha256"] = hashlib.sha256(blob).hexdigest()
     return out
@@ -214,25 +268,27 @@ def markdown(res):
     def prf3(c):
         return f"{c['precision']:.3f} / {c['recall']:.3f} / **{c['f1']:.3f}**"
 
+    def iv(d):
+        return f"{d['diff']:+.3f} [{d['ci95'][0]:+.3f}, {d['ci95'][1]:+.3f}]"
+
     for s in res["splits"]:
         v = res["per_split"][s]
-        hl, rh, b = v["high_minus_low"], v["rampnet_minus_high"], v["boxes_per_pano"]
+        # From the integer counts, so the 2-dp figure is rounded once (boxes_per_pano is
+        # stored at 3 dp, and 2.7447 -> 2.745 -> 2.75 rounds twice).
+        b = {leg: v["boxes_emitted"][leg] / v["n_panos"] for leg in LEGS}
         lines.append(f"| {s} | {prf3(v['scores'][LOW])} | {prf3(v['scores'][HIGH])} "
-                     f"| {hl['diff']:+.3f} [{hl['ci95'][0]:+.3f}, {hl['ci95'][1]:+.3f}] "
-                     f"| {b[LOW]:.2f} -> {b[HIGH]:.2f} "
-                     f"| {rh['diff']:+.3f} [{rh['ci95'][0]:+.3f}, {rh['ci95'][1]:+.3f}] |")
+                     f"| {iv(v['high_minus_low'])} | {b[LOW]:.2f} -> {b[HIGH]:.2f} "
+                     f"| {iv(v['rampnet_minus_high'])} |")
     lines += ["", "| Pool | Panos | Low P / R / **F1** (micro) | High P / R / **F1** (micro) "
-              "| High - low, micro [95% CI] | Macro F1 low -> high |",
-              "|---|---:|---|---|---|---|"]
+              "| High - low, micro [95% CI] | Macro F1 low -> high | High - low, macro [95% CI] |",
+              "|---|---:|---|---|---|---|---|"]
     for key, label in (("pooled_us", "9 US cities"), ("pooled_other", "4 other cities"),
                        ("pooled_all_cities", "all 13 cities")):
         p = res[key]
-        hl = p["high_minus_low"]
         lines.append(f"| {label} | {p['n_panos']} | {prf3(p['scores'][LOW])} "
-                     f"| {prf3(p['scores'][HIGH])} "
-                     f"| {hl['diff']:+.3f} [{hl['ci95'][0]:+.3f}, {hl['ci95'][1]:+.3f}] "
+                     f"| {prf3(p['scores'][HIGH])} | {iv(p['high_minus_low'])} "
                      f"| {p['macro_f1'][LOW]:.3f} -> {p['macro_f1'][HIGH]:.3f} "
-                     f"({p['macro_high_minus_low']:+.3f}) |")
+                     f"| {iv(p['high_minus_low_macro'])} |")
     lines += ["", "| Split | Low $/pano | High $/pano | Low thinking/call | High thinking/call |",
               "|---|---:|---:|---:|---:|"]
     for s in res["splits"]:
@@ -261,10 +317,12 @@ def figures():
     # res["splits"] keeps the run order (US pool, then the other four); the per_split
     # dict was written with sorted keys, so it must not set the order.
     rows = [(s, res["per_split"][s]["high_minus_low"], False) for s in res["splits"]]
+    # The pooled rows are the micro (count-pooled) difference; the macro interval is in
+    # the doc's pool table.
     rows += [(label, res[key]["high_minus_low"], True)
-             for key, label in (("pooled_us", "Pooled: 9 US cities"),
-                                ("pooled_other", "Pooled: 4 other cities"),
-                                ("pooled_all_cities", "Pooled: all 13 cities"))]
+             for key, label in (("pooled_us", "Pooled (micro): 9 US cities"),
+                                ("pooled_other", "Pooled (micro): 4 other cities"),
+                                ("pooled_all_cities", "Pooled (micro): all 13 cities"))]
     ink, muted, grid = "#1f2328", "#59636e", "#d0d7de"
     fig, ax = plt.subplots(figsize=(7.2, 6.4), dpi=150)
     fig.patch.set_facecolor("white")
@@ -280,11 +338,12 @@ def figures():
     ticks = [n - 1 - i + (0 if p else 1) for i, (_, _, p) in enumerate(rows)]
     ax.set_yticks(ticks, [r[0] for r in rows], fontsize=9, color=ink)
     ax.set_xlim(-0.11, 0.13)
-    ax.set_xlabel("F1 at effort high minus F1 at effort low (paired pano bootstrap, 95% CI)",
+    ax.set_xlabel("F1 at effort high minus F1 at effort low (paired pano bootstrap, 95% CI;\n"
+                  "one run per arm, so run-to-run variation is not in the intervals)",
                   fontsize=9, color=ink)
     ax.set_title("Claude Opus 5.5: effort=high vs effort=low, same rig\n"
-                 "left of the dashed line = high effort scored worse", fontsize=10, color=ink,
-                 loc="left")
+                 "left of the dashed line = high effort scored lower in this run", fontsize=10,
+                 color=ink, loc="left")
     ax.grid(axis="x", color=grid, lw=0.6)
     for side in ("top", "right", "left"):
         ax.spines[side].set_visible(False)

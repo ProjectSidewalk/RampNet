@@ -9,20 +9,35 @@ It is paired here against that low leg, pano by pano.
 
 ## Result
 
-- **High effort is worse on the nine pooled US cities**: macro F1 0.712 -> 0.695 (**-0.017**),
-  micro -0.017 [-0.026, -0.007] (paired, stratified pano bootstrap). It is lower on 8 of the 9,
-  and the only split whose own interval excludes zero is gainesville (-0.032). clovis loses the
-  most (-0.047), almost all of it precision (0.563 -> 0.472).
-- **On the four other city splits it is slightly better**: macro 0.604 -> 0.622, micro
-  +0.019 [+0.001, +0.037], carried by budapest_district5 (+0.053 [+0.017, +0.090], the one
-  split where high is clearly ahead). That grouping was made before the run (`rampnet.eval.POOLED_SPLITS`
-  versus the rest), but four splits is few and the interval nearly touches zero, so read it as a
-  lead to follow, not a finding.
-- **Across all 13 cities it is a wash**: micro -0.007 [-0.015, +0.002].
+**Every interval here resamples panos only.** Each leg is one run at the provider's default
+temperature (`CLAUDE_AS_RUN_TEMPERATURE = None` in `detectors.py`, not greedy), so a second run
+of either leg would give different boxes, and that run-to-run variation is in none of the
+intervals below. The two legs also ran four weeks apart (low on 2026-10-19/20, high on
+2026-11-17); the ledger records the same model alias for both, which is the only evidence that
+the same build served them. For scale, three runs of one zero-shot Gemini leg on a two-split
+pool spanned 0.028 in macro F1 ([`vlm_prompt_276.md`](vlm_prompt_276.md), "Replicates on the
+open pool"). That is a different model and pool, so it does not transfer directly, but it is
+larger than either pooled difference below.
+
+- **High effort gives no gain on the nine pooled US cities, and is lower in this run**: macro
+  F1 0.712 -> 0.695, -0.017 [-0.027, -0.006]; micro -0.017 [-0.026, -0.007] (paired, stratified
+  pano bootstrap). It is lower on 8 of the 9. gainesville's own interval excludes zero
+  (-0.032 [-0.059, -0.006]). clovis drops the most (-0.047), almost all of it precision
+  (0.563 -> 0.472), but its interval sits on zero: the upper end is +0.001 at the committed seed,
+  and the interval excludes zero at 5 of 8 bootstrap seeds, so it counts on neither side.
+- **On the four other city splits it is slightly higher in this run**: macro 0.604 -> 0.622,
+  +0.018 [-0.001, +0.035]; micro +0.019 [+0.001, +0.037]. The macro interval includes zero and
+  the micro one only just excludes it, so the sign depends on the aggregation. It is carried by
+  budapest_district5 (+0.053 [+0.017, +0.090], the one split where high is clearly ahead). That
+  grouping was made before the run (`rampnet.eval.POOLED_SPLITS` versus the rest), but four
+  splits is few, so read it as a lead to follow, not a finding.
+- **Across all 13 cities it is a wash**: macro -0.006 [-0.015, +0.003], micro
+  -0.007 [-0.015, +0.002].
 - **Mechanism: effort moves the operating point.** High emits more boxes on every split
-  (clovis 1.96 -> 2.41 per pano, annapolis 2.62 -> 2.93). On most splits recall rises and
-  precision falls; budapest_district5 is the exception that gains on both, and juneau loses on
-  both.
+  (clovis 1.96 -> 2.41 per pano, annapolis 2.62 -> 2.93), and mostly trades precision for
+  recall: recall rises and precision falls on 8 of the 13; budapest_district5 gains on both;
+  gainesville and juneau lose on both; morgantown and laurens_gsv keep their recall and lose
+  precision.
   This is the same shape #122 measured on annapolis for Opus 5 and Sonnet 5 at effort high
   ([`claude_legs_122.md`](claude_legs_122.md); the `claude-opus-5-effort-high` roster note:
   "effort moves the operating point, it does not raise the ceiling"). This run replicates it on
@@ -32,7 +47,7 @@ It is paired here against that low leg, pano by pano.
   (laurens_mapillary, RampNet minus high -0.130; bayonne -0.125).
 - **High effort is cheap on this model**: about 150 thinking tokens per call against about 20 at
   low, so $0.075-0.084 per pano against $0.067-0.068, about 18% more. The 13 city splits cost
-  $122.18 at list price (this leg's ledger rows); the day's other rows are $11.87 for a
+  $122.20 at list price (the sum of this leg's ledger rows); the day's other rows are $11.87 for a
   150-pano `manual_gold` slice (below) and $4.49 for an effort=max calibration.
 
 ## Per split
@@ -49,7 +64,7 @@ bootstrap differences in F1 with 95% intervals.
 | annapolis | 0.694 / 0.748 / **0.720** | 0.639 / 0.765 / **0.697** | -0.024 [-0.059, +0.009] | 2.62 -> 2.93 | +0.143 [+0.091, +0.194] |
 | paterson | 0.826 / 0.673 / **0.742** | 0.802 / 0.686 / **0.739** | -0.003 [-0.018, +0.013] | 2.64 -> 2.80 | +0.066 [+0.038, +0.095] |
 | gainesville | 0.622 / 0.761 / **0.684** | 0.572 / 0.757 / **0.652** | -0.032 [-0.059, -0.006] | 2.78 -> 2.97 | +0.151 [+0.100, +0.204] |
-| laurens_mapillary | 0.706 / 0.655 / **0.679** | 0.672 / 0.675 / **0.673** | -0.006 [-0.034, +0.023] | 2.52 -> 2.75 | -0.130 [-0.212, -0.044] |
+| laurens_mapillary | 0.706 / 0.655 / **0.679** | 0.672 / 0.675 / **0.673** | -0.006 [-0.034, +0.023] | 2.52 -> 2.74 | -0.130 [-0.212, -0.044] |
 | juneau | 0.733 / 0.721 / **0.727** | 0.700 / 0.707 / **0.704** | -0.023 [-0.057, +0.011] | 2.43 -> 2.52 | +0.100 [+0.057, +0.143] |
 | budapest_district5 | 0.517 / 0.400 / **0.451** | 0.549 / 0.467 / **0.505** | +0.053 [+0.017, +0.090] | 1.92 -> 2.14 | +0.140 [+0.054, +0.225] |
 | sao_paulo | 0.663 / 0.630 / **0.646** | 0.658 / 0.658 / **0.658** | +0.012 [-0.027, +0.052] | 2.26 -> 2.49 | +0.118 [+0.060, +0.173] |
@@ -60,19 +75,23 @@ bootstrap differences in F1 with 95% intervals.
 (`compare.py --limit 150`, $11.87, ledger row 2026-11-17T23:47:28Z), but a partial split cannot be
 published (`benchmark/model_detections/` holds only complete splits, and `tests/test_export_model_cache.py`
 enforces it), so the slice stays in the producing machine's `.model_cache` and no number from it is
-quoted. Completing the remaining 850 panos would cost about $67 at list price.
+quoted. Completing the remaining 850 panos would cost about $67 at list price. Its cache key is
+pinned by `tests/test_model_comparison.py::test_claude_effort_high_cache_key_is_frozen`, so a
+signature change that would orphan the slice fails a test.
 
 ## Pooled
 
-| Pool | Panos | Low P / R / **F1** (micro) | High P / R / **F1** (micro) | High - low, micro [95% CI] | Macro F1 low -> high |
-|---|---:|---|---|---|---|
-| 9 US cities | 1078 | 0.697 / 0.736 / **0.716** | 0.658 / 0.746 / **0.700** | -0.017 [-0.026, -0.007] | 0.712 -> 0.695 (-0.017) |
-| 4 other cities | 461 | 0.629 / 0.574 / **0.600** | 0.625 / 0.614 / **0.619** | +0.019 [+0.001, +0.037] | 0.604 -> 0.622 (+0.018) |
-| all 13 cities | 1539 | 0.679 / 0.688 / **0.684** | 0.649 / 0.707 / **0.677** | -0.007 [-0.015, +0.002] | 0.679 -> 0.672 (-0.006) |
+| Pool | Panos | Low P / R / **F1** (micro) | High P / R / **F1** (micro) | High - low, micro [95% CI] | Macro F1 low -> high | High - low, macro [95% CI] |
+|---|---:|---|---|---|---|---|
+| 9 US cities | 1078 | 0.697 / 0.736 / **0.716** | 0.658 / 0.746 / **0.700** | -0.017 [-0.026, -0.007] | 0.712 -> 0.695 | -0.017 [-0.027, -0.006] |
+| 4 other cities | 461 | 0.629 / 0.574 / **0.600** | 0.625 / 0.614 / **0.619** | +0.019 [+0.001, +0.037] | 0.604 -> 0.622 | +0.018 [-0.001, +0.035] |
+| all 13 cities | 1539 | 0.679 / 0.688 / **0.684** | 0.649 / 0.707 / **0.677** | -0.007 [-0.015, +0.002] | 0.679 -> 0.672 | -0.006 [-0.015, +0.003] |
 
-The macro column is the scoreboard's headline aggregation (the mean of per-split F1s; the low
-leg's 0.712 is its published pooled number). The interval is on the micro (count-pooled) F1, with
-each split's panos resampled within that split.
+The macro columns are the scoreboard's headline aggregation (the mean of per-split F1s; the low
+leg's 0.712 is its published pooled number); the micro columns pool the counts. Both intervals
+come from the same draws, with each split's panos resampled within that split. They agree on
+the US pool and on all 13; on the four other splits the micro interval excludes zero and the
+macro one does not. The figure's pooled rows are the micro differences.
 
 ## Cost and thinking
 
@@ -100,7 +119,9 @@ effort max (also `--claude-max-tokens 20000`) cost $4.49, took 437 s per pano, a
 panos hit `max_tokens` before answering (recorded as failures, not cached, per
 `ClaudeDetector._check_stop_reason`). Raising the cap is blocked client-side: the SDK refuses a
 non-streaming call whose `max_tokens` implies more than ten minutes (32000 was refused before any
-request was sent), so effort max needs streaming support in `ClaudeDetector` first. Its F1 on the
+request was sent: its ledger row, 2026-11-17T22:08:14Z, has `calls: 0` and `paid: false`, and its
+`panos_called: 5` counts the five panos attempted, which is what `compare.py` counts), so effort
+max needs streaming support in `ClaudeDetector` first. Its F1 on the
 two panos that finished is not reported; two panos are not a measurement.
 
 **Calls.** Every high-effort call ended in `tool_use` except one on morgantown, which ended in
@@ -143,14 +164,16 @@ Re-running the paid legs costs about $0.08 per pano at list price; `laurens_gsv`
 | Every P / R / F1, interval, boxes/pano, pooled and macro figure | `analysis_out/claude_effort_high/results.json`, written by `scripts/analysis/claude_effort_high.py --write` |
 | High-effort detections | `benchmark/model_detections/claude-opus-5-5-effort-high-anthropic-maxtokens-20000__<split>.json` (roster: study leg `claude_effort_high`) |
 | Low-effort detections | `benchmark/model_detections/claude-opus-5-5-effort-low-anthropic__<split>.json` |
-| $/pano, thinking/call, $122.18 | the leg's rows in `analysis_out/usage_log.jsonl` (signature `effort: high`, `max_tokens: 20000`) |
+| $/pano, thinking/call, $122.20 | the leg's rows in `analysis_out/usage_log.jsonl` (signature `effort: high`, `max_tokens: 20000`); the total is their unrounded sum, rounded once (`high_total_usd` in `results.json`) |
 | Effort=max calibration ($4.49, 437 s/pano, 3 truncations) | its `usage_log.jsonl` row (signature `effort: max`), 2026-11-17T22:47:50Z |
 | `manual_gold` slice ($11.87) | its `usage_log.jsonl` row, 2026-11-17T23:47:28Z |
 | Low leg's scoreboard cells | `analysis_out/scoreboard.json`, asserted equal by the script |
 
 ## Limits
 
-- Single runs, no seed variance, at effort high only (medium and xhigh not run).
+- One run per arm, at effort high only (medium and xhigh not run). The intervals resample panos
+  only, so run-to-run variation is not in them (see the start of Result); a replicate of each
+  leg would be needed to say whether the US difference is outside it.
 - The four non-US splits were not chosen for this test; their pooled gain rests mostly on one
   split (budapest_district5).
 - No `manual_gold` comparison (see above).

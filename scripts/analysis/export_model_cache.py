@@ -518,6 +518,27 @@ def build_parser():
     return p
 
 
+def signature_overrides(args):
+    """The parsed flags that patch the ``compare.py``-defaults namespace: the producing
+    run's signature knobs, plus the serving path so ``roster.leg_for`` can match a leg
+    pinned on it. A flag left out of here is parsed and then ignored, so the export
+    rebuilds the default signature and finds no cache for that leg."""
+    return {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz,
+            "claude_effort": args.claude_effort,
+            "claude_tool_choice": args.claude_tool_choice,
+            "claude_max_tokens": args.claude_max_tokens,
+            "vistas_input_size": args.vistas_input_size,
+            "gemini_temperature": args.gemini_temperature,
+            "definition": args.definition,
+            "prompt_body": args.prompt_body,
+            "gemini_confidence": args.gemini_confidence,
+            "gemini_exemplars": args.gemini_exemplars,
+            "gemini_thinking_level": args.gemini_thinking_level,
+            # Not a signature field, so it does not affect the cache lookup --
+            # it is here purely so leg_for() can match a leg pinned on it.
+            "claude_serving_path": args.claude_serving_path}
+
+
 def main(argv=None):
     p = build_parser()
     args = p.parse_args(argv)
@@ -545,20 +566,7 @@ def main(argv=None):
 
     splits = [s.strip() for s in args.splits.split(",") if s.strip()]
     specs = [s.strip() for s in args.models.split(",") if s.strip()]
-    overrides = {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz,
-                 "claude_effort": args.claude_effort,
-                 "claude_tool_choice": args.claude_tool_choice,
-                 "claude_max_tokens": args.claude_max_tokens,
-                 "vistas_input_size": args.vistas_input_size,
-                 "gemini_temperature": args.gemini_temperature,
-                 "definition": args.definition,
-                 "prompt_body": args.prompt_body,
-                 "gemini_confidence": args.gemini_confidence,
-                 "gemini_exemplars": args.gemini_exemplars,
-                 "gemini_thinking_level": args.gemini_thinking_level,
-                 # Not a signature field, so it does not affect the cache lookup --
-                 # it is here purely so leg_for() can match a leg pinned on it.
-                 "claude_serving_path": args.claude_serving_path}
+    overrides = signature_overrides(args)
 
     if args.replicate:
         # A tag's directory holds ONLY the leg and splits the registry says it
