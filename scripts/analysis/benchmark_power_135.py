@@ -45,9 +45,13 @@ challengers. No cluster access, no `.model_cache`, no GPU, no network.
         --out-json docs/data/benchmark_power_135_all.json
 
 `--check` exits 0 and prints `ok (byte-identical)` when the default command
-regenerates `docs/data/benchmark_power_135.json` byte for byte, and exits 2 with
-the first differing byte offset, the first differing key path, the number of
-differing leaf values and the largest absolute numeric difference when it does not.
+regenerates `docs/data/benchmark_power_135.json` byte for byte. When the bytes differ
+only because floats moved by at most 1e-12 relative (last-bit platform drift: 110 leaves,
+max |d| 6.66e-16 on macOS, #251) it still exits 0, and says so: `ok (within rel 1e-12,
+NOT byte-identical)`; everything else (formatting, ints, strings, keys, types) must be
+exact (``rampnet.json_compare``). Otherwise it exits 2 with the first differing byte
+offset, the first differing key path, the number of differing leaf values and the
+largest absolute numeric difference.
 It takes about 11 minutes on a desktop CPU (676 s measured, 2026-10-03).
 
 A note on what the paired numbers stand in for. The comparison Run B would actually
@@ -105,6 +109,7 @@ from rampnet.detection_eval import (  # noqa: E402
     PANO_SCALE_X, PANO_SCALE_Y, prediction_confidence, radius_sq_for, score_pano,
 )
 from rampnet.geometry import dist_sq  # noqa: E402
+from rampnet.json_compare import compare_json, diff_leaves  # noqa: E402,F401  (diff_leaves re-exported)
 from rampnet.metrics import greedy_match  # noqa: E402
 
 #: Panorama x is cyclic, so the matcher must wrap at the 360 seam (#130/#140).
@@ -609,9 +614,10 @@ def build_parser():
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out-json", default=None)
     ap.add_argument("--check", action="store_true",
-                    help="Run the default analysis in memory and compare its bytes with "
-                         "the committed docs/data/benchmark_power_135.json. Writes "
-                         "nothing. Exit 0 on a byte-identical match, 2 otherwise. Only "
+                    help="Run the default analysis in memory and compare it with the "
+                         "committed docs/data/benchmark_power_135.json. Writes nothing. "
+                         "Exit 0 on a byte-identical match or when only floats differ, by at "
+                         "most 1e-12 relative (said so in the output); 2 otherwise. Only "
                          "--repo may be combined with it.")
     return ap
 
@@ -1099,54 +1105,31 @@ def _short(x, limit=120):
     return r if len(r) <= limit else r[:limit] + f"... ({len(r)} chars)"
 
 
-def _same_leaf(a, b):
-    if isinstance(a, float) and isinstance(b, float) and math.isnan(a) and math.isnan(b):
-        return True
-    return type(a) is type(b) and a == b
+#: Relative tolerance on float leaves when the bytes differ (#251): last-bit platform drift
+#: is ~1e-16 relative; the smallest non-zero float in the committed file is ~1.1e-5.
+CHECK_REL_TOL = 1e-12
 
 
-def diff_leaves(a, b, path="$"):
-    """Yield ``(path, a_value, b_value)`` for every differing leaf, in serialised order.
-
-    Dicts are walked in sorted key order and lists by index, which is the order
-    ``serialise`` writes them, so the first item is the first difference in the file.
-    A key present on one side only, a length mismatch or a type mismatch is yielded
-    once at that node, with the missing side as the string ``"<absent>"``.
-
-    >>> list(diff_leaves({"a": [1, 2.0]}, {"a": [1, 2.5]}))
-    [('$.a[1]', 2.0, 2.5)]
-    """
-    if isinstance(a, dict) and isinstance(b, dict):
-        for k in sorted(set(a) | set(b)):
-            p = f"{path}.{k}"
-            if k not in a or k not in b:
-                yield p, a.get(k, "<absent>"), b.get(k, "<absent>")
-            else:
-                yield from diff_leaves(a[k], b[k], p)
-    elif isinstance(a, list) and isinstance(b, list):
-        for i in range(max(len(a), len(b))):
-            p = f"{path}[{i}]"
-            if i >= len(a) or i >= len(b):
-                yield p, a[i] if i < len(a) else "<absent>", b[i] if i < len(b) else "<absent>"
-            else:
-                yield from diff_leaves(a[i], b[i], p)
-    elif not _same_leaf(a, b):
-        yield path, a, b
-
-
-def compare_to_committed(out, committed_path, stream=None):
+def compare_to_committed(out, committed_path, stream=None, rel=CHECK_REL_TOL):
     """Compare ``serialise(out)`` with the bytes of ``committed_path``.
 
-    Returns 0 on a byte-identical match, 2 otherwise. On a mismatch it prints the
-    first differing byte offset, the first differing key path, the number of
+    Returns 0 on a byte-identical match, and 0 when the bytes differ only in float leaves
+    that agree to ``rel`` (``rampnet.json_compare.compare_json``: formatting, ints,
+    strings, keys and types exact), printing which of the two it was. Returns 2 otherwise,
+    printing the first differing byte offset, the first differing key path, the number of
     differing leaf values and the largest absolute numeric difference, so numeric
     noise (same shape, tiny max diff) reads differently from a structural change.
     """
     stream = stream or sys.stdout
     new = serialise(out).encode("utf-8")
     old = Path(committed_path).read_bytes()
-    if new == old:
+    cmp = compare_json(new, old, rel=rel)
+    if cmp.status == "identical":
         print(f"ok (byte-identical): {committed_path}", file=stream)
+        return 0
+    if cmp.status == "within":
+        print(f"ok (within rel {rel:g}, NOT byte-identical): {committed_path}: "
+              f"{cmp.summary()}", file=stream)
         return 0
     offset = next((i for i, (x, y) in enumerate(zip(new, old)) if x != y),
                   min(len(new), len(old)))
@@ -1167,6 +1150,7 @@ def compare_to_committed(out, committed_path, stream=None):
     print(f"  differing leaf values: {len(diffs)} ({len(num)} numeric, "
           f"{len(diffs) - len(num)} structural or non-numeric)", file=stream)
     print(f"  max absolute numeric difference: {max(num) if num else 0.0!r}", file=stream)
+    print(f"  against rel {rel:g}: {cmp.summary()}", file=stream)
     return 2
 
 

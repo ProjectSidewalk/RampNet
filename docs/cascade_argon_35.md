@@ -160,7 +160,7 @@ The "vs best YOLO arm" column is conditional on the per-split choice of arm (Met
 | laurens_mapillary | confidence | best_by_f1 | +0.080 [+0.044, +0.120] | +0.112 [+0.076, +0.154] | −0.014 [−0.040, +0.012] (y26) |
 | laurens_mapillary | confidence | fixed | +0.005 [−0.028, +0.042] | +0.005 [−0.028, +0.042] | **−0.043 [−0.069, −0.017]** (y26) |
 | juneau | zero-shot | best_by_f1 | +0.015 [−0.001, +0.030] | +0.022 [+0.002, +0.042] | +0.010 [−0.007, +0.027] (y26) |
-| juneau | zero-shot | fixed | +0.010 [−0.007, +0.026] | +0.017 [−0.003, +0.038] | +0.014 [−0.000, +0.028] (y11x) |
+| juneau | zero-shot | fixed | +0.010 [−0.007, +0.026] | +0.017 [−0.003, +0.038] | +0.013 [−0.000, +0.028] (y11x) |
 | juneau | confidence | best_by_f1 | +0.010 [−0.007, +0.026] | +0.017 [−0.005, +0.038] | +0.005 [−0.013, +0.023] (y26) |
 | juneau | confidence | fixed | +0.010 [−0.006, +0.025] | +0.017 [−0.004, +0.039] | +0.013 [−0.002, +0.028] (y11x) |
 | bayonne | zero-shot | best_by_f1 | +0.007 [−0.024, +0.039] | same threshold | −0.024 [−0.057, +0.010] (y11x) |
@@ -205,10 +205,12 @@ An Argon box with no RampNet floor peak within R, at the op_cache's 0.05 floor a
 | budapest_district5 | confidence | 0.05 | 143 | 25 / 115 / 3 | 0.179 | 24 |
 | budapest_district5 | confidence | 0.10 | 152 | 27 / 120 / 5 | 0.184 | 26 |
 
-At R, **mostly false positives against the ground truth on three of the four splits**, and about
-even on `laurens_mapillary`. Almost every TP is a ramp the 0.30 baseline misses, but not all: on
-`juneau` and `budapest_district5` the confidence leg has one TP per row that the baseline already
-matches (a ramp with a baseline peak just over R from the box). On the ten other splits the
+At R, the zero-shot leg's Argon-only points are **mostly false positives against the ground truth
+on three of the four splits**, and about even on `laurens_mapillary` (0.486 at the 0.05 floor,
+0.600 at 0.10). The confidence leg's are mostly false positives on all four, at both floors.
+Almost every TP is a ramp the 0.30 baseline misses, but not all: on `juneau` and
+`budapest_district5` the confidence leg has one TP per row that the baseline already matches (a
+ramp whose baseline peak is between R and 2R from the box). On the ten other splits the
 precision of Argon-only points is 0.00–0.25 at the 0.05 floor, both legs.
 
 **2R sensitivity (floor 0.05).** Argon's box centres are looser than YOLO's, so R penalises them
@@ -222,8 +224,12 @@ more (PR #289 review, finding 2). Precision of the zero-shot leg's Argon-only po
 
 The verdict depends on which 2R read is taken. Regrouped at 2R, Argon-only points are still mostly
 false positives on three of four splits. Holding the box set fixed and loosening only the match,
-that falls to one of four (`budapest_district5`). The confidence leg follows the same pattern
-(`unique_points` in the JSON). The second read reproduces the review's 0.74 / 0.56 / 0.60 / 0.35.
+that falls to one of four (`budapest_district5`). The confidence leg's precision rises the same
+way but from a lower start, so its count does not fall as far: mostly false positives on all four
+splits at R (0.328 / 0.128 / 0.212 / 0.179, same column order) and regrouped at 2R (0.400 / 0.154
+/ 0.243 / 0.212), and on three of four with the box set held fixed (0.552 / 0.419 / 0.350 /
+0.358; all but `laurens_mapillary`). These are `unique_points` in the JSON. The second read
+reproduces the review's 0.74 / 0.56 / 0.60 / 0.35.
 
 ## Unique points: Argon against the YOLO arms (review finding 1)
 
