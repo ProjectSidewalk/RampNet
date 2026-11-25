@@ -1,15 +1,18 @@
 # Argon as a teacher for RampNet's open-rig misses: Stage 0
 
-**Plan:** `argon-teacher-2026-11-15` (revised after review), Stage 0 only. **Run date:** 2026-11-15.
+**Plan:** `argon-teacher-2026-11-15` (revised after review), Stage 0 only; its Stage 0 text is
+in the [appendix](#appendix-the-plans-stage-0-text). **Run date:** 2026-11-15.
 **Script:** `scripts/analysis/argon_teacher_s0.py` (tests: `tests/test_argon_teacher_s0.py`).
 **Outputs:** `analysis_out/argon_teacher_s0/results.json`, plus two derived inputs in the same
 directory (`neighbours.json`, `heatmap_features.json`); `docs/figures/argon_teacher/` (two PNGs).
 **Compute:** one RampNet forward pass per benchmark pano (469 panos) on the local RTX 3070,
-10 minutes; everything else on the CPU in under 10 seconds. No model API call, no remote host,
-no spend. Lyon was not read.
-**Status:** Stage 0 of a pre-registered plan. The gate bars are the plan's. They were set after
-the per-split Argon-only precisions were published (plan section 3), and nothing was tuned here.
-Stage 1 was not started.
+about 10 minutes (a timed re-run on 2026-11-24: 565 s for the pano loop, 1.2 s per pano, row
+`argon-teacher-s0:extract-heatmaps` in `analysis_out/usage_log.jsonl`, `paid: false`); everything
+else on the CPU in under 10 seconds. No model API call, no remote host, no spend. Lyon was not read.
+**Status:** Stage 0. The gate bars are the plan's, fixed in the plan before this script was
+written. The plan says they were set after the per-split Argon-only precisions were published
+(plan section 3, appendix), and the plan was marked "proposed", not approved. Nothing was tuned
+here. Stage 1 was not started.
 
 ## Result
 
@@ -23,12 +26,23 @@ stops here.**
 | Y, yield | ≥ 30 / < 20 of the 65 reached blind ramps kept | 8 | **kill** |
 | S, strict-silent | ≥ 10 kept and ≥ 25% of those Argon reaches / fewer | 8 of 42 (19%) | **kill** |
 
-The filter result is not a near miss, and it does not depend on the leave-one-split-out
-mechanics. **No candidate reaches even the 0.65 kill bar in sample.** The best of the 80, scored
-on all four splits at once, is `f2<=3m & f4_yolo` at 0.64 (25 TP / 14 FP, 23 blind ramps kept).
-Under the selection rule, three of the four folds find no candidate at precision ≥ 0.80 on
-their training splits. Only the `bayonne` fold selects one (`f2<=3m & f4_yolo +snap`, 0.82 in
-training), and it scores 0.41 on `bayonne`.
+At R, the plan's match radius, the filter result is not a near miss, and it does not depend on
+the leave-one-split-out mechanics. **At R, no candidate reaches even the 0.65 kill bar in
+sample.** The best of the 80, scored on all four splits at once, is `f2<=3m & f4_yolo` at 0.64
+(25 TP / 14 FP, 23 blind ramps kept). Under the selection rule, three of the four folds find no
+candidate at precision ≥ 0.80 on their training splits. Only the `bayonne` fold selects one
+(`f2<=3m & f4_yolo +snap`, 0.82 in training), and it scores 0.41 on `bayonne`.
+
+**At 2R the picture is different, and the stop rests on gate P alone.** Matched at 2R (score and
+"kept box within 2R of the ramp"; a sensitivity read, not a gate), every fold has an eligible
+candidate. Held out and pooled, the filter keeps 45 TP / 38 FP (0.54), 38 blind ramps and 28 of
+the 42 strict-silent ramps (67%). Y and S would read go. P still reads kill: 0.54 is under 0.65,
+and `bayonne` (26 / 25) and `budapest_district5` (8 / 11) are each under 0.60 with 10+ boxes. In
+sample at 2R, 8 of the 80 candidates are at ≥ 0.80. One clears the P and Y go bars together,
+`f2<=5m & f4_yolo` at 0.84 (37 / 7, 31 blind ramps kept), and the best is 0.875. So once
+localisation is loosened, what survives is "precision does not carry from one split to the
+next", not "no filter separates the boxes". R is the plan's radius and the right one for a point
+label, so the verdict does not change.
 
 **What the plan says happens next:** gate B alone does not keep the plan alive. The plan stops
 when a filter gate is at kill. "Between go and kill on P, the default is stop; Jon may choose
@@ -44,8 +58,9 @@ labeler run with stored peaks, so its H2 bar equals its H + far band bar (an upp
 
 ![Candidate filters](figures/argon_teacher/filters.png)
 
-*Figure 2. Gates P and Y. Every candidate scored in sample on all four splits (pooled), against
-the go lines. No dot reaches 0.65. The star is the held-out result the gates read.*
+*Figure 2. Gates P and Y. Every candidate scored at R in sample on all four splits (pooled),
+against the go lines. No dot reaches 0.65. The star is the held-out result the gates read. The
+2R read is not drawn; its numbers are in the Result section and `filters_at_2R`.*
 
 ## Gate B: background leak
 
@@ -68,6 +83,12 @@ denominator is the plan's 1,147.
 - **H2 is read twice.** Over all four splits, with `budapest_district5` at its H + far band value,
   it is 0.6%. Over the three splits with neighbour data it is 0.2% (2 / 847). Both reads pass, so
   the gate does not have to fall through to E.
+- **The far band does most of the work between H and H2.** 195 of the 1,147 sure ramps (17%) lie
+  less than 6° below the horizon (`laurens_mapillary` 9, `juneau` 57, `bayonne` 64,
+  `budapest_district5` 65). H2 counts them as not leaked, as the plan's rule says. Of the 27 ramps
+  between H (34) and H2 (7), the far band removes 17 and the neighbour discs 10.
+- **No verdict depends on `neighbours.json`.** H alone (3.0%) and H + far band (1.5%) pass gate B
+  without it, and the filter gates all read kill with feature 2 removed (below).
 - **E is uninformative.** It is 0 of 18 matched empty panos. Eighteen panos is too few to bound a
   5% leak, and E's weakness (easy scenes only) is stated in the plan. It is reported, not used.
 
@@ -77,6 +98,14 @@ denominator is the plan's 1,147.
 peak ≥ 0.05 within R (Argon-only); 10 dropped by the rig mask and 51 within 2R of a peak ≥ 0.30;
 **175 boxes** carry features (`laurens_mapillary` 28, `juneau` 19, `bayonne` 68,
 `budapest_district5` 60).
+
+**Ceilings.** Gate Y's 65 and gate S's 42 count the ramps any zero-shot box reaches within R.
+The filter only sees the 175 boxes left after the rig mask and the 0.30-within-2R drop, and with
+no filter at all those keep 48 blind ramps and 38 strict-silent ones (51 TP / 119 FP / 5
+ignored, 0.30; with the snap, 36 and 34). A filter keeps a subset of these boxes, so it can keep
+at most 48 of the 65 and 38 of the 42. Gate Y's go bar is therefore 30 of an attainable 48. The 17
+other reached blind ramps are reached only by boxes that the plan's own definitions remove. The
+verdict, at 8, is unaffected.
 
 **Leave-one-split-out** (80 candidates; held out at R):
 
@@ -148,7 +177,9 @@ Rules, as the plan states them:
   with `score_pano`. A fold with no eligible candidate keeps nothing.
 - **Gates** read the four held-out results pooled. Y counts blind ramps (no peak ≥ 0.05 within R)
   with a kept box within R. S counts strict-silent ramps (none within 2R) kept, against the 42
-  strict-silent ramps any zero-shot box reaches.
+  strict-silent ramps any zero-shot box reaches. Y can exceed TP on the same boxes (8 against 7
+  here): Y counts every ramp within R of any kept box, while TP counts one-to-one greedy matches,
+  so one box near two ramps adds two to Y and at most one to TP.
 
 ## Amendments
 
@@ -166,9 +197,10 @@ other reading changes a verdict.
 4. **Feature 3**: a zero-shot box takes the score of the nearest confidence-leg box within R, and
    fails if there is none. The median and upper quartile, and feature 5's range, are taken over
    all four splits rather than per fold. They are statistics of Argon's output alone and use no GT.
-5. **Pairs are ANDs.** The plan says "in pairs" without an operator. The OR reading was checked
-   once, by hand, in sample on all four splits (not committed): the best OR pair is
-   `f3>=q75 | f4_yolo` at 0.48 (37 / 40). The verdict does not change.
+5. **Pairs are ANDs.** The plan says "in pairs" without an operator. The OR reading is scored in
+   sample on all four splits (`filters_or_pairs`, 62 pair candidates with and without the snap):
+   the best OR pair is `f3>=q75 | f4_yolo` at 0.48 (37 / 40), and none reaches 0.65. The verdict
+   does not change.
 6. **The selection rule's objective.** The plan fixes the 0.80 eligibility bar but not what to
    maximise among eligible candidates. Blind ramps kept (gate Y's quantity) was used, with the
    tie-breaks above. Three folds have no eligible candidate, so the objective only matters for the
@@ -193,9 +225,12 @@ other reading changes a verdict.
 ## Caveats
 
 - **The gates score at R.** [`cascade_argon_35.md`](cascade_argon_35.md) shows Argon's box
-  centres are looser than YOLO's, and a 2R match would raise every precision here. The plan
-  fixes R, and feature 6 (the snap) is the plan's answer to localisation. The snapped variants do
-  no better in sample.
+  centres are looser than YOLO's. The plan fixes R, and feature 6 (the snap) is the plan's answer
+  to localisation; the snapped variants do no better in sample. A 2R match (`filters_at_2R`,
+  Result section) raises the held-out precision to 0.54 and turns Y and S to go, so at 2R the stop
+  rests on P alone. The 2R gates read the plan's R denominators (65 and 42). Counted within 2R,
+  Argon reaches 112 blind and 58 strict-silent ramps; S would still read go (28 of 58, 48%), and Y's
+  bar is a count.
 - **FPs are upper bounds.** GT is RampNet's reviewed detections plus the reviewer's missed marks,
   so a real ramp that neither marked counts as an FP. This holds for every split and every
   candidate alike.
@@ -206,8 +241,31 @@ other reading changes a verdict.
 
 ## Replication
 
-Commit: the commit that adds this file, on `analysis/argon-teacher-s0` (based on `cascade-argon-b0`,
-`b3868c8`).
+Commit: the merge of PR #294 into `main`.
+
+**What a clone can and cannot rebuild.** Step 1 below needs only committed files, and `--check`
+covers it. The two derived inputs in step 2 cannot be rebuilt from a clone today:
+
+- `neighbours.json` needs three labeler run files (`runs/laurens/results.jsonl`,
+  `runs/bayonne/results.jsonl`, and `runs/juneau/results.jsonl` from the `sal-juneau` worktree of
+  the labeler repo). All three are git-ignored there (`runs/**`) and not published; the copies
+  used were on the desktop that ran this. The three re-fused site files were written to a scratch
+  directory and not kept. Publishing the three
+  run files (or the archive that holds them) would unblock it, since the site files can be
+  re-fused from them with the commands below; the hashes in the table check the result. No
+  verdict depends on this file (Gate B section).
+- `heatmap_features.json` needs the benchmark panos of all four splits. Per
+  [`replication.md`](replication.md), `budapest_district5` is on the `rampnet-benchmark` Hugging
+  Face dataset, but `laurens_mapillary`, `bayonne` and `juneau` are not uploaded yet (`bayonne`
+  and `juneau` are in the makelab2 archive). Uploading those three would unblock it. Every image is
+  checked against the committed `imagery_manifest.json` sha256 before use.
+- The weights: `extract-heatmaps` loads `projectsidewalk/rampnet-model` from the Hub without a
+  pinned revision. On this desktop that resolves to revision
+  `606a11956743f7eb328d9207769034752f6191f4` (`model.safetensors` sha256 `f2119e3becb0b551…`). The
+  file itself records only the repo name, and the op_cache records no revision either. The
+  1,959 / 1,959 peak match ties it to the op_cache's checkpoint in practice, and
+  [`decode_e2e_221.md`](decode_e2e_221.md) found the Hub's two revisions (1078bcd, 606a119)
+  tensor-identical.
 
 ```bash
 # 1. CPU, committed inputs only: leak + features + filters -> results.json, then the check
@@ -223,7 +281,9 @@ python <labeler>/scripts/fuse_sites.py <labeler>/runs/laurens/results.jsonl --ou
 python <labeler>/scripts/fuse_sites.py <labeler>/runs/bayonne/results.jsonl --out <tmp>/bayonne.sites.jsonl
 python <labeler>/scripts/fuse_sites.py <sal-juneau>/runs/juneau/results.jsonl --out <tmp>/juneau.sites.jsonl
 python scripts/analysis/argon_teacher_s0.py extract-neighbours --labeler-root <labeler> --sites-dir <tmp>
-#    heatmap_features.json: GPU, the benchmark panos (checked against imagery_manifest.json)
+#    heatmap_features.json: GPU, the benchmark panos (checked against imagery_manifest.json).
+#    Appends a paid:false time row to the main checkout's analysis_out/usage_log.jsonl
+#    (--usage-log to change it). --out-dir writes elsewhere, to byte-compare with the committed file.
 python scripts/analysis/argon_teacher_s0.py extract-heatmaps --panos-root <dir holding <split>/panos/>
 ```
 
@@ -241,8 +301,8 @@ inputs. `neighbours.json` records the full hashes of the run and site files.
 | `benchmark/model_detections/gemini-4-argon__{laurens_mapillary,juneau,bayonne,budapest_district5}.json` | `21a622145d797982` / `49d8fe9db2659e4e` / `9bfde72653caea44` / `8075badffc4e0d2d` |
 
 `--check` (also `check_all.py --only argon_teacher_s0`) covers every number in this note except
-the two derived inputs, which need the labeler runs or the GPU. The figures are not
-byte-compared.
+the two derived inputs, which need the labeler runs or the GPU, and the timing, which is in the
+ledger. The figures are not byte-compared.
 
 ## Where each number lives
 
@@ -262,5 +322,49 @@ All keys are in `analysis_out/argon_teacher_s0/results.json` unless stated.
 | LOSO choices and held-out rows | `filters.loso.<split>` |
 | pooled held-out row, gates P / Y / S | `filters.held_out_pooled`, `filters.gates` |
 | sensitivity without feature 2 | `filters_without_f2` |
+| best in sample at R (0.64), none at ≥ 0.65 | `filters.in_sample` |
+| 2R read (45 / 38 held out, 38 blind, 28 strict-silent; 8 at ≥ 0.80 in sample, 0.84, 0.875; 112 / 58 reached within 2R) | `filters_at_2R` (`held_out_pooled`, `gates`, `in_sample`, `reached_within_2R`) |
+| OR pairs (0.48, 37 / 40) | `filters_or_pairs.in_sample` |
+| ceilings (48 of 65, 38 of 42; 51 / 119 / 5; snap 36 and 34) | `filter_ceilings` |
+| far band (195; 9 / 57 / 64 / 65) | `leak.pooled.n_far_band`, `leak.per_split.<split>.n_far_band` |
 | op_cache peaks reproduced (1,959 / 1,959) | `heatmap_sanity`; source `heatmap_features.json` |
+| GPU time (565 s, 1.2 s per pano) | `analysis_out/usage_log.jsonl`, label `argon-teacher-s0:extract-heatmaps` |
 | figures | `docs/figures/argon_teacher/{leak,filters}.png`, from `leak` and `filters.candidates` |
+
+## Appendix: the plan's Stage 0 text
+
+From `argon-teacher-2026-11-15` (revised after review, dated 2026-11-15), which is not otherwise
+in the repo. Copied verbatim: its definitions line and section 3 (Stage 0) only; the other
+sections are about Stages 1 and 2 and are not reproduced. "Section 6" in the last line refers to
+the plan's rating section, which is not included. The eleven amendments above are written
+against this wording.
+
+> Status: proposed, nothing run. Claude (Fable 5.2, `claude-fable-5-2`); reviewed by Opus 5.5 (`argon-teacher-2026-11-15.review.md`). Argon outputs: RampNet worktree `cascade-argon` ([RampNet#289](https://github.com/ProjectSidewalk/RampNet/pull/289)). **R** = match radius, 0.022 of pano width. **Blind ramp** = ground-truth ramp with no RampNet peak ≥ 0.05 within R; **strict-silent** = none within 2R. **Argon-only box** = Argon box with no such peak within R.
+>
+> ## 3. Stage 0 ($0; CPU, under 1 local GPU-hour)
+>
+> Splits: laurens_mapillary, bayonne, juneau, budapest_district5 (469 panoramas, 1,147 ramps, 196 blind; GoPro Max and Trimble only).
+>
+> **First, the background leak:** the share of sure ramps that land in background.
+> - H: ignore discs of 2R at every RampNet peak ≥ 0.05, Argon box and YOLO box ≥ 0.05. The reviewer's arithmetic puts H near 10% (118 of 1,147 or more). **Expect H to fail.**
+> - H2: H plus discs at every fused site and stored peak projected from neighbouring panoramas of the labeler run, plus the far band (less than 6° below the horizon) ignored.
+> - E: labelled panoramas `sparse`; whole-frame background only from panoramas all three models call empty, matched to labelled panoramas by sequence and rig. Leak = share of such panoramas holding a sure ramp. Weakness: easy scenes only.
+> - **Gate B:** H2 ≤ 5%, else E ≤ 5%, else stop. The 5% is the crosswalk plan's level.
+>
+> **Filter features per Argon-only box** (after the rig mask and dropping boxes within 2R of a peak ≥ 0.30):
+> 1. RampNet raw heatmap maximum within R (0.01, 0.02, 0.03). *RampNet-dependent.*
+> 2. Support within 3 or 5 m from another panorama's fused site or peak. *RampNet-dependent.*
+> 3. Argon confidence-leg score (median, upper quartile). *Independent.*
+> 4. YOLO box ≥ 0.05 within 2R. *Trained on RampNet's data.*
+> 5. Box size and elevation inside the 5–95% range of all Argon boxes. *Independent.*
+> 6. Snap to the nearest heatmap mode ≥ 0.01 within 2R, where one exists.
+>
+> Candidates: features 1–5 alone and in pairs, with and without the snap, chosen leave-one-split-out at precision ≥ 0.80 and scored at R on the held-out split. The 0.80 is borrowed from the #158 mining rule, and every bar here was set after the per-split precisions were published.
+>
+> | Gate | Go | Kill |
+> |---|---|---|
+> | P, precision | ≥ 0.80; no split with 10+ boxes under 0.60 | < 0.65 with every unmatched box counted true |
+> | Y, yield | ≥ 30 of the 65 reached blind ramps kept | < 20 |
+> | S, strict-silent | ≥ 10 kept, and ≥ 25% of those Argon reaches | fewer: the filter keeps only what RampNet half-sees |
+>
+> Between go and kill on P, the default is stop; Jon may choose rating R0 (section 6).
