@@ -1,0 +1,10 @@
+code D:\Git\RampNet-wt\effort-high; data, cache and ledger in D:\Git\RampNet; python D:\Git\RampNet\.venv\Scripts\python.exe
+2026-11-17 22:11:10Z [claude20] spent so far $29.49; bend needs <= $10.35 (cap $200)
+  [claude-opus-5-5] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+  [claude-opus-5-5] ledger now: 544 rows, $1,347.16, 384.5 h (of which $101.90 recovered, not measured)
+  claude-opus-5-5                       0.671   (0.622-0.717)  0.761   (0.712-0.804)  0.713    -        249/122/78/24
+2026-11-17 22:51:41Z [claude20] spent so far $42.72; clovis needs <= $11.76 (cap $200)
+  [claude-opus-5-5] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+  [claude-opus-5-5] ledger now: 553 rows, $1,429.76, 390.6 h (of which $101.90 recovered, not measured)
+  claude-opus-5-5                       0.472   (0.415-0.530)  0.697   (0.630-0.758)  0.563    -        136/152/59/13
+2026-11-17 23:36:31Z [claude20] done; ledger total for claude20: $125.32

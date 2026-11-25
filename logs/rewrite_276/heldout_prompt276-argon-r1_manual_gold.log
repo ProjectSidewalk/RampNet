@@ -1,0 +1,15 @@
+--pano-list benchmark/prompt_opt_276/manual_gold_250.json@panos: 250 pano(s)
+Bundle: D:/Git/RampNet/benchmark/manual_gold  (250 scored panos)  match radius 0.022  ground truth: independent manual labels (YOLO box centers)
+Detection cache: D:/Git/RampNet/.model_cache
+
+[gemini-4-argon] API usage this run: 1500 calls, 2,358,000 in / 138,765 out tokens (37,232 thinking)  ~=$6.10 (pricing as of 2026-11-08)
+[gemini-4-argon] time this run: 6,705.6s wall  (2.0s model load, 6,703.4s inference over 250 pano(s), 26.81 s/pano)
+[gemini-4-argon] served by: gemini-4-argon (1,500 calls)
+[gemini-4-argon] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+[gemini-4-argon] ledger now: 510 rows, $1,259.14, 372.6 h (of which $101.90 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+gemini-4-argon                        0.695   (0.667-0.722)  0.766   (0.739-0.791)  0.729  0.640      760/333/232/0
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+Manual-GT bundle: no verdict-based cross-check (validate the rampnet row against the published gold-set numbers instead; see docs/model_comparison.md).

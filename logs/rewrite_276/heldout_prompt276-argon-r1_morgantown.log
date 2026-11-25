@@ -1,0 +1,31 @@
+Bundle: D:/Git/RampNet/benchmark/morgantown  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: D:/Git/RampNet/.model_cache
+
+[gemini-4-argon] API usage this run: 750 calls, 1,179,000 in / 48,827 out tokens (14,159 thinking)  ~=$2.85 (pricing as of 2026-11-08)
+[gemini-4-argon] time this run: 1,964.5s wall  (1.9s model load, 1,962.6s inference over 125 pano(s), 15.70 s/pano)
+[gemini-4-argon] served by: gemini-4-argon (750 calls)
+[gemini-4-argon] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+[gemini-4-argon] ledger now: 518 rows, $1,280.78, 376.9 h (of which $101.90 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+gemini-4-argon                        0.713   (0.660-0.761)  0.820   (0.770-0.862)  0.763  0.727       219/88/48/18
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    200  (correct 195, incorrect 5)
+Detections unsure:    9  (abstained — not in precision or recall)
+Missed ramps marked:  72  (+20 unsure, abstained)
+Precision: 0.975  (95% CI 0.943-0.989)
+Recall:    0.730  (95% CI 0.674-0.780)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    200      0.975    0.730
+     0.60    189      0.984    0.697
+     0.65    169      0.988    0.625
+     0.70    159      0.994    0.592
+     0.75    140      1.000    0.524
+     0.80    123      1.000    0.461
+     0.85     99      1.000    0.371
+     0.90     57      1.000    0.213
+     0.95     16      1.000    0.060

@@ -1,0 +1,32 @@
+Bundle: D:/Git/RampNet/benchmark/laurens_gsv  (86 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: D:/Git/RampNet/.model_cache
+
+[gemini-4-argon] API usage this run: 516 calls, 811,152 in / 28,595 out tokens (6,252 thinking)  ~=$1.91 (pricing as of 2026-11-08)
+[gemini-4-argon] time this run: 1,552.0s wall  (1.9s model load, 1,550.1s inference over 86 pano(s), 18.02 s/pano)
+[gemini-4-argon] served by: gemini-4-argon (516 calls)
+[gemini-4-argon] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+[gemini-4-argon] ledger now: 515 rows, $1,272.24, 375.0 h (of which $101.90 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+gemini-4-argon                        0.750   (0.687-0.804)  0.709   (0.646-0.765)  0.729  0.648        156/52/64/6
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   86 (of 86 seen)
+Detections judged:    120  (correct 111, incorrect 9)
+Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    1  (abstained — not in precision or recall)
+Missed ramps marked:  109  (+19 unsure, abstained)
+Precision: 0.925  (95% CI 0.864-0.960)
+Recall:    0.505  (95% CI 0.439-0.570)  [vs ramps visible in the 86 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    120      0.925    0.505
+     0.60    110      0.927    0.464
+     0.65     93      0.914    0.386
+     0.70     81      0.938    0.345
+     0.75     65      0.954    0.282
+     0.80     48      0.958    0.209
+     0.85     32      1.000    0.145
+     0.90     17      1.000    0.077
+     0.95      6      1.000    0.027

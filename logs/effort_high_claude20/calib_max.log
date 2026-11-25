@@ -1,0 +1,35 @@
+Bundle: D:\Git\RampNet\benchmark\richmond  (5 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: D:\Git\RampNet\.model_cache
+
+[claude-opus-5-5] API usage this run: 28 calls, 56,924 in / 213,076 out tokens (208,824 thinking)  ~=$4.49 (pricing as of 2026-10-19)
+[claude-opus-5-5] time this run: 2,184.8s wall  (1.5s model load, 2,183.3s inference over 5 pano(s), 436.67 s/pano)
+[claude-opus-5-5] served by: claude-opus-5-5 (28 calls)
+[claude-opus-5-5] ABNORMAL stop reasons: max_tokens=3
+[claude-opus-5-5] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+[claude-opus-5-5] ledger now: 543 rows, $1,338.42, 383.8 h (of which $101.90 recovered, not measured)
+[claude-opus-5-5] 3 pano failure(s) isolated (excluded from the score):
+    1273933840289887: RuntimeError: [claude-opus-5-5] response hit max_tokens before answering (effort=max). Thinking bills against max_tokens, so a high-ef
+    1130501775077894: RuntimeError: [claude-opus-5-5] response hit max_tokens before answering (effort=max). Thinking bills against max_tokens, so a high-ef
+    1309093164014619: RuntimeError: [claude-opus-5-5] response hit max_tokens before answering (effort=max). Thinking bills against max_tokens, so a high-ef
+
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+claude-opus-5-5                       0.941   (0.730-0.990)  1.000   (0.806-1.000)  0.970    -             16/1/0/0
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   5 (of 5 seen)
+Detections judged:    43  (correct 41, incorrect 2)
+Missed ramps marked:  4  (+5 unsure, abstained)
+Precision: 0.953  (95% CI 0.845-0.987)
+Recall:    0.911  (95% CI 0.793-0.965)  [vs ramps visible in the 5 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55     43      0.953    0.911
+     0.60     43      0.953    0.911
+     0.65     42      0.976    0.911
+     0.70     40      0.975    0.867
+     0.75     37      1.000    0.822
+     0.80     34      1.000    0.756
+     0.85     31      1.000    0.689
+     0.90     24      1.000    0.533
+     0.95      8      1.000    0.178

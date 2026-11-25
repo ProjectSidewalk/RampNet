@@ -1,0 +1,30 @@
+Bundle: D:/Git/RampNet/benchmark/laurens_mapillary  (94 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: D:/Git/RampNet/.model_cache_argon_rep1
+
+[gemini-4-argon] API usage this run: 564 calls, 886,608 in / 35,101 out tokens (10,041 thinking)  ~=$2.12 (pricing as of 2026-11-08)
+[gemini-4-argon] time this run: 795.1s wall  (2.3s model load, 792.6s inference over 94 pano(s), 8.43 s/pano)
+[gemini-4-argon] served by: gemini-4-argon (564 calls)
+[gemini-4-argon] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+[gemini-4-argon] ledger now: 523 rows, $1,292.77, 379.3 h (of which $101.90 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+gemini-4-argon                        0.797   (0.740-0.843)  0.739   (0.681-0.790)  0.767  0.666        184/47/65/7
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   94 (of 94 seen)
+Detections judged:    108  (correct 97, incorrect 11)
+Detections unsure:    3  (abstained — not in precision or recall)
+Missed ramps marked:  152  (+38 unsure, abstained)
+Precision: 0.898  (95% CI 0.827-0.942)
+Recall:    0.390  (95% CI 0.331-0.451)  [vs ramps visible in the 94 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    108      0.898    0.390
+     0.60     96      0.917    0.353
+     0.65     83      0.928    0.309
+     0.70     67      0.955    0.257
+     0.75     54      0.981    0.213
+     0.80     45      0.978    0.177
+     0.85     25      0.960    0.096
+     0.90     10      1.000    0.040

@@ -1,0 +1,6 @@
+code D:\Git\RampNet-wt\effort-high; data, cache and ledger in D:\Git\RampNet; python D:\Git\RampNet\.venv\Scripts\python.exe
+2026-11-17 22:48:26Z [claude20] spent so far $33.98; bayonne needs <= $11.76 (cap $200)
+  [claude-opus-5-5] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+  [claude-opus-5-5] ledger now: 555 rows, $1,450.10, 392.2 h (of which $101.90 recovered, not measured)
+  claude-opus-5-5                       0.613   (0.560-0.664)  0.674   (0.620-0.725)  0.642    -        203/128/98/16
+2026-11-17 23:37:39Z [claude20] done; ledger total for claude20: $145.66

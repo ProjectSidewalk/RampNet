@@ -1,0 +1,13 @@
+Bundle: D:\Git\RampNet\benchmark\manual_gold  (150 scored panos)  match radius 0.022  ground truth: independent manual labels (YOLO box centers)
+Detection cache: D:\Git\RampNet\.model_cache
+
+[claude-opus-5-5] API usage this run: 900 calls, 1,829,700 in / 227,636 out tokens (137,939 thinking)  ~=$11.87 (pricing as of 2026-10-19)
+[claude-opus-5-5] time this run: 3,117.2s wall  (1.5s model load, 3,115.5s inference over 150 pano(s), 20.77 s/pano)
+[claude-opus-5-5] served by: claude-opus-5-5 (900 calls)
+[claude-opus-5-5] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+[claude-opus-5-5] ledger now: 557 rows, $1,472.06, 393.8 h (of which $101.90 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+claude-opus-5-5                       0.736   (0.698-0.770)  0.741   (0.703-0.776)  0.739    -        418/150/146/0
+
+Manual-GT bundle: no verdict-based cross-check (validate the rampnet row against the published gold-set numbers instead; see docs/model_comparison.md).

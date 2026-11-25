@@ -1,0 +1,6 @@
+code D:\Git\RampNet-wt\effort-high; data, cache and ledger in D:\Git\RampNet; python D:\Git\RampNet\.venv\Scripts\python.exe
+2026-11-17 22:11:16Z [claude20] spent so far $29.49; juneau needs <= $11.76 (cap $200)
+  [claude-opus-5-5] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+  [claude-opus-5-5] ledger now: 548 rows, $1,385.68, 387.3 h (of which $101.90 recovered, not measured)
+  claude-opus-5-5                       0.700   (0.646-0.749)  0.707   (0.653-0.756)  0.704    -         210/90/87/15
+2026-11-17 22:55:04Z [claude20] done; ledger total for claude20: $81.24

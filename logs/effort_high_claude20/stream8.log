@@ -1,0 +1,6 @@
+code D:\Git\RampNet-wt\effort-high; data, cache and ledger in D:\Git\RampNet; python D:\Git\RampNet\.venv\Scripts\python.exe
+2026-11-17 22:48:30Z [claude20] spent so far $33.98; laurens_gsv needs <= $8.09 (cap $200)
+  [claude-opus-5-5] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+  [claude-opus-5-5] ledger now: 549 rows, $1,392.50, 387.8 h (of which $101.90 recovered, not measured)
+  claude-opus-5-5                       0.687   (0.622-0.745)  0.677   (0.613-0.736)  0.682    -          149/68/71/4
+2026-11-17 23:20:12Z [claude20] done; ledger total for claude20: $88.06

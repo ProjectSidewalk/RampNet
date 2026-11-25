@@ -1,0 +1,33 @@
+--pano-list benchmark/prompt_opt_276/sao_paulo_split.json@dev_select: 65 pano(s)
+Bundle: D:/Git/RampNet/benchmark/sao_paulo  (65 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: D:/Git/RampNet/.model_cache
+
+[gemini-4-argon] API usage this run: 390 calls, 613,080 in / 27,877 out tokens (11,229 thinking)  ~=$1.50 (pricing as of 2026-11-08)
+[gemini-4-argon] time this run: 2,327.4s wall  (1.9s model load, 2,325.5s inference over 65 pano(s), 35.78 s/pano)
+[gemini-4-argon] served by: gemini-4-argon (390 calls)
+[gemini-4-argon] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+[gemini-4-argon] ledger now: 504 rows, $1,239.21, 368.6 h (of which $94.51 recovered, not measured)
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+gemini-4-argon                        0.681   (0.599-0.753)  0.746   (0.664-0.814)  0.712  0.655        94/44/32/17
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    214  (correct 190, incorrect 24)
+Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    37  (abstained — not in precision or recall)
+Missed ramps marked:  91  (+43 unsure, abstained)
+Precision: 0.888  (95% CI 0.839-0.923)
+Recall:    0.676  (95% CI 0.619-0.728)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    214      0.888    0.676
+     0.60    197      0.909    0.637
+     0.65    185      0.930    0.612
+     0.70    167      0.928    0.552
+     0.75    146      0.938    0.488
+     0.80    128      0.953    0.434
+     0.85     96      0.979    0.335
+     0.90     59      1.000    0.210
+     0.95     23      1.000    0.082

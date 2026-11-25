@@ -1,0 +1,6 @@
+code D:\Git\RampNet-wt\effort-high; data, cache and ledger in D:\Git\RampNet; python D:\Git\RampNet\.venv\Scripts\python.exe
+2026-11-17 22:48:28Z [claude20] spent so far $33.98; budapest_district5 needs <= $11.76 (cap $200)
+  [claude-opus-5-5] usage logged to D:\Git\RampNet\analysis_out\usage_log.jsonl
+  [claude-opus-5-5] ledger now: 550 rows, $1,402.12, 388.5 h (of which $101.90 recovered, not measured)
+  claude-opus-5-5                       0.549   (0.488-0.609)  0.467   (0.411-0.523)  0.505    -       140/115/160/12
+2026-11-17 23:29:11Z [claude20] done; ledger total for claude20: $97.68
