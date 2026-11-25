@@ -2,14 +2,15 @@
 
 Issue [#263](https://github.com/ProjectSidewalk/RampNet/issues/263). This is Stage 0 of the plan
 "Detector Phase 1 arms and an upscaled horizon-band pass" (2026-11-15, revised after its review;
-section 4). **The plan file itself, `detector-phase1-horizon-2x-2026-11-15.md`, is not in the
-repository.** Its three sections that hold the Stage 0 rules (3, 4 and 7) are copied verbatim in
+section 4). **The plan is committed, with corrections, as
+[`detector_phase1_263.md`](detector_phase1_263.md) (PR #306); its original file,
+`detector-phase1-horizon-2x-2026-11-15.md`, is not in the repository.** Its three sections that hold the Stage 0 rules (3, 4 and 7) are copied verbatim in
 [Appendix A](#appendix-a-the-plans-stage-0-rules-verbatim), and the rules as written in this doc and
 that appendix are the record. The filename in both scripts' docstrings and in `protocol.plan` of
 both JSON outputs names that plan. The plan cites a Phase 1 design doc, `docs/detector_phase1_263.md`;
-that file is not on main. It exists only on the unmerged branch `docs/detector-phase1-263`
-([PR #270](https://github.com/ProjectSidewalk/RampNet/pull/270), open; its review recommends closing
-it as superseded by the 2026-11-15 plan).
+the design it meant was on the unmerged branch `docs/detector-phase1-263`
+([PR #270](https://github.com/ProjectSidewalk/RampNet/pull/270), closed without merging), and that
+path now holds the 2026-11-15 plan itself (PR #306).
 
 **Run date:** 2026-11-15; the narrow-minus-wide interval, the figure fix and the 0c script fixes
 after review 1, 2026-11-25. **Scripts:** `scripts/analysis/merged_separation_263.py` (0a) and
@@ -411,7 +412,8 @@ The code is branch `analysis/horizon-band-263` as merged by
 ## Appendix A. The plan's Stage 0 rules, verbatim
 
 From "Plan: detector Phase 1 arms and an upscaled horizon-band pass (2026-11-15, revised after
-review)", `detector-phase1-horizon-2x-2026-11-15.md`, which is not in the repository. Sections 3, 4
+review)", `detector-phase1-horizon-2x-2026-11-15.md`, which is not in the repository as that file (it is
+committed, with corrections, as `detector_phase1_263.md`). Sections 3, 4
 and 7 are copied unchanged below; they hold every Stage 0 rule this doc applies (the 0a triggers,
 the 0b brief, the 0c rules and gate, and the cost limit). Where the code departs from them, the
 Amendments section above says so. The plan's "Scratch" numbers came from an uncommitted script; 0b
