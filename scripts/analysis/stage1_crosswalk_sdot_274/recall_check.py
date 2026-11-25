@@ -154,7 +154,7 @@ def cmd_draw(a):
     cols = ["intersection_id", "lat", "lng", "degree", "n_nodes", "panos_within", "panos_excluded", "status",
             "in_draw", "pano_id", "dist_m", "rank_taken", "camera_model", "sequence_id", "capture_date", "flagged"]
     with open(os.path.join(out, "intersections.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols, restval="")
+        w = csv.DictWriter(f, fieldnames=cols, restval="", lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
     drawn = [r for r in rows if r["in_draw"]]
@@ -172,7 +172,7 @@ def cmd_draw(a):
         "drawn_flagged": sum(r["flagged"] for r in drawn),
         "drawn_sequences": len({r["sequence_id"] for r in drawn}),
     }
-    with open(os.path.join(out, "draw_meta.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "draw_meta.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(meta, f, indent=1)
     print(json.dumps(meta, indent=1))
 
@@ -231,7 +231,7 @@ def cmd_page(a):
     if anchor not in html:
         raise SystemExit("gt_gallery's page has no intro block to put the instructions before")
     html = html.replace(anchor, BANNER + "<style>#intro{display:none}</style>" + anchor, 1)
-    with open(index, "w", encoding="utf-8") as f:
+    with open(index, "w", encoding="utf-8", newline="") as f:
         f.write(html)
     print(f"{n} panos -> {index}")
 
@@ -306,7 +306,7 @@ def cmd_score(a):
     out = os.path.join(OUT, "score", a.label)
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(out, "marks.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
 
@@ -339,7 +339,7 @@ def cmd_score(a):
         near = [r for r in rs if r["within_25m"]]
         res["groups"][g] = {"within_25m": {f"r{rad}": recall(near, f"hit_{rad}") for rad in RADII},
                             "beyond_25m": recall([r for r in rs if not r["within_25m"]], f"hit_{RADII[0]}")}
-    with open(os.path.join(out, "recall.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "recall.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(res, f, indent=1)
     print(json.dumps(res, indent=1))
 
@@ -450,7 +450,7 @@ def cmd_compare(a):
             "empty_false_alarms_rig_masked_diff": round(mean_fa("new", 2) - mean_fa("base", 2), 3)}
     out = os.path.join(OUT, "compare", a.out_label)
     os.makedirs(out, exist_ok=True)
-    with open(os.path.join(out, "compare.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "compare.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(res, f, indent=1)
     print(json.dumps(res, indent=1))
 
@@ -618,7 +618,7 @@ def cmd_fa_sheet(a):
     os.makedirs(csv_dir, exist_ok=True)
     fields = list(rows[0]) if rows else ["pano_id"]
     with open(os.path.join(csv_dir, "spots.csv"), "w", encoding="utf-8", newline="") as f:
-        wr = csv.DictWriter(f, fieldnames=fields)
+        wr = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         wr.writeheader()
         wr.writerows(rows)
     by_city = Counter()
@@ -630,7 +630,7 @@ def cmd_fa_sheet(a):
                "detections_by_city_family": {f"{c} | {f}": n for (c, f), n in sorted(by_city.items())},
                "spots_new_only": sum(1 for r in rows if not r.get("seeds_s4")),
                "spot_radius": SPOT_RADIUS, "rig_mask_y": round(RIG_MASK_Y, 4)}
-    with open(os.path.join(csv_dir, "summary.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(csv_dir, "summary.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(summary, f, indent=1)
     trs = "".join(f"<tr><td>{H.escape(l)}</td><td>{models[l]}</td><td>{counts[l]}</td></tr>" for l in sorted(models))
     page = f"""<!doctype html>
@@ -679,7 +679,7 @@ Cards are ordered by how many new-model detections the pano has.</p>
   }});
 </script></body></html>
 """
-    with open(os.path.join(a.out, "index.html"), "w", encoding="utf-8") as f:
+    with open(os.path.join(a.out, "index.html"), "w", encoding="utf-8", newline="") as f:
         f.write(page)
     print(json.dumps(summary, indent=1))
     print(f"-> {os.path.join(a.out, 'index.html')}")

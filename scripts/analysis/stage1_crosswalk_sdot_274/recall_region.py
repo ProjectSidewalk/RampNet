@@ -98,7 +98,7 @@ def cmd_pairs(a):
     os.makedirs(out, exist_ok=True)
     for name, rows in (("region_marks_raw.csv", marks), ("region_pairs.csv", pairs)):
         with open(os.path.join(out, name), "w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=list(rows[0]))
+            w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
             w.writeheader()
             w.writerows(rows)
     print(f"{len(marks)} marks, {len(pairs)} mark-detection pairs -> {out}")
@@ -149,7 +149,7 @@ def cmd_score(a):
         for name in rules:
             m["hit_" + name] = int(k in hits[name])
     with open(os.path.join(out, "region_marks.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(marks[0]))
+        w = csv.DictWriter(f, fieldnames=list(marks[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(marks)
 
@@ -181,7 +181,8 @@ def cmd_score(a):
     groups["beyond 25 m"] = [m for m in marks if m["within_25m"] == "0"]
     res = {"label": a.label, "tol": TOL, "close_px": CLOSE_PX, "radius": RADIUS, "groups": {
         g: {name: recall(sub, "hit_" + name) for name in rules} for g, sub in groups.items()}}
-    json.dump(res, open(os.path.join(out, "region_recall.json"), "w", encoding="utf-8"), indent=1)
+    with open(os.path.join(out, "region_recall.json"), "w", encoding="utf-8", newline="") as f:
+        json.dump(res, f, indent=1)
     for g, r in res["groups"].items():
         print(f'{g:48s} n={r["radius"].get("marks", 0):4d}  ' + "  ".join(
             f'{name} {x.get("hit", 0)} ({x.get("recall", "")}, {x.get("ci95", "")})' for name, x in r.items()))

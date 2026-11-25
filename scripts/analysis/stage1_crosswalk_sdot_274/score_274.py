@@ -1793,6 +1793,8 @@ def cmd_retention(a):
     for spec in a.models:
         label, rest = spec.split("=", 1)
         path, thr = rest.rsplit("@", 1)
+        if not os.path.exists(path):        # read_jsonl reads a missing file as empty, which would count 0 kept
+            raise SystemExit(f"{label}: no predictions file {path}")
         preds = {r["pano_id"]: [q for q in r["preds"] if q[2] >= float(thr)] for r in read_jsonl(path)}
         kept = sum(1 for r in real if any(dist_sq(float(r["x"]), float(r["y"]), q[0], q[1], SCALE_X, SCALE_Y, True)
                                           < RADIUS_SQ for q in preds.get(r["pano_id"], [])))
@@ -1800,8 +1802,7 @@ def cmd_retention(a):
     ks = [m["kept"] for m in res["models"].values()]
     res["seed_spread"] = max([abs(ks[0] - k) for k in ks[1:]] or [0])
     os.makedirs(a.out, exist_ok=True)
-    with open(os.path.join(a.out, "retention.json"), "w", encoding="utf-8") as f:
-        json.dump(res, f, indent=1)
+    write_json(os.path.join(a.out, "retention.json"), res)
     print(json.dumps(res, indent=1))
 
 

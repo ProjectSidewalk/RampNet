@@ -118,7 +118,7 @@ def cmd_style_check(a):
     for r in rows:
         r["style"] = style_of(r["tags"]) if r["tags_known"] else "tags_unknown"
     with open(os.path.join(OUT, "style_check_labels.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
 
@@ -138,7 +138,7 @@ def cmd_style_check(a):
             row[key + "_ci95"] = json.dumps(wilson(k, n))
         summary.append(row)
     with open(os.path.join(OUT, "style_check_summary.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(summary[0]))
+        w = csv.DictWriter(f, fieldnames=list(summary[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(summary)
     missing = sum(1 for r in rows if not r["pano_found"])
@@ -241,7 +241,7 @@ def cmd_geometry_check(a):
     os.makedirs(OUT, exist_ok=True)
     for name, rows in (("geometry_nodes.csv", node_rows), ("geometry_clicks.csv", click_rows)):
         with open(os.path.join(OUT, name), "w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=list(rows[0]))
+            w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
             w.writeheader()
             w.writerows(rows)
 
@@ -268,7 +268,7 @@ def cmd_geometry_check(a):
             "median_b1_to_click": round(sorted(r["b1_to_click"] for r in same)[len(same) // 2], 4) if same else "",
             "median_b2_to_click": round(sorted(r["b2_to_click"] for r in snapped)[len(snapped) // 2], 4) if snapped else "",
         }
-    with open(os.path.join(OUT, "geometry_summary.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(OUT, "geometry_summary.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(summary, f, indent=1)
     print(json.dumps(summary, indent=1))
 
@@ -380,7 +380,7 @@ def cmd_city_report(a):
                "by_range": split(lambda r: "under 10 m" if float(r["range_m"]) < 10 else "10 to 20 m"),
                "by_camera": split(lambda r: (r["camera_make"] + " " + r["camera_model"]).strip() or "unknown"),
                "by_capture_year": split(lambda r: r["capture_date"][:4])}
-    with open(os.path.join(out, "placements_summary.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "placements_summary.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(summary, f, indent=1)
     print(json.dumps(summary, indent=1))
 
@@ -461,7 +461,7 @@ def cmd_city_score(a):
            "wilson": [lo, hi], "bar": a.bar, "passes": k >= a.bar,
            "verdicts": {v: sum(r["verdict"] == v for r in rated) for v in sorted({r["verdict"] for r in rated})},
            "splits": {g: v for g, v in sorted(splits.items())}, "not_correct": wrong}
-    with open(os.path.join(out, "a3_score.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "a3_score.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(res, f, indent=1)
     print(json.dumps(res, indent=1))
 

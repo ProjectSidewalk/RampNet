@@ -81,7 +81,7 @@ def read_csv(path):
 def write_csv(path, rows, cols=None):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols or list(rows[0]), extrasaction="ignore")
+        w = csv.DictWriter(f, fieldnames=cols or list(rows[0]), extrasaction="ignore", lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
 
@@ -107,7 +107,7 @@ def cmd_crossings(a):
         q = (f'[out:json][timeout:300];area["wikidata"="{a.wikidata}"]["boundary"="administrative"]->.a;'
              'node(area.a)["highway"="crossing"]->.c;.c out body;way(bn.c)["highway"];out body;')
         data = overpass(q)
-        with open(raw, "w", encoding="utf-8") as f:
+        with open(raw, "w", encoding="utf-8", newline="") as f:
             json.dump(data, f)
     data = json.load(open(raw, encoding="utf-8"))
     separated, on_ways = set(), defaultdict(set)
@@ -142,7 +142,7 @@ def cmd_crossings(a):
                "grade_separated": sum(r["grade_separated"] for r in rows),
                "by_class_and_basis": {f"{k[0]}/{k[1] or 'none'}": v for k, v in sorted(by.items())},
                "bbox": [min(lats), min(lngs), max(lats), max(lngs)]}
-    with open(os.path.join(out, "crossings_summary.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "crossings_summary.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(summary, f, indent=1)
     print(json.dumps(summary, indent=1))
 
@@ -244,7 +244,7 @@ def cmd_panos(a):
                "tiles": len(tiles), "panos_in_range": len(panos), "panos_after_thinning": len(thinned),
                "crossings_with_a_pano": with_pano, "candidate_pairs": len(rows),
                "candidate_panos": len({r["pano_id"] for r in rows})}
-    with open(os.path.join(out, "candidates_summary.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "candidates_summary.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(summary, f, indent=1)
     print(json.dumps(summary, indent=1))
 
@@ -350,7 +350,7 @@ def cmd_store(a):
     have = sum(os.path.exists(os.path.join(store_dir(a), p["panorama_id"][:2], p["panorama_id"] + ".jpg")) for p in recs)
     summary = {"listed": len(recs), "in_store": have, "pano_tools_commit": rev, "exit_code": code,
                "seconds": round(time.time() - t0)}
-    with open(os.path.join(OUT, a.city, "store_summary.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(OUT, a.city, "store_summary.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(summary, f, indent=1)
     print(json.dumps(summary, indent=1))
     sys.exit(code)

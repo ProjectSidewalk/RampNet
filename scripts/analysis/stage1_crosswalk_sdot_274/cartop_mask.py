@@ -266,7 +266,7 @@ def cmd_lookup(a):
     dst = os.path.join(OUT, "camera_lookup.csv")
     with open(dst, "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["pano_id", "source", "camera_make", "camera_model",
-                                          "sequence_id", "capture_date", "records_file"])
+                                          "sequence_id", "capture_date", "records_file"], lineterminator="\n")
         w.writeheader()
         for pid in sorted(rows):
             w.writerow(rows[pid])
@@ -302,7 +302,7 @@ def cmd_score(a):
                 })
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "arms.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
 
@@ -317,14 +317,14 @@ def cmd_score(a):
             lab_rows.append({"arm": arm, "label_set": s, "mount": m, "labels": len(ls),
                              "hidden": sum(rule(lab) for lab in ls)})
     with open(os.path.join(OUT, "labels_hidden.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(lab_rows[0]))
+        w = csv.DictWriter(f, fieldnames=list(lab_rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(lab_rows)
 
     with open(os.path.join(OUT, "cards.csv"), "w", encoding="utf-8", newline="") as f:
         cols = ["split", "draw", "pano_id", "x", "y", "conf", "city", "mount", "cluster", "verdict",
                 "vehicle_note", "note"]
-        w = csv.DictWriter(f, fieldnames=cols)
+        w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
         w.writeheader()
         for split, cards in (("fit", fit), ("test", test)):
             for c in cards:
@@ -341,7 +341,7 @@ def cmd_score(a):
             {k: c[k] for k in ("draw", "pano_id", "x", "y", "mount", "verdict", "note")}
             for c in test if c["vehicle_note"]],
     }
-    with open(os.path.join(OUT, "summary.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(OUT, "summary.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(summary, f, indent=1)
 
     print(json.dumps({k: summary[k] for k in ("boxes", "fit_by_mount", "test_by_mount",
