@@ -1185,6 +1185,20 @@ it is the one scored here: 76 crosswalk, 41 not, 9 unsure. Both files are kept. 
 >
 > 🤖 Generated with [Claude Code](https://claude.com/claude-code) — Opus 5.5, claude-opus-5-5
 
+## Compute and time
+
+Every klone job of this study, s1 to s5 (training, smoke runs and inference, 2026-11-04 to 2026-11-09), is in
+`analysis_out/compute_log.jsonl`: 62 records, 84.09 GPU-hours, all on the free `ckpt-all` partition, so $0. Training
+is 77.22 of that (a 1,000-step run takes about 6.3 GPU-hours on 4 A40s and 4.9 on 4 L40s) and inference 6.87. The
+per-job table, the committed `sacct` dump and the command that rebuilds the rows are in
+[`compute_cost.md`](compute_cost.md) (klone, 2026-11-04 to 2026-11-09). The rows were pulled on 2026-11-24, during
+review, not when the runs finished.
+
+**Not recorded.** The steps that ran on the local RTX 3070 have no row in either ledger: the SDOT pilot's Vistas
+`place` (the Replication section's "~25 min" is an estimate written at the time, not a measurement), arm C's
+`crowd_arm place` ("~3 h", the same), `bprime-prep`, and the local s4 inference that checked klone's Juneau peaks.
+Their wall-clock was not measured, so no figure is given for them. They cost $0.
+
 ## Archive (images, checkpoints, logs, rating pages)
 
 The repo holds the code, predictions, scores, verdicts and this doc. Everything else the study needs is archived on
