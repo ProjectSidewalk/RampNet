@@ -671,7 +671,7 @@
   ]
  },
  "pooling_readings": {
-  "choice": "open, Jon's call",
+  "choice": "summed_counts (Jon, 2026-11-25)",
   "mean_F1": {
    "C_minus_maxNT": 0.032597,
    "C_minus_maxNT_ci95": [

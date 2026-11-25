@@ -15,10 +15,10 @@ figure: `scripts/analysis/cascade_confirm_35_figures.py`).
 
 ## Result: N. Both T and C are dropped, and the work stops here.
 
-This rests on reading the plan's "pooled" as the four folds' counts summed into one F1. Under
-the other plain reading, the mean of the four per-split results, C survives Rule 2 and the outcome
-is "C only" (see [Rule 2 rests on one reading of "pooled"](#rule-2-rests-on-one-reading-of-pooled-open-jons-call)).
-Which reading governs is open, Jon's call.
+This rests on reading the plan's "pooled" as the four folds' counts summed into one F1, the
+reading Jon chose on 2026-11-25. Under the other plain reading, the mean of the four per-split
+results, C would survive Rule 2 and the outcome would be "C only" (see
+[Rule 2 rests on one reading of "pooled"](#rule-2-rests-on-one-reading-of-pooled-decided-summed-counts)).
 
 | rule | what it tests | reading | verdict |
 |---|---|---|---|
@@ -37,14 +37,19 @@ This is a screen on splits the earlier cascade study already inspected. It can e
 confirms nothing. The plan says what follows from N: B1 closes at no cost, and Stage 1 (Lyon) and
 Stage 2 (Kaysville) are not run.
 
-## Rule 2 rests on one reading of "pooled" (open, Jon's call)
+## Rule 2 rests on one reading of "pooled" (decided: summed counts)
 
 The plan's Rule 2 says "pooled held-out C minus max(N, T)" and does not define pooled. The stop
 above rests on one reading: the four folds' held-out counts (TP, FP, recall TP, recall GT) summed
 into one F1 per policy, as `cascade_argon_35` pools (Amendment 3). The other plain reading, the mean
 of the four held-out per-split deltas, clears the bar. Under it C survives Rule 2, the outcome is
-**C only**, and the plan would go on to Stage 1 (Lyon). Which reading governs is **open, Jon's
-call**. This note does not change the verdict or the bar.
+**C only**, and the plan would go on to Stage 1 (Lyon).
+
+**Decided (Jon, 2026-11-25): summed counts govern, so the outcome is N.** Reasons: it is the
+reading the rule's code computed before the results were known, so choosing it is not a
+post-hoc re-reading; it is how `cascade_argon_35` pools; and C's gain rests on one split
+(`laurens_mapillary`, +0.091), which clears the bar in only about half the resamples even under
+the per-split mean. The verdict and the +0.03 bar are unchanged.
 
 | reading of "pooled" | C − max(N, T) | 95% interval | resamples at or above +0.03 | splits won | Rule 2 | outcome |
 |---|---:|---|---:|---:|---|---|
@@ -205,7 +210,7 @@ record it here, and give both readings where they disagree.
    reading that compares C with N alone, since T is dropped, gives the same verdict: +0.0270
    [+0.0071, +0.0428], 2 wins, below +0.03. Reading "pooled" as the mean of the four per-split
    results does **not** give the same verdict: +0.0313 [+0.0088, +0.0465], and C survives. That
-   disagreement is set out in [Rule 2 rests on one reading of "pooled"](#rule-2-rests-on-one-reading-of-pooled-open-jons-call)
+   disagreement is set out in [Rule 2 rests on one reading of "pooled"](#rule-2-rests-on-one-reading-of-pooled-decided-summed-counts)
    and left to Jon.
 4. **Bootstrap unit.** Panos, stratified by split, 2,000 resamples, seed 0, both selections
    repeated per resample. The account-level bootstrap in the plan belongs to Stage 1.

@@ -641,7 +641,7 @@ def run(n_boot=BOOTSTRAP, seed=SEED):
     readings = {
         "plan_text": "pooled held-out C minus max(N, T); the plan does not define pooled",
         "stop_rests_on": "summed_counts",
-        "choice": "open, Jon's call",
+        "choice": "summed_counts (Jon, 2026-11-25)",
         "summed_counts": {
             "C_minus_maxNT": pooled["C_minus_maxNT"], "C_minus_maxNT_ci95":
                 pooled["C_minus_maxNT_ci95"], "splits_won": rules["2_drop_C"]["splits_won"],
