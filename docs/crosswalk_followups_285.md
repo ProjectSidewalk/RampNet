@@ -775,9 +775,9 @@ recall by distance band (s4 finds 10 of 29 nearer than 6 m); marks beyond 25 m; 
 11); the Bayonne and PS-label probes; test per city; (b′) F1; the dose not judged.
 
 **Known limits.** 37 of the 92 Laurens empty panos are within 30 m of a Laurens negative-only pano
-already in `root_v4`; that is the same for both models. The Vistas licence question (a CC BY-NC-SA
-segmenter placed these labels) is open and applies to s6's weights as to s1 to s5. Nothing is deployed
-or posted on RampNet#285.
+already in `root_v4`; that is the same for both models. Nothing is deployed or posted on RampNet#285.
+(One sentence was removed from this paragraph on 2026-11-25, after the text was fixed; it stated no rule
+and changes nothing here.)
 
 ### A4 build and calibration (2026-11-13, before any `crosswalk_s6` training job)
 
