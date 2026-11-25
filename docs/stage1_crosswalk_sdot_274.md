@@ -148,6 +148,13 @@ here, in the commit that adds the scorer, before it read any model output.
 The run used the checkpoint `final_step_1000.pth` (sha256 `6f467ff4…`). Inference was klone job 42861556, A100,
 0.63 s per pano. Full tables are in `analysis_out/stage1_crosswalk_detector_274/report.md`.
 
+**What a clean clone can and cannot re-run.** `score_274.py score`, which makes every (a) table, guard 1 and the
+threshold sweeps and picks in this doc, reads a Stage 2 root: its label JSONs (the images are not needed). The label
+versions v1 to v5 are digest-pinned in their manifests, but they live only in the lab-share archive
+(`stage2_root/labels_v*/`, section "Archive"), so these tables do not re-run from the repo. Committing the label
+JSONs, about 5,900 small files per version, or publishing them with the archive, would close that. The predictions
+they are scored from are committed.
+
 **(a) Pixels: a large lift over the curb-ramp floor.** Each model is scored on test at its own val-F1 threshold:
 
 | model | threshold | precision (complete panos) | recall (all positives) | F1 |
@@ -331,7 +338,11 @@ are. This is a new test. It does not re-decide (b), which stands as failed.
     nodes to read both recall and false positives.
 - **Pano.** Each node is scored from one pano: the newest Project Sidewalk store pano within 25 m, ties to the
   nearest.
-  - Position, heading and date come from `sidewalk_seattle.pano_data`, exported read-only on 2026-11-05.
+  - Position, heading and date come from `sidewalk_seattle.pano_data`, exported read-only on 2026-11-05. The
+    rows for the 793 sampled panos are committed as `bprime/seattle_pano_data_bprime.psv` (same format, 78 KB),
+    so `bprime-score` runs from the repo. With it, the committed (b′) `nodes.csv` of `v2_labels/bprime`,
+    `s4_matched/bprime` and `s5_matched/bprime` (s5 guard 6) regenerate byte for byte, and their `scores.json`
+    differ only in `scored_utc`. The full export (18 MB, sha256 `a7decb6b…`) is in the archive's `inputs/`.
   - Pixels are the makelab2 store copy, written at 4096×2048 exactly as the training root was
     (`bprime-prep` → `export_stage2.write_image`).
 - **Prediction.** The fine-tune at its pre-registered val threshold 0.31 (the released weights at theirs, 0.05),
@@ -532,7 +543,8 @@ OSM tags unmarked or leaves untagged. That stratum explains the false alarms and
 
 - **Mined.** `score_274.py mine` took `crosswalk_s1`'s detections at or above 0.21 on train panos where training
   gives no background signal (`mine/`). A blind AI pre-screen sorted them, using numbered contact sheets
-  (`prescreen/`).
+  (`prescreen/`): eight Claude Code subagents on a Sonnet model. The exact model id, their instructions and their
+  time were not recorded (`prescreen/ai_parts/README.md`).
 - **Rated by Jon in two pages**, with the dashed disc a negative trains drawn on every card. The disc rule: a card
   is "not crosswalk" only if no crosswalk paint lies anywhere inside the disc.
   - Page 1: 459 cards, plus 9 that Claude flagged for re-review.
@@ -707,10 +719,10 @@ test was pre-registered.
 |---|---|---|---|---|---|---|---|---|
 | Juneau (Mapillary) | 120 | s1 | 70 | 59 | 7 | 4 | 0.843 | 5.8 [1.7, 10.8] |
 | | | s3 | 64 | 58 | 3 | 3 | 0.906 | 2.5 [0.0, 5.8] |
-| Laurens, Mapillary (GoPro Max) | 80 | s1 | 33 | 0 | 33 | 0 | 0.000 | 41.2 [27.5, 56.2] |
+| Laurens, Mapillary (GoPro Max) | 80 | s1 | 33 | 0 | 33 | 0 | 0.000 | 41.25 [27.5, 56.25] |
 | | | s3 | 38 | 0 | 38 | 0 | 0.000 | 47.5 [32.5, 62.5] |
-| Laurens, GSV | 80 | s1 | 10 | 0 | 10 | 0 | 0.000 | 12.5 [6.2, 20.0] |
-| | | s3 | 5 | 0 | 5 | 0 | 0.000 | 6.2 [1.2, 12.5] |
+| Laurens, GSV | 80 | s1 | 10 | 0 | 10 | 0 | 0.000 | 12.5 [6.25, 20.0] |
+| | | s3 | 5 | 0 | 5 | 0 | 0.000 | 6.25 [1.25, 12.5] |
 
 - **Juneau** (109 of the 120 panos are Trimble MX7) works about as well as Seattle, and s3 is cleaner there
   (paired diff −3.3 [−9.2, 1.7]). Retention 52/59.
@@ -760,7 +772,8 @@ and PS has a tag for them. The Crosswalk tag is `brick/cobblestone`. Across 58 l
 labels tagged `brick/cobblestone` (gsv; not voted incorrect by majority; outside the root's cities and every audit
 draw): 923 labels on 584 panos (Chicago 259, Cuenca 155, Gainesville 68, Columbus 33, Pittsburgh 26, ...). The panos
 were streamed read-only from the PS store and prepped like the training root. Four blind AI readers sorted the 77
-contact sheets (`hardneg/s4_inputs/brick/ai_parts/`, `prescreen.csv`):
+contact sheets (`hardneg/s4_inputs/brick/ai_parts/`, `prescreen.csv`). Which model they were, and their instructions,
+were not recorded (`ai_parts/README.md`), so the reliability figures below describe an unidentified model:
 
 | AI call | labels |
 |---|---|
@@ -953,6 +966,14 @@ this settles which checkpoint the next steps use. Juneau, which decides nothing,
 restarts. Final checkpoints are in `/gscratch/makelab/jonf/crosswalk274/v4_s{1,2,3}/`, sha256 `ebad379b…`,
 `48a9928f…` and `6f143e48…`. Inference: 43076556–43076564 and 43076586–43076588.
 
+**The adopted checkpoint.** Seed 1, `final_step_1000.pth`, sha256
+`ebad379b5f7c1645dc39ccb820cd18500109723ae5b1e5706c1e4521b2ab42b4`, run at threshold 0.23. It is not on the Hugging
+Face Hub. The copies are klone's `/gscratch/makelab/jonf/crosswalk274/v4_s1/` and the lab-share archive's
+`checkpoints/crosswalk_s4/` (section "Archive"). The auto-labeler names it `rampnet-crosswalk@ebad379b5f7c`: that is
+its own identifier, built from the first 12 hex of this sha256, with `model_repo` set to
+`unpublished:RampNet#274/crosswalk_s4` (sidewalk-auto-labeler `detectors/checkpoints.py`). It is not a Hub
+repository or revision. Publishing the checkpoint is what would let someone outside the lab load it.
+
 **Thresholds** (`match-threshold` on `v2_labels/s4/threshold_sweep.csv`): each s4 seed against the s1 seed with
 the same number gives 0.23 (s1 0.21), 0.30 (s1 0.24) and 0.13 (s1 0.22). s4's own val picks are 0.33, 0.31 and
 0.24 (`v2_labels/s4/`). Seed 1 runs at **0.23** for everything below.
@@ -960,7 +981,7 @@ the same number gives 0.23 (s1 0.21), 0.30 (s1 0.24) and 0.13 (s1 0.22). s4's ow
 | | `crosswalk_s1` (0.21) | `crosswalk_s4` (0.23) | rule | |
 |---|---|---|---|---|
 | **P1**: Columbia brick recall, 210 labels on 127 panos | 164 = 0.781 | 183 = 0.871 | paired diff, 97.5% lower end > 0 | **met**: +0.090 [0.041, 0.149] |
-| **P2**: Laurens Mapillary look-alikes per 100 panos (80 panos) | 41.2 | 11.2 | paired diff, 97.5% upper end < 0 | **met**: −30.0 [−48.8, −11.2] |
+| **P2**: Laurens Mapillary look-alikes per 100 panos (80 panos) | 41.25 | 11.25 | paired diff, 97.5% upper end < 0 | **met**: −30.0 [−48.75, −11.25] |
 | Guard 1: mean test F1 of three seeds (v2 labels) | 0.837 | 0.836 (0.830, 0.840, 0.837) | ≥ 0.827 | holds |
 | Guard 2: Seattle retention of s1's 216 crosswalks / look-alikes per 100 panos | 216 / 10.0 | 206 = 0.954 / 7.5 | ≥ 0.95 / diff ≤ +2.5 | holds (−2.5 [−8.3, +2.5]) |
 | Guard 3: (b′) weighted marked-node recall | 0.720 | 0.728 | drop ≤ 0.03 | holds |
@@ -997,8 +1018,8 @@ the crossing (one Juneau card). `carry` gives each draw its s4 cards (`confirm_s
 | draw (panos) | s4 detections | s4 precision | look-alikes per 100: s1 → s4 | paired diff | retention of s1's crosswalks |
 |---|---|---|---|---|---|
 | Seattle (b′) (120) | 245 | 0.955 | 10.0 → 7.5 | −2.5 [−8.3, +2.5] | 206 / 216 = 0.954 |
-| Laurens Mapillary (80) | 10 | 0.10 | 41.2 → 11.2 | −30.0 [−48.8, −11.2] (97.5%) | s1 had none |
-| Laurens GSV (80) | 11 | 0.55 | 12.5 → 6.2 | −6.2 [−16.2, +5.0] | s1 had none |
+| Laurens Mapillary (80) | 10 | 0.10 | 41.25 → 11.25 | −30.0 [−48.75, −11.25] (97.5%) | s1 had none |
+| Laurens GSV (80) | 11 | 0.55 | 12.5 → 6.25 | −6.25 [−16.25, +5.0] | s1 had none |
 | Juneau Mapillary (120) | 103 | 0.73 | 5.8 → 20.8 | **+15.0 [+4.2, +26.7]** | 56 / 59 = 0.949 |
 
 What the reported draws show (Jon's notes):
@@ -1185,6 +1206,20 @@ it is the one scored here: 76 crosswalk, 41 not, 9 unsure. Both files are kept. 
 >
 > 🤖 Generated with [Claude Code](https://claude.com/claude-code) — Opus 5.5, claude-opus-5-5
 
+## Compute and time
+
+Every klone job of this study, s1 to s5 (training, smoke runs and inference, 2026-11-04 to 2026-11-09), is in
+`analysis_out/compute_log.jsonl`: 62 records, 84.09 GPU-hours, all on the free `ckpt-all` partition, so $0. Training
+is 77.22 of that (a 1,000-step run takes about 6.3 GPU-hours on 4 A40s and 4.9 on 4 L40s) and inference 6.87. The
+per-job table, the committed `sacct` dump and the command that rebuilds the rows are in
+[`compute_cost.md`](compute_cost.md) (klone, 2026-11-04 to 2026-11-09). The rows were pulled on 2026-11-24, during
+review, not when the runs finished.
+
+**Not recorded.** The steps that ran on the local RTX 3070 have no row in either ledger: the SDOT pilot's Vistas
+`place` (the Replication section's "~25 min" is an estimate written at the time, not a measurement), arm C's
+`crowd_arm place` ("~3 h", the same), `bprime-prep`, and the local s4 inference that checked klone's Juneau peaks.
+Their wall-clock was not measured, so no figure is given for them. They cost $0.
+
 ## Archive (images, checkpoints, logs, rating pages)
 
 The repo holds the code, predictions, scores, verdicts and this doc. Everything else the study needs is archived on
@@ -1226,6 +1261,12 @@ and a makelab routing fault the same day kept the copy to the lab share from run
 
 ## Replication
 
+The decision numbers that need no GPU, Stage 2 root or pano export (P1, the s3 and s4 confirmation draws with P2,
+the s3 audit and its retention guard, the Juneau eval draw, root_v3's negatives) are re-derived from committed files
+and compared byte for byte by `python scripts/analysis/stage1_crosswalk_sdot_274/check_274.py`, about 10 s on CPU.
+It is the `stage1_crosswalk_274` entry of `scripts/check_all.py` and runs in CI. The commands below are the full
+chain.
+
 ```bash
 P=scripts/analysis/stage1_crosswalk_sdot_274/pilot.py; OUT=analysis_out/stage1_crosswalk_sdot_274
 INV=<crosswalk-inventory-274>/analysis_out/crosswalk_inventory_274
@@ -1251,6 +1292,7 @@ python scripts/analysis/stage1_crosswalk_sdot_274/export_stage2.py build <as abo
 cp -r $D/preds/crosswalk_s1 $D/preds/released $D/v2_labels/preds/ && python $S oracle --root <root> --preds $D/v2_labels/preds
 python $S score --root <root> --preds $D/v2_labels/preds --labels crosswalk_s1,released,label_ceiling <as above> --out $D/v2_labels
 python $S figures --out $D/v2_labels --fig-dir docs/figures/stage1_crosswalk_detector_274/v2_labels
+# ^ no longer runs as written: v2_labels/scores.json now holds five models and `figures` has four colours (IndexError); the committed v2 figures (2026-11-05) predate the fifth
 python $S gallery ... --scores $D/v2_labels --threshold 0.31 --prefill $D/ratings_jon_2026-11-05.csv --out <outside the repo>
 python -m doctest $C
 # retrain on v2 labels (crosswalk_s2): train on klone, infer, then score both models on CPU
@@ -1259,7 +1301,7 @@ FT_LABEL=crosswalk_s2 FT_CKPT=<COPY_DEST>/final_step_1000.pth FT_SHA=bfdd0f93…
 ...the same with BPRIME=1 for (b′)   # copy each crosswalk_s2/ into $D/v2_labels/preds/ and $D/v2_labels/bprime/preds/
 python $S score --root <root> --preds $D/v2_labels/preds --labels crosswalk_s2,crosswalk_s1,released,label_ceiling <as above> --out $D/v2_labels
 cp $D/bprime/{sample.csv,sample.json,pano_files.txt} $D/v2_labels/bprime/ && cp -r $D/bprime/preds/* $D/v2_labels/bprime/preds/
-python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels --pano-data <seattle_pano_data.psv> --labels crosswalk_s2,crosswalk_s1,released
+python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels --pano-data $D/bprime/seattle_pano_data_bprime.psv --labels crosswalk_s2,crosswalk_s1,released
 python $S gallery ... --scores $D/v2_labels --label crosswalk_s2 --threshold 0.31 --prefill <all verdicts so far> --out <outside the repo>
 # hard negatives, Step 0: the (b') deployment audit (CPU; the draw is seeded, so it reproduces exactly)
 H=$D/hardneg/step0_audit
@@ -1284,7 +1326,7 @@ python scripts/analysis/stage1_crosswalk_sdot_274/check_root_negatives.py <root_
 DATA_ROOT=<root_v3> RUNDIR=<rundir> COPY_DEST=<durable dir> SEED=1 EXPECT_TRAIN=3601 EXPECT_VAL=1029 sbatch --job-name=crosswalk274_s3 stage_two/run_finetune_crosswalk_274.slurm
 FT_LABEL=crosswalk_s3 FT_CKPT=<COPY_DEST>/final_step_1000.pth FT_SHA=32f93561… RELEASED=0 ROOT=<root_v3> PREDS=<dir> [BPRIME=1 BPRIME_PREDS=<dir>] sbatch scripts/analysis/stage1_crosswalk_sdot_274/score_274.slurm
 python $S score --root <root_v2> --preds $D/v2_labels/preds --labels crosswalk_s3,crosswalk_s2,crosswalk_s1,released,label_ceiling <as above> --out $D/v2_labels
-python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels --pano-data <seattle_pano_data.psv> --labels crosswalk_s3,crosswalk_s2,crosswalk_s1,released
+python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels --pano-data $D/bprime/seattle_pano_data_bprime.psv --labels crosswalk_s3,crosswalk_s2,crosswalk_s1,released
 python $S bprime-audit <as Step 0> --preds-file $D/v2_labels/bprime/preds/crosswalk_s3/bprime.jsonl --label crosswalk_s3 --threshold 0.29 --out $N/s3_audit
 python $S cards --candidates $N/s3_audit/candidates.csv --label hardneg_s3 --pano-dir <bprime_4096> --preds-file $D/v2_labels/bprime/preds/crosswalk_s3/bprime.jsonl --threshold 0.29 --blind --prefill $N/step0_audit/ratings_jon_2026-11-06_step0.csv --out <outside the repo>
 # crosswalk_s4: three seeds on root_v4, inference, then guard 1, P1, guard 3 and the Step B page
@@ -1295,7 +1337,7 @@ L=crosswalk_s4,crosswalk_s4_seed2,crosswalk_s4_seed3,crosswalk_s1,crosswalk_s1_s
 python $S score --root <root_v2> --preds $D/v2_labels/preds --labels $L <as above> --out $D/v2_labels/s4
 python $S match-threshold --sweep $D/v2_labels/s4/threshold_sweep.csv --base crosswalk_s1[_seedN] --new crosswalk_s4[_seedN]   # 0.23, 0.3, 0.13
 python $S score ... --labels $L --fixed-threshold crosswalk_s4=0.23 crosswalk_s4_seed2=0.3 crosswalk_s4_seed3=0.13 crosswalk_s3=0.27 --out $D/v2_labels/s4_matched
-python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels/s4_matched --pano-data <seattle_pano_data.psv> --labels crosswalk_s4,crosswalk_s1,crosswalk_s3,released --out $D/v2_labels/s4_matched/bprime
+python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels/s4_matched --pano-data $D/bprime/seattle_pano_data_bprime.psv --labels crosswalk_s4,crosswalk_s1,crosswalk_s3,released --out $D/v2_labels/s4_matched/bprime
 E=$N/s4_eval
 python $S label-recall --labels $N/s4_inputs/stepA/columbia_gt.csv --base crosswalk_s1=$E/columbia/preds/crosswalk_s1/columbia.jsonl@0.21 --new crosswalk_s4=$E/columbia/preds/crosswalk_s4/columbia.jsonl@0.23 --also crosswalk_s3=$E/columbia/preds/crosswalk_s3/columbia.jsonl@0.27 --out $E/columbia
 python $S label-recall --ci 0.95 --labels $N/confirm_s3/ps_labels/labels.csv ... --out $E/ps_labels   # and --labels $N/s4_bayonne/labels.csv ... --out $E/bayonne
@@ -1311,7 +1353,7 @@ L=crosswalk_s5,crosswalk_s5_seed2,crosswalk_s5_seed3,crosswalk_s4,crosswalk_s4_s
 python $S score --root <root_v2> --preds $D/v2_labels/preds --labels $L <as above> --out $D/v2_labels/s5
 python $S match-threshold --sweep $D/v2_labels/s5/threshold_sweep.csv --base crosswalk_s4[_seedN] --new crosswalk_s5[_seedN] --base-threshold <0.23|0.30|0.13>   # 0.26, 0.33, 0.31
 python $S score ... --labels $L --fixed-threshold crosswalk_s5=0.26 crosswalk_s5_seed2=0.33 crosswalk_s5_seed3=0.31 crosswalk_s4=0.23 crosswalk_s4_seed2=0.3 crosswalk_s4_seed3=0.13 --out $D/v2_labels/s5_matched
-python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels/s5_matched --pano-data <seattle_pano_data.psv> --labels crosswalk_s5,crosswalk_s4,released --out $D/v2_labels/s5_matched/bprime
+python $S bprime-score --bprime $D/v2_labels/bprime --scores $D/v2_labels/s5_matched --pano-data $D/bprime/seattle_pano_data_bprime.psv --labels crosswalk_s5,crosswalk_s4,released --out $D/v2_labels/s5_matched/bprime
 python $S label-recall --labels $N/s4_inputs/stepA/columbia_gt.csv --base crosswalk_s4=$E/columbia/preds/crosswalk_s4/columbia.jsonl@0.23 --new crosswalk_s5=$N/s5_eval/columbia/preds/crosswalk_s5/columbia.jsonl@0.26 --out $N/s5_eval/columbia
 J=$N/s5_inputs/juneau_eval; R=$N/s5_stepB/ratings_jon_2026-11-10_s5_stepB_fixed.csv
 python $S bprime-audit --ids-file $N/s5_inputs/juneau_eval_draw.txt --draw-seed 278 --n-panos 120 --city juneau-ak --mode juneau_eval --preds-file $N/s5_eval/juneau_eval/preds/crosswalk_s5/juneau_eval.jsonl --label crosswalk_s5 --threshold 0.26 --out $J/s5   # s4: the same at 0.23 -> $J/s4
@@ -1343,6 +1385,7 @@ churns, so a fresh `meta` moves the yield numbers.
 | detector figures | `docs/figures/stage1_crosswalk_detector_274/` via `score_274.py figures` |
 | detector gallery (local, untracked: embeds imagery) | `score_274.py gallery` |
 | human audit verdicts | `analysis_out/stage1_crosswalk_detector_274/ratings_jon_2026-11-05.csv` |
+| the crosswalk definition (`paint` or `paint_brick`, with its text) each verdict file was rated under | `analysis_out/stage1_crosswalk_detector_274/ratings_definitions.csv` |
 | v2 labels: collisions, box counts | `analysis_out/stage1_crosswalk_crowd_274/placements.csv` (`collided`), `report.md` §1, `stage2_build/manifest.json` |
 | v2 re-score (amendment) | `analysis_out/stage1_crosswalk_detector_274/v2_labels/` (`report.md`, `scores.json`, `threshold_sweep.csv`), figures in `docs/figures/stage1_crosswalk_detector_274/v2_labels/` |
 | `crosswalk_s2` (retrain) scores, (b) | the same `v2_labels/` files, rows `crosswalk_s2`; predictions in `v2_labels/preds/crosswalk_s2/` |

@@ -125,7 +125,8 @@ Both commands are stdlib only, run on CPU, and read only committed files. `--che
 
 1. **Make `wrap_nms` the default.** This needs a `manual_gold` re-evaluation, after the GT seam
    merge in [`seam.md`](seam.md) section 2 (otherwise the comparison is biased against it, as shown
-   above), and an HF re-export.
+   above), and an HF re-export. Studied in [`seam_nms_default_248.md`](seam_nms_default_248.md) (2026-11-15,
+   with the merge applied in memory as GT-B): the pre-registered rule says NEXT STEP NEEDED.
 2. **Should `wrap_x=True` imply `wrap_nms=True` in `RampNetModel.detect()`?** Today they are
    independent.
 3. **The [#132](https://github.com/ProjectSidewalk/RampNet/issues/132) dataset seam duplicates.**
@@ -133,3 +134,7 @@ Both commands are stdlib only, run on CPU, and read only committed files. `--che
    Training on those duplicates teaches the model the very split that `wrap_nms` removes at
    inference.
 4. **A GPU re-dump of the published model's peaks**, to replace the Run A estimate above.
+   *Correction (2026-11-15):* for manual_gold under flip TTA these peaks were already committed in
+   `benchmark/manual_gold/records.jsonl` (`exclude_border=False`, floor 0.05), and
+   [`seam_nms_default_248.md`](seam_nms_default_248.md) uses them; only manual_gold single pass
+   lacks post-fix peaks.

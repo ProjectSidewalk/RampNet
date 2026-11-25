@@ -43,7 +43,8 @@
    "pano": "733095d5-b1c6-4d20-a02c-7ebab65d7bb9",
    "rampnet_best_peak_within_radius": 0.2265,
    "support": [
-    "gdino"
+    "gdino",
+    "molmo2-8b"
    ],
    "x": 0.6226,
    "y": 0.6299
@@ -107,6 +108,7 @@
    "rampnet_best_peak_within_radius": null,
    "support": [
     "gdino",
+    "molmo2-8b",
     "owlv2"
    ],
    "x": 0.8954,
@@ -137,7 +139,8 @@
    "pano": "cc057703-e556-4769-a99d-c32e5bcabb55",
    "rampnet_best_peak_within_radius": 0.2154,
    "support": [
-    "gdino"
+    "gdino",
+    "molmo2-8b"
    ],
    "x": 0.1185,
    "y": 0.6624
@@ -174,13 +177,15 @@
   }
  ],
  "if_dense_legs_vote": {
-  "n_candidates": 579,
-  "n_from_dense_legs_only": 299,
-  "n_with_fewer_than_2_non_dense_legs": 568
+  "n_candidates": 692,
+  "n_from_dense_legs_only": 266,
+  "n_with_fewer_than_2_non_dense_legs": 578
  },
- "legs_not_run": [
-  "molmo2-8b"
- ],
+ "if_molmo_votes": {
+  "n_candidates": 102,
+  "n_on_molmo_and_qwen_alone": 88
+ },
+ "legs_not_run": [],
  "legs_run": [
   {
    "family": "yolo",
@@ -229,13 +234,22 @@
    "n_uncached": 0,
    "points_per_pano": 2.84,
    "threshold": null
+  },
+  {
+   "family": "chat-vlm",
+   "leg": "molmo2-8b",
+   "n_panos": 125,
+   "n_uncached": 0,
+   "points_per_pano": 2.656,
+   "threshold": null
   }
  ],
  "n_candidates": 11,
  "n_in_nadir_band": 0,
  "support_only": [
   "owlv2",
-  "gdino"
+  "gdino",
+  "molmo2-8b"
  ],
- "what": "Reviewer-attention list, NOT ground truth: locations where RampNet has no peak >= 0.3 within the 0.022 match radius and >= 2 challenger legs agree within it, not counting the dense open-vocabulary legs (OWLv2, Grounding DINO), which are listed as support only. Read after judging a pano, as a second sweep, so it does not steer the first look."
+ "what": "Reviewer-attention list, NOT ground truth: locations where RampNet has no peak >= 0.3 within the 0.022 match radius and >= 2 challenger legs agree within it, not counting the dense open-vocabulary legs (OWLv2, Grounding DINO) or Molmo2-8B, which are listed as support only. Read after judging a pano, as a second sweep, so it does not steer the first look."
 }

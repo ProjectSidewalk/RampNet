@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
 from rampnet import ledger  # noqa: E402
 from vertex_usage import (  # noqa: E402
-    ledger_totals_by_model, print_reconciliation, reconcile,
+    billing_window, ledger_totals_by_model, print_reconciliation, reconcile,
 )
 
 OPUS_BILLED = {"input": 11_988_993, "output": 418_503}
@@ -171,3 +171,16 @@ def test_the_report_says_what_to_do_about_a_gap(capsys):
     assert "emergency with a deadline" in out and "6 weeks" in out
     assert "per-model per-DAY" in out       # per-split attribution is already gone
     assert "11,988,993" in out
+
+
+def test_the_ledger_window_is_the_billed_window():
+    """`fetch_token_series` bills ``--days`` whole UTC days ending at the NEXT UTC
+    midnight (buckets ending at the query time-of-day over-counted by 20%, 2026-11-11).
+    The ledger side of --reconcile has to be trimmed from the same start, or it takes
+    one extra day and reads a spurious 'over' (#286 review)."""
+    from datetime import datetime, timezone
+    now = datetime(2026, 11, 11, 15, 0, tzinfo=timezone.utc)
+    start, end = billing_window(3, now=now)
+    assert end.isoformat() == "2026-11-12T00:00:00+00:00"
+    assert start.isoformat() == "2026-11-09T00:00:00+00:00"
+    assert start.date().isoformat() == "2026-11-09"       # what --reconcile filters on

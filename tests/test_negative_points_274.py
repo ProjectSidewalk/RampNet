@@ -70,7 +70,8 @@ def test_negative_overrides_ignore_but_not_a_positive():
     assert w[_disc(205, 256)].min() == 1                       # the ignore point's disc trains as background now
     assert w[_disc(410, 256)].min() == 1                       # inside the ignore box too
     assert w[256, 330] == 0                                    # rest of the box stays ignored
-    assert w[256, 512] == 1                                    # the positive's peak is untouched
+    assert w[256, 512] == 1      # the positive's peak is untouched (weights only rise, so this alone does not
+    #                              pin the d_neg < d_pos term: test_a_negative_never_unmasks_pixels_nearer_a_positive)
 
 
 def test_schema_sparse_with_only_negatives_and_refusals():
@@ -107,3 +108,49 @@ def test_through_the_dataset_and_the_flip(tmp_path):
         neg_col = 666 if cx == 205 else 1024 - 666           # the negative mirrors with the target
         assert w[307, neg_col] == 1 and hm[307, neg_col] == 0 and w[307, cx] == 1 and w[50, 50] == 0
     assert seen == {205, 819}
+
+
+def test_min_distance_halves_y_and_sits_at_the_scorer_radius():
+    """The refusal boundary itself: 0.05 in matcher units (x in pano widths, y counted half), the scorer's match
+    radius. Brackets it within 0.0005 on x and checks that y counts half."""
+    mod = _lift()
+    assert mod.NEGATIVE_MIN_DIST == 0.05
+    neg = {"supervision": {"negative_points": [[0.3, 0.6]]}}
+    assert mod.supervision_negative_points(neg, [(0.3505, 0.6)]) == [(0.3, 0.6)]     # 0.0505 away: allowed
+    with pytest.raises(ValueError):
+        mod.supervision_negative_points(neg, [(0.3495, 0.6)])                        # 0.0495 away: refused
+    with pytest.raises(ValueError):                                                  # dy 0.08 counts 0.04
+        mod.supervision_negative_points(neg, [(0.3, 0.68)])
+    assert mod.supervision_negative_points(neg, [(0.3, 0.702)]) == [(0.3, 0.6)]      # dy 0.102 counts 0.051
+
+
+def test_negatives_apply_on_a_dense_ignore_pano(tmp_path):
+    """root_v3 has 4 negatives on dense_ignore panos. A negative inside one of the pano's ignore boxes must train
+    as background there (weight 1); the rest of the box stays ignored."""
+    mod = _lift()
+    rec = {"curb_ramp_points_normalized": [[0.2, 0.6]],
+           "supervision": {"mode": "dense_ignore", "ignore_boxes": [[0.6, 0.7, 0.5, 0.7]],
+                           "negative_points": [[0.65, 0.6]]}}
+    ds = mod.EquiHeatmapDataset(root_dir=_one_pano(str(tmp_path), rec), split="train", target_heatmap_shape=SHAPE,
+                                transform_input=transforms.ToTensor(),
+                                points_to_heatmap_transform_fn=mod.generate_heatmap_from_points,
+                                apply_horizontal_flip=False, loss_mask=True)
+    _, _, w = ds[0]
+    w = w.numpy()[0]
+    assert w[307, 666] == 1                    # the negative's own spot, inside the box
+    assert w[307, 700] == 0                    # elsewhere in the box, outside the negative's disc
+    assert w[50, 50] == 1                      # dense background
+
+
+def test_a_negative_never_unmasks_pixels_nearer_a_positive():
+    """The `d_neg < d_pos` term of add_negative_weight. It matters only where an ignore point sits between a
+    positive and a negative: the pixels there that are nearer the positive (inside its disc, where the target is
+    the positive's Gaussian) but ignored because the ignore point is nearer still must stay ignored. Columns, at
+    1024 px: positive 500, ignore point 525, negative 555 (0.0537 from the positive, so the schema allows it)."""
+    mod = _lift()
+    pos, ign, neg = [(500 / 1024, 0.5)], [(525 / 1024, 0.5)], [(555 / 1024, 0.5)]
+    w = mod.generate_dense_ignore_weight(pos, SHAPE, ignore_points=ign)
+    assert w[0, 256, 527] == 0                 # ignored: nearer the ignore point than the positive
+    w = mod.add_negative_weight(w, pos, neg, SHAPE)[0].numpy()
+    assert w[256, 527] == 0                    # 27 px from the positive, 28 from the negative: stays ignored
+    assert w[256, 545] == 1                    # nearer the negative: trains as background

@@ -49,10 +49,20 @@ for p in (REPO, STAGE1, os.path.join(REPO, "scripts", "model_comparison"),
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from pyproj import Geod  # noqa: E402
 import sdot_source  # noqa: E402
 
-GEOD = Geod(ellps="WGS84")
+GEOD = None     # pyproj.Geod(ellps="WGS84"), built by geod() on first use, so importing pilot needs no pyproj
+
+
+def geod():
+    """The WGS84 geodesic every projection here uses (pyproj, imported on first call)."""
+    global GEOD
+    if GEOD is None:
+        from pyproj import Geod
+        GEOD = Geod(ellps="WGS84")
+    return GEOD
+
+
 SEED = 274
 # Strata (drawn in this order, without replacement; mid-block first so it is not starved).
 STRATA = (("midblock", 20, lambda r: r["midblock"] == "Y"),
@@ -129,11 +139,21 @@ class Grid:
             self.b.setdefault((int(it[0] // self.dlat), int(it[1] // self.dlng)), []).append(it)
 
     def within(self, lat, lng, r):
+        """Every item within r metres, nearest first. A longitude cell is cell_m wide only at lat0; north of it
+        a cell is narrower, so the number of cells searched east and west is computed at the query latitude.
+
+        >>> dlng = Grid([], lat0=40.0).dlng
+        >>> lng0 = math.floor(-134.4 / dlng) * dlng - 1e-9        # the east edge of a cell, at Juneau's latitude
+        >>> g = Grid([(58.3, lng0 + 34.5 / (111320.0 * math.cos(math.radians(58.3))), "e")], lat0=40.0)
+        >>> [it[2] for _, it in g.within(58.3, lng0, 35.0)]       # 34.5 m due east: one cell over is 34.3 m
+        ['e']
+        """
         ci, cj = int(lat // self.dlat), int(lng // self.dlng)
         k = int(r // self.cell_m) + 1
+        kx = int(r // (self.dlng * 111320.0 * max(math.cos(math.radians(lat)), 1e-9))) + 1
         out = []
         for i in range(ci - k, ci + k + 1):
-            for j in range(cj - k, cj + k + 1):
+            for j in range(cj - kx, cj + kx + 1):
                 for it in self.b.get((i, j), ()):
                     d = haversine_m(lat, lng, it[0], it[1])
                     if d <= r:
@@ -214,7 +234,7 @@ def project(pano_lat, pano_lng, heading_deg, lat, lng, camera_h=None):
     """
     from rampnet.gsv import heading_to_azimuth
     h = CAMERA_HEIGHT_M if camera_h is None else camera_h
-    az, _, d = GEOD.inv(pano_lng, pano_lat, lng, lat)
+    az, _, d = geod().inv(pano_lng, pano_lat, lng, lat)
     rel = az - heading_to_azimuth(heading_deg)
     x = (0.5 + rel / 360.0) % 1.0
     y = 0.5 + math.degrees(math.atan2(h, d)) / 180.0
@@ -290,7 +310,7 @@ def cmd_sample(a):
                                  for k in ("sdot", "regions")},
             "seed": SEED, "strata": [(s, n) for s, n, _ in STRATA], "pool": len(rows),
             "phase1_excluded": len(excl), "phase1_sheet": bool(a.phase1_sheet), "sampled": len(out)}
-    json.dump(meta, open(os.path.join(a.out, "sample_meta.json"), "w", encoding="utf-8"), indent=1)
+    json.dump(meta, open(os.path.join(a.out, "sample_meta.json"), "w", encoding="utf-8", newline="\n"), indent=1)
     log(f"{len(out)} sampled from {len(rows)} current SDOT crosswalks ({len(excl)} excluded as Phase 1) -> {SAMPLE_CSV}")
 
 
@@ -486,7 +506,7 @@ def cmd_fetch(a):
                 return
             heading = get_pano_heading(pid)
             cv2.imwrite(os.path.join(pix, pid + ".jpg"), equi, [cv2.IMWRITE_JPEG_QUALITY, 92])
-            with open(os.path.join(pix, pid + ".json"), "w", encoding="utf-8") as f:   # written last = done marker
+            with open(os.path.join(pix, pid + ".json"), "w", encoding="utf-8", newline="\n") as f:   # written last = done marker
                 json.dump({"pano_id": pid, "heading": heading, "shape": list(equi.shape),
                            "streetlevel_heading_deg": r.get("streetlevel_heading_deg"),
                            "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}, f)

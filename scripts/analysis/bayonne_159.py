@@ -711,7 +711,13 @@ MIN_LEGS = 2
 #: most candidates are OWLv2 + Grounding DINO alone (``candidates.json``,
 #: ``if_dense_legs_vote``). They are
 #: reported beside each candidate as support, never as a vote.
-SUPPORT_ONLY = ("owlv2", "gdino")
+DENSE_LEGS = ("owlv2", "gdino")
+#: Molmo2-8B is support-only as well (Jon, 2026-11-11). It is not dense by the roster's
+#: measure, but on this split it emits 2.84 points per pano at P 0.35 and agrees mostly
+#: with Qwen3-VL-8B (2.66 per pano, P 0.22): with it voting the list went from 11 to
+#: 102, 88 of the new ones resting on those two alone (``if_molmo_votes``), which is
+#: no longer a short second sweep.
+SUPPORT_ONLY = DENSE_LEGS + ("molmo2-8b",)
 
 
 def _d2(a, b):
@@ -788,16 +794,18 @@ def build_candidates():
     cands = candidate_misses(peaks, legs, radius_sq_for(), band, support_only=SUPPORT_ONLY)
     for c in cands:
         c["group"] = strata.get(c["pano"])
-    # The counterfactual that justifies SUPPORT_ONLY: let the dense legs vote too.
+    # The counterfactuals that justify SUPPORT_ONLY: let the dense legs vote too
+    # (everything votes), and let Molmo alone back in.
     voting = candidate_misses(peaks, legs, radius_sq_for(), band)
-    dense_only = sum(1 for c in voting if set(c["legs"]) <= set(SUPPORT_ONLY))
-    lt2_sparse = sum(1 for c in voting if len(set(c["legs"]) - set(SUPPORT_ONLY)) < MIN_LEGS)
+    dense_only = sum(1 for c in voting if set(c["legs"]) <= set(DENSE_LEGS))
+    lt2_sparse = sum(1 for c in voting if len(set(c["legs"]) - set(DENSE_LEGS)) < MIN_LEGS)
+    molmo_votes = candidate_misses(peaks, legs, radius_sq_for(), band, support_only=DENSE_LEGS)
     return {
         "what": "Reviewer-attention list, NOT ground truth: locations where RampNet has no "
                 f"peak >= {RAMPNET_SILENT_BELOW} within the 0.022 match radius and >= "
                 f"{MIN_LEGS} challenger legs agree within it, not counting the dense "
-                "open-vocabulary legs (OWLv2, Grounding DINO), which are listed as support "
-                "only. Read after judging a pano, as a second sweep, so it does not steer "
+                "open-vocabulary legs (OWLv2, Grounding DINO) or Molmo2-8B, which are listed "
+                "as support only. Read after judging a pano, as a second sweep, so it does not steer "
                 "the first look.",
         "legs_run": ran, "legs_not_run": not_run,
         "n_candidates": len(cands),
@@ -805,6 +813,10 @@ def build_candidates():
         "if_dense_legs_vote": {"n_candidates": len(voting),
                                "n_from_dense_legs_only": dense_only,
                                "n_with_fewer_than_2_non_dense_legs": lt2_sparse},
+        "if_molmo_votes": {"n_candidates": len(molmo_votes),
+                           "n_on_molmo_and_qwen_alone": sum(
+                               1 for c in molmo_votes
+                               if set(c["legs"]) == {"molmo2-8b", "qwen3-vl-8b"})},
         "n_in_nadir_band": sum(c["in_nadir_band"] for c in cands),
         "candidates": cands,
     }

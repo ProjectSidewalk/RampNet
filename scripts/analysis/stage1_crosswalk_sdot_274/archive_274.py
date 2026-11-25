@@ -149,7 +149,7 @@ SOURCES = [
      "export_benchmark.py)", "jsonl"),
     # crosswalk_s5 (Juneau look-alike mining), added 2026-11-10. s5 failed guard 6; s4 stays.
     ("s5_mine/store_natives", f"{SK}/s5-mine/store", "the 300 Juneau panos drawn for look-alike mining, streamed "
-     "read-only from the PS store (juneau_store.tar sha256 4709a00f... in s5_mine/work)", "jpg"),
+     "read-only from the PS store (juneau_store.tar sha256 in the repo)", "jpg"),
     ("s5_mine/panos_4096", f"{SK}/s5-mine/prep_4096", "the same, 4096x2048 as inferred; the 102 that carry points "
      "are root_v5's new train JPEGs, byte for byte", None),
     ("s5_mine/work", f"{SK}/s5-mine", "inference logs and the pulled tars' sha256 files", "log"),
@@ -293,7 +293,7 @@ def load_manifest(out):
 
 def write_manifest(out, entries, extra):
     files = sorted(entries.values(), key=lambda e: e["path"])
-    with open(os.path.join(out, "manifest.json.tmp"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "manifest.json.tmp"), "w", encoding="utf-8", newline="\n") as f:
         json.dump({"archive": ARCHIVE, "written_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                    **extra, "files": files}, f, indent=1)
     os.replace(os.path.join(out, "manifest.json.tmp"), os.path.join(out, "manifest.json"))
@@ -362,7 +362,7 @@ def cmd_natives(a):
     rs = sorted(rows.values(), key=lambda r: (r["city"], r["pano_id"]))
     import csv
     with open(os.path.join(a.out, "store_natives.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rs[0]))
+        w = csv.DictWriter(f, fieldnames=list(rs[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(rs)
     with open(os.path.join(a.out, "store_natives.SHA256SUMS"), "w", encoding="utf-8", newline="\n") as f:

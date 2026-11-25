@@ -434,8 +434,12 @@ def add_negative_weight(weight, points_normalized, negative_points, heatmap_shap
     """Turn on the loss inside each verified negative's disc (radius ceil(3*sigma) heatmap px):
     the target there is 0, so the pano teaches "not this" at that spot even where its mode would
     not (a sparse pano's background, an ignore point or box). A pixel nearer a positive than every
-    negative keeps its weight -- positives win ties, as for ignore points. Discs do not wrap the
-    seam, as in the target. Returns a new (1, H, W) float32 tensor.
+    negative is never switched on -- positives win ties, as for ignore points. The weight is only
+    ever raised (torch.maximum), and a positive's disc already has weight 1 in every mode except
+    where an ignore point nearer still has zeroed it, so that is the one place the `d_neg < d_pos`
+    term changes anything: an ignore point between a positive and a negative keeps the positive's
+    side ignored. Discs do not wrap the seam, as in the target. Returns a new (1, H, W) float32
+    tensor.
 
     >>> import torch
     >>> w = add_negative_weight(torch.zeros(1, 512, 1024), [], [(0.5, 0.5)])
