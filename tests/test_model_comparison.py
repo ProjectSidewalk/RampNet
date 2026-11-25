@@ -1705,6 +1705,37 @@ def test_the_launchers_example_uses_the_as_run_max_tokens():
     assert "-MaxTokens 32000" not in text
 
 
+def _launcher_code():
+    """The script after its comment-based help, so help text cannot satisfy a check."""
+    _, text = _launcher_text()
+    return text.split("#>", 1)[1]
+
+
+def test_the_launcher_passes_effort_and_max_tokens_to_compare():
+    """-Effort and -MaxTokens are accepted, and the refusal below trusts -MaxTokens; if
+    the compare.py call then dropped either, the leg would run at low effort or at the
+    default 4096 -- the paid-and-not-cached case the refusal exists for. Executing the
+    call would be a paid run, so the call's text is checked (review 2 of #299)."""
+    code = _launcher_code()
+    start = code.index("& $Python (Join-Path $code 'scripts\\model_comparison\\compare.py')")
+    call = code[start:code.index("2>&1", start)]
+    assert "--claude-effort $Effort" in call
+    assert "@extra" in call
+    assert "--claude-effort low" not in code
+    setup = "if ($MaxTokens -gt 0) { $extra = @('--claude-max-tokens', \"$MaxTokens\") }"
+    assert code.count(setup) == 1 and code.index(setup) < start
+    assert code.count("$extra =") == 2                 # the empty default, then the setup
+
+
+def test_the_launchers_refusal_comes_before_the_key_and_the_ledger():
+    """The refusal's comment says it runs before anything else; the subprocess test
+    below relies on that to be safe, so its position is checked too."""
+    code = _launcher_code()
+    guard = code.index("needs -MaxTokens")
+    for later in ("GetEnvironmentVariable(", "Get-Content", "& $Python", "Get-MainCheckout"):
+        assert guard < code.index(later), later
+
+
 @pytest.mark.parametrize("effort", ["high", "xhigh", "max"])
 def test_the_launcher_refuses_high_effort_without_max_tokens(tmp_path, effort):
     """At high effort and above, a call can think past compare.py's default 4096 and is

@@ -258,6 +258,24 @@ def _prose_figures(results):
           for leg in M.LEGS}
     f["thinking"] = (f"about {round(th[M.HIGH], -1):.0f} thinking tokens per call against "
                      f"about {round(th[M.LOW], -1):.0f}")
+    # The prose that restates a table cell, anchored to its sentence, so a prose edit cannot
+    # hide behind the same figure in a table row (review 2 of #299).
+    f["us_line"] = (f"macro F1 {f['us_macro']}, {f['us_macro_iv']}; micro {f['us_micro_iv']}")
+    f["other_line"] = (f"macro {f['other_macro']}, {f['other_macro_iv']}; "
+                       f"micro {f['other_micro_iv']}")
+    f["all_line"] = (f"wash**: macro {_iv(every['high_minus_low_macro'])}, "
+                     f"micro {f['all_micro_iv']}")
+    worst = min(POOLED_SPLITS, key=lambda s: d[s]["diff"])
+    f["worst_us"] = f"{worst} drops the most ({d[worst]['diff']:+.3f})"
+    f["gainesville_line"] = f"gainesville's own interval excludes zero ({f['gainesville']})"
+    f["budapest_line"] = (f"budapest_district5 ({f['budapest']}, the one split where high is "
+                          f"clearly ahead)")
+    f["clovis_precision_line"] = f"almost all of it precision ({f['clovis_precision']})"
+    bpp = {s: {leg: ps[s]["boxes_emitted"][leg] / ps[s]["n_panos"] for leg in M.LEGS}
+           for s in M.SPLITS}
+    f["boxes_line"] = (f"(clovis {bpp['clovis'][M.LOW]:.2f} -> {bpp['clovis'][M.HIGH]:.2f} "
+                       f"per pano, annapolis {bpp['annapolis'][M.LOW]:.2f} -> "
+                       f"{bpp['annapolis'][M.HIGH]:.2f})")
     f["total"] = f"The 13 city splits cost ${results['high_total_usd']:.2f} at list price"
     f["total_source"] = f"| $/pano, thinking/call, ${results['high_total_usd']:.2f} |"
     return f, sc
@@ -289,6 +307,101 @@ def test_the_docs_prose_figures_are_what_results_json_says(results):
     # The two splits where Claude beats RampNet with an interval that excludes zero.
     beats = {s for s in M.SPLITS if ps[s]["rampnet_minus_high"]["ci95"][1] < 0}
     assert beats == {"laurens_mapillary", "bayonne"}
+
+
+def test_the_docs_run_to_run_caveat_is_stated_and_true(results):
+    """The Result section's opening caveat (the fix for finding 1 of review 1), checked
+    against the code and the ledger it describes, and the #276 scale figure against the
+    committed replicate table it cites."""
+    import detectors
+    with open(DOC, encoding="utf-8") as fh:
+        doc = _flat(fh.read())
+    assert "**Every interval here resamples panos only.**" in doc
+    assert detectors.CLAUDE_AS_RUN_TEMPERATURE is None
+    assert "(`CLAUDE_AS_RUN_TEMPERATURE = None` in `detectors.py`, not greedy)" in doc
+    # The two legs' run dates, from their ledger rows.
+    from datetime import date
+    rows = M.read_rows(M.LEDGER)
+    low = sorted({r["ts"][:10] for r in rows if r.get("model_id") == "claude-opus-5-5"
+                  and (r.get("signature") or {}).get("effort") == "low"
+                  and r.get("api_account") and r["ts"] < "2026-10-21"
+                  and r["bundle"] in M.SPLITS})
+    high = sorted({r["ts"][:10] for r in _high_rows() if r["bundle"] in M.SPLITS})
+    assert low == ["2026-10-19", "2026-10-20"] and high == ["2026-11-17"]
+    gap = (date.fromisoformat(high[0]) - date.fromisoformat(low[-1])).days
+    assert 25 <= gap <= 31, gap
+    assert "ran four weeks apart (low on 2026-10-19/20, high on 2026-11-17)" in doc
+    # The US result is worded as one run's result, not as settled.
+    assert ("**High effort gives no gain on the nine pooled US cities, and is lower in this "
+            "run**") in doc
+    assert "is worse" not in doc and "worse on the nine" not in doc
+    # The #276 replicate range: three runs of the zero-shot leg on a two-split pool.
+    with open(os.path.join(REPO, "analysis_out", "prompt_opt_276", "rewrite_replicates.json"),
+              encoding="utf-8") as fh:
+        rep = json.load(fh)
+    spread = rep["spread"]["zs"]["range"]
+    assert len(rep["runs"]) == 3 and len(rep["pool"]) == 2
+    assert (f"three runs of one zero-shot Gemini leg on a two-split pool spanned "
+            f"{spread:.3f} in macro F1") in doc
+    # "larger than either pooled difference below"
+    assert spread > max(abs(results[k]["high_minus_low_macro"]["diff"])
+                        for k in ("pooled_us", "pooled_other"))
+    assert "larger than either pooled difference below" in doc
+
+
+def test_the_docs_timing_is_what_the_ledger_says():
+    """'21 s per pano per stream in practice, against 24.7 s in the 5-pano calibration':
+    the full-split rows' elapsed over their panos, and the one 5-pano high-effort row."""
+    with open(DOC, encoding="utf-8") as fh:
+        doc = _flat(fh.read())
+    rows = [r for r in _high_rows() if r["bundle"] in M.SPLITS]
+    cal = [r for r in rows if r["panos_called"] == 5]
+    full = [r for r in rows if r["panos_called"] > 5]
+    assert len(cal) == 1 and len(full) == 13
+    per = sum(r["elapsed_s"] for r in full) / sum(r["panos_called"] for r in full)
+    assert (f"{per:.0f} s per pano per stream in practice, against "
+            f"{cal[0]['s_per_pano']:.1f} s in the 5-pano calibration") in doc
+
+
+def test_the_figure_draws_the_committed_micro_intervals(results, tmp_path, monkeypatch):
+    """The forest plot, drawn into a temporary file, with its axes captured: every split's
+    dot and bar are that split's high-minus-low interval, and the three pooled diamonds
+    are the MICRO intervals their "(micro)" labels promise, in run order."""
+    matplotlib = pytest.importorskip("matplotlib")
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    captured = {}
+    real = plt.subplots
+
+    def spy(*a, **k):
+        fig, ax = real(*a, **k)
+        captured["fig"], captured["ax"] = fig, ax
+        return fig, ax
+    monkeypatch.setattr(plt, "subplots", spy)
+    monkeypatch.setattr(M, "FIGURE", str(tmp_path / "forest.png"))
+    # figures() prints the path relative to the repo, which raises on Windows when the
+    # temporary directory is on another drive.
+    monkeypatch.setattr(M.os.path, "relpath", lambda p, start=None: p)
+    M.figures()
+    ax = captured["ax"]
+    try:
+        assert (tmp_path / "forest.png").exists()
+        dots = [ln.get_xdata()[0] for ln in ax.lines if ln.get_marker() == "o"]
+        diamonds = [ln.get_xdata()[0] for ln in ax.lines if ln.get_marker() == "D"]
+        bars = [list(ln.get_xdata()) for ln in ax.lines
+                if len(ln.get_xdata()) == 2 and ln.get_marker() in (None, "None", "")
+                and ln.get_ydata()[0] == ln.get_ydata()[1]]
+        pools = ("pooled_us", "pooled_other", "pooled_all_cities")
+        ivs = [results["per_split"][s]["high_minus_low"] for s in results["splits"]]
+        ivs += [results[k]["high_minus_low"] for k in pools]
+        assert dots == [iv["diff"] for iv in ivs[:-3]]
+        assert diamonds == [iv["diff"] for iv in ivs[-3:]]
+        assert bars == [iv["ci95"] for iv in ivs]
+        labels = [t.get_text() for t in ax.get_yticklabels()]
+        assert labels[-3:] == ["Pooled (micro): 9 US cities", "Pooled (micro): 4 other cities",
+                               "Pooled (micro): all 13 cities"]
+    finally:
+        plt.close(captured["fig"])
 
 
 def test_the_days_other_ledger_rows_are_what_the_doc_says():
