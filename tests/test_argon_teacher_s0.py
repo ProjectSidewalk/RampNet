@@ -192,6 +192,17 @@ def test_match_radius_2R_read():
     assert (at_2r["tp"], at_2r["fp"], at_2r["blind_kept"], at_2r["ss_kept"]) == (1, 0, 1, 1)
 
 
+def test_candidate_table_scores_at_R_by_default(monkeypatch):
+    # the filters() path: a box 1.5R from the ramp is an FP unless 2R is asked for
+    monkeypatch.setattr(a, "SPLITS", ("toy",))
+    d = {"toy": _split([(0.5, 0.6)])}
+    cands, tests = a.candidates(THR)
+    rows = [_row(0.5 + 1.5 * R, 0.6)]
+    one = [c for c in cands if c[0] == "f5_elev"]
+    assert (a.candidate_table(d, rows, one, tests)["f5_elev"]["toy"]["fp"]) == 1
+    assert (a.candidate_table(d, rows, one, tests, match_r_sq=a.R2_SQ)["f5_elev"]["toy"]["tp"]) == 1
+
+
 # ---- base counts -------------------------------------------------------------------- #
 def test_base_counts_blind_strict_silent_reached(monkeypatch):
     # g0: nothing near, Argon box 0.5R off -> blind, strict-silent, reached (both)
