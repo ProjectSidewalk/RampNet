@@ -219,7 +219,8 @@ def test_unknown_and_inconsistent_modes_are_errors(tmp_path):
     with pytest.raises(ValueError, match="ignore_points"):
         mod.supervision_mode({"supervision": {"mode": "sparse", "ignore_points": [0.1]}},
                              [(0.5, 0.5)])
-    assert mod.SUPERVISION_MODES == ("sparse", "verified_empty")
+    # #274 added 'dense_ignore' (tests/test_dense_ignore_274.py); the #263 modes are unchanged.
+    assert mod.SUPERVISION_MODES == ("sparse", "verified_empty", "dense_ignore")
     bad = _sparse([[0.5, 0.5]])
     bad["supervision"]["mode"] = "Sparse"
     ds = _dataset(mod, _one_pano(str(tmp_path), bad), loss_mask=True,

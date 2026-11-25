@@ -505,3 +505,66 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 | 42152687 | score the #82 controls on bayonne and juneau | 1 A40 | 9 m 04 s | 0.15 |
 
 Training 34.20 GPU-h, 3.48 of it in the three failed runs; scoring 3.10 GPU-h.
+
+## klone, 2026-11-04 to 2026-11-09: the #274 crosswalk detector, 84.09 GPU-hours, $0
+
+Every klone allocation of the Stage 1 crosswalk detector study
+([`stage1_crosswalk_sdot_274.md`](stage1_crosswalk_sdot_274.md)): the training runs of
+`crosswalk_s1` to `crosswalk_s5` (three seeds for s1, s3, s4 and s5), their smoke runs, and every
+inference job (val/test, (b′), the confirmation cities, the PS-label probe, Columbia, Bayonne,
+the Juneau draws and the hard-negative mining). All on `ckpt-all`, so free. This was recorded
+late: the runs finished on 2026-11-09 and the pull was made on 2026-11-24, during review of
+#300. Pulled on 2026-11-24 (Pacific; the rows' `recorded_at` is 2026-11-25 UTC) into
+`docs/data/compute/sacct_klone_2026-11-24_crosswalk274.txt` (11,471 bytes, sha256
+`e9a53ad12c724fc54d133d506461a1cb93342aac8f0ea44eb0e8b76939540543`) on a klone login node.
+The records are every job named `cw274*` or `crosswalk274*` on the account since 2026-11-01;
+every job id the study doc names is among them:
+
+```bash
+sacct -X -D -P -n -u jfroehli -S 2026-11-01 \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    | awk -F'|' '$2 ~ /^(cw274|crosswalk274)/' > sacct_klone_2026-11-24_crosswalk274.txt
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-11-24_crosswalk274.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+Training, 4 GPUs per job, 1,000 optimizer steps unless a smoke run:
+
+| job | what | state | GPUs | wall-clock | GPU-h |
+| :--- | :--- | :--- | :--- | ---: | ---: |
+| 42846045 | s1 smoke | COMPLETED | 4 A40 | 2 m 43 s | 0.18 |
+| 42847503 | s1, first submission (cause not checked) | FAILED | 4 L40S | 32 s | 0.04 |
+| 42850559 | `crosswalk_s1` | COMPLETED | 4 A40 | 1 h 34 m 46 s | 6.32 |
+| 42951523 | `crosswalk_s2` | COMPLETED | 4 A40 | 1 h 34 m 40 s | 6.31 |
+| 43016471 | s3 smoke | COMPLETED | 4 A40 | 2 m 32 s | 0.17 |
+| 43017597 | `crosswalk_s3` | COMPLETED | 4 L40 | 1 h 14 m 04 s | 4.94 |
+| 43057106 | `crosswalk_s1_seed2` | COMPLETED | 4 A40 | 1 h 34 m 09 s | 6.28 |
+| 43057107 | `crosswalk_s1_seed3` | COMPLETED | 4 L40 | 1 h 14 m 54 s | 4.99 |
+| 43057108 | `crosswalk_s3_seed2` | COMPLETED | 4 A40 | 1 h 34 m 59 s | 6.33 |
+| 43057109 | `crosswalk_s3_seed3` | COMPLETED | 4 A40 | 1 h 34 m 07 s | 6.27 |
+| 43075000 | s4 smoke | COMPLETED | 4 L40 | 2 m 29 s | 0.17 |
+| 43075001 | `crosswalk_s4` (seed 1, adopted) | COMPLETED | 4 A40 | 1 h 33 m 28 s | 6.23 |
+| 43075002 | `crosswalk_s4_seed2` | COMPLETED | 4 L40 | 1 h 13 m 42 s | 4.91 |
+| 43075003 | `crosswalk_s4_seed3` | COMPLETED | 4 L40 | 1 h 13 m 57 s | 4.93 |
+| 43086260 | s5 smoke | COMPLETED | 4 L40S | 2 m 24 s | 0.16 |
+| 43086644 | `crosswalk_s5` (seed 1), incarnation 1 | PREEMPTED | 4 A40 | 50 m 17 s | 3.35 |
+| 43086644 | the same, incarnation 2 | PREEMPTED | 4 A40 | 27 s | 0.03 |
+| 43086644 | the same, incarnation 3 (resumed) | COMPLETED | 4 A40 | 47 m 55 s | 3.19 |
+| 43086645 | `crosswalk_s5_seed2` | COMPLETED | 4 A40 | 1 h 33 m 22 s | 6.22 |
+| 43086646 | `crosswalk_s5_seed3` | COMPLETED | 4 A40 | 1 h 32 m 50 s | 6.19 |
+
+Inference, 1 GPU per job:
+
+| jobs | what | records | GPU-h |
+| :--- | :--- | ---: | ---: |
+| 42861556-43063884 | s1 to s3: val/test, (b′), mining, cities, PS labels, the seed replicates | 20 | 4.45 |
+| 43076556-43076588 | s4: three seeds on val/test, (b′), cities, PS labels, Columbia, Bayonne | 12 | 1.44 |
+| 43093845-43093854 | s5: the same, plus the fresh Juneau eval draw for s4 and s5 | 10 | 0.99 |
+
+Training 77.22 GPU-h over 20 records (one of them the 32 s failure, four of them smoke runs);
+inference 6.87 GPU-h over 42 jobs. A training run takes about 6.3 GPU-hours on A40s and 4.9 on
+L40s. s5 seed 1 was preempted at 50 min and resumed from its checkpoint, so part of incarnation
+1's 3.35 GPU-hours carried into the finished run. The #274 work that ran on the local RTX 3070
+(the Vistas placement passes, `bprime-prep`, the klone-vs-local inference check) has no Slurm
+record and no `usage_log.jsonl` row; the study doc says so beside those steps.

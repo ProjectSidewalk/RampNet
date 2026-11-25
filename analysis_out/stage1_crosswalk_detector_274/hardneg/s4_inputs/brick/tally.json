@@ -1,0 +1,57 @@
+{
+ "trust_min": 0.95,
+ "trust": {
+  "sample_brick": {
+   "agree": 120,
+   "n": 120,
+   "trusted": true
+  },
+  "sample_paint": {
+   "agree": 39,
+   "n": 40,
+   "trusted": true
+  }
+ },
+ "jon_by_group": {
+  "ai_not_crosswalk/crosswalk": 55,
+  "ai_not_crosswalk/not_crosswalk": 10,
+  "ai_not_crosswalk/unsure": 12,
+  "ai_unsure/crosswalk": 114,
+  "ai_unsure/unsure": 7,
+  "sample_brick/crosswalk": 120,
+  "sample_paint/crosswalk": 39,
+  "sample_paint/unsure": 1
+ },
+ "basis": {
+  "ai_trusted_brick/kept": 51,
+  "ai_trusted_brick_edge_lines/kept": 326,
+  "ai_trusted_paint/kept": 188,
+  "jon_crosswalk/kept": 328,
+  "jon_not_crosswalk/dropped": 10,
+  "jon_unsure/dropped": 20
+ },
+ "labels": 923,
+ "positives": 893,
+ "positive_panos": 559,
+ "positives_by_city": {
+  "chicago-il": 424,
+  "cuenca": 246,
+  "gainesville-fl": 88,
+  "columbus-oh": 44,
+  "pittsburgh-pa": 39,
+  "knox-oh": 15,
+  "maywood-nj": 11,
+  "oradell-nj": 6,
+  "danville-il": 5,
+  "niagara-falls-ny": 3,
+  "west-chester-pa": 3,
+  "st-louis-mo": 2,
+  "auckland": 1,
+  "cdmx": 1,
+  "cliffside-park-nj": 1,
+  "clifton-nj": 1,
+  "la-ca": 1,
+  "santiago-chile": 1,
+  "tucson-az": 1
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "city": "amsterdam",
+ "confirm_rule": "O&P",
+ "counts": {
+  "crowd_pos": 1951,
+  "crowd_unconfirmed": 893,
+  "vistas_unexplained": 25543,
+  "crowd_neg": 102,
+  "crowd_conflict": 10
+ }
+}

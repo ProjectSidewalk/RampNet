@@ -1,0 +1,924 @@
+label_uid,city,label_id,pano_id,x,y,agree,disagree,tags,user_id,capture_date,lat,lng
+auckland:4148,auckland,4148,yN1Q6LE8KCGzvDWThVQzug,0.5955,0.6287,3,0,"[""brick/cobblestone""]",0caede2f-590e-434a-b6c2-bf11cce06f03,2023-01,-36.877921323149025,174.85707402350096
+cdmx:71586,cdmx,71586,J_Oa5p6VVo7pgjUDvOXAVQ,0.1765,0.6609,1,1,"[""paint fading"",""brick/cobblestone""]",21e93642-cc01-4dcc-8e51-26ac0009bc13,2024-07,19.476927766054324,-99.21154105075979
+chicago-il:10902,chicago-il,10902,vkrJvywqxcXIOD9c9uRrMQ,0.0538,0.6132,6,2,"[""brick/cobblestone"",""bumpy"",""paint fading""]",e6e3d629-d120-488a-a540-ac9574b1abec,2021-08,41.7750856049615,-88.14944021886552
+chicago-il:10909,chicago-il,10909,mTIlWdTas1cNHkOGzLHPvA,0.0341,0.5952,5,0,"[""brick/cobblestone""]",e6e3d629-d120-488a-a540-ac9574b1abec,2021-08,41.77462245536627,-88.14946663791828
+chicago-il:10912,chicago-il,10912,vqWWF2PxMX_VUNpTVzpAhA,0.0155,0.5792,8,0,"[""brick/cobblestone""]",e6e3d629-d120-488a-a540-ac9574b1abec,2021-08,41.77414491200496,-88.1494809473681
+chicago-il:10915,chicago-il,10915,VVtCp_7zcQQ7dSCOaQaa1A,0.1339,0.5614,8,0,"[""brick/cobblestone"",""paint fading""]",e6e3d629-d120-488a-a540-ac9574b1abec,2021-08,41.77406536161949,-88.14957706319571
+chicago-il:10918,chicago-il,10918,RToDU43354TJaqeZc_mSCg,0.0668,0.6438,7,1,"[""brick/cobblestone""]",e6e3d629-d120-488a-a540-ac9574b1abec,2021-08,41.774001375027446,-88.14950102242526
+chicago-il:10921,chicago-il,10921,T4SD-NdbBVdVbhfwfSS_GA,0.0251,0.5774,7,1,"[""brick/cobblestone"",""paint fading""]",e6e3d629-d120-488a-a540-ac9574b1abec,2021-09,41.77403187264065,-88.14863851944608
+chicago-il:13444,chicago-il,13444,GEpdO2WIOEkhrGJibcN4zA,0.2459,0.5822,5,3,"[""brick/cobblestone""]",764832d2-0f17-4cc6-b405-138edc36f50f,2016-10,41.77839239134288,-88.14962509505084
+chicago-il:23966,chicago-il,23966,Z326aXTTu5lGepJPcSdSGQ,0.7072,0.6035,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-06,41.8657996430536,-87.62396525542468
+chicago-il:23974,chicago-il,23974,Z326aXTTu5lGepJPcSdSGQ,0.1122,0.5991,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-06,41.86573431339793,-87.62410394006834
+chicago-il:23978,chicago-il,23978,c_LOTysGP12GuFxv7wNMZA,0.7917,0.5687,2,0,"[""brick/cobblestone"",""broken surface"",""bumpy"",""uneven surface""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-08,41.86578512281982,-87.62424732223504
+chicago-il:23980,chicago-il,23980,0xN4Mrc2GMbM6KjKMOffQw,0.3856,0.5682,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,41.865855535141385,-87.62415617786287
+chicago-il:24961,chicago-il,24961,kZtsbQ5igoIai4I7ecvJLg,0.0164,0.5621,3,0,"[""brick/cobblestone"",""paint fading""]",325198df-cddc-44ee-a87e-c831c3147aa0,2018-06,41.854296793308585,-87.62371307794709
+chicago-il:25188,chicago-il,25188,JN0Y2VrBUrJ9cMLBOYoxjQ,0.483,0.572,2,0,"[""brick/cobblestone"",""uneven surface""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-08,41.8492922766964,-87.62358946128178
+chicago-il:25189,chicago-il,25189,JN0Y2VrBUrJ9cMLBOYoxjQ,0.801,0.6003,2,0,"[""brick/cobblestone"",""paint fading""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-08,41.849215183533786,-87.62373332522392
+chicago-il:25190,chicago-il,25190,JN0Y2VrBUrJ9cMLBOYoxjQ,0.0168,0.5723,3,0,"[""brick/cobblestone"",""paint fading""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-08,41.84928209954951,-87.623832831701
+chicago-il:25234,chicago-il,25234,wa7nC_q3meLMcC0NN54Z3g,0.7864,0.6593,2,1,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",325198df-cddc-44ee-a87e-c831c3147aa0,2018-10,41.84847278084267,-87.62369820471666
+chicago-il:29315,chicago-il,29315,gUo0eOwXTIpUZfYG8idi4Q,0.2558,0.5519,2,1,"[""brick/cobblestone""]",5f57de79-b5b8-491b-a817-8aa31dc86ea8,2021-08,41.857884810600375,-87.62379553391536
+chicago-il:29317,chicago-il,29317,gUo0eOwXTIpUZfYG8idi4Q,0.7742,0.5721,1,1,"[""brick/cobblestone""]",5f57de79-b5b8-491b-a817-8aa31dc86ea8,2021-08,41.85789960936769,-87.62408386366026
+chicago-il:31577,chicago-il,31577,LSP1SnvdfKu3kJUuEoyjDw,0.3655,0.6049,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2016-09,41.99796680136116,-87.6735114088295
+chicago-il:31578,chicago-il,31578,LSP1SnvdfKu3kJUuEoyjDw,0.5838,0.5655,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2016-09,41.998021524255144,-87.673635521495
+chicago-il:31581,chicago-il,31581,LSP1SnvdfKu3kJUuEoyjDw,0.0937,0.7194,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2016-09,41.998027800748325,-87.6734656715491
+chicago-il:31584,chicago-il,31584,LSP1SnvdfKu3kJUuEoyjDw,0.7157,0.5736,1,0,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2016-09,41.998089850955196,-87.67358668103026
+chicago-il:31804,chicago-il,31804,9wj-tXQBq5kHCbcvdESoJA,0.8851,0.5754,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.997979698645736,-87.67199118050482
+chicago-il:31805,chicago-il,31805,O9vFVCLEv-QbAzXB0VW2-w,0.0251,0.5601,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.9980532962957,-87.6721745181941
+chicago-il:31892,chicago-il,31892,1y8SzUxtW8-E5uWZsPSZAw,0.0585,0.5947,1,0,"[""brick/cobblestone"",""broken surface""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.98444756121318,-87.66906858873837
+chicago-il:31895,chicago-il,31895,1y8SzUxtW8-E5uWZsPSZAw,0.8433,0.5793,3,0,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.984392803228175,-87.6689635801497
+chicago-il:31899,chicago-il,31899,1y8SzUxtW8-E5uWZsPSZAw,0.6272,0.5837,2,0,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.98447158575516,-87.66887834320336
+chicago-il:31902,chicago-il,31902,1y8SzUxtW8-E5uWZsPSZAw,0.3771,0.604,1,0,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.984536280084036,-87.66898074768888
+chicago-il:31905,chicago-il,31905,6BHr4l3E09oUrhOn3szAmQ,0.2533,0.5741,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.984445091305055,-87.6690633313884
+chicago-il:31908,chicago-il,31908,6BHr4l3E09oUrhOn3szAmQ,0.0366,0.5834,2,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.984380493527794,-87.66895086975406
+chicago-il:31911,chicago-il,31911,6BHr4l3E09oUrhOn3szAmQ,0.7619,0.6078,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98446502911705,-87.66886530673553
+chicago-il:31914,chicago-il,31914,6BHr4l3E09oUrhOn3szAmQ,0.4758,0.5815,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98453498764216,-87.66898028758169
+chicago-il:31918,chicago-il,31918,CIZ5Q-aHA79hXxxjqZuyng,0.0291,0.6135,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98349430170873,-87.66886032851325
+chicago-il:31921,chicago-il,31921,CIZ5Q-aHA79hXxxjqZuyng,0.2657,0.5802,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98356781740588,-87.66877846288112
+chicago-il:31925,chicago-il,31925,CIZ5Q-aHA79hXxxjqZuyng,0.4933,0.578,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.983492972025324,-87.66867220054621
+chicago-il:31928,chicago-il,31928,CIZ5Q-aHA79hXxxjqZuyng,0.7095,0.5992,2,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.9834236285548,-87.66875972107903
+chicago-il:32106,chicago-il,32106,74OymSyk6tIJDs2GSrHbYQ,0.7575,0.5553,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-12,41.9865877799628,-87.66953297950728
+chicago-il:32114,chicago-il,32114,hokQke6DfiCS1ToBOywsgw,0.7314,0.5905,2,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98628377312706,-87.6693270340003
+chicago-il:32117,chicago-il,32117,hokQke6DfiCS1ToBOywsgw,0.0599,0.6301,4,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98621140067073,-87.66942807707494
+chicago-il:32121,chicago-il,32121,Ai6q1Q8wUCyfEHpv_KZu7w,0.2491,0.578,4,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.985955000706866,-87.66943732571609
+chicago-il:32123,chicago-il,32123,Ai6q1Q8wUCyfEHpv_KZu7w,0.4532,0.6055,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98602681493371,-87.66936687545034
+chicago-il:32126,chicago-il,32126,6SNNQI6r0gGAHMXo46JoKQ,0.9886,0.5681,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-12,41.9866235984623,-87.66966548900938
+chicago-il:32136,chicago-il,32136,PnMsX3SSPoAguG26aLuVFA,0.1993,0.5728,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98513861048063,-87.66921388498153
+chicago-il:32138,chicago-il,32138,PnMsX3SSPoAguG26aLuVFA,0.4481,0.6653,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.985212551933806,-87.66912847577115
+chicago-il:32142,chicago-il,32142,voF2GLu9IuK7IKAfFuD30Q,0.1242,0.744,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98507052670245,-87.6691073050302
+chicago-il:32145,chicago-il,32145,mzTxf1tRuEzelTDelcdQ2A,0.7998,0.6001,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98543278381416,-87.66907991999364
+chicago-il:32148,chicago-il,32148,mzTxf1tRuEzelTDelcdQ2A,0.4749,0.593,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98550456027614,-87.66920058815167
+chicago-il:32150,chicago-il,32150,Ai6q1Q8wUCyfEHpv_KZu7w,0.0165,0.5812,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98589308732309,-87.66931479959902
+chicago-il:32207,chicago-il,32207,DiFFxb0JCssoVqMefc7t0w,0.3051,0.5668,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.99812545643706,-87.67228313557354
+chicago-il:32210,chicago-il,32210,DiFFxb0JCssoVqMefc7t0w,0.4747,0.5621,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.99805109583053,-87.67218426336511
+chicago-il:32214,chicago-il,32214,O9vFVCLEv-QbAzXB0VW2-w,0.7167,0.6091,2,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.99798194046373,-87.67200876584475
+chicago-il:32242,chicago-il,32242,1-g03jPbSaHEL5UNnZ6LvQ,0.6254,0.5958,1,0,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.9980682990071,-87.67501393406016
+chicago-il:32248,chicago-il,32248,XXf3KEujRtmmT782KAGuFg,0.0257,0.6855,4,0,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.99792799087163,-87.67500923331964
+chicago-il:32252,chicago-il,32252,fovot9af8Ka51Bk2Gg15Jw,0.0182,0.5621,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.998015811245395,-87.67366548554904
+chicago-il:32255,chicago-il,32255,fovot9af8Ka51Bk2Gg15Jw,0.7517,0.6177,2,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.99795057845061,-87.67352287438186
+chicago-il:32258,chicago-il,32258,fovot9af8Ka51Bk2Gg15Jw,0.4388,0.6298,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.99802373831369,-87.67346243107241
+chicago-il:32261,chicago-il,32261,fovot9af8Ka51Bk2Gg15Jw,0.1608,0.5615,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.998095316957745,-87.67360133872702
+chicago-il:32495,chicago-il,32495,Li9m9it9AuYXsbThd4hoqA,0.7339,0.5952,2,1,"[""brick/cobblestone"",""broken surface"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.98175341340088,-87.66843762750901
+chicago-il:32496,chicago-il,32496,Li9m9it9AuYXsbThd4hoqA,0.4911,0.5848,1,1,"[""brick/cobblestone"",""broken surface"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.98167977952783,-87.6685299562457
+chicago-il:32497,chicago-il,32497,Li9m9it9AuYXsbThd4hoqA,0.0198,0.6019,1,0,"[""brick/cobblestone"",""broken surface"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.981679034978946,-87.66834156813005
+chicago-il:32498,chicago-il,32498,Li9m9it9AuYXsbThd4hoqA,0.2505,0.5753,1,1,"[""brick/cobblestone"",""broken surface"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.98159833332119,-87.66842456337594
+chicago-il:32537,chicago-il,32537,1guBOl1hCdKUCpvKiWRUlA,0.7286,0.5626,2,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2023-08,41.93350111902464,-87.99275661038142
+chicago-il:34661,chicago-il,34661,Rqa-KD2eZoSLUtRnDC1yqw,0.0269,0.5503,2,0,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.99800079863679,-87.67490273617561
+chicago-il:34665,chicago-il,34665,1-g03jPbSaHEL5UNnZ6LvQ,0.3108,0.5656,3,1,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.99792669530802,-87.6750003681927
+chicago-il:35542,chicago-il,35542,GBz6VH4NyVivxoXzEZK7eg,0.4318,0.719,2,0,"[""brick/cobblestone"",""broken surface"",""bumpy"",""paint fading"",""uneven surface""]",7a463e30-0046-4f95-9b62-8d63f94f513b,2023-05,41.482929853333566,-87.69326415721017
+chicago-il:37736,chicago-il,37736,ze6aCNJROQqWQg5C7oe9Rg,0.9225,0.6085,1,0,"[""brick/cobblestone""]",39d17064-ada1-491c-9d03-04c5c21f7998,2019-06,41.96895718146576,-87.65887029483339
+chicago-il:38129,chicago-il,38129,JCZI6TAeGYagH-AFxXbL3Q,0.7753,0.6056,3,0,"[""brick/cobblestone""]",a410ad99-7e69-42b1-a9fc-2a07cc0e8fe9,2019-07,41.97322520930939,-87.65633072038504
+chicago-il:39107,chicago-il,39107,m9JxRaSSpkxmOVh56Nzfvw,0.2664,0.5824,1,0,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.977951893121165,-87.66835865633313
+chicago-il:39110,chicago-il,39110,m9JxRaSSpkxmOVh56Nzfvw,0.0145,0.5994,2,1,"[""brick/cobblestone"",""broken surface"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.9780267857469,-87.66826265379152
+chicago-il:39116,chicago-il,39116,m9JxRaSSpkxmOVh56Nzfvw,0.4891,0.5853,2,1,"[""brick/cobblestone"",""paint fading""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-07,41.978024080773665,-87.6684528929197
+chicago-il:39134,chicago-il,39134,8eJ8ifzLlmQXkXn1XfyPhg,0.2101,0.5548,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.97627815889493,-87.66841134535414
+chicago-il:39135,chicago-il,39135,8eJ8ifzLlmQXkXn1XfyPhg,0.4014,0.642,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.97619444329333,-87.66831289144851
+chicago-il:39139,chicago-il,39139,8eJ8ifzLlmQXkXn1XfyPhg,0.8831,0.5945,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.97611524879082,-87.66842074346292
+chicago-il:39143,chicago-il,39143,Kni6UAl0J5-5OuxYDcaEHw,0.0391,0.579,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.976178240151185,-87.66852851049525
+chicago-il:39384,chicago-il,39384,v-hhYNZsdgvxfom50lTafg,0.3759,0.5645,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2018-07,41.9689634488839,-87.65888785876015
+chicago-il:39406,chicago-il,39406,Or9IDcjXYlTvde-8KQ-gzg,0.3737,0.5625,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.975364045303046,-87.66832591493382
+chicago-il:39407,chicago-il,39407,Or9IDcjXYlTvde-8KQ-gzg,0.1976,0.5579,1,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.97527576911721,-87.66842652758548
+chicago-il:39408,chicago-il,39408,Or9IDcjXYlTvde-8KQ-gzg,0.9922,0.6155,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.9752138076337,-87.66830097338111
+chicago-il:39409,chicago-il,39409,Or9IDcjXYlTvde-8KQ-gzg,0.5764,0.6217,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.97529805742153,-87.66821876630111
+chicago-il:39412,chicago-il,39412,fZtUkZ2OmnUsvroBF9kuDQ,0.7965,0.6042,1,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.97437784082938,-87.66811542602377
+chicago-il:39415,chicago-il,39415,fZtUkZ2OmnUsvroBF9kuDQ,0.475,0.6107,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.97444389388807,-87.66821939849525
+chicago-il:39418,chicago-il,39418,fZtUkZ2OmnUsvroBF9kuDQ,0.2327,0.5743,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.974367560333995,-87.66831342561534
+chicago-il:39421,chicago-il,39421,fZtUkZ2OmnUsvroBF9kuDQ,0.024,0.5751,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.97430053918171,-87.66820064213908
+chicago-il:39425,chicago-il,39425,Kni6UAl0J5-5OuxYDcaEHw,0.2597,0.5537,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.97628307353746,-87.66841687076973
+chicago-il:39429,chicago-il,39429,Kni6UAl0J5-5OuxYDcaEHw,0.0488,0.5757,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.97618410632585,-87.66853188518287
+chicago-il:39434,chicago-il,39434,Kni6UAl0J5-5OuxYDcaEHw,0.4399,0.5862,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.97619330162164,-87.66832596536646
+chicago-il:39436,chicago-il,39436,Kni6UAl0J5-5OuxYDcaEHw,0.7911,0.6346,2,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2022-11,41.97611620775878,-87.66843196692432
+chicago-il:39443,chicago-il,39443,QKSMPYlnLF68zvZP13enuA,0.1532,0.5626,3,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.96828430261953,-87.65925305409067
+chicago-il:39444,chicago-il,39444,QKSMPYlnLF68zvZP13enuA,0.9976,0.6183,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.968241706894986,-87.65935624122034
+chicago-il:39448,chicago-il,39448,s7-gNPSdX89YvC-cFLeJ_Q,0.5294,0.6099,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2019-06,41.96792128726404,-87.65890823137485
+chicago-il:39693,chicago-il,39693,FWeX7JTYW8ITbY-eZqFvQw,0.5179,0.606,1,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.97983953656748,-87.6681810027237
+chicago-il:39694,chicago-il,39694,FWeX7JTYW8ITbY-eZqFvQw,0.1053,0.6327,1,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.979770833447134,-87.66828684194931
+chicago-il:39698,chicago-il,39698,FWeX7JTYW8ITbY-eZqFvQw,0.3728,0.5406,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.97992719044207,-87.66828508946516
+chicago-il:39699,chicago-il,39699,FWeX7JTYW8ITbY-eZqFvQw,0.2363,0.5505,1,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.979840745628195,-87.66838407720643
+chicago-il:39749,chicago-il,39749,I-najCFnaVsuQYoPCJVYsg,0.8162,0.613,2,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.983491547618776,-87.66864993611006
+chicago-il:39754,chicago-il,39754,I-najCFnaVsuQYoPCJVYsg,0.0705,0.5803,2,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.983426559068874,-87.6687534226105
+chicago-il:39760,chicago-il,39760,CIZ5Q-aHA79hXxxjqZuyng,0.0448,0.616,1,1,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98349945293619,-87.66885719263124
+chicago-il:39761,chicago-il,39761,CIZ5Q-aHA79hXxxjqZuyng,0.2514,0.5854,2,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.98356268143667,-87.66878816405418
+chicago-il:42145,chicago-il,42145,r_Z5G5olGAQfpjVXna0DXw,0.5021,0.5803,1,0,"[""brick/cobblestone""]",5e8fb69f-9e7c-443b-970b-4a08203a88f5,2021-11,41.966803737930306,-87.69806999795999
+chicago-il:43783,chicago-il,43783,6X0AswKuw_5JZQL2vZVlSw,0.2903,0.6005,1,0,"[""brick/cobblestone""]",3d6c6314-afd4-42d8-bf23-67dc811e3344,2019-07,42.01921296312733,-87.66824062061964
+chicago-il:43785,chicago-il,43785,6X0AswKuw_5JZQL2vZVlSw,0.0416,0.6488,1,0,"[""brick/cobblestone""]",3d6c6314-afd4-42d8-bf23-67dc811e3344,2019-07,42.019254552051635,-87.66815417439189
+chicago-il:43786,chicago-il,43786,781s2afd-GwF_cCrLr6fkQ,0.5278,0.7496,2,0,"[""brick/cobblestone""]",3d6c6314-afd4-42d8-bf23-67dc811e3344,2019-07,42.01946413083052,-87.6682453335922
+chicago-il:43790,chicago-il,43790,781s2afd-GwF_cCrLr6fkQ,0.9484,0.6151,0,0,"[""brick/cobblestone""]",3d6c6314-afd4-42d8-bf23-67dc811e3344,2019-07,42.01942453901959,-87.66815979340188
+chicago-il:50444,chicago-il,50444,Y73VeB8kXbqdbZoNETBCyg,0.5009,0.5894,2,0,"[""brick/cobblestone""]",f1681a10-a73b-461c-85db-b466ff56253b,2018-06,41.90846627346278,-87.69198489450007
+chicago-il:55720,chicago-il,55720,WGEjJ_JJMLuuffWEqy7idg,0.495,0.5295,0,0,"[""brick/cobblestone""]",41614964-cdd4-4b83-9f34-171f051593fd,2021-08,41.85281493363091,-87.62226274788488
+chicago-il:56805,chicago-il,56805,1l75NVlGu5ew4BTkMeTH-Q,0.7837,0.6078,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2024-05,41.96815725292061,-87.72803502295534
+chicago-il:56806,chicago-il,56806,1l75NVlGu5ew4BTkMeTH-Q,0.489,0.5961,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2024-05,41.96822199001796,-87.72792911716057
+chicago-il:56807,chicago-il,56807,1l75NVlGu5ew4BTkMeTH-Q,0.2974,0.556,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2024-05,41.96832855897719,-87.72797657541237
+chicago-il:56808,chicago-il,56808,1l75NVlGu5ew4BTkMeTH-Q,0.0426,0.5713,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2024-05,41.96823859178462,-87.72814024613086
+chicago-il:57466,chicago-il,57466,89YQAxYIf77qcz5XvIimUA,0.7928,0.5858,1,0,"[""brick/cobblestone"",""broken surface"",""paint fading""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2022-10,41.730061101006314,-87.55113998424324
+chicago-il:57468,chicago-il,57468,89YQAxYIf77qcz5XvIimUA,0.2551,0.5591,0,0,"[""brick/cobblestone"",""broken surface"",""paint fading""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2022-10,41.730080647589034,-87.55138880406781
+chicago-il:57488,chicago-il,57488,n9Di_5HUYh02x3GTi5w_Jg,0.8124,0.5862,0,0,"[""brick/cobblestone"",""broken surface"",""paint fading""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2021-11,41.72826415955793,-87.55132636669997
+chicago-il:57490,chicago-il,57490,n9Di_5HUYh02x3GTi5w_Jg,0.0533,0.5577,1,1,"[""brick/cobblestone"",""broken surface"",""paint fading""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2021-11,41.7283459585626,-87.55118524582144
+chicago-il:58204,chicago-il,58204,0ugL_mo2YPsT5VRzvDaWWg,0.0108,0.5864,0,0,"[""brick/cobblestone""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2021-08,41.910475983726144,-87.68235453729866
+chicago-il:58214,chicago-il,58214,0ugL_mo2YPsT5VRzvDaWWg,0.7669,0.5985,0,0,"[""brick/cobblestone""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2021-08,41.91040501859407,-87.68244605148449
+chicago-il:58261,chicago-il,58261,MLQx-GytBbY8_fj0dn_moA,0.9893,0.6292,0,0,"[""brick/cobblestone""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2019-08,41.91053452656149,-87.67999750124878
+chicago-il:58267,chicago-il,58267,Is47kgGan6jsAGcWx7CTfg,0.2321,0.5625,1,0,"[""brick/cobblestone""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2022-09,41.9103720817485,-87.6799098609374
+chicago-il:59574,chicago-il,59574,1NHaNsHGfHSHNFH7CVVtAg,0.0087,0.578,1,1,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.00920894146006,-87.66621555345718
+chicago-il:59588,chicago-il,59588,S251VvrYnH0CfROnkIPQSA,0.4999,0.6216,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.00800804140525,-87.66616751800728
+chicago-il:59592,chicago-il,59592,944MDCeMH6rAfYMWq3xa7g,0.7344,0.6268,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.00788102942144,-87.66623534168114
+chicago-il:59593,chicago-il,59593,944MDCeMH6rAfYMWq3xa7g,0.4666,0.6025,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.00781431293061,-87.66616492567184
+chicago-il:59607,chicago-il,59607,DQ33zfNJbu0WErJDyh2dVQ,0.444,0.6825,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.00788433542755,-87.66772722199515
+chicago-il:59610,chicago-il,59610,tFIbTOGeFP0yldZU1FldGA,0.7077,0.5659,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.007786508731144,-87.66785282777558
+chicago-il:59622,chicago-il,59622,aRAA1bDpR7FfwZb1WB47Ew,0.7769,0.5626,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.00788250771643,-87.66798936861737
+chicago-il:59630,chicago-il,59630,aRAA1bDpR7FfwZb1WB47Ew,0.055,0.6129,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.00797177826771,-87.66786504486535
+chicago-il:59635,chicago-il,59635,ughnXdHnJZY5cBTFxAyRSA,0.7205,0.5881,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2018-07,42.00922489966685,-87.66579991158909
+chicago-il:59639,chicago-il,59639,ughnXdHnJZY5cBTFxAyRSA,0.0638,0.6622,1,1,"[""uneven surface"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2018-07,42.009134940501255,-87.6657411782738
+chicago-il:59646,chicago-il,59646,M-hBrLQvccsj_Q8YopE-3w,0.9732,0.6893,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.009040767789394,-87.66579423470041
+chicago-il:59653,chicago-il,59653,uOvTXPgH7-q830_KLU3ceg,0.4912,0.5845,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,42.00911906381735,-87.66626858685787
+chicago-il:59656,chicago-il,59656,uOvTXPgH7-q830_KLU3ceg,0.3179,0.5558,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,42.00902502380731,-87.66620084525651
+chicago-il:59659,chicago-il,59659,tlDnaP7wwXVs3EzgGsgkJA,0.7584,0.5935,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.00801172920236,-87.665759596059
+chicago-il:59662,chicago-il,59662,tlDnaP7wwXVs3EzgGsgkJA,0.9821,0.6243,1,1,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.007948314673044,-87.6656954917642
+chicago-il:59673,chicago-il,59673,0XG5MEaTXkdR5KKWv_Hm3Q,0.8848,0.5579,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,42.00783487364208,-87.66502257479229
+chicago-il:60962,chicago-il,60962,Ai6q1Q8wUCyfEHpv_KZu7w,0.2492,0.58,2,1,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.98595549854843,-87.66943452201248
+chicago-il:60965,chicago-il,60965,M5Hs4osKQ6U1qg9YQ1Aw-Q,0.0962,0.7231,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.985896665947436,-87.66932355732848
+chicago-il:60972,chicago-il,60972,BA9rjijJaahybE2SNAAvWg,0.013,0.7932,1,1,"[""brick/cobblestone"",""bumpy""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.98551125224202,-87.6691936243096
+chicago-il:60974,chicago-il,60974,mzTxf1tRuEzelTDelcdQ2A,0.779,0.6074,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.98544109621357,-87.66908587724848
+chicago-il:60976,chicago-il,60976,SSGYFwsnALwocwLQhBNrYA,0.0119,0.5704,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.98521633792016,-87.66912545483918
+chicago-il:60979,chicago-il,60979,PnMsX3SSPoAguG26aLuVFA,0.2133,0.5695,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.985144127108796,-87.6692238607398
+chicago-il:60984,chicago-il,60984,8on6kgmlDbBYlL9cBj148Q,0.022,0.5665,1,0,"[""brick/cobblestone""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2021-09,41.88209111135086,-87.6866171228631
+chicago-il:60988,chicago-il,60988,8on6kgmlDbBYlL9cBj148Q,0.7238,0.6044,0,0,"[""brick/cobblestone"",""paint fading""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2021-09,41.882015092130985,-87.6864726032999
+chicago-il:60993,chicago-il,60993,jcuGty_lC1yOI4RT1sdqfA,0.4846,0.6056,1,1,"[""brick/cobblestone""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2021-08,41.88208303442895,-87.68631214128574
+chicago-il:61796,chicago-il,61796,vZ1LA8mAU3jRi0OT8T_JMQ,0.1664,0.7653,1,0,"[""brick/cobblestone"",""bumpy""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,41.94912245840847,-87.64943087023966
+chicago-il:62673,chicago-il,62673,SK_zR_mxpDNbB_ZhnwUMhQ,0.9633,0.6403,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,41.94333292310807,-87.64471885397579
+chicago-il:62720,chicago-il,62720,9HmwKXrkjEzZWiAwzpdqAQ,0.4484,0.582,1,1,"[""brick/cobblestone"",""bumpy""]",325198df-cddc-44ee-a87e-c831c3147aa0,2018-07,41.965309566054074,-87.65741804239038
+chicago-il:62883,chicago-il,62883,t3REkMc82Gc0fVWqLxbr9w,0.4692,0.5901,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2021-08,41.852758681434054,-87.62224543973099
+chicago-il:62922,chicago-il,62922,Tq_KLBk2uhDDArCx_EN21g,0.7437,0.5968,1,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2024-06,41.83179108733055,-87.64623095576415
+chicago-il:62925,chicago-il,62925,Tq_KLBk2uhDDArCx_EN21g,0.9902,0.6025,1,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2024-06,41.831857637542,-87.6461475394591
+chicago-il:62927,chicago-il,62927,Tq_KLBk2uhDDArCx_EN21g,0.4921,0.5841,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2024-06,41.831717080017505,-87.64613428804705
+chicago-il:62939,chicago-il,62939,Q_yt15PG7EAOkoGCuC9n_A,0.0088,0.6191,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2024-06,41.82979334947444,-87.64609099997317
+chicago-il:62941,chicago-il,62941,Q_yt15PG7EAOkoGCuC9n_A,0.556,0.6261,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2024-06,41.82971985234742,-87.646187464015
+chicago-il:62946,chicago-il,62946,AbONwdsQdCmS3GucZr4rKQ,0.4451,0.6156,1,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2021-08,41.82964143846796,-87.64607515827866
+chicago-il:63864,chicago-il,63864,ckPIyvtVDPs6Ph6v_5ceHA,0.0496,0.6051,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2018-07,41.932739709083975,-87.64490667230302
+chicago-il:63911,chicago-il,63911,muyUon69E4MqVIKHOksvlw,0.6657,0.6023,0,0,"[""brick/cobblestone"",""bumpy""]",325198df-cddc-44ee-a87e-c831c3147aa0,2015-11,41.93188637521228,-87.64460385478341
+chicago-il:63913,chicago-il,63913,muyUon69E4MqVIKHOksvlw,0.4421,0.6415,2,1,"[""brick/cobblestone"",""bumpy""]",325198df-cddc-44ee-a87e-c831c3147aa0,2015-11,41.931825017584245,-87.64465166392077
+chicago-il:64030,chicago-il,64030,zBNER82FkFY0XL2n-R9ubQ,0.4075,0.6794,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.95360087143591,-87.74761054460102
+chicago-il:64034,chicago-il,64034,OAMSz5OzVFwiL6oPxvldVg,0.4999,0.6488,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.95454334098995,-87.749143612366
+chicago-il:64036,chicago-il,64036,8O9zhtYAkgT50PLwR5XARw,0.4449,0.5792,2,0,"[""brick/cobblestone"",""bumpy""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.954539553995915,-87.74930910644483
+chicago-il:64039,chicago-il,64039,EpfQSuinrFtQiJpecjWSjg,0.5317,0.733,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2022-08,41.954641008155775,-87.74931553629453
+chicago-il:64057,chicago-il,64057,6a0Wn0aty9AaOlmSDGU-Tg,0.3275,0.5782,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-06,41.95341174625702,-87.74757188919844
+chicago-il:64377,chicago-il,64377,QvAXHk1zjFm4SYMfPaTftg,0.0106,0.604,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2023-07,41.95516483433586,-87.74731832638835
+chicago-il:64395,chicago-il,64395,jOzt4nusv7zcNijJiC347A,0.1755,0.6965,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2022-08,41.95182567860773,-87.74474387068953
+chicago-il:64454,chicago-il,64454,7k_UQcrwJJnNxzwM2X59ew,0.5004,0.5586,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2018-07,41.923788099649784,-87.64628399294662
+chicago-il:64463,chicago-il,64463,qLmMDwvjCU4oXFiRp6Efgg,0.8987,0.5315,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-07,41.92359416333409,-87.64626682034373
+chicago-il:64467,chicago-il,64467,xNon984W-emCxDHthi1Sqw,0.6161,0.5379,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2016-08,41.923573470424614,-87.64612546050193
+chicago-il:64471,chicago-il,64471,xNon984W-emCxDHthi1Sqw,0.4845,0.5744,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2016-08,41.92368178841637,-87.64615213942464
+chicago-il:64768,chicago-il,64768,GCTIy8iTTtL_vmvlWdi3sg,0.7016,0.6002,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.94113750217639,-87.64433468718529
+chicago-il:64771,chicago-il,64771,GCTIy8iTTtL_vmvlWdi3sg,0.2891,0.5713,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.94113617389363,-87.64453818141251
+chicago-il:65240,chicago-il,65240,Zf06XsKXdDUSqcnsmo31bA,0.4714,0.5892,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.92517789614155,-87.66585828672939
+chicago-il:65248,chicago-il,65248,EzI4DKdSUiVLW-z6-5EEdQ,0.3364,0.5559,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.92526935279306,-87.66575528564904
+chicago-il:65252,chicago-il,65252,lSQdOxbXxmsu-7ZWUVCQow,0.0576,0.5975,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2019-05,41.92518330575912,-87.6656946595125
+chicago-il:65447,chicago-il,65447,c-qGp-2AiUctC5IaB-kx7g,0.773,0.6022,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2019-05,41.80928992058712,-87.61815800616249
+chicago-il:65450,chicago-il,65450,c-qGp-2AiUctC5IaB-kx7g,0.0266,0.5835,2,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2019-05,41.809363100284024,-87.61825311300878
+chicago-il:65453,chicago-il,65453,c-qGp-2AiUctC5IaB-kx7g,0.2496,0.5718,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2019-05,41.809444590614746,-87.61815357231524
+chicago-il:65456,chicago-il,65456,c-qGp-2AiUctC5IaB-kx7g,0.4487,0.5929,2,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2019-05,41.809377445227824,-87.61806074234254
+chicago-il:65459,chicago-il,65459,NE_cqmqdXj6mk_117hG2hg,0.8934,0.5663,1,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2022-06,41.809458733482415,-87.61688310018377
+chicago-il:65462,chicago-il,65462,NE_cqmqdXj6mk_117hG2hg,0.1132,0.5497,1,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2022-06,41.80931202548005,-87.61688032579279
+chicago-il:65476,chicago-il,65476,p7kA1Ea3msWJQAhmDjWd-Q,0.239,0.5688,2,1,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2019-05,41.80931469671275,-87.61661083383801
+chicago-il:65478,chicago-il,65478,p7kA1Ea3msWJQAhmDjWd-Q,0.8093,0.6155,1,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2019-05,41.80946224623729,-87.61659757523054
+chicago-il:65495,chicago-il,65495,hCHDxGP9afGaVvwF76pBfg,0.7502,0.6251,0,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2022-07,41.80931361754218,-87.61633693342637
+chicago-il:65499,chicago-il,65499,hCHDxGP9afGaVvwF76pBfg,0.4517,0.5878,2,0,"[""brick/cobblestone"",""paint fading""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2022-07,41.80939045619178,-87.61624716092003
+chicago-il:65503,chicago-il,65503,hCHDxGP9afGaVvwF76pBfg,0.2728,0.566,1,0,"[""brick/cobblestone""]",9464bd0c-53b3-4999-bfc9-3ef721aef760,2022-07,41.80946396047498,-87.61632891052403
+chicago-il:66161,chicago-il,66161,0_Ck_fEF00ZbhUCdlW3Qjw,0.6957,0.587,0,0,"[""brick/cobblestone""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2021-06,41.877553509200226,-87.6765616486773
+chicago-il:66167,chicago-il,66167,0_Ck_fEF00ZbhUCdlW3Qjw,0.074,0.5786,1,0,"[""brick/cobblestone""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2021-06,41.877406440108956,-87.67655394055443
+chicago-il:66171,chicago-il,66171,0_Ck_fEF00ZbhUCdlW3Qjw,0.8898,0.5558,4,0,"[""brick/cobblestone""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2021-06,41.87748181081594,-87.67643977460853
+chicago-il:66405,chicago-il,66405,LzG0WjxJ_onROd2-HP-F0Q,0.251,0.5681,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.96708520967242,-87.66702340361721
+chicago-il:67303,chicago-il,67303,dvY1rk9P7xOTb7-nA5vCHw,0.6649,0.5828,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.96877978519656,-87.67931936794206
+chicago-il:67312,chicago-il,67312,M4cjszZJZNyBW0C6jB6gaA,0.7655,0.5953,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2018-07,41.96875674739302,-87.6790543254954
+chicago-il:67321,chicago-il,67321,Dj_tZeWFb9XDK3SFZholoA,0.9713,0.5903,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2022-12,41.968700723951756,-87.68051491360104
+chicago-il:67324,chicago-il,67324,Dj_tZeWFb9XDK3SFZholoA,0.1219,0.5709,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2022-12,41.96877818797089,-87.68051239265061
+chicago-il:67358,chicago-il,67358,HnZEeqxqazXjSnw9KVGtWA,0.2657,0.6078,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.968763789424806,-87.68091661394432
+chicago-il:67371,chicago-il,67371,_d7YuKNZfJq4T_jaQ4RX4Q,0.9605,0.6503,2,1,"[""brick/cobblestone"",""bumpy""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96869017165072,-87.68152650449758
+chicago-il:67388,chicago-il,67388,oOym-hH2qs9boTSRAb039g,0.0912,0.6285,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.968714424179254,-87.68231534681716
+chicago-il:67394,chicago-il,67394,7JxITLn6KJJ2biJ4JgyREw,0.7329,0.6017,1,1,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.968622073293744,-87.68243022167353
+chicago-il:67398,chicago-il,67398,7JxITLn6KJJ2biJ4JgyREw,0.1274,0.5697,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96875124947914,-87.68253275408524
+chicago-il:67403,chicago-il,67403,09V8lAHW21uNpcYJ7ojjxw,0.1993,0.548,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96880104383822,-87.68286698639328
+chicago-il:67407,chicago-il,67407,09V8lAHW21uNpcYJ7ojjxw,0.0865,0.5444,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96874582422407,-87.68296803647652
+chicago-il:67411,chicago-il,67411,09V8lAHW21uNpcYJ7ojjxw,0.9759,0.55,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.9686554015891,-87.68297679295034
+chicago-il:67413,chicago-il,67413,p0SIJCvDHUaGq2EFgfpgng,0.606,0.7708,1,1,"[""broken surface"",""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.968651027784645,-87.68394023545446
+chicago-il:67419,chicago-il,67419,p0SIJCvDHUaGq2EFgfpgng,0.1714,0.5508,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96877266145719,-87.68404224465513
+chicago-il:67422,chicago-il,67422,oodLN7tAcNM-m46L6qw97g,0.1305,0.6007,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96870849041758,-87.684142168109
+chicago-il:67425,chicago-il,67425,oodLN7tAcNM-m46L6qw97g,0.6726,0.5824,1,0,"[""bumpy"",""brick/cobblestone"",""uneven surface""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96859264019481,-87.6840303743105
+chicago-il:67453,chicago-il,67453,buqM-KsSLmWd1Bl9v55CdQ,0.07,0.6201,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96877570493333,-87.67780710384268
+chicago-il:67457,chicago-il,67457,buqM-KsSLmWd1Bl9v55CdQ,0.2907,0.5576,1,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96886485694224,-87.67770535279524
+chicago-il:67460,chicago-il,67460,buqM-KsSLmWd1Bl9v55CdQ,0.4214,0.5455,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96881973054359,-87.67758302393328
+chicago-il:67463,chicago-il,67463,buqM-KsSLmWd1Bl9v55CdQ,0.5219,0.5591,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96874015032828,-87.67759277554758
+chicago-il:67473,chicago-il,67473,HDbCEnlkGzq5sA3IHxoZag,0.358,0.5375,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.9688864020557,-87.67624444275405
+chicago-il:67476,chicago-il,67476,HDbCEnlkGzq5sA3IHxoZag,0.3165,0.5967,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.968830781925284,-87.67633300559905
+chicago-il:67479,chicago-il,67479,HDbCEnlkGzq5sA3IHxoZag,0.555,0.687,1,1,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96875870304185,-87.67632854327613
+chicago-il:67487,chicago-il,67487,keMhmtNSly3z4TaTa7xsCQ,0.4859,0.5625,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2024-05,41.96878025353445,-87.67610507251874
+chicago-il:69405,chicago-il,69405,nDZAp_xRhy1Qzi--B6HXJQ,0.5175,0.6691,2,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2018-07,41.98721825200541,-87.66609345858836
+chicago-il:69631,chicago-il,69631,DUyrhxymQU8VSobRF84g2g,0.6818,0.5615,2,0,"[""brick/cobblestone"",""very long crossing""]",e47fce67-3b8d-457a-879f-fb9b21c9b29d,2019-08,41.875727219810706,-87.62444316370166
+chicago-il:69743,chicago-il,69743,1qlesYQLXx_ezYg_ynt6XQ,0.742,0.6934,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2011-07,41.93914257216922,-87.64445688129807
+chicago-il:69746,chicago-il,69746,fJ02Zx5k8pfrTm14S5ynAQ,0.7303,0.613,0,0,"[""bumpy"",""brick/cobblestone""]",325198df-cddc-44ee-a87e-c831c3147aa0,2021-11,41.93137251848573,-87.64418370460966
+chicago-il:79541,chicago-il,79541,TAYFG8TfzO2YMcpObDgdBA,0.0731,0.6479,1,0,"[""brick/cobblestone""]",e9f9ed6c-4060-4bf8-aaf4-2fb4cb96cdbd,2018-05,41.91066071742895,-87.67135843248056
+chicago-il:79577,chicago-il,79577,D4ihqO_UTX5-6zCXRv7cTw,0.8607,0.8064,1,0,"[""paint fading"",""brick/cobblestone""]",e86a5cc9-63f6-4ef0-bf92-0bdb9b34f7d8,2021-08,41.869084320164596,-87.68490674383759
+chicago-il:80634,chicago-il,80634,lvOzWFf5ejzMEhtflWz0FA,0.2838,0.6642,1,0,"[""brick/cobblestone""]",92cee94b-6bc2-406b-8058-e46c26707839,2023-09,41.869302805705615,-87.66419692112126
+chicago-il:80676,chicago-il,80676,aF7O6LFFwj78Om9FtFj_GQ,0.8471,0.5863,1,0,"[""brick/cobblestone""]",92cee94b-6bc2-406b-8058-e46c26707839,2018-06,41.86930321667821,-87.66398401306216
+chicago-il:80687,chicago-il,80687,aF7O6LFFwj78Om9FtFj_GQ,0.1083,0.5955,0,0,"[""brick/cobblestone""]",92cee94b-6bc2-406b-8058-e46c26707839,2018-06,41.86922894074536,-87.66408436052694
+chicago-il:81129,chicago-il,81129,ZBtS9VlFlDsy5pq-H2jRDQ,0.1126,0.6178,0,0,"[""paint fading"",""brick/cobblestone""]",e9f9ed6c-4060-4bf8-aaf4-2fb4cb96cdbd,2018-11,41.91057398127291,-87.67248098538902
+chicago-il:81155,chicago-il,81155,lcjOzLEUII_iGKJhnrwmlA,0.6402,0.5713,2,0,"[""paint fading"",""brick/cobblestone""]",e9f9ed6c-4060-4bf8-aaf4-2fb4cb96cdbd,2018-11,41.91069143551425,-87.67014827464794
+chicago-il:81161,chicago-il,81161,lcjOzLEUII_iGKJhnrwmlA,0.3245,0.5498,1,0,"[""paint fading"",""brick/cobblestone""]",e9f9ed6c-4060-4bf8-aaf4-2fb4cb96cdbd,2018-11,41.91050605913952,-87.67014046490766
+chicago-il:81979,chicago-il,81979,FOw2G2t5AecyLPVeUw8bmw,0.7972,0.5507,1,0,"[""brick/cobblestone"",""very long crossing""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-06,41.87559069617743,-87.63354301081426
+chicago-il:81984,chicago-il,81984,FOw2G2t5AecyLPVeUw8bmw,0.0709,0.5532,0,0,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-06,41.87543257205651,-87.63368025468398
+chicago-il:81997,chicago-il,81997,0tnO2axKHDyDcPkKP_gNwQ,0.3005,0.5955,2,1,"[""brick/cobblestone"",""very long crossing""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2022-08,41.875598759042376,-87.63316547609534
+chicago-il:82018,chicago-il,82018,IJ004Gj9fv5Znik8-LTH5Q,0.4514,0.5782,1,1,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-06,41.875507693510464,-87.63297283502345
+chicago-il:82042,chicago-il,82042,KBLlCt_8L9r5hX1xONnlUg,0.3016,0.5482,1,1,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2022-08,41.8756734494215,-87.63163615558547
+chicago-il:82087,chicago-il,82087,t6uszLfmK3N2rBBBjCRY1w,0.7336,0.569,2,1,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2022-08,41.87545431601411,-87.63071474976107
+chicago-il:82094,chicago-il,82094,t6uszLfmK3N2rBBBjCRY1w,0.9702,0.5879,1,1,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2022-08,41.875534493960856,-87.63082746407733
+chicago-il:82117,chicago-il,82117,t6uszLfmK3N2rBBBjCRY1w,0.2574,0.5305,1,0,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2022-08,41.875710664715626,-87.63072258147533
+chicago-il:82796,chicago-il,82796,enA7AWpPd_9QsT8YEBotZg,0.3803,0.5708,1,0,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-08,41.86919752673409,-87.62587930304329
+chicago-il:82802,chicago-il,82802,enA7AWpPd_9QsT8YEBotZg,0.0369,0.5841,0,0,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-08,41.86928254138143,-87.62571202133529
+chicago-il:82807,chicago-il,82807,enA7AWpPd_9QsT8YEBotZg,0.7426,0.5786,2,0,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-08,41.869356747880346,-87.62585351039678
+chicago-il:82866,chicago-il,82866,rzUYMiysRt5qxNEtZVPkmQ,0.856,0.5625,1,0,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-08,41.871926252012116,-87.62596135573814
+chicago-il:82871,chicago-il,82871,ZAUOeCwQMF2eSfjR5Atbvw,0.0066,0.6218,1,0,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-08,41.87184519985391,-87.62610488240936
+chicago-il:82878,chicago-il,82878,rzUYMiysRt5qxNEtZVPkmQ,0.14,0.5668,0,0,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-08,41.871766967861724,-87.62597169171231
+chicago-il:82882,chicago-il,82882,rzUYMiysRt5qxNEtZVPkmQ,0.9865,0.5349,1,1,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-08,41.871853115228596,-87.62584658777727
+chicago-il:83255,chicago-il,83255,Qmwsy77yEiFWweGNnyHrfg,0.5032,0.5822,1,0,"[""brick/cobblestone"",""broken surface""]",5a66b122-39a0-4f67-99c4-dbcfae4caf1f,2021-08,41.85367167592435,-87.69426630512915
+chicago-il:83468,chicago-il,83468,bnQ4nC-vptnGTpMeO1Xxng,0.061,0.7109,0,0,"[""brick/cobblestone""]",7db89ed1-df89-4ab9-bf0d-dc20afdadd44,2024-09,41.910611517578474,-87.6750354840631
+chicago-il:83589,chicago-il,83589,hQz5fes3E8abfZ2JhJwlvQ,0.0785,0.6025,1,0,"[""uneven surface"",""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-08,41.870634999751346,-87.62590765167172
+chicago-il:85770,chicago-il,85770,aK0OTB6PQ2I4DpxWbSHDDA,0.0162,0.5471,3,1,"[""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-06,41.87576548060245,-87.6307321657426
+chicago-il:85776,chicago-il,85776,aK0OTB6PQ2I4DpxWbSHDDA,0.2901,0.5554,0,0,"[""very long crossing"",""brick/cobblestone""]",1bee0dd6-a383-4786-b8db-bbe39ee06ecf,2021-06,41.87560725665005,-87.6305901338583
+chicago-il:86432,chicago-il,86432,BajsN2FGNMcSrXseBPvavQ,0.6885,0.5879,1,0,"[""brick/cobblestone""]",29e0d714-6cce-4d1e-8177-1a2fab3a90d2,2022-09,41.90661657116522,-87.68591955044049
+chicago-il:104423,chicago-il,104423,WpVVo8tmD6IEHeJ7oD9l7Q,0.1942,0.5719,1,0,"[""brick/cobblestone""]",065d54c4-4b5e-406c-b74f-52e3489c1764,2023-05,41.691412656108305,-87.70693253175672
+chicago-il:104428,chicago-il,104428,WpVVo8tmD6IEHeJ7oD9l7Q,0.4747,0.6271,1,0,"[""brick/cobblestone""]",065d54c4-4b5e-406c-b74f-52e3489c1764,2023-05,41.691488548213265,-87.70704352085284
+chicago-il:104431,chicago-il,104431,WpVVo8tmD6IEHeJ7oD9l7Q,0.7551,0.6222,1,0,"[""brick/cobblestone""]",065d54c4-4b5e-406c-b74f-52e3489c1764,2023-05,41.69154992955432,-87.70697755879793
+chicago-il:104434,chicago-il,104434,WpVVo8tmD6IEHeJ7oD9l7Q,0.0317,0.5787,1,0,"[""brick/cobblestone""]",065d54c4-4b5e-406c-b74f-52e3489c1764,2023-05,41.69148359035758,-87.70686782184667
+chicago-il:109995,chicago-il,109995,2Tw9MxFo2rMVsoq2WpBvmA,0.4885,0.5734,1,1,"[""broken surface"",""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2022-02,42.04375329289115,-88.27056897021723
+chicago-il:109998,chicago-il,109998,2Tw9MxFo2rMVsoq2WpBvmA,0.7306,0.5981,1,1,"[""broken surface"",""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2022-02,42.04383077565387,-88.27067176039961
+chicago-il:111561,chicago-il,111561,mc_jRTJLflOoRwGvmxIRlg,0.9827,0.5811,3,1,"[""broken surface"",""bumpy"",""brick/cobblestone""]",b582c46e-389e-4b59-9bd7-7b2e0def1397,2022-10,42.04167321723261,-88.2855389963938
+chicago-il:111565,chicago-il,111565,mc_jRTJLflOoRwGvmxIRlg,0.1486,0.5491,1,0,"[""broken surface"",""brick/cobblestone""]",b582c46e-389e-4b59-9bd7-7b2e0def1397,2022-10,42.04178587331646,-88.28553647930691
+chicago-il:111567,chicago-il,111567,mc_jRTJLflOoRwGvmxIRlg,0.2714,0.5312,1,0,"[""bumpy"",""brick/cobblestone""]",b582c46e-389e-4b59-9bd7-7b2e0def1397,2022-10,42.04184221764351,-88.28540520927727
+chicago-il:111572,chicago-il,111572,mc_jRTJLflOoRwGvmxIRlg,0.5178,0.5422,3,0,"[""broken surface"",""brick/cobblestone"",""bumpy""]",b582c46e-389e-4b59-9bd7-7b2e0def1397,2022-10,42.04166961364562,-88.2852418403583
+chicago-il:111574,chicago-il,111574,mc_jRTJLflOoRwGvmxIRlg,0.3788,0.5281,4,0,"[""broken surface"",""uneven surface"",""brick/cobblestone"",""bumpy""]",b582c46e-389e-4b59-9bd7-7b2e0def1397,2022-10,42.04179928959231,-88.28527174770011
+chicago-il:113312,chicago-il,113312,PVru41hnMOJcmjjP5xW2gg,0.4683,0.5664,3,1,"[""brick/cobblestone""]",e9b73061-2360-4317-9aa0-65fcf11223d8,2022-07,41.799617946240296,-87.58419680866785
+chicago-il:113315,chicago-il,113315,cKP5Bv5Y4G4rZYtXwIW0mg,0.2773,0.5463,2,0,"[""brick/cobblestone""]",e9b73061-2360-4317-9aa0-65fcf11223d8,2022-07,41.79970381436765,-87.58408068649425
+chicago-il:113316,chicago-il,113316,cKP5Bv5Y4G4rZYtXwIW0mg,0.5747,0.5674,2,0,"[""brick/cobblestone""]",e9b73061-2360-4317-9aa0-65fcf11223d8,2022-07,41.799516382239055,-87.5840640319084
+chicago-il:113319,chicago-il,113319,IoEJCj5o4PLkzGP2AC9N6Q,0.4965,0.5638,1,0,"[""brick/cobblestone""]",e9b73061-2360-4317-9aa0-65fcf11223d8,2019-05,41.79961822762969,-87.58392266474279
+chicago-il:115337,chicago-il,115337,GjNIKBBR021aM7upFUj5xw,0.4752,0.5627,2,0,"[""brick/cobblestone""]",222b07b2-813e-43f7-bd7b-79e9e37bfdc9,2021-06,41.7997150375673,-87.58405955482097
+chicago-il:115340,chicago-il,115340,zlSrS6VWO63eRjRn5dgVtA,0.3722,0.5375,2,0,"[""brick/cobblestone""]",222b07b2-813e-43f7-bd7b-79e9e37bfdc9,2021-06,41.79964234549951,-87.58393881134258
+chicago-il:115343,chicago-il,115343,zlSrS6VWO63eRjRn5dgVtA,0.6176,0.5527,2,0,"[""brick/cobblestone""]",222b07b2-813e-43f7-bd7b-79e9e37bfdc9,2021-06,41.799631996694416,-87.58419407724293
+chicago-il:115346,chicago-il,115346,Z395ZEDAGsY6ZWSd9_lDDQ,0.4798,0.5555,1,0,"[""brick/cobblestone""]",222b07b2-813e-43f7-bd7b-79e9e37bfdc9,2021-06,41.79952467208964,-87.58406246116824
+chicago-il:119244,chicago-il,119244,ZA020iZdb826dhhzmcL3AQ,0.1966,0.5631,1,1,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2022-01,42.03733794315889,-88.28445536925497
+chicago-il:119263,chicago-il,119263,nk5mz6sG5ZpJB43kR5LxIA,0.8663,0.5424,1,1,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2022-10,42.03814925478703,-88.28525283207505
+chicago-il:119265,chicago-il,119265,nk5mz6sG5ZpJB43kR5LxIA,0.947,0.5372,1,1,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2022-10,42.03820066469609,-88.2851824094814
+chicago-il:119270,chicago-il,119270,nk5mz6sG5ZpJB43kR5LxIA,0.092,0.5607,0,0,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2022-10,42.038158421267866,-88.28503169325104
+chicago-il:122225,chicago-il,122225,c4TBaBS4dLMheGn4J3Z8Lw,0.473,0.5927,1,1,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2016-10,42.039500330275736,-88.28252586484363
+chicago-il:122228,chicago-il,122228,c4TBaBS4dLMheGn4J3Z8Lw,0.7322,0.631,1,1,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2016-10,42.03956572744825,-88.28260407664428
+chicago-il:122231,chicago-il,122231,c4TBaBS4dLMheGn4J3Z8Lw,0.0264,0.6155,1,1,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2016-10,42.03962427127251,-88.28252509891415
+chicago-il:122243,chicago-il,122243,uoM12js270xVshzVFs4uHA,0.7898,0.6133,1,1,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2022-03,42.04042273173216,-88.28260576297738
+chicago-il:123174,chicago-il,123174,X7QwnoyrZ2DyRB4Qz3nyWQ,0.3059,0.5719,1,1,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2022-05,42.04049489569512,-88.28107704631863
+chicago-il:123175,chicago-il,123175,X7QwnoyrZ2DyRB4Qz3nyWQ,0.4754,0.5758,2,1,"[""brick/cobblestone""]",c41c9a85-6684-496d-87d8-7279742ef537,2022-05,42.04042184471458,-88.28100478526767
+chicago-il:125380,chicago-il,125380,PkGK3GS0gR0HlJEMJMBocQ,0.2427,0.572,1,1,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.827106332093344,-87.6459119101746
+chicago-il:125385,chicago-il,125385,PkGK3GS0gR0HlJEMJMBocQ,0.0179,0.5752,1,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.82718605273148,-87.64602523144525
+chicago-il:125393,chicago-il,125393,7kudMAmg_cfz6uZTszgVMg,0.9691,0.712,1,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.82702579817898,-87.6460421393915
+chicago-il:125651,chicago-il,125651,N3cYo6WbBdUruIq8BCkOSQ,0.7007,0.5658,0,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.827717646615,-87.64605662371736
+chicago-il:125654,chicago-il,125654,N3cYo6WbBdUruIq8BCkOSQ,0.4665,0.6755,1,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.82763448181447,-87.64613775737345
+chicago-il:126049,chicago-il,126049,JvRiQA-9kUdg7wsA7O_lxg,0.5272,0.6656,1,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2022-11,41.82891923540603,-87.64595838153475
+chicago-il:126054,chicago-il,126054,JvRiQA-9kUdg7wsA7O_lxg,0.3284,0.5591,0,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2022-11,41.82899946012682,-87.64605149065552
+chicago-il:126057,chicago-il,126057,JvRiQA-9kUdg7wsA7O_lxg,0.9783,0.5288,0,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2022-11,41.82875659718556,-87.6461139773215
+chicago-il:126075,chicago-il,126075,BgAVXUh7RwqlX2H-buL4lA,0.2585,0.5707,0,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-08,41.82971924742841,-87.64618982927774
+chicago-il:126984,chicago-il,126984,KdeUaQdJ8sdh6nFEDFojhw,0.4274,0.5996,1,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.83186253337996,-87.64615355717156
+chicago-il:126986,chicago-il,126986,KdeUaQdJ8sdh6nFEDFojhw,0.0359,0.6287,0,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.83177885213906,-87.6462448622941
+chicago-il:126993,chicago-il,126993,tpe3QfT5r0uH2_-RJzxslQ,0.0173,0.667,1,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.83250998636429,-87.64612999212093
+chicago-il:126995,chicago-il,126995,tpe3QfT5r0uH2_-RJzxslQ,0.4797,0.5583,0,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.83265802642409,-87.64614849087974
+chicago-il:126998,chicago-il,126998,tpe3QfT5r0uH2_-RJzxslQ,0.6887,0.5945,0,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.832573537981546,-87.6460409825862
+chicago-il:127012,chicago-il,127012,V02i-GmKnmswoaVgqRw53Q,0.3039,0.571,1,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.83383459336255,-87.64628197418016
+chicago-il:127015,chicago-il,127015,V02i-GmKnmswoaVgqRw53Q,0.4824,0.557,1,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2024-09,41.8339195769313,-87.64618330161117
+chicago-il:129799,chicago-il,129799,rJk49IfgDVSRtYMgIt0n8A,0.4362,0.6527,0,0,"[""brick/cobblestone""]",efe8548f-ae24-4cc1-8780-0dff2eb0ffbe,2024-09,42.03736776288492,-87.88522803633398
+chicago-il:132359,chicago-il,132359,W9lKibJ94RTKnNplHLjS2A,0.2582,0.5664,2,0,"[""paint fading"",""brick/cobblestone""]",1bf619ef-3966-44ec-8f24-16183d2dda05,2024-08,41.87589618892365,-87.80581848664552
+chicago-il:132366,chicago-il,132366,YBnwTj9c1jXpTbmXxQvpgA,0.4326,0.5847,1,1,"[""paint fading"",""brick/cobblestone""]",1bf619ef-3966-44ec-8f24-16183d2dda05,2024-08,41.87606321207602,-87.80543073059326
+chicago-il:132750,chicago-il,132750,EP2KLXH1Qpb9kOKWBk7mgg,0.8787,0.5786,0,0,"[""brick/cobblestone""]",d2473f16-8b14-4fd2-960b-dfdccd4f2b9d,2024-07,41.96155002425068,-87.66591218945027
+chicago-il:132759,chicago-il,132759,QG4aBamxWYTAQvfytKvfCQ,0.231,0.5504,0,0,"[""brick/cobblestone""]",d2473f16-8b14-4fd2-960b-dfdccd4f2b9d,2024-07,41.96173071606937,-87.66598572603722
+chicago-il:132792,chicago-il,132792,KxCO2vVSLJlCqCQ06LkR_w,0.0273,0.5718,1,0,"[""brick/cobblestone""]",fa400cd7-eb33-449b-9d06-fe51295abe75,2015-11,41.961860605018046,-87.65521813091738
+chicago-il:132983,chicago-il,132983,bK27JEhM77IDxytGDI8L-Q,0.7916,0.5742,0,0,"[""brick/cobblestone""]",fa400cd7-eb33-449b-9d06-fe51295abe75,2024-09,41.96359224009664,-87.65614773665543
+chicago-il:132984,chicago-il,132984,bK27JEhM77IDxytGDI8L-Q,0.468,0.5648,1,0,"[""brick/cobblestone""]",fa400cd7-eb33-449b-9d06-fe51295abe75,2024-09,41.963659529516626,-87.65634628423618
+chicago-il:132987,chicago-il,132987,bK27JEhM77IDxytGDI8L-Q,0.0315,0.5699,2,0,"[""brick/cobblestone""]",fa400cd7-eb33-449b-9d06-fe51295abe75,2024-09,41.96348554664619,-87.65623599367231
+chicago-il:139593,chicago-il,139593,JoUuy2x_02_DTIU-RxVK8Q,0.0457,0.6575,1,0,"[""brick/cobblestone""]",8c2a4a9a-3317-40dd-b2cd-f6f80a6b569f,2025-03,41.98076671678678,-87.66824137851381
+chicago-il:139602,chicago-il,139602,PBqR-hrlsQGNMdiPqFpBaQ,0.1161,0.5833,1,0,"[""brick/cobblestone""]",8c2a4a9a-3317-40dd-b2cd-f6f80a6b569f,2025-03,41.98084064935265,-87.66835423266606
+chicago-il:141261,chicago-il,141261,Yw3TDwsSVQJ4KOkIbk-t2g,0.5529,0.6453,1,1,"[""brick/cobblestone""]",d2473f16-8b14-4fd2-960b-dfdccd4f2b9d,2024-10,41.96882866735292,-87.6711333350333
+chicago-il:141262,chicago-il,141262,Yw3TDwsSVQJ4KOkIbk-t2g,0.3478,0.583,0,0,"[""paint fading"",""brick/cobblestone""]",d2473f16-8b14-4fd2-960b-dfdccd4f2b9d,2024-10,41.96890722885561,-87.67112954247001
+chicago-il:141277,chicago-il,141277,hk0mHylq0dBSlTZb7IQZBw,0.6972,0.5917,0,0,"[""brick/cobblestone""]",d2473f16-8b14-4fd2-960b-dfdccd4f2b9d,2024-10,41.96877511486883,-87.67103232412428
+chicago-il:141325,chicago-il,141325,lepvNVCWNuogkJ2cL43syw,0.1018,0.5629,1,0,"[""very long crossing"",""brick/cobblestone""]",d2473f16-8b14-4fd2-960b-dfdccd4f2b9d,2024-10,41.96879370509531,-87.66943884363367
+chicago-il:141330,chicago-il,141330,Fnmn81rl6lKiag0Rco2N5w,0.039,0.6517,0,0,"[""brick/cobblestone"",""paint fading""]",d2473f16-8b14-4fd2-960b-dfdccd4f2b9d,2024-10,41.96890186719487,-87.66961016178719
+chicago-il:141349,chicago-il,141349,4Ll5esBmfpzaHe4rE7BoTg,0.8617,0.5745,1,0,"[""brick/cobblestone""]",d2473f16-8b14-4fd2-960b-dfdccd4f2b9d,2024-10,41.96877533296361,-87.67101667025645
+chicago-il:144279,chicago-il,144279,ITD0ZgY-WGAijQvnQPySjg,0.5156,0.5773,2,0,"[""paint fading"",""brick/cobblestone""]",c6bb6334-6cd1-4307-ba65-49b4072091ab,2021-09,41.86904239860515,-87.68353990037065
+chicago-il:144286,chicago-il,144286,ITD0ZgY-WGAijQvnQPySjg,0.4152,0.5371,2,0,"[""paint fading"",""brick/cobblestone""]",c6bb6334-6cd1-4307-ba65-49b4072091ab,2021-09,41.86895614891217,-87.68359499162096
+chicago-il:145884,chicago-il,145884,s1hXdh6izKMgCnTLcKYeRQ,0.5645,0.6243,1,1,"[""paint fading"",""brick/cobblestone""]",35126041-c56e-48e7-b7cc-45e178953748,2024-06,41.71092396862237,-88.20733284903356
+chicago-il:145968,chicago-il,145968,6gTZMTmtfShudUyySrsTXg,0.7716,0.6105,0,0,"[""brick/cobblestone""]",35126041-c56e-48e7-b7cc-45e178953748,2024-06,41.711628651903595,-88.20736581504508
+chicago-il:146110,chicago-il,146110,iFogUWUFVPM35vuB31NUxw,0.2048,0.5874,1,1,"[""brick/cobblestone""]",35126041-c56e-48e7-b7cc-45e178953748,2024-06,41.71241257680691,-88.20719816590163
+chicago-il:146124,chicago-il,146124,YDbmRzfYgx4HRqf-pYokhA,0.6634,0.6442,1,1,"[""brick/cobblestone""]",35126041-c56e-48e7-b7cc-45e178953748,2018-10,41.71257701229278,-88.20715209604846
+chicago-il:148173,chicago-il,148173,YfTLPleL9tOxvuoO5AWYog,0.1051,0.5911,0,0,"[""brick/cobblestone""]",5f322d46-1a96-4801-b941-acf0b38ed1c7,2021-06,41.87580169306413,-87.6276226290506
+chicago-il:149504,chicago-il,149504,TSJjekveW4tVaQMkvSSfIg,0.4315,0.5696,0,0,"[""brick/cobblestone""]",67921811-712b-422a-a14d-1273bfd240ad,2022-06,41.875654115172814,-87.63057031973214
+chicago-il:149570,chicago-il,149570,l-pUHgTL9ximYQ5KEhWPvQ,0.0091,0.6566,0,0,"[""brick/cobblestone""]",67921811-712b-422a-a14d-1273bfd240ad,2022-06,41.87569285361939,-87.62936469704613
+chicago-il:149592,chicago-il,149592,GJBD1vI2JhTsZhGzT-A0qw,0.2283,0.5262,0,0,"[""brick/cobblestone""]",67921811-712b-422a-a14d-1273bfd240ad,2022-06,41.875531622986166,-87.6292573018497
+chicago-il:156780,chicago-il,156780,hZZcURE_I3HUOBxut_9NHg,0.262,0.5845,1,0,"[""brick/cobblestone""]",8a9aef12-f430-4972-a640-a18343e065ad,2022-08,41.75965382478985,-87.71001395212788
+chicago-il:157411,chicago-il,157411,DHXp3Y-3a1xJIVWhkFxEqQ,0.2008,0.5851,1,0,"[""brick/cobblestone""]",4318da7c-ccde-40a6-b303-63008414af78,2018-08,41.72097999706435,-87.67591639010969
+chicago-il:157623,chicago-il,157623,HmhQWempnVVGTsKgJKWVKg,0.7549,0.5994,1,0,"[""brick/cobblestone""]",3749d149-794c-43ed-8161-3a18fdda0c92,2024-10,41.95525757597341,-87.74752425507641
+chicago-il:160183,chicago-il,160183,TLWQpLSU0RCEp1RteVbmCA,0.0354,0.646,0,0,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2021-08,41.87240239796902,-87.62911622479082
+chicago-il:160186,chicago-il,160186,7UnZlqjSGcaP_12o0HoXKQ,0.7586,0.5779,1,0,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2021-08,41.872302662131474,-87.62900901105608
+chicago-il:160190,chicago-il,160190,GGNLfHdaUVAcsR2nj5T_Lg,0.4939,0.5709,0,0,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2024-08,41.87226668839412,-87.62901819366392
+chicago-il:160193,chicago-il,160193,USwPTmQ_b1SIcK_HQvfIOA,0.2339,0.6829,0,0,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2024-08,41.87229333877841,-87.62927008491958
+chicago-il:160558,chicago-il,160558,ofOYAgcZcrQTMfGj-Wp9aw,0.0428,0.5792,1,0,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2021-11,41.96898803117087,-87.66752249961367
+chicago-il:160561,chicago-il,160561,ofOYAgcZcrQTMfGj-Wp9aw,0.2834,0.5668,1,0,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2021-11,41.96889527811672,-87.6674093370262
+chicago-il:160562,chicago-il,160562,ofOYAgcZcrQTMfGj-Wp9aw,0.7836,0.6083,1,0,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2021-11,41.968913162605745,-87.6676210004069
+chicago-il:160565,chicago-il,160565,ofOYAgcZcrQTMfGj-Wp9aw,0.4965,0.5839,1,0,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2021-11,41.968828901315455,-87.66752896970313
+chicago-il:160569,chicago-il,160569,8s6SD3uabGmALBv69-JTbQ,0.877,0.5848,1,0,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2024-05,41.968799306109624,-87.66938597798715
+chicago-il:160579,chicago-il,160579,ZlOQqMg4Hk94tiWkC0YIHw,0.493,0.5691,2,1,"[""brick/cobblestone"",""paint fading""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2018-07,41.967086286009966,-87.66702435638221
+chicago-il:161037,chicago-il,161037,-6IRWOsEyONKcZFd1Zpm9Q,0.4843,0.666,1,1,"[""brick/cobblestone""]",40b2b0e7-1f1f-4e9d-8fb0-59b5b5be73ae,2025-03,41.981677414112845,-87.6683152297672
+chicago-il:170736,chicago-il,170736,kCcHRVZzXt2qH1DQJ4n-WQ,0.9215,0.5576,1,0,"[""brick/cobblestone""]",a08d9888-9eb3-4c04-ae1b-9ce711fbae4c,2024-07,42.017702335319385,-87.80642317064256
+chicago-il:172119,chicago-il,172119,9uHmtv6vrkb4JbI0JZG9kw,0.8699,0.599,3,0,"[""brick/cobblestone""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-07,41.87745500439117,-87.67665499204274
+chicago-il:172120,chicago-il,172120,9uHmtv6vrkb4JbI0JZG9kw,0.7817,0.7134,2,0,"[""brick/cobblestone""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-07,41.87741576850399,-87.67662502600065
+chicago-il:172122,chicago-il,172122,9uHmtv6vrkb4JbI0JZG9kw,0.9958,0.5468,3,0,"[""brick/cobblestone""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-07,41.87754399699264,-87.67659724516918
+chicago-il:172124,chicago-il,172124,9uHmtv6vrkb4JbI0JZG9kw,0.1971,0.549,1,0,"[""brick/cobblestone"",""paint fading""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-07,41.87745486122558,-87.67642651754906
+chicago-il:172130,chicago-il,172130,bPX2MXs1eAJd9jcObM4a0Q,0.4668,0.5203,1,0,"[""brick/cobblestone"",""paint fading""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-07,41.87633713332161,-87.67656214594989
+chicago-il:172132,chicago-il,172132,bPX2MXs1eAJd9jcObM4a0Q,0.4156,0.5125,1,0,"[""brick/cobblestone"",""paint fading""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-07,41.87634243708782,-87.67648050198343
+chicago-il:172133,chicago-il,172133,bPX2MXs1eAJd9jcObM4a0Q,0.5228,0.5151,1,0,"[""paint fading"",""brick/cobblestone""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-07,41.87633018081747,-87.67664885658334
+chicago-il:172135,chicago-il,172135,UkX6EwLUY7c4XQq8-GKGIw,0.0695,0.5735,1,0,"[""brick/cobblestone""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-11,41.87617677329672,-87.6763857700513
+chicago-il:172136,chicago-il,172136,UkX6EwLUY7c4XQq8-GKGIw,0.8626,0.5723,2,0,"[""brick/cobblestone"",""paint fading""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-11,41.876265997279155,-87.67647067592097
+chicago-il:172137,chicago-il,172137,UkX6EwLUY7c4XQq8-GKGIw,0.6328,0.5544,2,0,"[""brick/cobblestone"",""paint fading""]",bf68fffc-297b-455a-b3d0-01fb8c328300,2025-11,41.876227575252734,-87.67665304078022
+chicago-il:173555,chicago-il,173555,rfntel6pmPd02LWzt6D7cA,0.7266,0.5903,0,0,"[""brick/cobblestone""]",f498fcde-95a4-4ebe-8b33-39ec3566a2d7,2021-10,41.810692874987815,-88.20034533147093
+chicago-il:173715,chicago-il,173715,WlTYP2LMRzxceNlrycK--g,0.5664,0.5525,0,0,"[""brick/cobblestone""]",fa400cd7-eb33-449b-9d06-fe51295abe75,2024-08,41.9386705145057,-87.76648868660223
+chicago-il:174282,chicago-il,174282,jkLvDcMj9glkyonIp9m0rg,0.7952,0.6061,0,0,"[""brick/cobblestone"",""bumpy"",""broken surface""]",fa400cd7-eb33-449b-9d06-fe51295abe75,2023-07,41.93849428377596,-87.7664786409268
+chicago-il:174284,chicago-il,174284,jkLvDcMj9glkyonIp9m0rg,0.4389,0.6227,1,0,"[""broken surface"",""brick/cobblestone""]",fa400cd7-eb33-449b-9d06-fe51295abe75,2023-07,41.9385728166845,-87.76639220237551
+chicago-il:175938,chicago-il,175938,MZjwpwoKnkIK2myNtpfYPQ,0.1357,0.6886,2,0,"[""brick/cobblestone""]",1c757f59-d4dd-49c9-ae32-b4b2ab8b227c,2025-07,41.90066940900515,-87.62750083646154
+chicago-il:175941,chicago-il,175941,MZjwpwoKnkIK2myNtpfYPQ,0.7192,0.5981,0,0,"[""brick/cobblestone""]",1c757f59-d4dd-49c9-ae32-b4b2ab8b227c,2025-07,41.90073039504183,-87.6274038789149
+chicago-il:175943,chicago-il,175943,iXttqdXwcyICCKOscz9UUg,0.1606,0.6652,0,0,"[""brick/cobblestone""]",1c757f59-d4dd-49c9-ae32-b4b2ab8b227c,2025-07,41.90005009979245,-87.627209269956
+chicago-il:175946,chicago-il,175946,ARWGU_oFJja-C5uQQ-DeDQ,0.8611,0.5952,0,0,"[""brick/cobblestone""]",1c757f59-d4dd-49c9-ae32-b4b2ab8b227c,2025-07,41.8999769625632,-87.62703798979133
+chicago-il:175949,chicago-il,175949,MfVkNwUk7DH9qbLMBwYjIA,0.9813,0.6484,0,0,"[""brick/cobblestone""]",1c757f59-d4dd-49c9-ae32-b4b2ab8b227c,2025-07,41.89986663590018,-87.62705297012576
+chicago-il:177644,chicago-il,177644,-ZQxhWk_v9zNLLtQAzLerA,0.0446,0.6083,1,0,"[""brick/cobblestone"",""paint fading""]",fa400cd7-eb33-449b-9d06-fe51295abe75,2024-08,41.93858205826025,-87.76517528455277
+chicago-il:183716,chicago-il,183716,4d2HYPlxjJx_F77TQbIfWg,0.7292,0.5806,0,0,"[""brick/cobblestone"",""bumpy""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2025-07,41.83067672280557,-87.65106267055167
+chicago-il:183717,chicago-il,183717,4d2HYPlxjJx_F77TQbIfWg,0.8871,0.5571,0,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2025-07,41.83075651471424,-87.6509858449109
+chicago-il:183718,chicago-il,183718,4d2HYPlxjJx_F77TQbIfWg,0.0387,0.574,1,0,"[""brick/cobblestone""]",abd5d645-1dc3-4978-8ab3-7fe54bd4acde,2025-07,41.83070404757085,-87.6508772697458
+chicago-il:183896,chicago-il,183896,83-z6CY5dKQ0ahhsLUmXWA,0.5157,0.6093,1,0,"[""brick/cobblestone""]",5bf4dffd-61c0-47d6-8c10-1a18b3d0f741,2025-11,41.875572624590646,-87.62910680965093
+chicago-il:183901,chicago-il,183901,U07V3iTnmNxwiNOKgLf_Rw,0.3829,0.5551,2,0,"[""brick/cobblestone""]",5bf4dffd-61c0-47d6-8c10-1a18b3d0f741,2025-08,41.875557876692234,-87.6293379971288
+chicago-il:183904,chicago-il,183904,h4HQAP-vjZRVkkzUTfUKcg,0.5186,0.5557,1,0,"[""brick/cobblestone""]",5bf4dffd-61c0-47d6-8c10-1a18b3d0f741,2025-08,41.875783877049784,-87.62922625276323
+chicago-il:183911,chicago-il,183911,h4HQAP-vjZRVkkzUTfUKcg,0.8607,0.5568,1,0,"[""brick/cobblestone""]",5bf4dffd-61c0-47d6-8c10-1a18b3d0f741,2025-08,41.87559684741362,-87.62911227457025
+chicago-il:183912,chicago-il,183912,Tq26UXdYtftpM2kqhg0PfA,0.5469,0.5747,1,0,"[""brick/cobblestone""]",5bf4dffd-61c0-47d6-8c10-1a18b3d0f741,2025-11,41.875562367347335,-87.62881778848067
+chicago-il:183913,chicago-il,183913,Tq26UXdYtftpM2kqhg0PfA,0.6032,0.535,1,0,"[""brick/cobblestone""]",5bf4dffd-61c0-47d6-8c10-1a18b3d0f741,2025-11,41.8754968189378,-87.6287628968913
+chicago-il:185236,chicago-il,185236,JV_O-Qipz9bw5_41BmHWWA,0.4639,0.5741,0,0,"[""brick/cobblestone""]",fa400cd7-eb33-449b-9d06-fe51295abe75,2024-08,41.9385120499096,-87.76526871044454
+chicago-il:187093,chicago-il,187093,zUqjOOvYVtflVlcBGvlcrA,0.0372,0.641,0,0,"[""brick/cobblestone""]",dbd59edb-fbbe-493c-af38-b0c81bb3e8f3,2025-03,41.985505956057736,-87.6692079210751
+chicago-il:187095,chicago-il,187095,p6aQDmZLo-OdcG2NvdA0Qg,0.5937,0.7627,1,0,"[""brick/cobblestone"",""bumpy""]",dbd59edb-fbbe-493c-af38-b0c81bb3e8f3,2025-03,41.98542899813688,-87.66907688208315
+chicago-il:189618,chicago-il,189618,v6oLEN5W8GU5ay3mkBlLRQ,0.3735,0.6887,1,0,"[""brick/cobblestone""]",76570f99-a267-4f6f-9396-059ceac40a87,2025-11,41.94331496018368,-87.67133068413234
+chicago-il:189650,chicago-il,189650,lspX2CO3fxu2W0cqlUgcWg,0.0439,0.58,0,0,"[""brick/cobblestone""]",76570f99-a267-4f6f-9396-059ceac40a87,2025-11,41.94323952610678,-87.6711537662624
+chicago-il:189654,chicago-il,189654,lspX2CO3fxu2W0cqlUgcWg,0.8239,0.5951,0,0,"[""brick/cobblestone""]",76570f99-a267-4f6f-9396-059ceac40a87,2025-11,41.94332156510182,-87.67108552678366
+chicago-il:190253,chicago-il,190253,0biRlMVIHEmh7VBmTUoFmg,0.7979,0.5981,0,0,"[""brick/cobblestone""]",76570f99-a267-4f6f-9396-059ceac40a87,2025-11,41.945487929114236,-87.64953868343342
+chicago-il:190296,chicago-il,190296,Jj_lLrZbmTEyKUjd5bvi8Q,0.4041,0.6923,1,0,"[""brick/cobblestone""]",76570f99-a267-4f6f-9396-059ceac40a87,2025-11,41.94544776908246,-87.64932128996216
+chicago-il:190677,chicago-il,190677,2yrjptwWVekyQc5xC7u1Xw,0.3539,0.5605,1,0,"[""brick/cobblestone""]",76570f99-a267-4f6f-9396-059ceac40a87,2025-11,41.94172954222212,-87.66997702388927
+chicago-il:190699,chicago-il,190699,n66Oe8kH6cz_MnIvWH6V_w,0.2546,0.686,0,0,"[""brick/cobblestone""]",76570f99-a267-4f6f-9396-059ceac40a87,2025-11,41.943503238393866,-87.67132480044968
+chicago-il:190700,chicago-il,190700,n66Oe8kH6cz_MnIvWH6V_w,0.5567,0.5386,0,0,"[""brick/cobblestone""]",76570f99-a267-4f6f-9396-059ceac40a87,2025-11,41.94334331601211,-87.67134348436836
+chicago-il:190830,chicago-il,190830,5FS6kvL8OEhV3Pp2qOUR_Q,0.2385,0.5747,0,0,"[""brick/cobblestone""]",279db355-ff9a-4b6b-8434-ba6e1ea1fdb7,2025-12,41.94107499165236,-87.64920818738469
+chicago-il:190838,chicago-il,190838,n33wMcZCyL-mJnyZXjJD3Q,0.4966,0.7526,1,0,"[""brick/cobblestone""]",279db355-ff9a-4b6b-8434-ba6e1ea1fdb7,2025-12,41.941802730348655,-87.64922272940555
+chicago-il:190851,chicago-il,190851,Va8A60BLU_SV8Iad4DZE6A,0.0522,0.6503,2,0,"[""brick/cobblestone""]",279db355-ff9a-4b6b-8434-ba6e1ea1fdb7,2025-12,41.941804595958324,-87.64943258333734
+chicago-il:191973,chicago-il,191973,tKUeNqsb-b9jxLBXwN4RyA,0.5279,0.5449,0,0,"[""brick/cobblestone""]",dbd59edb-fbbe-493c-af38-b0c81bb3e8f3,2025-03,41.99455954026132,-87.66028448998081
+chicago-il:191984,chicago-il,191984,tKUeNqsb-b9jxLBXwN4RyA,0.059,0.5983,1,0,"[""brick/cobblestone""]",dbd59edb-fbbe-493c-af38-b0c81bb3e8f3,2025-03,41.9945611177306,-87.66055570623918
+chicago-il:191994,chicago-il,191994,tKUeNqsb-b9jxLBXwN4RyA,0.3692,0.5648,1,0,"[""brick/cobblestone""]",dbd59edb-fbbe-493c-af38-b0c81bb3e8f3,2025-03,41.99464052867282,-87.66039980904776
+chicago-il:192121,chicago-il,192121,sHB_RtiBIrFqMKLp4n6JmA,0.5912,0.5527,1,0,"[""brick/cobblestone""]",dbd59edb-fbbe-493c-af38-b0c81bb3e8f3,2025-03,41.993658787052915,-87.66052784171808
+chicago-il:192187,chicago-il,192187,lNPiwcJcTvC5_pPeQgu8Zg,0.64,0.5702,0,0,"[""brick/cobblestone""]",dbd59edb-fbbe-493c-af38-b0c81bb3e8f3,2025-03,41.99273809342141,-87.66050905862217
+chicago-il:193109,chicago-il,193109,z6BStf3mNljQj0jqgeEofQ,0.5736,0.5406,1,0,"[""brick/cobblestone"",""very long crossing""]",76570f99-a267-4f6f-9396-059ceac40a87,2025-11,41.94068141145362,-87.66863146102926
+chicago-il:193609,chicago-il,193609,OW8npRzboJskDjiyiTLY5A,0.5931,0.5533,0,0,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2024-09,41.87167034926546,-87.66903926495837
+chicago-il:194201,chicago-il,194201,FUynnewH1qlAMb-XGeL0IQ,0.4776,0.5712,1,0,"[""brick/cobblestone""]",8818bc24-201f-4df3-aba6-a586614fec57,2025-03,41.992292883374034,-87.6601635758445
+chicago-il:194211,chicago-il,194211,sav0UomZcXDL4-fHExXWQw,0.8502,0.5763,0,0,"[""brick/cobblestone""]",8818bc24-201f-4df3-aba6-a586614fec57,2025-03,41.99271996846179,-87.66050610112505
+chicago-il:194219,chicago-il,194219,UU_0w0y1fyvVnG4wB3891w,0.8192,0.5879,1,0,"[""brick/cobblestone""]",8818bc24-201f-4df3-aba6-a586614fec57,2025-03,41.99361693531655,-87.6605298483704
+chicago-il:195527,chicago-il,195527,OW8npRzboJskDjiyiTLY5A,0.4083,0.5846,1,0,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2024-09,41.87158201196831,-87.66913890096819
+chicago-il:195530,chicago-il,195530,OW8npRzboJskDjiyiTLY5A,0.0793,0.6433,0,0,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2024-09,41.871505159392974,-87.66904221680772
+chicago-il:195533,chicago-il,195533,OW8npRzboJskDjiyiTLY5A,0.7639,0.5702,0,0,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2024-09,41.87159050507518,-87.66893223394618
+chicago-il:198785,chicago-il,198785,qcaEp1ynC5fewued2IYM3Q,0.489,0.6323,1,0,"[""broken surface"",""brick/cobblestone""]",f821ca1a-6f15-4b72-a62c-1eb3224dedc4,2025-04,42.007770635021444,-87.66785923768411
+chicago-il:198788,chicago-il,198788,-cXKHq-v96Dad3EmCBGr1w,0.2354,0.5525,1,0,"[""bumpy"",""brick/cobblestone""]",f821ca1a-6f15-4b72-a62c-1eb3224dedc4,2025-04,42.0078580838159,-87.6679870589901
+chicago-il:198791,chicago-il,198791,-cXKHq-v96Dad3EmCBGr1w,0.3956,0.5436,0,0,"[""brick/cobblestone""]",f821ca1a-6f15-4b72-a62c-1eb3224dedc4,2025-04,42.00794791309768,-87.66786614345088
+chicago-il:198795,chicago-il,198795,-cXKHq-v96Dad3EmCBGr1w,0.5735,0.5745,0,0,"[""brick/cobblestone""]",f821ca1a-6f15-4b72-a62c-1eb3224dedc4,2025-04,42.007863191161974,-87.6677373609187
+chicago-il:198878,chicago-il,198878,6WgOH2lYI2ZMrafJFcSjAA,0.3008,0.696,1,0,"[""brick/cobblestone""]",9bb3abe1-f028-41f2-9f56-69f39f59e32e,2025-03,41.99457542687094,-87.66024501385222
+chicago-il:200916,chicago-il,200916,tt35LnUNAG3uL43nlW8cqQ,0.8406,0.6123,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2024-08,41.87594135145326,-87.80814613302023
+chicago-il:200917,chicago-il,200917,tt35LnUNAG3uL43nlW8cqQ,0.4375,0.6619,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2024-08,41.876006292764025,-87.8082313187161
+chicago-il:200920,chicago-il,200920,tt35LnUNAG3uL43nlW8cqQ,0.1857,0.5605,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2024-08,41.87592741904391,-87.80834546353147
+chicago-il:200923,chicago-il,200923,tt35LnUNAG3uL43nlW8cqQ,0.0308,0.5557,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2024-08,41.87585572718983,-87.80823983587179
+chicago-il:200932,chicago-il,200932,PL8XHw_iEwzs7Dbb5EL2QQ,0.6148,0.5704,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2024-08,41.875874503813094,-87.80704902734355
+chicago-il:200934,chicago-il,200934,htVkCXlmv9r_5WE1O7-diA,0.9859,0.5763,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2024-09,41.87595618566527,-87.80687412599369
+chicago-il:200937,chicago-il,200937,htVkCXlmv9r_5WE1O7-diA,0.0916,0.554,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2024-09,41.876030964923636,-87.80687988345973
+chicago-il:200999,chicago-il,200999,6bWvsuuGHKL4iNZXBAepow,0.4648,0.5603,1,0,"[""brick/cobblestone""]",6583e31a-773e-4a6e-9bc7-fd0f1811fbe6,2025-03,41.98907004070994,-87.66039955107317
+chicago-il:201135,chicago-il,201135,iRvwUbgzN9iS4QITwtpZRg,0.4925,0.5542,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2021-11,41.98656426017126,-87.66504149751823
+chicago-il:201141,chicago-il,201141,12MKDwS_SrQGIG46ior44w,0.4468,0.5891,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2025-08,41.986783312742524,-87.66506117365508
+chicago-il:201154,chicago-il,201154,vjY_Q5cI8z_RLczCnRJuOw,0.9128,0.5895,0,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2025-04,41.98720333808488,-87.6660767474342
+chicago-il:201198,chicago-il,201198,EWxJ07DB1CAImk_jV7H8fA,0.4778,0.6118,1,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2019-07,41.98806750797968,-87.66714151812614
+chicago-il:202335,chicago-il,202335,kpjn6Bcxhc42Ub2ttBdhqQ,0.9047,0.6051,1,0,"[""brick/cobblestone""]",b0ea55d0-b8e4-48cf-8b47-43753c52ca0b,2019-08,41.98655479100372,-87.66501094194443
+chicago-il:202340,chicago-il,202340,yMLwQVwp4yfNI1nYRonLQQ,0.5828,0.5564,1,0,"[""brick/cobblestone""]",b0ea55d0-b8e4-48cf-8b47-43753c52ca0b,2024-10,41.98571910227017,-87.66363141047039
+chicago-il:202348,chicago-il,202348,_dBB29JurNMekw_2xX7Dhw,0.1308,0.5562,0,0,"[""brick/cobblestone""]",b0ea55d0-b8e4-48cf-8b47-43753c52ca0b,2025-03,41.98556025466915,-87.66337270218963
+chicago-il:202788,chicago-il,202788,Dlbrqzzgf7FzFwqUDQBqXA,0.2947,0.5745,0,0,"[""brick/cobblestone""]",cfd429be-ced8-45db-8f18-9718140fb035,2024-04,41.8887007186806,-87.8026554225745
+chicago-il:202882,chicago-il,202882,4iKqrD3vQNGnWoaXB-8nRA,0.0056,0.5597,0,0,"[""bumpy"",""brick/cobblestone"",""paint fading""]",cfd429be-ced8-45db-8f18-9718140fb035,2024-04,41.89414123110273,-87.80394878904958
+chicago-il:202936,chicago-il,202936,zUqjOOvYVtflVlcBGvlcrA,0.3134,0.5695,1,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2025-03,41.98544396633616,-87.66908395134382
+chicago-il:202940,chicago-il,202940,zUqjOOvYVtflVlcBGvlcrA,0.0697,0.629,1,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2025-03,41.98550934916655,-87.6691946452594
+chicago-il:202991,chicago-il,202991,ZRsKIbShiVP9NqLPjT_KCA,0.4644,0.6047,1,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2025-03,41.98553922360201,-87.66336724168939
+chicago-il:203031,chicago-il,203031,tKUeNqsb-b9jxLBXwN4RyA,0.056,0.5953,1,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2025-03,41.99456015363657,-87.66055883393821
+chicago-il:203039,chicago-il,203039,tKUeNqsb-b9jxLBXwN4RyA,0.5296,0.5437,1,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2025-03,41.99455818513642,-87.66028150498157
+chicago-il:203225,chicago-il,203225,DE4dPfPlhjZa7J8sVq-mYw,0.0231,0.5873,1,0,"[""brick/cobblestone""]",2245cf11-979e-4f75-9857-891e6b4d2131,2025-03,41.97628434228772,-87.668397123226
+chicago-il:203226,chicago-il,203226,QVNtG7bbb5KisWzMKVeFjQ,0.8692,0.6027,0,0,"[""brick/cobblestone""]",2245cf11-979e-4f75-9857-891e6b4d2131,2025-03,41.97622634341586,-87.66832106250244
+chicago-il:203228,chicago-il,203228,QaiyHF_GjE1lE7mdVZiQMg,0.4409,0.5831,1,0,"[""brick/cobblestone""]",2245cf11-979e-4f75-9857-891e6b4d2131,2025-03,41.97718146250967,-87.66840952221165
+chicago-il:203229,chicago-il,203229,aqpWC-Y8yNRy8TtYH4xPfg,0.3339,0.5642,1,0,"[""brick/cobblestone""]",2245cf11-979e-4f75-9857-891e6b4d2131,2025-03,41.977999448619094,-87.66845565563081
+chicago-il:203235,chicago-il,203235,QaiyHF_GjE1lE7mdVZiQMg,0.0869,0.597,0,0,"[""paint fading"",""brick/cobblestone""]",bad9f807-6308-4fa9-9f90-0207c9628c9a,2025-03,41.97705119582095,-87.66842396836103
+chicago-il:203858,chicago-il,203858,D-mkDkmu0ioMi21z4733GQ,0.0317,0.5743,1,0,"[""brick/cobblestone""]",6a8b474f-7fc4-42d7-a4c4-c53a3b6998d7,2025-03,41.99362759333425,-87.66054631361605
+chicago-il:205043,chicago-il,205043,8HAdsNh2TAtcXCmGDqQg6g,0.4901,0.5781,2,0,"[""brick/cobblestone""]",da0c7c96-c97e-42f9-9d06-60433995db59,2025-05,41.70186654677035,-87.61229244088794
+chicago-il:206235,chicago-il,206235,S54QIuBoHvEay2DbUxunEQ,0.204,0.5889,0,0,"[""very long crossing"",""brick/cobblestone""]",96839788-4c81-4275-8bdf-7432d39bf9c9,2026-09,41.86919899379485,-87.67626969890205
+chicago-il:207768,chicago-il,207768,920GCGsefwkclqJJBrYKug,0.3444,0.6749,0,0,"[""brick/cobblestone""]",71c8517d-cd53-474d-bbf8-2500b02658e3,2024-08,42.16723341096975,-87.84845232264324
+chicago-il:207770,chicago-il,207770,0ugBRXlDNZQdF0o8lqOYYA,0.0813,0.6091,1,0,"[""brick/cobblestone""]",71c8517d-cd53-474d-bbf8-2500b02658e3,2024-08,42.167327868094524,-87.84834822288313
+chicago-il:207779,chicago-il,207779,CmOaB451dGeqGgSmXh8oYw,0.8726,0.5631,1,0,"[""brick/cobblestone""]",71c8517d-cd53-474d-bbf8-2500b02658e3,2024-08,42.167432823652824,-87.84844197061103
+chicago-il:207780,chicago-il,207780,CmOaB451dGeqGgSmXh8oYw,0.4693,0.6284,1,0,"[""brick/cobblestone""]",71c8517d-cd53-474d-bbf8-2500b02658e3,2024-08,42.16734938529415,-87.84860698597505
+cliffside-park-nj:25219,cliffside-park-nj,25219,1-pyGigVN1_Gjxk7z65J7g,0.191,0.5721,3,0,"[""brick/cobblestone"",""bumpy""]",e5c52e8a-2855-4b4d-9811-f62df90427cc,2015-10,40.82501058151762,-73.98820986909439
+clifton-nj:25131,clifton-nj,25131,b5QK16fEfpMV2Ee7tarMqQ,0.1827,0.5549,2,0,"[""brick/cobblestone"",""paint fading""]",28998d3b-dca8-4d50-a01e-ce80d3fe5f0d,2024-09,40.84090643205504,-74.16078478877638
+columbus-oh:37359,columbus-oh,37359,u7g1Zt6UWX93yQ3X_G1lgw,0.9488,0.5411,2,1,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2020-11,39.96555879537209,-82.98743983672277
+columbus-oh:37593,columbus-oh,37593,ciiuYko9tqoyeplvPXW2yw,0.0117,0.5304,3,1,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2022-10,39.97375399699223,-83.00284373559356
+columbus-oh:37597,columbus-oh,37597,-E2JSDNrWOtnxcqQiMtLyg,0.2365,0.5475,1,1,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2021-09,39.973807680098844,-83.003020711156
+columbus-oh:37598,columbus-oh,37598,-E2JSDNrWOtnxcqQiMtLyg,0.4608,0.5629,1,1,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2021-09,39.973935735186075,-83.00290680968737
+columbus-oh:37612,columbus-oh,37612,u4n2uy7XNXPy5fR3hgx-CQ,0.4348,0.6746,2,1,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2022-10,39.97239934955139,-83.00258736417952
+columbus-oh:37626,columbus-oh,37626,oo8MFyaDZwCXMYMDW2EcBA,0.2433,0.5396,2,0,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2021-06,39.96827886556652,-83.0072117252571
+columbus-oh:37678,columbus-oh,37678,J3icHSgRf451jisrkqkh5w,0.1027,0.6244,3,1,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2022-10,39.96760269458965,-83.00153124288708
+columbus-oh:37681,columbus-oh,37681,sePSOJ6sS6UTHCurofXdIA,0.7548,0.5757,2,1,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2021-06,39.96753766291176,-83.00163486635178
+columbus-oh:37716,columbus-oh,37716,ddMxwqHm-beFMyxjUDZwiQ,0.9913,0.5635,2,1,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2022-09,39.95521462623071,-82.99657045707443
+columbus-oh:37717,columbus-oh,37717,ddMxwqHm-beFMyxjUDZwiQ,0.7598,0.5555,2,1,"[""brick/cobblestone""]",aef7ccd5-77b6-4e01-8f54-0679a7d4bd25,2022-09,39.95510300753164,-82.99669725312681
+columbus-oh:38252,columbus-oh,38252,mvnvPkgU5zE7wQnmEoPLDA,0.0428,0.6033,3,1,"[""brick/cobblestone""]",ee227243-6903-4ffe-a584-da204cf4bb24,2020-11,39.96927586810503,-82.99064509012388
+columbus-oh:38253,columbus-oh,38253,1QggjtCI8F2ryNcoVBcv5w,0.0555,0.6163,1,1,"[""brick/cobblestone""]",ee227243-6903-4ffe-a584-da204cf4bb24,2020-11,39.96932941329272,-82.99054267860234
+columbus-oh:38256,columbus-oh,38256,77oTVP0PlonInYnhku_z2Q,0.6064,0.5559,3,1,"[""brick/cobblestone""]",ee227243-6903-4ffe-a584-da204cf4bb24,2022-09,39.96928460275386,-82.99063196206923
+columbus-oh:38257,columbus-oh,38257,77oTVP0PlonInYnhku_z2Q,0.5931,0.7102,1,1,"[""brick/cobblestone""]",ee227243-6903-4ffe-a584-da204cf4bb24,2022-09,39.96934719515009,-82.99054699713042
+columbus-oh:38302,columbus-oh,38302,qdMBnoNXQyrhcmJrtFdOQA,0.9853,0.6266,2,1,"[""brick/cobblestone""]",ee227243-6903-4ffe-a584-da204cf4bb24,2020-11,39.96542386506243,-82.98871202198245
+columbus-oh:38727,columbus-oh,38727,G16UCCh5cY-T258bMWlCQw,0.4689,0.6019,1,0,"[""brick/cobblestone"",""uneven surface""]",c67f3847-d811-4fa5-89c1-2f09ac527cfe,2022-10,39.99379913117287,-82.98160218331925
+columbus-oh:38730,columbus-oh,38730,G16UCCh5cY-T258bMWlCQw,0.6412,0.5635,1,1,"[""brick/cobblestone"",""bumpy""]",c67f3847-d811-4fa5-89c1-2f09ac527cfe,2022-10,39.99371840435939,-82.98154141537755
+columbus-oh:38732,columbus-oh,38732,G16UCCh5cY-T258bMWlCQw,0.0226,0.5322,1,0,"[""brick/cobblestone""]",c67f3847-d811-4fa5-89c1-2f09ac527cfe,2022-10,39.99370576818769,-82.9818613147833
+columbus-oh:38821,columbus-oh,38821,FmqvzMsqJUwZ1e-VcSYkeQ,0.8486,0.5615,2,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2021-06,39.9682074169682,-83.00762330587634
+columbus-oh:38863,columbus-oh,38863,Owv544ThSl1-ZCcjEjC-4Q,0.4852,0.5562,2,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2021-06,39.96905749508036,-83.00756008852422
+columbus-oh:38889,columbus-oh,38889,3bf8sTJGD3RBnyMXJ9HHBg,0.4459,0.5928,2,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2021-06,39.96976397683988,-83.00861568171902
+columbus-oh:39065,columbus-oh,39065,6wXTAWFNYd0SWvZKUbJABA,0.4346,0.6456,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-08,39.957376749396786,-82.99967713670313
+columbus-oh:39865,columbus-oh,39865,mYcJk54KrfvpzzCynZT5Vw,0.989,0.5452,1,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-10,39.95555124514146,-82.99282338111561
+columbus-oh:39879,columbus-oh,39879,Tu8OEFkwA5_SZO_79yS4Yw,0.4759,0.7067,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2019-07,39.965925194029474,-83.00777517503974
+columbus-oh:39922,columbus-oh,39922,ZT81C6_Z2hIJmPPQvcDspQ,0.0721,0.6194,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2018-07,39.96430821216396,-82.9947252796717
+columbus-oh:39998,columbus-oh,39998,BITDi_eIWeYqES0TmSKKmg,0.2513,0.5577,1,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-11,39.9558508461154,-83.0029372317089
+columbus-oh:40194,columbus-oh,40194,bTNVASE9CV666dze9_PmXQ,0.6949,0.5737,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2020-11,39.968615334683996,-82.98436830509668
+columbus-oh:40196,columbus-oh,40196,bTNVASE9CV666dze9_PmXQ,0.2737,0.5624,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2020-11,39.968430318324586,-82.98431525795323
+columbus-oh:40552,columbus-oh,40552,BjL1S0LQV_T5PMtf_YrJTQ,0.0801,0.5822,1,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-10,39.96343683748499,-82.99003455283184
+columbus-oh:40750,columbus-oh,40750,ATPk3sBFAWCvI7enG_jUtw,0.4625,0.5817,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2016-08,39.963391627752436,-83.00277104369427
+columbus-oh:40751,columbus-oh,40751,ATPk3sBFAWCvI7enG_jUtw,0.74,0.587,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2016-08,39.96348797935417,-83.00268008333538
+columbus-oh:40752,columbus-oh,40752,ATPk3sBFAWCvI7enG_jUtw,0.9916,0.5807,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2016-08,39.96342056041326,-83.00256466746677
+columbus-oh:40753,columbus-oh,40753,ATPk3sBFAWCvI7enG_jUtw,0.2331,0.5801,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2016-08,39.96333216026627,-83.00265499920334
+columbus-oh:41421,columbus-oh,41421,OHKVi8HP8-0gZZqznObyaw,0.0511,0.5851,1,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-10,39.96888785620631,-83.00192440099883
+columbus-oh:41441,columbus-oh,41441,gkl1Xpk8F85JHHcGZAWjMQ,0.4666,0.5887,1,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-10,39.9677125841627,-83.0017046173992
+columbus-oh:41449,columbus-oh,41449,gkl1Xpk8F85JHHcGZAWjMQ,0.0089,0.559,1,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-10,39.96753222795304,-83.00165713163376
+columbus-oh:41586,columbus-oh,41586,-faQz9hMWoSboSHMHpVhkA,0.524,0.6431,1,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2020-11,39.968250556591784,-83.00721447995551
+columbus-oh:41607,columbus-oh,41607,9pqTqCysDSix9-NUOqox_Q,0.2726,0.5566,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2020-11,39.96654953062288,-83.00628015006038
+columbus-oh:41724,columbus-oh,41724,wxxJuYOxgbgdt1RKkP26_w,0.5126,0.5605,1,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-10,39.9662571063868,-83.00156869338342
+columbus-oh:42086,columbus-oh,42086,JpSIS5MDCRpQ2P1GinXOPg,0.0492,0.6271,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2021-09,39.95450819499953,-82.98963523906468
+columbus-oh:42364,columbus-oh,42364,ZmV_FJtHEEGE2Jy2NiMX-Q,0.256,0.5524,1,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-10,39.97226870836467,-83.00270832239245
+columbus-oh:42389,columbus-oh,42389,71MLkxgl1iaI0kPit2WXIg,0.294,0.5514,0,0,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2022-10,39.97158709462553,-83.0025731440978
+columbus-oh:43077,columbus-oh,43077,T94_s5Jxv1DMtxhxrtfz7Q,0.4926,0.5592,1,1,"[""brick/cobblestone""]",a07e62d9-2e9d-4c2f-9016-2408c7e69f0f,2019-07,39.954789425084286,-82.99934933114663
+columbus-oh:45925,columbus-oh,45925,ddMxwqHm-beFMyxjUDZwiQ,0.2595,0.5569,1,1,"[""brick/cobblestone""]",7aaa2403-8ba3-4db7-ba06-1e7bca908581,2022-09,39.95512198498355,-82.99639357818259
+cuenca:10,cuenca,10,zCiJUEZUh_nxNXMX6XxuqA,0.7803,0.6309,3,0,"[""brick/cobblestone"",""paint fading""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2015-03,-2.901241131975543,-78.99953071797329
+cuenca:13,cuenca,13,zCiJUEZUh_nxNXMX6XxuqA,0.0011,0.6095,2,0,"[""brick/cobblestone"",""paint fading""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2015-03,-2.901183886856174,-78.99956913177883
+cuenca:16,cuenca,16,zCiJUEZUh_nxNXMX6XxuqA,0.2031,0.6232,2,0,"[""brick/cobblestone"",""paint fading""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2015-03,-2.901145230388557,-78.99951590275231
+cuenca:19,cuenca,19,zCiJUEZUh_nxNXMX6XxuqA,0.4764,0.7613,4,1,"[""brick/cobblestone"",""paint fading""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2015-03,-2.90119799889236,-78.99949212068778
+cuenca:38,cuenca,38,my7WBo4nGFw4--lsd9i2YA,0.5268,0.6161,2,1,"[""brick/cobblestone"",""paint fading""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2015-03,-2.9000273300561554,-79.00441237668313
+cuenca:44,cuenca,44,my7WBo4nGFw4--lsd9i2YA,0.9875,0.5786,4,0,"[""brick/cobblestone"",""paint fading""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2015-03,-2.899993035461818,-79.00454587272536
+cuenca:88,cuenca,88,Ijjl5_DDRVoO2ww3LC5K_g,0.5384,0.6478,2,1,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2015-03,-2.8943647721175068,-79.00641070390924
+cuenca:343,cuenca,343,qesEAs9tuEp42L-KS31Bdg,0.53,0.6671,3,1,"[""brick/cobblestone""]",13f43834-1404-44b9-bf72-cd5cc976b6fc,2015-03,-2.895308184194524,-79.0024747449765
+cuenca:344,cuenca,344,eYxjBptTTeuOXCYekGDW-Q,0.9757,0.6582,4,1,"[""brick/cobblestone"",""paint fading""]",13f43834-1404-44b9-bf72-cd5cc976b6fc,2015-03,-2.8952482407730855,-79.00257747562985
+cuenca:345,cuenca,345,eYxjBptTTeuOXCYekGDW-Q,0.2453,0.6399,2,2,"[""brick/cobblestone"",""paint fading""]",13f43834-1404-44b9-bf72-cd5cc976b6fc,2015-03,-2.8952939785499323,-79.00253442953718
+cuenca:348,cuenca,348,g4y9qBlOVKXLm11-uuwd3Q,0.536,0.6711,2,1,"[""brick/cobblestone""]",13f43834-1404-44b9-bf72-cd5cc976b6fc,2015-03,-2.895264395588495,-79.00265629173313
+cuenca:529,cuenca,529,zrO8HrlvYyU3I2DZktQklA,0.7112,0.614,2,0,"[""brick/cobblestone"",""broken surface"",""bumpy"",""paint fading"",""uneven surface""]",cf4d1e91-3176-4147-9ec5-74acb57a535d,2015-03,-2.898789137305019,-79.00118234711454
+cuenca:531,cuenca,531,zrO8HrlvYyU3I2DZktQklA,0.5308,0.6321,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",cf4d1e91-3176-4147-9ec5-74acb57a535d,2015-03,-2.8987529947066033,-79.00113912519411
+cuenca:532,cuenca,532,zrO8HrlvYyU3I2DZktQklA,0.8894,0.6911,4,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",cf4d1e91-3176-4147-9ec5-74acb57a535d,2015-03,-2.898746399921796,-79.00121022144583
+cuenca:533,cuenca,533,zrO8HrlvYyU3I2DZktQklA,0.3074,0.6752,2,1,"[""brick/cobblestone"",""broken surface"",""bumpy"",""paint fading"",""uneven surface""]",cf4d1e91-3176-4147-9ec5-74acb57a535d,2015-03,-2.8987045967887584,-79.00116312968157
+cuenca:559,cuenca,559,fqq81W89PbdyrCKJrT19hA,0.9552,0.7255,3,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",cf4d1e91-3176-4147-9ec5-74acb57a535d,2015-03,-2.8987575161119485,-79.00111557540932
+cuenca:565,cuenca,565,zCV_zBBj-R-wsZVNmobdJg,0.5333,0.6304,3,1,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",cf4d1e91-3176-4147-9ec5-74acb57a535d,2015-03,-2.898786679030915,-79.00116961485276
+cuenca:567,cuenca,567,zCV_zBBj-R-wsZVNmobdJg,0.31,0.6941,4,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",cf4d1e91-3176-4147-9ec5-74acb57a535d,2015-03,-2.8987569392906245,-79.00112613335236
+cuenca:569,cuenca,569,zCV_zBBj-R-wsZVNmobdJg,0.9342,0.6973,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",cf4d1e91-3176-4147-9ec5-74acb57a535d,2015-03,-2.8987129067897044,-79.00115940869804
+cuenca:573,cuenca,573,zCV_zBBj-R-wsZVNmobdJg,0.7308,0.6178,4,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",cf4d1e91-3176-4147-9ec5-74acb57a535d,2015-03,-2.898739283805406,-79.00120634132772
+cuenca:1459,cuenca,1459,iccZVIHcGPOuy65Hrxmz1A,0.1016,0.5865,1,1,"[""brick/cobblestone"",""paint fading""]",413f37a5-07bf-43e9-be58-589c29775d0b,2015-03,-2.8948581912824385,-79.00438559805654
+cuenca:1667,cuenca,1667,6-jDZJhOBpVAa0clJkZy_Q,0.9776,0.6095,1,1,"[""brick/cobblestone"",""broken surface"",""bumpy"",""paint fading"",""uneven surface""]",413f37a5-07bf-43e9-be58-589c29775d0b,2015-03,-2.8985341082362015,-79.00609872681993
+cuenca:1714,cuenca,1714,9egSFMLBpj0I42n7wSWXLw,0.9823,0.585,2,1,"[""brick/cobblestone""]",b360ca77-3392-4557-a29b-4b9896cd0868,2015-03,-2.8977793898515847,-79.00096872551109
+cuenca:1716,cuenca,1716,9egSFMLBpj0I42n7wSWXLw,0.812,0.6101,1,1,"[""brick/cobblestone""]",b360ca77-3392-4557-a29b-4b9896cd0868,2015-03,-2.897722777185967,-79.00101137031649
+cuenca:2164,cuenca,2164,WeytMNwPYWv2rp92aSrOaA,0.0065,0.7737,2,0,"[""brick/cobblestone"",""paint fading""]",da3d2814-4555-4ecf-b6e9-0653a2564c82,2015-03,-2.9011351175861004,-78.99953083377017
+cuenca:2228,cuenca,2228,UTAgJkO2cnq3y7A0HsrCfw,0.3066,0.5729,1,1,"[""brick/cobblestone""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.8983323663019576,-78.9988856724391
+cuenca:2341,cuenca,2341,_bIYZIfJ-TkJ_0sB_WjDhQ,0.028,0.6298,2,0,"[""brick/cobblestone"",""paint fading""]",da3d2814-4555-4ecf-b6e9-0653a2564c82,2015-03,-2.9003282018960577,-78.99935689186556
+cuenca:2631,cuenca,2631,PMDez-3ucfgxjIsZdT95vg,0.1587,0.6094,1,1,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.9013221706248364,-79.00369849918022
+cuenca:2675,cuenca,2675,8WNHqLlCVvI7jk5O3Gn5xg,0.2933,0.5463,2,1,"[""brick/cobblestone""]",da3d2814-4555-4ecf-b6e9-0653a2564c82,2015-03,-2.905671038709028,-79.00007869948861
+cuenca:2778,cuenca,2778,qf6jPtPPeZRiGk9VXwaWXg,0.007,0.5826,2,0,"[""brick/cobblestone""]",356a0644-1f28-45e1-a6ca-edead5308059,2015-03,-2.9028955319132073,-78.99989689732806
+cuenca:2799,cuenca,2799,qf6jPtPPeZRiGk9VXwaWXg,0.4594,0.652,3,0,"[""brick/cobblestone""]",356a0644-1f28-45e1-a6ca-edead5308059,2015-03,-2.9030130731624895,-78.99991382919356
+cuenca:2850,cuenca,2850,Xueihl3KpcqP9syqq98n1A,0.3102,0.6028,1,1,"[""brick/cobblestone"",""bumpy""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.8960381776298583,-79.00782829205444
+cuenca:2859,cuenca,2859,rQcwju2suHY0kGpOPHtoEg,0.6739,0.6331,2,1,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.893863904576766,-78.99930432696965
+cuenca:2875,cuenca,2875,Xueihl3KpcqP9syqq98n1A,0.9505,0.7115,1,1,"[""brick/cobblestone"",""bumpy"",""uneven surface""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.896097306982417,-79.00777043345128
+cuenca:2910,cuenca,2910,6v4Ii9-UWCJyDo9_2EII_g,0.4498,0.6333,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",0b2e896f-8ac8-4dc0-8a6d-fcfb9dcf717b,2015-03,-2.902403873374922,-79.00299754279082
+cuenca:2994,cuenca,2994,Xueihl3KpcqP9syqq98n1A,0.7093,0.5775,2,1,"[""brick/cobblestone"",""paint fading""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.8960630222208246,-79.00768986031274
+cuenca:3025,cuenca,3025,D8qEra2207gMjjIJqt2Nbg,0.684,0.6134,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.899735838317013,-79.00138262744628
+cuenca:3075,cuenca,3075,T6xFloZFsBszi1wq6vihpA,0.6791,0.6318,2,0,"[""brick/cobblestone"",""paint fading""]",312b8d26-8669-4eb7-8fa0-f3db7f9e35a3,2015-03,-2.899506065702261,-79.00228831218949
+cuenca:3092,cuenca,3092,D8qEra2207gMjjIJqt2Nbg,0.5183,0.6095,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.8997789956099194,-79.001344745579
+cuenca:3145,cuenca,3145,D8qEra2207gMjjIJqt2Nbg,0.3761,0.6632,2,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.899753762872179,-79.00130646348897
+cuenca:3175,cuenca,3175,D8qEra2207gMjjIJqt2Nbg,0.8401,0.7527,2,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.8997087277071296,-79.0013427019712
+cuenca:3189,cuenca,3189,2OHht-gjiNOSQV6G9U7wPQ,0.5409,0.6355,4,1,"[""brick/cobblestone"",""bumpy"",""paint fading""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.901970766018014,-79.0037593920926
+cuenca:3214,cuenca,3214,2OHht-gjiNOSQV6G9U7wPQ,0.9748,0.5762,1,0,"[""brick/cobblestone"",""uneven surface""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.901905166884547,-79.0038719319711
+cuenca:3342,cuenca,3342,KPvdcMhgxXLZACkD5_O5Ng,0.5401,0.5992,2,0,"[""brick/cobblestone"",""paint fading""]",312b8d26-8669-4eb7-8fa0-f3db7f9e35a3,2015-03,-2.8995082175249838,-79.00227003405631
+cuenca:3377,cuenca,3377,5DZj4hMTTiEUPKAeXgSAFQ,0.0035,0.5526,3,0,"[""brick/cobblestone""]",356a0644-1f28-45e1-a6ca-edead5308059,2015-03,-2.902362720633287,-78.99978196891509
+cuenca:3576,cuenca,3576,T6xFloZFsBszi1wq6vihpA,0.7101,0.6528,3,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.8995158008531967,-79.00229420783245
+cuenca:3736,cuenca,3736,-YTTJfUL0-idnxU-CeKaTQ,0.7519,0.6014,2,1,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.8936532551761327,-79.00027263663283
+cuenca:3782,cuenca,3782,5lqHPwmvNOB-wQ_zN9wNLw,0.986,0.6623,3,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.900435368698055,-79.00250477413736
+cuenca:3881,cuenca,3881,3sJuT9KAmpG3WLiEMIw8EA,0.9043,0.6931,1,1,"[""brick/cobblestone"",""paint fading""]",312b8d26-8669-4eb7-8fa0-f3db7f9e35a3,2015-03,-2.899734070904283,-79.00140588013507
+cuenca:3902,cuenca,3902,hoO8bfB38i1LgjjWNIMYSA,0.353,0.6077,2,1,"[""brick/cobblestone""]",aae2aa5a-757f-47d6-a73a-015633f0f66f,2015-03,-2.893783452291103,-79.00424950545842
+cuenca:3953,cuenca,3953,6AB9y0q3RuO-g-aFmlxl8A,0.9747,0.6708,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.900545220358316,-79.00251839980284
+cuenca:3964,cuenca,3964,-YTTJfUL0-idnxU-CeKaTQ,0.1957,0.6181,2,1,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.893766109569535,-79.00030010747504
+cuenca:3995,cuenca,3995,-YTTJfUL0-idnxU-CeKaTQ,0.4802,0.6158,1,1,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.8936976226788196,-79.00035098190209
+cuenca:3996,cuenca,3996,hoO8bfB38i1LgjjWNIMYSA,0.5128,0.5934,1,1,"[""brick/cobblestone""]",aae2aa5a-757f-47d6-a73a-015633f0f66f,2015-03,-2.893842850524874,-79.00422882692074
+cuenca:4014,cuenca,4014,6AB9y0q3RuO-g-aFmlxl8A,0.2498,0.579,2,0,"[""brick/cobblestone"",""paint fading""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.900495139290524,-79.00259955274548
+cuenca:4185,cuenca,4185,saJt0PxOMOeOWdDYZeqyXQ,0.8283,0.5906,1,1,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.8957895626961663,-79.00879999522593
+cuenca:4207,cuenca,4207,saJt0PxOMOeOWdDYZeqyXQ,0.992,0.5931,1,1,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.895764613859396,-79.0087346945029
+cuenca:4211,cuenca,4211,AxsfaSUR7E3NVMyuSTqfcg,0.3314,0.5944,1,1,"[""brick/cobblestone"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.8951140710108674,-79.00357132680222
+cuenca:4217,cuenca,4217,saJt0PxOMOeOWdDYZeqyXQ,0.1678,0.6268,1,1,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.895817132870618,-79.0086961158507
+cuenca:4273,cuenca,4273,KPvdcMhgxXLZACkD5_O5Ng,0.5304,0.6028,2,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.899512809416564,-79.00226960709468
+cuenca:4299,cuenca,4299,z9JAIOCw_Uk360EI8Dr_ag,0.7933,0.7263,1,1,"[""brick/cobblestone"",""bumpy"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.8959828622461035,-79.00371611782279
+cuenca:4396,cuenca,4396,rXA14MVaSMrp1A1LLL21Dg,0.7217,0.6038,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.8960633516221868,-79.00368371262083
+cuenca:4481,cuenca,4481,hXfrSvWC3nH20Zfj_uMI_w,0.5164,0.5844,3,1,"[""brick/cobblestone"",""bumpy"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.8962755195421406,-79.00285701181048
+cuenca:4551,cuenca,4551,OcRCIGLbuIavRVYPg-4tGA,0.7688,0.6125,0,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.8963482692352067,-79.00277423310892
+cuenca:4648,cuenca,4648,3sJuT9KAmpG3WLiEMIw8EA,0.8863,0.7057,1,1,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",0b2e896f-8ac8-4dc0-8a6d-fcfb9dcf717b,2015-03,-2.899732035343075,-79.00140943864088
+cuenca:4689,cuenca,4689,0S5fMBTVlgQ8wu0lyf3kkg,0.062,0.7085,1,0,"[""brick/cobblestone"",""paint fading""]",409d0972-85ac-4c41-a63d-ad2430980246,2015-03,-2.8996163053955613,-79.0078345710712
+cuenca:4718,cuenca,4718,qSXWB38uGbgYzwglfDeIqQ,0.513,0.601,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.897226134945887,-79.00294603393094
+cuenca:4802,cuenca,4802,5lqHPwmvNOB-wQ_zN9wNLw,0.971,0.6651,2,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.9004346414012163,-79.00250125873306
+cuenca:4817,cuenca,4817,4n9q9z7sVfrNtxUm09vvzQ,0.5179,0.6487,3,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.8973867934441824,-79.00297270522914
+cuenca:4893,cuenca,4893,3sJuT9KAmpG3WLiEMIw8EA,0.9718,0.7075,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.8997465356252037,-79.00140675674673
+cuenca:4960,cuenca,4960,6AB9y0q3RuO-g-aFmlxl8A,0.7662,0.6354,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.9005226944651405,-79.00247296798973
+cuenca:4985,cuenca,4985,-uwkZ1NOLndaR8nBmfT_MQ,0.5551,0.7414,1,1,"[""brick/cobblestone"",""broken surface"",""bumpy"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.898160180764119,-79.00311623416992
+cuenca:5056,cuenca,5056,6AB9y0q3RuO-g-aFmlxl8A,0.2523,0.5903,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.9004959507407735,-79.00258866677046
+cuenca:5085,cuenca,5085,6AB9y0q3RuO-g-aFmlxl8A,0.9772,0.6552,2,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.9005495158399692,-79.00251910407432
+cuenca:5201,cuenca,5201,6jAbJfbpT_ZSuylbvxzLPw,0.2471,0.6322,2,0,"[""brick/cobblestone"",""paint fading""]",356a0644-1f28-45e1-a6ca-edead5308059,2015-03,-2.896054992669912,-78.9996575691409
+cuenca:5213,cuenca,5213,YOnGqCXoTkbH0QIlyJAfCA,0.5137,0.556,2,1,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.8944604899390383,-79.00138416100167
+cuenca:5346,cuenca,5346,6jAbJfbpT_ZSuylbvxzLPw,0.031,0.6423,2,1,"[""brick/cobblestone"",""paint fading""]",356a0644-1f28-45e1-a6ca-edead5308059,2015-03,-2.896024818486127,-78.99960841143714
+cuenca:5362,cuenca,5362,gP5UyeBy0TS6_g1oP13New,0.3335,0.6097,1,1,"[""brick/cobblestone""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.8984360433280374,-79.00214276095299
+cuenca:5639,cuenca,5639,rXA14MVaSMrp1A1LLL21Dg,0.0009,0.6152,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8961193631174322,-79.00375516740098
+cuenca:5648,cuenca,5648,rXA14MVaSMrp1A1LLL21Dg,0.7298,0.5968,1,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8960666813301716,-79.0036788599853
+cuenca:6080,cuenca,6080,of9rosu9sEjhG2_VEdTfRw,0.7658,0.5753,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.898698232182436,-79.00515943930048
+cuenca:6092,cuenca,6092,zCiJUEZUh_nxNXMX6XxuqA,0.0087,0.6125,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",f0169b43-81fc-4e20-b446-7317c4e6e6a4,2015-03,-2.901181593416015,-78.9995668038804
+cuenca:6117,cuenca,6117,of9rosu9sEjhG2_VEdTfRw,0.5319,0.6173,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.8987579077360928,-79.0052375074481
+cuenca:6126,cuenca,6126,EYwHjnRYFzL55QQqCxEtIA,0.9705,0.6749,1,1,"[""brick/cobblestone"",""paint fading""]",042ed283-a189-4436-ac51-e86afd8c4991,2015-03,-2.895777694865032,-79.00058356949637
+cuenca:6175,cuenca,6175,OcRCIGLbuIavRVYPg-4tGA,0.9849,0.5998,1,1,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.896285432048478,-79.00281857781175
+cuenca:6242,cuenca,6242,SeKT-4HGVOZn5Pc_HTxNog,0.9721,0.6825,2,1,"[""brick/cobblestone""]",aae2aa5a-757f-47d6-a73a-015633f0f66f,2015-03,-2.898862691209633,-79.00518167881603
+cuenca:6282,cuenca,6282,OcRCIGLbuIavRVYPg-4tGA,0.2037,0.6221,2,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.896242751030146,-79.00275688111988
+cuenca:6354,cuenca,6354,OcRCIGLbuIavRVYPg-4tGA,0.519,0.6465,2,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8963097750413183,-79.00271439945614
+cuenca:6453,cuenca,6453,OcRCIGLbuIavRVYPg-4tGA,0.7701,0.5966,1,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.896357598405369,-79.00277833920376
+cuenca:6649,cuenca,6649,zCiJUEZUh_nxNXMX6XxuqA,0.2137,0.6295,3,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.901147860444885,-78.9995124246808
+cuenca:6810,cuenca,6810,y3vGjG47Wjzyr-0sr7WP2w,0.2293,0.636,1,1,"[""brick/cobblestone""]",409d0972-85ac-4c41-a63d-ad2430980246,2015-03,-2.898095533578441,-79.00001303269147
+cuenca:6846,cuenca,6846,N3aRnEl9sk61aXs63g8Inw,0.8714,0.7509,1,1,"[""brick/cobblestone"",""bumpy"",""paint fading""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.89999431414997,-79.00037921327467
+cuenca:6899,cuenca,6899,4n9q9z7sVfrNtxUm09vvzQ,0.9899,0.5778,1,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8972632666289906,-79.00294943875711
+cuenca:6917,cuenca,6917,N3aRnEl9sk61aXs63g8Inw,0.8833,0.5919,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.8999714365329856,-79.00033469835205
+cuenca:7008,cuenca,7008,yEDhqxrynFAknYznr7quXw,0.1586,0.7207,3,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.9020601877510885,-79.00017305533656
+cuenca:7103,cuenca,7103,1kTZ6p7C_YIMjxeA96K9cg,0.5159,0.5625,2,1,"[""brick/cobblestone"",""paint fading""]",356a0644-1f28-45e1-a6ca-edead5308059,2015-03,-2.8957799086771883,-79.00056533867554
+cuenca:7111,cuenca,7111,SgqTYQH8i0ZAxn_hr_aHQw,0.1607,0.6522,1,0,"[""brick/cobblestone"",""paint fading""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.8961888828802245,-79.01095211082782
+cuenca:7114,cuenca,7114,Tl7QpkuAKSM-RYoTzLI4vQ,0.5268,0.7141,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.9021353946953807,-79.00010790727039
+cuenca:7152,cuenca,7152,SgqTYQH8i0ZAxn_hr_aHQw,0.5901,0.7348,1,1,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2ad241f-74d2-4ce5-9987-43807af617c9,2015-03,-2.8962450780162414,-79.01092506142554
+cuenca:7194,cuenca,7194,4n9q9z7sVfrNtxUm09vvzQ,0.5182,0.6318,2,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8973926777508305,-79.00297464735618
+cuenca:7239,cuenca,7239,Gn-jKgaJ4jY6VX_8xeZ2zg,0.9539,0.5865,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.902184535653764,-78.99976078562676
+cuenca:7254,cuenca,7254,4n9q9z7sVfrNtxUm09vvzQ,0.2133,0.5925,3,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8973442398379734,-79.00288980347482
+cuenca:7392,cuenca,7392,yEDhqxrynFAknYznr7quXw,0.1573,0.7443,2,0,"[""brick/cobblestone"",""paint fading""]",094f5ac8-3575-441c-a0f4-f11621eb58d3,2015-03,-2.9020602559375077,-79.00017657707869
+cuenca:7424,cuenca,7424,qf6jPtPPeZRiGk9VXwaWXg,0.0107,0.5816,1,0,"[""brick/cobblestone""]",bd9ea35a-1dec-4da5-b48e-7f380dde5f7a,2015-03,-2.9028949643003794,-78.99989483857142
+cuenca:7458,cuenca,7458,sVYgiAuqGqJhkmNflAf18w,0.9672,0.6657,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.902820310239135,-79.00071505167514
+cuenca:7466,cuenca,7466,KFxWow-HMYSvV13_xxlrIQ,0.5262,0.6245,2,1,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.897516868371822,-79.00201524108064
+cuenca:7493,cuenca,7493,V8CXHmWwMuRNFZG6ixgqzA,0.0098,0.5533,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.902865063346861,-79.00210172576396
+cuenca:7523,cuenca,7523,XnCXT5UU3ex313SQRpuTyA,0.2495,0.5801,1,1,"[""brick/cobblestone"",""paint fading""]",bd9ea35a-1dec-4da5-b48e-7f380dde5f7a,2015-03,-2.903649981721848,-78.99997289474031
+cuenca:7528,cuenca,7528,Tl7QpkuAKSM-RYoTzLI4vQ,0.5495,0.6974,2,0,"[""brick/cobblestone"",""paint fading""]",094f5ac8-3575-441c-a0f4-f11621eb58d3,2015-03,-2.9021304382436774,-79.00010862475663
+cuenca:7555,cuenca,7555,KFxWow-HMYSvV13_xxlrIQ,0.2149,0.6079,1,1,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8975969447505894,-79.00196989526965
+cuenca:7616,cuenca,7616,s1FrZCQdmvZyW1wq38YD7g,0.9832,0.5891,1,1,"[""brick/cobblestone"",""broken surface"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8975881720181924,-79.00196524498902
+cuenca:7640,cuenca,7640,4cmMzwcZhe_6OWXB3RBDVg,0.0095,0.5708,0,0,"[""brick/cobblestone"",""paint fading""]",094f5ac8-3575-441c-a0f4-f11621eb58d3,2015-03,-2.90222209034031,-78.9998190061634
+cuenca:7663,cuenca,7663,s1FrZCQdmvZyW1wq38YD7g,0.5297,0.6376,1,1,"[""brick/cobblestone"",""broken surface"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8974722444757317,-79.00194496225646
+cuenca:7694,cuenca,7694,Gn-jKgaJ4jY6VX_8xeZ2zg,0.089,0.6889,1,0,"[""brick/cobblestone"",""paint fading""]",094f5ac8-3575-441c-a0f4-f11621eb58d3,2015-03,-2.9022248163903326,-78.99980489849904
+cuenca:7725,cuenca,7725,ANgUpOo3S3QPYxk0Xw60zw,0.9265,0.764,1,1,"[""brick/cobblestone"",""paint fading""]",409d0972-85ac-4c41-a63d-ad2430980246,2015-03,-2.9013759251495075,-79.00481818903204
+cuenca:7805,cuenca,7805,9-t1oBh3L2wfsnFz-xzpaQ,0.5251,0.6127,1,1,"[""brick/cobblestone"",""bumpy""]",1eb79366-8f6f-4d17-a81b-98ab04cff855,2015-03,-2.894537409067014,-79.00545404099975
+cuenca:7836,cuenca,7836,koE0LKyJUnkGzjy13NwhxQ,0.9811,0.558,1,0,"[""brick/cobblestone"",""paint fading""]",bd9ea35a-1dec-4da5-b48e-7f380dde5f7a,2015-03,-2.9013800109908567,-79.00482855592175
+cuenca:7837,cuenca,7837,2fPr29qq0q7Dx62JcbsaWg,0.9618,0.6071,1,1,"[""brick/cobblestone"",""paint fading""]",409d0972-85ac-4c41-a63d-ad2430980246,2015-03,-2.90102333100278,-79.00546758136558
+cuenca:7900,cuenca,7900,ytH63ndmheT0RN_r2Vl_zw,0.8057,0.6322,1,1,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.898483805815881,-79.00209498349868
+cuenca:7954,cuenca,7954,DBLejBtTuNY0A_mkD3iEuw,0.0168,0.7553,1,0,"[""brick/cobblestone"",""paint fading""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.9010424628505875,-79.00557694410914
+cuenca:8053,cuenca,8053,SmgiTvwYzlUaXgfSXqWWeQ,0.6226,0.7132,2,0,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.9019975613879563,-79.00063152242645
+cuenca:8062,cuenca,8062,SmgiTvwYzlUaXgfSXqWWeQ,0.7825,0.6176,1,0,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.90197202578714,-79.00059327093841
+cuenca:8063,cuenca,8063,SmgiTvwYzlUaXgfSXqWWeQ,0.9549,0.5892,0,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9020192290682667,-79.00054477642877
+cuenca:8066,cuenca,8066,mCHMidtKTo0cD5FCtLNCIw,0.345,0.7832,2,0,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.9020290002497813,-79.00053282983237
+cuenca:8067,cuenca,8067,mCHMidtKTo0cD5FCtLNCIw,0.3407,0.5933,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.902060601003314,-79.00057506922664
+cuenca:8069,cuenca,8069,mCHMidtKTo0cD5FCtLNCIw,0.5752,0.5874,1,0,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.9019636625207808,-79.00056876486282
+cuenca:8076,cuenca,8076,SmgiTvwYzlUaXgfSXqWWeQ,0.1267,0.6493,2,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.902056752606555,-79.00059776399915
+cuenca:8086,cuenca,8086,SmgiTvwYzlUaXgfSXqWWeQ,0.5974,0.7431,0,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9020035254274994,-79.00063203328877
+cuenca:8090,cuenca,8090,yEDhqxrynFAknYznr7quXw,0.1682,0.7443,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.902061747899517,-79.00017651282177
+cuenca:8091,cuenca,8091,SmgiTvwYzlUaXgfSXqWWeQ,0.7885,0.6149,0,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.901971755073092,-79.00059079699463
+cuenca:8621,cuenca,8621,my7WBo4nGFw4--lsd9i2YA,0.761,0.6134,1,0,"[""brick/cobblestone"",""paint fading""]",9ee4682f-a620-4206-ba86-574e2b2aebbc,2015-03,-2.9000598311834356,-79.00448000357345
+cuenca:8653,cuenca,8653,my7WBo4nGFw4--lsd9i2YA,0.5276,0.6062,0,0,"[""brick/cobblestone"",""paint fading""]",9ee4682f-a620-4206-ba86-574e2b2aebbc,2015-03,-2.9000297835564797,-79.00440731632202
+cuenca:8661,cuenca,8661,my7WBo4nGFw4--lsd9i2YA,0.2079,0.5865,1,0,"[""brick/cobblestone"",""paint fading""]",9ee4682f-a620-4206-ba86-574e2b2aebbc,2015-03,-2.8999303275631743,-79.00446560883734
+cuenca:8677,cuenca,8677,my7WBo4nGFw4--lsd9i2YA,0.9806,0.5679,1,0,"[""brick/cobblestone"",""paint fading""]",9ee4682f-a620-4206-ba86-574e2b2aebbc,2015-03,-2.8999950872804128,-79.00455991571252
+cuenca:8696,cuenca,8696,Ywswu4GmYOTk68Qtuo-kMw,0.9654,0.6465,1,0,"[""brick/cobblestone"",""paint fading""]",9ee4682f-a620-4206-ba86-574e2b2aebbc,2015-03,-2.899808702079616,-79.00526865650632
+cuenca:8707,cuenca,8707,UNZJYe878DaZCzmL1SkDtg,0.7693,0.5898,0,0,"[""brick/cobblestone"",""paint fading""]",9ee4682f-a620-4206-ba86-574e2b2aebbc,2015-03,-2.8998498754028734,-79.00535922813822
+cuenca:8720,cuenca,8720,UNZJYe878DaZCzmL1SkDtg,0.9811,0.5816,0,0,"[""brick/cobblestone"",""paint fading""]",9ee4682f-a620-4206-ba86-574e2b2aebbc,2015-03,-2.899771755874464,-79.00541271554823
+cuenca:8740,cuenca,8740,UNZJYe878DaZCzmL1SkDtg,0.1888,0.6083,1,0,"[""brick/cobblestone"",""paint fading""]",9ee4682f-a620-4206-ba86-574e2b2aebbc,2015-03,-2.899723266865029,-79.0053410244217
+cuenca:8741,cuenca,8741,Rcs6RXFI9_W-YpIMr7N-kg,0.985,0.5777,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.9003071633779745,-79.00349686447726
+cuenca:8770,cuenca,8770,yR867XGPVmh9E1WT_ZIRKA,0.531,0.5993,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.9004905155870575,-79.0026109628598
+cuenca:8787,cuenca,8787,sVYgiAuqGqJhkmNflAf18w,0.992,0.6486,1,0,"[""brick/cobblestone""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.90282224454309,-79.00072274231044
+cuenca:8818,cuenca,8818,XiIHtC3Dtcyz51sEFoY9tw,0.6261,0.6065,0,0,"[""brick/cobblestone"",""paint fading""]",c0340f94-fe4d-47e1-823a-f3409f583482,2015-03,-2.8995307591960575,-79.00229220684052
+cuenca:8820,cuenca,8820,6AB9y0q3RuO-g-aFmlxl8A,0.9803,0.6492,0,0,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.9005513557135414,-79.0025199950484
+cuenca:8840,cuenca,8840,6AB9y0q3RuO-g-aFmlxl8A,0.2455,0.5877,1,0,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.9004986743277184,-79.0025913938135
+cuenca:8930,cuenca,8930,sVYgiAuqGqJhkmNflAf18w,0.9947,0.6513,2,0,"[""brick/cobblestone""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.902821139983235,-79.00072290966703
+cuenca:8942,cuenca,8942,6E6-uYs7G_xOqCKoxgMrow,0.0162,0.6175,1,0,"[""brick/cobblestone""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9037317639783535,-79.00094460421299
+cuenca:9018,cuenca,9018,6E6-uYs7G_xOqCKoxgMrow,0.1095,0.5646,1,1,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9037164100574415,-79.00100726744014
+cuenca:9036,cuenca,9036,6E6-uYs7G_xOqCKoxgMrow,0.9242,0.5673,1,1,"[""brick/cobblestone""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.903788342977606,-79.00092366324994
+cuenca:9111,cuenca,9111,jJQumbdVfrPnoZ-Kk7NIoQ,0.4986,0.6253,1,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9043486175403808,-79.0004428738259
+cuenca:9137,cuenca,9137,H-ce1Bz3L8Umow1XtOaK-w,0.4147,0.6076,0,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9043862534465683,-79.0003527578103
+cuenca:9231,cuenca,9231,zCiJUEZUh_nxNXMX6XxuqA,0.7917,0.6227,1,1,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.901242831380257,-78.99953549313962
+cuenca:9317,cuenca,9317,ohfs12eyGsafc_JpuPz-1w,0.2323,0.6848,2,0,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.904408000551201,-79.00031934284056
+cuenca:9361,cuenca,9361,zCiJUEZUh_nxNXMX6XxuqA,0.1993,0.614,2,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9011407911718283,-78.99951762327616
+cuenca:9398,cuenca,9398,PMDez-3ucfgxjIsZdT95vg,0.1573,0.6059,1,1,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.901323826486119,-79.00369713342414
+cuenca:9560,cuenca,9560,KukMXc7gy52WnbpwBvfnTw,0.4832,0.553,1,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9021492549517203,-78.9997324707033
+cuenca:9789,cuenca,9789,mvMZ43_EihUcidgMW9iapg,0.5093,0.5909,2,0,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.9000636755905282,-79.00448542438708
+cuenca:9836,cuenca,9836,A0iclBkE1bSMqnEopDxerw,0.0291,0.5374,1,1,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",67497835-7637-4def-aff3-6f444225049b,2015-03,-2.9029535859914875,-79.00196951547936
+cuenca:9871,cuenca,9871,V8CXHmWwMuRNFZG6ixgqzA,0.9846,0.5521,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",67497835-7637-4def-aff3-6f444225049b,2015-03,-2.9028787394677917,-79.00211574083676
+cuenca:10235,cuenca,10235,UoP2ngZji1Teh1wBK557uQ,0.1993,0.655,1,1,"[""brick/cobblestone"",""paint fading""]",67497835-7637-4def-aff3-6f444225049b,2015-03,-2.893834055433645,-79.00419486745002
+cuenca:10283,cuenca,10283,3SvTY45wTwVI2MS-MNylhw,0.6508,0.5691,0,0,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.8999515944835355,-79.00029622076106
+cuenca:10305,cuenca,10305,8LbYjrRgJQnLn36GUhoiQg,0.9681,0.6157,1,1,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.897984220814889,-78.99998153984595
+cuenca:10320,cuenca,10320,E0qzei-H491TQkJeWaZuUw,0.9854,0.654,1,0,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.900033563176191,-79.00026544314944
+cuenca:10326,cuenca,10326,YwhbyvCf34wsysfAjSn-Zw,0.5213,0.6288,0,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.898673809225699,-79.00115126904899
+cuenca:10339,cuenca,10339,E0qzei-H491TQkJeWaZuUw,0.2405,0.6454,0,0,"[""brick/cobblestone"",""paint fading""]",07109ab2-0e06-42ba-9706-44e2f84e20c4,2015-03,-2.9000701924401775,-79.00031249989985
+cuenca:10361,cuenca,10361,zCV_zBBj-R-wsZVNmobdJg,0.3109,0.7102,4,0,"[""brick/cobblestone"",""bumpy"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.898755519161375,-79.00112881344207
+cuenca:10384,cuenca,10384,SmgiTvwYzlUaXgfSXqWWeQ,0.7913,0.6127,2,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.901971197442687,-79.00058931436898
+cuenca:10388,cuenca,10388,E0qzei-H491TQkJeWaZuUw,0.9974,0.6626,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",00cb5601-938d-4975-8319-4609339966ef,2015-03,-2.900036009567582,-79.00026841435461
+cuenca:10393,cuenca,10393,OdJ4GilAW6B4992e_Ke2Kg,0.4896,0.6059,0,0,"[""brick/cobblestone"",""paint fading""]",409d0972-85ac-4c41-a63d-ad2430980246,2015-03,-2.9002900822581417,-78.99934985629817
+cuenca:10395,cuenca,10395,SmgiTvwYzlUaXgfSXqWWeQ,0.6158,0.7479,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.902002562504732,-79.00062961788677
+cuenca:10418,cuenca,10418,zCV_zBBj-R-wsZVNmobdJg,0.8944,0.6701,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.89871029444936,-79.00116919059643
+cuenca:10428,cuenca,10428,zCV_zBBj-R-wsZVNmobdJg,0.7251,0.6238,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.898741219519267,-79.0012034830921
+cuenca:10455,cuenca,10455,SmgiTvwYzlUaXgfSXqWWeQ,0.1285,0.6403,3,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.902059686347258,-79.00059668506078
+cuenca:10473,cuenca,10473,SmgiTvwYzlUaXgfSXqWWeQ,0.9585,0.5978,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.9020208770231553,-79.0005515438021
+cuenca:10542,cuenca,10542,Qophr2hPTk9gaI-Qb0VBMQ,0.1897,0.6584,1,0,"[""brick/cobblestone"",""paint fading""]",67497835-7637-4def-aff3-6f444225049b,2015-03,-2.8999496867303045,-79.00031219093128
+cuenca:10559,cuenca,10559,0wlToO_L0f9wyVNNHTueZg,0.1901,0.6532,1,0,"[""brick/cobblestone"",""paint fading""]",67497835-7637-4def-aff3-6f444225049b,2015-03,-2.9000656466950465,-79.00032894669829
+cuenca:10647,cuenca,10647,0wlToO_L0f9wyVNNHTueZg,0.4334,0.5648,1,0,"[""brick/cobblestone"",""paint fading""]",67497835-7637-4def-aff3-6f444225049b,2015-03,-2.8999578639177694,-79.00032000788102
+cuenca:10660,cuenca,10660,0wlToO_L0f9wyVNNHTueZg,0.6635,0.672,1,0,"[""brick/cobblestone"",""paint fading""]",67497835-7637-4def-aff3-6f444225049b,2015-03,-2.9000409586646114,-79.0002578984576
+cuenca:10674,cuenca,10674,-8k5xBzuhze7SzH8Rbm-hA,0.9989,0.701,1,0,"[""brick/cobblestone"",""paint fading""]",409d0972-85ac-4c41-a63d-ad2430980246,2015-03,-2.89807000992786,-79.00411870850186
+cuenca:10744,cuenca,10744,Tc6rQk-TXy2mP1KadF3l6w,0.9958,0.5901,0,0,"[""brick/cobblestone"",""paint fading""]",67497835-7637-4def-aff3-6f444225049b,2015-03,-2.9002437876581335,-78.9994255020204
+cuenca:10792,cuenca,10792,dD9xumJwPGW7QClH9EsTiw,0.5275,0.5835,1,1,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.8992209352145446,-78.9992484916327
+cuenca:10815,cuenca,10815,SIMJYtdqc5l1latSmj1owQ,0.3568,0.6546,0,0,"[""brick/cobblestone"",""bumpy"",""paint fading"",""uneven surface""]",781a85fd-a04b-43be-a572-602da80c3204,2015-03,-2.8991970862696683,-78.99915276737117
+cuenca:10890,cuenca,10890,q-DeT9d5PzuInLHO0SoX3Q,0.3814,0.613,1,0,"[""brick/cobblestone"",""paint fading""]",67497835-7637-4def-aff3-6f444225049b,2015-03,-2.9003103602339553,-78.99932484629522
+cuenca:10976,cuenca,10976,xzbp7ZwZ-aAixA3ZgN8OFQ,0.8819,0.6333,2,0,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",d0333ef8-2189-40b8-a9b5-d58761674446,2015-03,-2.8990051304523443,-79.00010226644343
+cuenca:11215,cuenca,11215,zrO8HrlvYyU3I2DZktQklA,0.284,0.6913,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8987052940337232,-79.00116906276062
+cuenca:11278,cuenca,11278,zrO8HrlvYyU3I2DZktQklA,0.9519,0.723,2,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.898734442297868,-79.00120751567766
+cuenca:11353,cuenca,11353,zrO8HrlvYyU3I2DZktQklA,0.716,0.6095,1,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8987916375963305,-79.00118411476407
+cuenca:11374,cuenca,11374,WZWQmIA0QMXRuLTL5hN_kg,0.968,0.6397,0,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.9005262895800845,-79.00244815971627
+cuenca:11395,cuenca,11395,zrO8HrlvYyU3I2DZktQklA,0.5389,0.6182,1,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.898758090043517,-79.00113467253206
+cuenca:11402,cuenca,11402,yAqwduej58cMeRkFIsw71Q,0.5257,0.6998,1,1,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.8970115999541157,-79.00392578152714
+cuenca:11471,cuenca,11471,yAqwduej58cMeRkFIsw71Q,0.768,0.6343,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.8970540647413885,-79.00389248242223
+cuenca:11499,cuenca,11499,yAqwduej58cMeRkFIsw71Q,0.0159,0.5691,0,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.89712888052167,-79.00396737185578
+cuenca:11607,cuenca,11607,CFiZ4ISxZlGIyX2gSLlfNg,0.532,0.6232,0,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.899690366937257,-79.00132399295642
+cuenca:11675,cuenca,11675,D8qEra2207gMjjIJqt2Nbg,0.3578,0.6596,1,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8997519200140447,-79.00130239381933
+cuenca:11700,cuenca,11700,D8qEra2207gMjjIJqt2Nbg,0.5128,0.6019,0,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8997841745884374,-79.00134401065593
+cuenca:11738,cuenca,11738,D8qEra2207gMjjIJqt2Nbg,0.6839,0.6067,0,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8997367912722996,-79.00138641189407
+cuenca:11970,cuenca,11970,cw9HB0WgkqjK5p9acylQ7w,0.4073,0.654,2,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.8968672444840626,-79.00469948399856
+cuenca:12060,cuenca,12060,dkMMvKWUnutTXncy1YiQZQ,0.5165,0.6729,1,1,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.8968039219672055,-79.00483135929903
+cuenca:12087,cuenca,12087,kYrWZzd_m6b5iUNBGu0jaA,0.5182,0.6544,0,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.904388643568512,-79.00030781862726
+cuenca:12147,cuenca,12147,R0MBhDls9RD-kne7ovgjJQ,0.9911,0.7064,0,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.8959113822531592,-79.00463465730958
+cuenca:12174,cuenca,12174,kbPAi8T1jrcfCsp2krTEvA,0.9655,0.7368,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.895826741865287,-79.0045623863975
+cuenca:12226,cuenca,12226,ZSUPjxN5asyzjYQnvIs48w,0.5437,0.614,3,0,"[""brick/cobblestone"",""bumpy""]",e5edd133-fd22-4cfe-9c8e-140342ea2bf3,2015-03,-2.9011098793379433,-78.99954414574246
+cuenca:12231,cuenca,12231,BWJ_HJDIdktwyIPzZGsm9g,0.0029,0.5996,1,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9030424927001324,-78.99993227434572
+cuenca:12247,cuenca,12247,WeytMNwPYWv2rp92aSrOaA,0.4917,0.5802,1,0,"[""brick/cobblestone"",""bumpy""]",e5edd133-fd22-4cfe-9c8e-140342ea2bf3,2015-03,-2.9012340608179596,-78.99954407798808
+cuenca:12261,cuenca,12261,SWZQLhmUnpwuTuSRRaCBMg,0.3406,0.5977,0,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.896042376588476,-79.00380304144379
+cuenca:12306,cuenca,12306,SWZQLhmUnpwuTuSRRaCBMg,0.0097,0.6653,0,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.896122833580022,-79.00376194195516
+cuenca:12338,cuenca,12338,ysGTV6cvJB3EGYlbh4fOXA,0.0068,0.6112,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.896068488440876,-79.00365731617329
+cuenca:12352,cuenca,12352,zCiJUEZUh_nxNXMX6XxuqA,0.8025,0.623,1,0,"[""brick/cobblestone"",""paint fading""]",409d0972-85ac-4c41-a63d-ad2430980246,2015-03,-2.9012409923782725,-78.99953850146231
+cuenca:12378,cuenca,12378,qf6jPtPPeZRiGk9VXwaWXg,0.4938,0.6487,0,0,"[""brick/cobblestone"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.903013651506108,-78.99992277343134
+cuenca:12461,cuenca,12461,OcRCIGLbuIavRVYPg-4tGA,0.2038,0.6253,1,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.8962442000270716,-79.00275675886351
+cuenca:12784,cuenca,12784,AxsfaSUR7E3NVMyuSTqfcg,0.3296,0.6088,0,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.8951073067693667,-79.00356427087364
+cuenca:12941,cuenca,12941,fqq81W89PbdyrCKJrT19hA,0.9131,0.6952,1,0,"[""brick/cobblestone"",""paint fading"",""uneven surface""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8987655436730364,-79.0011194912215
+cuenca:13062,cuenca,13062,oFIkYBzH7F3Rd6dtkSTMyg,0.4989,0.5642,2,0,"[""brick/cobblestone"",""paint fading""]",2e161a25-70c9-43d3-80fc-5a043bb3f668,2015-03,-2.900151457937563,-78.99933562037113
+cuenca:13172,cuenca,13172,xzbp7ZwZ-aAixA3ZgN8OFQ,0.8666,0.6433,0,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8989994736830518,-79.00010114638765
+cuenca:13202,cuenca,13202,xzbp7ZwZ-aAixA3ZgN8OFQ,0.0045,0.5814,0,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.899046113958975,-79.0001419660713
+cuenca:13208,cuenca,13208,xzbp7ZwZ-aAixA3ZgN8OFQ,0.146,0.6167,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.8989942038069167,-79.00017708815356
+cuenca:13340,cuenca,13340,koE0LKyJUnkGzjy13NwhxQ,0.9784,0.5586,0,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",a2c783bd-e444-43dc-8bd4-8bf6da2c8f89,2015-03,-2.9013821302691287,-79.00482824882106
+cuenca:13827,cuenca,13827,miCpx6d6TehfCm4B5ERNJQ,0.5141,0.5998,2,0,"[""brick/cobblestone"",""paint fading""]",a4002812-a606-485d-aebd-5e4f7ac11909,2015-03,-2.895819147846411,-79.00459277130341
+cuenca:13863,cuenca,13863,Kslbulpu5VHB1zrqQP24_g,0.0053,0.5913,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8959404776173496,-79.0077510274531
+cuenca:13879,cuenca,13879,Xueihl3KpcqP9syqq98n1A,0.9594,0.6677,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8961067755737413,-79.00777107734557
+cuenca:13949,cuenca,13949,3QH6izQNLfs3RLNGYiMDWw,0.7657,0.7293,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.896049043566926,-79.00767481374403
+cuenca:13977,cuenca,13977,9CN9MUb1Lx4tCZDpNRWRDA,0.5143,0.5921,1,0,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.897943704395105,-79.00422053885707
+cuenca:14026,cuenca,14026,BHUMzbQsoe1QtzYGVNAhyA,0.4454,0.6182,3,0,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.8979032381034235,-79.00414146396969
+cuenca:14045,cuenca,14045,XicbUJhENgvMTvKiDZ6nhg,0.6726,0.5823,1,0,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.8980657502237137,-79.00412437037592
+cuenca:14064,cuenca,14064,XicbUJhENgvMTvKiDZ6nhg,0.5131,0.5928,1,1,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.8980114300337987,-79.00407647054816
+cuenca:14154,cuenca,14154,EcQ6gr-wS-fVQKnyR8xGkg,0.9058,0.7015,1,1,"[""brick/cobblestone"",""paint fading""]",bd3d20c0-96f9-4fa5-ae72-9b2164a98bd2,2015-03,-2.8947787481788105,-79.00455036316333
+cuenca:14210,cuenca,14210,DRyCDdNv06VifwmS-pTmHg,0.5331,0.5939,1,1,"[""brick/cobblestone"",""paint fading""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8965280152671267,-79.00585401247064
+cuenca:14212,cuenca,14212,_qs3miprWnPw9gU2thui4g,0.8893,0.7838,1,1,"[""brick/cobblestone"",""paint fading""]",bd3d20c0-96f9-4fa5-ae72-9b2164a98bd2,2015-03,-2.8947574292868,-79.0044180513898
+cuenca:14225,cuenca,14225,6jAbJfbpT_ZSuylbvxzLPw,0.9965,0.6283,1,1,"[""brick/cobblestone"",""paint fading"",""very long crossing""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.896016632555468,-78.99960036854536
+cuenca:14252,cuenca,14252,HQuu3GwLyxurNWNGqK8MDw,0.4882,0.6122,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.896635874957524,-79.00581495394903
+cuenca:14360,cuenca,14360,IMG-ReT_qwT5IKKBWp_-TQ,0.986,0.5903,1,1,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.9015528427489015,-79.00270361840501
+cuenca:14401,cuenca,14401,rGR9m1-UzkRAduYALRy3rg,0.5042,0.5924,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8972655611432097,-79.00689746693742
+cuenca:14416,cuenca,14416,ROykuszxWCng_ez-g1TYNg,0.4729,0.6267,2,0,"[""brick/cobblestone""]",ee793969-2a13-4a48-b369-b07ff2e2274c,2015-03,-2.9033223408299826,-79.0015900296874
+cuenca:14431,cuenca,14431,_gJyVPMIaNlyLUsYCITFXw,0.8047,0.752,2,0,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.9024296500871944,-79.00287700045394
+cuenca:14458,cuenca,14458,-tSkazBQSpPOeOsTyyxynA,0.4757,0.6611,2,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.9024954509293366,-79.0028398728461
+cuenca:14497,cuenca,14497,xymwM1WZiZs3O2_cX-i0iQ,0.0241,0.6782,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8973212147896126,-79.00693999016224
+cuenca:14566,cuenca,14566,29aUNMmJt4oHGsIpIyy8Vw,0.4968,0.5589,1,1,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.902844896419271,-79.00212461877123
+cuenca:14601,cuenca,14601,GainnDRq4Ls-jNJ66gY1Nw,0.4618,0.6456,1,1,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.902939133040858,-79.00201375585709
+cuenca:14727,cuenca,14727,g8zTjTofH_vtw68Y15XoYg,0.9841,0.7357,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8983081774163293,-79.0071320362109
+cuenca:14760,cuenca,14760,dV399xC42opr_nHz7OIyVQ,0.6611,0.8311,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8991826037996047,-79.00732053948542
+cuenca:14767,cuenca,14767,bZ6gcy9_MXQK5EyzCXy0pA,0.5014,0.6127,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.899313673173904,-79.00733585613712
+cuenca:14805,cuenca,14805,SDO8zEx_E6axQp-fzLQS1g,0.9814,0.6179,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.899827415518882,-79.00751898676248
+cuenca:14842,cuenca,14842,5P1rwENTlwe63fAnSYJpoA,0.0459,0.6295,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.899562208058422,-79.00792984148315
+cuenca:14871,cuenca,14871,ugWasxsKEblmLQFSt5BKrA,0.7348,0.7057,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8993840394570656,-79.00837492534558
+cuenca:14903,cuenca,14903,q10BGlV4R_5vsKGxeiqo_g,0.5885,0.6471,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8992460978136094,-79.0083303265095
+cuenca:14968,cuenca,14968,_lRNvx6TPD5cfv33FKNrcw,0.4667,0.6014,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8979712871676115,-79.00809785504183
+cuenca:15020,cuenca,15020,2pS9-Df9K2XZL7bUoCmSyA,0.8426,0.7028,2,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8970440192984044,-79.00785600489945
+cuenca:15107,cuenca,15107,wXavZgYhkoQoREXnWDldhQ,0.5586,0.6134,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.892571175699214,-79.00915334358515
+cuenca:15219,cuenca,15219,af94A4ZF3ha4DU00D7R8Dw,0.5346,0.5871,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.893515199348659,-79.0094339999381
+cuenca:15247,cuenca,15247,8Ia-EDPJfLY0WCUEgPZBUA,0.0178,0.7111,1,0,"[""brick/cobblestone""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.899810550367366,-79.00133480410459
+cuenca:15264,cuenca,15264,af94A4ZF3ha4DU00D7R8Dw,0.699,0.5572,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8934375679352717,-79.00937082517152
+cuenca:15278,cuenca,15278,-4wIbxeFoh2QwqFrtRhFpw,0.5265,0.5891,1,0,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.9008961926355736,-79.00555586786437
+cuenca:15431,cuenca,15431,0w9OQfaz2Fnrm02kyv9DlQ,0.9891,0.6297,1,1,"[""brick/cobblestone"",""paint fading""]",bd3d20c0-96f9-4fa5-ae72-9b2164a98bd2,2015-03,-2.8958134024612123,-79.00870284715938
+cuenca:15433,cuenca,15433,pE_csJp9_9Oj_H8b55CYqw,0.4929,0.6647,0,0,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.8961475076024508,-79.00376416616848
+cuenca:15460,cuenca,15460,ZOOIYAbVHYU0xNMIRR6NPA,0.2125,0.6382,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.894531821006907,-79.00959733108773
+cuenca:15461,cuenca,15461,oHlx77ywSal7eosJDlblyA,0.01,0.8035,0,0,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.9013408768994453,-79.00368857480596
+cuenca:15494,cuenca,15494,HfYe7rXRi9jbZH0uCpCeGQ,0.5129,0.6572,0,0,"[""brick/cobblestone"",""paint fading""]",e308336e-d8ff-4d54-a8e3-160c54124cba,2015-03,-2.9018662970878344,-79.00379524492749
+cuenca:15519,cuenca,15519,Ahwj6JeaaQnbPbnPvP8ffQ,0.5298,0.6038,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.896532738456762,-79.00987809514199
+cuenca:15561,cuenca,15561,e_r6vuGICYpcM1rCOYX_sg,0.508,0.6531,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.896754738894048,-79.00900909304511
+cuenca:15661,cuenca,15661,jjcnuNl7OBYyMR3NyhjUQA,0.6898,0.7178,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.896942613403275,-79.00790164336254
+cuenca:15733,cuenca,15733,E9UTdOSBtQXwRz52oRkyQg,0.5466,0.6295,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.8961222867792626,-79.00776792332393
+cuenca:15742,cuenca,15742,Xueihl3KpcqP9syqq98n1A,0.5306,0.5702,1,1,"[""brick/cobblestone""]",40d4d578-70aa-46c6-b605-950a70a8cc4c,2015-03,-2.895982687988509,-79.00774143315371
+cuenca:15836,cuenca,15836,I2sqrAOdWacJYugiSPoGew,0.2507,0.8142,0,0,"[""brick/cobblestone"",""paint fading""]",f0169b43-81fc-4e20-b446-7317c4e6e6a4,2015-03,-2.901955387334294,-79.00058583119171
+cuenca:15888,cuenca,15888,YxPZuUr79VWX-rGHAqy2Lw,0.5003,0.5981,0,0,"[""brick/cobblestone"",""uneven surface""]",f0169b43-81fc-4e20-b446-7317c4e6e6a4,2015-03,-2.901173104540374,-78.99962233460018
+cuenca:15921,cuenca,15921,hXUQHNI8sCf6OZxquLPPyw,0.463,0.7033,1,0,"[""brick/cobblestone"",""paint fading""]",f0169b43-81fc-4e20-b446-7317c4e6e6a4,2015-03,-2.902044022395261,-79.0001766719959
+cuenca:15946,cuenca,15946,KVyzmB6-yD_stDU-eALddw,0.4937,0.5672,2,0,"[""brick/cobblestone"",""uneven surface""]",f0169b43-81fc-4e20-b446-7317c4e6e6a4,2015-03,-2.902029643822863,-79.00051537979203
+cuenca:15958,cuenca,15958,SmgiTvwYzlUaXgfSXqWWeQ,0.6006,0.7467,0,0,"[""brick/cobblestone"",""bumpy""]",f0169b43-81fc-4e20-b446-7317c4e6e6a4,2015-03,-2.9020036298295913,-79.00063137921245
+cuenca:16558,cuenca,16558,wDQs-cOV0w73ofUEqBRoPQ,0.5162,0.6113,1,0,"[""brick/cobblestone""]",45fc3938-2e3f-4846-8b4c-42e3d2680288,2015-03,-2.8989875798604734,-79.0043420348995
+cuenca:16559,cuenca,16559,wDQs-cOV0w73ofUEqBRoPQ,0.2204,0.6221,0,0,"[""brick/cobblestone""]",45fc3938-2e3f-4846-8b4c-42e3d2680288,2015-03,-2.8990593725083973,-79.0042909079616
+cuenca:16672,cuenca,16672,sfjgPHoJzYrNsHflZXnQHA,0.9992,0.5813,1,1,"[""brick/cobblestone"",""paint fading""]",45fc3938-2e3f-4846-8b4c-42e3d2680288,2015-03,-2.897810210317857,-79.00479448579117
+cuenca:16678,cuenca,16678,BHUMzbQsoe1QtzYGVNAhyA,0.0145,0.5977,1,1,"[""brick/cobblestone""]",45fc3938-2e3f-4846-8b4c-42e3d2680288,2015-03,-2.897935334856204,-79.0042548624861
+cuenca:16699,cuenca,16699,g5vnUBFg1I7mm6H7nTpGgA,0.9927,0.6029,1,0,"[""brick/cobblestone""]",45fc3938-2e3f-4846-8b4c-42e3d2680288,2015-03,-2.8986900087069096,-79.00515042717984
+cuenca:16809,cuenca,16809,oEuy-y-uPfJZ0CO5lNEvuQ,0.475,0.75,1,0,"[""brick/cobblestone""]",245540a7-d3b2-44a7-b8b3-02466cf3d466,2015-03,-2.896226808907766,-79.00984964743382
+danville-il:25870,danville-il,25870,yAaPC14gMaWoMEsRXs2zgQ,0.4498,0.6338,1,1,"[""broken surface"",""uneven surface"",""bumpy"",""paint fading"",""brick/cobblestone""]",a70a9f2b-5a0c-46c5-8f9d-e50c002af948,2019-07,40.14416662475303,-87.62810864638558
+danville-il:33214,danville-il,33214,9CxjI6AiaSC2ZwsYJE0FwA,0.0847,0.5765,0,0,"[""paint fading"",""bumpy"",""brick/cobblestone""]",77e6f686-7951-44de-bd9b-6aca2bded4c0,2023-06,40.12632364096593,-87.62874727551112
+danville-il:33217,danville-il,33217,j9Cf6IvAWYwVuul1MOX0JA,0.878,0.5522,1,0,"[""brick/cobblestone"",""bumpy""]",77e6f686-7951-44de-bd9b-6aca2bded4c0,2023-06,40.12645303734024,-87.62859627793927
+danville-il:33230,danville-il,33230,mZqwg3RG-_ZDmLf0GprIQw,0.9241,0.5874,0,0,"[""brick/cobblestone"",""bumpy""]",77e6f686-7951-44de-bd9b-6aca2bded4c0,2015-08,40.12534121906644,-87.62854649383237
+danville-il:33274,danville-il,33274,HgtRhWq3nV-Q9cHDmV8qoA,0.0115,0.5844,0,0,"[""brick/cobblestone"",""bumpy""]",77e6f686-7951-44de-bd9b-6aca2bded4c0,2023-06,40.1236087894259,-87.63131871552673
+gainesville-fl:26701,gainesville-fl,26701,F03-4GzMlvNz30XRhDhoIA,0.7924,0.6047,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.650329350936804,-82.35573142554556
+gainesville-fl:26704,gainesville-fl,26704,F03-4GzMlvNz30XRhDhoIA,0.2097,0.5918,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.650452134467937,-82.35577391048704
+gainesville-fl:26986,gainesville-fl,26986,4bwkOEJYWqOWR7evfFnZPQ,0.3286,0.5807,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2024-06,29.65082596829482,-82.3497913508051
+gainesville-fl:27059,gainesville-fl,27059,joKh2_Fae6pfYMLPLLxTZQ,0.0911,0.5975,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2024-06,29.650270337701325,-82.339931858597
+gainesville-fl:27411,gainesville-fl,27411,LbB5W6Gl2rZRf6IQnEbEEg,0.2068,0.5875,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.653489634032752,-82.34483508140697
+gainesville-fl:27413,gainesville-fl,27413,LbB5W6Gl2rZRf6IQnEbEEg,0.5281,0.6346,1,1,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.653557448693004,-82.34474460228716
+gainesville-fl:27426,gainesville-fl,27426,kMF_exTIRL1nQIxL2qdGzA,0.4185,0.6108,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.653607365221664,-82.34323406454783
+gainesville-fl:27429,gainesville-fl,27429,ZIWAACTxuo0bdH-GCOYc1g,0.004,0.5581,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.652870012905545,-82.34325284885999
+gainesville-fl:27447,gainesville-fl,27447,95aMTk2FaIiF4ycYXAOgAw,0.1564,0.5669,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.65288258962629,-82.34629626318
+gainesville-fl:27450,gainesville-fl,27450,95aMTk2FaIiF4ycYXAOgAw,0.0242,0.5487,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.652818893459397,-82.34637974487559
+gainesville-fl:27453,gainesville-fl,27453,FyhIVU4fgxhKMpptywxdFg,0.5721,0.5488,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65289847484867,-82.34781405172512
+gainesville-fl:27455,gainesville-fl,27455,FyhIVU4fgxhKMpptywxdFg,0.7155,0.572,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.652824853438094,-82.34773244802291
+gainesville-fl:27457,gainesville-fl,27457,4_bmxpi3InubVvwOh9Wb_w,0.8781,0.5579,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65274605216761,-82.34781598535393
+gainesville-fl:27459,gainesville-fl,27459,4_bmxpi3InubVvwOh9Wb_w,0.0577,0.6244,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.652829769558362,-82.34788503895592
+gainesville-fl:27475,gainesville-fl,27475,RFx8LnV1ijbLo13YL0pCJw,0.0037,0.5791,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.653888786744137,-82.34475718247896
+gainesville-fl:27481,gainesville-fl,27481,KJ8a0DgtXsNCcrm52hXcHA,0.7563,0.5919,1,0,"[""brick/cobblestone"",""uneven surface""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.65394646312002,-82.34332430041793
+gainesville-fl:27483,gainesville-fl,27483,KJ8a0DgtXsNCcrm52hXcHA,0.9686,0.5842,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.65400667071352,-82.34324416212154
+gainesville-fl:27485,gainesville-fl,27485,KJ8a0DgtXsNCcrm52hXcHA,0.0726,0.5419,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.65404044325544,-82.34314459110564
+gainesville-fl:27576,gainesville-fl,27576,-hzdH9Kmii0nxB3707faHw,0.3406,0.6847,0,0,"[""brick/cobblestone"",""paint fading""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2024-06,29.65456818459387,-82.34324744010348
+gainesville-fl:27709,gainesville-fl,27709,WgWFW9wlFg-uuOvAqaA7_Q,0.6573,0.5804,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.626505338577022,-82.37102694379362
+gainesville-fl:27711,gainesville-fl,27711,viTw6lMM2RNq0upgLqqK5g,0.6843,0.5945,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.626376364138363,-82.371308660403
+gainesville-fl:27717,gainesville-fl,27717,eoTPndFWstBz2IB3314JIw,0.925,0.5746,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.62662340663574,-82.37165437315345
+gainesville-fl:27787,gainesville-fl,27787,_ZfygxWCSxfeLnE3FmFp7g,0.0061,0.5894,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.62458511970175,-82.37099801531593
+gainesville-fl:27788,gainesville-fl,27788,pzgbeEhe8mp-2E80keJvbQ,0.0539,0.6008,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.624349354725144,-82.37089395646693
+gainesville-fl:27790,gainesville-fl,27790,ixDvhVOus-Uxl0NF0Lvrbg,0.1224,0.543,1,0,"[""brick/cobblestone"",""paint fading""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.62429735522482,-82.37077227745765
+gainesville-fl:27791,gainesville-fl,27791,tqLsTyCgK9p-TlzeIsQ58w,0.0063,0.6127,0,0,"[""paint fading"",""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.6241583013615,-82.37075391148892
+gainesville-fl:27863,gainesville-fl,27863,QXqZGR78HRNsG8LzeF-K0Q,0.9623,0.5411,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.62377637282559,-82.37138089662716
+gainesville-fl:29101,gainesville-fl,29101,FyhIVU4fgxhKMpptywxdFg,0.7092,0.5715,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65282808130329,-82.3477344873724
+gainesville-fl:29104,gainesville-fl,29104,FyhIVU4fgxhKMpptywxdFg,0.434,0.5802,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.652822445494724,-82.34788679023393
+gainesville-fl:29106,gainesville-fl,29106,4_bmxpi3InubVvwOh9Wb_w,0.5066,0.7267,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.652877971461855,-82.34781944999116
+gainesville-fl:29813,gainesville-fl,29813,F03-4GzMlvNz30XRhDhoIA,0.2114,0.5863,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.650456637686542,-82.35577592025201
+gainesville-fl:29923,gainesville-fl,29923,6xDgGgH0i8c2qgOxGkWzBg,0.4576,0.5677,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.65046482611824,-82.36152229311368
+gainesville-fl:29925,gainesville-fl,29925,-lSyaySvwa-pHi4xJ58JiQ,0.4994,0.5519,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.650367724796105,-82.36061219238353
+gainesville-fl:29933,gainesville-fl,29933,YXmVXBQx9dO-y5-wV7_5mg,0.7019,0.601,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65030405309999,-82.3605212416065
+gainesville-fl:29985,gainesville-fl,29985,5tFkEbd0I4Pei-98q84gdg,0.6248,0.5643,2,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.650464520489578,-82.35946445532262
+gainesville-fl:30027,gainesville-fl,30027,F03-4GzMlvNz30XRhDhoIA,0.2146,0.5907,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.650454008772716,-82.35577223708984
+gainesville-fl:30042,gainesville-fl,30042,mY8y__Iwf3snKXUO09BkHA,0.6766,0.7267,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.65202914118266,-82.35645797506264
+gainesville-fl:30045,gainesville-fl,30045,pSCAuXVH1UdQm-TvQmhMFw,0.8007,0.5778,2,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65218860730959,-82.35647683256524
+gainesville-fl:30107,gainesville-fl,30107,0-IjL1RwFob4EwkGn3Hoog,0.6533,0.6438,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.650352058750567,-82.362528742385
+gainesville-fl:30151,gainesville-fl,30151,Ub5yVMfgh4rvGuxCsNtVag,0.798,0.5902,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.650495992657056,-82.36747444064578
+gainesville-fl:30266,gainesville-fl,30266,eGXbQD7Bay5-lvSG9s1_lQ,0.6434,0.6205,1,0,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2026-02,29.647150217739497,-82.3279450702973
+gainesville-fl:30269,gainesville-fl,30269,eGXbQD7Bay5-lvSG9s1_lQ,0.3369,0.5741,1,1,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2026-02,29.647171273255946,-82.32807884455795
+gainesville-fl:30272,gainesville-fl,30272,eGXbQD7Bay5-lvSG9s1_lQ,0.4796,0.5508,1,0,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2026-02,29.64724617253476,-82.32800421882833
+gainesville-fl:30273,gainesville-fl,30273,vNGuMk58NKtw4wNcNj8NrA,0.4786,0.5566,2,0,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2026-02,29.647129126959328,-82.32801153373633
+gainesville-fl:30278,gainesville-fl,30278,hu6pM29EmkOAuRR2zX41Ng,0.0689,0.7142,1,1,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2018-10,29.64657924539729,-82.32805811612864
+gainesville-fl:30280,gainesville-fl,30280,hu6pM29EmkOAuRR2zX41Ng,0.9357,0.5962,2,1,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2018-10,29.646537225436568,-82.3280198369396
+gainesville-fl:30411,gainesville-fl,30411,a8Km4kJN1mYdY8rxdMwIiQ,0.6274,0.6108,1,1,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.644844503783926,-82.33578614774102
+gainesville-fl:30421,gainesville-fl,30421,gEmHuYK6Z5e8uA3TyAb_4g,0.065,0.5442,1,1,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.64313859383065,-82.33585259531216
+gainesville-fl:30424,gainesville-fl,30424,uJngy1ciqPv5H_PLSzKQpA,0.0122,0.5513,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.6426974054582,-82.335550775147
+gainesville-fl:30427,gainesville-fl,30427,unDbfjSUGGJUAVyyhubmUA,0.8494,0.5406,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.642468133607775,-82.33578038033558
+gainesville-fl:30554,gainesville-fl,30554,f_48a_A4uDvyJUTS08hNLg,0.255,0.5585,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.650451864748202,-82.35695947459772
+gainesville-fl:30557,gainesville-fl,30557,F03-4GzMlvNz30XRhDhoIA,0.752,0.6133,2,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65033638245175,-82.35571516607078
+gainesville-fl:31036,gainesville-fl,31036,p1rhaMIKuShTiJiAmLyR4g,0.4786,0.6115,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2021-03,29.655625625114357,-82.33290958214367
+gainesville-fl:31363,gainesville-fl,31363,sYfH3FNuud3tgx6qZ662WA,0.0433,0.5673,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.653778678734017,-82.33081766027252
+gainesville-fl:32014,gainesville-fl,32014,PpinmsJ4j3S8hXvhKwVy3A,0.7071,0.5859,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.653440055898873,-82.32235976265767
+gainesville-fl:32017,gainesville-fl,32017,PpinmsJ4j3S8hXvhKwVy3A,0.0275,0.636,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.65335861405963,-82.32228425087794
+gainesville-fl:32494,gainesville-fl,32494,P2CtJ_618MMn2gIpYbK7Dg,0.1344,0.6676,1,1,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2024-06,29.642491254063113,-82.33577609757104
+gainesville-fl:32714,gainesville-fl,32714,cfkKpV7ds3aDL6yoX-nWig,0.1352,0.7604,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2016-07,29.64485116631341,-82.3349647243866
+gainesville-fl:32876,gainesville-fl,32876,YMoMgphoe4BSXE7BvPcbxQ,0.3201,0.5457,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.643165123205335,-82.33363969880547
+gainesville-fl:32883,gainesville-fl,32883,21YA1B3kijODHI4rpnR7oQ,0.9282,0.5601,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.643163858306764,-82.33362929416272
+gainesville-fl:32885,gainesville-fl,32885,94WTxfEfYWCUvoQE7u2N8w,0.1053,0.6581,1,1,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.64300007316369,-82.3335307802409
+gainesville-fl:32889,gainesville-fl,32889,FKSRaCvKVEKh40wKEg85mA,0.7913,0.6346,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.643260779050518,-82.33308974100598
+gainesville-fl:32892,gainesville-fl,32892,VQeR5b2F4GxQgbl8gUgvQg,0.8387,0.6096,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.643388353681498,-82.33233806250665
+gainesville-fl:33053,gainesville-fl,33053,tWnodInvJ785ubMXQlkTfg,0.3146,0.5596,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2024-06,29.644251599197684,-82.32728264557609
+gainesville-fl:33070,gainesville-fl,33070,z79dPyzmwE5fpqNV6LhArw,0.2598,0.6642,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.64832106625579,-82.33136452718959
+gainesville-fl:33127,gainesville-fl,33127,eGXbQD7Bay5-lvSG9s1_lQ,0.6487,0.6141,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.647150492162183,-82.32794080878634
+gainesville-fl:33128,gainesville-fl,33128,eGXbQD7Bay5-lvSG9s1_lQ,0.4799,0.5494,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.647248519673592,-82.32800404496204
+gainesville-fl:33130,gainesville-fl,33130,eGXbQD7Bay5-lvSG9s1_lQ,0.3272,0.5745,1,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.647166513572895,-82.32808182671575
+gainesville-fl:33660,gainesville-fl,33660,g4XlRjhpBANOEPYHugpitA,0.5358,0.5872,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.643170032986568,-82.33362224077393
+gainesville-fl:34242,gainesville-fl,34242,IUsF8Y_SS1TOw6wTbJIs_Q,0.0259,0.5743,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65262159667019,-82.32393957886102
+gainesville-fl:34246,gainesville-fl,34246,c6dmCrPJQ5nMFDh50YisOw,0.0811,0.5642,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65275194978393,-82.3239547817698
+gainesville-fl:34755,gainesville-fl,34755,q3RofRj5gnrrNie-8J54CA,0.376,0.6158,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.64648725281407,-82.32299636193642
+gainesville-fl:34802,gainesville-fl,34802,wytjzc00vnsEbGFusYLt-A,0.6281,0.6064,1,1,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-02,29.645120453382795,-82.3219657845575
+gainesville-fl:35011,gainesville-fl,35011,zG8kMM449e2Z9t-UrxTq4A,0.0652,0.5745,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-04,29.64512542340459,-82.32307654712159
+gainesville-fl:35254,gainesville-fl,35254,_g_LoxZ2fONSFf3nMzMieQ,0.2326,0.588,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65461809023168,-82.3266007653065
+gainesville-fl:35289,gainesville-fl,35289,lKeldf1ZTHzuLTByyZGjWg,0.8203,0.6644,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2024-06,29.644374692182176,-82.32655210025104
+gainesville-fl:36045,gainesville-fl,36045,7GtkI2Mpf0nQPoZtoIiCjg,0.0198,0.5808,1,0,"[""paint fading"",""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.655570975150553,-82.33082490693667
+gainesville-fl:36051,gainesville-fl,36051,wnmaShyMYwZ4T17rTE2T8Q,0.0546,0.5696,0,0,"[""paint fading"",""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.655651808131342,-82.33072965658499
+gainesville-fl:36099,gainesville-fl,36099,ICUoYVV_dXvc9W3ge2PnWg,0.5392,0.5769,1,0,"[""paint fading"",""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.659392941026386,-82.33099614177759
+gainesville-fl:36107,gainesville-fl,36107,m-JCIZydNkA4jOyKZyV8ng,0.089,0.709,0,0,"[""paint fading"",""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.659415194307595,-82.3307466033737
+gainesville-fl:36234,gainesville-fl,36234,YhbFR2OSsWzKTcqs65rkQQ,0.2196,0.5813,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.655708098211157,-82.33053234438562
+gainesville-fl:36264,gainesville-fl,36264,vdEHhlytr8q_-h9loc-u7g,0.4245,0.6835,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.65558808915164,-82.32870358578744
+gainesville-fl:37535,gainesville-fl,37535,Jhwkk08oFAgaVm5puGe2ng,0.1165,0.5876,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2023-09,29.64576252112871,-82.31652865617566
+gainesville-fl:37537,gainesville-fl,37537,Jhwkk08oFAgaVm5puGe2ng,0.9097,0.6136,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2023-09,29.645842718523696,-82.31653719720107
+gainesville-fl:37538,gainesville-fl,37538,A2CrBvKn1K4rOfB5Daelbw,0.6473,0.5853,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.64580531190342,-82.31642801160841
+gainesville-fl:37544,gainesville-fl,37544,SXdESbPJr7CL82sBW1QLRw,0.2669,0.5729,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-03,29.645742145629008,-82.31511005408848
+gainesville-fl:37584,gainesville-fl,37584,CXS93Xw99HQuLlbEAy16DQ,0.5661,0.5951,0,0,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2024-06,29.64582888403947,-82.31226544305292
+gainesville-fl:39724,gainesville-fl,39724,BGDewAfb-bApaR8DpvPrvQ,0.3169,0.6486,1,1,"[""brick/cobblestone""]",8780c4bd-0bef-4802-a16a-6afda05480a5,2026-04,29.645116308549866,-82.32103084476425
+gainesville-fl:40995,gainesville-fl,40995,dG5YgN_jKpB73scBno7pnw,0.6468,0.5841,1,0,"[""paint fading"",""brick/cobblestone""]",e1e83fe0-1b37-4fcb-9729-05d39bd94ff7,2026-03,29.663490678262328,-82.30364147414664
+knox-oh:25717,knox-oh,25717,oQmf5JeJRmCqoDxNKWa5Kw,0.508,0.6318,2,1,"[""paint fading"",""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2012-05,40.391924395903615,-82.47084656850846
+knox-oh:25718,knox-oh,25718,oQmf5JeJRmCqoDxNKWa5Kw,0.7523,0.6097,1,0,"[""paint fading"",""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2012-05,40.39187111441568,-82.47091477418414
+knox-oh:25719,knox-oh,25719,oQmf5JeJRmCqoDxNKWa5Kw,0.0231,0.654,1,0,"[""paint fading"",""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2012-05,40.39193775325011,-82.47096063767714
+knox-oh:26010,knox-oh,26010,nlodnQqVGsmix709HwUUlA,0.1756,0.6172,2,0,"[""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2023-05,40.39128921022846,-82.47551901438835
+knox-oh:26023,knox-oh,26023,IOvVkJEQJ69KNopVNLm99A,0.1063,0.6128,1,0,"[""brick/cobblestone"",""paint fading""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2023-05,40.390744236108745,-82.47680282220885
+knox-oh:26081,knox-oh,26081,yyg2agFT-EEhtr_8PZZUTg,0.6741,0.641,2,0,"[""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2023-05,40.391184166014256,-82.47416380779332
+knox-oh:26082,knox-oh,26082,yyg2agFT-EEhtr_8PZZUTg,0.5018,0.6067,2,0,"[""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2023-05,40.39122227204055,-82.47411042144057
+knox-oh:26085,knox-oh,26085,yyg2agFT-EEhtr_8PZZUTg,0.345,0.6349,2,0,"[""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2023-05,40.391262104323935,-82.47415453697919
+knox-oh:26088,knox-oh,26088,yyg2agFT-EEhtr_8PZZUTg,0.041,0.8181,2,0,"[""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2023-05,40.39122755588908,-82.4742068748577
+knox-oh:26091,knox-oh,26091,zrFEWvYES23jq0hCwb30vQ,0.2363,0.7849,0,0,"[""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2023-05,40.39117974421269,-82.47301424266706
+knox-oh:26152,knox-oh,26152,sz6Bzrli38vOo0GlEmX2Hw,0.3291,0.6079,2,0,"[""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2023-05,40.39202602907997,-82.47289828367158
+knox-oh:26154,knox-oh,26154,sz6Bzrli38vOo0GlEmX2Hw,0.6169,0.647,1,0,"[""brick/cobblestone""]",2535c7e6-7deb-426d-84c0-414ed4ae8dca,2023-05,40.39202413347608,-82.47279210017639
+knox-oh:29502,knox-oh,29502,kQSph3WGgg2LYOiR4_8FhA,0.7323,0.609,1,0,"[""brick/cobblestone""]",79955391-b6e3-4254-90d1-b6bd1ffa87c0,2023-05,40.390916694103964,-82.48566027888978
+knox-oh:29599,knox-oh,29599,tI1MtWLf65CqSlHJlq8t3g,0.4828,0.6908,2,2,"[""paint fading"",""brick/cobblestone""]",e0b09313-41dc-45b9-b2d9-e5e1c9c2007c,2023-05,40.400117277938705,-82.48452754839032
+knox-oh:36799,knox-oh,36799,u93u0zZDPCOKYv9ejMW6QQ,0.9634,0.6481,0,0,"[""paint fading"",""broken surface"",""brick/cobblestone"",""bumpy""]",fa161963-c5fb-46d1-a365-99b27c96de3c,2023-05,40.39469848882797,-82.48658914355015
+knox-oh:36805,knox-oh,36805,e8Ej5k0N8nE4CpT4JxynrA,0.9793,0.6251,1,0,"[""paint fading"",""brick/cobblestone""]",fa161963-c5fb-46d1-a365-99b27c96de3c,2023-05,40.39547457773614,-82.48651515028745
+la-ca:248,la-ca,248,tR_2oKh1LVqsdBFs9JPQyA,0.4985,0.5907,2,1,"[""brick/cobblestone""]",55fe82cd-2084-45c4-bfed-936ff8ff4fde,2024-06,34.0980236800943,-118.29398048397697
+maywood-nj:26326,maywood-nj,26326,bEHdJWG3bEVkwqeiZq2cgw,0.0576,0.5913,3,0,"[""brick/cobblestone""]",a8ab1845-59b8-4cf3-a70c-64ba1f08e900,2018-06,40.91088500542048,-74.05939051863197
+maywood-nj:26330,maywood-nj,26330,MeHxzBlAVNnXqPqSwNaACg,0.4845,0.5463,2,0,"[""brick/cobblestone""]",a8ab1845-59b8-4cf3-a70c-64ba1f08e900,2024-09,40.91073632385261,-74.05943507886018
+maywood-nj:27899,maywood-nj,27899,bEHdJWG3bEVkwqeiZq2cgw,0.038,0.5863,1,0,"[""paint fading"",""brick/cobblestone""]",982f8f17-2a2b-4d8b-a3e8-c4263e293109,2018-06,40.910876399671714,-74.05938372726364
+maywood-nj:27983,maywood-nj,27983,6alxeXLRBpxPWtw_E6nIBw,0.5572,0.5607,2,0,"[""brick/cobblestone""]",982f8f17-2a2b-4d8b-a3e8-c4263e293109,2018-10,40.91108741602005,-74.06023397895248
+maywood-nj:27990,maywood-nj,27990,6alxeXLRBpxPWtw_E6nIBw,0.2505,0.7906,1,0,"[""brick/cobblestone""]",982f8f17-2a2b-4d8b-a3e8-c4263e293109,2018-10,40.91098351317519,-74.06030135498835
+maywood-nj:27994,maywood-nj,27994,6VC66wmmAsQhh7p--XdaIA,0.0594,0.6125,1,0,"[""brick/cobblestone"",""bumpy""]",982f8f17-2a2b-4d8b-a3e8-c4263e293109,2022-12,40.91123402752823,-74.06103990875548
+maywood-nj:28000,maywood-nj,28000,LPfYEzRlh12oeC9-Xo4Tnw,0.9058,0.6074,2,0,"[""bumpy"",""brick/cobblestone""]",982f8f17-2a2b-4d8b-a3e8-c4263e293109,2022-12,40.91145756256691,-74.0619070123141
+maywood-nj:28002,maywood-nj,28002,LPfYEzRlh12oeC9-Xo4Tnw,0.7947,0.5452,2,0,"[""bumpy"",""brick/cobblestone""]",982f8f17-2a2b-4d8b-a3e8-c4263e293109,2022-12,40.91139975190556,-74.06201155446519
+maywood-nj:28026,maywood-nj,28026,tfWQWh4EopPxlRMG18tX7w,0.5983,0.5765,1,0,"[""paint fading"",""brick/cobblestone""]",982f8f17-2a2b-4d8b-a3e8-c4263e293109,2018-06,40.91108777599478,-74.06020179660857
+maywood-nj:28165,maywood-nj,28165,rRnWhMne-9I9YXh9TkZ7Tw,0.4635,0.627,2,0,"[""brick/cobblestone""]",982f8f17-2a2b-4d8b-a3e8-c4263e293109,2025-09,40.911063951310936,-74.06213930933612
+maywood-nj:28882,maywood-nj,28882,ma-E-vEIz-ylGzfcjpwjTA,0.5015,0.5974,1,0,"[""brick/cobblestone"",""bumpy""]",659ab1d1-184f-4a50-9d0a-7cbdd3499464,2018-10,40.91096719781328,-74.06027503806791
+niagara-falls-ny:26310,niagara-falls-ny,26310,nZdv0R-ujCRVdOTzpgjHsw,0.8245,0.5469,1,0,"[""brick/cobblestone"",""very long crossing""]",76f7e470-abf9-4c16-8b50-8d1a26327df6,2025-08,43.083748903332896,-79.0591846049845
+niagara-falls-ny:26314,niagara-falls-ny,26314,nZdv0R-ujCRVdOTzpgjHsw,0.2,0.5454,0,0,"[""brick/cobblestone"",""very long crossing""]",76f7e470-abf9-4c16-8b50-8d1a26327df6,2025-08,43.08364869123193,-79.0588736189605
+niagara-falls-ny:26318,niagara-falls-ny,26318,kgNKm_MP70ze5F3uKfVLJA,0.0842,0.589,1,0,"[""brick/cobblestone""]",76f7e470-abf9-4c16-8b50-8d1a26327df6,2025-08,43.08385866833957,-79.05892191496024
+oradell-nj:7368,oradell-nj,7368,S5TNGcrIgiTo7JgYefnN2Q,0.4381,0.5811,4,0,"[""brick/cobblestone"",""bumpy""]",2d7e45f5-3656-4aae-9a09-14addfa80d22,2021-09,40.9494468253472,-74.03232827402647
+oradell-nj:7380,oradell-nj,7380,Sd0PCFS7SriMfinRiqOGTQ,0.7441,0.6064,3,1,"[""brick/cobblestone""]",2d7e45f5-3656-4aae-9a09-14addfa80d22,2019-08,40.948437336264895,-74.03206465688504
+oradell-nj:7433,oradell-nj,7433,Hh-cKZU4A6kzICboYKrmsw,0.0867,0.646,3,0,"[""brick/cobblestone""]",2d7e45f5-3656-4aae-9a09-14addfa80d22,2020-11,40.944945527420586,-74.02862429108502
+oradell-nj:7449,oradell-nj,7449,8Cx4bRETV3rKvp89MJ5lyw,0.0054,0.739,4,0,"[""brick/cobblestone""]",2d7e45f5-3656-4aae-9a09-14addfa80d22,2020-11,40.94365269648302,-74.02908259765002
+oradell-nj:7481,oradell-nj,7481,CwljmVVR6EeoDOkvFCe5IQ,0.9626,0.5286,5,0,"[""brick/cobblestone"",""bumpy""]",2d7e45f5-3656-4aae-9a09-14addfa80d22,2021-09,40.94369458825723,-74.02907389252609
+oradell-nj:7575,oradell-nj,7575,kds3Bz9T5JKwNQH7Hygjsw,0.7335,0.6318,4,0,"[""brick/cobblestone""]",2d7e45f5-3656-4aae-9a09-14addfa80d22,2021-09,40.94235115972661,-74.02975333760646
+pittsburgh-pa:19142,pittsburgh-pa,19142,FGKJvVrvu6UXNWrU0BocoQ,0.3053,0.5885,1,1,"[""brick/cobblestone""]",cf6039f6-94a1-4773-a075-67ab0769791a,2022-06,40.45175467660321,-80.01735982354921
+pittsburgh-pa:19673,pittsburgh-pa,19673,CFGJW6pVBxQzm6w0oqmbzQ,0.9368,0.6011,9,1,"[""brick/cobblestone""]",33ed3719-34a2-47e1-87a3-04dddda0fd6a,2017-07,40.44114817595152,-80.00387578418619
+pittsburgh-pa:19675,pittsburgh-pa,19675,CFGJW6pVBxQzm6w0oqmbzQ,0.2191,0.6755,5,1,"[""brick/cobblestone"",""very long crossing""]",33ed3719-34a2-47e1-87a3-04dddda0fd6a,2017-07,40.441109048372915,-80.00396513722431
+pittsburgh-pa:19679,pittsburgh-pa,19679,Sj-oB4rkWVUluszvbftBWw,0.5644,0.5439,7,0,"[""brick/cobblestone""]",33ed3719-34a2-47e1-87a3-04dddda0fd6a,2021-07,40.44141321642461,-80.00370097280504
+pittsburgh-pa:19681,pittsburgh-pa,19681,B4wrX8Vp45Y4EPi4ltY8Nw,0.7859,0.5471,1,1,"[""brick/cobblestone""]",33ed3719-34a2-47e1-87a3-04dddda0fd6a,2023-05,40.44131712368593,-80.00414312528162
+pittsburgh-pa:19684,pittsburgh-pa,19684,opj6ZjZprXWh82KirVq0EA,0.7681,0.5459,4,0,"[""brick/cobblestone""]",33ed3719-34a2-47e1-87a3-04dddda0fd6a,2023-05,40.44146404250624,-80.00411661105517
+pittsburgh-pa:19687,pittsburgh-pa,19687,opj6ZjZprXWh82KirVq0EA,0.024,0.5658,2,1,"[""brick/cobblestone"",""very long crossing""]",33ed3719-34a2-47e1-87a3-04dddda0fd6a,2023-05,40.44152970854789,-80.00390914615247
+pittsburgh-pa:19767,pittsburgh-pa,19767,cBB-nJGkV19_0kVJIqMP_g,0.5519,0.618,10,0,"[""brick/cobblestone""]",33ed3719-34a2-47e1-87a3-04dddda0fd6a,2023-05,40.441556555649406,-80.00487231558994
+pittsburgh-pa:19770,pittsburgh-pa,19770,cBB-nJGkV19_0kVJIqMP_g,0.6447,0.551,6,0,"[""brick/cobblestone""]",33ed3719-34a2-47e1-87a3-04dddda0fd6a,2023-05,40.44163994803391,-80.00489950556906
+pittsburgh-pa:19775,pittsburgh-pa,19775,cBB-nJGkV19_0kVJIqMP_g,0.2809,0.5382,10,1,"[""brick/cobblestone""]",33ed3719-34a2-47e1-87a3-04dddda0fd6a,2023-05,40.441392798370714,-80.00485624366699
+pittsburgh-pa:21610,pittsburgh-pa,21610,fYyyEycihAI6yk2Y449Cwg,0.106,0.6089,2,2,"[""brick/cobblestone"",""very long crossing""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2023-08,40.43701241177375,-79.99826276370992
+pittsburgh-pa:22013,pittsburgh-pa,22013,klJyWw2wJFuW3-b7eNEo1Q,0.2478,0.5581,4,0,"[""brick/cobblestone""]",75efd5b7-6503-4333-8484-089c0ebf59b4,2020-11,40.44828011307425,-80.00436392995921
+pittsburgh-pa:22015,pittsburgh-pa,22015,klJyWw2wJFuW3-b7eNEo1Q,0.4615,0.6188,4,0,"[""brick/cobblestone""]",75efd5b7-6503-4333-8484-089c0ebf59b4,2020-11,40.44835504451857,-80.00425091830178
+pittsburgh-pa:22895,pittsburgh-pa,22895,Pujqsu6_4vudNnJYzPsczg,0.9969,0.6437,1,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2022-10,40.44004110481704,-80.00086663393142
+pittsburgh-pa:22897,pittsburgh-pa,22897,xzHh134T9FGPZslp1hADsQ,0.989,0.614,1,0,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2022-10,40.44013694162438,-80.00079926662873
+pittsburgh-pa:22905,pittsburgh-pa,22905,xzHh134T9FGPZslp1hADsQ,0.7682,0.5956,4,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2022-10,40.44012678629652,-80.00090344914513
+pittsburgh-pa:22906,pittsburgh-pa,22906,xzHh134T9FGPZslp1hADsQ,0.2266,0.6146,1,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2022-10,40.44006588093108,-80.00076323627
+pittsburgh-pa:22934,pittsburgh-pa,22934,hson0HRNqdYuCrNYXsEpHw,0.0013,0.599,1,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2023-07,40.44071359040658,-80.00031949634202
+pittsburgh-pa:22941,pittsburgh-pa,22941,hson0HRNqdYuCrNYXsEpHw,0.5017,0.6183,2,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2023-07,40.44076646213885,-80.00046034760379
+pittsburgh-pa:22945,pittsburgh-pa,22945,d9xcSY-eqLD8iiXWP5IeZA,0.4918,0.7147,1,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2023-07,40.44141658569972,-79.9999379390308
+pittsburgh-pa:22954,pittsburgh-pa,22954,d9xcSY-eqLD8iiXWP5IeZA,0.2064,0.5913,2,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2023-07,40.441426290313714,-79.99983182214721
+pittsburgh-pa:22959,pittsburgh-pa,22959,d9xcSY-eqLD8iiXWP5IeZA,0.007,0.6031,1,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2023-07,40.44149500741728,-79.9998828436552
+pittsburgh-pa:22967,pittsburgh-pa,22967,wRyNPcoPXn-y6abZ1lr4hQ,0.7984,0.5655,2,0,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2007-10,40.44320454625917,-79.9972168383993
+pittsburgh-pa:22968,pittsburgh-pa,22968,wRyNPcoPXn-y6abZ1lr4hQ,0.4555,0.5493,1,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2007-10,40.44315139375183,-79.99747385874174
+pittsburgh-pa:22969,pittsburgh-pa,22969,dHh5Z-o69e4HbJvTKXf3Yg,0.7754,0.6027,2,2,"[""brick/cobblestone"",""bumpy"",""uneven surface""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2022-11,40.443026445974546,-79.99728511199456
+pittsburgh-pa:22975,pittsburgh-pa,22975,dHh5Z-o69e4HbJvTKXf3Yg,0.0281,0.5549,3,0,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2022-11,40.4430702694647,-79.99745371086311
+pittsburgh-pa:22976,pittsburgh-pa,22976,dHh5Z-o69e4HbJvTKXf3Yg,0.4732,0.5884,3,2,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2022-11,40.4431238726182,-79.99721395379035
+pittsburgh-pa:22991,pittsburgh-pa,22991,kk4xQkYnqUJgK2SzqSsH4A,0.4406,0.6393,1,1,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2022-11,40.44324347203468,-79.99675048998894
+pittsburgh-pa:23074,pittsburgh-pa,23074,5tLb4jsmHejfGtkU00f_1A,0.0345,0.6476,1,0,"[""brick/cobblestone""]",12692bf9-35f2-4a9a-8051-c31df62388a7,2023-05,40.44144013980861,-80.00367911525687
+pittsburgh-pa:26609,pittsburgh-pa,26609,6L4_iGKWajRq0Jdyz_3BTA,0.344,0.6136,0,0,"[""brick/cobblestone""]",74af52e7-0fd7-4827-a5df-dcbfed7f6c34,2024-11,40.41892345671826,-79.88182989491501
+pittsburgh-pa:26619,pittsburgh-pa,26619,CwRXDXc6FcHkAWanr8K1ZQ,0.6723,0.6293,0,0,"[""brick/cobblestone""]",74af52e7-0fd7-4827-a5df-dcbfed7f6c34,2024-11,40.41925674054159,-79.8821909479546
+pittsburgh-pa:28152,pittsburgh-pa,28152,xA_tFJnqKF6raXn6vGGAug,0.0725,0.6782,1,0,"[""uneven surface"",""bumpy"",""brick/cobblestone""]",8cfd3122-55a4-493b-9304-94a4583f8e03,2024-10,40.47440231368122,-79.91738586154891
+pittsburgh-pa:28162,pittsburgh-pa,28162,fUGDt_L62l06oQvNh0M0iQ,0.4497,0.6436,0,0,"[""uneven surface"",""bumpy"",""brick/cobblestone""]",8cfd3122-55a4-493b-9304-94a4583f8e03,2012-05,40.474418377183966,-79.91737267050553
+pittsburgh-pa:29532,pittsburgh-pa,29532,sdNjPqv4xcEoLmX0Gi0l-A,0.6071,0.7135,1,0,"[""brick/cobblestone"",""paint fading""]",7dfb32e5-a9b6-4489-8ffd-49debc32ca36,2024-11,40.442869888717375,-79.89097608609494
+pittsburgh-pa:30222,pittsburgh-pa,30222,b_t_XOoN2mKsXjLpao--3Q,0.3026,0.632,0,0,"[""brick/cobblestone""]",ea492177-48cb-4e78-8107-9334108c7cf0,2021-08,40.41844456571964,-79.88101892571649
+pittsburgh-pa:30225,pittsburgh-pa,30225,b_t_XOoN2mKsXjLpao--3Q,0.6052,0.5732,0,0,"[""brick/cobblestone""]",ea492177-48cb-4e78-8107-9334108c7cf0,2021-08,40.418402582088355,-79.88087869762633
+pittsburgh-pa:30243,pittsburgh-pa,30243,rQNkttZDnEmuLizpzWzGew,0.8005,0.6949,0,0,"[""brick/cobblestone""]",ea492177-48cb-4e78-8107-9334108c7cf0,2025-07,40.41942437837831,-79.88268484087824
+pittsburgh-pa:30248,pittsburgh-pa,30248,_UPALWKLOPJvd6f6FDaNwQ,0.9087,0.5907,1,0,"[""brick/cobblestone""]",ea492177-48cb-4e78-8107-9334108c7cf0,2025-07,40.42007880875021,-79.88354263775847
+pittsburgh-pa:30359,pittsburgh-pa,30359,45-bvqwadurt2qnL5jeAsA,0.1013,0.7302,0,0,"[""brick/cobblestone""]",ea492177-48cb-4e78-8107-9334108c7cf0,2025-07,40.41703630498097,-79.87860110401486
+pittsburgh-pa:30709,pittsburgh-pa,30709,P5xt39AsIYsT7OyqcTFQYQ,0.2692,0.5867,1,0,"[""brick/cobblestone""]",773f5528-e0e7-4aff-b32b-86c61a7785d5,2024-11,40.443287721946184,-79.95359073897639
+santiago-chile:25118,santiago-chile,25118,4V8_LvrNwXtwHPxKOHx6Rg,0.0185,0.5537,1,0,"[""brick/cobblestone"",""bumpy"",""paint fading""]",e3849ac5-c5f5-4df4-ae85-5a09c753f458,2024-06,-33.4456548471422,-70.65274377835804
+st-louis-mo:9175,st-louis-mo,9175,-sPq0rnmbQUFyQlrg_lSrg,0.598,0.5902,1,1,"[""brick/cobblestone"",""uneven surface""]",d52a6fe0-0bd0-4766-bc79-29bdd076d698,2022-03,38.61544751783911,-90.22551036480593
+st-louis-mo:43117,st-louis-mo,43117,078LVwIFXm3wMYK_ZKzsrQ,0.4463,0.6865,2,0,"[""paint fading"",""brick/cobblestone""]",2f37368a-6d81-4abe-b3b5-014663aa396f,2025-05,38.63731666347453,-90.29561859347878
+tucson-az:28540,tucson-az,28540,EIORdUfH1FnIhzVPvZQF3w,0.0416,0.622,1,0,"[""brick/cobblestone"",""bumpy""]",4126dea9-724c-4731-b40e-b0c29795546f,2011-04,32.202702762508295,-110.96852963614741
+west-chester-pa:24972,west-chester-pa,24972,7eI-vypuj-3Sw970tR0L-g,0.0034,0.6125,2,0,"[""bumpy"",""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2024-10,39.96171641266529,-75.6024005933483
+west-chester-pa:24974,west-chester-pa,24974,OC7yyvh-ZqsiFVfZdk-u_w,0.5063,0.5873,2,1,"[""brick/cobblestone""]",18b26a38-24ab-402d-a64e-158fc0bb8a8a,2024-10,39.96168283338153,-75.60250699714292
+west-chester-pa:25206,west-chester-pa,25206,eK4t5G_jr9bTvSwfItz7rg,0.7524,0.6127,2,1,"[""brick/cobblestone""]",fd0f9a47-441d-4ed7-932a-d98c91d9c500,2024-10,39.96108969884629,-75.60391029396361

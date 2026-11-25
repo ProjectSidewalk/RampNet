@@ -1,0 +1,6 @@
+card_id,kind,pano_id,x,y,conf,city,mode,year,stratum,verdict,note
+det:FUQ-eE54wUqdDpSDCnOpZQ:0.020:0.584,det,FUQ-eE54wUqdDpSDCnOpZQ,0.019531,0.583984,0.570011,laurens-ia,gsv,,random,not_crosswalk,carried from det:FUQ-eE54wUqdDpSDCnOpZQ:0.019:0.584
+det:IPTGoYT9ZPMEdCRMTomzmA:0.504:0.555,det,IPTGoYT9ZPMEdCRMTomzmA,0.503906,0.554688,0.63609,laurens-ia,gsv,,random,not_crosswalk,
+det:Klf_fjzq0ZZlpVGQxbBcKw:0.066:0.553,det,Klf_fjzq0ZZlpVGQxbBcKw,0.066406,0.552734,0.281111,laurens-ia,gsv,,random,not_crosswalk,carried from det:Klf_fjzq0ZZlpVGQxbBcKw:0.073:0.553
+det:i3kSs9QhnzSSsBABeMyWKA:0.473:0.570,det,i3kSs9QhnzSSsBABeMyWKA,0.472656,0.570312,0.3607,laurens-ia,gsv,,random,not_crosswalk,
+det:pVVxdTdqgVNThYvx5S5i5g:0.473:0.523,det,pVVxdTdqgVNThYvx5S5i5g,0.472656,0.523438,0.344265,laurens-ia,gsv,,random,not_crosswalk,

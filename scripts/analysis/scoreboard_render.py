@@ -437,7 +437,10 @@ def prose_facts(result):
     facts = {
         "legs": len(result["models"]),
         "seed_legs": len(result.get("off_scoreboard") or {}),
-        "study_legs": len(result.get("study_legs") or {}),
+        # The prose names the #276 study legs in a sentence of their own; other studies'
+        # legs get their own bullet, so only #276's are counted against that sentence.
+        "study_legs": sum(1 for v in (result.get("study_legs") or {}).values()
+                          if v == "vlm_prompt_276"),
         "splits": len(result["all_splits"]),
         "pooled": len(pooled),
         "pooled_minus_one": len(pooled) - 1,

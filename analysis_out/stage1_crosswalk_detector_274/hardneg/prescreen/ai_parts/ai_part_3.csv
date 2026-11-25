@@ -1,0 +1,697 @@
+sheet,cell,verdict,reason
+sheet_0117.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0117.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0117.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0117.jpg,4,unsure,ambiguous or distant paint
+sheet_0117.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0117.jpg,6,unsure,ambiguous or distant paint
+sheet_0117.jpg,7,unsure,ambiguous or distant paint
+sheet_0117.jpg,8,unsure,ambiguous or distant paint
+sheet_0117.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0117.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0117.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0117.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0118.jpg,1,unsure,ambiguous or distant paint
+sheet_0118.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0118.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0118.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0118.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0118.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0118.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0118.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0118.jpg,9,unsure,ambiguous or distant paint
+sheet_0118.jpg,10,unsure,ambiguous or distant paint
+sheet_0118.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0118.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0119.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0119.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0119.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0119.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0119.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0119.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0119.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0119.jpg,8,unsure,ambiguous or distant paint
+sheet_0119.jpg,9,unsure,ambiguous or distant paint
+sheet_0119.jpg,10,unsure,ambiguous or distant paint
+sheet_0119.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0119.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0120.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0120.jpg,2,unsure,ambiguous or distant paint
+sheet_0120.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0120.jpg,4,unsure,ambiguous or distant paint
+sheet_0120.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0120.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0120.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0120.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0120.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0120.jpg,10,unsure,ambiguous or distant paint
+sheet_0120.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0120.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0121.jpg,1,unsure,ambiguous or distant paint
+sheet_0121.jpg,2,unsure,ambiguous or distant paint
+sheet_0121.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0121.jpg,4,unsure,ambiguous or distant paint
+sheet_0121.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0121.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0121.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0121.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0121.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0121.jpg,10,unsure,ambiguous or distant paint
+sheet_0121.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0121.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0122.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0122.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0122.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0122.jpg,4,unsure,ambiguous or distant paint
+sheet_0122.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0122.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0122.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0122.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0122.jpg,9,unsure,ambiguous or distant paint
+sheet_0122.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0122.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0122.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0123.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0123.jpg,2,unsure,ambiguous or distant paint
+sheet_0123.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0123.jpg,4,unsure,ambiguous or distant paint
+sheet_0123.jpg,5,unsure,ambiguous or distant paint
+sheet_0123.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0123.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0123.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0123.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0123.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0123.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0123.jpg,12,unsure,ambiguous or distant paint
+sheet_0124.jpg,1,unsure,ambiguous or distant paint
+sheet_0124.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0124.jpg,3,unsure,ambiguous or distant paint
+sheet_0124.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0124.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0124.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0124.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0124.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0124.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0124.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0124.jpg,11,unsure,ambiguous or distant paint
+sheet_0124.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0125.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0125.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0125.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0125.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0125.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0125.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0125.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0125.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0125.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0125.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0125.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0125.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0126.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0126.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0126.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0126.jpg,4,unsure,ambiguous or distant paint
+sheet_0126.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0126.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0126.jpg,7,unsure,ambiguous or distant paint
+sheet_0126.jpg,8,unsure,ambiguous or distant paint
+sheet_0126.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0126.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0126.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0126.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0127.jpg,1,unsure,ambiguous or distant paint
+sheet_0127.jpg,2,unsure,ambiguous or distant paint
+sheet_0127.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0127.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0127.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0127.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0127.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0127.jpg,8,unsure,ambiguous or distant paint
+sheet_0127.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0127.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0127.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0127.jpg,12,unsure,ambiguous or distant paint
+sheet_0128.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0128.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0128.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0128.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0128.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0128.jpg,6,unsure,ambiguous or distant paint
+sheet_0128.jpg,7,unsure,ambiguous or distant paint
+sheet_0128.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0128.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0128.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0128.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0128.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0129.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0129.jpg,2,unsure,ambiguous or distant paint
+sheet_0129.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0129.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0129.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0129.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0129.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0129.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0129.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0129.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0129.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0129.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0130.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0130.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0130.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0130.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0130.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0130.jpg,6,unsure,ambiguous or distant paint
+sheet_0130.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0130.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0130.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0130.jpg,10,unsure,ambiguous or distant paint
+sheet_0130.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0130.jpg,12,unsure,ambiguous or distant paint
+sheet_0131.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0131.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0131.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0131.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0131.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0131.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0131.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0131.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0131.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0131.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0131.jpg,11,unsure,ambiguous or distant paint
+sheet_0131.jpg,12,unsure,ambiguous or distant paint
+sheet_0132.jpg,1,unsure,ambiguous or distant paint
+sheet_0132.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0132.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0132.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0132.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0132.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0132.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0132.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0132.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0132.jpg,10,unsure,ambiguous or distant paint
+sheet_0132.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0132.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0133.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0133.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0133.jpg,3,unsure,ambiguous or distant paint
+sheet_0133.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0133.jpg,5,unsure,ambiguous or distant paint
+sheet_0133.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0133.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0133.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0133.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0133.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0133.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0133.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0134.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0134.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0134.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0134.jpg,4,unsure,ambiguous or distant paint
+sheet_0134.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0134.jpg,6,unsure,ambiguous or distant paint
+sheet_0134.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0134.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0134.jpg,9,unsure,ambiguous or distant paint
+sheet_0134.jpg,10,unsure,ambiguous or distant paint
+sheet_0134.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0134.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0135.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0135.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0135.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0135.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0135.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0135.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0135.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0135.jpg,8,unsure,ambiguous or distant paint
+sheet_0135.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0135.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0135.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0135.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0136.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0136.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0136.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0136.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0136.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0136.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0136.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0136.jpg,8,unsure,ambiguous or distant paint
+sheet_0136.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0136.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0136.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0136.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0137.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0137.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0137.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0137.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0137.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0137.jpg,6,unsure,ambiguous or distant paint
+sheet_0137.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0137.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0137.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0137.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0137.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0137.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0138.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0138.jpg,2,unsure,ambiguous or distant paint
+sheet_0138.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0138.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0138.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0138.jpg,6,unsure,ambiguous or distant paint
+sheet_0138.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0138.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0138.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0138.jpg,10,unsure,ambiguous or distant paint
+sheet_0138.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0138.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0139.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0139.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0139.jpg,3,unsure,ambiguous or distant paint
+sheet_0139.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0139.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0139.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0139.jpg,7,unsure,ambiguous or distant paint
+sheet_0139.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0139.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0139.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0139.jpg,11,unsure,ambiguous or distant paint
+sheet_0139.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0140.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0140.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0140.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0140.jpg,4,unsure,ambiguous or distant paint
+sheet_0140.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0140.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0140.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0140.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0140.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0140.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0140.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0140.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0141.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0141.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0141.jpg,3,unsure,ambiguous or distant paint
+sheet_0141.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0141.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0141.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0141.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0141.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0141.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0141.jpg,10,unsure,ambiguous or distant paint
+sheet_0141.jpg,11,unsure,ambiguous or distant paint
+sheet_0141.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0142.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0142.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0142.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0142.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0142.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0142.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0142.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0142.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0142.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0142.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0142.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0142.jpg,12,unsure,ambiguous or distant paint
+sheet_0143.jpg,1,unsure,ambiguous or distant paint
+sheet_0143.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0143.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0143.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0143.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0143.jpg,6,unsure,ambiguous or distant paint
+sheet_0143.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0143.jpg,8,unsure,ambiguous or distant paint
+sheet_0143.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0143.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0143.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0143.jpg,12,unsure,ambiguous or distant paint
+sheet_0144.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0144.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0144.jpg,3,unsure,ambiguous or distant paint
+sheet_0144.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0144.jpg,5,unsure,ambiguous or distant paint
+sheet_0144.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0144.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0144.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0144.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0144.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0144.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0144.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0145.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0145.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0145.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0145.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0145.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0145.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0145.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0145.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0145.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0145.jpg,10,unsure,ambiguous or distant paint
+sheet_0145.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0145.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0146.jpg,1,unsure,ambiguous or distant paint
+sheet_0146.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0146.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0146.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0146.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0146.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0146.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0146.jpg,8,unsure,ambiguous or distant paint
+sheet_0146.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0146.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0146.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0146.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0147.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0147.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0147.jpg,3,unsure,ambiguous or distant paint
+sheet_0147.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0147.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0147.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0147.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0147.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0147.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0147.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0147.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0147.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0148.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0148.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0148.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0148.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0148.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0148.jpg,6,unsure,ambiguous or distant paint
+sheet_0148.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0148.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0148.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0148.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0148.jpg,11,unsure,ambiguous or distant paint
+sheet_0148.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0149.jpg,1,unsure,ambiguous or distant paint
+sheet_0149.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0149.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0149.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0149.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0149.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0149.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0149.jpg,8,unsure,ambiguous or distant paint
+sheet_0149.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0149.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0149.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0149.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0150.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0150.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0150.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0150.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0150.jpg,5,unsure,ambiguous or distant paint
+sheet_0150.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0150.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0150.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0150.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0150.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0150.jpg,11,unsure,ambiguous or distant paint
+sheet_0150.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0151.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0151.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0151.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0151.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0151.jpg,5,unsure,ambiguous or distant paint
+sheet_0151.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0151.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0151.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0151.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0151.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0151.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0151.jpg,12,unsure,ambiguous or distant paint
+sheet_0152.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0152.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0152.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0152.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0152.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0152.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0152.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0152.jpg,8,unsure,ambiguous or distant paint
+sheet_0152.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0152.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0152.jpg,11,unsure,ambiguous or distant paint
+sheet_0152.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0153.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0153.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0153.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0153.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0153.jpg,5,unsure,ambiguous or distant paint
+sheet_0153.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0153.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0153.jpg,8,unsure,ambiguous or distant paint
+sheet_0153.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0153.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0153.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0153.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0154.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0154.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0154.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0154.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0154.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0154.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0154.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0154.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0154.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0154.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0154.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0154.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0155.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0155.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0155.jpg,3,unsure,ambiguous or distant paint
+sheet_0155.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0155.jpg,5,unsure,ambiguous or distant paint
+sheet_0155.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0155.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0155.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0155.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0155.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0155.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0155.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0156.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0156.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0156.jpg,3,unsure,ambiguous or distant paint
+sheet_0156.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0156.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0156.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0156.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0156.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0156.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0156.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0156.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0156.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0157.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0157.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0157.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0157.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0157.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0157.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0157.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0157.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0157.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0157.jpg,10,unsure,ambiguous or distant paint
+sheet_0157.jpg,11,unsure,ambiguous or distant paint
+sheet_0157.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0158.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0158.jpg,2,unsure,ambiguous or distant paint
+sheet_0158.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0158.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0158.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0158.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0158.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0158.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0158.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0158.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0158.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0158.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0159.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0159.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0159.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0159.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0159.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0159.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0159.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0159.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0159.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0159.jpg,10,unsure,ambiguous or distant paint
+sheet_0159.jpg,11,unsure,ambiguous or distant paint
+sheet_0159.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0160.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0160.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0160.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0160.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0160.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0160.jpg,6,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0160.jpg,7,unsure,ambiguous or distant paint
+sheet_0160.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0160.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0160.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0160.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0160.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0161.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0161.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0161.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0161.jpg,4,unsure,ambiguous or distant paint
+sheet_0161.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0161.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0161.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0161.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0161.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0161.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0161.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0161.jpg,12,unsure,ambiguous or distant paint
+sheet_0162.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0162.jpg,2,unsure,ambiguous or distant paint
+sheet_0162.jpg,3,unsure,ambiguous or distant paint
+sheet_0162.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0162.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0162.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0162.jpg,7,unsure,ambiguous or distant paint
+sheet_0162.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0162.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0162.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0162.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0162.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0163.jpg,1,unsure,ambiguous or distant paint
+sheet_0163.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0163.jpg,3,unsure,ambiguous or distant paint
+sheet_0163.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0163.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0163.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0163.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0163.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0163.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0163.jpg,10,unsure,ambiguous or distant paint
+sheet_0163.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0163.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0164.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0164.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0164.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0164.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0164.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0164.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0164.jpg,7,unsure,ambiguous or distant paint
+sheet_0164.jpg,8,unsure,ambiguous or distant paint
+sheet_0164.jpg,9,unsure,ambiguous or distant paint
+sheet_0164.jpg,10,unsure,ambiguous or distant paint
+sheet_0164.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0164.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0165.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0165.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0165.jpg,3,unsure,ambiguous or distant paint
+sheet_0165.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0165.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0165.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0165.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0165.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0165.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0165.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0165.jpg,11,unsure,ambiguous or distant paint
+sheet_0165.jpg,12,unsure,ambiguous or distant paint
+sheet_0166.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0166.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0166.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0166.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0166.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0166.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0166.jpg,7,unsure,ambiguous or distant paint
+sheet_0166.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0166.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0166.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0166.jpg,11,unsure,ambiguous or distant paint
+sheet_0166.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0167.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0167.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0167.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0167.jpg,4,unsure,ambiguous or distant paint
+sheet_0167.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0167.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0167.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0167.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0167.jpg,9,unsure,ambiguous or distant paint
+sheet_0167.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0167.jpg,11,unsure,ambiguous or distant paint
+sheet_0167.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0168.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0168.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0168.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0168.jpg,4,unsure,ambiguous or distant paint
+sheet_0168.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0168.jpg,6,unsure,ambiguous or distant paint
+sheet_0168.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0168.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0168.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0168.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0168.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0168.jpg,12,unsure,ambiguous or distant paint
+sheet_0169.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0169.jpg,2,unsure,ambiguous or distant paint
+sheet_0169.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0169.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0169.jpg,5,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0169.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0169.jpg,7,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0169.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0169.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0169.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0169.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0169.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0170.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0170.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0170.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0170.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0170.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0170.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0170.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0170.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0170.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0170.jpg,10,unsure,ambiguous or distant paint
+sheet_0170.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0170.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0171.jpg,1,unsure,ambiguous or distant paint
+sheet_0171.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0171.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0171.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0171.jpg,5,unsure,ambiguous or distant paint
+sheet_0171.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0171.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0171.jpg,8,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0171.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0171.jpg,10,unsure,ambiguous or distant paint
+sheet_0171.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0171.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0172.jpg,1,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0172.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0172.jpg,3,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0172.jpg,4,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0172.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0172.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0172.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0172.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0172.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0172.jpg,10,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0172.jpg,11,unsure,ambiguous or distant paint
+sheet_0172.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0173.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0173.jpg,2,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0173.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0173.jpg,4,unsure,ambiguous or distant paint
+sheet_0173.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0173.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0173.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0173.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0173.jpg,9,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0173.jpg,10,unsure,ambiguous or distant paint
+sheet_0173.jpg,11,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0173.jpg,12,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0174.jpg,1,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0174.jpg,2,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0174.jpg,3,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0174.jpg,4,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0174.jpg,5,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0174.jpg,6,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0174.jpg,7,not_crosswalk,no crosswalk paint in circle (lines arrows bike or road marks)
+sheet_0174.jpg,8,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0174.jpg,9,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0174.jpg,10,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0174.jpg,11,crosswalk,zebra or parallel-line crosswalk paint in circle
+sheet_0174.jpg,12,crosswalk,zebra or parallel-line crosswalk paint in circle

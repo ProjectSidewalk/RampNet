@@ -52,7 +52,7 @@ dataset. A sparse-labeled JSON is the dataset format plus a `supervision` block:
 | field | meaning |
 |---|---|
 | `curb_ramp_points_normalized` | The verified positives, as `[x, y]` fractions of width and height. `[]` for `verified_empty`. |
-| `supervision.mode` | `"sparse"` or `"verified_empty"`. **Any other value is an error** (train.py raises). So is a `sparse` pano with no positives, and a `verified_empty` pano that lists positives or ignore points. |
+| `supervision.mode` | `"sparse"`, `"verified_empty"` or `"dense_ignore"` (#274, below). **Any other value is an error** (train.py raises). So is a `sparse` pano with no positives and no `negative_points`, and a `verified_empty` pano that lists positives or ignore points. |
 | `supervision.sources` | One entry per point, parallel to the point list: `"strong_site"` or `"mined"`. An arm can drop one source without a rebuild. |
 | `supervision.site_ids` | One entry per point, the site the point came from: `"<city>:<site_id>"` for a `sites.jsonl` site, `"<city>:mined:<site_id>"` for a mined row. `mine_city.py` runs its own fuse, so its ids are a different serial. A site id means nothing without its run. |
 | `supervision.ignore_points` | The pano's other stored peaks, i.e. every detection in `results.jsonl` that is not a positive (#266 review M4). A peak within 2 heatmap px of a positive counts as that positive. Their discs are carved out of the positives' discs; see below. Optional in train.py (missing means `[]`). |
@@ -163,6 +163,44 @@ would contribute about 1/186 of it.
 train better. The earlier draft of this document claimed the per-pano `weight` choice was what
 #263 specified; the issue says nothing about normalization. Which norm trains better on a Lyon
 mix is **a hyperparameter for the label-budget curve to test**. Neither has been run.
+
+## `dense_ignore`: label-complete panos with known holes (#274)
+
+Added for crosswalks (`docs/stage1_crosswalk_sdot_274.md`, arm C). Crowd-label panos that SDOT and Vistas show to
+be label-complete should teach background: lane lines and stop bars are not crosswalks. `sparse` cannot do that,
+because it trains only near the positives. A `dense_ignore` pano trains **everywhere, as a dense pano does,
+except**:
+- inside an ignore point's 3-sigma disc, where the pixel is strictly nearer the ignore point than every positive;
+  this is the `sparse` tie rule, so an ignore point never erases a positive's peak;
+- inside `supervision.ignore_boxes`, where the pixel is outside every positive's disc.
+
+| field | meaning |
+|---|---|
+| `supervision.ignore_points` | As for `sparse`. Optional. |
+| `supervision.ignore_boxes` | `[[x_left, x_right, y_top, y_bottom], ...]` in pano fractions. `x_left > x_right` wraps the seam. Malformed boxes are an error. Read only for `dense_ignore`. |
+
+The horizontal flip mirrors the boxes with the target. The weight is built by `generate_dense_ignore_weight` and
+pinned by `tests/test_dense_ignore_274.py`. Without `--loss-mask` a `dense_ignore` JSON is refused, as every
+`supervision` block is.
+
+## `negative_points`: verified hard negatives (#274)
+
+Added for the crosswalk hard-negative run (`docs/stage1_crosswalk_sdot_274.md`, "Hard negatives"). A negative
+point is a spot a human verified is **not** the label type, such as a bus lane or parking hatching where the model
+fired. It trains as background in its own 3-sigma disc, in **any** mode. That includes places the mode would
+otherwise leave untrained: a `sparse` pano's background, an ignore point's disc, an ignore box.
+
+| field | meaning |
+|---|---|
+| `supervision.negative_points` | `[[x, y], ...]` in pano fractions. Optional, any mode. A negative within 0.05 of a positive (x in pano widths, seam-wrapped; y in pano heights counted half, the crosswalk scorer's match radius) is an error. |
+
+- **Tie rule.** A pixel nearer a positive than every negative keeps its weight, so positives win ties, as with ignore
+  points.
+- **Positives optional.** A `sparse` pano may carry negatives and no positive.
+- **Flip.** The horizontal flip mirrors the negatives with the target.
+- **Implementation.** `supervision_negative_points` reads the field and `add_negative_weight` builds the weight;
+  both are pinned by `tests/test_negative_points_274.py`. A JSON without the field takes exactly the path it took
+  before.
 
 ## Building sparse labels from a labeler run
 

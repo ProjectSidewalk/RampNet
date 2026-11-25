@@ -1,0 +1,924 @@
+card_id,label_uid,city,pano_id,x,y,sheet,cell,ai_verdict,ai_style,ai_reason
+det:xzbp7ZwZ-aAixA3ZgN8OFQ:0.867:0.643,cuenca:13172,cuenca,xzbp7ZwZ-aAixA3ZgN8OFQ,0.8666,0.6433,sheet_0001.jpg,1,crosswalk,paint,zebra bars on cobblestone
+det:miCpx6d6TehfCm4B5ERNJQ:0.514:0.600,cuenca:13827,cuenca,miCpx6d6TehfCm4B5ERNJQ,0.5141,0.5998,sheet_0001.jpg,2,crosswalk,paint,zebra bars on cobblestone with brick diamond
+det:of9rosu9sEjhG2_VEdTfRw:0.532:0.617,cuenca:6117,cuenca,of9rosu9sEjhG2_VEdTfRw,0.5319,0.6173,sheet_0001.jpg,3,unsure,unclear,brick diamond; only faint worn paint at edge
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.129:0.640,cuenca:10455,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.1285,0.6403,sheet_0001.jpg,4,crosswalk,paint,zebra bars on cobblestone
+det:-YTTJfUL0-idnxU-CeKaTQ:0.196:0.618,cuenca:3964,cuenca,-YTTJfUL0-idnxU-CeKaTQ,0.1957,0.6181,sheet_0001.jpg,5,not_crosswalk,none,plain cobblestone road surface
+det:c-qGp-2AiUctC5IaB-kx7g:0.027:0.584,chicago-il:65450,chicago-il,c-qGp-2AiUctC5IaB-kx7g,0.0266,0.5835,sheet_0001.jpg,6,crosswalk,brick_edge_lines,red band with white edge lines
+det:vZ1LA8mAU3jRi0OT8T_JMQ:0.166:0.765,chicago-il:61796,chicago-il,vZ1LA8mAU3jRi0OT8T_JMQ,0.1664,0.7653,sheet_0001.jpg,7,crosswalk,brick_edge_lines,rainbow paver crossing band with edge line
+det:6alxeXLRBpxPWtw_E6nIBw:0.251:0.791,maywood-nj:27990,maywood-nj,6alxeXLRBpxPWtw_E6nIBw,0.2505,0.7906,sheet_0001.jpg,8,unsure,unclear,close-up red brick; crossing or plaza unclear
+det:oFIkYBzH7F3Rd6dtkSTMyg:0.499:0.564,cuenca:13062,cuenca,oFIkYBzH7F3Rd6dtkSTMyg,0.4989,0.5642,sheet_0001.jpg,9,crosswalk,paint,zebra bars on cobblestone inside circle
+det:opj6ZjZprXWh82KirVq0EA:0.768:0.546,pittsburgh-pa:19684,pittsburgh-pa,opj6ZjZprXWh82KirVq0EA,0.7681,0.5459,sheet_0001.jpg,10,crosswalk,paint,two parallel transverse painted lines
+det:ZT81C6_Z2hIJmPPQvcDspQ:0.072:0.619,columbus-oh:39922,columbus-oh,ZT81C6_Z2hIJmPPQvcDspQ,0.0721,0.6194,sheet_0001.jpg,11,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:rzUYMiysRt5qxNEtZVPkmQ:0.140:0.567,chicago-il:82878,chicago-il,rzUYMiysRt5qxNEtZVPkmQ,0.14,0.5668,sheet_0001.jpg,12,crosswalk,brick_edge_lines,maroon band with white edge lines
+det:JN0Y2VrBUrJ9cMLBOYoxjQ:0.801:0.600,chicago-il:25189,chicago-il,JN0Y2VrBUrJ9cMLBOYoxjQ,0.801,0.6003,sheet_0002.jpg,1,crosswalk,brick_edge_lines,paver band between white lines
+det:0xN4Mrc2GMbM6KjKMOffQw:0.386:0.568,chicago-il:23980,chicago-il,0xN4Mrc2GMbM6KjKMOffQw,0.3856,0.5682,sheet_0002.jpg,2,crosswalk,brick_edge_lines,textured band between white lines; pedestrian
+det:0tnO2axKHDyDcPkKP_gNwQ:0.300:0.596,chicago-il:81997,chicago-il,0tnO2axKHDyDcPkKP_gNwQ,0.3005,0.5955,sheet_0002.jpg,3,crosswalk,brick,red brick band across road
+det:R0MBhDls9RD-kne7ovgjJQ:0.991:0.706,cuenca:12147,cuenca,R0MBhDls9RD-kne7ovgjJQ,0.9911,0.7064,sheet_0002.jpg,4,crosswalk,paint,worn painted bars; blurry
+det:CmOaB451dGeqGgSmXh8oYw:0.873:0.563,chicago-il:207779,chicago-il,CmOaB451dGeqGgSmXh8oYw,0.8726,0.5631,sheet_0002.jpg,5,crosswalk,brick_edge_lines,red band with white edge lines
+det:PnMsX3SSPoAguG26aLuVFA:0.199:0.573,chicago-il:32136,chicago-il,PnMsX3SSPoAguG26aLuVFA,0.1993,0.5728,sheet_0002.jpg,6,crosswalk,brick_edge_lines,red band with white edge lines
+det:Tq_KLBk2uhDDArCx_EN21g:0.744:0.597,chicago-il:62922,chicago-il,Tq_KLBk2uhDDArCx_EN21g,0.7437,0.5968,sheet_0002.jpg,7,crosswalk,brick_edge_lines,red band with white edge lines
+det:Rcs6RXFI9_W-YpIMr7N-kg:0.985:0.578,cuenca:8741,cuenca,Rcs6RXFI9_W-YpIMr7N-kg,0.985,0.5777,sheet_0002.jpg,8,crosswalk,paint,zebra bars on cobblestone
+det:enA7AWpPd_9QsT8YEBotZg:0.743:0.579,chicago-il:82807,chicago-il,enA7AWpPd_9QsT8YEBotZg,0.7426,0.5786,sheet_0002.jpg,9,crosswalk,brick_edge_lines,red band with white edge lines
+det:8s6SD3uabGmALBv69-JTbQ:0.877:0.585,chicago-il:160569,chicago-il,8s6SD3uabGmALBv69-JTbQ,0.877,0.5848,sheet_0002.jpg,10,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:YwhbyvCf34wsysfAjSn-Zw:0.521:0.629,cuenca:10326,cuenca,YwhbyvCf34wsysfAjSn-Zw,0.5213,0.6288,sheet_0002.jpg,11,crosswalk,paint,zebra bars on cobblestone
+det:M-hBrLQvccsj_Q8YopE-3w:0.973:0.689,chicago-il:59646,chicago-il,M-hBrLQvccsj_Q8YopE-3w,0.9732,0.6893,sheet_0002.jpg,12,crosswalk,brick_edge_lines,red brick band with white edge line
+det:6wXTAWFNYd0SWvZKUbJABA:0.435:0.646,columbus-oh:39065,columbus-oh,6wXTAWFNYd0SWvZKUbJABA,0.4346,0.6456,sheet_0003.jpg,1,crosswalk,brick_edge_lines,red brick band with light edge lines
+det:YfTLPleL9tOxvuoO5AWYog:0.105:0.591,chicago-il:148173,chicago-il,YfTLPleL9tOxvuoO5AWYog,0.1051,0.5911,sheet_0003.jpg,2,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:g4y9qBlOVKXLm11-uuwd3Q:0.536:0.671,cuenca:348,cuenca,g4y9qBlOVKXLm11-uuwd3Q,0.536,0.6711,sheet_0003.jpg,3,not_crosswalk,none,decorative brick diamond in cobble; no paint
+det:F03-4GzMlvNz30XRhDhoIA:0.215:0.591,gainesville-fl:30027,gainesville-fl,F03-4GzMlvNz30XRhDhoIA,0.2146,0.5907,sheet_0003.jpg,4,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:SgqTYQH8i0ZAxn_hr_aHQw:0.590:0.735,cuenca:7152,cuenca,SgqTYQH8i0ZAxn_hr_aHQw,0.5901,0.7348,sheet_0003.jpg,5,not_crosswalk,none,blurry plain cobblestone
+det:sdNjPqv4xcEoLmX0Gi0l-A:0.607:0.714,pittsburgh-pa:29532,pittsburgh-pa,sdNjPqv4xcEoLmX0Gi0l-A,0.6071,0.7135,sheet_0003.jpg,6,not_crosswalk,none,ordinary brick road surface by curb
+det:Ai6q1Q8wUCyfEHpv_KZu7w:0.249:0.580,chicago-il:60962,chicago-il,Ai6q1Q8wUCyfEHpv_KZu7w,0.2492,0.58,sheet_0003.jpg,7,crosswalk,brick_edge_lines,red band with white edge lines
+det:DiFFxb0JCssoVqMefc7t0w:0.475:0.562,chicago-il:32210,chicago-il,DiFFxb0JCssoVqMefc7t0w,0.4747,0.5621,sheet_0003.jpg,8,crosswalk,brick_edge_lines,red band with white edge lines
+det:zCiJUEZUh_nxNXMX6XxuqA:0.780:0.631,cuenca:10,cuenca,zCiJUEZUh_nxNXMX6XxuqA,0.7803,0.6309,sheet_0003.jpg,9,crosswalk,paint,zebra bars on cobblestone
+det:oOym-hH2qs9boTSRAb039g:0.091:0.628,chicago-il:67388,chicago-il,oOym-hH2qs9boTSRAb039g,0.0912,0.6285,sheet_0003.jpg,10,crosswalk,brick_edge_lines,red brick band with light edges
+det:xzbp7ZwZ-aAixA3ZgN8OFQ:0.146:0.617,cuenca:13208,cuenca,xzbp7ZwZ-aAixA3ZgN8OFQ,0.146,0.6167,sheet_0003.jpg,11,crosswalk,paint,zebra bars on cobblestone
+det:yEDhqxrynFAknYznr7quXw:0.159:0.721,cuenca:7008,cuenca,yEDhqxrynFAknYznr7quXw,0.1586,0.7207,sheet_0003.jpg,12,crosswalk,paint,zebra bars on cobblestone
+det:j9Cf6IvAWYwVuul1MOX0JA:0.878:0.552,danville-il:33217,danville-il,j9Cf6IvAWYwVuul1MOX0JA,0.878,0.5522,sheet_0004.jpg,1,crosswalk,brick,red brick band across road
+det:KxCO2vVSLJlCqCQ06LkR_w:0.027:0.572,chicago-il:132792,chicago-il,KxCO2vVSLJlCqCQ06LkR_w,0.0273,0.5718,sheet_0004.jpg,2,crosswalk,brick_edge_lines,red band with white edge lines
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.616:0.748,cuenca:10395,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.6158,0.7479,sheet_0004.jpg,3,crosswalk,paint,painted bars in circle; blurry
+det:CIZ5Q-aHA79hXxxjqZuyng:0.045:0.616,chicago-il:39760,chicago-il,CIZ5Q-aHA79hXxxjqZuyng,0.0448,0.616,sheet_0004.jpg,4,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:Is47kgGan6jsAGcWx7CTfg:0.232:0.562,chicago-il:58267,chicago-il,Is47kgGan6jsAGcWx7CTfg,0.2321,0.5625,sheet_0004.jpg,5,crosswalk,paint,parallel transverse lines across side street
+det:fovot9af8Ka51Bk2Gg15Jw:0.439:0.630,chicago-il:32258,chicago-il,fovot9af8Ka51Bk2Gg15Jw,0.4388,0.6298,sheet_0004.jpg,6,crosswalk,brick_edge_lines,red band with white edge lines
+det:p0SIJCvDHUaGq2EFgfpgng:0.606:0.771,chicago-il:67413,chicago-il,p0SIJCvDHUaGq2EFgfpgng,0.606,0.7708,sheet_0004.jpg,7,unsure,unclear,close-up red pavers; context unclear
+det:lcjOzLEUII_iGKJhnrwmlA:0.325:0.550,chicago-il:81161,chicago-il,lcjOzLEUII_iGKJhnrwmlA,0.3245,0.5498,sheet_0004.jpg,8,crosswalk,paint,painted crosswalk bars below marker
+det:ZlOQqMg4Hk94tiWkC0YIHw:0.493:0.569,chicago-il:160579,chicago-il,ZlOQqMg4Hk94tiWkC0YIHw,0.493,0.5691,sheet_0004.jpg,9,crosswalk,brick,faint reddish band across road
+det:XicbUJhENgvMTvKiDZ6nhg:0.513:0.593,cuenca:14064,cuenca,XicbUJhENgvMTvKiDZ6nhg,0.5131,0.5928,sheet_0004.jpg,10,crosswalk,paint,painted bars on cobblestone
+det:Tq26UXdYtftpM2kqhg0PfA:0.603:0.535,chicago-il:183913,chicago-il,Tq26UXdYtftpM2kqhg0PfA,0.6032,0.535,sheet_0004.jpg,11,crosswalk,paint,painted crosswalk lines in circle
+det:ysGTV6cvJB3EGYlbh4fOXA:0.007:0.611,cuenca:12338,cuenca,ysGTV6cvJB3EGYlbh4fOXA,0.0068,0.6112,sheet_0004.jpg,12,crosswalk,paint,worn painted bars on cobblestone
+det:7GtkI2Mpf0nQPoZtoIiCjg:0.020:0.581,gainesville-fl:36045,gainesville-fl,7GtkI2Mpf0nQPoZtoIiCjg,0.0198,0.5808,sheet_0005.jpg,1,unsure,unclear,image artifacts; faint paint only
+det:9CxjI6AiaSC2ZwsYJE0FwA:0.085:0.577,danville-il:33214,danville-il,9CxjI6AiaSC2ZwsYJE0FwA,0.0847,0.5765,sheet_0005.jpg,2,crosswalk,brick,red brick band across road
+det:eK4t5G_jr9bTvSwfItz7rg:0.752:0.613,west-chester-pa:25206,west-chester-pa,eK4t5G_jr9bTvSwfItz7rg,0.7524,0.6127,sheet_0005.jpg,3,crosswalk,brick_edge_lines,herringbone band with white line
+det:Dj_tZeWFb9XDK3SFZholoA:0.971:0.590,chicago-il:67321,chicago-il,Dj_tZeWFb9XDK3SFZholoA,0.9713,0.5903,sheet_0005.jpg,4,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:PL8XHw_iEwzs7Dbb5EL2QQ:0.615:0.570,chicago-il:200932,chicago-il,PL8XHw_iEwzs7Dbb5EL2QQ,0.6148,0.5704,sheet_0005.jpg,5,crosswalk,brick,shaded reddish band across road
+det:6a0Wn0aty9AaOlmSDGU-Tg:0.328:0.578,chicago-il:64057,chicago-il,6a0Wn0aty9AaOlmSDGU-Tg,0.3275,0.5782,sheet_0005.jpg,6,crosswalk,brick_edge_lines,red band with white edge lines
+det:N3aRnEl9sk61aXs63g8Inw:0.871:0.751,cuenca:6846,cuenca,N3aRnEl9sk61aXs63g8Inw,0.8714,0.7509,sheet_0005.jpg,7,not_crosswalk,none,cobble with curved lane line
+det:9uHmtv6vrkb4JbI0JZG9kw:0.782:0.713,chicago-il:172120,chicago-il,9uHmtv6vrkb4JbI0JZG9kw,0.7817,0.7134,sheet_0005.jpg,8,unsure,unclear,wide brick area at corner; band unclear
+det:LzG0WjxJ_onROd2-HP-F0Q:0.251:0.568,chicago-il:66405,chicago-il,LzG0WjxJ_onROd2-HP-F0Q,0.251,0.5681,sheet_0005.jpg,9,crosswalk,brick_edge_lines,red band with white edge lines
+det:-cXKHq-v96Dad3EmCBGr1w:0.235:0.552,chicago-il:198788,chicago-il,-cXKHq-v96Dad3EmCBGr1w,0.2354,0.5525,sheet_0005.jpg,10,crosswalk,brick_edge_lines,red band with white edge lines
+det:VQeR5b2F4GxQgbl8gUgvQg:0.839:0.610,gainesville-fl:32892,gainesville-fl,VQeR5b2F4GxQgbl8gUgvQg,0.8387,0.6096,sheet_0005.jpg,11,crosswalk,brick_edge_lines,red brick band with white edges
+det:6X0AswKuw_5JZQL2vZVlSw:0.290:0.601,chicago-il:43783,chicago-il,6X0AswKuw_5JZQL2vZVlSw,0.2903,0.6005,sheet_0005.jpg,12,crosswalk,brick_edge_lines,red band with white edge lines
+det:yAqwduej58cMeRkFIsw71Q:0.526:0.700,cuenca:11402,cuenca,yAqwduej58cMeRkFIsw71Q,0.5257,0.6998,sheet_0006.jpg,1,unsure,unclear,blurry; scattered paint flecks only
+det:zrO8HrlvYyU3I2DZktQklA:0.307:0.675,cuenca:533,cuenca,zrO8HrlvYyU3I2DZktQklA,0.3074,0.6752,sheet_0006.jpg,2,crosswalk,paint,zebra bars on cobblestone
+det:-cXKHq-v96Dad3EmCBGr1w:0.574:0.575,chicago-il:198795,chicago-il,-cXKHq-v96Dad3EmCBGr1w,0.5735,0.5745,sheet_0006.jpg,3,crosswalk,brick,red band; pedestrian crossing
+det:bK27JEhM77IDxytGDI8L-Q:0.792:0.574,chicago-il:132983,chicago-il,bK27JEhM77IDxytGDI8L-Q,0.7916,0.5742,sheet_0006.jpg,4,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:T4SD-NdbBVdVbhfwfSS_GA:0.025:0.577,chicago-il:10921,chicago-il,T4SD-NdbBVdVbhfwfSS_GA,0.0251,0.5774,sheet_0006.jpg,5,crosswalk,brick_edge_lines,brick band with white edge lines
+det:KJ8a0DgtXsNCcrm52hXcHA:0.073:0.542,gainesville-fl:27485,gainesville-fl,KJ8a0DgtXsNCcrm52hXcHA,0.0726,0.5419,sheet_0006.jpg,6,unsure,unclear,white lines near marker; crossing unclear
+det:vdEHhlytr8q_-h9loc-u7g:0.424:0.683,gainesville-fl:36264,gainesville-fl,vdEHhlytr8q_-h9loc-u7g,0.4245,0.6835,sheet_0006.jpg,7,crosswalk,brick,brick band visible; rest blurred
+det:e8Ej5k0N8nE4CpT4JxynrA:0.979:0.625,knox-oh:36805,knox-oh,e8Ej5k0N8nE4CpT4JxynrA,0.9793,0.6251,sheet_0006.jpg,8,crosswalk,paint,two painted lines across brick road
+det:74OymSyk6tIJDs2GSrHbYQ:0.757:0.555,chicago-il:32106,chicago-il,74OymSyk6tIJDs2GSrHbYQ,0.7575,0.5553,sheet_0006.jpg,9,crosswalk,brick_edge_lines,red band with white edge lines
+det:eGXbQD7Bay5-lvSG9s1_lQ:0.327:0.575,gainesville-fl:33130,gainesville-fl,eGXbQD7Bay5-lvSG9s1_lQ,0.3272,0.5745,sheet_0006.jpg,10,crosswalk,brick,red brick band with concrete edges
+det:A2CrBvKn1K4rOfB5Daelbw:0.647:0.585,gainesville-fl:37538,gainesville-fl,A2CrBvKn1K4rOfB5Daelbw,0.6473,0.5853,sheet_0006.jpg,11,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:fYyyEycihAI6yk2Y449Cwg:0.106:0.609,pittsburgh-pa:21610,pittsburgh-pa,fYyyEycihAI6yk2Y449Cwg,0.106,0.6089,sheet_0006.jpg,12,not_crosswalk,none,wet brick road surface; no band
+det:keMhmtNSly3z4TaTa7xsCQ:0.486:0.562,chicago-il:67487,chicago-il,keMhmtNSly3z4TaTa7xsCQ,0.4859,0.5625,sheet_0007.jpg,1,crosswalk,brick_edge_lines,red band with white edge lines
+det:eYxjBptTTeuOXCYekGDW-Q:0.976:0.658,cuenca:344,cuenca,eYxjBptTTeuOXCYekGDW-Q,0.9757,0.6582,sheet_0007.jpg,2,unsure,unclear,cobble with scattered worn paint flecks
+det:09V8lAHW21uNpcYJ7ojjxw:0.086:0.544,chicago-il:67407,chicago-il,09V8lAHW21uNpcYJ7ojjxw,0.0865,0.5444,sheet_0007.jpg,3,crosswalk,brick,red brick band across road
+det:ughnXdHnJZY5cBTFxAyRSA:0.721:0.588,chicago-il:59635,chicago-il,ughnXdHnJZY5cBTFxAyRSA,0.7205,0.5881,sheet_0007.jpg,4,crosswalk,brick,red brick band across road
+det:ofOYAgcZcrQTMfGj-Wp9aw:0.283:0.567,chicago-il:160561,chicago-il,ofOYAgcZcrQTMfGj-Wp9aw,0.2834,0.5668,sheet_0007.jpg,5,crosswalk,paint,parallel painted lines; pedestrians crossing
+det:y3vGjG47Wjzyr-0sr7WP2w:0.229:0.636,cuenca:6810,cuenca,y3vGjG47Wjzyr-0sr7WP2w,0.2293,0.636,sheet_0007.jpg,6,unsure,unclear,cobble with one transverse white line
+det:BjL1S0LQV_T5PMtf_YrJTQ:0.080:0.582,columbus-oh:40552,columbus-oh,BjL1S0LQV_T5PMtf_YrJTQ,0.0801,0.5822,sheet_0007.jpg,7,crosswalk,brick_edge_lines,white lines with faded brick infill
+det:ddMxwqHm-beFMyxjUDZwiQ:0.991:0.564,columbus-oh:37716,columbus-oh,ddMxwqHm-beFMyxjUDZwiQ,0.9913,0.5635,sheet_0007.jpg,8,crosswalk,brick,red brick band across road
+det:ughnXdHnJZY5cBTFxAyRSA:0.064:0.662,chicago-il:59639,chicago-il,ughnXdHnJZY5cBTFxAyRSA,0.0638,0.6622,sheet_0007.jpg,9,crosswalk,brick_edge_lines,brick band with white edge line
+det:c-qGp-2AiUctC5IaB-kx7g:0.250:0.572,chicago-il:65453,chicago-il,c-qGp-2AiUctC5IaB-kx7g,0.2496,0.5718,sheet_0007.jpg,10,crosswalk,brick_edge_lines,red band with white edge lines
+det:enA7AWpPd_9QsT8YEBotZg:0.380:0.571,chicago-il:82796,chicago-il,enA7AWpPd_9QsT8YEBotZg,0.3803,0.5708,sheet_0007.jpg,11,crosswalk,brick_edge_lines,red band with white edge lines
+det:hZZcURE_I3HUOBxut_9NHg:0.262:0.585,chicago-il:156780,chicago-il,hZZcURE_I3HUOBxut_9NHg,0.262,0.5845,sheet_0007.jpg,12,crosswalk,paint,two parallel transverse lines
+det:D8qEra2207gMjjIJqt2Nbg:0.840:0.753,cuenca:3175,cuenca,D8qEra2207gMjjIJqt2Nbg,0.8401,0.7527,sheet_0008.jpg,1,crosswalk,paint,painted bars on cobblestone
+det:JN0Y2VrBUrJ9cMLBOYoxjQ:0.017:0.572,chicago-il:25190,chicago-il,JN0Y2VrBUrJ9cMLBOYoxjQ,0.0168,0.5723,sheet_0008.jpg,2,crosswalk,paint,two parallel transverse lines
+det:zlSrS6VWO63eRjRn5dgVtA:0.618:0.553,chicago-il:115343,chicago-il,zlSrS6VWO63eRjRn5dgVtA,0.6176,0.5527,sheet_0008.jpg,3,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:MfVkNwUk7DH9qbLMBwYjIA:0.981:0.648,chicago-il:175949,chicago-il,MfVkNwUk7DH9qbLMBwYjIA,0.9813,0.6484,sheet_0008.jpg,4,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:tt35LnUNAG3uL43nlW8cqQ:0.438:0.662,chicago-il:200917,chicago-il,tt35LnUNAG3uL43nlW8cqQ,0.4375,0.6619,sheet_0008.jpg,5,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:Xueihl3KpcqP9syqq98n1A:0.310:0.603,cuenca:2850,cuenca,Xueihl3KpcqP9syqq98n1A,0.3102,0.6028,sheet_0008.jpg,6,not_crosswalk,none,cobble road; stop line only
+det:Ai6q1Q8wUCyfEHpv_KZu7w:0.453:0.606,chicago-il:32123,chicago-il,Ai6q1Q8wUCyfEHpv_KZu7w,0.4532,0.6055,sheet_0008.jpg,7,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:bEHdJWG3bEVkwqeiZq2cgw:0.038:0.586,maywood-nj:27899,maywood-nj,bEHdJWG3bEVkwqeiZq2cgw,0.038,0.5863,sheet_0008.jpg,8,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:CFiZ4ISxZlGIyX2gSLlfNg:0.532:0.623,cuenca:11607,cuenca,CFiZ4ISxZlGIyX2gSLlfNg,0.532,0.6232,sheet_0008.jpg,9,crosswalk,paint,zebra bars on cobblestone
+det:kbPAi8T1jrcfCsp2krTEvA:0.966:0.737,cuenca:12174,cuenca,kbPAi8T1jrcfCsp2krTEvA,0.9655,0.7368,sheet_0008.jpg,10,crosswalk,paint,worn painted bars on cobblestone
+det:Rqa-KD2eZoSLUtRnDC1yqw:0.027:0.550,chicago-il:34661,chicago-il,Rqa-KD2eZoSLUtRnDC1yqw,0.0269,0.5503,sheet_0008.jpg,11,crosswalk,brick,faint reddish band across road
+det:OC7yyvh-ZqsiFVfZdk-u_w:0.506:0.587,west-chester-pa:24974,west-chester-pa,OC7yyvh-ZqsiFVfZdk-u_w,0.5063,0.5873,sheet_0008.jpg,12,unsure,unclear,car occludes; possible reddish band
+det:of9rosu9sEjhG2_VEdTfRw:0.766:0.575,cuenca:6080,cuenca,of9rosu9sEjhG2_VEdTfRw,0.7658,0.5753,sheet_0009.jpg,1,unsure,unclear,cobble with faint white marks
+det:FyhIVU4fgxhKMpptywxdFg:0.434:0.580,gainesville-fl:29104,gainesville-fl,FyhIVU4fgxhKMpptywxdFg,0.434,0.5802,sheet_0009.jpg,2,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:lspX2CO3fxu2W0cqlUgcWg:0.044:0.580,chicago-il:189650,chicago-il,lspX2CO3fxu2W0cqlUgcWg,0.0439,0.58,sheet_0009.jpg,3,crosswalk,brick_edge_lines,brick band with white edge lines
+det:77oTVP0PlonInYnhku_z2Q:0.606:0.556,columbus-oh:38256,columbus-oh,77oTVP0PlonInYnhku_z2Q,0.6064,0.5559,sheet_0009.jpg,4,crosswalk,brick,grey paver band across road
+det:b_t_XOoN2mKsXjLpao--3Q:0.605:0.573,pittsburgh-pa:30225,pittsburgh-pa,b_t_XOoN2mKsXjLpao--3Q,0.6052,0.5732,sheet_0009.jpg,5,crosswalk,brick_edge_lines,red band with white edge lines
+det:CIZ5Q-aHA79hXxxjqZuyng:0.493:0.578,chicago-il:31925,chicago-il,CIZ5Q-aHA79hXxxjqZuyng,0.4933,0.578,sheet_0009.jpg,6,crosswalk,brick_edge_lines,red band with white edge lines
+det:SeKT-4HGVOZn5Pc_HTxNog:0.972:0.682,cuenca:6242,cuenca,SeKT-4HGVOZn5Pc_HTxNog,0.9721,0.6825,sheet_0009.jpg,7,unsure,unclear,brick diamond with faint paint remnants
+det:9CN9MUb1Lx4tCZDpNRWRDA:0.514:0.592,cuenca:13977,cuenca,9CN9MUb1Lx4tCZDpNRWRDA,0.5143,0.5921,sheet_0009.jpg,8,crosswalk,paint,zebra bars on cobblestone
+det:0wlToO_L0f9wyVNNHTueZg:0.190:0.653,cuenca:10559,cuenca,0wlToO_L0f9wyVNNHTueZg,0.1901,0.6532,sheet_0009.jpg,9,crosswalk,paint,worn zebra remnants on cobblestone
+det:xymwM1WZiZs3O2_cX-i0iQ:0.024:0.678,cuenca:14497,cuenca,xymwM1WZiZs3O2_cX-i0iQ,0.0241,0.6782,sheet_0009.jpg,10,not_crosswalk,none,plain cobble road near curb
+det:CIZ5Q-aHA79hXxxjqZuyng:0.266:0.580,chicago-il:31921,chicago-il,CIZ5Q-aHA79hXxxjqZuyng,0.2657,0.5802,sheet_0009.jpg,11,crosswalk,brick_edge_lines,red band with white edge lines
+det:FyhIVU4fgxhKMpptywxdFg:0.572:0.549,gainesville-fl:27453,gainesville-fl,FyhIVU4fgxhKMpptywxdFg,0.5721,0.5488,sheet_0009.jpg,12,crosswalk,brick_edge_lines,red band with white edge lines
+det:n9Di_5HUYh02x3GTi5w_Jg:0.053:0.558,chicago-il:57490,chicago-il,n9Di_5HUYh02x3GTi5w_Jg,0.0533,0.5577,sheet_0010.jpg,1,crosswalk,brick,faint red band across road
+det:xzHh134T9FGPZslp1hADsQ:0.227:0.615,pittsburgh-pa:22906,pittsburgh-pa,xzHh134T9FGPZslp1hADsQ,0.2266,0.6146,sheet_0010.jpg,2,crosswalk,brick_edge_lines,paver band with white edge lines
+det:rRnWhMne-9I9YXh9TkZ7Tw:0.464:0.627,maywood-nj:28165,maywood-nj,rRnWhMne-9I9YXh9TkZ7Tw,0.4635,0.627,sheet_0010.jpg,3,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:8LbYjrRgJQnLn36GUhoiQg:0.968:0.616,cuenca:10305,cuenca,8LbYjrRgJQnLn36GUhoiQg,0.9681,0.6157,sheet_0010.jpg,4,crosswalk,paint,two transverse lines across cobble
+det:LSP1SnvdfKu3kJUuEoyjDw:0.365:0.605,chicago-il:31577,chicago-il,LSP1SnvdfKu3kJUuEoyjDw,0.3655,0.6049,sheet_0010.jpg,5,unsure,unclear,shaded; possible faint band
+det:-uwkZ1NOLndaR8nBmfT_MQ:0.555:0.741,cuenca:4985,cuenca,-uwkZ1NOLndaR8nBmfT_MQ,0.5551,0.7414,sheet_0010.jpg,6,unsure,unclear,blurry brick pattern with paint flecks
+det:UNZJYe878DaZCzmL1SkDtg:0.769:0.590,cuenca:8707,cuenca,UNZJYe878DaZCzmL1SkDtg,0.7693,0.5898,sheet_0010.jpg,7,unsure,unclear,cobble with paint marks; maybe road text
+det:qcaEp1ynC5fewued2IYM3Q:0.489:0.632,chicago-il:198785,chicago-il,qcaEp1ynC5fewued2IYM3Q,0.489,0.6323,sheet_0010.jpg,8,crosswalk,brick_edge_lines,red band with white edge lines
+det:Dj_tZeWFb9XDK3SFZholoA:0.122:0.571,chicago-il:67324,chicago-il,Dj_tZeWFb9XDK3SFZholoA,0.1219,0.5709,sheet_0010.jpg,9,crosswalk,brick,red band across road at island
+det:h4HQAP-vjZRVkkzUTfUKcg:0.519:0.556,chicago-il:183904,chicago-il,h4HQAP-vjZRVkkzUTfUKcg,0.5186,0.5557,sheet_0010.jpg,10,crosswalk,brick_edge_lines,red band with white lines; car occludes
+det:nDZAp_xRhy1Qzi--B6HXJQ:0.517:0.669,chicago-il:69405,chicago-il,nDZAp_xRhy1Qzi--B6HXJQ,0.5175,0.6691,sheet_0010.jpg,11,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:cBB-nJGkV19_0kVJIqMP_g:0.281:0.538,pittsburgh-pa:19775,pittsburgh-pa,cBB-nJGkV19_0kVJIqMP_g,0.2809,0.5382,sheet_0010.jpg,12,crosswalk,paint,two parallel transverse painted lines
+det:8on6kgmlDbBYlL9cBj148Q:0.724:0.604,chicago-il:60988,chicago-il,8on6kgmlDbBYlL9cBj148Q,0.7238,0.6044,sheet_0011.jpg,1,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:D-mkDkmu0ioMi21z4733GQ:0.032:0.574,chicago-il:203858,chicago-il,D-mkDkmu0ioMi21z4733GQ,0.0317,0.5743,sheet_0011.jpg,2,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:oo8MFyaDZwCXMYMDW2EcBA:0.243:0.540,columbus-oh:37626,columbus-oh,oo8MFyaDZwCXMYMDW2EcBA,0.2433,0.5396,sheet_0011.jpg,3,unsure,unclear,brick street; distant band unclear
+det:95aMTk2FaIiF4ycYXAOgAw:0.156:0.567,gainesville-fl:27447,gainesville-fl,95aMTk2FaIiF4ycYXAOgAw,0.1564,0.5669,sheet_0011.jpg,4,crosswalk,brick_edge_lines,red band with white edge lines
+det:eGXbQD7Bay5-lvSG9s1_lQ:0.480:0.549,gainesville-fl:33128,gainesville-fl,eGXbQD7Bay5-lvSG9s1_lQ,0.4799,0.5494,sheet_0011.jpg,5,crosswalk,brick_edge_lines,red band with white edge lines
+det:NE_cqmqdXj6mk_117hG2hg:0.113:0.550,chicago-il:65462,chicago-il,NE_cqmqdXj6mk_117hG2hg,0.1132,0.5497,sheet_0011.jpg,6,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:UTAgJkO2cnq3y7A0HsrCfw:0.307:0.573,cuenca:2228,cuenca,UTAgJkO2cnq3y7A0HsrCfw,0.3066,0.5729,sheet_0011.jpg,7,unsure,unclear,cobble with single transverse line
+det:6jAbJfbpT_ZSuylbvxzLPw:0.247:0.632,cuenca:5201,cuenca,6jAbJfbpT_ZSuylbvxzLPw,0.2471,0.6322,sheet_0011.jpg,8,crosswalk,paint,worn painted bars on cobblestone
+det:n9Di_5HUYh02x3GTi5w_Jg:0.812:0.586,chicago-il:57488,chicago-il,n9Di_5HUYh02x3GTi5w_Jg,0.8124,0.5862,sheet_0011.jpg,9,crosswalk,brick,faint red brick band across road
+det:mvMZ43_EihUcidgMW9iapg:0.509:0.591,cuenca:9789,cuenca,mvMZ43_EihUcidgMW9iapg,0.5093,0.5909,sheet_0011.jpg,10,unsure,unclear,car occludes; cobble with dashes
+det:saJt0PxOMOeOWdDYZeqyXQ:0.828:0.591,cuenca:4185,cuenca,saJt0PxOMOeOWdDYZeqyXQ,0.8283,0.5906,sheet_0011.jpg,11,crosswalk,paint,two transverse lines across cobble
+det:LbB5W6Gl2rZRf6IQnEbEEg:0.207:0.588,gainesville-fl:27411,gainesville-fl,LbB5W6Gl2rZRf6IQnEbEEg,0.2068,0.5875,sheet_0011.jpg,12,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:tpe3QfT5r0uH2_-RJzxslQ:0.480:0.558,chicago-il:126995,chicago-il,tpe3QfT5r0uH2_-RJzxslQ,0.4797,0.5583,sheet_0012.jpg,1,crosswalk,brick_edge_lines,red band with white lines
+det:Qmwsy77yEiFWweGNnyHrfg:0.503:0.582,chicago-il:83255,chicago-il,Qmwsy77yEiFWweGNnyHrfg,0.5032,0.5822,sheet_0012.jpg,2,crosswalk,paint,parallel transverse painted lines
+det:LSP1SnvdfKu3kJUuEoyjDw:0.094:0.719,chicago-il:31581,chicago-il,LSP1SnvdfKu3kJUuEoyjDw,0.0937,0.7194,sheet_0012.jpg,3,unsure,unclear,herringbone pavers at corner; context unclear
+det:yR867XGPVmh9E1WT_ZIRKA:0.531:0.599,cuenca:8770,cuenca,yR867XGPVmh9E1WT_ZIRKA,0.531,0.5993,sheet_0012.jpg,4,crosswalk,paint,zebra bars with brick diamond on cobble
+det:YDbmRzfYgx4HRqf-pYokhA:0.663:0.644,chicago-il:146124,chicago-il,YDbmRzfYgx4HRqf-pYokhA,0.6634,0.6442,sheet_0012.jpg,5,unsure,unclear,large brick area; no band edges
+det:BajsN2FGNMcSrXseBPvavQ:0.689:0.588,chicago-il:86432,chicago-il,BajsN2FGNMcSrXseBPvavQ,0.6885,0.5879,sheet_0012.jpg,6,crosswalk,paint,zebra bars on asphalt
+det:F03-4GzMlvNz30XRhDhoIA:0.752:0.613,gainesville-fl:30557,gainesville-fl,F03-4GzMlvNz30XRhDhoIA,0.752,0.6133,sheet_0012.jpg,7,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:QaiyHF_GjE1lE7mdVZiQMg:0.087:0.597,chicago-il:203235,chicago-il,QaiyHF_GjE1lE7mdVZiQMg,0.0869,0.597,sheet_0012.jpg,8,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:vkrJvywqxcXIOD9c9uRrMQ:0.054:0.613,chicago-il:10902,chicago-il,vkrJvywqxcXIOD9c9uRrMQ,0.0538,0.6132,sheet_0012.jpg,9,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:RToDU43354TJaqeZc_mSCg:0.067:0.644,chicago-il:10918,chicago-il,RToDU43354TJaqeZc_mSCg,0.0668,0.6438,sheet_0012.jpg,10,crosswalk,brick,red brick band with light edges
+det:6AB9y0q3RuO-g-aFmlxl8A:0.252:0.590,cuenca:5056,cuenca,6AB9y0q3RuO-g-aFmlxl8A,0.2523,0.5903,sheet_0012.jpg,11,crosswalk,paint,zebra bars with brick diamond on cobble
+det:voF2GLu9IuK7IKAfFuD30Q:0.124:0.744,chicago-il:32142,chicago-il,voF2GLu9IuK7IKAfFuD30Q,0.1242,0.744,sheet_0012.jpg,12,unsure,unclear,herringbone brick near curb; no lines
+det:nZdv0R-ujCRVdOTzpgjHsw:0.825:0.547,niagara-falls-ny:26310,niagara-falls-ny,nZdv0R-ujCRVdOTzpgjHsw,0.8245,0.5469,sheet_0013.jpg,1,crosswalk,paint,faint parallel transverse lines
+det:yyg2agFT-EEhtr_8PZZUTg:0.674:0.641,knox-oh:26081,knox-oh,yyg2agFT-EEhtr_8PZZUTg,0.6741,0.641,sheet_0013.jpg,2,crosswalk,paint,painted transverse lines on brick road
+det:sVYgiAuqGqJhkmNflAf18w:0.995:0.651,cuenca:8930,cuenca,sVYgiAuqGqJhkmNflAf18w,0.9947,0.6513,sheet_0013.jpg,3,crosswalk,paint,zebra bars on cobblestone
+det:oEuy-y-uPfJZ0CO5lNEvuQ:0.475:0.750,cuenca:16809,cuenca,oEuy-y-uPfJZ0CO5lNEvuQ,0.475,0.75,sheet_0013.jpg,4,crosswalk,paint,zebra bars on cobblestone
+det:qf6jPtPPeZRiGk9VXwaWXg:0.494:0.649,cuenca:12378,cuenca,qf6jPtPPeZRiGk9VXwaWXg,0.4938,0.6487,sheet_0013.jpg,5,crosswalk,paint,zebra bars on brick road
+det:D8qEra2207gMjjIJqt2Nbg:0.518:0.610,cuenca:3092,cuenca,D8qEra2207gMjjIJqt2Nbg,0.5183,0.6095,sheet_0013.jpg,6,crosswalk,paint,zebra bars on cobblestone
+det:eGXbQD7Bay5-lvSG9s1_lQ:0.649:0.614,gainesville-fl:33127,gainesville-fl,eGXbQD7Bay5-lvSG9s1_lQ,0.6487,0.6141,sheet_0013.jpg,7,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:0wlToO_L0f9wyVNNHTueZg:0.663:0.672,cuenca:10660,cuenca,0wlToO_L0f9wyVNNHTueZg,0.6635,0.672,sheet_0013.jpg,8,crosswalk,paint,worn zebra bars on cobble
+det:xA_tFJnqKF6raXn6vGGAug:0.072:0.678,pittsburgh-pa:28152,pittsburgh-pa,xA_tFJnqKF6raXn6vGGAug,0.0725,0.6782,sheet_0013.jpg,9,crosswalk,paint,painted transverse lines on wet brick
+det:ATPk3sBFAWCvI7enG_jUtw:0.463:0.582,columbus-oh:40750,columbus-oh,ATPk3sBFAWCvI7enG_jUtw,0.4625,0.5817,sheet_0013.jpg,10,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:yEDhqxrynFAknYznr7quXw:0.168:0.744,cuenca:8090,cuenca,yEDhqxrynFAknYznr7quXw,0.1682,0.7443,sheet_0013.jpg,11,crosswalk,paint,zebra bars on cobblestone
+det:W9lKibJ94RTKnNplHLjS2A:0.258:0.566,chicago-il:132359,chicago-il,W9lKibJ94RTKnNplHLjS2A,0.2582,0.5664,sheet_0013.jpg,12,crosswalk,brick_edge_lines,faint brick band with white lines
+det:9uHmtv6vrkb4JbI0JZG9kw:0.197:0.549,chicago-il:172124,chicago-il,9uHmtv6vrkb4JbI0JZG9kw,0.1971,0.549,sheet_0014.jpg,1,crosswalk,brick,red brick band across road
+det:3bf8sTJGD3RBnyMXJ9HHBg:0.446:0.593,columbus-oh:38889,columbus-oh,3bf8sTJGD3RBnyMXJ9HHBg,0.4459,0.5928,sheet_0014.jpg,2,crosswalk,brick_edge_lines,paver band with white edge lines
+det:iccZVIHcGPOuy65Hrxmz1A:0.102:0.587,cuenca:1459,cuenca,iccZVIHcGPOuy65Hrxmz1A,0.1016,0.5865,sheet_0014.jpg,3,not_crosswalk,none,plain cobble at corner
+det:83-z6CY5dKQ0ahhsLUmXWA:0.516:0.609,chicago-il:183896,chicago-il,83-z6CY5dKQ0ahhsLUmXWA,0.5157,0.6093,sheet_0014.jpg,4,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:3sJuT9KAmpG3WLiEMIw8EA:0.904:0.693,cuenca:3881,cuenca,3sJuT9KAmpG3WLiEMIw8EA,0.9043,0.6931,sheet_0014.jpg,5,not_crosswalk,none,cobble with curved lane line
+det:eGXbQD7Bay5-lvSG9s1_lQ:0.480:0.551,gainesville-fl:30272,gainesville-fl,eGXbQD7Bay5-lvSG9s1_lQ,0.4796,0.5508,sheet_0014.jpg,6,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:NE_cqmqdXj6mk_117hG2hg:0.893:0.566,chicago-il:65459,chicago-il,NE_cqmqdXj6mk_117hG2hg,0.8934,0.5663,sheet_0014.jpg,7,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:PpinmsJ4j3S8hXvhKwVy3A:0.707:0.586,gainesville-fl:32014,gainesville-fl,PpinmsJ4j3S8hXvhKwVy3A,0.7071,0.5859,sheet_0014.jpg,8,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:TAYFG8TfzO2YMcpObDgdBA:0.073:0.648,chicago-il:79541,chicago-il,TAYFG8TfzO2YMcpObDgdBA,0.0731,0.6479,sheet_0014.jpg,9,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:yyg2agFT-EEhtr_8PZZUTg:0.502:0.607,knox-oh:26082,knox-oh,yyg2agFT-EEhtr_8PZZUTg,0.5018,0.6067,sheet_0014.jpg,10,crosswalk,paint,two painted lines across brick road
+det:4Ll5esBmfpzaHe4rE7BoTg:0.862:0.575,chicago-il:141349,chicago-il,4Ll5esBmfpzaHe4rE7BoTg,0.8617,0.5745,sheet_0014.jpg,11,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:wxxJuYOxgbgdt1RKkP26_w:0.513:0.560,columbus-oh:41724,columbus-oh,wxxJuYOxgbgdt1RKkP26_w,0.5126,0.5605,sheet_0014.jpg,12,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:E0qzei-H491TQkJeWaZuUw:0.997:0.663,cuenca:10388,cuenca,E0qzei-H491TQkJeWaZuUw,0.9974,0.6626,sheet_0015.jpg,1,crosswalk,paint,worn zebra bars on cobblestone
+det:VVtCp_7zcQQ7dSCOaQaa1A:0.134:0.561,chicago-il:10915,chicago-il,VVtCp_7zcQQ7dSCOaQaa1A,0.1339,0.5614,sheet_0015.jpg,2,crosswalk,brick_edge_lines,faint red band between white lines
+det:781s2afd-GwF_cCrLr6fkQ:0.948:0.615,chicago-il:43790,chicago-il,781s2afd-GwF_cCrLr6fkQ,0.9484,0.6151,sheet_0015.jpg,3,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:yAqwduej58cMeRkFIsw71Q:0.016:0.569,cuenca:11499,cuenca,yAqwduej58cMeRkFIsw71Q,0.0159,0.5691,sheet_0015.jpg,4,unsure,unclear,cobble paint marks; bars or text
+det:tKUeNqsb-b9jxLBXwN4RyA:0.059:0.598,chicago-il:191984,chicago-il,tKUeNqsb-b9jxLBXwN4RyA,0.059,0.5983,sheet_0015.jpg,5,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:bTNVASE9CV666dze9_PmXQ:0.695:0.574,columbus-oh:40194,columbus-oh,bTNVASE9CV666dze9_PmXQ,0.6949,0.5737,sheet_0015.jpg,6,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:lvOzWFf5ejzMEhtflWz0FA:0.284:0.664,chicago-il:80634,chicago-il,lvOzWFf5ejzMEhtflWz0FA,0.2838,0.6642,sheet_0015.jpg,7,crosswalk,brick_edge_lines,red brick band with white edge line
+det:sfjgPHoJzYrNsHflZXnQHA:0.999:0.581,cuenca:16672,cuenca,sfjgPHoJzYrNsHflZXnQHA,0.9992,0.5813,sheet_0015.jpg,8,crosswalk,paint,worn bars with brick diamond on cobble
+det:1-g03jPbSaHEL5UNnZ6LvQ:0.625:0.596,chicago-il:32242,chicago-il,1-g03jPbSaHEL5UNnZ6LvQ,0.6254,0.5958,sheet_0015.jpg,9,crosswalk,paint,faint parallel transverse lines
+det:JpSIS5MDCRpQ2P1GinXOPg:0.049:0.627,columbus-oh:42086,columbus-oh,JpSIS5MDCRpQ2P1GinXOPg,0.0492,0.6271,sheet_0015.jpg,10,crosswalk,brick_edge_lines,brick band with white top line
+det:mTIlWdTas1cNHkOGzLHPvA:0.034:0.595,chicago-il:10909,chicago-il,mTIlWdTas1cNHkOGzLHPvA,0.0341,0.5952,sheet_0015.jpg,11,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:XiIHtC3Dtcyz51sEFoY9tw:0.626:0.607,cuenca:8818,cuenca,XiIHtC3Dtcyz51sEFoY9tw,0.6261,0.6065,sheet_0015.jpg,12,crosswalk,paint,two transverse lines across cobble
+det:-6IRWOsEyONKcZFd1Zpm9Q:0.484:0.666,chicago-il:161037,chicago-il,-6IRWOsEyONKcZFd1Zpm9Q,0.4843,0.666,sheet_0016.jpg,1,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:O9vFVCLEv-QbAzXB0VW2-w:0.025:0.560,chicago-il:31805,chicago-il,O9vFVCLEv-QbAzXB0VW2-w,0.0251,0.5601,sheet_0016.jpg,2,crosswalk,brick_edge_lines,red band with white edge lines
+det:PpinmsJ4j3S8hXvhKwVy3A:0.028:0.636,gainesville-fl:32017,gainesville-fl,PpinmsJ4j3S8hXvhKwVy3A,0.0275,0.636,sheet_0016.jpg,3,unsure,unclear,marker in blurred region
+det:gUo0eOwXTIpUZfYG8idi4Q:0.256:0.552,chicago-il:29315,chicago-il,gUo0eOwXTIpUZfYG8idi4Q,0.2558,0.5519,sheet_0016.jpg,4,crosswalk,brick_edge_lines,red band with white edge lines
+det:6alxeXLRBpxPWtw_E6nIBw:0.557:0.561,maywood-nj:27983,maywood-nj,6alxeXLRBpxPWtw_E6nIBw,0.5572,0.5607,sheet_0016.jpg,5,crosswalk,brick_edge_lines,red band with white edge lines
+det:2OHht-gjiNOSQV6G9U7wPQ:0.541:0.635,cuenca:3189,cuenca,2OHht-gjiNOSQV6G9U7wPQ,0.5409,0.6355,sheet_0016.jpg,6,unsure,unclear,grey paver area; band or road unclear
+det:8O9zhtYAkgT50PLwR5XARw:0.445:0.579,chicago-il:64036,chicago-il,8O9zhtYAkgT50PLwR5XARw,0.4449,0.5792,sheet_0016.jpg,7,crosswalk,brick_edge_lines,red band with white edge lines
+det:-4wIbxeFoh2QwqFrtRhFpw:0.526:0.589,cuenca:15278,cuenca,-4wIbxeFoh2QwqFrtRhFpw,0.5265,0.5891,sheet_0016.jpg,8,crosswalk,paint,zebra bars on cobblestone
+det:d9xcSY-eqLD8iiXWP5IeZA:0.007:0.603,pittsburgh-pa:22959,pittsburgh-pa,d9xcSY-eqLD8iiXWP5IeZA,0.007,0.6031,sheet_0016.jpg,9,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:-E2JSDNrWOtnxcqQiMtLyg:0.236:0.547,columbus-oh:37597,columbus-oh,-E2JSDNrWOtnxcqQiMtLyg,0.2365,0.5475,sheet_0016.jpg,10,crosswalk,brick_edge_lines,red brick band with faint white edges
+det:iXttqdXwcyICCKOscz9UUg:0.161:0.665,chicago-il:175943,chicago-il,iXttqdXwcyICCKOscz9UUg,0.1606,0.6652,sheet_0016.jpg,11,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:KdeUaQdJ8sdh6nFEDFojhw:0.427:0.600,chicago-il:126984,chicago-il,KdeUaQdJ8sdh6nFEDFojhw,0.4274,0.5996,sheet_0016.jpg,12,crosswalk,brick_edge_lines,red band with white edge lines
+det:p1rhaMIKuShTiJiAmLyR4g:0.479:0.612,gainesville-fl:31036,gainesville-fl,p1rhaMIKuShTiJiAmLyR4g,0.4786,0.6115,sheet_0017.jpg,1,crosswalk,brick,herringbone band with concrete edges
+det:OcRCIGLbuIavRVYPg-4tGA:0.769:0.613,cuenca:4551,cuenca,OcRCIGLbuIavRVYPg-4tGA,0.7688,0.6125,sheet_0017.jpg,2,unsure,unclear,cobble with worn marks; maybe road text
+det:UkX6EwLUY7c4XQq8-GKGIw:0.863:0.572,chicago-il:172136,chicago-il,UkX6EwLUY7c4XQq8-GKGIw,0.8626,0.5723,sheet_0017.jpg,3,crosswalk,brick_edge_lines,faint red band with white lines
+det:O9vFVCLEv-QbAzXB0VW2-w:0.717:0.609,chicago-il:32214,chicago-il,O9vFVCLEv-QbAzXB0VW2-w,0.7167,0.6091,sheet_0017.jpg,4,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:X7QwnoyrZ2DyRB4Qz3nyWQ:0.475:0.576,chicago-il:123175,chicago-il,X7QwnoyrZ2DyRB4Qz3nyWQ,0.4754,0.5758,sheet_0017.jpg,5,crosswalk,brick,red brick band across road
+det:Ub5yVMfgh4rvGuxCsNtVag:0.798:0.590,gainesville-fl:30151,gainesville-fl,Ub5yVMfgh4rvGuxCsNtVag,0.798,0.5902,sheet_0017.jpg,6,crosswalk,brick_edge_lines,red band with white edge lines
+det:hXfrSvWC3nH20Zfj_uMI_w:0.516:0.584,cuenca:4481,cuenca,hXfrSvWC3nH20Zfj_uMI_w,0.5164,0.5844,sheet_0017.jpg,7,unsure,unclear,cobble with scattered worn paint
+det:OcRCIGLbuIavRVYPg-4tGA:0.985:0.600,cuenca:6175,cuenca,OcRCIGLbuIavRVYPg-4tGA,0.9849,0.5998,sheet_0017.jpg,8,unsure,unclear,paver street with faint paint flecks
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.959:0.598,cuenca:10473,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.9585,0.5978,sheet_0017.jpg,9,crosswalk,paint,zebra bars on cobblestone
+det:z9JAIOCw_Uk360EI8Dr_ag:0.793:0.726,cuenca:4299,cuenca,z9JAIOCw_Uk360EI8Dr_ag,0.7933,0.7263,sheet_0017.jpg,10,crosswalk,paint,painted bars on cobble near motorbikes
+det:kCcHRVZzXt2qH1DQJ4n-WQ:0.921:0.558,chicago-il:170736,chicago-il,kCcHRVZzXt2qH1DQJ4n-WQ,0.9215,0.5576,sheet_0017.jpg,11,crosswalk,brick_edge_lines,faint textured band with white lines
+det:MLQx-GytBbY8_fj0dn_moA:0.989:0.629,chicago-il:58261,chicago-il,MLQx-GytBbY8_fj0dn_moA,0.9893,0.6292,sheet_0017.jpg,12,crosswalk,brick_edge_lines,grey paver band with white edge lines
+det:FWeX7JTYW8ITbY-eZqFvQw:0.105:0.633,chicago-il:39694,chicago-il,FWeX7JTYW8ITbY-eZqFvQw,0.1053,0.6327,sheet_0018.jpg,1,crosswalk,brick,red brick band with concrete edges
+det:WgWFW9wlFg-uuOvAqaA7_Q:0.657:0.580,gainesville-fl:27709,gainesville-fl,WgWFW9wlFg-uuOvAqaA7_Q,0.6573,0.5804,sheet_0018.jpg,2,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:9egSFMLBpj0I42n7wSWXLw:0.812:0.610,cuenca:1716,cuenca,9egSFMLBpj0I42n7wSWXLw,0.812,0.6101,sheet_0018.jpg,3,unsure,unclear,cobble with one line and darker strip
+det:2Tw9MxFo2rMVsoq2WpBvmA:0.488:0.573,chicago-il:109995,chicago-il,2Tw9MxFo2rMVsoq2WpBvmA,0.4885,0.5734,sheet_0018.jpg,4,crosswalk,paint,faded transverse lines across road
+det:c4TBaBS4dLMheGn4J3Z8Lw:0.026:0.616,chicago-il:122231,chicago-il,c4TBaBS4dLMheGn4J3Z8Lw,0.0264,0.6155,sheet_0018.jpg,5,crosswalk,brick,red brick band across road
+det:21YA1B3kijODHI4rpnR7oQ:0.928:0.560,gainesville-fl:32883,gainesville-fl,21YA1B3kijODHI4rpnR7oQ,0.9282,0.5601,sheet_0018.jpg,6,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:8Ia-EDPJfLY0WCUEgPZBUA:0.018:0.711,cuenca:15247,cuenca,8Ia-EDPJfLY0WCUEgPZBUA,0.0178,0.7111,sheet_0018.jpg,7,crosswalk,paint,zebra bars on cobblestone
+det:B4wrX8Vp45Y4EPi4ltY8Nw:0.786:0.547,pittsburgh-pa:19681,pittsburgh-pa,B4wrX8Vp45Y4EPi4ltY8Nw,0.7859,0.5471,sheet_0018.jpg,8,crosswalk,paint,parallel painted lines; pedestrian crossing
+det:9egSFMLBpj0I42n7wSWXLw:0.982:0.585,cuenca:1714,cuenca,9egSFMLBpj0I42n7wSWXLw,0.9823,0.585,sheet_0018.jpg,9,crosswalk,paint,two transverse lines across cobble
+det:oQmf5JeJRmCqoDxNKWa5Kw:0.508:0.632,knox-oh:25717,knox-oh,oQmf5JeJRmCqoDxNKWa5Kw,0.508,0.6318,sheet_0018.jpg,10,unsure,unclear,brick road; faint bars near circle edge
+det:buqM-KsSLmWd1Bl9v55CdQ:0.291:0.558,chicago-il:67457,chicago-il,buqM-KsSLmWd1Bl9v55CdQ,0.2907,0.5576,sheet_0018.jpg,11,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:0ugBRXlDNZQdF0o8lqOYYA:0.081:0.609,chicago-il:207770,chicago-il,0ugBRXlDNZQdF0o8lqOYYA,0.0813,0.6091,sheet_0018.jpg,12,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:ROykuszxWCng_ez-g1TYNg:0.473:0.627,cuenca:14416,cuenca,ROykuszxWCng_ez-g1TYNg,0.4729,0.6267,sheet_0019.jpg,1,crosswalk,paint,zebra bars on cobblestone
+det:hQz5fes3E8abfZ2JhJwlvQ:0.079:0.603,chicago-il:83589,chicago-il,hQz5fes3E8abfZ2JhJwlvQ,0.0785,0.6025,sheet_0019.jpg,2,crosswalk,brick_edge_lines,red band with white edge lines
+det:tR_2oKh1LVqsdBFs9JPQyA:0.498:0.591,la-ca:248,la-ca,tR_2oKh1LVqsdBFs9JPQyA,0.4985,0.5907,sheet_0019.jpg,3,unsure,unclear,brick road surface; white stripe at edge
+det:aF7O6LFFwj78Om9FtFj_GQ:0.108:0.596,chicago-il:80687,chicago-il,aF7O6LFFwj78Om9FtFj_GQ,0.1083,0.5955,sheet_0019.jpg,4,crosswalk,brick_edge_lines,red band with white edge lines
+det:OW8npRzboJskDjiyiTLY5A:0.079:0.643,chicago-il:195530,chicago-il,OW8npRzboJskDjiyiTLY5A,0.0793,0.6433,sheet_0019.jpg,5,crosswalk,brick_edge_lines,red band with white edge lines
+det:F03-4GzMlvNz30XRhDhoIA:0.210:0.592,gainesville-fl:26704,gainesville-fl,F03-4GzMlvNz30XRhDhoIA,0.2097,0.5918,sheet_0019.jpg,6,crosswalk,brick_edge_lines,red band with white edge lines
+det:920GCGsefwkclqJJBrYKug:0.344:0.675,chicago-il:207768,chicago-il,920GCGsefwkclqJJBrYKug,0.3444,0.6749,sheet_0019.jpg,7,unsure,unclear,herringbone brick by gutter; band unclear
+det:EYwHjnRYFzL55QQqCxEtIA:0.971:0.675,cuenca:6126,cuenca,EYwHjnRYFzL55QQqCxEtIA,0.9705,0.6749,sheet_0019.jpg,8,not_crosswalk,none,distorted plain cobblestone
+det:cKP5Bv5Y4G4rZYtXwIW0mg:0.277:0.546,chicago-il:113315,chicago-il,cKP5Bv5Y4G4rZYtXwIW0mg,0.2773,0.5463,sheet_0019.jpg,9,crosswalk,brick_edge_lines,distant red band with white lines
+det:PMDez-3ucfgxjIsZdT95vg:0.159:0.609,cuenca:2631,cuenca,PMDez-3ucfgxjIsZdT95vg,0.1587,0.6094,sheet_0019.jpg,10,unsure,unclear,paver patch with faint white marks
+det:oHlx77ywSal7eosJDlblyA:0.010:0.803,cuenca:15461,cuenca,oHlx77ywSal7eosJDlblyA,0.01,0.8035,sheet_0019.jpg,11,unsure,unclear,motion-blurred; unidentifiable
+det:iRvwUbgzN9iS4QITwtpZRg:0.492:0.554,chicago-il:201135,chicago-il,iRvwUbgzN9iS4QITwtpZRg,0.4925,0.5542,sheet_0019.jpg,12,unsure,unclear,shadowed; possible brick at edge
+det:_ZfygxWCSxfeLnE3FmFp7g:0.006:0.589,gainesville-fl:27787,gainesville-fl,_ZfygxWCSxfeLnE3FmFp7g,0.0061,0.5894,sheet_0020.jpg,1,crosswalk,brick_edge_lines,red brick band with white line
+det:GCTIy8iTTtL_vmvlWdi3sg:0.702:0.600,chicago-il:64768,chicago-il,GCTIy8iTTtL_vmvlWdi3sg,0.7016,0.6002,sheet_0020.jpg,2,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:-E2JSDNrWOtnxcqQiMtLyg:0.461:0.563,columbus-oh:37598,columbus-oh,-E2JSDNrWOtnxcqQiMtLyg,0.4608,0.5629,sheet_0020.jpg,3,crosswalk,brick,red brick band across road
+det:M4cjszZJZNyBW0C6jB6gaA:0.765:0.595,chicago-il:67312,chicago-il,M4cjszZJZNyBW0C6jB6gaA,0.7655,0.5953,sheet_0020.jpg,4,crosswalk,brick_edge_lines,red brick band with white edge lines
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.791:0.613,cuenca:10384,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.7913,0.6127,sheet_0020.jpg,5,crosswalk,paint,zebra bars on cobblestone
+det:Tc6rQk-TXy2mP1KadF3l6w:0.996:0.590,cuenca:10744,cuenca,Tc6rQk-TXy2mP1KadF3l6w,0.9958,0.5901,sheet_0020.jpg,6,crosswalk,paint,faint zebra bars on cobblestone
+det:rXA14MVaSMrp1A1LLL21Dg:0.001:0.615,cuenca:5639,cuenca,rXA14MVaSMrp1A1LLL21Dg,0.0009,0.6152,sheet_0020.jpg,7,crosswalk,paint,worn bars with brick diamond on cobble
+det:-cXKHq-v96Dad3EmCBGr1w:0.396:0.544,chicago-il:198791,chicago-il,-cXKHq-v96Dad3EmCBGr1w,0.3956,0.5436,sheet_0020.jpg,8,crosswalk,brick_edge_lines,red band with white edge lines
+det:6AB9y0q3RuO-g-aFmlxl8A:0.250:0.579,cuenca:4014,cuenca,6AB9y0q3RuO-g-aFmlxl8A,0.2498,0.579,sheet_0020.jpg,9,crosswalk,paint,zebra bars with brick diamond on cobble
+det:yAaPC14gMaWoMEsRXs2zgQ:0.450:0.634,danville-il:25870,danville-il,yAaPC14gMaWoMEsRXs2zgQ,0.4498,0.6338,sheet_0020.jpg,10,unsure,unclear,exposed brick under broken asphalt
+det:T6xFloZFsBszi1wq6vihpA:0.710:0.653,cuenca:3576,cuenca,T6xFloZFsBszi1wq6vihpA,0.7101,0.6528,sheet_0020.jpg,11,crosswalk,paint,zebra bars on cobblestone
+det:dG5YgN_jKpB73scBno7pnw:0.647:0.584,gainesville-fl:40995,gainesville-fl,dG5YgN_jKpB73scBno7pnw,0.6468,0.5841,sheet_0020.jpg,12,crosswalk,paint,zebra bars at circle edge
+det:bK27JEhM77IDxytGDI8L-Q:0.032:0.570,chicago-il:132987,chicago-il,bK27JEhM77IDxytGDI8L-Q,0.0315,0.5699,sheet_0021.jpg,1,crosswalk,brick,dark coloured band spanning road
+det:Sd0PCFS7SriMfinRiqOGTQ:0.744:0.606,oradell-nj:7380,oradell-nj,Sd0PCFS7SriMfinRiqOGTQ,0.7441,0.6064,sheet_0021.jpg,2,unsure,unclear,curved brick strip along curb; crossing or apron
+det:SK_zR_mxpDNbB_ZhnwUMhQ:0.963:0.640,chicago-il:62673,chicago-il,SK_zR_mxpDNbB_ZhnwUMhQ,0.9633,0.6403,sheet_0021.jpg,3,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:BHUMzbQsoe1QtzYGVNAhyA:0.015:0.598,cuenca:16678,cuenca,BHUMzbQsoe1QtzYGVNAhyA,0.0145,0.5977,sheet_0021.jpg,4,unsure,unclear,faint reddish pattern near stop line
+det:mc_jRTJLflOoRwGvmxIRlg:0.379:0.528,chicago-il:111574,chicago-il,mc_jRTJLflOoRwGvmxIRlg,0.3788,0.5281,sheet_0021.jpg,5,not_crosswalk,none,plain asphalt intersection
+det:8Cx4bRETV3rKvp89MJ5lyw:0.005:0.739,oradell-nj:7449,oradell-nj,8Cx4bRETV3rKvp89MJ5lyw,0.0054,0.739,sheet_0021.jpg,6,unsure,unclear,close-up brick near curb; extent unclear
+det:TSJjekveW4tVaQMkvSSfIg:0.431:0.570,chicago-il:149504,chicago-il,TSJjekveW4tVaQMkvSSfIg,0.4315,0.5696,sheet_0021.jpg,7,crosswalk,brick_edge_lines,reddish band with white edge lines
+det:OW8npRzboJskDjiyiTLY5A:0.408:0.585,chicago-il:195527,chicago-il,OW8npRzboJskDjiyiTLY5A,0.4083,0.5846,sheet_0021.jpg,8,crosswalk,brick_edge_lines,brick band with white edge lines
+det:viTw6lMM2RNq0upgLqqK5g:0.684:0.595,gainesville-fl:27711,gainesville-fl,viTw6lMM2RNq0upgLqqK5g,0.6843,0.5945,sheet_0021.jpg,9,crosswalk,brick_edge_lines,faded brick band with white lines
+det:tt35LnUNAG3uL43nlW8cqQ:0.186:0.560,chicago-il:200920,chicago-il,tt35LnUNAG3uL43nlW8cqQ,0.1857,0.5605,sheet_0021.jpg,10,crosswalk,brick,red band across road
+det:fovot9af8Ka51Bk2Gg15Jw:0.161:0.561,chicago-il:32261,chicago-il,fovot9af8Ka51Bk2Gg15Jw,0.1608,0.5615,sheet_0021.jpg,11,crosswalk,brick_edge_lines,red band with white lines
+det:JvRiQA-9kUdg7wsA7O_lxg:0.978:0.529,chicago-il:126057,chicago-il,JvRiQA-9kUdg7wsA7O_lxg,0.9783,0.5288,sheet_0021.jpg,12,not_crosswalk,none,plain asphalt under marker
+det:yEDhqxrynFAknYznr7quXw:0.157:0.744,cuenca:7392,cuenca,yEDhqxrynFAknYznr7quXw,0.1573,0.7443,sheet_0022.jpg,1,crosswalk,paint,zebra bars on cobblestone
+det:J_Oa5p6VVo7pgjUDvOXAVQ:0.176:0.661,cdmx:71586,cdmx,J_Oa5p6VVo7pgjUDvOXAVQ,0.1765,0.6609,sheet_0022.jpg,2,not_crosswalk,none,hexagonal paver surface only
+det:nk5mz6sG5ZpJB43kR5LxIA:0.866:0.542,chicago-il:119263,chicago-il,nk5mz6sG5ZpJB43kR5LxIA,0.8663,0.5424,sheet_0022.jpg,3,not_crosswalk,none,asphalt road beside brick sidewalk
+det:YOnGqCXoTkbH0QIlyJAfCA:0.514:0.556,cuenca:5213,cuenca,YOnGqCXoTkbH0QIlyJAfCA,0.5137,0.556,sheet_0022.jpg,4,not_crosswalk,none,plain cobblestone road
+det:Tq_KLBk2uhDDArCx_EN21g:0.492:0.584,chicago-il:62927,chicago-il,Tq_KLBk2uhDDArCx_EN21g,0.4921,0.5841,sheet_0022.jpg,5,crosswalk,brick_edge_lines,red band with white edge lines
+det:WeytMNwPYWv2rp92aSrOaA:0.006:0.774,cuenca:2164,cuenca,WeytMNwPYWv2rp92aSrOaA,0.0065,0.7737,sheet_0022.jpg,6,unsure,unclear,dashed white lines on cobblestone; direction unclear
+det:mvnvPkgU5zE7wQnmEoPLDA:0.043:0.603,columbus-oh:38252,columbus-oh,mvnvPkgU5zE7wQnmEoPLDA,0.0428,0.6033,sheet_0022.jpg,7,unsure,unclear,grey paver strip at road edge
+det:HfYe7rXRi9jbZH0uCpCeGQ:0.513:0.657,cuenca:15494,cuenca,HfYe7rXRi9jbZH0uCpCeGQ,0.5129,0.6572,sheet_0022.jpg,8,crosswalk,paint,zebra bars
+det:ofOYAgcZcrQTMfGj-Wp9aw:0.496:0.584,chicago-il:160565,chicago-il,ofOYAgcZcrQTMfGj-Wp9aw,0.4965,0.5839,sheet_0022.jpg,9,crosswalk,brick_edge_lines,red band with white lines
+det:tlDnaP7wwXVs3EzgGsgkJA:0.982:0.624,chicago-il:59662,chicago-il,tlDnaP7wwXVs3EzgGsgkJA,0.9821,0.6243,sheet_0022.jpg,10,crosswalk,brick_edge_lines,brick band with white edge lines
+det:LPfYEzRlh12oeC9-Xo4Tnw:0.795:0.545,maywood-nj:28002,maywood-nj,LPfYEzRlh12oeC9-Xo4Tnw,0.7947,0.5452,sheet_0022.jpg,11,crosswalk,brick_edge_lines,brick band with white edge line
+det:OcRCIGLbuIavRVYPg-4tGA:0.519:0.646,cuenca:6354,cuenca,OcRCIGLbuIavRVYPg-4tGA,0.519,0.6465,sheet_0022.jpg,12,crosswalk,paint,faded zebra bars over decorative brick
+det:uoM12js270xVshzVFs4uHA:0.790:0.613,chicago-il:122243,chicago-il,uoM12js270xVshzVFs4uHA,0.7898,0.6133,sheet_0023.jpg,1,crosswalk,brick,brick band across concrete road
+det:2OHht-gjiNOSQV6G9U7wPQ:0.975:0.576,cuenca:3214,cuenca,2OHht-gjiNOSQV6G9U7wPQ,0.9748,0.5762,sheet_0023.jpg,2,crosswalk,paint,zebra bars on cobblestone
+det:D8qEra2207gMjjIJqt2Nbg:0.684:0.607,cuenca:11738,cuenca,D8qEra2207gMjjIJqt2Nbg,0.6839,0.6067,sheet_0023.jpg,3,unsure,unclear,faint marks on cobblestone near lane line
+det:jOzt4nusv7zcNijJiC347A:0.175:0.697,chicago-il:64395,chicago-il,jOzt4nusv7zcNijJiC347A,0.1755,0.6965,sheet_0023.jpg,4,crosswalk,brick_edge_lines,brick band with white edge lines
+det:XnCXT5UU3ex313SQRpuTyA:0.249:0.580,cuenca:7523,cuenca,XnCXT5UU3ex313SQRpuTyA,0.2495,0.5801,sheet_0023.jpg,5,not_crosswalk,none,plain cobblestone road
+det:_lRNvx6TPD5cfv33FKNrcw:0.467:0.601,cuenca:14968,cuenca,_lRNvx6TPD5cfv33FKNrcw,0.4667,0.6014,sheet_0023.jpg,6,unsure,unclear,subtle paver band texture on cobblestone
+det:Hh-cKZU4A6kzICboYKrmsw:0.087:0.646,oradell-nj:7433,oradell-nj,Hh-cKZU4A6kzICboYKrmsw,0.0867,0.646,sheet_0023.jpg,7,unsure,unclear,brick strip between curb and white line
+det:6gTZMTmtfShudUyySrsTXg:0.772:0.611,chicago-il:145968,chicago-il,6gTZMTmtfShudUyySrsTXg,0.7716,0.6105,sheet_0023.jpg,8,crosswalk,brick_edge_lines,brick band with white edge lines
+det:0_Ck_fEF00ZbhUCdlW3Qjw:0.074:0.579,chicago-il:66167,chicago-il,0_Ck_fEF00ZbhUCdlW3Qjw,0.074,0.5786,sheet_0023.jpg,9,crosswalk,brick_edge_lines,brick band with white edge lines
+det:v-hhYNZsdgvxfom50lTafg:0.376:0.565,chicago-il:39384,chicago-il,v-hhYNZsdgvxfom50lTafg,0.3759,0.5645,sheet_0023.jpg,10,crosswalk,brick_edge_lines,brick crossing band with white lines
+det:vjY_Q5cI8z_RLczCnRJuOw:0.913:0.590,chicago-il:201154,chicago-il,vjY_Q5cI8z_RLczCnRJuOw,0.9128,0.5895,sheet_0023.jpg,11,crosswalk,brick_edge_lines,brick band with white edge lines
+det:Or9IDcjXYlTvde-8KQ-gzg:0.576:0.622,chicago-il:39409,chicago-il,Or9IDcjXYlTvde-8KQ-gzg,0.5764,0.6217,sheet_0023.jpg,12,crosswalk,brick_edge_lines,brick band with white edge lines
+det:BHUMzbQsoe1QtzYGVNAhyA:0.445:0.618,cuenca:14026,cuenca,BHUMzbQsoe1QtzYGVNAhyA,0.4454,0.6182,sheet_0024.jpg,1,crosswalk,paint,zebra bars on pavers
+det:pzgbeEhe8mp-2E80keJvbQ:0.054:0.601,gainesville-fl:27788,gainesville-fl,pzgbeEhe8mp-2E80keJvbQ,0.0539,0.6008,sheet_0024.jpg,2,unsure,unclear,brick strip partly blurred out
+det:GJBD1vI2JhTsZhGzT-A0qw:0.228:0.526,chicago-il:149592,chicago-il,GJBD1vI2JhTsZhGzT-A0qw,0.2283,0.5262,sheet_0024.jpg,3,not_crosswalk,none,plain road; green bike markings only
+det:Z326aXTTu5lGepJPcSdSGQ:0.707:0.604,chicago-il:23966,chicago-il,Z326aXTTu5lGepJPcSdSGQ,0.7072,0.6035,sheet_0024.jpg,4,crosswalk,paint,faded transverse lines on pavers
+det:mzTxf1tRuEzelTDelcdQ2A:0.800:0.600,chicago-il:32145,chicago-il,mzTxf1tRuEzelTDelcdQ2A,0.7998,0.6001,sheet_0024.jpg,5,crosswalk,brick_edge_lines,brick band with white edge lines
+det:zrO8HrlvYyU3I2DZktQklA:0.952:0.723,cuenca:11278,cuenca,zrO8HrlvYyU3I2DZktQklA,0.9519,0.723,sheet_0024.jpg,6,crosswalk,paint,zebra bars on cobblestone in circle
+det:HnZEeqxqazXjSnw9KVGtWA:0.266:0.608,chicago-il:67358,chicago-il,HnZEeqxqazXjSnw9KVGtWA,0.2657,0.6078,sheet_0024.jpg,7,crosswalk,brick_edge_lines,brick band with white edge lines
+det:SDO8zEx_E6axQp-fzLQS1g:0.981:0.618,cuenca:14805,cuenca,SDO8zEx_E6axQp-fzLQS1g,0.9814,0.6179,sheet_0024.jpg,8,not_crosswalk,none,plain cobblestone road
+det:Tu8OEFkwA5_SZO_79yS4Yw:0.476:0.707,columbus-oh:39879,columbus-oh,Tu8OEFkwA5_SZO_79yS4Yw,0.4759,0.7067,sheet_0024.jpg,9,unsure,unclear,brick with white square dots; decorative?
+det:BgAVXUh7RwqlX2H-buL4lA:0.259:0.571,chicago-il:126075,chicago-il,BgAVXUh7RwqlX2H-buL4lA,0.2585,0.5707,sheet_0024.jpg,10,crosswalk,brick_edge_lines,red band with white lines
+det:ZOOIYAbVHYU0xNMIRR6NPA:0.212:0.638,cuenca:15460,cuenca,ZOOIYAbVHYU0xNMIRR6NPA,0.2125,0.6382,sheet_0024.jpg,11,not_crosswalk,none,plain cobblestone road
+det:yyg2agFT-EEhtr_8PZZUTg:0.345:0.635,knox-oh:26085,knox-oh,yyg2agFT-EEhtr_8PZZUTg,0.345,0.6349,sheet_0024.jpg,12,crosswalk,paint,two white lines on brick road
+det:PMDez-3ucfgxjIsZdT95vg:0.157:0.606,cuenca:9398,cuenca,PMDez-3ucfgxjIsZdT95vg,0.1573,0.6059,sheet_0025.jpg,1,crosswalk,paint,faded white bars on cobblestone
+det:q-DeT9d5PzuInLHO0SoX3Q:0.381:0.613,cuenca:10890,cuenca,q-DeT9d5PzuInLHO0SoX3Q,0.3814,0.613,sheet_0025.jpg,2,crosswalk,paint,zebra bars on cobblestone
+det:JCZI6TAeGYagH-AFxXbL3Q:0.775:0.606,chicago-il:38129,chicago-il,JCZI6TAeGYagH-AFxXbL3Q,0.7753,0.6056,sheet_0025.jpg,3,crosswalk,paint,two white transverse lines on brick road
+det:WpVVo8tmD6IEHeJ7oD9l7Q:0.475:0.627,chicago-il:104428,chicago-il,WpVVo8tmD6IEHeJ7oD9l7Q,0.4747,0.6271,sheet_0025.jpg,4,crosswalk,brick_edge_lines,brick band with white edge lines
+det:gEmHuYK6Z5e8uA3TyAb_4g:0.065:0.544,gainesville-fl:30421,gainesville-fl,gEmHuYK6Z5e8uA3TyAb_4g,0.065,0.5442,sheet_0025.jpg,5,crosswalk,brick,brick crossing band through median
+det:ATPk3sBFAWCvI7enG_jUtw:0.233:0.580,columbus-oh:40753,columbus-oh,ATPk3sBFAWCvI7enG_jUtw,0.2331,0.5801,sheet_0025.jpg,6,crosswalk,brick_edge_lines,brick band with white edge lines
+det:fovot9af8Ka51Bk2Gg15Jw:0.752:0.618,chicago-il:32255,chicago-il,fovot9af8Ka51Bk2Gg15Jw,0.7517,0.6177,sheet_0025.jpg,7,crosswalk,brick_edge_lines,brick band with white edge lines
+det:EWxJ07DB1CAImk_jV7H8fA:0.478:0.612,chicago-il:201198,chicago-il,EWxJ07DB1CAImk_jV7H8fA,0.4778,0.6118,sheet_0025.jpg,8,crosswalk,brick_edge_lines,brick band with white edge lines
+det:SgqTYQH8i0ZAxn_hr_aHQw:0.161:0.652,cuenca:7111,cuenca,SgqTYQH8i0ZAxn_hr_aHQw,0.1607,0.6522,sheet_0025.jpg,9,unsure,unclear,fragmented white marks on cobblestone
+det:YMoMgphoe4BSXE7BvPcbxQ:0.320:0.546,gainesville-fl:32876,gainesville-fl,YMoMgphoe4BSXE7BvPcbxQ,0.3201,0.5457,sheet_0025.jpg,10,crosswalk,brick,red band across road
+det:0XG5MEaTXkdR5KKWv_Hm3Q:0.885:0.558,chicago-il:59673,chicago-il,0XG5MEaTXkdR5KKWv_Hm3Q,0.8848,0.5579,sheet_0025.jpg,11,crosswalk,brick_edge_lines,red band with white lines
+det:Ai6q1Q8wUCyfEHpv_KZu7w:0.249:0.578,chicago-il:32121,chicago-il,Ai6q1Q8wUCyfEHpv_KZu7w,0.2491,0.578,sheet_0025.jpg,12,crosswalk,brick_edge_lines,dark red band with white lines
+det:yyg2agFT-EEhtr_8PZZUTg:0.041:0.818,knox-oh:26088,knox-oh,yyg2agFT-EEhtr_8PZZUTg,0.041,0.8181,sheet_0026.jpg,1,unsure,unclear,close-up brick paving; context missing
+det:koE0LKyJUnkGzjy13NwhxQ:0.981:0.558,cuenca:7836,cuenca,koE0LKyJUnkGzjy13NwhxQ,0.9811,0.558,sheet_0026.jpg,2,crosswalk,paint,zebra bars on cobblestone
+det:2yrjptwWVekyQc5xC7u1Xw:0.354:0.560,chicago-il:190677,chicago-il,2yrjptwWVekyQc5xC7u1Xw,0.3539,0.5605,sheet_0026.jpg,3,crosswalk,brick,reddish band across road
+det:OW8npRzboJskDjiyiTLY5A:0.764:0.570,chicago-il:195533,chicago-il,OW8npRzboJskDjiyiTLY5A,0.7639,0.5702,sheet_0026.jpg,4,crosswalk,brick_edge_lines,brick band with white edge lines
+det:dvY1rk9P7xOTb7-nA5vCHw:0.665:0.583,chicago-il:67303,chicago-il,dvY1rk9P7xOTb7-nA5vCHw,0.6649,0.5828,sheet_0026.jpg,5,crosswalk,brick_edge_lines,brick band with white edge lines
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.782:0.618,cuenca:8062,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.7825,0.6176,sheet_0026.jpg,6,crosswalk,paint,zebra bars on cobblestone
+det:uOvTXPgH7-q830_KLU3ceg:0.318:0.556,chicago-il:59656,chicago-il,uOvTXPgH7-q830_KLU3ceg,0.3179,0.5558,sheet_0026.jpg,7,not_crosswalk,none,plain road near parked car
+det:Kni6UAl0J5-5OuxYDcaEHw:0.791:0.635,chicago-il:39436,chicago-il,Kni6UAl0J5-5OuxYDcaEHw,0.7911,0.6346,sheet_0026.jpg,8,crosswalk,brick_edge_lines,herringbone brick band with white edges
+det:0wlToO_L0f9wyVNNHTueZg:0.433:0.565,cuenca:10647,cuenca,0wlToO_L0f9wyVNNHTueZg,0.4334,0.5648,sheet_0026.jpg,9,crosswalk,paint,zebra bars on cobblestone
+det:-tSkazBQSpPOeOsTyyxynA:0.476:0.661,cuenca:14458,cuenca,-tSkazBQSpPOeOsTyyxynA,0.4757,0.6611,sheet_0026.jpg,10,crosswalk,paint,faded zebra on pavers
+det:3sJuT9KAmpG3WLiEMIw8EA:0.972:0.708,cuenca:4893,cuenca,3sJuT9KAmpG3WLiEMIw8EA,0.9718,0.7075,sheet_0026.jpg,11,unsure,unclear,single faint white strip on cobblestone
+det:xzHh134T9FGPZslp1hADsQ:0.768:0.596,pittsburgh-pa:22905,pittsburgh-pa,xzHh134T9FGPZslp1hADsQ,0.7682,0.5956,sheet_0026.jpg,12,crosswalk,brick_edge_lines,brick band with white line; pedestrians
+det:n66Oe8kH6cz_MnIvWH6V_w:0.557:0.539,chicago-il:190700,chicago-il,n66Oe8kH6cz_MnIvWH6V_w,0.5567,0.5386,sheet_0027.jpg,1,not_crosswalk,none,sidewalk corner; no crossing
+det:g4XlRjhpBANOEPYHugpitA:0.536:0.587,gainesville-fl:33660,gainesville-fl,g4XlRjhpBANOEPYHugpitA,0.5358,0.5872,sheet_0027.jpg,2,crosswalk,brick_edge_lines,brick band with white edge lines
+det:oQmf5JeJRmCqoDxNKWa5Kw:0.023:0.654,knox-oh:25719,knox-oh,oQmf5JeJRmCqoDxNKWa5Kw,0.0231,0.654,sheet_0027.jpg,3,crosswalk,paint,zebra bars on brick road
+det:cfkKpV7ds3aDL6yoX-nWig:0.135:0.760,gainesville-fl:32714,gainesville-fl,cfkKpV7ds3aDL6yoX-nWig,0.1352,0.7604,sheet_0027.jpg,4,unsure,unclear,blurred brick with white line
+det:7UnZlqjSGcaP_12o0HoXKQ:0.759:0.578,chicago-il:160186,chicago-il,7UnZlqjSGcaP_12o0HoXKQ,0.7586,0.5779,sheet_0027.jpg,5,crosswalk,brick_edge_lines,brick band with white edge lines
+det:_bIYZIfJ-TkJ_0sB_WjDhQ:0.028:0.630,cuenca:2341,cuenca,_bIYZIfJ-TkJ_0sB_WjDhQ,0.028,0.6298,sheet_0027.jpg,6,crosswalk,paint,faded zebra on cobblestone
+det:q3RofRj5gnrrNie-8J54CA:0.376:0.616,gainesville-fl:34755,gainesville-fl,q3RofRj5gnrrNie-8J54CA,0.376,0.6158,sheet_0027.jpg,7,crosswalk,brick_edge_lines,brick band with white edge line
+det:hokQke6DfiCS1ToBOywsgw:0.731:0.591,chicago-il:32114,chicago-il,hokQke6DfiCS1ToBOywsgw,0.7314,0.5905,sheet_0027.jpg,8,crosswalk,brick_edge_lines,brick band with white edge lines
+det:mYcJk54KrfvpzzCynZT5Vw:0.989:0.545,columbus-oh:39865,columbus-oh,mYcJk54KrfvpzzCynZT5Vw,0.989,0.5452,sheet_0027.jpg,9,crosswalk,brick_edge_lines,brick band with white lines
+det:IJ004Gj9fv5Znik8-LTH5Q:0.451:0.578,chicago-il:82018,chicago-il,IJ004Gj9fv5Znik8-LTH5Q,0.4514,0.5782,sheet_0027.jpg,10,crosswalk,brick,red band across road
+det:xNon984W-emCxDHthi1Sqw:0.616:0.538,chicago-il:64467,chicago-il,xNon984W-emCxDHthi1Sqw,0.6161,0.5379,sheet_0027.jpg,11,not_crosswalk,none,plain asphalt mid-road
+det:h4HQAP-vjZRVkkzUTfUKcg:0.861:0.557,chicago-il:183911,chicago-il,h4HQAP-vjZRVkkzUTfUKcg,0.8607,0.5568,sheet_0027.jpg,12,crosswalk,brick_edge_lines,brick band with white edge lines
+det:aRAA1bDpR7FfwZb1WB47Ew:0.055:0.613,chicago-il:59630,chicago-il,aRAA1bDpR7FfwZb1WB47Ew,0.055,0.6129,sheet_0028.jpg,1,crosswalk,paint,two white transverse lines on pavement
+det:3SvTY45wTwVI2MS-MNylhw:0.651:0.569,cuenca:10283,cuenca,3SvTY45wTwVI2MS-MNylhw,0.6508,0.5691,sheet_0028.jpg,2,crosswalk,paint,zebra bars on cobblestone
+det:zCiJUEZUh_nxNXMX6XxuqA:0.802:0.623,cuenca:12352,cuenca,zCiJUEZUh_nxNXMX6XxuqA,0.8025,0.623,sheet_0028.jpg,3,crosswalk,paint,zebra bars on cobblestone
+det:dHh5Z-o69e4HbJvTKXf3Yg:0.473:0.588,pittsburgh-pa:22976,pittsburgh-pa,dHh5Z-o69e4HbJvTKXf3Yg,0.4732,0.5884,sheet_0028.jpg,4,crosswalk,brick_edge_lines,brick band with white edge lines
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.601:0.747,cuenca:15958,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.6006,0.7467,sheet_0028.jpg,5,crosswalk,paint,zebra bars on cobblestone
+det:HmhQWempnVVGTsKgJKWVKg:0.755:0.599,chicago-il:157623,chicago-il,HmhQWempnVVGTsKgJKWVKg,0.7549,0.5994,sheet_0028.jpg,6,crosswalk,brick_edge_lines,brick band with white edge lines
+det:hk0mHylq0dBSlTZb7IQZBw:0.697:0.592,chicago-il:141277,chicago-il,hk0mHylq0dBSlTZb7IQZBw,0.6972,0.5917,sheet_0028.jpg,7,crosswalk,brick_edge_lines,brick band with white edge lines
+det:oodLN7tAcNM-m46L6qw97g:0.131:0.601,chicago-il:67422,chicago-il,oodLN7tAcNM-m46L6qw97g,0.1305,0.6007,sheet_0028.jpg,8,crosswalk,brick_edge_lines,brick band with white edge lines
+det:q10BGlV4R_5vsKGxeiqo_g:0.589:0.647,cuenca:14903,cuenca,q10BGlV4R_5vsKGxeiqo_g,0.5885,0.6471,sheet_0028.jpg,9,unsure,unclear,paver pattern near curb gutter
+det:hCHDxGP9afGaVvwF76pBfg:0.750:0.625,chicago-il:65495,chicago-il,hCHDxGP9afGaVvwF76pBfg,0.7502,0.6251,sheet_0028.jpg,10,crosswalk,brick_edge_lines,brick band with white edge lines
+det:ZRsKIbShiVP9NqLPjT_KCA:0.464:0.605,chicago-il:202991,chicago-il,ZRsKIbShiVP9NqLPjT_KCA,0.4644,0.6047,sheet_0028.jpg,11,crosswalk,brick_edge_lines,brick band with white edge lines
+det:89YQAxYIf77qcz5XvIimUA:0.255:0.559,chicago-il:57468,chicago-il,89YQAxYIf77qcz5XvIimUA,0.2551,0.5591,sheet_0028.jpg,12,crosswalk,brick_edge_lines,distant red band with white lines
+det:c-qGp-2AiUctC5IaB-kx7g:0.773:0.602,chicago-il:65447,chicago-il,c-qGp-2AiUctC5IaB-kx7g,0.773,0.6022,sheet_0029.jpg,1,crosswalk,brick_edge_lines,brick band with white edge lines
+det:5lqHPwmvNOB-wQ_zN9wNLw:0.986:0.662,cuenca:3782,cuenca,5lqHPwmvNOB-wQ_zN9wNLw,0.986,0.6623,sheet_0029.jpg,2,unsure,unclear,decorative diamond pattern; faint paint
+det:9pqTqCysDSix9-NUOqox_Q:0.273:0.557,columbus-oh:41607,columbus-oh,9pqTqCysDSix9-NUOqox_Q,0.2726,0.5566,sheet_0029.jpg,3,not_crosswalk,none,paver driveway apron
+det:nk5mz6sG5ZpJB43kR5LxIA:0.092:0.561,chicago-il:119270,chicago-il,nk5mz6sG5ZpJB43kR5LxIA,0.092,0.5607,sheet_0029.jpg,4,crosswalk,brick_edge_lines,dark coloured band with white lines
+det:CFGJW6pVBxQzm6w0oqmbzQ:0.937:0.601,pittsburgh-pa:19673,pittsburgh-pa,CFGJW6pVBxQzm6w0oqmbzQ,0.9368,0.6011,sheet_0029.jpg,5,crosswalk,brick_edge_lines,stamped band with white edge lines
+det:lepvNVCWNuogkJ2cL43syw:0.102:0.563,chicago-il:141325,chicago-il,lepvNVCWNuogkJ2cL43syw,0.1018,0.5629,sheet_0029.jpg,6,crosswalk,brick_edge_lines,brick band with white edge lines
+det:fZtUkZ2OmnUsvroBF9kuDQ:0.796:0.604,chicago-il:39412,chicago-il,fZtUkZ2OmnUsvroBF9kuDQ,0.7965,0.6042,sheet_0029.jpg,7,crosswalk,brick_edge_lines,brick band with white lines
+det:-8k5xBzuhze7SzH8Rbm-hA:0.999:0.701,cuenca:10674,cuenca,-8k5xBzuhze7SzH8Rbm-hA,0.9989,0.701,sheet_0029.jpg,8,crosswalk,paint,zebra bars on cobblestone
+det:af94A4ZF3ha4DU00D7R8Dw:0.535:0.587,cuenca:15219,cuenca,af94A4ZF3ha4DU00D7R8Dw,0.5346,0.5871,sheet_0029.jpg,9,not_crosswalk,none,plain cobblestone road
+det:mCHMidtKTo0cD5FCtLNCIw:0.575:0.587,cuenca:8069,cuenca,mCHMidtKTo0cD5FCtLNCIw,0.5752,0.5874,sheet_0029.jpg,10,crosswalk,paint,faded zebra on cobblestone
+det:d9xcSY-eqLD8iiXWP5IeZA:0.492:0.715,pittsburgh-pa:22945,pittsburgh-pa,d9xcSY-eqLD8iiXWP5IeZA,0.4918,0.7147,sheet_0029.jpg,11,unsure,unclear,close-up brick road surface
+det:OcRCIGLbuIavRVYPg-4tGA:0.204:0.625,cuenca:12461,cuenca,OcRCIGLbuIavRVYPg-4tGA,0.2038,0.6253,sheet_0029.jpg,12,crosswalk,paint,faded zebra on pavers
+det:qf6jPtPPeZRiGk9VXwaWXg:0.011:0.582,cuenca:7424,cuenca,qf6jPtPPeZRiGk9VXwaWXg,0.0107,0.5816,sheet_0030.jpg,1,crosswalk,paint,zebra bars on cobblestone
+det:vqWWF2PxMX_VUNpTVzpAhA:0.015:0.579,chicago-il:10912,chicago-il,vqWWF2PxMX_VUNpTVzpAhA,0.0155,0.5792,sheet_0030.jpg,2,crosswalk,brick_edge_lines,brick band with white edge lines
+det:-ZQxhWk_v9zNLLtQAzLerA:0.045:0.608,chicago-il:177644,chicago-il,-ZQxhWk_v9zNLLtQAzLerA,0.0446,0.6083,sheet_0030.jpg,3,crosswalk,brick_edge_lines,brick band with white edge lines
+det:KJ8a0DgtXsNCcrm52hXcHA:0.969:0.584,gainesville-fl:27483,gainesville-fl,KJ8a0DgtXsNCcrm52hXcHA,0.9686,0.5842,sheet_0030.jpg,4,crosswalk,paint,two white transverse lines
+det:D8qEra2207gMjjIJqt2Nbg:0.513:0.602,cuenca:11700,cuenca,D8qEra2207gMjjIJqt2Nbg,0.5128,0.6019,sheet_0030.jpg,5,crosswalk,paint,zebra bars on cobblestone
+det:cw9HB0WgkqjK5p9acylQ7w:0.407:0.654,cuenca:11970,cuenca,cw9HB0WgkqjK5p9acylQ7w,0.4073,0.654,sheet_0030.jpg,6,crosswalk,paint,zebra bars on pavers
+det:bZ6gcy9_MXQK5EyzCXy0pA:0.501:0.613,cuenca:14767,cuenca,bZ6gcy9_MXQK5EyzCXy0pA,0.5014,0.6127,sheet_0030.jpg,7,not_crosswalk,none,plain cobblestone road
+det:DiFFxb0JCssoVqMefc7t0w:0.305:0.567,chicago-il:32207,chicago-il,DiFFxb0JCssoVqMefc7t0w,0.3051,0.5668,sheet_0030.jpg,8,crosswalk,brick_edge_lines,brick band with white edge lines
+det:nZdv0R-ujCRVdOTzpgjHsw:0.200:0.545,niagara-falls-ny:26314,niagara-falls-ny,nZdv0R-ujCRVdOTzpgjHsw,0.2,0.5454,sheet_0030.jpg,9,crosswalk,paint,white transverse crossing lines
+det:0ugL_mo2YPsT5VRzvDaWWg:0.011:0.586,chicago-il:58204,chicago-il,0ugL_mo2YPsT5VRzvDaWWg,0.0108,0.5864,sheet_0030.jpg,10,crosswalk,brick_edge_lines,brick band with white edge lines
+det:zCiJUEZUh_nxNXMX6XxuqA:0.009:0.613,cuenca:6092,cuenca,zCiJUEZUh_nxNXMX6XxuqA,0.0087,0.6125,sheet_0030.jpg,11,crosswalk,paint,zebra bars on cobblestone
+det:tqLsTyCgK9p-TlzeIsQ58w:0.006:0.613,gainesville-fl:27791,gainesville-fl,tqLsTyCgK9p-TlzeIsQ58w,0.0063,0.6127,sheet_0030.jpg,12,crosswalk,brick_edge_lines,brick band with white lines in circle
+det:tt35LnUNAG3uL43nlW8cqQ:0.841:0.612,chicago-il:200916,chicago-il,tt35LnUNAG3uL43nlW8cqQ,0.8406,0.6123,sheet_0031.jpg,1,crosswalk,brick_edge_lines,brick band with white edge lines
+det:qLmMDwvjCU4oXFiRp6Efgg:0.899:0.531,chicago-il:64463,chicago-il,qLmMDwvjCU4oXFiRp6Efgg,0.8987,0.5315,sheet_0031.jpg,2,not_crosswalk,none,plain asphalt at distant intersection
+det:zCiJUEZUh_nxNXMX6XxuqA:0.792:0.623,cuenca:9231,cuenca,zCiJUEZUh_nxNXMX6XxuqA,0.7917,0.6227,sheet_0031.jpg,3,crosswalk,paint,zebra bars on cobblestone
+det:5tLb4jsmHejfGtkU00f_1A:0.035:0.648,pittsburgh-pa:23074,pittsburgh-pa,5tLb4jsmHejfGtkU00f_1A,0.0345,0.6476,sheet_0031.jpg,4,unsure,unclear,wide brick area; band or plaza
+det:PkGK3GS0gR0HlJEMJMBocQ:0.243:0.572,chicago-il:125380,chicago-il,PkGK3GS0gR0HlJEMJMBocQ,0.2427,0.572,sheet_0031.jpg,5,crosswalk,brick_edge_lines,brick band with white edge lines
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.623:0.713,cuenca:8053,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.6226,0.7132,sheet_0031.jpg,6,crosswalk,paint,zebra bars on cobblestone
+det:KukMXc7gy52WnbpwBvfnTw:0.483:0.553,cuenca:9560,cuenca,KukMXc7gy52WnbpwBvfnTw,0.4832,0.553,sheet_0031.jpg,7,crosswalk,paint,zebra bars on cobblestone
+det:rXA14MVaSMrp1A1LLL21Dg:0.722:0.604,cuenca:4396,cuenca,rXA14MVaSMrp1A1LLL21Dg,0.7217,0.6038,sheet_0031.jpg,8,crosswalk,paint,faded zebra on cobblestone
+det:GBz6VH4NyVivxoXzEZK7eg:0.432:0.719,chicago-il:35542,chicago-il,GBz6VH4NyVivxoXzEZK7eg,0.4318,0.719,sheet_0031.jpg,9,crosswalk,paint,faded white bars on concrete
+det:s1hXdh6izKMgCnTLcKYeRQ:0.565:0.624,chicago-il:145884,chicago-il,s1hXdh6izKMgCnTLcKYeRQ,0.5645,0.6243,sheet_0031.jpg,10,unsure,unclear,brick corner area; band extent unclear
+det:Xueihl3KpcqP9syqq98n1A:0.531:0.570,cuenca:15742,cuenca,Xueihl3KpcqP9syqq98n1A,0.5306,0.5702,sheet_0031.jpg,11,not_crosswalk,none,plain cobblestone road
+det:zCiJUEZUh_nxNXMX6XxuqA:0.214:0.629,cuenca:6649,cuenca,zCiJUEZUh_nxNXMX6XxuqA,0.2137,0.6295,sheet_0031.jpg,12,crosswalk,paint,zebra bars on cobblestone
+det:OcRCIGLbuIavRVYPg-4tGA:0.770:0.597,cuenca:6453,cuenca,OcRCIGLbuIavRVYPg-4tGA,0.7701,0.5966,sheet_0032.jpg,1,unsure,unclear,faded white marks; maybe road text
+det:JoUuy2x_02_DTIU-RxVK8Q:0.046:0.657,chicago-il:139593,chicago-il,JoUuy2x_02_DTIU-RxVK8Q,0.0457,0.6575,sheet_0032.jpg,2,crosswalk,brick_edge_lines,brick band with white edge lines
+det:ATPk3sBFAWCvI7enG_jUtw:0.992:0.581,columbus-oh:40752,columbus-oh,ATPk3sBFAWCvI7enG_jUtw,0.9916,0.5807,sheet_0032.jpg,3,crosswalk,brick_edge_lines,brick band with white edge lines
+det:Z395ZEDAGsY6ZWSd9_lDDQ:0.480:0.555,chicago-il:115346,chicago-il,Z395ZEDAGsY6ZWSd9_lDDQ,0.4798,0.5555,sheet_0032.jpg,4,crosswalk,brick_edge_lines,dark band with white lines
+det:Xueihl3KpcqP9syqq98n1A:0.709:0.578,cuenca:2994,cuenca,Xueihl3KpcqP9syqq98n1A,0.7093,0.5775,sheet_0032.jpg,5,crosswalk,paint,two white transverse lines on pavers
+det:MeHxzBlAVNnXqPqSwNaACg:0.484:0.546,maywood-nj:26330,maywood-nj,MeHxzBlAVNnXqPqSwNaACg,0.4845,0.5463,sheet_0032.jpg,6,crosswalk,brick_edge_lines,red band with white edge lines
+det:YhbFR2OSsWzKTcqs65rkQQ:0.220:0.581,gainesville-fl:36234,gainesville-fl,YhbFR2OSsWzKTcqs65rkQQ,0.2196,0.5813,sheet_0032.jpg,7,crosswalk,brick_edge_lines,brick band with white edge lines
+det:ICUoYVV_dXvc9W3ge2PnWg:0.539:0.577,gainesville-fl:36099,gainesville-fl,ICUoYVV_dXvc9W3ge2PnWg,0.5392,0.5769,sheet_0032.jpg,8,crosswalk,brick_edge_lines,stamped band with white edge lines
+det:6AB9y0q3RuO-g-aFmlxl8A:0.977:0.655,cuenca:5085,cuenca,6AB9y0q3RuO-g-aFmlxl8A,0.9772,0.6552,sheet_0032.jpg,9,crosswalk,paint,zebra bars on cobblestone
+det:WpVVo8tmD6IEHeJ7oD9l7Q:0.032:0.579,chicago-il:104434,chicago-il,WpVVo8tmD6IEHeJ7oD9l7Q,0.0317,0.5787,sheet_0032.jpg,10,crosswalk,brick,brick band across road
+det:U07V3iTnmNxwiNOKgLf_Rw:0.383:0.555,chicago-il:183901,chicago-il,U07V3iTnmNxwiNOKgLf_Rw,0.3829,0.5551,sheet_0032.jpg,11,crosswalk,brick_edge_lines,reddish band with white lines
+det:E9UTdOSBtQXwRz52oRkyQg:0.547:0.629,cuenca:15733,cuenca,E9UTdOSBtQXwRz52oRkyQg,0.5466,0.6295,sheet_0032.jpg,12,not_crosswalk,none,stamped paver road surface
+det:rQcwju2suHY0kGpOPHtoEg:0.674:0.633,cuenca:2859,cuenca,rQcwju2suHY0kGpOPHtoEg,0.6739,0.6331,sheet_0033.jpg,1,not_crosswalk,none,plain cobblestone road
+det:ofOYAgcZcrQTMfGj-Wp9aw:0.784:0.608,chicago-il:160562,chicago-il,ofOYAgcZcrQTMfGj-Wp9aw,0.7836,0.6083,sheet_0033.jpg,2,crosswalk,brick_edge_lines,brick band with white edge lines
+det:OcRCIGLbuIavRVYPg-4tGA:0.204:0.622,cuenca:6282,cuenca,OcRCIGLbuIavRVYPg-4tGA,0.2037,0.6221,sheet_0033.jpg,3,crosswalk,paint,faded zebra on pavers
+det:qesEAs9tuEp42L-KS31Bdg:0.530:0.667,cuenca:343,cuenca,qesEAs9tuEp42L-KS31Bdg,0.53,0.6671,sheet_0033.jpg,4,unsure,unclear,decorative diamond pattern; faint white marks
+det:4d2HYPlxjJx_F77TQbIfWg:0.729:0.581,chicago-il:183716,chicago-il,4d2HYPlxjJx_F77TQbIfWg,0.7292,0.5806,sheet_0033.jpg,5,crosswalk,brick_edge_lines,brick band with white edge lines
+det:6SNNQI6r0gGAHMXo46JoKQ:0.989:0.568,chicago-il:32126,chicago-il,6SNNQI6r0gGAHMXo46JoKQ,0.9886,0.5681,sheet_0033.jpg,6,crosswalk,brick_edge_lines,brick band with white edge lines
+det:cKP5Bv5Y4G4rZYtXwIW0mg:0.575:0.567,chicago-il:113316,chicago-il,cKP5Bv5Y4G4rZYtXwIW0mg,0.5747,0.5674,sheet_0033.jpg,7,crosswalk,brick_edge_lines,brick band with white edge lines
+det:G16UCCh5cY-T258bMWlCQw:0.641:0.564,columbus-oh:38730,columbus-oh,G16UCCh5cY-T258bMWlCQw,0.6412,0.5635,sheet_0033.jpg,8,crosswalk,brick,brick band across road
+det:zCiJUEZUh_nxNXMX6XxuqA:0.476:0.761,cuenca:19,cuenca,zCiJUEZUh_nxNXMX6XxuqA,0.4764,0.7613,sheet_0033.jpg,9,not_crosswalk,none,plain cobblestone close-up
+det:u93u0zZDPCOKYv9ejMW6QQ:0.963:0.648,knox-oh:36799,knox-oh,u93u0zZDPCOKYv9ejMW6QQ,0.9634,0.6481,sheet_0033.jpg,10,crosswalk,brick_edge_lines,brick band with white edge lines
+det:UoP2ngZji1Teh1wBK557uQ:0.199:0.655,cuenca:10235,cuenca,UoP2ngZji1Teh1wBK557uQ,0.1993,0.655,sheet_0033.jpg,11,not_crosswalk,none,plain cobblestone road
+det:KPvdcMhgxXLZACkD5_O5Ng:0.540:0.599,cuenca:3342,cuenca,KPvdcMhgxXLZACkD5_O5Ng,0.5401,0.5992,sheet_0033.jpg,12,crosswalk,paint,zebra bars on asphalt
+det:Kni6UAl0J5-5OuxYDcaEHw:0.049:0.576,chicago-il:39429,chicago-il,Kni6UAl0J5-5OuxYDcaEHw,0.0488,0.5757,sheet_0034.jpg,1,crosswalk,brick_edge_lines,reddish band with white lines
+det:LSP1SnvdfKu3kJUuEoyjDw:0.584:0.566,chicago-il:31578,chicago-il,LSP1SnvdfKu3kJUuEoyjDw,0.5838,0.5655,sheet_0034.jpg,2,not_crosswalk,none,plain shaded asphalt
+det:ugWasxsKEblmLQFSt5BKrA:0.735:0.706,cuenca:14871,cuenca,ugWasxsKEblmLQFSt5BKrA,0.7348,0.7057,sheet_0034.jpg,3,not_crosswalk,none,paver surface near curb
+det:mzTxf1tRuEzelTDelcdQ2A:0.475:0.593,chicago-il:32148,chicago-il,mzTxf1tRuEzelTDelcdQ2A,0.4749,0.593,sheet_0034.jpg,4,crosswalk,brick_edge_lines,brick band with white edge lines
+det:EcQ6gr-wS-fVQKnyR8xGkg:0.906:0.702,cuenca:14154,cuenca,EcQ6gr-wS-fVQKnyR8xGkg,0.9058,0.7015,sheet_0034.jpg,5,unsure,unclear,decorative brick strips in pavers
+det:MZjwpwoKnkIK2myNtpfYPQ:0.136:0.689,chicago-il:175938,chicago-il,MZjwpwoKnkIK2myNtpfYPQ,0.1357,0.6886,sheet_0034.jpg,6,crosswalk,brick_edge_lines,brick band with white edge lines
+det:0S5fMBTVlgQ8wu0lyf3kkg:0.062:0.709,cuenca:4689,cuenca,0S5fMBTVlgQ8wu0lyf3kkg,0.062,0.7085,sheet_0034.jpg,7,unsure,unclear,faded white patches on pavers
+det:buqM-KsSLmWd1Bl9v55CdQ:0.522:0.559,chicago-il:67463,chicago-il,buqM-KsSLmWd1Bl9v55CdQ,0.5219,0.5591,sheet_0034.jpg,8,crosswalk,brick_edge_lines,brick band with white lines
+det:wXavZgYhkoQoREXnWDldhQ:0.559:0.613,cuenca:15107,cuenca,wXavZgYhkoQoREXnWDldhQ,0.5586,0.6134,sheet_0034.jpg,9,not_crosswalk,none,cobblestone bus lane; no crossing
+det:8eJ8ifzLlmQXkXn1XfyPhg:0.401:0.642,chicago-il:39135,chicago-il,8eJ8ifzLlmQXkXn1XfyPhg,0.4014,0.642,sheet_0034.jpg,10,crosswalk,brick_edge_lines,brick band with white edge lines
+det:Or9IDcjXYlTvde-8KQ-gzg:0.198:0.558,chicago-il:39407,chicago-il,Or9IDcjXYlTvde-8KQ-gzg,0.1976,0.5579,sheet_0034.jpg,11,crosswalk,paint,two white transverse lines
+det:ZSUPjxN5asyzjYQnvIs48w:0.544:0.614,cuenca:12226,cuenca,ZSUPjxN5asyzjYQnvIs48w,0.5437,0.614,sheet_0034.jpg,12,crosswalk,paint,zebra bars on cobblestone
+det:lspX2CO3fxu2W0cqlUgcWg:0.824:0.595,chicago-il:189654,chicago-il,lspX2CO3fxu2W0cqlUgcWg,0.8239,0.5951,sheet_0035.jpg,1,crosswalk,brick_edge_lines,brick band with white edge lines
+det:PnMsX3SSPoAguG26aLuVFA:0.213:0.570,chicago-il:60979,chicago-il,PnMsX3SSPoAguG26aLuVFA,0.2133,0.5695,sheet_0035.jpg,2,crosswalk,brick_edge_lines,brick band with white edge lines
+det:N3cYo6WbBdUruIq8BCkOSQ:0.701:0.566,chicago-il:125651,chicago-il,N3cYo6WbBdUruIq8BCkOSQ,0.7007,0.5658,sheet_0035.jpg,3,crosswalk,brick,red band across road
+det:tpe3QfT5r0uH2_-RJzxslQ:0.689:0.595,chicago-il:126998,chicago-il,tpe3QfT5r0uH2_-RJzxslQ,0.6887,0.5945,sheet_0035.jpg,4,crosswalk,brick_edge_lines,brick band with white edge lines
+det:I2sqrAOdWacJYugiSPoGew:0.251:0.814,cuenca:15836,cuenca,I2sqrAOdWacJYugiSPoGew,0.2507,0.8142,sheet_0035.jpg,5,unsure,unclear,blurry faded paint on cobblestone
+det:ZAUOeCwQMF2eSfjR5Atbvw:0.007:0.622,chicago-il:82871,chicago-il,ZAUOeCwQMF2eSfjR5Atbvw,0.0066,0.6218,sheet_0035.jpg,6,crosswalk,brick_edge_lines,brick band with white edge lines
+det:WeytMNwPYWv2rp92aSrOaA:0.492:0.580,cuenca:12247,cuenca,WeytMNwPYWv2rp92aSrOaA,0.4917,0.5802,sheet_0035.jpg,7,crosswalk,paint,zebra bars on cobblestone
+det:sVYgiAuqGqJhkmNflAf18w:0.967:0.666,cuenca:7458,cuenca,sVYgiAuqGqJhkmNflAf18w,0.9672,0.6657,sheet_0035.jpg,8,crosswalk,paint,zebra bars on pavers
+det:tpe3QfT5r0uH2_-RJzxslQ:0.017:0.667,chicago-il:126993,chicago-il,tpe3QfT5r0uH2_-RJzxslQ,0.0173,0.667,sheet_0035.jpg,9,crosswalk,brick_edge_lines,brick band with white edge lines
+det:kgNKm_MP70ze5F3uKfVLJA:0.084:0.589,niagara-falls-ny:26318,niagara-falls-ny,kgNKm_MP70ze5F3uKfVLJA,0.0842,0.589,sheet_0035.jpg,10,crosswalk,brick_edge_lines,stamped band with white lines
+det:kQSph3WGgg2LYOiR4_8FhA:0.732:0.609,knox-oh:29502,knox-oh,kQSph3WGgg2LYOiR4_8FhA,0.7323,0.609,sheet_0035.jpg,11,unsure,unclear,brick strip beside stop line and curb
+det:my7WBo4nGFw4--lsd9i2YA:0.981:0.568,cuenca:8677,cuenca,my7WBo4nGFw4--lsd9i2YA,0.9806,0.5679,sheet_0035.jpg,12,crosswalk,paint,faded zebra on cobblestone
+det:1l75NVlGu5ew4BTkMeTH-Q:0.043:0.571,chicago-il:56808,chicago-il,1l75NVlGu5ew4BTkMeTH-Q,0.0426,0.5713,sheet_0036.jpg,1,crosswalk,brick_edge_lines,brick band with white edge lines
+det:gP5UyeBy0TS6_g1oP13New:0.334:0.610,cuenca:5362,cuenca,gP5UyeBy0TS6_g1oP13New,0.3335,0.6097,sheet_0036.jpg,2,unsure,unclear,decorative diamond pattern on cobblestone
+det:opj6ZjZprXWh82KirVq0EA:0.024:0.566,pittsburgh-pa:19687,pittsburgh-pa,opj6ZjZprXWh82KirVq0EA,0.024,0.5658,sheet_0036.jpg,3,crosswalk,paint,white transverse lines on concrete
+det:zCV_zBBj-R-wsZVNmobdJg:0.310:0.694,cuenca:567,cuenca,zCV_zBBj-R-wsZVNmobdJg,0.31,0.6941,sheet_0036.jpg,4,crosswalk,paint,zebra bars on cobblestone
+det:N3aRnEl9sk61aXs63g8Inw:0.883:0.592,cuenca:6917,cuenca,N3aRnEl9sk61aXs63g8Inw,0.8833,0.5919,sheet_0036.jpg,5,crosswalk,paint,faded zebra on cobblestone
+det:M5Hs4osKQ6U1qg9YQ1Aw-Q:0.096:0.723,chicago-il:60965,chicago-il,M5Hs4osKQ6U1qg9YQ1Aw-Q,0.0962,0.7231,sheet_0036.jpg,6,crosswalk,brick_edge_lines,herringbone brick band with white edge
+det:Gn-jKgaJ4jY6VX_8xeZ2zg:0.089:0.689,cuenca:7694,cuenca,Gn-jKgaJ4jY6VX_8xeZ2zg,0.089,0.6889,sheet_0036.jpg,7,unsure,unclear,blurry faded marks on cobblestone
+det:4V8_LvrNwXtwHPxKOHx6Rg:0.018:0.554,santiago-chile:25118,santiago-chile,4V8_LvrNwXtwHPxKOHx6Rg,0.0185,0.5537,sheet_0036.jpg,8,crosswalk,paint,zebra bars on cobblestone
+det:V8CXHmWwMuRNFZG6ixgqzA:0.010:0.553,cuenca:7493,cuenca,V8CXHmWwMuRNFZG6ixgqzA,0.0098,0.5533,sheet_0036.jpg,9,crosswalk,paint,zebra bars on pavers
+det:QvAXHk1zjFm4SYMfPaTftg:0.011:0.604,chicago-il:64377,chicago-il,QvAXHk1zjFm4SYMfPaTftg,0.0106,0.604,sheet_0036.jpg,10,crosswalk,brick_edge_lines,brick band with white edge lines
+det:V02i-GmKnmswoaVgqRw53Q:0.482:0.557,chicago-il:127015,chicago-il,V02i-GmKnmswoaVgqRw53Q,0.4824,0.557,sheet_0036.jpg,11,crosswalk,brick_edge_lines,brick band with white edge lines
+det:jJQumbdVfrPnoZ-Kk7NIoQ:0.499:0.625,cuenca:9111,cuenca,jJQumbdVfrPnoZ-Kk7NIoQ,0.4986,0.6253,sheet_0036.jpg,12,crosswalk,paint,zebra bars on pavers
+det:DRyCDdNv06VifwmS-pTmHg:0.533:0.594,cuenca:14210,cuenca,DRyCDdNv06VifwmS-pTmHg,0.5331,0.5939,sheet_0037.jpg,1,not_crosswalk,none,plain cobblestone road
+det:mZqwg3RG-_ZDmLf0GprIQw:0.924:0.587,danville-il:33230,danville-il,mZqwg3RG-_ZDmLf0GprIQw,0.9241,0.5874,sheet_0037.jpg,2,crosswalk,brick_edge_lines,brick band with white edge lines
+det:bK27JEhM77IDxytGDI8L-Q:0.468:0.565,chicago-il:132984,chicago-il,bK27JEhM77IDxytGDI8L-Q,0.468,0.5648,sheet_0037.jpg,3,crosswalk,brick_edge_lines,brick band with white edge lines
+det:dHh5Z-o69e4HbJvTKXf3Yg:0.028:0.555,pittsburgh-pa:22975,pittsburgh-pa,dHh5Z-o69e4HbJvTKXf3Yg,0.0281,0.5549,sheet_0037.jpg,4,crosswalk,brick_edge_lines,brick band with white edge lines
+det:3sJuT9KAmpG3WLiEMIw8EA:0.886:0.706,cuenca:4648,cuenca,3sJuT9KAmpG3WLiEMIw8EA,0.8863,0.7057,sheet_0037.jpg,5,unsure,unclear,curved lane line and faded marks
+det:Li9m9it9AuYXsbThd4hoqA:0.491:0.585,chicago-il:32496,chicago-il,Li9m9it9AuYXsbThd4hoqA,0.4911,0.5848,sheet_0037.jpg,6,not_crosswalk,none,plain asphalt road
+det:hoO8bfB38i1LgjjWNIMYSA:0.513:0.593,cuenca:3996,cuenca,hoO8bfB38i1LgjjWNIMYSA,0.5128,0.5934,sheet_0037.jpg,7,not_crosswalk,none,cobblestone fan pattern only
+det:e_r6vuGICYpcM1rCOYX_sg:0.508:0.653,cuenca:15561,cuenca,e_r6vuGICYpcM1rCOYX_sg,0.508,0.6531,sheet_0037.jpg,8,not_crosswalk,none,plain cobblestone road
+det:wnmaShyMYwZ4T17rTE2T8Q:0.055:0.570,gainesville-fl:36051,gainesville-fl,wnmaShyMYwZ4T17rTE2T8Q,0.0546,0.5696,sheet_0037.jpg,9,unsure,unclear,faint white lines; lower part blurred
+det:QaiyHF_GjE1lE7mdVZiQMg:0.441:0.583,chicago-il:203228,chicago-il,QaiyHF_GjE1lE7mdVZiQMg,0.4409,0.5831,sheet_0037.jpg,10,crosswalk,paint,zebra bars on asphalt
+det:gkl1Xpk8F85JHHcGZAWjMQ:0.467:0.589,columbus-oh:41441,columbus-oh,gkl1Xpk8F85JHHcGZAWjMQ,0.4666,0.5887,sheet_0037.jpg,11,crosswalk,brick,brick band across road
+det:QKSMPYlnLF68zvZP13enuA:0.153:0.563,chicago-il:39443,chicago-il,QKSMPYlnLF68zvZP13enuA,0.1532,0.5626,sheet_0037.jpg,12,crosswalk,brick_edge_lines,brick band with white edge lines
+det:KFxWow-HMYSvV13_xxlrIQ:0.215:0.608,cuenca:7555,cuenca,KFxWow-HMYSvV13_xxlrIQ,0.2149,0.6079,sheet_0038.jpg,1,unsure,unclear,decorative diamond pattern on cobblestone
+det:xNon984W-emCxDHthi1Sqw:0.484:0.574,chicago-il:64471,chicago-il,xNon984W-emCxDHthi1Sqw,0.4845,0.5744,sheet_0038.jpg,2,crosswalk,paint,two white transverse lines
+det:c4TBaBS4dLMheGn4J3Z8Lw:0.732:0.631,chicago-il:122228,chicago-il,c4TBaBS4dLMheGn4J3Z8Lw,0.7322,0.631,sheet_0038.jpg,3,crosswalk,brick_edge_lines,brick band with white edge lines
+det:vNGuMk58NKtw4wNcNj8NrA:0.479:0.557,gainesville-fl:30273,gainesville-fl,vNGuMk58NKtw4wNcNj8NrA,0.4786,0.5566,sheet_0038.jpg,4,crosswalk,brick_edge_lines,brick band with white edge lines
+det:eGXbQD7Bay5-lvSG9s1_lQ:0.643:0.621,gainesville-fl:30266,gainesville-fl,eGXbQD7Bay5-lvSG9s1_lQ,0.6434,0.6205,sheet_0038.jpg,5,crosswalk,brick_edge_lines,brick band with white edge lines
+det:Li9m9it9AuYXsbThd4hoqA:0.020:0.602,chicago-il:32497,chicago-il,Li9m9it9AuYXsbThd4hoqA,0.0198,0.6019,sheet_0038.jpg,6,unsure,unclear,faint lines on concrete intersection
+det:6BHr4l3E09oUrhOn3szAmQ:0.037:0.583,chicago-il:31908,chicago-il,6BHr4l3E09oUrhOn3szAmQ,0.0366,0.5834,sheet_0038.jpg,7,crosswalk,brick_edge_lines,brick band with white edge lines
+det:fZtUkZ2OmnUsvroBF9kuDQ:0.233:0.574,chicago-il:39418,chicago-il,fZtUkZ2OmnUsvroBF9kuDQ,0.2327,0.5743,sheet_0038.jpg,8,crosswalk,brick_edge_lines,brick band with white edge lines
+det:yN1Q6LE8KCGzvDWThVQzug:0.596:0.629,auckland:4148,auckland,yN1Q6LE8KCGzvDWThVQzug,0.5955,0.6287,sheet_0038.jpg,9,crosswalk,paint,zebra crossing through median refuge
+det:kYrWZzd_m6b5iUNBGu0jaA:0.518:0.654,cuenca:12087,cuenca,kYrWZzd_m6b5iUNBGu0jaA,0.5182,0.6544,sheet_0038.jpg,10,crosswalk,paint,zebra bars on pavers
+det:Li9m9it9AuYXsbThd4hoqA:0.251:0.575,chicago-il:32498,chicago-il,Li9m9it9AuYXsbThd4hoqA,0.2505,0.5753,sheet_0038.jpg,11,not_crosswalk,none,plain asphalt mid-road
+det:Kni6UAl0J5-5OuxYDcaEHw:0.440:0.586,chicago-il:39434,chicago-il,Kni6UAl0J5-5OuxYDcaEHw,0.4399,0.5862,sheet_0038.jpg,12,crosswalk,brick_edge_lines,brick band with white edge lines
+det:qdMBnoNXQyrhcmJrtFdOQA:0.985:0.627,columbus-oh:38302,columbus-oh,qdMBnoNXQyrhcmJrtFdOQA,0.9853,0.6266,sheet_0039.jpg,1,not_crosswalk,none,decorative paver plaza surface
+det:8HAdsNh2TAtcXCmGDqQg6g:0.490:0.578,chicago-il:205043,chicago-il,8HAdsNh2TAtcXCmGDqQg6g,0.4901,0.5781,sheet_0039.jpg,2,crosswalk,paint,two white transverse lines
+det:Yw3TDwsSVQJ4KOkIbk-t2g:0.553:0.645,chicago-il:141261,chicago-il,Yw3TDwsSVQJ4KOkIbk-t2g,0.5529,0.6453,sheet_0039.jpg,3,crosswalk,brick_edge_lines,brick band with white edge lines
+det:4n9q9z7sVfrNtxUm09vvzQ:0.518:0.649,cuenca:4817,cuenca,4n9q9z7sVfrNtxUm09vvzQ,0.5179,0.6487,sheet_0039.jpg,4,crosswalk,paint,faded zebra on cobblestone
+det:tKUeNqsb-b9jxLBXwN4RyA:0.369:0.565,chicago-il:191994,chicago-il,tKUeNqsb-b9jxLBXwN4RyA,0.3692,0.5648,sheet_0039.jpg,5,crosswalk,paint,zebra bars on asphalt
+det:zUqjOOvYVtflVlcBGvlcrA:0.313:0.570,chicago-il:202936,chicago-il,zUqjOOvYVtflVlcBGvlcrA,0.3134,0.5695,sheet_0039.jpg,6,crosswalk,brick_edge_lines,brick band with white edge lines
+det:cBB-nJGkV19_0kVJIqMP_g:0.552:0.618,pittsburgh-pa:19767,pittsburgh-pa,cBB-nJGkV19_0kVJIqMP_g,0.5519,0.618,sheet_0039.jpg,7,crosswalk,brick_edge_lines,stamped band with white edge lines
+det:7JxITLn6KJJ2biJ4JgyREw:0.733:0.602,chicago-il:67394,chicago-il,7JxITLn6KJJ2biJ4JgyREw,0.7329,0.6017,sheet_0039.jpg,8,crosswalk,brick_edge_lines,brick band with white edge lines
+det:zrFEWvYES23jq0hCwb30vQ:0.236:0.785,knox-oh:26091,knox-oh,zrFEWvYES23jq0hCwb30vQ,0.2363,0.7849,sheet_0039.jpg,9,crosswalk,paint,two white lines on brick road
+det:12MKDwS_SrQGIG46ior44w:0.447:0.589,chicago-il:201141,chicago-il,12MKDwS_SrQGIG46ior44w,0.4468,0.5891,sheet_0039.jpg,10,crosswalk,brick_edge_lines,brick band with faint white lines
+det:Jhwkk08oFAgaVm5puGe2ng:0.117:0.588,gainesville-fl:37535,gainesville-fl,Jhwkk08oFAgaVm5puGe2ng,0.1165,0.5876,sheet_0039.jpg,11,crosswalk,brick_edge_lines,brick band with white edge lines
+det:mzTxf1tRuEzelTDelcdQ2A:0.779:0.607,chicago-il:60974,chicago-il,mzTxf1tRuEzelTDelcdQ2A,0.779,0.6074,sheet_0039.jpg,12,crosswalk,brick_edge_lines,brick band with white edge lines
+det:Ahwj6JeaaQnbPbnPvP8ffQ:0.530:0.604,cuenca:15519,cuenca,Ahwj6JeaaQnbPbnPvP8ffQ,0.5298,0.6038,sheet_0040.jpg,1,not_crosswalk,none,plain cobblestone road
+det:DQ33zfNJbu0WErJDyh2dVQ:0.444:0.682,chicago-il:59607,chicago-il,DQ33zfNJbu0WErJDyh2dVQ,0.444,0.6825,sheet_0040.jpg,2,crosswalk,brick_edge_lines,brick band with white edge lines
+det:bEHdJWG3bEVkwqeiZq2cgw:0.058:0.591,maywood-nj:26326,maywood-nj,bEHdJWG3bEVkwqeiZq2cgw,0.0576,0.5913,sheet_0040.jpg,3,crosswalk,brick_edge_lines,brick band with white edge lines
+det:klJyWw2wJFuW3-b7eNEo1Q:0.462:0.619,pittsburgh-pa:22015,pittsburgh-pa,klJyWw2wJFuW3-b7eNEo1Q,0.4615,0.6188,sheet_0040.jpg,4,crosswalk,brick_edge_lines,brick band with white edge lines
+det:_dBB29JurNMekw_2xX7Dhw:0.131:0.556,chicago-il:202348,chicago-il,_dBB29JurNMekw_2xX7Dhw,0.1308,0.5562,sheet_0040.jpg,5,unsure,unclear,distant faint band; hard to see
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.788:0.615,cuenca:8091,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.7885,0.6149,sheet_0040.jpg,6,crosswalk,paint,zebra bars on cobblestone
+det:IMG-ReT_qwT5IKKBWp_-TQ:0.986:0.590,cuenca:14360,cuenca,IMG-ReT_qwT5IKKBWp_-TQ,0.986,0.5903,sheet_0040.jpg,7,not_crosswalk,none,plain cobblestone road
+det:HQuu3GwLyxurNWNGqK8MDw:0.488:0.612,cuenca:14252,cuenca,HQuu3GwLyxurNWNGqK8MDw,0.4882,0.6122,sheet_0040.jpg,8,unsure,unclear,decorative diamond pattern on pavers
+det:kZtsbQ5igoIai4I7ecvJLg:0.016:0.562,chicago-il:24961,chicago-il,kZtsbQ5igoIai4I7ecvJLg,0.0164,0.5621,sheet_0040.jpg,9,crosswalk,brick_edge_lines,brick band with faint white lines
+det:F03-4GzMlvNz30XRhDhoIA:0.211:0.586,gainesville-fl:29813,gainesville-fl,F03-4GzMlvNz30XRhDhoIA,0.2114,0.5863,sheet_0040.jpg,10,crosswalk,brick_edge_lines,brick band with white edge lines
+det:p6aQDmZLo-OdcG2NvdA0Qg:0.594:0.763,chicago-il:187095,chicago-il,p6aQDmZLo-OdcG2NvdA0Qg,0.5937,0.7627,sheet_0040.jpg,11,unsure,unclear,brick close-up with double white line
+det:4n9q9z7sVfrNtxUm09vvzQ:0.990:0.578,cuenca:6899,cuenca,4n9q9z7sVfrNtxUm09vvzQ,0.9899,0.5778,sheet_0040.jpg,12,unsure,unclear,small white marks near motorbike
+det:UNZJYe878DaZCzmL1SkDtg:0.981:0.582,cuenca:8720,cuenca,UNZJYe878DaZCzmL1SkDtg,0.9811,0.5816,sheet_0041.jpg,1,crosswalk,paint,zebra bars on cobblestone under marker
+det:zCV_zBBj-R-wsZVNmobdJg:0.731:0.618,cuenca:573,cuenca,zCV_zBBj-R-wsZVNmobdJg,0.7308,0.6178,sheet_0041.jpg,2,crosswalk,paint,worn white bars on brick road
+det:WpVVo8tmD6IEHeJ7oD9l7Q:0.755:0.622,chicago-il:104431,chicago-il,WpVVo8tmD6IEHeJ7oD9l7Q,0.7551,0.6222,sheet_0041.jpg,3,crosswalk,brick_edge_lines,brick band between white lines
+det:my7WBo4nGFw4--lsd9i2YA:0.528:0.606,cuenca:8653,cuenca,my7WBo4nGFw4--lsd9i2YA,0.5276,0.6062,sheet_0041.jpg,4,crosswalk,paint,faded white bars across cobblestone road
+det:-faQz9hMWoSboSHMHpVhkA:0.524:0.643,columbus-oh:41586,columbus-oh,-faQz9hMWoSboSHMHpVhkA,0.524,0.6431,sheet_0041.jpg,5,crosswalk,brick,patterned brick band across roadway
+det:af94A4ZF3ha4DU00D7R8Dw:0.699:0.557,cuenca:15264,cuenca,af94A4ZF3ha4DU00D7R8Dw,0.699,0.5572,sheet_0041.jpg,6,not_crosswalk,none,plain cobblestone street
+det:n66Oe8kH6cz_MnIvWH6V_w:0.255:0.686,chicago-il:190699,chicago-il,n66Oe8kH6cz_MnIvWH6V_w,0.2546,0.686,sheet_0041.jpg,7,crosswalk,brick_edge_lines,herringbone brick band with white edge line
+det:zUqjOOvYVtflVlcBGvlcrA:0.037:0.641,chicago-il:187093,chicago-il,zUqjOOvYVtflVlcBGvlcrA,0.0372,0.641,sheet_0041.jpg,8,crosswalk,brick_edge_lines,red band between white lines
+det:CIZ5Q-aHA79hXxxjqZuyng:0.251:0.585,chicago-il:39761,chicago-il,CIZ5Q-aHA79hXxxjqZuyng,0.2514,0.5854,sheet_0041.jpg,9,crosswalk,brick_edge_lines,red band between white lines
+det:71MLkxgl1iaI0kPit2WXIg:0.294:0.551,columbus-oh:42389,columbus-oh,71MLkxgl1iaI0kPit2WXIg,0.294,0.5514,sheet_0041.jpg,10,not_crosswalk,none,plain concrete intersection near car
+det:Kni6UAl0J5-5OuxYDcaEHw:0.039:0.579,chicago-il:39143,chicago-il,Kni6UAl0J5-5OuxYDcaEHw,0.0391,0.579,sheet_0041.jpg,11,crosswalk,paint,two parallel white transverse lines
+det:hokQke6DfiCS1ToBOywsgw:0.060:0.630,chicago-il:32117,chicago-il,hokQke6DfiCS1ToBOywsgw,0.0599,0.6301,sheet_0041.jpg,12,crosswalk,brick_edge_lines,herringbone band between white lines
+det:S5TNGcrIgiTo7JgYefnN2Q:0.438:0.581,oradell-nj:7368,oradell-nj,S5TNGcrIgiTo7JgYefnN2Q,0.4381,0.5811,sheet_0042.jpg,1,crosswalk,brick_edge_lines,brick band between white lines
+det:4d2HYPlxjJx_F77TQbIfWg:0.039:0.574,chicago-il:183718,chicago-il,4d2HYPlxjJx_F77TQbIfWg,0.0387,0.574,sheet_0042.jpg,2,crosswalk,brick_edge_lines,brick band between white lines
+det:c4TBaBS4dLMheGn4J3Z8Lw:0.473:0.593,chicago-il:122225,chicago-il,c4TBaBS4dLMheGn4J3Z8Lw,0.473,0.5927,sheet_0042.jpg,3,crosswalk,brick,brick band across road between bulb-outs
+det:JvRiQA-9kUdg7wsA7O_lxg:0.328:0.559,chicago-il:126054,chicago-il,JvRiQA-9kUdg7wsA7O_lxg,0.3284,0.5591,sheet_0042.jpg,4,crosswalk,brick,coloured band across road
+det:buqM-KsSLmWd1Bl9v55CdQ:0.070:0.620,chicago-il:67453,chicago-il,buqM-KsSLmWd1Bl9v55CdQ,0.07,0.6201,sheet_0042.jpg,5,crosswalk,brick_edge_lines,herringbone band with white edges
+det:1y8SzUxtW8-E5uWZsPSZAw:0.843:0.579,chicago-il:31895,chicago-il,1y8SzUxtW8-E5uWZsPSZAw,0.8433,0.5793,sheet_0042.jpg,6,crosswalk,paint,two parallel white transverse lines
+det:fqq81W89PbdyrCKJrT19hA:0.913:0.695,cuenca:12941,cuenca,fqq81W89PbdyrCKJrT19hA,0.9131,0.6952,sheet_0042.jpg,7,crosswalk,paint,zebra bars on cobblestone
+det:BWJ_HJDIdktwyIPzZGsm9g:0.003:0.600,cuenca:12231,cuenca,BWJ_HJDIdktwyIPzZGsm9g,0.0029,0.5996,sheet_0042.jpg,8,crosswalk,paint,zebra bars on brick road
+det:cBB-nJGkV19_0kVJIqMP_g:0.645:0.551,pittsburgh-pa:19770,pittsburgh-pa,cBB-nJGkV19_0kVJIqMP_g,0.6447,0.551,sheet_0042.jpg,9,crosswalk,paint,white crossing lines on coloured intersection
+det:xzbp7ZwZ-aAixA3ZgN8OFQ:0.004:0.581,cuenca:13202,cuenca,xzbp7ZwZ-aAixA3ZgN8OFQ,0.0045,0.5814,sheet_0042.jpg,10,crosswalk,paint,faded zebra on cobblestone
+det:0-IjL1RwFob4EwkGn3Hoog:0.653:0.644,gainesville-fl:30107,gainesville-fl,0-IjL1RwFob4EwkGn3Hoog,0.6533,0.6438,sheet_0042.jpg,11,crosswalk,brick_edge_lines,brick band with white edge
+det:zG8kMM449e2Z9t-UrxTq4A:0.065:0.575,gainesville-fl:35011,gainesville-fl,zG8kMM449e2Z9t-UrxTq4A,0.0652,0.5745,sheet_0042.jpg,12,crosswalk,brick_edge_lines,white bars with brick infill
+det:2Tw9MxFo2rMVsoq2WpBvmA:0.731:0.598,chicago-il:109998,chicago-il,2Tw9MxFo2rMVsoq2WpBvmA,0.7306,0.5981,sheet_0043.jpg,1,crosswalk,brick_edge_lines,brick band with faint white line
+det:Y73VeB8kXbqdbZoNETBCyg:0.501:0.589,chicago-il:50444,chicago-il,Y73VeB8kXbqdbZoNETBCyg,0.5009,0.5894,sheet_0043.jpg,2,crosswalk,paint,two parallel white transverse lines
+det:fZtUkZ2OmnUsvroBF9kuDQ:0.024:0.575,chicago-il:39421,chicago-il,fZtUkZ2OmnUsvroBF9kuDQ,0.024,0.5751,sheet_0043.jpg,3,crosswalk,brick_edge_lines,red band between white lines
+det:wytjzc00vnsEbGFusYLt-A:0.628:0.606,gainesville-fl:34802,gainesville-fl,wytjzc00vnsEbGFusYLt-A,0.6281,0.6064,sheet_0043.jpg,4,crosswalk,brick,herringbone band across road to ramp
+det:Kslbulpu5VHB1zrqQP24_g:0.005:0.591,cuenca:13863,cuenca,Kslbulpu5VHB1zrqQP24_g,0.0053,0.5913,sheet_0043.jpg,5,not_crosswalk,none,plain cobblestone road
+det:F03-4GzMlvNz30XRhDhoIA:0.792:0.605,gainesville-fl:26701,gainesville-fl,F03-4GzMlvNz30XRhDhoIA,0.7924,0.6047,sheet_0043.jpg,6,crosswalk,brick_edge_lines,brick band between white lines
+det:LbB5W6Gl2rZRf6IQnEbEEg:0.528:0.635,gainesville-fl:27413,gainesville-fl,LbB5W6Gl2rZRf6IQnEbEEg,0.5281,0.6346,sheet_0043.jpg,7,crosswalk,brick_edge_lines,brick band with white top line
+det:4n9q9z7sVfrNtxUm09vvzQ:0.518:0.632,cuenca:7194,cuenca,4n9q9z7sVfrNtxUm09vvzQ,0.5182,0.6318,sheet_0043.jpg,8,crosswalk,paint,worn white bars on cobblestone
+det:zCiJUEZUh_nxNXMX6XxuqA:0.203:0.623,cuenca:16,cuenca,zCiJUEZUh_nxNXMX6XxuqA,0.2031,0.6232,sheet_0043.jpg,9,crosswalk,paint,zebra bars on cobblestone
+det:_g_LoxZ2fONSFf3nMzMieQ:0.233:0.588,gainesville-fl:35254,gainesville-fl,_g_LoxZ2fONSFf3nMzMieQ,0.2326,0.588,sheet_0043.jpg,10,crosswalk,paint,two white lines on brick road
+det:CwRXDXc6FcHkAWanr8K1ZQ:0.672:0.629,pittsburgh-pa:26619,pittsburgh-pa,CwRXDXc6FcHkAWanr8K1ZQ,0.6723,0.6293,sheet_0043.jpg,11,crosswalk,brick_edge_lines,brick band between white lines
+det:S54QIuBoHvEay2DbUxunEQ:0.204:0.589,chicago-il:206235,chicago-il,S54QIuBoHvEay2DbUxunEQ,0.204,0.5889,sheet_0043.jpg,12,crosswalk,brick_edge_lines,brick band between white lines
+det:Ywswu4GmYOTk68Qtuo-kMw:0.965:0.646,cuenca:8696,cuenca,Ywswu4GmYOTk68Qtuo-kMw,0.9654,0.6465,sheet_0044.jpg,1,crosswalk,paint,worn zebra bars on cobblestone
+det:OHKVi8HP8-0gZZqznObyaw:0.051:0.585,columbus-oh:41421,columbus-oh,OHKVi8HP8-0gZZqznObyaw,0.0511,0.5851,sheet_0044.jpg,2,crosswalk,brick,wide brick band across intersection
+det:JvRiQA-9kUdg7wsA7O_lxg:0.527:0.666,chicago-il:126049,chicago-il,JvRiQA-9kUdg7wsA7O_lxg,0.5272,0.6656,sheet_0044.jpg,3,crosswalk,brick_edge_lines,brick band between white lines
+det:EIORdUfH1FnIhzVPvZQF3w:0.042:0.622,tucson-az:28540,tucson-az,EIORdUfH1FnIhzVPvZQF3w,0.0416,0.622,sheet_0044.jpg,4,crosswalk,brick,red textured band across road
+det:jkLvDcMj9glkyonIp9m0rg:0.795:0.606,chicago-il:174282,chicago-il,jkLvDcMj9glkyonIp9m0rg,0.7952,0.6061,sheet_0044.jpg,5,crosswalk,brick_edge_lines,brick band between white lines
+det:Ai6q1Q8wUCyfEHpv_KZu7w:0.017:0.581,chicago-il:32150,chicago-il,Ai6q1Q8wUCyfEHpv_KZu7w,0.0165,0.5812,sheet_0044.jpg,6,crosswalk,brick_edge_lines,brick band between white lines
+det:D8qEra2207gMjjIJqt2Nbg:0.376:0.663,cuenca:3145,cuenca,D8qEra2207gMjjIJqt2Nbg,0.3761,0.6632,sheet_0044.jpg,7,crosswalk,paint,worn white bars on cobblestone
+det:-YTTJfUL0-idnxU-CeKaTQ:0.752:0.601,cuenca:3736,cuenca,-YTTJfUL0-idnxU-CeKaTQ,0.7519,0.6014,sheet_0044.jpg,8,not_crosswalk,none,plain cobblestone street
+det:7k_UQcrwJJnNxzwM2X59ew:0.500:0.559,chicago-il:64454,chicago-il,7k_UQcrwJJnNxzwM2X59ew,0.5004,0.5586,sheet_0044.jpg,9,crosswalk,paint,two white transverse lines
+det:saJt0PxOMOeOWdDYZeqyXQ:0.168:0.627,cuenca:4217,cuenca,saJt0PxOMOeOWdDYZeqyXQ,0.1678,0.6268,sheet_0044.jpg,10,not_crosswalk,none,cobble plaza with dashed edge line
+det:5FS6kvL8OEhV3Pp2qOUR_Q:0.238:0.575,chicago-il:190830,chicago-il,5FS6kvL8OEhV3Pp2qOUR_Q,0.2385,0.5747,sheet_0044.jpg,11,crosswalk,brick_edge_lines,coloured band between white lines
+det:6v4Ii9-UWCJyDo9_2EII_g:0.450:0.633,cuenca:2910,cuenca,6v4Ii9-UWCJyDo9_2EII_g,0.4498,0.6333,sheet_0044.jpg,12,unsure,unclear,setts with faint white flecks
+det:D4ihqO_UTX5-6zCXRv7cTw:0.861:0.806,chicago-il:79577,chicago-il,D4ihqO_UTX5-6zCXRv7cTw,0.8607,0.8064,sheet_0045.jpg,1,unsure,unclear,blurry close-up of pavers
+det:yMLwQVwp4yfNI1nYRonLQQ:0.583:0.556,chicago-il:202340,chicago-il,yMLwQVwp4yfNI1nYRonLQQ,0.5828,0.5564,sheet_0045.jpg,2,crosswalk,brick,red band across road
+det:my7WBo4nGFw4--lsd9i2YA:0.761:0.613,cuenca:8621,cuenca,my7WBo4nGFw4--lsd9i2YA,0.761,0.6134,sheet_0045.jpg,3,crosswalk,paint,zebra bars on cobblestone
+det:wDQs-cOV0w73ofUEqBRoPQ:0.220:0.622,cuenca:16559,cuenca,wDQs-cOV0w73ofUEqBRoPQ,0.2204,0.6221,sheet_0045.jpg,4,crosswalk,paint,faded white bars on cobblestone
+det:4n9q9z7sVfrNtxUm09vvzQ:0.213:0.593,cuenca:7254,cuenca,4n9q9z7sVfrNtxUm09vvzQ,0.2133,0.5925,sheet_0045.jpg,5,crosswalk,paint,zebra bars near car
+det:bTNVASE9CV666dze9_PmXQ:0.274:0.562,columbus-oh:40196,columbus-oh,bTNVASE9CV666dze9_PmXQ,0.2737,0.5624,sheet_0045.jpg,6,crosswalk,brick,brick strip across road
+det:4_bmxpi3InubVvwOh9Wb_w:0.058:0.624,gainesville-fl:27459,gainesville-fl,4_bmxpi3InubVvwOh9Wb_w,0.0577,0.6244,sheet_0045.jpg,7,crosswalk,brick_edge_lines,brick band with white edge line
+det:iFogUWUFVPM35vuB31NUxw:0.205:0.587,chicago-il:146110,chicago-il,iFogUWUFVPM35vuB31NUxw,0.2048,0.5874,sheet_0045.jpg,8,not_crosswalk,none,brick paving across parking lot driveway
+det:KBLlCt_8L9r5hX1xONnlUg:0.302:0.548,chicago-il:82042,chicago-il,KBLlCt_8L9r5hX1xONnlUg,0.3016,0.5482,sheet_0045.jpg,9,crosswalk,brick_edge_lines,red band with white line
+det:QVNtG7bbb5KisWzMKVeFjQ:0.869:0.603,chicago-il:203226,chicago-il,QVNtG7bbb5KisWzMKVeFjQ,0.8692,0.6027,sheet_0045.jpg,10,crosswalk,brick_edge_lines,brick band between white lines
+det:1l75NVlGu5ew4BTkMeTH-Q:0.489:0.596,chicago-il:56806,chicago-il,1l75NVlGu5ew4BTkMeTH-Q,0.489,0.5961,sheet_0045.jpg,11,crosswalk,brick_edge_lines,red band between white lines
+det:UkX6EwLUY7c4XQq8-GKGIw:0.070:0.574,chicago-il:172135,chicago-il,UkX6EwLUY7c4XQq8-GKGIw,0.0695,0.5735,sheet_0045.jpg,12,crosswalk,brick_edge_lines,red band between white lines
+det:5lqHPwmvNOB-wQ_zN9wNLw:0.971:0.665,cuenca:4802,cuenca,5lqHPwmvNOB-wQ_zN9wNLw,0.971,0.6651,sheet_0046.jpg,1,unsure,unclear,worn white and red marks on cobblestone
+det:HDbCEnlkGzq5sA3IHxoZag:0.555:0.687,chicago-il:67479,chicago-il,HDbCEnlkGzq5sA3IHxoZag,0.555,0.687,sheet_0046.jpg,2,crosswalk,brick_edge_lines,brick band with white edge line
+det:n33wMcZCyL-mJnyZXjJD3Q:0.497:0.753,chicago-il:190838,chicago-il,n33wMcZCyL-mJnyZXjJD3Q,0.4966,0.7526,sheet_0046.jpg,3,crosswalk,brick,rainbow coloured crossing band
+det:rXA14MVaSMrp1A1LLL21Dg:0.730:0.597,cuenca:5648,cuenca,rXA14MVaSMrp1A1LLL21Dg,0.7298,0.5968,sheet_0046.jpg,4,crosswalk,paint,faded zebra on cobblestone
+det:D8qEra2207gMjjIJqt2Nbg:0.358:0.660,cuenca:11675,cuenca,D8qEra2207gMjjIJqt2Nbg,0.3578,0.6596,sheet_0046.jpg,5,crosswalk,paint,worn zebra bars
+det:FyhIVU4fgxhKMpptywxdFg:0.716:0.572,gainesville-fl:27455,gainesville-fl,FyhIVU4fgxhKMpptywxdFg,0.7155,0.572,sheet_0046.jpg,6,crosswalk,brick_edge_lines,brick band with white edge lines
+det:rzUYMiysRt5qxNEtZVPkmQ:0.856:0.562,chicago-il:82866,chicago-il,rzUYMiysRt5qxNEtZVPkmQ,0.856,0.5625,sheet_0046.jpg,7,crosswalk,brick_edge_lines,red band between white lines
+det:CFGJW6pVBxQzm6w0oqmbzQ:0.219:0.675,pittsburgh-pa:19675,pittsburgh-pa,CFGJW6pVBxQzm6w0oqmbzQ,0.2191,0.6755,sheet_0046.jpg,8,crosswalk,brick_edge_lines,brick band between white lines
+det:YxPZuUr79VWX-rGHAqy2Lw:0.500:0.598,cuenca:15888,cuenca,YxPZuUr79VWX-rGHAqy2Lw,0.5003,0.5981,sheet_0046.jpg,9,crosswalk,paint,faded zebra on cobblestone
+det:FKSRaCvKVEKh40wKEg85mA:0.791:0.635,gainesville-fl:32889,gainesville-fl,FKSRaCvKVEKh40wKEg85mA,0.7913,0.6346,sheet_0046.jpg,10,crosswalk,brick_edge_lines,herringbone band between white lines
+det:mc_jRTJLflOoRwGvmxIRlg:0.149:0.549,chicago-il:111565,chicago-il,mc_jRTJLflOoRwGvmxIRlg,0.1486,0.5491,sheet_0046.jpg,11,unsure,unclear,faint lines on road far away
+det:ATPk3sBFAWCvI7enG_jUtw:0.740:0.587,columbus-oh:40751,columbus-oh,ATPk3sBFAWCvI7enG_jUtw,0.74,0.587,sheet_0046.jpg,12,crosswalk,brick_edge_lines,brick band between white lines
+det:fqq81W89PbdyrCKJrT19hA:0.955:0.726,cuenca:559,cuenca,fqq81W89PbdyrCKJrT19hA,0.9552,0.7255,sheet_0047.jpg,1,crosswalk,paint,worn white bars at circle edge
+det:6jAbJfbpT_ZSuylbvxzLPw:0.031:0.642,cuenca:5346,cuenca,6jAbJfbpT_ZSuylbvxzLPw,0.031,0.6423,sheet_0047.jpg,2,not_crosswalk,none,plain cobblestone road
+det:P5xt39AsIYsT7OyqcTFQYQ:0.269:0.587,pittsburgh-pa:30709,pittsburgh-pa,P5xt39AsIYsT7OyqcTFQYQ,0.2692,0.5867,sheet_0047.jpg,3,crosswalk,brick_edge_lines,white bars with brick infill
+det:bnQ4nC-vptnGTpMeO1Xxng:0.061:0.711,chicago-il:83468,chicago-il,bnQ4nC-vptnGTpMeO1Xxng,0.061,0.7109,sheet_0047.jpg,4,crosswalk,brick_edge_lines,grey paver band with white line
+det:Va8A60BLU_SV8Iad4DZE6A:0.052:0.650,chicago-il:190851,chicago-il,Va8A60BLU_SV8Iad4DZE6A,0.0522,0.6503,sheet_0047.jpg,5,crosswalk,brick_edge_lines,rainbow band between white lines
+det:45-bvqwadurt2qnL5jeAsA:0.101:0.730,pittsburgh-pa:30359,pittsburgh-pa,45-bvqwadurt2qnL5jeAsA,0.1013,0.7302,sheet_0047.jpg,6,crosswalk,brick_edge_lines,brick band with white edge line
+det:nlodnQqVGsmix709HwUUlA:0.176:0.617,knox-oh:26010,knox-oh,nlodnQqVGsmix709HwUUlA,0.1756,0.6172,sheet_0047.jpg,7,crosswalk,brick_edge_lines,brick band between white lines
+det:sVYgiAuqGqJhkmNflAf18w:0.992:0.649,cuenca:8787,cuenca,sVYgiAuqGqJhkmNflAf18w,0.992,0.6486,sheet_0047.jpg,8,crosswalk,paint,zebra bars on cobblestone
+det:4d2HYPlxjJx_F77TQbIfWg:0.887:0.557,chicago-il:183717,chicago-il,4d2HYPlxjJx_F77TQbIfWg,0.8871,0.5571,sheet_0047.jpg,9,crosswalk,brick_edge_lines,brick band between white lines
+det:mc_jRTJLflOoRwGvmxIRlg:0.518:0.542,chicago-il:111572,chicago-il,mc_jRTJLflOoRwGvmxIRlg,0.5178,0.5422,sheet_0047.jpg,10,unsure,unclear,faint transverse lines on asphalt
+det:zrO8HrlvYyU3I2DZktQklA:0.539:0.618,cuenca:11395,cuenca,zrO8HrlvYyU3I2DZktQklA,0.5389,0.6182,sheet_0047.jpg,11,crosswalk,paint,zebra bars on cobblestone
+det:4iKqrD3vQNGnWoaXB-8nRA:0.006:0.560,chicago-il:202882,chicago-il,4iKqrD3vQNGnWoaXB-8nRA,0.0056,0.5597,sheet_0047.jpg,12,crosswalk,paint,two parallel white transverse lines
+det:YBnwTj9c1jXpTbmXxQvpgA:0.433:0.585,chicago-il:132366,chicago-il,YBnwTj9c1jXpTbmXxQvpgA,0.4326,0.5847,sheet_0048.jpg,1,unsure,unclear,faded textured band with dashed line
+det:9HmwKXrkjEzZWiAwzpdqAQ:0.448:0.582,chicago-il:62720,chicago-il,9HmwKXrkjEzZWiAwzpdqAQ,0.4484,0.582,sheet_0048.jpg,2,crosswalk,brick_edge_lines,brick band with white line
+det:GjNIKBBR021aM7upFUj5xw:0.475:0.563,chicago-il:115337,chicago-il,GjNIKBBR021aM7upFUj5xw,0.4752,0.5627,sheet_0048.jpg,3,crosswalk,brick_edge_lines,brick band between white lines
+det:saJt0PxOMOeOWdDYZeqyXQ:0.992:0.593,cuenca:4207,cuenca,saJt0PxOMOeOWdDYZeqyXQ,0.992,0.5931,sheet_0048.jpg,4,crosswalk,paint,two white transverse lines on cobblestone
+det:TLWQpLSU0RCEp1RteVbmCA:0.035:0.646,chicago-il:160183,chicago-il,TLWQpLSU0RCEp1RteVbmCA,0.0354,0.646,sheet_0048.jpg,5,crosswalk,brick_edge_lines,herringbone band between white lines
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.955:0.589,cuenca:8063,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.9549,0.5892,sheet_0048.jpg,6,crosswalk,paint,zebra bars on cobblestone
+det:zCiJUEZUh_nxNXMX6XxuqA:0.001:0.610,cuenca:13,cuenca,zCiJUEZUh_nxNXMX6XxuqA,0.0011,0.6095,sheet_0048.jpg,7,crosswalk,paint,worn white bars on cobblestone
+det:OAMSz5OzVFwiL6oPxvldVg:0.500:0.649,chicago-il:64034,chicago-il,OAMSz5OzVFwiL6oPxvldVg,0.4999,0.6488,sheet_0048.jpg,8,crosswalk,brick_edge_lines,brick band between white lines
+det:7eI-vypuj-3Sw970tR0L-g:0.003:0.613,west-chester-pa:24972,west-chester-pa,7eI-vypuj-3Sw970tR0L-g,0.0034,0.6125,sheet_0048.jpg,9,crosswalk,brick,brick band across street in shade
+det:mY8y__Iwf3snKXUO09BkHA:0.677:0.727,gainesville-fl:30042,gainesville-fl,mY8y__Iwf3snKXUO09BkHA,0.6766,0.7267,sheet_0048.jpg,10,crosswalk,brick_edge_lines,brick band with white bars at sides
+det:htVkCXlmv9r_5WE1O7-diA:0.092:0.554,chicago-il:200937,chicago-il,htVkCXlmv9r_5WE1O7-diA,0.0916,0.554,sheet_0048.jpg,11,crosswalk,brick_edge_lines,brick band with white lines
+det:I-najCFnaVsuQYoPCJVYsg:0.070:0.580,chicago-il:39754,chicago-il,I-najCFnaVsuQYoPCJVYsg,0.0705,0.5803,sheet_0048.jpg,12,crosswalk,brick_edge_lines,brick band between white lines
+det:Or9IDcjXYlTvde-8KQ-gzg:0.992:0.616,chicago-il:39408,chicago-il,Or9IDcjXYlTvde-8KQ-gzg,0.9922,0.6155,sheet_0049.jpg,1,crosswalk,brick_edge_lines,herringbone band between white lines
+det:m9JxRaSSpkxmOVh56Nzfvw:0.266:0.582,chicago-il:39107,chicago-il,m9JxRaSSpkxmOVh56Nzfvw,0.2664,0.5824,sheet_0049.jpg,2,not_crosswalk,none,plain asphalt intersection
+det:781s2afd-GwF_cCrLr6fkQ:0.528:0.750,chicago-il:43786,chicago-il,781s2afd-GwF_cCrLr6fkQ,0.5278,0.7496,sheet_0049.jpg,3,unsure,unclear,brick close-up; band or sidewalk unclear
+det:Kni6UAl0J5-5OuxYDcaEHw:0.260:0.554,chicago-il:39425,chicago-il,Kni6UAl0J5-5OuxYDcaEHw,0.2597,0.5537,sheet_0049.jpg,4,crosswalk,brick_edge_lines,red band with white lines
+det:rzUYMiysRt5qxNEtZVPkmQ:0.987:0.535,chicago-il:82882,chicago-il,rzUYMiysRt5qxNEtZVPkmQ,0.9865,0.5349,sheet_0049.jpg,5,unsure,unclear,faint reddish strip near construction
+det:fZtUkZ2OmnUsvroBF9kuDQ:0.475:0.611,chicago-il:39415,chicago-il,fZtUkZ2OmnUsvroBF9kuDQ,0.475,0.6107,sheet_0049.jpg,6,crosswalk,brick_edge_lines,brick band between white lines
+det:lKeldf1ZTHzuLTByyZGjWg:0.820:0.664,gainesville-fl:35289,gainesville-fl,lKeldf1ZTHzuLTByyZGjWg,0.8203,0.6644,sheet_0049.jpg,7,crosswalk,brick_edge_lines,herringbone band with edge lines
+det:_UPALWKLOPJvd6f6FDaNwQ:0.909:0.591,pittsburgh-pa:30248,pittsburgh-pa,_UPALWKLOPJvd6f6FDaNwQ,0.9087,0.5907,sheet_0049.jpg,8,crosswalk,brick_edge_lines,brick band between white lines
+det:tKUeNqsb-b9jxLBXwN4RyA:0.530:0.544,chicago-il:203039,chicago-il,tKUeNqsb-b9jxLBXwN4RyA,0.5296,0.5437,sheet_0049.jpg,9,crosswalk,brick_edge_lines,thin red band between white lines
+det:6BHr4l3E09oUrhOn3szAmQ:0.253:0.574,chicago-il:31905,chicago-il,6BHr4l3E09oUrhOn3szAmQ,0.2533,0.5741,sheet_0049.jpg,10,crosswalk,brick_edge_lines,brick band between white lines
+det:944MDCeMH6rAfYMWq3xa7g:0.467:0.603,chicago-il:59593,chicago-il,944MDCeMH6rAfYMWq3xa7g,0.4666,0.6025,sheet_0049.jpg,11,crosswalk,brick_edge_lines,brick band between white lines
+det:1guBOl1hCdKUCpvKiWRUlA:0.729:0.563,chicago-il:32537,chicago-il,1guBOl1hCdKUCpvKiWRUlA,0.7286,0.5626,sheet_0049.jpg,12,crosswalk,brick_edge_lines,raised brick band with white line
+det:Z326aXTTu5lGepJPcSdSGQ:0.112:0.599,chicago-il:23974,chicago-il,Z326aXTTu5lGepJPcSdSGQ,0.1122,0.5991,sheet_0050.jpg,1,crosswalk,brick_edge_lines,stamped band with white crossing lines
+det:8WNHqLlCVvI7jk5O3Gn5xg:0.293:0.546,cuenca:2675,cuenca,8WNHqLlCVvI7jk5O3Gn5xg,0.2933,0.5463,sheet_0050.jpg,2,not_crosswalk,none,plain asphalt intersection
+det:aF7O6LFFwj78Om9FtFj_GQ:0.847:0.586,chicago-il:80676,chicago-il,aF7O6LFFwj78Om9FtFj_GQ,0.8471,0.5863,sheet_0050.jpg,3,crosswalk,brick_edge_lines,brick band between white lines
+det:4cmMzwcZhe_6OWXB3RBDVg:0.009:0.571,cuenca:7640,cuenca,4cmMzwcZhe_6OWXB3RBDVg,0.0095,0.5708,sheet_0050.jpg,4,crosswalk,paint,faint white bars on cobblestone
+det:DUyrhxymQU8VSobRF84g2g:0.682:0.561,chicago-il:69631,chicago-il,DUyrhxymQU8VSobRF84g2g,0.6818,0.5615,sheet_0050.jpg,5,crosswalk,brick_edge_lines,red band between white lines
+det:c-qGp-2AiUctC5IaB-kx7g:0.449:0.593,chicago-il:65456,chicago-il,c-qGp-2AiUctC5IaB-kx7g,0.4487,0.5929,sheet_0050.jpg,6,crosswalk,brick_edge_lines,brick band between white lines
+det:mc_jRTJLflOoRwGvmxIRlg:0.271:0.531,chicago-il:111567,chicago-il,mc_jRTJLflOoRwGvmxIRlg,0.2714,0.5312,sheet_0050.jpg,7,unsure,unclear,faint pale strip far away
+det:MZjwpwoKnkIK2myNtpfYPQ:0.719:0.598,chicago-il:175941,chicago-il,MZjwpwoKnkIK2myNtpfYPQ,0.7192,0.5981,sheet_0050.jpg,8,crosswalk,brick_edge_lines,red band between white lines
+det:pE_csJp9_9Oj_H8b55CYqw:0.493:0.665,cuenca:15433,cuenca,pE_csJp9_9Oj_H8b55CYqw,0.4929,0.6647,sheet_0050.jpg,9,crosswalk,paint,worn white bars on cobblestone
+det:uOvTXPgH7-q830_KLU3ceg:0.491:0.585,chicago-il:59653,chicago-il,uOvTXPgH7-q830_KLU3ceg,0.4912,0.5845,sheet_0050.jpg,10,crosswalk,brick_edge_lines,brick band between white lines
+det:6X0AswKuw_5JZQL2vZVlSw:0.042:0.649,chicago-il:43785,chicago-il,6X0AswKuw_5JZQL2vZVlSw,0.0416,0.6488,sheet_0050.jpg,11,crosswalk,brick_edge_lines,herringbone band between white lines
+det:dkMMvKWUnutTXncy1YiQZQ:0.516:0.673,cuenca:12060,cuenca,dkMMvKWUnutTXncy1YiQZQ,0.5165,0.6729,sheet_0050.jpg,12,unsure,unclear,cobblestone with a few white flecks
+det:_qs3miprWnPw9gU2thui4g:0.889:0.784,cuenca:14212,cuenca,_qs3miprWnPw9gU2thui4g,0.8893,0.7838,sheet_0051.jpg,1,unsure,unclear,blurry grey surface
+det:Tl7QpkuAKSM-RYoTzLI4vQ:0.549:0.697,cuenca:7528,cuenca,Tl7QpkuAKSM-RYoTzLI4vQ,0.5495,0.6974,sheet_0051.jpg,2,crosswalk,paint,worn zebra bars
+det:gkl1Xpk8F85JHHcGZAWjMQ:0.009:0.559,columbus-oh:41449,columbus-oh,gkl1Xpk8F85JHHcGZAWjMQ,0.0089,0.559,sheet_0051.jpg,3,crosswalk,brick,brick band across road
+det:zCiJUEZUh_nxNXMX6XxuqA:0.199:0.614,cuenca:9361,cuenca,zCiJUEZUh_nxNXMX6XxuqA,0.1993,0.614,sheet_0051.jpg,4,crosswalk,paint,zebra bars on cobblestone
+det:ma-E-vEIz-ylGzfcjpwjTA:0.501:0.597,maywood-nj:28882,maywood-nj,ma-E-vEIz-ylGzfcjpwjTA,0.5015,0.5974,sheet_0051.jpg,5,crosswalk,brick_edge_lines,brick band between white lines
+det:lSQdOxbXxmsu-7ZWUVCQow:0.058:0.598,chicago-il:65252,chicago-il,lSQdOxbXxmsu-7ZWUVCQow,0.0576,0.5975,sheet_0051.jpg,6,crosswalk,brick_edge_lines,brick band between white lines
+det:I-najCFnaVsuQYoPCJVYsg:0.816:0.613,chicago-il:39749,chicago-il,I-najCFnaVsuQYoPCJVYsg,0.8162,0.613,sheet_0051.jpg,7,crosswalk,brick_edge_lines,herringbone band with light edges
+det:QG4aBamxWYTAQvfytKvfCQ:0.231:0.550,chicago-il:132759,chicago-il,QG4aBamxWYTAQvfytKvfCQ,0.231,0.5504,sheet_0051.jpg,8,crosswalk,brick_edge_lines,brick band between white lines
+det:SXdESbPJr7CL82sBW1QLRw:0.267:0.573,gainesville-fl:37544,gainesville-fl,SXdESbPJr7CL82sBW1QLRw,0.2669,0.5729,sheet_0051.jpg,9,crosswalk,brick_edge_lines,brick band between white lines
+det:DBLejBtTuNY0A_mkD3iEuw:0.017:0.755,cuenca:7954,cuenca,DBLejBtTuNY0A_mkD3iEuw,0.0168,0.7553,sheet_0051.jpg,10,unsure,unclear,blurry cobblestone with white flecks
+det:IOvVkJEQJ69KNopVNLm99A:0.106:0.613,knox-oh:26023,knox-oh,IOvVkJEQJ69KNopVNLm99A,0.1063,0.6128,sheet_0051.jpg,11,crosswalk,brick_edge_lines,brick band with white line
+det:8eJ8ifzLlmQXkXn1XfyPhg:0.210:0.555,chicago-il:39134,chicago-il,8eJ8ifzLlmQXkXn1XfyPhg,0.2101,0.5548,sheet_0051.jpg,12,crosswalk,brick_edge_lines,brick band between white lines
+det:0_Ck_fEF00ZbhUCdlW3Qjw:0.696:0.587,chicago-il:66161,chicago-il,0_Ck_fEF00ZbhUCdlW3Qjw,0.6957,0.587,sheet_0052.jpg,1,crosswalk,brick_edge_lines,brick band between white lines
+det:ZIWAACTxuo0bdH-GCOYc1g:0.004:0.558,gainesville-fl:27429,gainesville-fl,ZIWAACTxuo0bdH-GCOYc1g,0.004,0.5581,sheet_0052.jpg,2,crosswalk,brick_edge_lines,brick band between white lines
+det:pSCAuXVH1UdQm-TvQmhMFw:0.801:0.578,gainesville-fl:30045,gainesville-fl,pSCAuXVH1UdQm-TvQmhMFw,0.8007,0.5778,sheet_0052.jpg,3,crosswalk,brick_edge_lines,brick band with white edges
+det:9-t1oBh3L2wfsnFz-xzpaQ:0.525:0.613,cuenca:7805,cuenca,9-t1oBh3L2wfsnFz-xzpaQ,0.5251,0.6127,sheet_0052.jpg,4,not_crosswalk,none,decorative red diamond on cobblestone
+det:KFxWow-HMYSvV13_xxlrIQ:0.526:0.625,cuenca:7466,cuenca,KFxWow-HMYSvV13_xxlrIQ,0.5262,0.6245,sheet_0052.jpg,5,unsure,unclear,red diamond and faint white lines
+det:Yw3TDwsSVQJ4KOkIbk-t2g:0.348:0.583,chicago-il:141262,chicago-il,Yw3TDwsSVQJ4KOkIbk-t2g,0.3478,0.583,sheet_0052.jpg,6,crosswalk,brick_edge_lines,brick band with white lines
+det:AbONwdsQdCmS3GucZr4rKQ:0.445:0.616,chicago-il:62946,chicago-il,AbONwdsQdCmS3GucZr4rKQ,0.4451,0.6156,sheet_0052.jpg,7,crosswalk,brick_edge_lines,brick band between white lines
+det:1-g03jPbSaHEL5UNnZ6LvQ:0.311:0.566,chicago-il:34665,chicago-il,1-g03jPbSaHEL5UNnZ6LvQ,0.3108,0.5656,sheet_0052.jpg,8,crosswalk,paint,faint parallel white lines across road
+det:Xueihl3KpcqP9syqq98n1A:0.951:0.712,cuenca:2875,cuenca,Xueihl3KpcqP9syqq98n1A,0.9505,0.7115,sheet_0052.jpg,9,unsure,unclear,paver close-up beside car
+det:CXS93Xw99HQuLlbEAy16DQ:0.566:0.595,gainesville-fl:37584,gainesville-fl,CXS93Xw99HQuLlbEAy16DQ,0.5661,0.5951,sheet_0052.jpg,10,crosswalk,brick_edge_lines,brick band between white lines
+det:G16UCCh5cY-T258bMWlCQw:0.023:0.532,columbus-oh:38732,columbus-oh,G16UCCh5cY-T258bMWlCQw,0.0226,0.5322,sheet_0052.jpg,11,unsure,unclear,faint lines on road far away
+det:G16UCCh5cY-T258bMWlCQw:0.469:0.602,columbus-oh:38727,columbus-oh,G16UCCh5cY-T258bMWlCQw,0.4689,0.6019,sheet_0052.jpg,12,crosswalk,brick_edge_lines,brick band between white lines
+det:Q_yt15PG7EAOkoGCuC9n_A:0.009:0.619,chicago-il:62939,chicago-il,Q_yt15PG7EAOkoGCuC9n_A,0.0088,0.6191,sheet_0053.jpg,1,crosswalk,brick_edge_lines,herringbone band between white lines
+det:zCV_zBBj-R-wsZVNmobdJg:0.934:0.697,cuenca:569,cuenca,zCV_zBBj-R-wsZVNmobdJg,0.9342,0.6973,sheet_0053.jpg,2,crosswalk,paint,zebra bars on cobblestone
+det:hson0HRNqdYuCrNYXsEpHw:0.502:0.618,pittsburgh-pa:22941,pittsburgh-pa,hson0HRNqdYuCrNYXsEpHw,0.5017,0.6183,sheet_0053.jpg,3,crosswalk,brick_edge_lines,brick band with white line
+det:rQNkttZDnEmuLizpzWzGew:0.800:0.695,pittsburgh-pa:30243,pittsburgh-pa,rQNkttZDnEmuLizpzWzGew,0.8005,0.6949,sheet_0053.jpg,4,crosswalk,brick_edge_lines,red brick band between white lines
+det:g8zTjTofH_vtw68Y15XoYg:0.984:0.736,cuenca:14727,cuenca,g8zTjTofH_vtw68Y15XoYg,0.9841,0.7357,sheet_0053.jpg,5,unsure,unclear,very blurry dark image
+det:JV_O-Qipz9bw5_41BmHWWA:0.464:0.574,chicago-il:185236,chicago-il,JV_O-Qipz9bw5_41BmHWWA,0.4639,0.5741,sheet_0053.jpg,6,crosswalk,brick_edge_lines,brick band between white lines
+det:m9JxRaSSpkxmOVh56Nzfvw:0.015:0.599,chicago-il:39110,chicago-il,m9JxRaSSpkxmOVh56Nzfvw,0.0145,0.5994,sheet_0053.jpg,7,unsure,unclear,"pedestrians crossing, no visible marking"
+det:bPX2MXs1eAJd9jcObM4a0Q:0.523:0.515,chicago-il:172133,chicago-il,bPX2MXs1eAJd9jcObM4a0Q,0.5228,0.5151,sheet_0053.jpg,8,crosswalk,brick_edge_lines,brick band between white lines
+det:gUo0eOwXTIpUZfYG8idi4Q:0.774:0.572,chicago-il:29317,chicago-il,gUo0eOwXTIpUZfYG8idi4Q,0.7742,0.5721,sheet_0053.jpg,9,crosswalk,brick_edge_lines,red band between white lines
+det:078LVwIFXm3wMYK_ZKzsrQ:0.446:0.686,st-louis-mo:43117,st-louis-mo,078LVwIFXm3wMYK_ZKzsrQ,0.4463,0.6865,sheet_0053.jpg,10,crosswalk,paint,zebra bars beside brick
+det:r_Z5G5olGAQfpjVXna0DXw:0.502:0.580,chicago-il:42145,chicago-il,r_Z5G5olGAQfpjVXna0DXw,0.5021,0.5803,sheet_0053.jpg,11,crosswalk,paint,faded ladder bars
+det:N3cYo6WbBdUruIq8BCkOSQ:0.467:0.675,chicago-il:125654,chicago-il,N3cYo6WbBdUruIq8BCkOSQ,0.4665,0.6755,sheet_0053.jpg,12,crosswalk,brick_edge_lines,herringbone band between white lines
+det:my7WBo4nGFw4--lsd9i2YA:0.988:0.579,cuenca:44,cuenca,my7WBo4nGFw4--lsd9i2YA,0.9875,0.5786,sheet_0054.jpg,1,crosswalk,paint,faded zebra bars on cobblestone
+det:dD9xumJwPGW7QClH9EsTiw:0.527:0.584,cuenca:10792,cuenca,dD9xumJwPGW7QClH9EsTiw,0.5275,0.5835,sheet_0054.jpg,2,not_crosswalk,none,plain cobblestone street
+det:FOw2G2t5AecyLPVeUw8bmw:0.071:0.553,chicago-il:81984,chicago-il,FOw2G2t5AecyLPVeUw8bmw,0.0709,0.5532,sheet_0054.jpg,3,unsure,unclear,box junction hatching; faint band
+det:WZWQmIA0QMXRuLTL5hN_kg:0.968:0.640,cuenca:11374,cuenca,WZWQmIA0QMXRuLTL5hN_kg,0.968,0.6397,sheet_0054.jpg,4,crosswalk,paint,worn white bars on cobblestone
+det:sYfH3FNuud3tgx6qZ662WA:0.043:0.567,gainesville-fl:31363,gainesville-fl,sYfH3FNuud3tgx6qZ662WA,0.0433,0.5673,sheet_0054.jpg,5,crosswalk,brick_edge_lines,textured band between white lines
+det:7JxITLn6KJJ2biJ4JgyREw:0.127:0.570,chicago-il:67398,chicago-il,7JxITLn6KJJ2biJ4JgyREw,0.1274,0.5697,sheet_0054.jpg,6,crosswalk,brick,brick band across road
+det:DHXp3Y-3a1xJIVWhkFxEqQ:0.201:0.585,chicago-il:157411,chicago-il,DHXp3Y-3a1xJIVWhkFxEqQ,0.2008,0.5851,sheet_0054.jpg,7,crosswalk,brick_edge_lines,brick band between white lines
+det:kMF_exTIRL1nQIxL2qdGzA:0.418:0.611,gainesville-fl:27426,gainesville-fl,kMF_exTIRL1nQIxL2qdGzA,0.4185,0.6108,sheet_0054.jpg,8,crosswalk,brick_edge_lines,grey paver band with white lines
+det:joKh2_Fae6pfYMLPLLxTZQ:0.091:0.598,gainesville-fl:27059,gainesville-fl,joKh2_Fae6pfYMLPLLxTZQ,0.0911,0.5975,sheet_0054.jpg,9,crosswalk,brick_edge_lines,brick crossing between white lines
+det:zCV_zBBj-R-wsZVNmobdJg:0.533:0.630,cuenca:565,cuenca,zCV_zBBj-R-wsZVNmobdJg,0.5333,0.6304,sheet_0054.jpg,10,crosswalk,paint,zebra bars on cobblestone
+det:tKUeNqsb-b9jxLBXwN4RyA:0.056:0.595,chicago-il:203031,chicago-il,tKUeNqsb-b9jxLBXwN4RyA,0.056,0.5953,sheet_0054.jpg,11,crosswalk,brick_edge_lines,brick band between white lines
+det:A0iclBkE1bSMqnEopDxerw:0.029:0.537,cuenca:9836,cuenca,A0iclBkE1bSMqnEopDxerw,0.0291,0.5374,sheet_0054.jpg,12,not_crosswalk,none,marker on building facade
+det:SWZQLhmUnpwuTuSRRaCBMg:0.010:0.665,cuenca:12306,cuenca,SWZQLhmUnpwuTuSRRaCBMg,0.0097,0.6653,sheet_0055.jpg,1,crosswalk,paint,worn white bars on cobblestone
+det:J3icHSgRf451jisrkqkh5w:0.103:0.624,columbus-oh:37678,columbus-oh,J3icHSgRf451jisrkqkh5w,0.1027,0.6244,sheet_0055.jpg,2,unsure,unclear,large herringbone brick area
+det:c6dmCrPJQ5nMFDh50YisOw:0.081:0.564,gainesville-fl:34246,gainesville-fl,c6dmCrPJQ5nMFDh50YisOw,0.0811,0.5642,sheet_0055.jpg,3,crosswalk,paint,two white lines across brick road
+det:p7kA1Ea3msWJQAhmDjWd-Q:0.239:0.569,chicago-il:65476,chicago-il,p7kA1Ea3msWJQAhmDjWd-Q,0.239,0.5688,sheet_0055.jpg,4,crosswalk,brick_edge_lines,brick band between white lines
+det:Jj_lLrZbmTEyKUjd5bvi8Q:0.404:0.692,chicago-il:190296,chicago-il,Jj_lLrZbmTEyKUjd5bvi8Q,0.4041,0.6923,sheet_0055.jpg,5,crosswalk,brick_edge_lines,rainbow band between white lines
+det:ANgUpOo3S3QPYxk0Xw60zw:0.926:0.764,cuenca:7725,cuenca,ANgUpOo3S3QPYxk0Xw60zw,0.9265,0.764,sheet_0055.jpg,6,unsure,unclear,blurry cobblestone with white flecks
+det:CIZ5Q-aHA79hXxxjqZuyng:0.710:0.599,chicago-il:31928,chicago-il,CIZ5Q-aHA79hXxxjqZuyng,0.7095,0.5992,sheet_0055.jpg,7,crosswalk,brick_edge_lines,stamped band between white lines
+det:qf6jPtPPeZRiGk9VXwaWXg:0.007:0.583,cuenca:2778,cuenca,qf6jPtPPeZRiGk9VXwaWXg,0.007,0.5826,sheet_0055.jpg,8,crosswalk,paint,zebra bars on cobblestone
+det:QKSMPYlnLF68zvZP13enuA:0.998:0.618,chicago-il:39444,chicago-il,QKSMPYlnLF68zvZP13enuA,0.9976,0.6183,sheet_0055.jpg,9,crosswalk,brick_edge_lines,brick band between white lines
+det:wa7nC_q3meLMcC0NN54Z3g:0.786:0.659,chicago-il:25234,chicago-il,wa7nC_q3meLMcC0NN54Z3g,0.7864,0.6593,sheet_0055.jpg,10,crosswalk,brick_edge_lines,herringbone band with white line
+det:-lSyaySvwa-pHi4xJ58JiQ:0.499:0.552,gainesville-fl:29925,gainesville-fl,-lSyaySvwa-pHi4xJ58JiQ,0.4994,0.5519,sheet_0055.jpg,11,crosswalk,brick_edge_lines,textured band between white lines
+det:b_t_XOoN2mKsXjLpao--3Q:0.303:0.632,pittsburgh-pa:30222,pittsburgh-pa,b_t_XOoN2mKsXjLpao--3Q,0.3026,0.632,sheet_0055.jpg,12,crosswalk,brick_edge_lines,brick band between white lines
+det:oodLN7tAcNM-m46L6qw97g:0.673:0.582,chicago-il:67425,chicago-il,oodLN7tAcNM-m46L6qw97g,0.6726,0.5824,sheet_0056.jpg,1,crosswalk,brick_edge_lines,brick band with white lines
+det:8on6kgmlDbBYlL9cBj148Q:0.022:0.567,chicago-il:60984,chicago-il,8on6kgmlDbBYlL9cBj148Q,0.022,0.5665,sheet_0056.jpg,2,crosswalk,paint,two parallel white transverse lines
+det:5DZj4hMTTiEUPKAeXgSAFQ:0.004:0.553,cuenca:3377,cuenca,5DZj4hMTTiEUPKAeXgSAFQ,0.0035,0.5526,sheet_0056.jpg,3,crosswalk,paint,zebra bars on cobblestone
+det:p0SIJCvDHUaGq2EFgfpgng:0.171:0.551,chicago-il:67419,chicago-il,p0SIJCvDHUaGq2EFgfpgng,0.1714,0.5508,sheet_0056.jpg,4,crosswalk,brick,red band across road
+det:6bWvsuuGHKL4iNZXBAepow:0.465:0.560,chicago-il:200999,chicago-il,6bWvsuuGHKL4iNZXBAepow,0.4648,0.5603,sheet_0056.jpg,5,crosswalk,brick_edge_lines,brick band between white lines
+det:6-jDZJhOBpVAa0clJkZy_Q:0.978:0.610,cuenca:1667,cuenca,6-jDZJhOBpVAa0clJkZy_Q,0.9776,0.6095,sheet_0056.jpg,6,not_crosswalk,none,plain cobblestone road
+det:HDbCEnlkGzq5sA3IHxoZag:0.358:0.537,chicago-il:67473,chicago-il,HDbCEnlkGzq5sA3IHxoZag,0.358,0.5375,sheet_0056.jpg,7,crosswalk,brick_edge_lines,brick band with white lines
+det:tI1MtWLf65CqSlHJlq8t3g:0.483:0.691,knox-oh:29599,knox-oh,tI1MtWLf65CqSlHJlq8t3g,0.4828,0.6908,sheet_0056.jpg,8,unsure,unclear,brick close-up near curb
+det:5P1rwENTlwe63fAnSYJpoA:0.046:0.629,cuenca:14842,cuenca,5P1rwENTlwe63fAnSYJpoA,0.0459,0.6295,sheet_0056.jpg,9,not_crosswalk,none,plain cobblestone street
+det:aK0OTB6PQ2I4DpxWbSHDDA:0.016:0.547,chicago-il:85770,chicago-il,aK0OTB6PQ2I4DpxWbSHDDA,0.0162,0.5471,sheet_0056.jpg,10,crosswalk,brick_edge_lines,reddish band between white lines
+det:hoO8bfB38i1LgjjWNIMYSA:0.353:0.608,cuenca:3902,cuenca,hoO8bfB38i1LgjjWNIMYSA,0.353,0.6077,sheet_0056.jpg,11,not_crosswalk,none,marker on sidewalk
+det:qf6jPtPPeZRiGk9VXwaWXg:0.459:0.652,cuenca:2799,cuenca,qf6jPtPPeZRiGk9VXwaWXg,0.4594,0.652,sheet_0056.jpg,12,crosswalk,paint,zebra bars on cobblestone
+det:a8Km4kJN1mYdY8rxdMwIiQ:0.627:0.611,gainesville-fl:30411,gainesville-fl,a8Km4kJN1mYdY8rxdMwIiQ,0.6274,0.6108,sheet_0057.jpg,1,crosswalk,brick_edge_lines,herringbone band with edge lines
+det:qSXWB38uGbgYzwglfDeIqQ:0.513:0.601,cuenca:4718,cuenca,qSXWB38uGbgYzwglfDeIqQ,0.513,0.601,sheet_0057.jpg,2,crosswalk,paint,worn white bars on cobblestone
+det:6L4_iGKWajRq0Jdyz_3BTA:0.344:0.614,pittsburgh-pa:26609,pittsburgh-pa,6L4_iGKWajRq0Jdyz_3BTA,0.344,0.6136,sheet_0057.jpg,3,crosswalk,brick_edge_lines,brick band between white lines
+det:GGNLfHdaUVAcsR2nj5T_Lg:0.494:0.571,chicago-il:160190,chicago-il,GGNLfHdaUVAcsR2nj5T_Lg,0.4939,0.5709,sheet_0057.jpg,4,crosswalk,brick_edge_lines,brick band between white lines
+det:89YQAxYIf77qcz5XvIimUA:0.793:0.586,chicago-il:57466,chicago-il,89YQAxYIf77qcz5XvIimUA,0.7928,0.5858,sheet_0057.jpg,5,crosswalk,brick_edge_lines,brick band between white lines
+det:z79dPyzmwE5fpqNV6LhArw:0.260:0.664,gainesville-fl:33070,gainesville-fl,z79dPyzmwE5fpqNV6LhArw,0.2598,0.6642,sheet_0057.jpg,6,crosswalk,brick_edge_lines,brick band with white edge lines
+det:_d7YuKNZfJq4T_jaQ4RX4Q:0.961:0.650,chicago-il:67371,chicago-il,_d7YuKNZfJq4T_jaQ4RX4Q,0.9605,0.6503,sheet_0057.jpg,7,crosswalk,brick_edge_lines,herringbone band between white lines
+det:p7kA1Ea3msWJQAhmDjWd-Q:0.809:0.616,chicago-il:65478,chicago-il,p7kA1Ea3msWJQAhmDjWd-Q,0.8093,0.6155,sheet_0057.jpg,8,crosswalk,brick_edge_lines,herringbone band between white lines
+det:Owv544ThSl1-ZCcjEjC-4Q:0.485:0.556,columbus-oh:38863,columbus-oh,Owv544ThSl1-ZCcjEjC-4Q,0.4852,0.5562,sheet_0057.jpg,9,crosswalk,brick_edge_lines,patterned band across brick street
+det:t6uszLfmK3N2rBBBjCRY1w:0.970:0.588,chicago-il:82094,chicago-il,t6uszLfmK3N2rBBBjCRY1w,0.9702,0.5879,sheet_0057.jpg,10,crosswalk,brick_edge_lines,faint red band with white line
+det:fUGDt_L62l06oQvNh0M0iQ:0.450:0.644,pittsburgh-pa:28162,pittsburgh-pa,fUGDt_L62l06oQvNh0M0iQ,0.4497,0.6436,sheet_0057.jpg,11,crosswalk,brick_edge_lines,brick band with white lines
+det:UNZJYe878DaZCzmL1SkDtg:0.189:0.608,cuenca:8740,cuenca,UNZJYe878DaZCzmL1SkDtg,0.1888,0.6083,sheet_0057.jpg,12,crosswalk,paint,worn zebra bars on cobblestone
+det:FUynnewH1qlAMb-XGeL0IQ:0.478:0.571,chicago-il:194201,chicago-il,FUynnewH1qlAMb-XGeL0IQ,0.4776,0.5712,sheet_0058.jpg,1,crosswalk,brick_edge_lines,brick band between white lines
+det:6WgOH2lYI2ZMrafJFcSjAA:0.301:0.696,chicago-il:198878,chicago-il,6WgOH2lYI2ZMrafJFcSjAA,0.3008,0.696,sheet_0058.jpg,2,crosswalk,brick_edge_lines,herringbone band with white edge
+det:tlDnaP7wwXVs3EzgGsgkJA:0.758:0.594,chicago-il:59659,chicago-il,tlDnaP7wwXVs3EzgGsgkJA,0.7584,0.5935,sheet_0058.jpg,3,crosswalk,brick_edge_lines,brick band between white lines
+det:s1FrZCQdmvZyW1wq38YD7g:0.983:0.589,cuenca:7616,cuenca,s1FrZCQdmvZyW1wq38YD7g,0.9832,0.5891,sheet_0058.jpg,4,not_crosswalk,none,plain cobblestone street
+det:944MDCeMH6rAfYMWq3xa7g:0.734:0.627,chicago-il:59592,chicago-il,944MDCeMH6rAfYMWq3xa7g,0.7344,0.6268,sheet_0058.jpg,5,crosswalk,brick_edge_lines,brick band between white lines
+det:UkX6EwLUY7c4XQq8-GKGIw:0.633:0.554,chicago-il:172137,chicago-il,UkX6EwLUY7c4XQq8-GKGIw,0.6328,0.5544,sheet_0058.jpg,6,crosswalk,paint,two parallel white transverse lines
+det:ofOYAgcZcrQTMfGj-Wp9aw:0.043:0.579,chicago-il:160558,chicago-il,ofOYAgcZcrQTMfGj-Wp9aw,0.0428,0.5792,sheet_0058.jpg,7,crosswalk,brick_edge_lines,brick band between white lines
+det:6BHr4l3E09oUrhOn3szAmQ:0.476:0.582,chicago-il:31914,chicago-il,6BHr4l3E09oUrhOn3szAmQ,0.4758,0.5815,sheet_0058.jpg,8,crosswalk,brick_edge_lines,brick band between white lines
+det:g5vnUBFg1I7mm6H7nTpGgA:0.993:0.603,cuenca:16699,cuenca,g5vnUBFg1I7mm6H7nTpGgA,0.9927,0.6029,sheet_0058.jpg,9,crosswalk,paint,worn white bars under taxi
+det:GEpdO2WIOEkhrGJibcN4zA:0.246:0.582,chicago-il:13444,chicago-il,GEpdO2WIOEkhrGJibcN4zA,0.2459,0.5822,sheet_0058.jpg,10,not_crosswalk,none,brick apron at driveway entrance
+det:ITD0ZgY-WGAijQvnQPySjg:0.415:0.537,chicago-il:144286,chicago-il,ITD0ZgY-WGAijQvnQPySjg,0.4152,0.5371,sheet_0058.jpg,11,crosswalk,brick_edge_lines,stamped band with white lines
+det:koE0LKyJUnkGzjy13NwhxQ:0.978:0.559,cuenca:13340,cuenca,koE0LKyJUnkGzjy13NwhxQ,0.9784,0.5586,sheet_0058.jpg,12,crosswalk,paint,faint white bars on pavers
+det:SIMJYtdqc5l1latSmj1owQ:0.357:0.655,cuenca:10815,cuenca,SIMJYtdqc5l1latSmj1owQ,0.3568,0.6546,sheet_0059.jpg,1,unsure,unclear,cobblestone with worn white paint at edge
+det:aqpWC-Y8yNRy8TtYH4xPfg:0.334:0.564,chicago-il:203229,chicago-il,aqpWC-Y8yNRy8TtYH4xPfg,0.3339,0.5642,sheet_0059.jpg,2,crosswalk,brick_edge_lines,brick band with white lines
+det:0_Ck_fEF00ZbhUCdlW3Qjw:0.890:0.556,chicago-il:66171,chicago-il,0_Ck_fEF00ZbhUCdlW3Qjw,0.8898,0.5558,sheet_0059.jpg,3,crosswalk,brick_edge_lines,brick band between white lines
+det:XicbUJhENgvMTvKiDZ6nhg:0.673:0.582,cuenca:14045,cuenca,XicbUJhENgvMTvKiDZ6nhg,0.6726,0.5823,sheet_0059.jpg,4,crosswalk,paint,worn white bars on cobblestone
+det:95aMTk2FaIiF4ycYXAOgAw:0.024:0.549,gainesville-fl:27450,gainesville-fl,95aMTk2FaIiF4ycYXAOgAw,0.0242,0.5487,sheet_0059.jpg,5,crosswalk,brick_edge_lines,brick band with white lines
+det:zUqjOOvYVtflVlcBGvlcrA:0.070:0.629,chicago-il:202940,chicago-il,zUqjOOvYVtflVlcBGvlcrA,0.0697,0.629,sheet_0059.jpg,6,crosswalk,brick_edge_lines,brick band between white lines
+det:Or9IDcjXYlTvde-8KQ-gzg:0.374:0.562,chicago-il:39406,chicago-il,Or9IDcjXYlTvde-8KQ-gzg,0.3737,0.5625,sheet_0059.jpg,7,crosswalk,brick_edge_lines,brick band between white lines
+det:xzHh134T9FGPZslp1hADsQ:0.989:0.614,pittsburgh-pa:22897,pittsburgh-pa,xzHh134T9FGPZslp1hADsQ,0.989,0.614,sheet_0059.jpg,8,crosswalk,brick_edge_lines,brick band between white lines
+det:-sPq0rnmbQUFyQlrg_lSrg:0.598:0.590,st-louis-mo:9175,st-louis-mo,-sPq0rnmbQUFyQlrg_lSrg,0.598,0.5902,sheet_0059.jpg,9,crosswalk,brick,faded brick strip across road
+det:EzI4DKdSUiVLW-z6-5EEdQ:0.336:0.556,chicago-il:65248,chicago-il,EzI4DKdSUiVLW-z6-5EEdQ,0.3364,0.5559,sheet_0059.jpg,10,crosswalk,brick,brick band across road
+det:hCHDxGP9afGaVvwF76pBfg:0.452:0.588,chicago-il:65499,chicago-il,hCHDxGP9afGaVvwF76pBfg,0.4517,0.5878,sheet_0059.jpg,11,crosswalk,brick_edge_lines,brick band between white lines
+det:buqM-KsSLmWd1Bl9v55CdQ:0.421:0.545,chicago-il:67460,chicago-il,buqM-KsSLmWd1Bl9v55CdQ,0.4214,0.5455,sheet_0059.jpg,12,crosswalk,brick_edge_lines,brick band with white lines
+det:9uHmtv6vrkb4JbI0JZG9kw:0.870:0.599,chicago-il:172119,chicago-il,9uHmtv6vrkb4JbI0JZG9kw,0.8699,0.599,sheet_0060.jpg,1,crosswalk,brick_edge_lines,brick band between white lines
+det:-hzdH9Kmii0nxB3707faHw:0.341:0.685,gainesville-fl:27576,gainesville-fl,-hzdH9Kmii0nxB3707faHw,0.3406,0.6847,sheet_0060.jpg,2,crosswalk,brick_edge_lines,paver band with worn white edges
+det:2pS9-Df9K2XZL7bUoCmSyA:0.843:0.703,cuenca:15020,cuenca,2pS9-Df9K2XZL7bUoCmSyA,0.8426,0.7028,sheet_0060.jpg,3,not_crosswalk,none,plain setts near curb
+det:FmqvzMsqJUwZ1e-VcSYkeQ:0.849:0.561,columbus-oh:38821,columbus-oh,FmqvzMsqJUwZ1e-VcSYkeQ,0.8486,0.5615,sheet_0060.jpg,4,crosswalk,brick,textured paver band across brick street
+det:6E6-uYs7G_xOqCKoxgMrow:0.016:0.618,cuenca:8942,cuenca,6E6-uYs7G_xOqCKoxgMrow,0.0162,0.6175,sheet_0060.jpg,5,crosswalk,paint,zebra bars on cobblestone
+det:6xDgGgH0i8c2qgOxGkWzBg:0.458:0.568,gainesville-fl:29923,gainesville-fl,6xDgGgH0i8c2qgOxGkWzBg,0.4576,0.5677,sheet_0060.jpg,6,crosswalk,brick_edge_lines,brick band between white lines
+det:htVkCXlmv9r_5WE1O7-diA:0.986:0.576,chicago-il:200934,chicago-il,htVkCXlmv9r_5WE1O7-diA,0.9859,0.5763,sheet_0060.jpg,7,crosswalk,brick_edge_lines,brick band between white lines
+det:6AB9y0q3RuO-g-aFmlxl8A:0.975:0.671,cuenca:3953,cuenca,6AB9y0q3RuO-g-aFmlxl8A,0.9747,0.6708,sheet_0060.jpg,8,crosswalk,paint,worn zebra bars on cobblestone
+det:6jAbJfbpT_ZSuylbvxzLPw:0.997:0.628,cuenca:14225,cuenca,6jAbJfbpT_ZSuylbvxzLPw,0.9965,0.6283,sheet_0060.jpg,9,not_crosswalk,none,plain cobblestone street
+det:zrO8HrlvYyU3I2DZktQklA:0.889:0.691,cuenca:532,cuenca,zrO8HrlvYyU3I2DZktQklA,0.8894,0.6911,sheet_0060.jpg,10,crosswalk,paint,worn white bars on cobblestone
+det:hCHDxGP9afGaVvwF76pBfg:0.273:0.566,chicago-il:65503,chicago-il,hCHDxGP9afGaVvwF76pBfg,0.2728,0.566,sheet_0060.jpg,11,crosswalk,brick_edge_lines,brick band between white lines
+det:u4n2uy7XNXPy5fR3hgx-CQ:0.435:0.675,columbus-oh:37612,columbus-oh,u4n2uy7XNXPy5fR3hgx-CQ,0.4348,0.6746,sheet_0060.jpg,12,unsure,unclear,herringbone brick surface; no band visible
+det:FOw2G2t5AecyLPVeUw8bmw:0.797:0.551,chicago-il:81979,chicago-il,FOw2G2t5AecyLPVeUw8bmw,0.7972,0.5507,sheet_0061.jpg,1,crosswalk,brick_edge_lines,brick band across road with white lines
+det:ddMxwqHm-beFMyxjUDZwiQ:0.260:0.557,columbus-oh:45925,columbus-oh,ddMxwqHm-beFMyxjUDZwiQ,0.2595,0.5569,sheet_0061.jpg,2,crosswalk,brick,brick band across roadway
+det:f_48a_A4uDvyJUTS08hNLg:0.255:0.558,gainesville-fl:30554,gainesville-fl,f_48a_A4uDvyJUTS08hNLg,0.255,0.5585,sheet_0061.jpg,3,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:Jhwkk08oFAgaVm5puGe2ng:0.910:0.614,gainesville-fl:37537,gainesville-fl,Jhwkk08oFAgaVm5puGe2ng,0.9097,0.6136,sheet_0061.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:HDbCEnlkGzq5sA3IHxoZag:0.317:0.597,chicago-il:67476,chicago-il,HDbCEnlkGzq5sA3IHxoZag,0.3165,0.5967,sheet_0061.jpg,5,crosswalk,brick_edge_lines,coloured crossing band with white bars
+det:unDbfjSUGGJUAVyyhubmUA:0.849:0.541,gainesville-fl:30427,gainesville-fl,unDbfjSUGGJUAVyyhubmUA,0.8494,0.5406,sheet_0061.jpg,6,crosswalk,brick_edge_lines,brick band with white lines in circle
+det:KVyzmB6-yD_stDU-eALddw:0.494:0.567,cuenca:15946,cuenca,KVyzmB6-yD_stDU-eALddw,0.4937,0.5672,sheet_0061.jpg,7,crosswalk,paint,painted zebra bars
+det:rJk49IfgDVSRtYMgIt0n8A:0.436:0.653,chicago-il:129799,chicago-il,rJk49IfgDVSRtYMgIt0n8A,0.4362,0.6527,sheet_0061.jpg,8,crosswalk,brick_edge_lines,brick crossing beside stop line
+det:2fPr29qq0q7Dx62JcbsaWg:0.962:0.607,cuenca:7837,cuenca,2fPr29qq0q7Dx62JcbsaWg,0.9618,0.6071,sheet_0061.jpg,9,crosswalk,brick,dark paver band across road
+det:WlTYP2LMRzxceNlrycK--g:0.566:0.552,chicago-il:173715,chicago-il,WlTYP2LMRzxceNlrycK--g,0.5664,0.5525,sheet_0061.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:GCTIy8iTTtL_vmvlWdi3sg:0.289:0.571,chicago-il:64771,chicago-il,GCTIy8iTTtL_vmvlWdi3sg,0.2891,0.5713,sheet_0061.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:s7-gNPSdX89YvC-cFLeJ_Q:0.529:0.610,chicago-il:39448,chicago-il,s7-gNPSdX89YvC-cFLeJ_Q,0.5294,0.6099,sheet_0061.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:my7WBo4nGFw4--lsd9i2YA:0.527:0.616,cuenca:38,cuenca,my7WBo4nGFw4--lsd9i2YA,0.5268,0.6161,sheet_0062.jpg,1,crosswalk,paint,faded painted bars on cobblestone
+det:tfWQWh4EopPxlRMG18tX7w:0.598:0.577,maywood-nj:28026,maywood-nj,tfWQWh4EopPxlRMG18tX7w,0.5983,0.5765,sheet_0062.jpg,2,crosswalk,brick,brick band across road
+det:FyhIVU4fgxhKMpptywxdFg:0.709:0.572,gainesville-fl:29101,gainesville-fl,FyhIVU4fgxhKMpptywxdFg,0.7092,0.5715,sheet_0062.jpg,3,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:Tl7QpkuAKSM-RYoTzLI4vQ:0.527:0.714,cuenca:7114,cuenca,Tl7QpkuAKSM-RYoTzLI4vQ,0.5268,0.7141,sheet_0062.jpg,4,crosswalk,paint,faded zebra bars
+det:ITD0ZgY-WGAijQvnQPySjg:0.516:0.577,chicago-il:144279,chicago-il,ITD0ZgY-WGAijQvnQPySjg,0.5156,0.5773,sheet_0062.jpg,5,crosswalk,paint,two parallel transverse white lines
+det:1NHaNsHGfHSHNFH7CVVtAg:0.009:0.578,chicago-il:59574,chicago-il,1NHaNsHGfHSHNFH7CVVtAg,0.0087,0.578,sheet_0062.jpg,6,crosswalk,brick,red band across road
+det:zCV_zBBj-R-wsZVNmobdJg:0.725:0.624,cuenca:10428,cuenca,zCV_zBBj-R-wsZVNmobdJg,0.7251,0.6238,sheet_0062.jpg,7,crosswalk,paint,faded zebra bars on cobblestone
+det:1l75NVlGu5ew4BTkMeTH-Q:0.297:0.556,chicago-il:56807,chicago-il,1l75NVlGu5ew4BTkMeTH-Q,0.2974,0.556,sheet_0062.jpg,8,crosswalk,brick_edge_lines,red band bordered by white lines
+det:tKUeNqsb-b9jxLBXwN4RyA:0.528:0.545,chicago-il:191973,chicago-il,tKUeNqsb-b9jxLBXwN4RyA,0.5279,0.5449,sheet_0062.jpg,9,crosswalk,brick_edge_lines,red band bordered by white lines
+det:S251VvrYnH0CfROnkIPQSA:0.500:0.622,chicago-il:59588,chicago-il,S251VvrYnH0CfROnkIPQSA,0.4999,0.6216,sheet_0062.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:zCV_zBBj-R-wsZVNmobdJg:0.311:0.710,cuenca:10361,cuenca,zCV_zBBj-R-wsZVNmobdJg,0.3109,0.7102,sheet_0062.jpg,11,crosswalk,paint,zebra bars on cobblestone
+det:CmOaB451dGeqGgSmXh8oYw:0.469:0.628,chicago-il:207780,chicago-il,CmOaB451dGeqGgSmXh8oYw,0.4693,0.6284,sheet_0062.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:kpjn6Bcxhc42Ub2ttBdhqQ:0.905:0.605,chicago-il:202335,chicago-il,kpjn6Bcxhc42Ub2ttBdhqQ,0.9047,0.6051,sheet_0063.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:E0qzei-H491TQkJeWaZuUw:0.985:0.654,cuenca:10320,cuenca,E0qzei-H491TQkJeWaZuUw,0.9854,0.654,sheet_0063.jpg,2,crosswalk,paint,zebra bars on cobblestone
+det:EP2KLXH1Qpb9kOKWBk7mgg:0.879:0.579,chicago-il:132750,chicago-il,EP2KLXH1Qpb9kOKWBk7mgg,0.8787,0.5786,sheet_0063.jpg,3,crosswalk,brick_edge_lines,brick band with white lines in circle
+det:PVru41hnMOJcmjjP5xW2gg:0.468:0.566,chicago-il:113312,chicago-il,PVru41hnMOJcmjjP5xW2gg,0.4683,0.5664,sheet_0063.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:CwljmVVR6EeoDOkvFCe5IQ:0.963:0.529,oradell-nj:7481,oradell-nj,CwljmVVR6EeoDOkvFCe5IQ,0.9626,0.5286,sheet_0063.jpg,5,not_crosswalk,none,brick sidewalk island near sign pole
+det:t6uszLfmK3N2rBBBjCRY1w:0.734:0.569,chicago-il:82087,chicago-il,t6uszLfmK3N2rBBBjCRY1w,0.7336,0.569,sheet_0063.jpg,6,crosswalk,brick_edge_lines,faint brick band with white lines
+det:bPX2MXs1eAJd9jcObM4a0Q:0.467:0.520,chicago-il:172130,chicago-il,bPX2MXs1eAJd9jcObM4a0Q,0.4668,0.5203,sheet_0063.jpg,7,crosswalk,brick_edge_lines,red band bordered by white lines
+det:mCHMidtKTo0cD5FCtLNCIw:0.341:0.593,cuenca:8067,cuenca,mCHMidtKTo0cD5FCtLNCIw,0.3407,0.5933,sheet_0063.jpg,8,crosswalk,paint,zebra bars on cobblestone
+det:T94_s5Jxv1DMtxhxrtfz7Q:0.493:0.559,columbus-oh:43077,columbus-oh,T94_s5Jxv1DMtxhxrtfz7Q,0.4926,0.5592,sheet_0063.jpg,9,crosswalk,brick,brick band across road
+det:WpVVo8tmD6IEHeJ7oD9l7Q:0.194:0.572,chicago-il:104423,chicago-il,WpVVo8tmD6IEHeJ7oD9l7Q,0.1942,0.5719,sheet_0063.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:jcuGty_lC1yOI4RT1sdqfA:0.485:0.606,chicago-il:60993,chicago-il,jcuGty_lC1yOI4RT1sdqfA,0.4846,0.6056,sheet_0063.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:sz6Bzrli38vOo0GlEmX2Hw:0.329:0.608,knox-oh:26152,knox-oh,sz6Bzrli38vOo0GlEmX2Hw,0.3291,0.6079,sheet_0063.jpg,12,crosswalk,paint,zebra bars on brick road
+det:l-pUHgTL9ximYQ5KEhWPvQ:0.009:0.657,chicago-il:149570,chicago-il,l-pUHgTL9ximYQ5KEhWPvQ,0.0091,0.6566,sheet_0064.jpg,1,unsure,unclear,close-up brick paving; crossing or plaza unclear
+det:jjcnuNl7OBYyMR3NyhjUQA:0.690:0.718,cuenca:15661,cuenca,jjcnuNl7OBYyMR3NyhjUQA,0.6898,0.7178,sheet_0064.jpg,2,unsure,unclear,paver surface near curb; no clear crossing
+det:1-pyGigVN1_Gjxk7z65J7g:0.191:0.572,cliffside-park-nj:25219,cliffside-park-nj,1-pyGigVN1_Gjxk7z65J7g,0.191,0.5721,sheet_0064.jpg,3,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:IoEJCj5o4PLkzGP2AC9N6Q:0.496:0.564,chicago-il:113319,chicago-il,IoEJCj5o4PLkzGP2AC9N6Q,0.4965,0.5638,sheet_0064.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:ddMxwqHm-beFMyxjUDZwiQ:0.760:0.555,columbus-oh:37717,columbus-oh,ddMxwqHm-beFMyxjUDZwiQ,0.7598,0.5555,sheet_0064.jpg,5,crosswalk,brick,brick band across road
+det:zlSrS6VWO63eRjRn5dgVtA:0.372:0.537,chicago-il:115340,chicago-il,zlSrS6VWO63eRjRn5dgVtA,0.3722,0.5375,sheet_0064.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:KPvdcMhgxXLZACkD5_O5Ng:0.530:0.603,cuenca:4273,cuenca,KPvdcMhgxXLZACkD5_O5Ng,0.5304,0.6028,sheet_0064.jpg,7,crosswalk,paint,painted zebra bars
+det:fovot9af8Ka51Bk2Gg15Jw:0.018:0.562,chicago-il:32252,chicago-il,fovot9af8Ka51Bk2Gg15Jw,0.0182,0.5621,sheet_0064.jpg,8,crosswalk,brick_edge_lines,red band bordered by white lines
+det:hu6pM29EmkOAuRR2zX41Ng:0.069:0.714,gainesville-fl:30278,gainesville-fl,hu6pM29EmkOAuRR2zX41Ng,0.0689,0.7142,sheet_0064.jpg,9,unsure,unclear,brick strip between curbs; maybe sidewalk
+det:D8qEra2207gMjjIJqt2Nbg:0.684:0.613,cuenca:3025,cuenca,D8qEra2207gMjjIJqt2Nbg,0.684,0.6134,sheet_0064.jpg,10,crosswalk,paint,faded painted bars on cobblestone
+det:5tFkEbd0I4Pei-98q84gdg:0.625:0.564,gainesville-fl:29985,gainesville-fl,5tFkEbd0I4Pei-98q84gdg,0.6248,0.5643,sheet_0064.jpg,11,crosswalk,brick_edge_lines,brick band with white line
+det:KJ8a0DgtXsNCcrm52hXcHA:0.756:0.592,gainesville-fl:27481,gainesville-fl,KJ8a0DgtXsNCcrm52hXcHA,0.7563,0.5919,sheet_0064.jpg,12,crosswalk,brick_edge_lines,paver band bordered by white lines
+det:zCV_zBBj-R-wsZVNmobdJg:0.894:0.670,cuenca:10418,cuenca,zCV_zBBj-R-wsZVNmobdJg,0.8944,0.6701,sheet_0065.jpg,1,crosswalk,paint,zebra bars on cobblestone
+det:eYxjBptTTeuOXCYekGDW-Q:0.245:0.640,cuenca:345,cuenca,eYxjBptTTeuOXCYekGDW-Q,0.2453,0.6399,sheet_0065.jpg,2,unsure,unclear,cobblestone road; faint paint remnants at edge
+det:sz6Bzrli38vOo0GlEmX2Hw:0.617:0.647,knox-oh:26154,knox-oh,sz6Bzrli38vOo0GlEmX2Hw,0.6169,0.647,sheet_0065.jpg,3,crosswalk,paint,zebra bars on brick road
+det:1y8SzUxtW8-E5uWZsPSZAw:0.627:0.584,chicago-il:31899,chicago-il,1y8SzUxtW8-E5uWZsPSZAw,0.6272,0.5837,sheet_0065.jpg,4,crosswalk,paint,two parallel transverse white lines
+det:7kudMAmg_cfz6uZTszgVMg:0.969:0.712,chicago-il:125393,chicago-il,7kudMAmg_cfz6uZTszgVMg,0.9691,0.712,sheet_0065.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:m9JxRaSSpkxmOVh56Nzfvw:0.489:0.585,chicago-il:39116,chicago-il,m9JxRaSSpkxmOVh56Nzfvw,0.4891,0.5853,sheet_0065.jpg,6,unsure,unclear,faint lines on worn asphalt
+det:P2CtJ_618MMn2gIpYbK7Dg:0.134:0.668,gainesville-fl:32494,gainesville-fl,P2CtJ_618MMn2gIpYbK7Dg,0.1344,0.6676,sheet_0065.jpg,7,unsure,unclear,brick herringbone between concrete strips
+det:6AB9y0q3RuO-g-aFmlxl8A:0.766:0.635,cuenca:4960,cuenca,6AB9y0q3RuO-g-aFmlxl8A,0.7662,0.6354,sheet_0065.jpg,8,crosswalk,paint,faded painted bars on cobblestone
+det:tFIbTOGeFP0yldZU1FldGA:0.708:0.566,chicago-il:59610,chicago-il,tFIbTOGeFP0yldZU1FldGA,0.7077,0.5659,sheet_0065.jpg,9,crosswalk,paint,two parallel transverse white lines
+det:4_bmxpi3InubVvwOh9Wb_w:0.878:0.558,gainesville-fl:27457,gainesville-fl,4_bmxpi3InubVvwOh9Wb_w,0.8781,0.5579,sheet_0065.jpg,10,crosswalk,paint,two parallel transverse white lines
+det:6BHr4l3E09oUrhOn3szAmQ:0.762:0.608,chicago-il:31911,chicago-il,6BHr4l3E09oUrhOn3szAmQ,0.7619,0.6078,sheet_0065.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:9wj-tXQBq5kHCbcvdESoJA:0.885:0.575,chicago-il:31804,chicago-il,9wj-tXQBq5kHCbcvdESoJA,0.8851,0.5754,sheet_0065.jpg,12,crosswalk,brick,brick band across road
+det:v6oLEN5W8GU5ay3mkBlLRQ:0.373:0.689,chicago-il:189618,chicago-il,v6oLEN5W8GU5ay3mkBlLRQ,0.3735,0.6887,sheet_0066.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:WGEjJ_JJMLuuffWEqy7idg:0.495:0.529,chicago-il:55720,chicago-il,WGEjJ_JJMLuuffWEqy7idg,0.495,0.5295,sheet_0066.jpg,2,unsure,unclear,distant road; crossing not visible
+det:6E6-uYs7G_xOqCKoxgMrow:0.924:0.567,cuenca:9036,cuenca,6E6-uYs7G_xOqCKoxgMrow,0.9242,0.5673,sheet_0066.jpg,3,crosswalk,paint,zebra bars inside circle
+det:nk5mz6sG5ZpJB43kR5LxIA:0.947:0.537,chicago-il:119265,chicago-il,nk5mz6sG5ZpJB43kR5LxIA,0.947,0.5372,sheet_0066.jpg,4,unsure,unclear,marker at far brick corner; unclear
+det:yAqwduej58cMeRkFIsw71Q:0.768:0.634,cuenca:11471,cuenca,yAqwduej58cMeRkFIsw71Q,0.768,0.6343,sheet_0066.jpg,5,crosswalk,paint,faded painted bars on cobblestone
+det:Tq_KLBk2uhDDArCx_EN21g:0.990:0.603,chicago-il:62925,chicago-il,Tq_KLBk2uhDDArCx_EN21g,0.9902,0.6025,sheet_0066.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:9uHmtv6vrkb4JbI0JZG9kw:0.996:0.547,chicago-il:172122,chicago-il,9uHmtv6vrkb4JbI0JZG9kw,0.9958,0.5468,sheet_0066.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:0ugL_mo2YPsT5VRzvDaWWg:0.767:0.599,chicago-il:58214,chicago-il,0ugL_mo2YPsT5VRzvDaWWg,0.7669,0.5985,sheet_0066.jpg,8,crosswalk,brick_edge_lines,red band bordered by white lines
+det:BGDewAfb-bApaR8DpvPrvQ:0.317:0.649,gainesville-fl:39724,gainesville-fl,BGDewAfb-bApaR8DpvPrvQ,0.3169,0.6486,sheet_0066.jpg,9,not_crosswalk,none,brick sidewalk between planting beds
+det:mc_jRTJLflOoRwGvmxIRlg:0.983:0.581,chicago-il:111561,chicago-il,mc_jRTJLflOoRwGvmxIRlg,0.9827,0.5811,sheet_0066.jpg,10,unsure,unclear,faint lines on distant road
+det:OW8npRzboJskDjiyiTLY5A:0.593:0.553,chicago-il:193609,chicago-il,OW8npRzboJskDjiyiTLY5A,0.5931,0.5533,sheet_0066.jpg,11,crosswalk,brick_edge_lines,red band bordered by white lines
+det:OdJ4GilAW6B4992e_Ke2Kg:0.490:0.606,cuenca:10393,cuenca,OdJ4GilAW6B4992e_Ke2Kg,0.4896,0.6059,sheet_0066.jpg,12,crosswalk,paint,zebra bars on cobblestone
+det:Fnmn81rl6lKiag0Rco2N5w:0.039:0.652,chicago-il:141330,chicago-il,Fnmn81rl6lKiag0Rco2N5w,0.039,0.6517,sheet_0067.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:FGKJvVrvu6UXNWrU0BocoQ:0.305:0.589,pittsburgh-pa:19142,pittsburgh-pa,FGKJvVrvu6UXNWrU0BocoQ,0.3053,0.5885,sheet_0067.jpg,2,unsure,unclear,brick band at alley entrance; maybe sidewalk
+det:H-ce1Bz3L8Umow1XtOaK-w:0.415:0.608,cuenca:9137,cuenca,H-ce1Bz3L8Umow1XtOaK-w,0.4147,0.6076,sheet_0067.jpg,3,crosswalk,paint,painted zebra bars
+det:T6xFloZFsBszi1wq6vihpA:0.679:0.632,cuenca:3075,cuenca,T6xFloZFsBszi1wq6vihpA,0.6791,0.6318,sheet_0067.jpg,4,crosswalk,paint,faded painted bars on cobblestone
+det:V02i-GmKnmswoaVgqRw53Q:0.304:0.571,chicago-il:127012,chicago-il,V02i-GmKnmswoaVgqRw53Q,0.3039,0.571,sheet_0067.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:ciiuYko9tqoyeplvPXW2yw:0.012:0.530,columbus-oh:37593,columbus-oh,ciiuYko9tqoyeplvPXW2yw,0.0117,0.5304,sheet_0067.jpg,6,unsure,unclear,distant road; no crossing visible
+det:c_LOTysGP12GuFxv7wNMZA:0.792:0.569,chicago-il:23978,chicago-il,c_LOTysGP12GuFxv7wNMZA,0.7917,0.5687,sheet_0067.jpg,7,crosswalk,paint,two white transverse lines across road
+det:sav0UomZcXDL4-fHExXWQw:0.850:0.576,chicago-il:194211,chicago-il,sav0UomZcXDL4-fHExXWQw,0.8502,0.5763,sheet_0067.jpg,8,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:aK0OTB6PQ2I4DpxWbSHDDA:0.290:0.555,chicago-il:85776,chicago-il,aK0OTB6PQ2I4DpxWbSHDDA,0.2901,0.5554,sheet_0067.jpg,9,unsure,unclear,faint reddish band; too far
+det:4bwkOEJYWqOWR7evfFnZPQ:0.329:0.581,gainesville-fl:26986,gainesville-fl,4bwkOEJYWqOWR7evfFnZPQ,0.3286,0.5807,sheet_0067.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:muyUon69E4MqVIKHOksvlw:0.442:0.641,chicago-il:63913,chicago-il,muyUon69E4MqVIKHOksvlw,0.4421,0.6415,sheet_0067.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:3QH6izQNLfs3RLNGYiMDWw:0.766:0.729,cuenca:13949,cuenca,3QH6izQNLfs3RLNGYiMDWw,0.7657,0.7293,sheet_0067.jpg,12,not_crosswalk,none,ordinary paver road near curb
+det:UU_0w0y1fyvVnG4wB3891w:0.819:0.588,chicago-il:194219,chicago-il,UU_0w0y1fyvVnG4wB3891w,0.8192,0.5879,sheet_0068.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:SSGYFwsnALwocwLQhBNrYA:0.012:0.570,chicago-il:60976,chicago-il,SSGYFwsnALwocwLQhBNrYA,0.0119,0.5704,sheet_0068.jpg,2,crosswalk,brick_edge_lines,textured band bordered by white lines
+det:77oTVP0PlonInYnhku_z2Q:0.593:0.710,columbus-oh:38257,columbus-oh,77oTVP0PlonInYnhku_z2Q,0.5931,0.7102,sheet_0068.jpg,3,not_crosswalk,none,decorative paver pattern
+det:1l75NVlGu5ew4BTkMeTH-Q:0.784:0.608,chicago-il:56805,chicago-il,1l75NVlGu5ew4BTkMeTH-Q,0.7837,0.6078,sheet_0068.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:LPfYEzRlh12oeC9-Xo4Tnw:0.906:0.607,maywood-nj:28000,maywood-nj,LPfYEzRlh12oeC9-Xo4Tnw,0.9058,0.6074,sheet_0068.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:PBqR-hrlsQGNMdiPqFpBaQ:0.116:0.583,chicago-il:139602,chicago-il,PBqR-hrlsQGNMdiPqFpBaQ,0.1161,0.5833,sheet_0068.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:09V8lAHW21uNpcYJ7ojjxw:0.976:0.550,chicago-il:67411,chicago-il,09V8lAHW21uNpcYJ7ojjxw,0.9759,0.55,sheet_0068.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:29aUNMmJt4oHGsIpIyy8Vw:0.497:0.559,cuenca:14566,cuenca,29aUNMmJt4oHGsIpIyy8Vw,0.4968,0.5589,sheet_0068.jpg,8,not_crosswalk,none,cobblestone road behind bus
+det:zrO8HrlvYyU3I2DZktQklA:0.531:0.632,cuenca:531,cuenca,zrO8HrlvYyU3I2DZktQklA,0.5308,0.6321,sheet_0068.jpg,9,crosswalk,paint,zebra bars on cobblestone in circle
+det:Ijjl5_DDRVoO2ww3LC5K_g:0.538:0.648,cuenca:88,cuenca,Ijjl5_DDRVoO2ww3LC5K_g,0.5384,0.6478,sheet_0068.jpg,10,not_crosswalk,none,decorative brick diamond in road
+det:Zf06XsKXdDUSqcnsmo31bA:0.471:0.589,chicago-il:65240,chicago-il,Zf06XsKXdDUSqcnsmo31bA,0.4714,0.5892,sheet_0068.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:_gJyVPMIaNlyLUsYCITFXw:0.805:0.752,cuenca:14431,cuenca,_gJyVPMIaNlyLUsYCITFXw,0.8047,0.752,sheet_0068.jpg,12,crosswalk,paint,faded painted bar
+det:enA7AWpPd_9QsT8YEBotZg:0.037:0.584,chicago-il:82802,chicago-il,enA7AWpPd_9QsT8YEBotZg,0.0369,0.5841,sheet_0069.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:eoTPndFWstBz2IB3314JIw:0.925:0.575,gainesville-fl:27717,gainesville-fl,eoTPndFWstBz2IB3314JIw,0.925,0.5746,sheet_0069.jpg,2,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:zrO8HrlvYyU3I2DZktQklA:0.716:0.610,cuenca:11353,cuenca,zrO8HrlvYyU3I2DZktQklA,0.716,0.6095,sheet_0069.jpg,3,crosswalk,paint,painted bars on cobblestone
+det:hu6pM29EmkOAuRR2zX41Ng:0.936:0.596,gainesville-fl:30280,gainesville-fl,hu6pM29EmkOAuRR2zX41Ng,0.9357,0.5962,sheet_0069.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:Pujqsu6_4vudNnJYzPsczg:0.997:0.644,pittsburgh-pa:22895,pittsburgh-pa,Pujqsu6_4vudNnJYzPsczg,0.9969,0.6437,sheet_0069.jpg,5,crosswalk,brick_edge_lines,wide brick band with white line
+det:wRyNPcoPXn-y6abZ1lr4hQ:0.798:0.566,pittsburgh-pa:22967,pittsburgh-pa,wRyNPcoPXn-y6abZ1lr4hQ,0.7984,0.5655,sheet_0069.jpg,6,crosswalk,paint,two parallel transverse white lines
+det:Q_yt15PG7EAOkoGCuC9n_A:0.556:0.626,chicago-il:62941,chicago-il,Q_yt15PG7EAOkoGCuC9n_A,0.556,0.6261,sheet_0069.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:FWeX7JTYW8ITbY-eZqFvQw:0.236:0.550,chicago-il:39699,chicago-il,FWeX7JTYW8ITbY-eZqFvQw,0.2363,0.5505,sheet_0069.jpg,8,unsure,unclear,possible faint band near barricades
+det:muyUon69E4MqVIKHOksvlw:0.666:0.602,chicago-il:63911,chicago-il,muyUon69E4MqVIKHOksvlw,0.6657,0.6023,sheet_0069.jpg,9,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:1y8SzUxtW8-E5uWZsPSZAw:0.377:0.604,chicago-il:31902,chicago-il,1y8SzUxtW8-E5uWZsPSZAw,0.3771,0.604,sheet_0069.jpg,10,crosswalk,paint,two parallel transverse white lines
+det:E0qzei-H491TQkJeWaZuUw:0.240:0.645,cuenca:10339,cuenca,E0qzei-H491TQkJeWaZuUw,0.2405,0.6454,sheet_0069.jpg,11,crosswalk,paint,faded painted bars on cobblestone
+det:bPX2MXs1eAJd9jcObM4a0Q:0.416:0.512,chicago-il:172132,chicago-il,bPX2MXs1eAJd9jcObM4a0Q,0.4156,0.5125,sheet_0069.jpg,12,crosswalk,brick_edge_lines,distant red band with white lines
+det:wRyNPcoPXn-y6abZ1lr4hQ:0.456:0.549,pittsburgh-pa:22968,pittsburgh-pa,wRyNPcoPXn-y6abZ1lr4hQ,0.4555,0.5493,sheet_0070.jpg,1,unsure,unclear,lines near bus; crossing unclear
+det:AxsfaSUR7E3NVMyuSTqfcg:0.330:0.609,cuenca:12784,cuenca,AxsfaSUR7E3NVMyuSTqfcg,0.3296,0.6088,sheet_0070.jpg,2,crosswalk,paint,zebra bars on cobblestone
+det:Xueihl3KpcqP9syqq98n1A:0.959:0.668,cuenca:13879,cuenca,Xueihl3KpcqP9syqq98n1A,0.9594,0.6677,sheet_0070.jpg,3,unsure,unclear,paver band pattern; maybe decorative
+det:hson0HRNqdYuCrNYXsEpHw:0.001:0.599,pittsburgh-pa:22934,pittsburgh-pa,hson0HRNqdYuCrNYXsEpHw,0.0013,0.599,sheet_0070.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:hXUQHNI8sCf6OZxquLPPyw:0.463:0.703,cuenca:15921,cuenca,hXUQHNI8sCf6OZxquLPPyw,0.463,0.7033,sheet_0070.jpg,5,crosswalk,paint,painted zebra bars
+det:kds3Bz9T5JKwNQH7Hygjsw:0.734:0.632,oradell-nj:7575,oradell-nj,kds3Bz9T5JKwNQH7Hygjsw,0.7335,0.6318,sheet_0070.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:IUsF8Y_SS1TOw6wTbJIs_Q:0.026:0.574,gainesville-fl:34242,gainesville-fl,IUsF8Y_SS1TOw6wTbJIs_Q,0.0259,0.5743,sheet_0070.jpg,7,crosswalk,paint,two white lines across brick road
+det:0w9OQfaz2Fnrm02kyv9DlQ:0.989:0.630,cuenca:15431,cuenca,0w9OQfaz2Fnrm02kyv9DlQ,0.9891,0.6297,sheet_0070.jpg,8,unsure,unclear,cobblestone corner; white line may be stop line
+det:Li9m9it9AuYXsbThd4hoqA:0.734:0.595,chicago-il:32495,chicago-il,Li9m9it9AuYXsbThd4hoqA,0.7339,0.5952,sheet_0070.jpg,9,not_crosswalk,none,plain asphalt road
+det:zrO8HrlvYyU3I2DZktQklA:0.284:0.691,cuenca:11215,cuenca,zrO8HrlvYyU3I2DZktQklA,0.284,0.6913,sheet_0070.jpg,10,crosswalk,paint,zebra bars on cobblestone
+det:8eJ8ifzLlmQXkXn1XfyPhg:0.883:0.595,chicago-il:39139,chicago-il,8eJ8ifzLlmQXkXn1XfyPhg,0.8831,0.5945,sheet_0070.jpg,11,crosswalk,brick,brick crossing band; pedestrian crossing
+det:my7WBo4nGFw4--lsd9i2YA:0.208:0.587,cuenca:8661,cuenca,my7WBo4nGFw4--lsd9i2YA,0.2079,0.5865,sheet_0070.jpg,12,crosswalk,paint,zebra bars on cobblestone
+det:uJngy1ciqPv5H_PLSzKQpA:0.012:0.551,gainesville-fl:30424,gainesville-fl,uJngy1ciqPv5H_PLSzKQpA,0.0122,0.5513,sheet_0071.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:-YTTJfUL0-idnxU-CeKaTQ:0.480:0.616,cuenca:3995,cuenca,-YTTJfUL0-idnxU-CeKaTQ,0.4802,0.6158,sheet_0071.jpg,2,not_crosswalk,none,cobblestone bus lane
+det:GainnDRq4Ls-jNJ66gY1Nw:0.462:0.646,cuenca:14601,cuenca,GainnDRq4Ls-jNJ66gY1Nw,0.4618,0.6456,sheet_0071.jpg,3,unsure,unclear,paver road; faint marks
+det:xzbp7ZwZ-aAixA3ZgN8OFQ:0.882:0.633,cuenca:10976,cuenca,xzbp7ZwZ-aAixA3ZgN8OFQ,0.8819,0.6333,sheet_0071.jpg,4,crosswalk,paint,faded painted bars on cobblestone
+det:USwPTmQ_b1SIcK_HQvfIOA:0.234:0.683,chicago-il:160193,chicago-il,USwPTmQ_b1SIcK_HQvfIOA,0.2339,0.6829,sheet_0071.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:6E6-uYs7G_xOqCKoxgMrow:0.110:0.565,cuenca:9018,cuenca,6E6-uYs7G_xOqCKoxgMrow,0.1095,0.5646,sheet_0071.jpg,6,crosswalk,paint,painted crossing lines in circle
+det:oQmf5JeJRmCqoDxNKWa5Kw:0.752:0.610,knox-oh:25718,knox-oh,oQmf5JeJRmCqoDxNKWa5Kw,0.7523,0.6097,sheet_0071.jpg,7,crosswalk,paint,zebra bars on brick road
+det:jkLvDcMj9glkyonIp9m0rg:0.439:0.623,chicago-il:174284,chicago-il,jkLvDcMj9glkyonIp9m0rg,0.4389,0.6227,sheet_0071.jpg,8,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:09V8lAHW21uNpcYJ7ojjxw:0.199:0.548,chicago-il:67403,chicago-il,09V8lAHW21uNpcYJ7ojjxw,0.1993,0.548,sheet_0071.jpg,9,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:fJ02Zx5k8pfrTm14S5ynAQ:0.730:0.613,chicago-il:69746,chicago-il,fJ02Zx5k8pfrTm14S5ynAQ,0.7303,0.613,sheet_0071.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:BA9rjijJaahybE2SNAAvWg:0.013:0.793,chicago-il:60972,chicago-il,BA9rjijJaahybE2SNAAvWg,0.013,0.7932,sheet_0071.jpg,11,unsure,unclear,overexposed brick surface
+det:CIZ5Q-aHA79hXxxjqZuyng:0.029:0.614,chicago-il:31918,chicago-il,CIZ5Q-aHA79hXxxjqZuyng,0.0291,0.6135,sheet_0071.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:EpfQSuinrFtQiJpecjWSjg:0.532:0.733,chicago-il:64039,chicago-il,EpfQSuinrFtQiJpecjWSjg,0.5317,0.733,sheet_0072.jpg,1,unsure,unclear,close-up brick near curb; context unclear
+det:Qophr2hPTk9gaI-Qb0VBMQ:0.190:0.658,cuenca:10542,cuenca,Qophr2hPTk9gaI-Qb0VBMQ,0.1897,0.6584,sheet_0072.jpg,2,crosswalk,paint,zebra bars on cobblestone
+det:z6BStf3mNljQj0jqgeEofQ:0.574:0.541,chicago-il:193109,chicago-il,z6BStf3mNljQj0jqgeEofQ,0.5736,0.5406,sheet_0072.jpg,3,crosswalk,paint,white transverse lines across road
+det:sePSOJ6sS6UTHCurofXdIA:0.755:0.576,columbus-oh:37681,columbus-oh,sePSOJ6sS6UTHCurofXdIA,0.7548,0.5757,sheet_0072.jpg,4,crosswalk,brick,brick band across road
+det:ZA020iZdb826dhhzmcL3AQ:0.197:0.563,chicago-il:119244,chicago-il,ZA020iZdb826dhhzmcL3AQ,0.1966,0.5631,sheet_0072.jpg,5,not_crosswalk,none,plain asphalt road
+det:ixDvhVOus-Uxl0NF0Lvrbg:0.122:0.543,gainesville-fl:27790,gainesville-fl,ixDvhVOus-Uxl0NF0Lvrbg,0.1224,0.543,sheet_0072.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:zBNER82FkFY0XL2n-R9ubQ:0.407:0.679,chicago-il:64030,chicago-il,zBNER82FkFY0XL2n-R9ubQ,0.4075,0.6794,sheet_0072.jpg,7,crosswalk,brick_edge_lines,brick band with white edge line
+det:s1FrZCQdmvZyW1wq38YD7g:0.530:0.638,cuenca:7663,cuenca,s1FrZCQdmvZyW1wq38YD7g,0.5297,0.6376,sheet_0072.jpg,8,not_crosswalk,none,decorative brick diamond in road
+det:wDQs-cOV0w73ofUEqBRoPQ:0.516:0.611,cuenca:16558,cuenca,wDQs-cOV0w73ofUEqBRoPQ,0.5162,0.6113,sheet_0072.jpg,9,unsure,unclear,brick diamond with faded white paint
+det:Tq26UXdYtftpM2kqhg0PfA:0.547:0.575,chicago-il:183912,chicago-il,Tq26UXdYtftpM2kqhg0PfA,0.5469,0.5747,sheet_0072.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.127:0.649,cuenca:8076,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.1267,0.6493,sheet_0072.jpg,11,crosswalk,paint,zebra bars on cobblestone
+det:FWeX7JTYW8ITbY-eZqFvQw:0.518:0.606,chicago-il:39693,chicago-il,FWeX7JTYW8ITbY-eZqFvQw,0.5179,0.606,sheet_0072.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:aRAA1bDpR7FfwZb1WB47Ew:0.777:0.563,chicago-il:59622,chicago-il,aRAA1bDpR7FfwZb1WB47Ew,0.7769,0.5626,sheet_0073.jpg,1,crosswalk,paint,faint white crossing lines
+det:RFx8LnV1ijbLo13YL0pCJw:0.004:0.579,gainesville-fl:27475,gainesville-fl,RFx8LnV1ijbLo13YL0pCJw,0.0037,0.5791,sheet_0073.jpg,2,crosswalk,brick_edge_lines,brick band with white line
+det:QXqZGR78HRNsG8LzeF-K0Q:0.962:0.541,gainesville-fl:27863,gainesville-fl,QXqZGR78HRNsG8LzeF-K0Q,0.9623,0.5411,sheet_0073.jpg,3,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:rGR9m1-UzkRAduYALRy3rg:0.504:0.592,cuenca:14401,cuenca,rGR9m1-UzkRAduYALRy3rg,0.5042,0.5924,sheet_0073.jpg,4,not_crosswalk,none,ordinary cobblestone street
+det:dHh5Z-o69e4HbJvTKXf3Yg:0.775:0.603,pittsburgh-pa:22969,pittsburgh-pa,dHh5Z-o69e4HbJvTKXf3Yg,0.7754,0.6027,sheet_0073.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:ze6aCNJROQqWQg5C7oe9Rg:0.922:0.609,chicago-il:37736,chicago-il,ze6aCNJROQqWQg5C7oe9Rg,0.9225,0.6085,sheet_0073.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:V8CXHmWwMuRNFZG6ixgqzA:0.985:0.552,cuenca:9871,cuenca,V8CXHmWwMuRNFZG6ixgqzA,0.9846,0.5521,sheet_0073.jpg,7,crosswalk,paint,zebra bars on paver road
+det:FWeX7JTYW8ITbY-eZqFvQw:0.373:0.541,chicago-il:39698,chicago-il,FWeX7JTYW8ITbY-eZqFvQw,0.3728,0.5406,sheet_0073.jpg,8,crosswalk,brick_edge_lines,red band bordered by white lines
+det:u7g1Zt6UWX93yQ3X_G1lgw:0.949:0.541,columbus-oh:37359,columbus-oh,u7g1Zt6UWX93yQ3X_G1lgw,0.9488,0.5411,sheet_0073.jpg,9,not_crosswalk,none,decorative paver plaza pattern
+det:kk4xQkYnqUJgK2SzqSsH4A:0.441:0.639,pittsburgh-pa:22991,pittsburgh-pa,kk4xQkYnqUJgK2SzqSsH4A,0.4406,0.6393,sheet_0073.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:AxsfaSUR7E3NVMyuSTqfcg:0.331:0.594,cuenca:4211,cuenca,AxsfaSUR7E3NVMyuSTqfcg,0.3314,0.5944,sheet_0073.jpg,11,crosswalk,paint,faded zebra bars on cobblestone
+det:ohfs12eyGsafc_JpuPz-1w:0.232:0.685,cuenca:9317,cuenca,ohfs12eyGsafc_JpuPz-1w,0.2323,0.6848,sheet_0073.jpg,12,crosswalk,paint,faded paint on cobblestone
+det:d9xcSY-eqLD8iiXWP5IeZA:0.206:0.591,pittsburgh-pa:22954,pittsburgh-pa,d9xcSY-eqLD8iiXWP5IeZA,0.2064,0.5913,sheet_0074.jpg,1,not_crosswalk,none,brick sidewalk near scaffolding
+det:m-JCIZydNkA4jOyKZyV8ng:0.089:0.709,gainesville-fl:36107,gainesville-fl,m-JCIZydNkA4jOyKZyV8ng,0.089,0.709,sheet_0074.jpg,2,unsure,unclear,blank blurred image
+det:ytH63ndmheT0RN_r2Vl_zw:0.806:0.632,cuenca:7900,cuenca,ytH63ndmheT0RN_r2Vl_zw,0.8057,0.6322,sheet_0074.jpg,3,not_crosswalk,none,ordinary cobblestone road
+det:Sj-oB4rkWVUluszvbftBWw:0.564:0.544,pittsburgh-pa:19679,pittsburgh-pa,Sj-oB4rkWVUluszvbftBWw,0.5644,0.5439,sheet_0074.jpg,4,crosswalk,paint,two parallel transverse white lines
+det:PkGK3GS0gR0HlJEMJMBocQ:0.018:0.575,chicago-il:125385,chicago-il,PkGK3GS0gR0HlJEMJMBocQ,0.0179,0.5752,sheet_0074.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:1QggjtCI8F2ryNcoVBcv5w:0.056:0.616,columbus-oh:38253,columbus-oh,1QggjtCI8F2ryNcoVBcv5w,0.0555,0.6163,sheet_0074.jpg,6,crosswalk,brick,paver band across roadway
+det:BITDi_eIWeYqES0TmSKKmg:0.251:0.558,columbus-oh:39998,columbus-oh,BITDi_eIWeYqES0TmSKKmg,0.2513,0.5577,sheet_0074.jpg,7,crosswalk,brick,brick band across road
+det:4_bmxpi3InubVvwOh9Wb_w:0.507:0.727,gainesville-fl:29106,gainesville-fl,4_bmxpi3InubVvwOh9Wb_w,0.5066,0.7267,sheet_0074.jpg,8,unsure,unclear,blank blurred image
+det:ckPIyvtVDPs6Ph6v_5ceHA:0.050:0.605,chicago-il:63864,chicago-il,ckPIyvtVDPs6Ph6v_5ceHA,0.0496,0.6051,sheet_0074.jpg,9,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:t6uszLfmK3N2rBBBjCRY1w:0.257:0.530,chicago-il:82117,chicago-il,t6uszLfmK3N2rBBBjCRY1w,0.2574,0.5305,sheet_0074.jpg,10,unsure,unclear,distant road; crossing unclear
+det:0biRlMVIHEmh7VBmTUoFmg:0.798:0.598,chicago-il:190253,chicago-il,0biRlMVIHEmh7VBmTUoFmg,0.7979,0.5981,sheet_0074.jpg,11,crosswalk,brick,rainbow coloured crossing band
+det:YXmVXBQx9dO-y5-wV7_5mg:0.702:0.601,gainesville-fl:29933,gainesville-fl,YXmVXBQx9dO-y5-wV7_5mg,0.7019,0.601,sheet_0074.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:XXf3KEujRtmmT782KAGuFg:0.026:0.685,chicago-il:32248,chicago-il,XXf3KEujRtmmT782KAGuFg,0.0257,0.6855,sheet_0075.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:dV399xC42opr_nHz7OIyVQ:0.661:0.831,cuenca:14760,cuenca,dV399xC42opr_nHz7OIyVQ,0.6611,0.8311,sheet_0075.jpg,2,unsure,unclear,blurry; single white bar
+det:SmgiTvwYzlUaXgfSXqWWeQ:0.597:0.743,cuenca:8086,cuenca,SmgiTvwYzlUaXgfSXqWWeQ,0.5974,0.7431,sheet_0075.jpg,3,crosswalk,paint,faded painted bars; blurry
+det:94WTxfEfYWCUvoQE7u2N8w:0.105:0.658,gainesville-fl:32885,gainesville-fl,94WTxfEfYWCUvoQE7u2N8w,0.1053,0.6581,sheet_0075.jpg,4,unsure,unclear,mostly blurred out
+det:KdeUaQdJ8sdh6nFEDFojhw:0.036:0.629,chicago-il:126986,chicago-il,KdeUaQdJ8sdh6nFEDFojhw,0.0359,0.6287,sheet_0075.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:mCHMidtKTo0cD5FCtLNCIw:0.345:0.783,cuenca:8066,cuenca,mCHMidtKTo0cD5FCtLNCIw,0.345,0.7832,sheet_0075.jpg,6,unsure,unclear,blurry white paint patches
+det:6VC66wmmAsQhh7p--XdaIA:0.059:0.613,maywood-nj:27994,maywood-nj,6VC66wmmAsQhh7p--XdaIA,0.0594,0.6125,sheet_0075.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:Gn-jKgaJ4jY6VX_8xeZ2zg:0.954:0.587,cuenca:7239,cuenca,Gn-jKgaJ4jY6VX_8xeZ2zg,0.9539,0.5865,sheet_0075.jpg,8,crosswalk,paint,faded zebra bars on cobblestone
+det:1kTZ6p7C_YIMjxeA96K9cg:0.516:0.562,cuenca:7103,cuenca,1kTZ6p7C_YIMjxeA96K9cg,0.5159,0.5625,sheet_0075.jpg,9,not_crosswalk,none,ordinary cobblestone road
+det:lNPiwcJcTvC5_pPeQgu8Zg:0.640:0.570,chicago-il:192187,chicago-il,lNPiwcJcTvC5_pPeQgu8Zg,0.64,0.5702,sheet_0075.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:tt35LnUNAG3uL43nlW8cqQ:0.031:0.556,chicago-il:200923,chicago-il,tt35LnUNAG3uL43nlW8cqQ,0.0308,0.5557,sheet_0075.jpg,11,crosswalk,brick,distant brick band across road
+det:DE4dPfPlhjZa7J8sVq-mYw:0.023:0.587,chicago-il:203225,chicago-il,DE4dPfPlhjZa7J8sVq-mYw,0.0231,0.5873,sheet_0075.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:LSP1SnvdfKu3kJUuEoyjDw:0.716:0.574,chicago-il:31584,chicago-il,LSP1SnvdfKu3kJUuEoyjDw,0.7157,0.5736,sheet_0076.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:ARWGU_oFJja-C5uQQ-DeDQ:0.861:0.595,chicago-il:175946,chicago-il,ARWGU_oFJja-C5uQQ-DeDQ,0.8611,0.5952,sheet_0076.jpg,2,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:zrO8HrlvYyU3I2DZktQklA:0.711:0.614,cuenca:529,cuenca,zrO8HrlvYyU3I2DZktQklA,0.7112,0.614,sheet_0076.jpg,3,crosswalk,paint,painted bars on cobblestone
+det:Dlbrqzzgf7FzFwqUDQBqXA:0.295:0.575,chicago-il:202788,chicago-il,Dlbrqzzgf7FzFwqUDQBqXA,0.2947,0.5745,sheet_0076.jpg,4,crosswalk,brick_edge_lines,brick band with white lines
+det:klJyWw2wJFuW3-b7eNEo1Q:0.248:0.558,pittsburgh-pa:22013,pittsburgh-pa,klJyWw2wJFuW3-b7eNEo1Q,0.2478,0.5581,sheet_0076.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:rfntel6pmPd02LWzt6D7cA:0.727:0.590,chicago-il:173555,chicago-il,rfntel6pmPd02LWzt6D7cA,0.7266,0.5903,sheet_0076.jpg,6,crosswalk,brick_edge_lines,red band bordered by white lines
+det:JN0Y2VrBUrJ9cMLBOYoxjQ:0.483:0.572,chicago-il:25188,chicago-il,JN0Y2VrBUrJ9cMLBOYoxjQ,0.483,0.572,sheet_0076.jpg,7,crosswalk,brick_edge_lines,paver band bordered by white lines
+det:lcjOzLEUII_iGKJhnrwmlA:0.640:0.571,chicago-il:81155,chicago-il,lcjOzLEUII_iGKJhnrwmlA,0.6402,0.5713,sheet_0076.jpg,8,crosswalk,brick_edge_lines,paver band with white lines
+det:HgtRhWq3nV-Q9cHDmV8qoA:0.011:0.584,danville-il:33274,danville-il,HgtRhWq3nV-Q9cHDmV8qoA,0.0115,0.5844,sheet_0076.jpg,9,crosswalk,brick,raised brick band across road
+det:6AB9y0q3RuO-g-aFmlxl8A:0.245:0.588,cuenca:8840,cuenca,6AB9y0q3RuO-g-aFmlxl8A,0.2455,0.5877,sheet_0076.jpg,10,unsure,unclear,brick pattern with faded white marks
+det:eGXbQD7Bay5-lvSG9s1_lQ:0.337:0.574,gainesville-fl:30269,gainesville-fl,eGXbQD7Bay5-lvSG9s1_lQ,0.3369,0.5741,sheet_0076.jpg,11,crosswalk,brick_edge_lines,brick band with white edge line
+det:6AB9y0q3RuO-g-aFmlxl8A:0.980:0.649,cuenca:8820,cuenca,6AB9y0q3RuO-g-aFmlxl8A,0.9803,0.6492,sheet_0076.jpg,12,crosswalk,paint,zebra bars on cobblestone
+det:ZBtS9VlFlDsy5pq-H2jRDQ:0.113:0.618,chicago-il:81129,chicago-il,ZBtS9VlFlDsy5pq-H2jRDQ,0.1126,0.6178,sheet_0077.jpg,1,crosswalk,brick_edge_lines,brick band with white lines
+det:X7QwnoyrZ2DyRB4Qz3nyWQ:0.306:0.572,chicago-il:123174,chicago-il,X7QwnoyrZ2DyRB4Qz3nyWQ,0.3059,0.5719,sheet_0077.jpg,2,crosswalk,brick,brick band across road
+det:SWZQLhmUnpwuTuSRRaCBMg:0.341:0.598,cuenca:12261,cuenca,SWZQLhmUnpwuTuSRRaCBMg,0.3406,0.5977,sheet_0077.jpg,3,crosswalk,paint,zebra bars on cobblestone
+det:1y8SzUxtW8-E5uWZsPSZAw:0.059:0.595,chicago-il:31892,chicago-il,1y8SzUxtW8-E5uWZsPSZAw,0.0585,0.5947,sheet_0077.jpg,4,crosswalk,brick_edge_lines,paver band bordered by white lines
+det:1qlesYQLXx_ezYg_ynt6XQ:0.742:0.693,chicago-il:69743,chicago-il,1qlesYQLXx_ezYg_ynt6XQ,0.742,0.6934,sheet_0077.jpg,5,crosswalk,brick_edge_lines,paver band with white lines
+det:tWnodInvJ785ubMXQlkTfg:0.315:0.560,gainesville-fl:33053,gainesville-fl,tWnodInvJ785ubMXQlkTfg,0.3146,0.5596,sheet_0077.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:PnMsX3SSPoAguG26aLuVFA:0.448:0.665,chicago-il:32138,chicago-il,PnMsX3SSPoAguG26aLuVFA,0.4481,0.6653,sheet_0077.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:b5QK16fEfpMV2Ee7tarMqQ:0.183:0.555,clifton-nj:25131,clifton-nj,b5QK16fEfpMV2Ee7tarMqQ,0.1827,0.5549,sheet_0077.jpg,8,unsure,unclear,distant lines; crossing unclear
+det:sHB_RtiBIrFqMKLp4n6JmA:0.591:0.553,chicago-il:192121,chicago-il,sHB_RtiBIrFqMKLp4n6JmA,0.5912,0.5527,sheet_0077.jpg,9,crosswalk,brick_edge_lines,brick band bordered by white lines
+det:ZmV_FJtHEEGE2Jy2NiMX-Q:0.256:0.552,columbus-oh:42364,columbus-oh,ZmV_FJtHEEGE2Jy2NiMX-Q,0.256,0.5524,sheet_0077.jpg,10,crosswalk,brick,brick band across road
+det:t3REkMc82Gc0fVWqLxbr9w:0.469:0.590,chicago-il:62883,chicago-il,t3REkMc82Gc0fVWqLxbr9w,0.4692,0.5901,sheet_0077.jpg,11,crosswalk,brick_edge_lines,brick band with white line

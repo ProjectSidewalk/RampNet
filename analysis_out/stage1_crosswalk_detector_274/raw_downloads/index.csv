@@ -1,0 +1,24 @@
+file,downloads_name,modified_local,bytes,sha256
+2026-10-31T07-19-00_aerial_verdicts_seattle-wa.json,aerial_verdicts_seattle-wa.json,2026-10-31T07-19-00,34220,6b15c13c878e5e7d1858bfaf32b6d81af29457e92bf304b1eb3f1207d49b0e2d
+2026-11-01T06-37-58_aerial_verdicts_seattle-wav1.json,aerial_verdicts_seattle-wa (1).json,2026-11-01T06-37-58,35920,9c5d414c2904a97017ac9affd826e6c064ce040a2c444b3d6cc4c80872a52b1b
+2026-11-01T06-46-54_aerial_verdicts_seattle-wav2.json,aerial_verdicts_seattle-wa (2).json,2026-11-01T06-46-54,36883,e32ae7d5502da2f8a34fc8c1bfbd8cd197564165cd82955578ea092c9763229b
+2026-11-01T06-53-17_aerial_verdicts_seattle-wav3.json,aerial_verdicts_seattle-wa (3).json,2026-11-01T06-53-17,1746,10ba890202f90e20ac4aafcf0f759bf7ccace73ac4927e9823c84b9d37bfd6b9
+2026-11-01T06-58-21_aerial_verdicts_seattle-wav4.json,aerial_verdicts_seattle-wa (4).json,2026-11-01T06-58-21,37003,812a8dae079b412244fac0ab769c5745e2bc4542d8d4d8d54d3ca3525aa0e3c0
+2026-11-03T05-16-25_crosswalk_gt_verdicts_JEF.json,crosswalk_gt_verdicts_JEF.json,2026-11-03T05-16-25,7751,64392bf440ee3cd6763f5ef1e63c5ded86d6e6d7bfabf540438a85594f187036
+2026-11-03T05-22-41_crosswalk_gt_verdicts_JEFv1.json,crosswalk_gt_verdicts_JEF (1).json,2026-11-03T05-22-41,12044,1591943f1e92a167949273508b6ba685945410f118bafb554f6e27cc85a51420
+2026-11-05T09-51-13_ratings_crosswalk_s1.csv,ratings_crosswalk_s1.csv,2026-11-05T09-51-13,23227,41084ed69ce5192908b707e20ce2299280694b61d1c9a3dfb6fa77069c8534fa
+2026-11-05T10-15-52_ratings_crosswalk_s1v1.csv,ratings_crosswalk_s1 (1).csv,2026-11-05T10-15-52,27921,61b296796f1c477cecff3c70fa72d1ef89ca818293b146441164544d82feb03b
+2026-11-05T10-21-26_ratings_crosswalk_s1v2.csv,ratings_crosswalk_s1 (2).csv,2026-11-05T10-21-26,27954,96d34bdce89b4b72c5c5dae15ad205b6d35cb47386c6eb07cb71fe1ee655019e
+2026-11-05T17-12-09_ratings_crosswalk_s1v3.csv,ratings_crosswalk_s1 (3).csv,2026-11-05T17-12-09,24826,34461c4bd5acb09424dd6ffbe3cf96d8617b0b8a0b4af523f332406842f107eb
+2026-11-05T17-21-22_ratings_crosswalk_s1v4.csv,ratings_crosswalk_s1 (4).csv,2026-11-05T17-21-22,35245,44d77d6e5a81eb14da196583fe348eef97dd3b1c43b83416074f75ffc3461468
+2026-11-06T05-40-41_ratings_crosswalk_s2.csv,ratings_crosswalk_s2.csv,2026-11-06T05-40-41,27489,e7ca2782922019c5dce1a2e06807b78c6b3176b6055060e08a5d6042e8db6ab2
+2026-11-06T06-31-34_ratings_hardneg_step0.csv,ratings_hardneg_step0.csv,2026-11-06T06-31-34,55854,22f0f9c974ca58ed219d644231acd1b68c49f03a21342e44d9811c9e534853d4
+2026-11-06T09-40-28_ratings_hardneg_confirm.csv,ratings_hardneg_confirm.csv,2026-11-06T09-40-28,93769,5805219825180cf0625d7245e96b6dae3ba0cf1b48e7426122cc784cee8c38d2
+2026-11-06T11-32-28_ratings_hardneg_review9.csv,ratings_hardneg_review9.csv,2026-11-06T11-32-28,2466,45824bc6bd388cd8c7b4fb1d45a88420c5dde4a208421096386af743eac6c2db
+2026-11-06T11-56-50_ratings_hardneg_confirm2.csv,ratings_hardneg_confirm2.csv,2026-11-06T11-56-50,36008,54e22066a180b74bd033436818e8394d0a36886de797a6c971da1df7974ee43c
+2026-11-06T16-42-29_ratings_hardneg_confirm2v1.csv,ratings_hardneg_confirm2 (1).csv,2026-11-06T16-42-29,40905,263a2dabaa37baf915522ee24223adbc6528afb7e83e57164439aaa9d6b55340
+2026-11-08T06-05-16_ratings_hardneg_s3.csv,ratings_hardneg_s3.csv,2026-11-08T06-05-16,49009,afbccf14b16dd4a2ffcf264f0863bd42a706b709d74445eca6fa2063408e457e
+2026-11-08T07-07-50_ratings_confirm_s3.csv,ratings_confirm_s3.csv,2026-11-08T07-07-50,80561,f20a90d29a6e873cd751da6f5470ea7ab47449dc60ac824e33c38c3284bbc17f
+2026-11-08T13-03-23_ratings_brick_confirm.csv,ratings_brick_confirm.csv,2026-11-08T13-03-23,68247,4a896fce12feb12fe91e281edcf3c20ce51acdd587fad8d397bc5dd7f93efa1f
+2026-11-09T05-36-25_ratings_s4_crowd.csv,ratings_s4_crowd.csv,2026-11-09T05-36-25,58491,c1ce6f9ed6ea4a5a6d477c663a8cc952888a993498292a43a908b0547127c1b5
+2026-11-09T05-46-55_ratings_s4_carTop.csv,ratings_s4_carTop.csv,2026-11-09T05-46-55,21702,deffa229ac472ed78cbfcb0d6db0928a23ff51f3036082c477104b6365ebc883

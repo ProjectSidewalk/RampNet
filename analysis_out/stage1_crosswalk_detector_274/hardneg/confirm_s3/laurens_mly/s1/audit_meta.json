@@ -1,0 +1,13 @@
+{
+ "label": "crosswalk_s1",
+ "threshold": 0.21,
+ "seed": 275,
+ "n_panos": 80,
+ "excluded_from": [],
+ "city": "laurens-ia",
+ "random_panos": 80,
+ "node_fa_panos": 0,
+ "node_fa_only_panos": 0,
+ "detections": 33,
+ "detections_random": 33
+}

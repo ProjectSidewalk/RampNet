@@ -473,6 +473,26 @@ ROSTER = (
              "and similar output per call (~18 thinking tokens/call against ~3) and "
              "~2.5x lower cost per pano. Single runs, no seed variance, effort low "
              "only, first-party API. See docs/claude_newest_ids.md."),
+    # The effort=high replication (2026-11-17, claude20's expiring credit): Opus 5.5 at
+    # effort high on all 13 city splits (no manual_gold). A study leg, so it is scored in
+    # its own doc against the effort=low leg above, not on the scoreboard, where it would
+    # be the same model twice. max_tokens 20000 is a pin because it enters the signature
+    # (as-run is 4096) and a high-effort call can exceed 4096.
+    Challenger(
+        spec="claude:claude-opus-5-5", label="claude-opus-5-5", provider="claude",
+        density="sparse", standing=False, added="2026-11-17", study="claude_effort_high",
+        pins=(("claude_effort", "high"), ("claude_serving_path", "anthropic"),
+              ("claude_max_tokens", 20000)),
+        published_as="claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
+        note="Opus 5.5 at effort high, same rig as the effort=low leg, 13 city splits. "
+             "No gain on the nine US cities, and lower in this run: macro F1 0.695 against "
+             "low's 0.712 (micro high minus low -0.017 [-0.026, -0.007], paired pano "
+             "bootstrap). Over the four other cities micro +0.019 [+0.001, +0.037] but "
+             "macro +0.018 [-0.001, +0.035], mostly budapest_district5. One run per arm: "
+             "the intervals resample panos only, not runs. More boxes per pano on every "
+             "split: effort moves the operating point, as #122 found for Opus 5 and "
+             "Sonnet 5. ~150 thinking tokens/call, ~18% more cost per pano. See "
+             "docs/claude_effort_high.md."),
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot

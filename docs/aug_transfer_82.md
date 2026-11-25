@@ -218,7 +218,9 @@ Three new flags, all off by default:
   validation (42,875 val panos would take longer than the screen itself).
 - `--grad-accum K` gives a global batch of world size × K. It is only allowed for a `--max-steps`
   run that ends inside the first epoch, because accumulation groups are aligned on the global step
-  counter and a group could otherwise straddle an epoch boundary.
+  counter and a group could otherwise straddle an epoch boundary. Since #274 a longer `--max-steps`
+  run is also allowed when the per-rank epoch length is a multiple of K, since every epoch then starts
+  on a group boundary.
 
 **Off means off.** With no flag, `EquiHeatmapDataset` returns bit-identical tensors to the published
 recipe's: `tests/test_train_augment_82.py` pins the sha256 of its output on synthetic PNGs, computed

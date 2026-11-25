@@ -1,0 +1,9 @@
+{
+ "pool": 724,
+ "picked": 200,
+ "ai": "not_crosswalk",
+ "strata": "sparse_bg",
+ "cities": "amsterdam,burnaby,teaneck-nj",
+ "excluded_rated": 459,
+ "seed": 274
+}

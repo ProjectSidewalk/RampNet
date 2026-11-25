@@ -98,6 +98,11 @@
    "split": "annapolis"
   },
   {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
+   "reason": "published detections exist but this pair was not run",
+   "split": "annapolis"
+  },
+  {
    "challenger": "gemini-3.6-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "bayonne"
@@ -213,6 +218,11 @@
    "split": "bayonne"
   },
   {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bayonne"
+  },
+  {
    "challenger": "gemini-3.8-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "bend"
@@ -299,6 +309,11 @@
   },
   {
    "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "bend"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
    "reason": "published detections exist but this pair was not run",
    "split": "bend"
   },
@@ -368,6 +383,11 @@
    "split": "budapest_district5"
   },
   {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
+   "reason": "published detections exist but this pair was not run",
+   "split": "budapest_district5"
+  },
+  {
    "challenger": "mask2former-vistas-curb-cut-1024x1024",
    "reason": "published detections exist but this pair was not run",
    "split": "clovis"
@@ -463,6 +483,11 @@
    "split": "clovis"
   },
   {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
+   "reason": "published detections exist but this pair was not run",
+   "split": "clovis"
+  },
+  {
    "challenger": "gemini-3.8-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "gainesville"
@@ -549,6 +574,11 @@
   },
   {
    "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "gainesville"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
    "reason": "published detections exist but this pair was not run",
    "split": "gainesville"
   },
@@ -664,6 +694,11 @@
   },
   {
    "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "juneau"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
    "reason": "published detections exist but this pair was not run",
    "split": "juneau"
   },
@@ -788,6 +823,11 @@
    "split": "laurens_gsv"
   },
   {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_gsv"
+  },
+  {
    "challenger": "mask2former-vistas-curb-cut-1024x1024",
    "reason": "published detections exist but this pair was not run",
    "split": "laurens_mapillary"
@@ -844,6 +884,11 @@
   },
   {
    "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "laurens_mapillary"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
    "reason": "published detections exist but this pair was not run",
    "split": "laurens_mapillary"
   },
@@ -1023,6 +1068,11 @@
    "split": "morgantown"
   },
   {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
+   "reason": "published detections exist but this pair was not run",
+   "split": "morgantown"
+  },
+  {
    "challenger": "gemini-3.8-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "paterson"
@@ -1113,6 +1163,11 @@
    "split": "paterson"
   },
   {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
+   "reason": "published detections exist but this pair was not run",
+   "split": "paterson"
+  },
+  {
    "challenger": "gemini-3.8-flash",
    "reason": "published detections exist but this pair was not run",
    "split": "richmond"
@@ -1199,6 +1254,11 @@
   },
   {
    "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "richmond"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
    "reason": "published detections exist but this pair was not run",
    "split": "richmond"
   },
@@ -1269,6 +1329,11 @@
   },
   {
    "challenger": "claude-opus-5-5-effort-low-anthropic",
+   "reason": "published detections exist but this pair was not run",
+   "split": "sao_paulo"
+  },
+  {
+   "challenger": "claude-opus-5-5-effort-high-anthropic-maxtokens-20000",
    "reason": "published detections exist but this pair was not run",
    "split": "sao_paulo"
   }
