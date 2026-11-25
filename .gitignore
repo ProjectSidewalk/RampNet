@@ -677,6 +677,10 @@ analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/*
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/s4/
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/s4_matched/
 !analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s4/
+# crosswalk_s5 (#274): the same three outputs
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s5/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s5_matched/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s5/
 # #274 hard negatives: CSV/JSON/MD outputs at any depth (no imagery is written here)
 !analysis_out/stage1_crosswalk_detector_274/hardneg/
 analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.*
