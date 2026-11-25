@@ -402,6 +402,12 @@ REGISTRY: list = [
             "analysis_out/op_cache/", "benchmark/model_detections/",
             "analysis_out/scoreboard.json") + GT,
       slow=True),
+    E("cascade_confirm_35", (AN + "cascade_confirm_35.py", "--check"),
+      "Stage 0 of the open-weight cascade confirmation regenerates stage0.json and inputs.json "
+      "byte-identical (#35)",
+      pins=("analysis_out/cascade_confirm_35/stage0.json",
+            "analysis_out/cascade_confirm_35/inputs.json", "analysis_out/op_cache/",
+            "benchmark/model_detections/") + GT),
     # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
     E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),
       "the default command regenerates docs/data/benchmark_power_135.json byte-identical, or "
