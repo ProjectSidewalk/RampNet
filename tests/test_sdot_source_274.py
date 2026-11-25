@@ -80,17 +80,60 @@ def test_b1_x_matches_the_production_renderer():
         assert len(cols) and abs(cols.mean() - 31.5) <= 2.0, (rel, cols)
 
 
-def test_crowd_arm_explained_rule():
-    """A Vistas component is explained by a mark near its centroid or inside its (seam-aware) horizontal extent."""
-    pytest.importorskip("pyproj")
+def _load_crowd_arm(monkeypatch):
+    """crowd_arm imports pilot, which imports pyproj at module level for GEOD. explained() and pano_dist() do not
+    use it, so where pyproj is absent (CI's requirements-dev.txt) a stub stands in for the import only. The stub's
+    Geod raises if anything calls it, and the modules loaded against it are dropped afterwards."""
+    stubbed = importlib.util.find_spec("pyproj") is None
+    if stubbed:
+        import types
+
+        stub = types.ModuleType("pyproj")
+
+        class Geod:
+            def __init__(self, *a, **k):
+                pass
+
+            def __getattr__(self, name):
+                raise AssertionError("pyproj stub: GEOD used by a test that should not need it")
+
+        stub.Geod = Geod
+        monkeypatch.setitem(sys.modules, "pyproj", stub)
+    before = set(sys.modules)
     path = os.path.join(REPO, "scripts", "analysis", "stage1_crosswalk_sdot_274", "crowd_arm.py")
     spec = importlib.util.spec_from_file_location("crowd_arm274", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
+    if stubbed:     # nothing later in the session may see a pilot bound to the stub
+        for name in set(sys.modules) - before:
+            sys.modules.pop(name, None)
+    return mod
+
+
+def test_crowd_arm_explained_rule(monkeypatch):
+    """A Vistas component is explained by a mark within EXPLAIN_R of its centroid or inside its (seam-aware) extent
+    padded by EXPLAIN_PAD. The rule as adopted for the v2 labels (f1a933d6): 0.01 and 0.01."""
+    mod = _load_crowd_arm(monkeypatch)
+    assert (mod.EXPLAIN_R, mod.EXPLAIN_PAD) == (0.01, 0.01)
     long_near = {"x": 0.50, "y": 0.80, "x_left": 0.35, "x_right": 0.65}
     assert mod.explained(long_near, [(0.38, 0.81)])            # click at one end of a long near crosswalk
     assert not mod.explained(long_near, [(0.38, 0.60)])        # same column, far above it
     assert not mod.explained(long_near, [(0.10, 0.80)])        # elsewhere
     seam = {"x": 0.99, "y": 0.6, "x_left": 0.95, "x_right": 0.03}
     assert mod.explained(seam, [(0.02, 0.61)])                 # extent wraps the seam
-    assert mod.explained({"x": 0.2, "y": 0.6, "x_left": 0.2, "x_right": 0.2}, [(0.22, 0.6)])   # near centroid
+    point = {"x": 0.2, "y": 0.6, "x_left": 0.2, "x_right": 0.2}
+    assert mod.explained(point, [(0.208, 0.6)])                # within EXPLAIN_R of the centroid
+    assert not mod.explained(point, [(0.22, 0.6)])             # 0.02 away: explained under the old r = 0.05 only
+    assert not mod.explained(point, [(0.2, 0.64)])             # y counts half: 0.02 in matcher units, still too far
+
+
+def test_crowd_arm_far_click_does_not_explain_the_near_crosswalk(monkeypatch):
+    """The case the tightening was for: a click on a far crosswalk, a little above a near one on the same heading.
+    Under the old rule (r = SNAP_R = 0.05, a +-0.04 vertical band) it explained the near paint, so that unlabelled
+    paint trained as background. Under the adopted rule it does not, and the near paint becomes an ignore region."""
+    mod = _load_crowd_arm(monkeypatch)
+    near = {"x": 0.50, "y": 0.59, "x_left": 0.47, "x_right": 0.53, "y_left": 0.58, "y_right": 0.60}
+    far_click = (0.509, 0.556)
+    assert not mod.explained(near, [far_click])
+    assert mod.explained(near, [far_click], r=0.05, pad=0.04)  # the pre-#274-audit rule did explain it
+    assert mod.explained(near, [(0.48, 0.585)])                # a click on the near paint itself still does
