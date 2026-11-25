@@ -1,0 +1,4559 @@
+{
+ "protocol": {
+  "plan": "detector-phase1-horizon-2x-2026-11-15.md section 4, Stage 0b (exploratory)",
+  "pooled_statistic": "micro (pooled counts over the splits), as the plan's 0b table",
+  "splits": [
+   "richmond",
+   "annapolis",
+   "clovis",
+   "morgantown",
+   "bend",
+   "paterson",
+   "gainesville"
+  ],
+  "report_only": [
+   "laurens_mapillary"
+  ],
+  "cores": {
+   "wide": [
+    0.45,
+    0.6
+   ],
+   "narrow": [
+    0.47,
+    0.56
+   ]
+  },
+  "sim_arms": {
+   "2x": "u4096",
+   "1.5x": "r3072"
+  },
+  "t_op": 0.3,
+  "far_ignore_m": 25.0,
+  "cam_h_m": 2.5,
+  "n_reps": 2000,
+  "seed": 263,
+  "match_grid": [
+   0.05,
+   0.95,
+   0.01
+  ],
+  "loso_criterion": "pooled F1 at 0.30 (far unmatched as FP) on the other six splits; ties to wide",
+  "inputs": {
+   "analysis_out/input_res_sweep_25/cache/r2048/richmond.json": "03baff00f936dee2f44815d09736d0864eee7a605c81b496c59b3c4c31efd97c",
+   "analysis_out/input_res_sweep_25/cache/u4096/richmond.json": "4d15ed7148fb71f35d89015d72666313c03077a795e5252188f5e2e9b1d4aa6f",
+   "analysis_out/input_res_sweep_25/cache/r3072/richmond.json": "b09fa476c9067ae9c6034d8b90f132ba84de34d85e238d400aca2a8dc018733a",
+   "analysis_out/input_res_sweep_25/cache/r2048/annapolis.json": "2561b24e6496be1858a04e01c3973656df4cd0316af0d5959f1537062368c822",
+   "analysis_out/input_res_sweep_25/cache/u4096/annapolis.json": "c30cd036eed985883539ba9c528a89274d96cdd035419f6923241233db370bcd",
+   "analysis_out/input_res_sweep_25/cache/r3072/annapolis.json": "c7ba644ce467864ee388439999418ad9f9784c89c0f630d40fcd053bcdca663d",
+   "analysis_out/input_res_sweep_25/cache/r2048/clovis.json": "52efde1551687a2260c23d2c749f9fcfcd6a4704a20e36182b84e0b5bb9a0568",
+   "analysis_out/input_res_sweep_25/cache/u4096/clovis.json": "c0ddb4eaa52bef4266ba2fec14e898a269a00c036a7358ea9333c322b4104c98",
+   "analysis_out/input_res_sweep_25/cache/r3072/clovis.json": "69726d70bf06ec3f7289e88c3b1ff3daff494a28e96cdc5cef09ad494b2bce93",
+   "analysis_out/input_res_sweep_25/cache/r2048/morgantown.json": "d8ddd30e5b0fe40c3f43f458f62d6a9710f9190bb3b6000c481d3bc7002dc575",
+   "analysis_out/input_res_sweep_25/cache/u4096/morgantown.json": "d911e6c734975bb4ac765cd2443caa0095f2e8343d27d22923858e8dbc82da21",
+   "analysis_out/input_res_sweep_25/cache/r3072/morgantown.json": "c71be882b4ab806fd82f512ec59c009cd372ee8b24bbb037d0dcd8bc0f9837c0",
+   "analysis_out/input_res_sweep_25/cache/r2048/bend.json": "fe97f0295336b5fc978820de3b6e8d845cbc1b10725a3832f1888957990abe25",
+   "analysis_out/input_res_sweep_25/cache/u4096/bend.json": "14398ec85fabfa23bdef52068bcd4f1ce21022acfe60c60cc8285b483997c03c",
+   "analysis_out/input_res_sweep_25/cache/r3072/bend.json": "b50067885cb1cc39c0bb3032886ee36c24857e7624d7283ecefe3b94817f2ff3",
+   "analysis_out/input_res_sweep_25/cache/r2048/paterson.json": "9a67d6eecebac9082eb4e86ab4ee76c475cb91b2483249fd2b3db299763fb0c8",
+   "analysis_out/input_res_sweep_25/cache/u4096/paterson.json": "20877433320326f477c6b9f3c3328d441b6e4c41b9dac463df0e38f0f5f8d9a5",
+   "analysis_out/input_res_sweep_25/cache/r3072/paterson.json": "aa62f21dcf6f479df849302e0a184939870fce218e78f03dde86635d354eb2e1",
+   "analysis_out/input_res_sweep_25/cache/r2048/gainesville.json": "eff3c1bfb72630db90109588e9bea916d26954b818d3f2c1027878b9b7ca67e5",
+   "analysis_out/input_res_sweep_25/cache/u4096/gainesville.json": "2e003bb390c50543fe183770f390cdfbd36e1ec37e456146bb921d8d0cd99129",
+   "analysis_out/input_res_sweep_25/cache/r3072/gainesville.json": "52dd860d8f3b12c0b96175cc67a189eecd844dc531411c2b6ba69574a3e8d469",
+   "analysis_out/input_res_sweep_25/cache/r2048/laurens_mapillary.json": "3e9ab955d8869d739c14e63f42489a5b11e3427724117b273861986f053aff95",
+   "analysis_out/input_res_sweep_25/cache/u4096/laurens_mapillary.json": "84e56f8b32bd07139512c7b8976a948d8c38883177eb5d12873aaeb29540a1d3",
+   "analysis_out/input_res_sweep_25/cache/r3072/laurens_mapillary.json": "195280d741c833f5f8621c08ff70268ac0286ec7daf0daf632144880355bd507"
+  },
+  "strip_geometry_for_0c": {
+   "2x-wide": {
+    "core": [
+     0.45,
+     0.6
+    ],
+    "scale": 2.0,
+    "context": 0.05,
+    "r0": 816,
+    "r1": 1344,
+    "rows_norm": [
+     0.398438,
+     0.65625
+    ],
+    "in_h": 1056,
+    "in_w": 8704,
+    "R0": 1632,
+    "wrap_in": 256,
+    "hm_h": 264,
+    "hm_w": 2176,
+    "full_in": [
+     4096,
+     8192
+    ],
+    "full_hm": [
+     1024,
+     2048
+    ],
+    "row_off_hm": 408,
+    "wrap_hm": 64,
+    "min_distance": 20,
+    "megapixels": 9.191
+   },
+   "2x-narrow": {
+    "core": [
+     0.47,
+     0.56
+    ],
+    "scale": 2.0,
+    "context": 0.05,
+    "r0": 848,
+    "r1": 1264,
+    "rows_norm": [
+     0.414062,
+     0.617188
+    ],
+    "in_h": 832,
+    "in_w": 8704,
+    "R0": 1696,
+    "wrap_in": 256,
+    "hm_h": 208,
+    "hm_w": 2176,
+    "full_in": [
+     4096,
+     8192
+    ],
+    "full_hm": [
+     1024,
+     2048
+    ],
+    "row_off_hm": 424,
+    "wrap_hm": 64,
+    "min_distance": 20,
+    "megapixels": 7.242
+   },
+   "1.5x-wide": {
+    "core": [
+     0.45,
+     0.6
+    ],
+    "scale": 1.5,
+    "context": 0.05,
+    "r0": 768,
+    "r1": 1344,
+    "rows_norm": [
+     0.375,
+     0.65625
+    ],
+    "in_h": 864,
+    "in_w": 6528,
+    "R0": 1152,
+    "wrap_in": 192,
+    "hm_h": 216,
+    "hm_w": 1632,
+    "full_in": [
+     3072,
+     6144
+    ],
+    "full_hm": [
+     768,
+     1536
+    ],
+    "row_off_hm": 288,
+    "wrap_hm": 48,
+    "min_distance": 15,
+    "megapixels": 5.64
+   },
+   "1.5x-narrow": {
+    "core": [
+     0.47,
+     0.56
+    ],
+    "scale": 1.5,
+    "context": 0.05,
+    "r0": 832,
+    "r1": 1280,
+    "rows_norm": [
+     0.40625,
+     0.625
+    ],
+    "in_h": 672,
+    "in_w": 6528,
+    "R0": 1248,
+    "wrap_in": 192,
+    "hm_h": 168,
+    "hm_w": 1632,
+    "full_in": [
+     3072,
+     6144
+    ],
+    "full_hm": [
+     768,
+     1536
+    ],
+    "row_off_hm": 312,
+    "wrap_hm": 48,
+    "min_distance": 15,
+    "megapixels": 4.387
+   }
+  }
+ },
+ "loso": {
+  "2x": {
+   "chosen": {
+    "richmond": "narrow",
+    "annapolis": "narrow",
+    "clovis": "narrow",
+    "morgantown": "narrow",
+    "bend": "narrow",
+    "paterson": "narrow",
+    "gainesville": "narrow"
+   },
+   "f1_on_others": {
+    "richmond": {
+     "wide": 0.830167,
+     "narrow": 0.832952
+    },
+    "annapolis": {
+     "wide": 0.83567,
+     "narrow": 0.837723
+    },
+    "clovis": {
+     "wide": 0.836962,
+     "narrow": 0.838917
+    },
+    "morgantown": {
+     "wide": 0.839315,
+     "narrow": 0.842017
+    },
+    "bend": {
+     "wide": 0.829296,
+     "narrow": 0.831655
+    },
+    "paterson": {
+     "wide": 0.829837,
+     "narrow": 0.833579
+    },
+    "gainesville": {
+     "wide": 0.838513,
+     "narrow": 0.840839
+    }
+   }
+  },
+  "1.5x": {
+   "chosen": {
+    "richmond": "narrow",
+    "annapolis": "narrow",
+    "clovis": "narrow",
+    "morgantown": "narrow",
+    "bend": "narrow",
+    "paterson": "narrow",
+    "gainesville": "narrow"
+   },
+   "f1_on_others": {
+    "richmond": {
+     "wide": 0.839281,
+     "narrow": 0.841197
+    },
+    "annapolis": {
+     "wide": 0.840743,
+     "narrow": 0.842374
+    },
+    "clovis": {
+     "wide": 0.844302,
+     "narrow": 0.846278
+    },
+    "morgantown": {
+     "wide": 0.845962,
+     "narrow": 0.848264
+    },
+    "bend": {
+     "wide": 0.835146,
+     "narrow": 0.8369
+    },
+    "paterson": {
+     "wide": 0.838899,
+     "narrow": 0.842604
+    },
+    "gainesville": {
+     "wide": 0.846711,
+     "narrow": 0.84903
+    }
+   }
+  }
+ },
+ "pools": {
+  "S7": {
+   "n_panos": 859,
+   "members": [
+    "richmond",
+    "annapolis",
+    "clovis",
+    "morgantown",
+    "bend",
+    "paterson",
+    "gainesville"
+   ],
+   "configs": {
+    "2x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.8243,
+       "R": 0.8447,
+       "F1": 0.8343,
+       "tp": 1740,
+       "fp": 371,
+       "tp_rec": 1740,
+       "n_gt": 2060
+      },
+      "ramps_gained": 100,
+      "fps_added": 174,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0685,
+        "ci_lo": -0.0793,
+        "ci_hi": -0.0574
+       },
+       "recall": {
+        "observed": 0.0485,
+        "ci_lo": 0.039,
+        "ci_hi": 0.0587
+       },
+       "f1": {
+        "observed": -0.0073,
+        "ci_lo": -0.0154,
+        "ci_hi": 0.001
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.12,
+       "P": 0.7587,
+       "R": 0.8456,
+       "F1": 0.7998,
+       "tp": 1742,
+       "fp": 554,
+       "tp_rec": 1742,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 357,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0655,
+         "ci_lo": 0.0515,
+         "ci_hi": 0.0798
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0122,
+         "ci_hi": 0.0106
+        },
+        "f1": {
+         "observed": 0.0345,
+         "ci_lo": 0.0251,
+         "ci_hi": 0.0443
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8605,
+       "R": 0.8447,
+       "F1": 0.8525,
+       "tp": 1740,
+       "fp": 282,
+       "tp_rec": 1740,
+       "n_gt": 2060
+      },
+      "ramps_gained": 100,
+      "fps_added": 105,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0421,
+        "ci_lo": -0.0508,
+        "ci_hi": -0.0334
+       },
+       "recall": {
+        "observed": 0.0485,
+        "ci_lo": 0.039,
+        "ci_hi": 0.0587
+       },
+       "f1": {
+        "observed": 0.0065,
+        "ci_lo": -0.001,
+        "ci_hi": 0.0139
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.12,
+       "P": 0.7805,
+       "R": 0.8456,
+       "F1": 0.8117,
+       "tp": 1742,
+       "fp": 490,
+       "tp_rec": 1742,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 313,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0801,
+         "ci_lo": 0.0667,
+         "ci_hi": 0.0937
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0122,
+         "ci_hi": 0.0106
+        },
+        "f1": {
+         "observed": 0.0408,
+         "ci_lo": 0.0311,
+         "ci_hi": 0.0506
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    },
+    "2x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.8345,
+       "R": 0.8393,
+       "F1": 0.8369,
+       "tp": 1729,
+       "fp": 343,
+       "tp_rec": 1729,
+       "n_gt": 2060
+      },
+      "ramps_gained": 89,
+      "fps_added": 146,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0583,
+        "ci_lo": -0.069,
+        "ci_hi": -0.0481
+       },
+       "recall": {
+        "observed": 0.0432,
+        "ci_lo": 0.0337,
+        "ci_hi": 0.0531
+       },
+       "f1": {
+        "observed": -0.0048,
+        "ci_lo": -0.0126,
+        "ci_hi": 0.0032
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.14,
+       "P": 0.7783,
+       "R": 0.8403,
+       "F1": 0.8081,
+       "tp": 1731,
+       "fp": 493,
+       "tp_rec": 1731,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 296,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0561,
+         "ci_lo": 0.0425,
+         "ci_hi": 0.0705
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0118,
+         "ci_hi": 0.0102
+        },
+        "f1": {
+         "observed": 0.0288,
+         "ci_lo": 0.0196,
+         "ci_hi": 0.0389
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8719,
+       "R": 0.8393,
+       "F1": 0.8553,
+       "tp": 1729,
+       "fp": 254,
+       "tp_rec": 1729,
+       "n_gt": 2060
+      },
+      "ramps_gained": 89,
+      "fps_added": 77,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0307,
+        "ci_lo": -0.0389,
+        "ci_hi": -0.0228
+       },
+       "recall": {
+        "observed": 0.0432,
+        "ci_lo": 0.0337,
+        "ci_hi": 0.0531
+       },
+       "f1": {
+        "observed": 0.0093,
+        "ci_lo": 0.0022,
+        "ci_hi": 0.0165
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.14,
+       "P": 0.7981,
+       "R": 0.8403,
+       "F1": 0.8186,
+       "tp": 1731,
+       "fp": 438,
+       "tp_rec": 1731,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 261,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0738,
+         "ci_lo": 0.0605,
+         "ci_hi": 0.0878
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0118,
+         "ci_hi": 0.0102
+        },
+        "f1": {
+         "observed": 0.0367,
+         "ci_lo": 0.0273,
+         "ci_hi": 0.0464
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    },
+    "1.5x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.8358,
+       "R": 0.8476,
+       "F1": 0.8416,
+       "tp": 1746,
+       "fp": 343,
+       "tp_rec": 1746,
+       "n_gt": 2060
+      },
+      "ramps_gained": 106,
+      "fps_added": 146,
+      "vs_base": {
+       "precision": {
+        "observed": -0.057,
+        "ci_lo": -0.0673,
+        "ci_hi": -0.0465
+       },
+       "recall": {
+        "observed": 0.0515,
+        "ci_lo": 0.0419,
+        "ci_hi": 0.0615
+       },
+       "f1": {
+        "observed": -0.0,
+        "ci_lo": -0.0083,
+        "ci_hi": 0.0083
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.11,
+       "P": 0.7447,
+       "R": 0.8481,
+       "F1": 0.793,
+       "tp": 1747,
+       "fp": 599,
+       "tp_rec": 1747,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 402,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0911,
+         "ci_lo": 0.0774,
+         "ci_hi": 0.1042
+        },
+        "recall": {
+         "observed": -0.0005,
+         "ci_lo": -0.0111,
+         "ci_hi": 0.0104
+        },
+        "f1": {
+         "observed": 0.0486,
+         "ci_lo": 0.0393,
+         "ci_hi": 0.0581
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8648,
+       "R": 0.8476,
+       "F1": 0.8561,
+       "tp": 1746,
+       "fp": 273,
+       "tp_rec": 1746,
+       "n_gt": 2060
+      },
+      "ramps_gained": 106,
+      "fps_added": 96,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0378,
+        "ci_lo": -0.0468,
+        "ci_hi": -0.0294
+       },
+       "recall": {
+        "observed": 0.0515,
+        "ci_lo": 0.0419,
+        "ci_hi": 0.0615
+       },
+       "f1": {
+        "observed": 0.0101,
+        "ci_lo": 0.0026,
+        "ci_hi": 0.0179
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.11,
+       "P": 0.7672,
+       "R": 0.8481,
+       "F1": 0.8056,
+       "tp": 1747,
+       "fp": 530,
+       "tp_rec": 1747,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 353,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0975,
+         "ci_lo": 0.0837,
+         "ci_hi": 0.1111
+        },
+        "recall": {
+         "observed": -0.0005,
+         "ci_lo": -0.0111,
+         "ci_hi": 0.0104
+        },
+        "f1": {
+         "observed": 0.0505,
+         "ci_lo": 0.0412,
+         "ci_hi": 0.0599
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    },
+    "1.5x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.8455,
+       "R": 0.8422,
+       "F1": 0.8439,
+       "tp": 1735,
+       "fp": 317,
+       "tp_rec": 1735,
+       "n_gt": 2060
+      },
+      "ramps_gained": 95,
+      "fps_added": 120,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0472,
+        "ci_lo": -0.0572,
+        "ci_hi": -0.038
+       },
+       "recall": {
+        "observed": 0.0461,
+        "ci_lo": 0.0367,
+        "ci_hi": 0.0561
+       },
+       "f1": {
+        "observed": 0.0022,
+        "ci_lo": -0.0054,
+        "ci_hi": 0.01
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.13,
+       "P": 0.7681,
+       "R": 0.8427,
+       "F1": 0.8037,
+       "tp": 1736,
+       "fp": 524,
+       "tp_rec": 1736,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 327,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0774,
+         "ci_lo": 0.0645,
+         "ci_hi": 0.0907
+        },
+        "recall": {
+         "observed": -0.0005,
+         "ci_lo": -0.0106,
+         "ci_hi": 0.0101
+        },
+        "f1": {
+         "observed": 0.0402,
+         "ci_lo": 0.031,
+         "ci_hi": 0.0497
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8754,
+       "R": 0.8422,
+       "F1": 0.8585,
+       "tp": 1735,
+       "fp": 247,
+       "tp_rec": 1735,
+       "n_gt": 2060
+      },
+      "ramps_gained": 95,
+      "fps_added": 70,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0272,
+        "ci_lo": -0.0357,
+        "ci_hi": -0.0198
+       },
+       "recall": {
+        "observed": 0.0461,
+        "ci_lo": 0.0367,
+        "ci_hi": 0.0561
+       },
+       "f1": {
+        "observed": 0.0125,
+        "ci_lo": 0.0057,
+        "ci_hi": 0.0194
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.13,
+       "P": 0.7887,
+       "R": 0.8427,
+       "F1": 0.8148,
+       "tp": 1736,
+       "fp": 465,
+       "tp_rec": 1736,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 288,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0866,
+         "ci_lo": 0.0737,
+         "ci_hi": 0.1004
+        },
+        "recall": {
+         "observed": -0.0005,
+         "ci_lo": -0.0106,
+         "ci_hi": 0.0101
+        },
+        "f1": {
+         "observed": 0.0437,
+         "ci_lo": 0.0344,
+         "ci_hi": 0.0531
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    },
+    "2x-loso": {
+     "fp": {
+      "metrics": {
+       "P": 0.8345,
+       "R": 0.8393,
+       "F1": 0.8369,
+       "tp": 1729,
+       "fp": 343,
+       "tp_rec": 1729,
+       "n_gt": 2060
+      },
+      "ramps_gained": 89,
+      "fps_added": 146,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0583,
+        "ci_lo": -0.069,
+        "ci_hi": -0.0481
+       },
+       "recall": {
+        "observed": 0.0432,
+        "ci_lo": 0.0337,
+        "ci_hi": 0.0531
+       },
+       "f1": {
+        "observed": -0.0048,
+        "ci_lo": -0.0126,
+        "ci_hi": 0.0032
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.14,
+       "P": 0.7783,
+       "R": 0.8403,
+       "F1": 0.8081,
+       "tp": 1731,
+       "fp": 493,
+       "tp_rec": 1731,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 296,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0561,
+         "ci_lo": 0.0425,
+         "ci_hi": 0.0705
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0118,
+         "ci_hi": 0.0102
+        },
+        "f1": {
+         "observed": 0.0288,
+         "ci_lo": 0.0196,
+         "ci_hi": 0.0389
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8719,
+       "R": 0.8393,
+       "F1": 0.8553,
+       "tp": 1729,
+       "fp": 254,
+       "tp_rec": 1729,
+       "n_gt": 2060
+      },
+      "ramps_gained": 89,
+      "fps_added": 77,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0307,
+        "ci_lo": -0.0389,
+        "ci_hi": -0.0228
+       },
+       "recall": {
+        "observed": 0.0432,
+        "ci_lo": 0.0337,
+        "ci_hi": 0.0531
+       },
+       "f1": {
+        "observed": 0.0093,
+        "ci_lo": 0.0022,
+        "ci_hi": 0.0165
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.14,
+       "P": 0.7981,
+       "R": 0.8403,
+       "F1": 0.8186,
+       "tp": 1731,
+       "fp": 438,
+       "tp_rec": 1731,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 261,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0738,
+         "ci_lo": 0.0605,
+         "ci_hi": 0.0878
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0118,
+         "ci_hi": 0.0102
+        },
+        "f1": {
+         "observed": 0.0367,
+         "ci_lo": 0.0273,
+         "ci_hi": 0.0464
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    },
+    "1.5x-loso": {
+     "fp": {
+      "metrics": {
+       "P": 0.8455,
+       "R": 0.8422,
+       "F1": 0.8439,
+       "tp": 1735,
+       "fp": 317,
+       "tp_rec": 1735,
+       "n_gt": 2060
+      },
+      "ramps_gained": 95,
+      "fps_added": 120,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0472,
+        "ci_lo": -0.0572,
+        "ci_hi": -0.038
+       },
+       "recall": {
+        "observed": 0.0461,
+        "ci_lo": 0.0367,
+        "ci_hi": 0.0561
+       },
+       "f1": {
+        "observed": 0.0022,
+        "ci_lo": -0.0054,
+        "ci_hi": 0.01
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.13,
+       "P": 0.7681,
+       "R": 0.8427,
+       "F1": 0.8037,
+       "tp": 1736,
+       "fp": 524,
+       "tp_rec": 1736,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 327,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0774,
+         "ci_lo": 0.0645,
+         "ci_hi": 0.0907
+        },
+        "recall": {
+         "observed": -0.0005,
+         "ci_lo": -0.0106,
+         "ci_hi": 0.0101
+        },
+        "f1": {
+         "observed": 0.0402,
+         "ci_lo": 0.031,
+         "ci_hi": 0.0497
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8754,
+       "R": 0.8422,
+       "F1": 0.8585,
+       "tp": 1735,
+       "fp": 247,
+       "tp_rec": 1735,
+       "n_gt": 2060
+      },
+      "ramps_gained": 95,
+      "fps_added": 70,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0272,
+        "ci_lo": -0.0357,
+        "ci_hi": -0.0198
+       },
+       "recall": {
+        "observed": 0.0461,
+        "ci_lo": 0.0367,
+        "ci_hi": 0.0561
+       },
+       "f1": {
+        "observed": 0.0125,
+        "ci_lo": 0.0057,
+        "ci_hi": 0.0194
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.13,
+       "P": 0.7887,
+       "R": 0.8427,
+       "F1": 0.8148,
+       "tp": 1736,
+       "fp": 465,
+       "tp_rec": 1736,
+       "n_gt": 2060,
+       "extra_fp_vs_base": 288,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0866,
+         "ci_lo": 0.0737,
+         "ci_hi": 0.1004
+        },
+        "recall": {
+         "observed": -0.0005,
+         "ci_lo": -0.0106,
+         "ci_hi": 0.0101
+        },
+        "f1": {
+         "observed": 0.0437,
+         "ci_lo": 0.0344,
+         "ci_hi": 0.0531
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    }
+   },
+   "base": {
+    "fp": {
+     "P": 0.8928,
+     "R": 0.7961,
+     "F1": 0.8417,
+     "tp": 1640,
+     "fp": 197,
+     "tp_rec": 1640,
+     "n_gt": 2060
+    },
+    "ignore": {
+     "P": 0.9026,
+     "R": 0.7961,
+     "F1": 0.846,
+     "tp": 1640,
+     "fp": 177,
+     "tp_rec": 1640,
+     "n_gt": 2060
+    }
+   }
+  },
+  "Mapillary4 (context)": {
+   "n_panos": 499,
+   "members": [
+    "richmond",
+    "annapolis",
+    "clovis",
+    "morgantown"
+   ],
+   "configs": {
+    "2x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.8004,
+       "R": 0.8537,
+       "F1": 0.8261,
+       "tp": 910,
+       "fp": 227,
+       "tp_rec": 910,
+       "n_gt": 1066
+      },
+      "ramps_gained": 37,
+      "fps_added": 107,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0788,
+        "ci_lo": -0.0955,
+        "ci_hi": -0.0635
+       },
+       "recall": {
+        "observed": 0.0347,
+        "ci_lo": 0.0231,
+        "ci_hi": 0.0474
+       },
+       "f1": {
+        "observed": -0.0218,
+        "ci_lo": -0.0332,
+        "ci_hi": -0.0108
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.17,
+       "P": 0.7765,
+       "R": 0.8537,
+       "F1": 0.8132,
+       "tp": 910,
+       "fp": 262,
+       "tp_rec": 910,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 142,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0239,
+         "ci_lo": 0.0057,
+         "ci_hi": 0.0431
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0147,
+         "ci_hi": 0.0146
+        },
+        "f1": {
+         "observed": 0.0129,
+         "ci_lo": 0.0002,
+         "ci_hi": 0.0259
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8372,
+       "R": 0.8537,
+       "F1": 0.8453,
+       "tp": 910,
+       "fp": 177,
+       "tp_rec": 910,
+       "n_gt": 1066
+      },
+      "ramps_gained": 37,
+      "fps_added": 68,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0518,
+        "ci_lo": -0.0659,
+        "ci_hi": -0.0386
+       },
+       "recall": {
+        "observed": 0.0347,
+        "ci_lo": 0.0231,
+        "ci_hi": 0.0474
+       },
+       "f1": {
+        "observed": -0.0072,
+        "ci_lo": -0.0171,
+        "ci_hi": 0.0029
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.17,
+       "P": 0.7948,
+       "R": 0.8537,
+       "F1": 0.8232,
+       "tp": 910,
+       "fp": 235,
+       "tp_rec": 910,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 126,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0424,
+         "ci_lo": 0.0245,
+         "ci_hi": 0.0612
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0147,
+         "ci_hi": 0.0146
+        },
+        "f1": {
+         "observed": 0.0222,
+         "ci_lo": 0.0089,
+         "ci_hi": 0.035
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    },
+    "2x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.8117,
+       "R": 0.849,
+       "F1": 0.8299,
+       "tp": 905,
+       "fp": 210,
+       "tp_rec": 905,
+       "n_gt": 1066
+      },
+      "ramps_gained": 32,
+      "fps_added": 90,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0675,
+        "ci_lo": -0.0831,
+        "ci_hi": -0.0527
+       },
+       "recall": {
+        "observed": 0.03,
+        "ci_lo": 0.0181,
+        "ci_hi": 0.0427
+       },
+       "f1": {
+        "observed": -0.0181,
+        "ci_lo": -0.0287,
+        "ci_hi": -0.0077
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.2,
+       "P": 0.8109,
+       "R": 0.849,
+       "F1": 0.8295,
+       "tp": 905,
+       "fp": 211,
+       "tp_rec": 905,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 91,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0007,
+         "ci_lo": -0.0178,
+         "ci_hi": 0.0184
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0148,
+         "ci_hi": 0.0147
+        },
+        "f1": {
+         "observed": 0.0004,
+         "ci_lo": -0.0119,
+         "ci_hi": 0.0129
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8498,
+       "R": 0.849,
+       "F1": 0.8494,
+       "tp": 905,
+       "fp": 160,
+       "tp_rec": 905,
+       "n_gt": 1066
+      },
+      "ramps_gained": 32,
+      "fps_added": 51,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0392,
+        "ci_lo": -0.0516,
+        "ci_hi": -0.0279
+       },
+       "recall": {
+        "observed": 0.03,
+        "ci_lo": 0.0181,
+        "ci_hi": 0.0427
+       },
+       "f1": {
+        "observed": -0.0032,
+        "ci_lo": -0.0124,
+        "ci_hi": 0.0066
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.2,
+       "P": 0.8257,
+       "R": 0.849,
+       "F1": 0.8372,
+       "tp": 905,
+       "fp": 191,
+       "tp_rec": 905,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 82,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.024,
+         "ci_lo": 0.0068,
+         "ci_hi": 0.0417
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0148,
+         "ci_hi": 0.0147
+        },
+        "f1": {
+         "observed": 0.0122,
+         "ci_lo": -0.0,
+         "ci_hi": 0.0248
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     }
+    },
+    "1.5x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.811,
+       "R": 0.8612,
+       "F1": 0.8353,
+       "tp": 918,
+       "fp": 214,
+       "tp_rec": 918,
+       "n_gt": 1066
+      },
+      "ramps_gained": 45,
+      "fps_added": 94,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0682,
+        "ci_lo": -0.0844,
+        "ci_hi": -0.0533
+       },
+       "recall": {
+        "observed": 0.0422,
+        "ci_lo": 0.0297,
+        "ci_hi": 0.0552
+       },
+       "f1": {
+        "observed": -0.0127,
+        "ci_lo": -0.0239,
+        "ci_hi": -0.0018
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.15,
+       "P": 0.7591,
+       "R": 0.863,
+       "F1": 0.8077,
+       "tp": 920,
+       "fp": 292,
+       "tp_rec": 920,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 172,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0519,
+         "ci_lo": 0.0333,
+         "ci_hi": 0.0711
+        },
+        "recall": {
+         "observed": -0.0019,
+         "ci_lo": -0.0163,
+         "ci_hi": 0.0125
+        },
+        "f1": {
+         "observed": 0.0276,
+         "ci_lo": 0.0149,
+         "ci_hi": 0.0407
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8399,
+       "R": 0.8612,
+       "F1": 0.8504,
+       "tp": 918,
+       "fp": 175,
+       "tp_rec": 918,
+       "n_gt": 1066
+      },
+      "ramps_gained": 45,
+      "fps_added": 66,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0491,
+        "ci_lo": -0.0626,
+        "ci_hi": -0.0367
+       },
+       "recall": {
+        "observed": 0.0422,
+        "ci_lo": 0.0297,
+        "ci_hi": 0.0552
+       },
+       "f1": {
+        "observed": -0.0021,
+        "ci_lo": -0.0122,
+        "ci_hi": 0.0077
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.15,
+       "P": 0.779,
+       "R": 0.863,
+       "F1": 0.8189,
+       "tp": 920,
+       "fp": 261,
+       "tp_rec": 920,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 152,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0609,
+         "ci_lo": 0.0432,
+         "ci_hi": 0.0793
+        },
+        "recall": {
+         "observed": -0.0019,
+         "ci_lo": -0.0163,
+         "ci_hi": 0.0125
+        },
+        "f1": {
+         "observed": 0.0315,
+         "ci_lo": 0.0191,
+         "ci_hi": 0.044
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    },
+    "1.5x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.8244,
+       "R": 0.8546,
+       "F1": 0.8392,
+       "tp": 911,
+       "fp": 194,
+       "tp_rec": 911,
+       "n_gt": 1066
+      },
+      "ramps_gained": 38,
+      "fps_added": 74,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0547,
+        "ci_lo": -0.0697,
+        "ci_hi": -0.0412
+       },
+       "recall": {
+        "observed": 0.0356,
+        "ci_lo": 0.0239,
+        "ci_hi": 0.0482
+       },
+       "f1": {
+        "observed": -0.0087,
+        "ci_lo": -0.0194,
+        "ci_hi": 0.0014
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.16,
+       "P": 0.7668,
+       "R": 0.8574,
+       "F1": 0.8096,
+       "tp": 914,
+       "fp": 278,
+       "tp_rec": 914,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 158,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0577,
+         "ci_lo": 0.0391,
+         "ci_hi": 0.0766
+        },
+        "recall": {
+         "observed": -0.0028,
+         "ci_lo": -0.0169,
+         "ci_hi": 0.011
+        },
+        "f1": {
+         "observed": 0.0297,
+         "ci_lo": 0.0169,
+         "ci_hi": 0.0424
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8546,
+       "R": 0.8546,
+       "F1": 0.8546,
+       "tp": 911,
+       "fp": 155,
+       "tp_rec": 911,
+       "n_gt": 1066
+      },
+      "ramps_gained": 38,
+      "fps_added": 46,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0344,
+        "ci_lo": -0.0463,
+        "ci_hi": -0.0234
+       },
+       "recall": {
+        "observed": 0.0356,
+        "ci_lo": 0.0239,
+        "ci_hi": 0.0482
+       },
+       "f1": {
+        "observed": 0.0021,
+        "ci_lo": -0.0075,
+        "ci_hi": 0.0112
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.16,
+       "P": 0.7852,
+       "R": 0.8574,
+       "F1": 0.8197,
+       "tp": 914,
+       "fp": 250,
+       "tp_rec": 914,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 141,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0694,
+         "ci_lo": 0.0512,
+         "ci_hi": 0.0881
+        },
+        "recall": {
+         "observed": -0.0028,
+         "ci_lo": -0.0169,
+         "ci_hi": 0.011
+        },
+        "f1": {
+         "observed": 0.0349,
+         "ci_lo": 0.0224,
+         "ci_hi": 0.0472
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    },
+    "2x-loso": {
+     "fp": {
+      "metrics": {
+       "P": 0.8117,
+       "R": 0.849,
+       "F1": 0.8299,
+       "tp": 905,
+       "fp": 210,
+       "tp_rec": 905,
+       "n_gt": 1066
+      },
+      "ramps_gained": 32,
+      "fps_added": 90,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0675,
+        "ci_lo": -0.0831,
+        "ci_hi": -0.0527
+       },
+       "recall": {
+        "observed": 0.03,
+        "ci_lo": 0.0181,
+        "ci_hi": 0.0427
+       },
+       "f1": {
+        "observed": -0.0181,
+        "ci_lo": -0.0287,
+        "ci_hi": -0.0077
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.2,
+       "P": 0.8109,
+       "R": 0.849,
+       "F1": 0.8295,
+       "tp": 905,
+       "fp": 211,
+       "tp_rec": 905,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 91,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0007,
+         "ci_lo": -0.0178,
+         "ci_hi": 0.0184
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0148,
+         "ci_hi": 0.0147
+        },
+        "f1": {
+         "observed": 0.0004,
+         "ci_lo": -0.0119,
+         "ci_hi": 0.0129
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8498,
+       "R": 0.849,
+       "F1": 0.8494,
+       "tp": 905,
+       "fp": 160,
+       "tp_rec": 905,
+       "n_gt": 1066
+      },
+      "ramps_gained": 32,
+      "fps_added": 51,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0392,
+        "ci_lo": -0.0516,
+        "ci_hi": -0.0279
+       },
+       "recall": {
+        "observed": 0.03,
+        "ci_lo": 0.0181,
+        "ci_hi": 0.0427
+       },
+       "f1": {
+        "observed": -0.0032,
+        "ci_lo": -0.0124,
+        "ci_hi": 0.0066
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.2,
+       "P": 0.8257,
+       "R": 0.849,
+       "F1": 0.8372,
+       "tp": 905,
+       "fp": 191,
+       "tp_rec": 905,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 82,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.024,
+         "ci_lo": 0.0068,
+         "ci_hi": 0.0417
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0148,
+         "ci_hi": 0.0147
+        },
+        "f1": {
+         "observed": 0.0122,
+         "ci_lo": -0.0,
+         "ci_hi": 0.0248
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     }
+    },
+    "1.5x-loso": {
+     "fp": {
+      "metrics": {
+       "P": 0.8244,
+       "R": 0.8546,
+       "F1": 0.8392,
+       "tp": 911,
+       "fp": 194,
+       "tp_rec": 911,
+       "n_gt": 1066
+      },
+      "ramps_gained": 38,
+      "fps_added": 74,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0547,
+        "ci_lo": -0.0697,
+        "ci_hi": -0.0412
+       },
+       "recall": {
+        "observed": 0.0356,
+        "ci_lo": 0.0239,
+        "ci_hi": 0.0482
+       },
+       "f1": {
+        "observed": -0.0087,
+        "ci_lo": -0.0194,
+        "ci_hi": 0.0014
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.16,
+       "P": 0.7668,
+       "R": 0.8574,
+       "F1": 0.8096,
+       "tp": 914,
+       "fp": 278,
+       "tp_rec": 914,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 158,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0577,
+         "ci_lo": 0.0391,
+         "ci_hi": 0.0766
+        },
+        "recall": {
+         "observed": -0.0028,
+         "ci_lo": -0.0169,
+         "ci_hi": 0.011
+        },
+        "f1": {
+         "observed": 0.0297,
+         "ci_lo": 0.0169,
+         "ci_hi": 0.0424
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8546,
+       "R": 0.8546,
+       "F1": 0.8546,
+       "tp": 911,
+       "fp": 155,
+       "tp_rec": 911,
+       "n_gt": 1066
+      },
+      "ramps_gained": 38,
+      "fps_added": 46,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0344,
+        "ci_lo": -0.0463,
+        "ci_hi": -0.0234
+       },
+       "recall": {
+        "observed": 0.0356,
+        "ci_lo": 0.0239,
+        "ci_hi": 0.0482
+       },
+       "f1": {
+        "observed": 0.0021,
+        "ci_lo": -0.0075,
+        "ci_hi": 0.0112
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.16,
+       "P": 0.7852,
+       "R": 0.8574,
+       "F1": 0.8197,
+       "tp": 914,
+       "fp": 250,
+       "tp_rec": 914,
+       "n_gt": 1066,
+       "extra_fp_vs_base": 141,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0694,
+         "ci_lo": 0.0512,
+         "ci_hi": 0.0881
+        },
+        "recall": {
+         "observed": -0.0028,
+         "ci_lo": -0.0169,
+         "ci_hi": 0.011
+        },
+        "f1": {
+         "observed": 0.0349,
+         "ci_lo": 0.0224,
+         "ci_hi": 0.0472
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    }
+   },
+   "base": {
+    "fp": {
+     "P": 0.8792,
+     "R": 0.8189,
+     "F1": 0.848,
+     "tp": 873,
+     "fp": 120,
+     "tp_rec": 873,
+     "n_gt": 1066
+    },
+    "ignore": {
+     "P": 0.889,
+     "R": 0.8189,
+     "F1": 0.8525,
+     "tp": 873,
+     "fp": 109,
+     "tp_rec": 873,
+     "n_gt": 1066
+    }
+   }
+  },
+  "GSV3 (context)": {
+   "n_panos": 360,
+   "members": [
+    "bend",
+    "paterson",
+    "gainesville"
+   ],
+   "configs": {
+    "2x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.8522,
+       "R": 0.835,
+       "F1": 0.8435,
+       "tp": 830,
+       "fp": 144,
+       "tp_rec": 830,
+       "n_gt": 994
+      },
+      "ramps_gained": 63,
+      "fps_added": 67,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0566,
+        "ci_lo": -0.0723,
+        "ci_hi": -0.0422
+       },
+       "recall": {
+        "observed": 0.0634,
+        "ci_lo": 0.0484,
+        "ci_hi": 0.0784
+       },
+       "f1": {
+        "observed": 0.0089,
+        "ci_lo": -0.0033,
+        "ci_hi": 0.0205
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.06,
+       "P": 0.722,
+       "R": 0.836,
+       "F1": 0.7748,
+       "tp": 831,
+       "fp": 320,
+       "tp_rec": 831,
+       "n_gt": 994,
+       "extra_fp_vs_base": 243,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1302,
+         "ci_lo": 0.107,
+         "ci_hi": 0.1532
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0166,
+         "ci_hi": 0.0143
+        },
+        "f1": {
+         "observed": 0.0687,
+         "ci_lo": 0.0547,
+         "ci_hi": 0.0834
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8877,
+       "R": 0.835,
+       "F1": 0.8605,
+       "tp": 830,
+       "fp": 105,
+       "tp_rec": 830,
+       "n_gt": 994
+      },
+      "ramps_gained": 63,
+      "fps_added": 37,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0309,
+        "ci_lo": -0.0432,
+        "ci_hi": -0.0198
+       },
+       "recall": {
+        "observed": 0.0634,
+        "ci_lo": 0.0484,
+        "ci_hi": 0.0784
+       },
+       "f1": {
+        "observed": 0.0218,
+        "ci_lo": 0.0111,
+        "ci_hi": 0.0325
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.06,
+       "P": 0.752,
+       "R": 0.836,
+       "F1": 0.7918,
+       "tp": 831,
+       "fp": 274,
+       "tp_rec": 831,
+       "n_gt": 994,
+       "extra_fp_vs_base": 206,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1357,
+         "ci_lo": 0.1114,
+         "ci_hi": 0.1606
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0166,
+         "ci_hi": 0.0143
+        },
+        "f1": {
+         "observed": 0.0687,
+         "ci_lo": 0.0546,
+         "ci_hi": 0.0839
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    },
+    "2x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.861,
+       "R": 0.829,
+       "F1": 0.8447,
+       "tp": 824,
+       "fp": 133,
+       "tp_rec": 824,
+       "n_gt": 994
+      },
+      "ramps_gained": 57,
+      "fps_added": 56,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0477,
+        "ci_lo": -0.0626,
+        "ci_hi": -0.0328
+       },
+       "recall": {
+        "observed": 0.0573,
+        "ci_lo": 0.0431,
+        "ci_hi": 0.0717
+       },
+       "f1": {
+        "observed": 0.0101,
+        "ci_lo": -0.0016,
+        "ci_hi": 0.0212
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.08,
+       "P": 0.7625,
+       "R": 0.83,
+       "F1": 0.7948,
+       "tp": 825,
+       "fp": 257,
+       "tp_rec": 825,
+       "n_gt": 994,
+       "extra_fp_vs_base": 180,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0985,
+         "ci_lo": 0.0775,
+         "ci_hi": 0.1204
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.018,
+         "ci_hi": 0.0142
+        },
+        "f1": {
+         "observed": 0.0499,
+         "ci_lo": 0.0367,
+         "ci_hi": 0.0641
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8976,
+       "R": 0.829,
+       "F1": 0.8619,
+       "tp": 824,
+       "fp": 94,
+       "tp_rec": 824,
+       "n_gt": 994
+      },
+      "ramps_gained": 57,
+      "fps_added": 26,
+      "vs_base": {
+       "precision": {
+        "observed": -0.021,
+        "ci_lo": -0.0317,
+        "ci_hi": -0.0111
+       },
+       "recall": {
+        "observed": 0.0573,
+        "ci_lo": 0.0431,
+        "ci_hi": 0.0717
+       },
+       "f1": {
+        "observed": 0.0232,
+        "ci_lo": 0.0129,
+        "ci_hi": 0.0331
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.08,
+       "P": 0.7895,
+       "R": 0.83,
+       "F1": 0.8092,
+       "tp": 825,
+       "fp": 220,
+       "tp_rec": 825,
+       "n_gt": 994,
+       "extra_fp_vs_base": 152,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1081,
+         "ci_lo": 0.0862,
+         "ci_hi": 0.1309
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.018,
+         "ci_hi": 0.0142
+        },
+        "f1": {
+         "observed": 0.0527,
+         "ci_lo": 0.0392,
+         "ci_hi": 0.067
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    },
+    "1.5x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.8652,
+       "R": 0.833,
+       "F1": 0.8488,
+       "tp": 828,
+       "fp": 129,
+       "tp_rec": 828,
+       "n_gt": 994
+      },
+      "ramps_gained": 61,
+      "fps_added": 52,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0436,
+        "ci_lo": -0.0589,
+        "ci_hi": -0.0296
+       },
+       "recall": {
+        "observed": 0.0614,
+        "ci_lo": 0.0459,
+        "ci_hi": 0.0771
+       },
+       "f1": {
+        "observed": 0.0142,
+        "ci_lo": 0.0021,
+        "ci_hi": 0.0258
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.07,
+       "P": 0.7448,
+       "R": 0.834,
+       "F1": 0.7869,
+       "tp": 829,
+       "fp": 284,
+       "tp_rec": 829,
+       "n_gt": 994,
+       "extra_fp_vs_base": 207,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1204,
+         "ci_lo": 0.0993,
+         "ci_hi": 0.1432
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0164,
+         "ci_hi": 0.0141
+        },
+        "f1": {
+         "observed": 0.0619,
+         "ci_lo": 0.0483,
+         "ci_hi": 0.0774
+        }
+       }
+      },
+      "label_197": "HELPS"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8942,
+       "R": 0.833,
+       "F1": 0.8625,
+       "tp": 828,
+       "fp": 98,
+       "tp_rec": 828,
+       "n_gt": 994
+      },
+      "ramps_gained": 61,
+      "fps_added": 30,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0244,
+        "ci_lo": -0.0366,
+        "ci_hi": -0.0133
+       },
+       "recall": {
+        "observed": 0.0614,
+        "ci_lo": 0.0459,
+        "ci_hi": 0.0771
+       },
+       "f1": {
+        "observed": 0.0238,
+        "ci_lo": 0.0121,
+        "ci_hi": 0.0353
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.07,
+       "P": 0.7719,
+       "R": 0.834,
+       "F1": 0.8017,
+       "tp": 829,
+       "fp": 245,
+       "tp_rec": 829,
+       "n_gt": 994,
+       "extra_fp_vs_base": 177,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1223,
+         "ci_lo": 0.0996,
+         "ci_hi": 0.1471
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0164,
+         "ci_hi": 0.0141
+        },
+        "f1": {
+         "observed": 0.0608,
+         "ci_lo": 0.0461,
+         "ci_hi": 0.0769
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    },
+    "1.5x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.8701,
+       "R": 0.829,
+       "F1": 0.849,
+       "tp": 824,
+       "fp": 123,
+       "tp_rec": 824,
+       "n_gt": 994
+      },
+      "ramps_gained": 57,
+      "fps_added": 46,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0387,
+        "ci_lo": -0.0531,
+        "ci_hi": -0.0254
+       },
+       "recall": {
+        "observed": 0.0573,
+        "ci_lo": 0.0423,
+        "ci_hi": 0.0723
+       },
+       "f1": {
+        "observed": 0.0144,
+        "ci_lo": 0.0028,
+        "ci_hi": 0.0257
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.08,
+       "P": 0.7625,
+       "R": 0.83,
+       "F1": 0.7948,
+       "tp": 825,
+       "fp": 257,
+       "tp_rec": 825,
+       "n_gt": 994,
+       "extra_fp_vs_base": 180,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1076,
+         "ci_lo": 0.0882,
+         "ci_hi": 0.1283
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0169,
+         "ci_hi": 0.0132
+        },
+        "f1": {
+         "observed": 0.0542,
+         "ci_lo": 0.0413,
+         "ci_hi": 0.0683
+        }
+       }
+      },
+      "label_197": "HELPS"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8996,
+       "R": 0.829,
+       "F1": 0.8628,
+       "tp": 824,
+       "fp": 92,
+       "tp_rec": 824,
+       "n_gt": 994
+      },
+      "ramps_gained": 57,
+      "fps_added": 24,
+      "vs_base": {
+       "precision": {
+        "observed": -0.019,
+        "ci_lo": -0.0298,
+        "ci_hi": -0.0083
+       },
+       "recall": {
+        "observed": 0.0573,
+        "ci_lo": 0.0423,
+        "ci_hi": 0.0723
+       },
+       "f1": {
+        "observed": 0.0241,
+        "ci_lo": 0.0132,
+        "ci_hi": 0.0348
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.08,
+       "P": 0.7895,
+       "R": 0.83,
+       "F1": 0.8092,
+       "tp": 825,
+       "fp": 220,
+       "tp_rec": 825,
+       "n_gt": 994,
+       "extra_fp_vs_base": 152,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1101,
+         "ci_lo": 0.0892,
+         "ci_hi": 0.1333
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0169,
+         "ci_hi": 0.0132
+        },
+        "f1": {
+         "observed": 0.0536,
+         "ci_lo": 0.0405,
+         "ci_hi": 0.0678
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    },
+    "2x-loso": {
+     "fp": {
+      "metrics": {
+       "P": 0.861,
+       "R": 0.829,
+       "F1": 0.8447,
+       "tp": 824,
+       "fp": 133,
+       "tp_rec": 824,
+       "n_gt": 994
+      },
+      "ramps_gained": 57,
+      "fps_added": 56,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0477,
+        "ci_lo": -0.0626,
+        "ci_hi": -0.0328
+       },
+       "recall": {
+        "observed": 0.0573,
+        "ci_lo": 0.0431,
+        "ci_hi": 0.0717
+       },
+       "f1": {
+        "observed": 0.0101,
+        "ci_lo": -0.0016,
+        "ci_hi": 0.0212
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.08,
+       "P": 0.7625,
+       "R": 0.83,
+       "F1": 0.7948,
+       "tp": 825,
+       "fp": 257,
+       "tp_rec": 825,
+       "n_gt": 994,
+       "extra_fp_vs_base": 180,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0985,
+         "ci_lo": 0.0775,
+         "ci_hi": 0.1204
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.018,
+         "ci_hi": 0.0142
+        },
+        "f1": {
+         "observed": 0.0499,
+         "ci_lo": 0.0367,
+         "ci_hi": 0.0641
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8976,
+       "R": 0.829,
+       "F1": 0.8619,
+       "tp": 824,
+       "fp": 94,
+       "tp_rec": 824,
+       "n_gt": 994
+      },
+      "ramps_gained": 57,
+      "fps_added": 26,
+      "vs_base": {
+       "precision": {
+        "observed": -0.021,
+        "ci_lo": -0.0317,
+        "ci_hi": -0.0111
+       },
+       "recall": {
+        "observed": 0.0573,
+        "ci_lo": 0.0431,
+        "ci_hi": 0.0717
+       },
+       "f1": {
+        "observed": 0.0232,
+        "ci_lo": 0.0129,
+        "ci_hi": 0.0331
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.08,
+       "P": 0.7895,
+       "R": 0.83,
+       "F1": 0.8092,
+       "tp": 825,
+       "fp": 220,
+       "tp_rec": 825,
+       "n_gt": 994,
+       "extra_fp_vs_base": 152,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1081,
+         "ci_lo": 0.0862,
+         "ci_hi": 0.1309
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.018,
+         "ci_hi": 0.0142
+        },
+        "f1": {
+         "observed": 0.0527,
+         "ci_lo": 0.0392,
+         "ci_hi": 0.067
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    },
+    "1.5x-loso": {
+     "fp": {
+      "metrics": {
+       "P": 0.8701,
+       "R": 0.829,
+       "F1": 0.849,
+       "tp": 824,
+       "fp": 123,
+       "tp_rec": 824,
+       "n_gt": 994
+      },
+      "ramps_gained": 57,
+      "fps_added": 46,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0387,
+        "ci_lo": -0.0531,
+        "ci_hi": -0.0254
+       },
+       "recall": {
+        "observed": 0.0573,
+        "ci_lo": 0.0423,
+        "ci_hi": 0.0723
+       },
+       "f1": {
+        "observed": 0.0144,
+        "ci_lo": 0.0028,
+        "ci_hi": 0.0257
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.08,
+       "P": 0.7625,
+       "R": 0.83,
+       "F1": 0.7948,
+       "tp": 825,
+       "fp": 257,
+       "tp_rec": 825,
+       "n_gt": 994,
+       "extra_fp_vs_base": 180,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1076,
+         "ci_lo": 0.0882,
+         "ci_hi": 0.1283
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0169,
+         "ci_hi": 0.0132
+        },
+        "f1": {
+         "observed": 0.0542,
+         "ci_lo": 0.0413,
+         "ci_hi": 0.0683
+        }
+       }
+      },
+      "label_197": "HELPS"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8996,
+       "R": 0.829,
+       "F1": 0.8628,
+       "tp": 824,
+       "fp": 92,
+       "tp_rec": 824,
+       "n_gt": 994
+      },
+      "ramps_gained": 57,
+      "fps_added": 24,
+      "vs_base": {
+       "precision": {
+        "observed": -0.019,
+        "ci_lo": -0.0298,
+        "ci_hi": -0.0083
+       },
+       "recall": {
+        "observed": 0.0573,
+        "ci_lo": 0.0423,
+        "ci_hi": 0.0723
+       },
+       "f1": {
+        "observed": 0.0241,
+        "ci_lo": 0.0132,
+        "ci_hi": 0.0348
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.08,
+       "P": 0.7895,
+       "R": 0.83,
+       "F1": 0.8092,
+       "tp": 825,
+       "fp": 220,
+       "tp_rec": 825,
+       "n_gt": 994,
+       "extra_fp_vs_base": 152,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.1101,
+         "ci_lo": 0.0892,
+         "ci_hi": 0.1333
+        },
+        "recall": {
+         "observed": -0.001,
+         "ci_lo": -0.0169,
+         "ci_hi": 0.0132
+        },
+        "f1": {
+         "observed": 0.0536,
+         "ci_lo": 0.0405,
+         "ci_hi": 0.0678
+        }
+       }
+      },
+      "label_197": "HELPS"
+     }
+    }
+   },
+   "base": {
+    "fp": {
+     "P": 0.9088,
+     "R": 0.7716,
+     "F1": 0.8346,
+     "tp": 767,
+     "fp": 77,
+     "tp_rec": 767,
+     "n_gt": 994
+    },
+    "ignore": {
+     "P": 0.9186,
+     "R": 0.7716,
+     "F1": 0.8387,
+     "tp": 767,
+     "fp": 68,
+     "tp_rec": 767,
+     "n_gt": 994
+    }
+   }
+  },
+  "S7 minus paterson (context)": {
+   "n_panos": 734,
+   "members": [
+    "richmond",
+    "annapolis",
+    "clovis",
+    "morgantown",
+    "bend",
+    "gainesville"
+   ],
+   "configs": {
+    "2x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.8059,
+       "R": 0.8553,
+       "F1": 0.8298,
+       "tp": 1424,
+       "fp": 343,
+       "tp_rec": 1424,
+       "n_gt": 1665
+      },
+      "ramps_gained": 70,
+      "fps_added": 162,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0762,
+        "ci_lo": -0.0893,
+        "ci_hi": -0.0632
+       },
+       "recall": {
+        "observed": 0.042,
+        "ci_lo": 0.0324,
+        "ci_hi": 0.0522
+       },
+       "f1": {
+        "observed": -0.0164,
+        "ci_lo": -0.0253,
+        "ci_hi": -0.0073
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.15,
+       "P": 0.7717,
+       "R": 0.8589,
+       "F1": 0.813,
+       "tp": 1430,
+       "fp": 423,
+       "tp_rec": 1430,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 242,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0342,
+         "ci_lo": 0.0185,
+         "ci_hi": 0.0497
+        },
+        "recall": {
+         "observed": -0.0036,
+         "ci_lo": -0.0156,
+         "ci_hi": 0.0088
+        },
+        "f1": {
+         "observed": 0.0169,
+         "ci_lo": 0.0063,
+         "ci_hi": 0.0278
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8431,
+       "R": 0.8553,
+       "F1": 0.8491,
+       "tp": 1424,
+       "fp": 265,
+       "tp_rec": 1424,
+       "n_gt": 1665
+      },
+      "ramps_gained": 70,
+      "fps_added": 101,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0489,
+        "ci_lo": -0.0602,
+        "ci_hi": -0.0382
+       },
+       "recall": {
+        "observed": 0.042,
+        "ci_lo": 0.0324,
+        "ci_hi": 0.0522
+       },
+       "f1": {
+        "observed": -0.0016,
+        "ci_lo": -0.0095,
+        "ci_hi": 0.0063
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.15,
+       "P": 0.7918,
+       "R": 0.8589,
+       "F1": 0.824,
+       "tp": 1430,
+       "fp": 376,
+       "tp_rec": 1430,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 212,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0513,
+         "ci_lo": 0.0361,
+         "ci_hi": 0.0663
+        },
+        "recall": {
+         "observed": -0.0036,
+         "ci_lo": -0.0156,
+         "ci_hi": 0.0088
+        },
+        "f1": {
+         "observed": 0.0252,
+         "ci_lo": 0.015,
+         "ci_hi": 0.0355
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    },
+    "2x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.8179,
+       "R": 0.8498,
+       "F1": 0.8336,
+       "tp": 1415,
+       "fp": 315,
+       "tp_rec": 1415,
+       "n_gt": 1665
+      },
+      "ramps_gained": 61,
+      "fps_added": 134,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0642,
+        "ci_lo": -0.0763,
+        "ci_hi": -0.0521
+       },
+       "recall": {
+        "observed": 0.0366,
+        "ci_lo": 0.027,
+        "ci_hi": 0.0468
+       },
+       "f1": {
+        "observed": -0.0127,
+        "ci_lo": -0.0214,
+        "ci_hi": -0.004
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.17,
+       "P": 0.7901,
+       "R": 0.8498,
+       "F1": 0.8189,
+       "tp": 1415,
+       "fp": 376,
+       "tp_rec": 1415,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 195,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0279,
+         "ci_lo": 0.0131,
+         "ci_hi": 0.0428
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0118,
+         "ci_hi": 0.0124
+        },
+        "f1": {
+         "observed": 0.0147,
+         "ci_lo": 0.0047,
+         "ci_hi": 0.0251
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8565,
+       "R": 0.8498,
+       "F1": 0.8532,
+       "tp": 1415,
+       "fp": 237,
+       "tp_rec": 1415,
+       "n_gt": 1665
+      },
+      "ramps_gained": 61,
+      "fps_added": 73,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0354,
+        "ci_lo": -0.0451,
+        "ci_hi": -0.0264
+       },
+       "recall": {
+        "observed": 0.0366,
+        "ci_lo": 0.027,
+        "ci_hi": 0.0468
+       },
+       "f1": {
+        "observed": 0.0024,
+        "ci_lo": -0.0047,
+        "ci_hi": 0.0101
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.17,
+       "P": 0.8076,
+       "R": 0.8498,
+       "F1": 0.8282,
+       "tp": 1415,
+       "fp": 337,
+       "tp_rec": 1415,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 173,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0489,
+         "ci_lo": 0.0341,
+         "ci_hi": 0.0636
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0118,
+         "ci_hi": 0.0124
+        },
+        "f1": {
+         "observed": 0.025,
+         "ci_lo": 0.0151,
+         "ci_hi": 0.035
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    },
+    "1.5x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.8188,
+       "R": 0.8601,
+       "F1": 0.8389,
+       "tp": 1432,
+       "fp": 317,
+       "tp_rec": 1432,
+       "n_gt": 1665
+      },
+      "ramps_gained": 78,
+      "fps_added": 136,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0633,
+        "ci_lo": -0.0757,
+        "ci_hi": -0.0512
+       },
+       "recall": {
+        "observed": 0.0468,
+        "ci_lo": 0.0361,
+        "ci_hi": 0.0584
+       },
+       "f1": {
+        "observed": -0.0074,
+        "ci_lo": -0.0165,
+        "ci_hi": 0.0018
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.14,
+       "P": 0.7582,
+       "R": 0.8625,
+       "F1": 0.807,
+       "tp": 1436,
+       "fp": 458,
+       "tp_rec": 1436,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 277,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0606,
+         "ci_lo": 0.0461,
+         "ci_hi": 0.0758
+        },
+        "recall": {
+         "observed": -0.0024,
+         "ci_lo": -0.0142,
+         "ci_hi": 0.0096
+        },
+        "f1": {
+         "observed": 0.0319,
+         "ci_lo": 0.0213,
+         "ci_hi": 0.0426
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8483,
+       "R": 0.8601,
+       "F1": 0.8542,
+       "tp": 1432,
+       "fp": 256,
+       "tp_rec": 1432,
+       "n_gt": 1665
+      },
+      "ramps_gained": 78,
+      "fps_added": 92,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0436,
+        "ci_lo": -0.0539,
+        "ci_hi": -0.0337
+       },
+       "recall": {
+        "observed": 0.0468,
+        "ci_lo": 0.0361,
+        "ci_hi": 0.0584
+       },
+       "f1": {
+        "observed": 0.0034,
+        "ci_lo": -0.0048,
+        "ci_hi": 0.0117
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.14,
+       "P": 0.7792,
+       "R": 0.8625,
+       "F1": 0.8187,
+       "tp": 1436,
+       "fp": 407,
+       "tp_rec": 1436,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 243,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0692,
+         "ci_lo": 0.0544,
+         "ci_hi": 0.0841
+        },
+        "recall": {
+         "observed": -0.0024,
+         "ci_lo": -0.0142,
+         "ci_hi": 0.0096
+        },
+        "f1": {
+         "observed": 0.0355,
+         "ci_lo": 0.0251,
+         "ci_hi": 0.0457
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    },
+    "1.5x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.8303,
+       "R": 0.8553,
+       "F1": 0.8426,
+       "tp": 1424,
+       "fp": 291,
+       "tp_rec": 1424,
+       "n_gt": 1665
+      },
+      "ramps_gained": 70,
+      "fps_added": 110,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0518,
+        "ci_lo": -0.0633,
+        "ci_hi": -0.0401
+       },
+       "recall": {
+        "observed": 0.042,
+        "ci_lo": 0.0318,
+        "ci_hi": 0.0528
+       },
+       "f1": {
+        "observed": -0.0036,
+        "ci_lo": -0.0122,
+        "ci_hi": 0.0049
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.15,
+       "P": 0.7717,
+       "R": 0.8589,
+       "F1": 0.813,
+       "tp": 1430,
+       "fp": 423,
+       "tp_rec": 1430,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 242,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0586,
+         "ci_lo": 0.044,
+         "ci_hi": 0.073
+        },
+        "recall": {
+         "observed": -0.0036,
+         "ci_lo": -0.0152,
+         "ci_hi": 0.0081
+        },
+        "f1": {
+         "observed": 0.0296,
+         "ci_lo": 0.0194,
+         "ci_hi": 0.0397
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8609,
+       "R": 0.8553,
+       "F1": 0.8581,
+       "tp": 1424,
+       "fp": 230,
+       "tp_rec": 1424,
+       "n_gt": 1665
+      },
+      "ramps_gained": 70,
+      "fps_added": 66,
+      "vs_base": {
+       "precision": {
+        "observed": -0.031,
+        "ci_lo": -0.0399,
+        "ci_hi": -0.0221
+       },
+       "recall": {
+        "observed": 0.042,
+        "ci_lo": 0.0318,
+        "ci_hi": 0.0528
+       },
+       "f1": {
+        "observed": 0.0073,
+        "ci_lo": -0.0,
+        "ci_hi": 0.0149
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.15,
+       "P": 0.7918,
+       "R": 0.8589,
+       "F1": 0.824,
+       "tp": 1430,
+       "fp": 376,
+       "tp_rec": 1430,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 212,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0691,
+         "ci_lo": 0.0547,
+         "ci_hi": 0.0835
+        },
+        "recall": {
+         "observed": -0.0036,
+         "ci_lo": -0.0152,
+         "ci_hi": 0.0081
+        },
+        "f1": {
+         "observed": 0.0341,
+         "ci_lo": 0.0245,
+         "ci_hi": 0.044
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    },
+    "2x-loso": {
+     "fp": {
+      "metrics": {
+       "P": 0.8179,
+       "R": 0.8498,
+       "F1": 0.8336,
+       "tp": 1415,
+       "fp": 315,
+       "tp_rec": 1415,
+       "n_gt": 1665
+      },
+      "ramps_gained": 61,
+      "fps_added": 134,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0642,
+        "ci_lo": -0.0763,
+        "ci_hi": -0.0521
+       },
+       "recall": {
+        "observed": 0.0366,
+        "ci_lo": 0.027,
+        "ci_hi": 0.0468
+       },
+       "f1": {
+        "observed": -0.0127,
+        "ci_lo": -0.0214,
+        "ci_hi": -0.004
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.17,
+       "P": 0.7901,
+       "R": 0.8498,
+       "F1": 0.8189,
+       "tp": 1415,
+       "fp": 376,
+       "tp_rec": 1415,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 195,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0279,
+         "ci_lo": 0.0131,
+         "ci_hi": 0.0428
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0118,
+         "ci_hi": 0.0124
+        },
+        "f1": {
+         "observed": 0.0147,
+         "ci_lo": 0.0047,
+         "ci_hi": 0.0251
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8565,
+       "R": 0.8498,
+       "F1": 0.8532,
+       "tp": 1415,
+       "fp": 237,
+       "tp_rec": 1415,
+       "n_gt": 1665
+      },
+      "ramps_gained": 61,
+      "fps_added": 73,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0354,
+        "ci_lo": -0.0451,
+        "ci_hi": -0.0264
+       },
+       "recall": {
+        "observed": 0.0366,
+        "ci_lo": 0.027,
+        "ci_hi": 0.0468
+       },
+       "f1": {
+        "observed": 0.0024,
+        "ci_lo": -0.0047,
+        "ci_hi": 0.0101
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.17,
+       "P": 0.8076,
+       "R": 0.8498,
+       "F1": 0.8282,
+       "tp": 1415,
+       "fp": 337,
+       "tp_rec": 1415,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 173,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0489,
+         "ci_lo": 0.0341,
+         "ci_hi": 0.0636
+        },
+        "recall": {
+         "observed": 0.0,
+         "ci_lo": -0.0118,
+         "ci_hi": 0.0124
+        },
+        "f1": {
+         "observed": 0.025,
+         "ci_lo": 0.0151,
+         "ci_hi": 0.035
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    },
+    "1.5x-loso": {
+     "fp": {
+      "metrics": {
+       "P": 0.8303,
+       "R": 0.8553,
+       "F1": 0.8426,
+       "tp": 1424,
+       "fp": 291,
+       "tp_rec": 1424,
+       "n_gt": 1665
+      },
+      "ramps_gained": 70,
+      "fps_added": 110,
+      "vs_base": {
+       "precision": {
+        "observed": -0.0518,
+        "ci_lo": -0.0633,
+        "ci_hi": -0.0401
+       },
+       "recall": {
+        "observed": 0.042,
+        "ci_lo": 0.0318,
+        "ci_hi": 0.0528
+       },
+       "f1": {
+        "observed": -0.0036,
+        "ci_lo": -0.0122,
+        "ci_hi": 0.0049
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.15,
+       "P": 0.7717,
+       "R": 0.8589,
+       "F1": 0.813,
+       "tp": 1430,
+       "fp": 423,
+       "tp_rec": 1430,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 242,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0586,
+         "ci_lo": 0.044,
+         "ci_hi": 0.073
+        },
+        "recall": {
+         "observed": -0.0036,
+         "ci_lo": -0.0152,
+         "ci_hi": 0.0081
+        },
+        "f1": {
+         "observed": 0.0296,
+         "ci_lo": 0.0194,
+         "ci_hi": 0.0397
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8609,
+       "R": 0.8553,
+       "F1": 0.8581,
+       "tp": 1424,
+       "fp": 230,
+       "tp_rec": 1424,
+       "n_gt": 1665
+      },
+      "ramps_gained": 70,
+      "fps_added": 66,
+      "vs_base": {
+       "precision": {
+        "observed": -0.031,
+        "ci_lo": -0.0399,
+        "ci_hi": -0.0221
+       },
+       "recall": {
+        "observed": 0.042,
+        "ci_lo": 0.0318,
+        "ci_hi": 0.0528
+       },
+       "f1": {
+        "observed": 0.0073,
+        "ci_lo": -0.0,
+        "ci_hi": 0.0149
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.15,
+       "P": 0.7918,
+       "R": 0.8589,
+       "F1": 0.824,
+       "tp": 1430,
+       "fp": 376,
+       "tp_rec": 1430,
+       "n_gt": 1665,
+       "extra_fp_vs_base": 212,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0691,
+         "ci_lo": 0.0547,
+         "ci_hi": 0.0835
+        },
+        "recall": {
+         "observed": -0.0036,
+         "ci_lo": -0.0152,
+         "ci_hi": 0.0081
+        },
+        "f1": {
+         "observed": 0.0341,
+         "ci_lo": 0.0245,
+         "ci_hi": 0.044
+        }
+       }
+      },
+      "label_197": "RECALL LEVER"
+     }
+    }
+   },
+   "base": {
+    "fp": {
+     "P": 0.8821,
+     "R": 0.8132,
+     "F1": 0.8462,
+     "tp": 1354,
+     "fp": 181,
+     "tp_rec": 1354,
+     "n_gt": 1665
+    },
+    "ignore": {
+     "P": 0.892,
+     "R": 0.8132,
+     "F1": 0.8508,
+     "tp": 1354,
+     "fp": 164,
+     "tp_rec": 1354,
+     "n_gt": 1665
+    }
+   }
+  }
+ },
+ "report_only": {
+  "laurens_mapillary": {
+   "n_panos": 94,
+   "members": [
+    "laurens_mapillary"
+   ],
+   "configs": {
+    "2x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.8831,
+       "R": 0.5462,
+       "F1": 0.6749,
+       "tp": 136,
+       "fp": 18,
+       "tp_rec": 136,
+       "n_gt": 249
+      },
+      "ramps_gained": 5,
+      "fps_added": 1,
+      "vs_base": {
+       "precision": {
+        "observed": -0.002,
+        "ci_lo": -0.0163,
+        "ci_hi": 0.0072
+       },
+       "recall": {
+        "observed": 0.0201,
+        "ci_lo": 0.0043,
+        "ci_hi": 0.0392
+       },
+       "f1": {
+        "observed": 0.015,
+        "ci_lo": 0.0017,
+        "ci_hi": 0.0319
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.27,
+       "P": 0.8742,
+       "R": 0.5582,
+       "F1": 0.6814,
+       "tp": 139,
+       "fp": 20,
+       "tp_rec": 139,
+       "n_gt": 249,
+       "extra_fp_vs_base": 3,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0089,
+         "ci_lo": -0.0131,
+         "ci_hi": 0.0328
+        },
+        "recall": {
+         "observed": -0.012,
+         "ci_lo": -0.0328,
+         "ci_hi": 0.0081
+        },
+        "f1": {
+         "observed": -0.0064,
+         "ci_lo": -0.024,
+         "ci_hi": 0.0115
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8831,
+       "R": 0.5462,
+       "F1": 0.6749,
+       "tp": 136,
+       "fp": 18,
+       "tp_rec": 136,
+       "n_gt": 249
+      },
+      "ramps_gained": 5,
+      "fps_added": 1,
+      "vs_base": {
+       "precision": {
+        "observed": -0.002,
+        "ci_lo": -0.0163,
+        "ci_hi": 0.0072
+       },
+       "recall": {
+        "observed": 0.0201,
+        "ci_lo": 0.0043,
+        "ci_hi": 0.0392
+       },
+       "f1": {
+        "observed": 0.015,
+        "ci_lo": 0.0017,
+        "ci_hi": 0.0319
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.27,
+       "P": 0.8742,
+       "R": 0.5582,
+       "F1": 0.6814,
+       "tp": 139,
+       "fp": 20,
+       "tp_rec": 139,
+       "n_gt": 249,
+       "extra_fp_vs_base": 3,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0089,
+         "ci_lo": -0.0131,
+         "ci_hi": 0.0328
+        },
+        "recall": {
+         "observed": -0.012,
+         "ci_lo": -0.0328,
+         "ci_hi": 0.0081
+        },
+        "f1": {
+         "observed": -0.0064,
+         "ci_lo": -0.024,
+         "ci_hi": 0.0115
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     }
+    },
+    "2x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.8831,
+       "R": 0.5462,
+       "F1": 0.6749,
+       "tp": 136,
+       "fp": 18,
+       "tp_rec": 136,
+       "n_gt": 249
+      },
+      "ramps_gained": 5,
+      "fps_added": 1,
+      "vs_base": {
+       "precision": {
+        "observed": -0.002,
+        "ci_lo": -0.0163,
+        "ci_hi": 0.0072
+       },
+       "recall": {
+        "observed": 0.0201,
+        "ci_lo": 0.0043,
+        "ci_hi": 0.0392
+       },
+       "f1": {
+        "observed": 0.015,
+        "ci_lo": 0.0017,
+        "ci_hi": 0.0319
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.27,
+       "P": 0.8742,
+       "R": 0.5582,
+       "F1": 0.6814,
+       "tp": 139,
+       "fp": 20,
+       "tp_rec": 139,
+       "n_gt": 249,
+       "extra_fp_vs_base": 3,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0089,
+         "ci_lo": -0.0131,
+         "ci_hi": 0.0328
+        },
+        "recall": {
+         "observed": -0.012,
+         "ci_lo": -0.0328,
+         "ci_hi": 0.0081
+        },
+        "f1": {
+         "observed": -0.0064,
+         "ci_lo": -0.024,
+         "ci_hi": 0.0115
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8831,
+       "R": 0.5462,
+       "F1": 0.6749,
+       "tp": 136,
+       "fp": 18,
+       "tp_rec": 136,
+       "n_gt": 249
+      },
+      "ramps_gained": 5,
+      "fps_added": 1,
+      "vs_base": {
+       "precision": {
+        "observed": -0.002,
+        "ci_lo": -0.0163,
+        "ci_hi": 0.0072
+       },
+       "recall": {
+        "observed": 0.0201,
+        "ci_lo": 0.0043,
+        "ci_hi": 0.0392
+       },
+       "f1": {
+        "observed": 0.015,
+        "ci_lo": 0.0017,
+        "ci_hi": 0.0319
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.27,
+       "P": 0.8742,
+       "R": 0.5582,
+       "F1": 0.6814,
+       "tp": 139,
+       "fp": 20,
+       "tp_rec": 139,
+       "n_gt": 249,
+       "extra_fp_vs_base": 3,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0089,
+         "ci_lo": -0.0131,
+         "ci_hi": 0.0328
+        },
+        "recall": {
+         "observed": -0.012,
+         "ci_lo": -0.0328,
+         "ci_hi": 0.0081
+        },
+        "f1": {
+         "observed": -0.0064,
+         "ci_lo": -0.024,
+         "ci_hi": 0.0115
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     }
+    },
+    "1.5x-wide": {
+     "fp": {
+      "metrics": {
+       "P": 0.8831,
+       "R": 0.5462,
+       "F1": 0.6749,
+       "tp": 136,
+       "fp": 18,
+       "tp_rec": 136,
+       "n_gt": 249
+      },
+      "ramps_gained": 5,
+      "fps_added": 1,
+      "vs_base": {
+       "precision": {
+        "observed": -0.002,
+        "ci_lo": -0.0161,
+        "ci_hi": 0.0065
+       },
+       "recall": {
+        "observed": 0.0201,
+        "ci_lo": 0.0043,
+        "ci_hi": 0.0382
+       },
+       "f1": {
+        "observed": 0.015,
+        "ci_lo": 0.0017,
+        "ci_hi": 0.0302
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.27,
+       "P": 0.8742,
+       "R": 0.5582,
+       "F1": 0.6814,
+       "tp": 139,
+       "fp": 20,
+       "tp_rec": 139,
+       "n_gt": 249,
+       "extra_fp_vs_base": 3,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0089,
+         "ci_lo": -0.0129,
+         "ci_hi": 0.0331
+        },
+        "recall": {
+         "observed": -0.012,
+         "ci_lo": -0.0311,
+         "ci_hi": 0.0088
+        },
+        "f1": {
+         "observed": -0.0064,
+         "ci_lo": -0.0239,
+         "ci_hi": 0.0114
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8831,
+       "R": 0.5462,
+       "F1": 0.6749,
+       "tp": 136,
+       "fp": 18,
+       "tp_rec": 136,
+       "n_gt": 249
+      },
+      "ramps_gained": 5,
+      "fps_added": 1,
+      "vs_base": {
+       "precision": {
+        "observed": -0.002,
+        "ci_lo": -0.0161,
+        "ci_hi": 0.0065
+       },
+       "recall": {
+        "observed": 0.0201,
+        "ci_lo": 0.0043,
+        "ci_hi": 0.0382
+       },
+       "f1": {
+        "observed": 0.015,
+        "ci_lo": 0.0017,
+        "ci_hi": 0.0302
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.27,
+       "P": 0.8742,
+       "R": 0.5582,
+       "F1": 0.6814,
+       "tp": 139,
+       "fp": 20,
+       "tp_rec": 139,
+       "n_gt": 249,
+       "extra_fp_vs_base": 3,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0089,
+         "ci_lo": -0.0129,
+         "ci_hi": 0.0331
+        },
+        "recall": {
+         "observed": -0.012,
+         "ci_lo": -0.0311,
+         "ci_hi": 0.0088
+        },
+        "f1": {
+         "observed": -0.0064,
+         "ci_lo": -0.0239,
+         "ci_hi": 0.0114
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     }
+    },
+    "1.5x-narrow": {
+     "fp": {
+      "metrics": {
+       "P": 0.8831,
+       "R": 0.5462,
+       "F1": 0.6749,
+       "tp": 136,
+       "fp": 18,
+       "tp_rec": 136,
+       "n_gt": 249
+      },
+      "ramps_gained": 5,
+      "fps_added": 1,
+      "vs_base": {
+       "precision": {
+        "observed": -0.002,
+        "ci_lo": -0.0161,
+        "ci_hi": 0.0065
+       },
+       "recall": {
+        "observed": 0.0201,
+        "ci_lo": 0.0043,
+        "ci_hi": 0.0382
+       },
+       "f1": {
+        "observed": 0.015,
+        "ci_lo": 0.0017,
+        "ci_hi": 0.0302
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.27,
+       "P": 0.8742,
+       "R": 0.5582,
+       "F1": 0.6814,
+       "tp": 139,
+       "fp": 20,
+       "tp_rec": 139,
+       "n_gt": 249,
+       "extra_fp_vs_base": 3,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0089,
+         "ci_lo": -0.0129,
+         "ci_hi": 0.0331
+        },
+        "recall": {
+         "observed": -0.012,
+         "ci_lo": -0.0311,
+         "ci_hi": 0.0088
+        },
+        "f1": {
+         "observed": -0.0064,
+         "ci_lo": -0.0239,
+         "ci_hi": 0.0114
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     },
+     "ignore": {
+      "metrics": {
+       "P": 0.8831,
+       "R": 0.5462,
+       "F1": 0.6749,
+       "tp": 136,
+       "fp": 18,
+       "tp_rec": 136,
+       "n_gt": 249
+      },
+      "ramps_gained": 5,
+      "fps_added": 1,
+      "vs_base": {
+       "precision": {
+        "observed": -0.002,
+        "ci_lo": -0.0161,
+        "ci_hi": 0.0065
+       },
+       "recall": {
+        "observed": 0.0201,
+        "ci_lo": 0.0043,
+        "ci_hi": 0.0382
+       },
+       "f1": {
+        "observed": 0.015,
+        "ci_lo": 0.0017,
+        "ci_hi": 0.0302
+       }
+      },
+      "matched_recall_threshold": {
+       "threshold": 0.27,
+       "P": 0.8742,
+       "R": 0.5582,
+       "F1": 0.6814,
+       "tp": 139,
+       "fp": 20,
+       "tp_rec": 139,
+       "n_gt": 249,
+       "extra_fp_vs_base": 3,
+       "merged_minus_matched": {
+        "precision": {
+         "observed": 0.0089,
+         "ci_lo": -0.0129,
+         "ci_hi": 0.0331
+        },
+        "recall": {
+         "observed": -0.012,
+         "ci_lo": -0.0311,
+         "ci_hi": 0.0088
+        },
+        "f1": {
+         "observed": -0.0064,
+         "ci_lo": -0.0239,
+         "ci_hi": 0.0114
+        }
+       }
+      },
+      "label_197": "NO BETTER THAN A THRESHOLD"
+     }
+    }
+   },
+   "base": {
+    "fp": {
+     "P": 0.8851,
+     "R": 0.5261,
+     "F1": 0.6599,
+     "tp": 131,
+     "fp": 17,
+     "tp_rec": 131,
+     "n_gt": 249
+    },
+    "ignore": {
+     "P": 0.8851,
+     "R": 0.5261,
+     "F1": 0.6599,
+     "tp": 131,
+     "fp": 17,
+     "tp_rec": 131,
+     "n_gt": 249
+    }
+   }
+  }
+ },
+ "per_split": {
+  "richmond": {
+   "base": {
+    "P": 0.8927,
+    "R": 0.8323,
+    "F1": 0.8614,
+    "tp": 258,
+    "fp": 31,
+    "tp_rec": 258,
+    "n_gt": 310
+   },
+   "configs": {
+    "2x-wide": {
+     "ramps_gained": 18,
+     "fps_added": 27,
+     "F1": 0.8571
+    },
+    "2x-narrow": {
+     "ramps_gained": 15,
+     "fps_added": 22,
+     "F1": 0.8585
+    },
+    "1.5x-wide": {
+     "ramps_gained": 18,
+     "fps_added": 29,
+     "F1": 0.8545
+    },
+    "1.5x-narrow": {
+     "ramps_gained": 15,
+     "fps_added": 22,
+     "F1": 0.8585
+    }
+   },
+   "loso_core": {
+    "2x": "narrow",
+    "1.5x": "narrow"
+   }
+  },
+  "annapolis": {
+   "base": {
+    "P": 0.8947,
+    "R": 0.8095,
+    "F1": 0.85,
+    "tp": 238,
+    "fp": 28,
+    "tp_rec": 238,
+    "n_gt": 294
+   },
+   "configs": {
+    "2x-wide": {
+     "ramps_gained": 12,
+     "fps_added": 33,
+     "F1": 0.8264
+    },
+    "2x-narrow": {
+     "ramps_gained": 12,
+     "fps_added": 29,
+     "F1": 0.8319
+    },
+    "1.5x-wide": {
+     "ramps_gained": 14,
+     "fps_added": 21,
+     "F1": 0.8471
+    },
+    "1.5x-narrow": {
+     "ramps_gained": 14,
+     "fps_added": 17,
+     "F1": 0.8528
+    }
+   },
+   "loso_core": {
+    "2x": "narrow",
+    "1.5x": "narrow"
+   }
+  },
+  "clovis": {
+   "base": {
+    "P": 0.8377,
+    "R": 0.8205,
+    "F1": 0.829,
+    "tp": 160,
+    "fp": 31,
+    "tp_rec": 160,
+    "n_gt": 195
+   },
+   "configs": {
+    "2x-wide": {
+     "ramps_gained": 4,
+     "fps_added": 15,
+     "F1": 0.8099
+    },
+    "2x-narrow": {
+     "ramps_gained": 4,
+     "fps_added": 11,
+     "F1": 0.818
+    },
+    "1.5x-wide": {
+     "ramps_gained": 8,
+     "fps_added": 17,
+     "F1": 0.8175
+    },
+    "1.5x-narrow": {
+     "ramps_gained": 6,
+     "fps_added": 12,
+     "F1": 0.8218
+    }
+   },
+   "loso_core": {
+    "2x": "narrow",
+    "1.5x": "narrow"
+   }
+  },
+  "morgantown": {
+   "base": {
+    "P": 0.8785,
+    "R": 0.8127,
+    "F1": 0.8444,
+    "tp": 217,
+    "fp": 30,
+    "tp_rec": 217,
+    "n_gt": 267
+   },
+   "configs": {
+    "2x-wide": {
+     "ramps_gained": 3,
+     "fps_added": 32,
+     "F1": 0.8015
+    },
+    "2x-narrow": {
+     "ramps_gained": 1,
+     "fps_added": 28,
+     "F1": 0.8029
+    },
+    "1.5x-wide": {
+     "ramps_gained": 5,
+     "fps_added": 27,
+     "F1": 0.8132
+    },
+    "1.5x-narrow": {
+     "ramps_gained": 3,
+     "fps_added": 23,
+     "F1": 0.8148
+    }
+   },
+   "loso_core": {
+    "2x": "narrow",
+    "1.5x": "narrow"
+   }
+  },
+  "bend": {
+   "base": {
+    "P": 0.9155,
+    "R": 0.8287,
+    "F1": 0.87,
+    "tp": 271,
+    "fp": 25,
+    "tp_rec": 271,
+    "n_gt": 327
+   },
+   "configs": {
+    "2x-wide": {
+     "ramps_gained": 14,
+     "fps_added": 25,
+     "F1": 0.861
+    },
+    "2x-narrow": {
+     "ramps_gained": 13,
+     "fps_added": 21,
+     "F1": 0.8645
+    },
+    "1.5x-wide": {
+     "ramps_gained": 16,
+     "fps_added": 16,
+     "F1": 0.8763
+    },
+    "1.5x-narrow": {
+     "ramps_gained": 17,
+     "fps_added": 14,
+     "F1": 0.8807
+    }
+   },
+   "loso_core": {
+    "2x": "narrow",
+    "1.5x": "narrow"
+   }
+  },
+  "paterson": {
+   "base": {
+    "P": 0.947,
+    "R": 0.7241,
+    "F1": 0.8207,
+    "tp": 286,
+    "fp": 16,
+    "tp_rec": 286,
+    "n_gt": 395
+   },
+   "configs": {
+    "2x-wide": {
+     "ramps_gained": 30,
+     "fps_added": 12,
+     "F1": 0.8552
+    },
+    "2x-narrow": {
+     "ramps_gained": 28,
+     "fps_added": 12,
+     "F1": 0.8521
+    },
+    "1.5x-wide": {
+     "ramps_gained": 28,
+     "fps_added": 10,
+     "F1": 0.8544
+    },
+    "1.5x-narrow": {
+     "ramps_gained": 25,
+     "fps_added": 10,
+     "F1": 0.8497
+    }
+   },
+   "loso_core": {
+    "2x": "narrow",
+    "1.5x": "narrow"
+   }
+  },
+  "gainesville": {
+   "base": {
+    "P": 0.8537,
+    "R": 0.7721,
+    "F1": 0.8108,
+    "tp": 210,
+    "fp": 36,
+    "tp_rec": 210,
+    "n_gt": 272
+   },
+   "configs": {
+    "2x-wide": {
+     "ramps_gained": 19,
+     "fps_added": 30,
+     "F1": 0.8078
+    },
+    "2x-narrow": {
+     "ramps_gained": 16,
+     "fps_added": 23,
+     "F1": 0.8115
+    },
+    "1.5x-wide": {
+     "ramps_gained": 17,
+     "fps_added": 26,
+     "F1": 0.8093
+    },
+    "1.5x-narrow": {
+     "ramps_gained": 15,
+     "fps_added": 22,
+     "F1": 0.8108
+    }
+   },
+   "loso_core": {
+    "2x": "narrow",
+    "1.5x": "narrow"
+   }
+  },
+  "laurens_mapillary": {
+   "base": {
+    "P": 0.8851,
+    "R": 0.5261,
+    "F1": 0.6599,
+    "tp": 131,
+    "fp": 17,
+    "tp_rec": 131,
+    "n_gt": 249
+   },
+   "configs": {
+    "2x-wide": {
+     "ramps_gained": 5,
+     "fps_added": 1,
+     "F1": 0.6749
+    },
+    "2x-narrow": {
+     "ramps_gained": 5,
+     "fps_added": 1,
+     "F1": 0.6749
+    },
+    "1.5x-wide": {
+     "ramps_gained": 5,
+     "fps_added": 1,
+     "F1": 0.6749
+    },
+    "1.5x-narrow": {
+     "ramps_gained": 5,
+     "fps_added": 1,
+     "F1": 0.6749
+    }
+   }
+  }
+ },
+ "misses_by_range": {
+  "2x": {
+   "0-8 m": {
+    "gt": 452,
+    "misses": 46,
+    "in_wide": 2,
+    "in_narrow": 0,
+    "recovered_full_pass": 1,
+    "recovered_wide_band": 0,
+    "recovered_narrow_band": 0
+   },
+   "8-18 m": {
+    "gt": 908,
+    "misses": 132,
+    "in_wide": 132,
+    "in_narrow": 55,
+    "recovered_full_pass": 33,
+    "recovered_wide_band": 15,
+    "recovered_narrow_band": 6
+   },
+   "18-25 m": {
+    "gt": 395,
+    "misses": 85,
+    "in_wide": 85,
+    "in_narrow": 85,
+    "recovered_full_pass": 27,
+    "recovered_wide_band": 20,
+    "recovered_narrow_band": 20
+   },
+   ">= 25 m": {
+    "gt": 300,
+    "misses": 153,
+    "in_wide": 153,
+    "in_narrow": 153,
+    "recovered_full_pass": 70,
+    "recovered_wide_band": 67,
+    "recovered_narrow_band": 66
+   },
+   "at/above horizon": {
+    "gt": 5,
+    "misses": 4,
+    "in_wide": 4,
+    "in_narrow": 4,
+    "recovered_full_pass": 1,
+    "recovered_wide_band": 1,
+    "recovered_narrow_band": 1
+   }
+  },
+  "1.5x": {
+   "0-8 m": {
+    "gt": 452,
+    "misses": 46,
+    "in_wide": 2,
+    "in_narrow": 0,
+    "recovered_full_pass": 1,
+    "recovered_wide_band": 0,
+    "recovered_narrow_band": 0
+   },
+   "8-18 m": {
+    "gt": 908,
+    "misses": 132,
+    "in_wide": 132,
+    "in_narrow": 55,
+    "recovered_full_pass": 30,
+    "recovered_wide_band": 22,
+    "recovered_narrow_band": 10
+   },
+   "18-25 m": {
+    "gt": 395,
+    "misses": 85,
+    "in_wide": 85,
+    "in_narrow": 85,
+    "recovered_full_pass": 30,
+    "recovered_wide_band": 25,
+    "recovered_narrow_band": 24
+   },
+   ">= 25 m": {
+    "gt": 300,
+    "misses": 153,
+    "in_wide": 153,
+    "in_narrow": 153,
+    "recovered_full_pass": 69,
+    "recovered_wide_band": 64,
+    "recovered_narrow_band": 64
+   },
+   "at/above horizon": {
+    "gt": 5,
+    "misses": 4,
+    "in_wide": 4,
+    "in_narrow": 4,
+    "recovered_full_pass": 2,
+    "recovered_wide_band": 2,
+    "recovered_narrow_band": 2
+   }
+  }
+ },
+ "scratch_reproduction": {
+  "2x": {
+   "by_range": {
+    "0-8 m": {
+     "misses": 43,
+     "in_wide": 1,
+     "recovered": 1
+    },
+    "8-18 m": {
+     "misses": 87,
+     "in_wide": 87,
+     "recovered": 18
+    },
+    "18-25 m": {
+     "misses": 51,
+     "in_wide": 51,
+     "recovered": 13
+    },
+    ">= 25 m": {
+     "misses": 112,
+     "in_wide": 112,
+     "recovered": 59
+    },
+    "at/above horizon": {
+     "misses": 4,
+     "in_wide": 4,
+     "recovered": 1
+    }
+   },
+   "by_split": {
+    "richmond": {
+     "gt": 310,
+     "gt_ge_25m": 50,
+     "misses": 42,
+     "recovered": 18
+    },
+    "annapolis": {
+     "gt": 294,
+     "gt_ge_25m": 51,
+     "misses": 51,
+     "recovered": 13
+    },
+    "clovis": {
+     "gt": 195,
+     "gt_ge_25m": 18,
+     "misses": 34,
+     "recovered": 4
+    },
+    "morgantown": {
+     "gt": 267,
+     "gt_ge_25m": 15,
+     "misses": 41,
+     "recovered": 3
+    },
+    "bend": {
+     "gt": 327,
+     "gt_ge_25m": 28,
+     "misses": 42,
+     "recovered": 14
+    },
+    "paterson": {
+     "gt": 395,
+     "gt_ge_25m": 88,
+     "misses": 30,
+     "recovered": 23
+    },
+    "gainesville": {
+     "gt": 272,
+     "gt_ge_25m": 50,
+     "misses": 57,
+     "recovered": 17
+    },
+    "laurens_mapillary": {
+     "gt": 249,
+     "gt_ge_25m": 9,
+     "misses": 106,
+     "recovered": 5
+    }
+   }
+  },
+  "1.5x": {
+   "by_range": {
+    "0-8 m": {
+     "misses": 43,
+     "in_wide": 1,
+     "recovered": 1
+    },
+    "8-18 m": {
+     "misses": 87,
+     "in_wide": 87,
+     "recovered": 23
+    },
+    "18-25 m": {
+     "misses": 51,
+     "in_wide": 51,
+     "recovered": 18
+    },
+    ">= 25 m": {
+     "misses": 112,
+     "in_wide": 112,
+     "recovered": 63
+    },
+    "at/above horizon": {
+     "misses": 4,
+     "in_wide": 4,
+     "recovered": 2
+    }
+   },
+   "by_split": {
+    "richmond": {
+     "gt": 310,
+     "gt_ge_25m": 50,
+     "misses": 42,
+     "recovered": 20
+    },
+    "annapolis": {
+     "gt": 294,
+     "gt_ge_25m": 51,
+     "misses": 51,
+     "recovered": 15
+    },
+    "clovis": {
+     "gt": 195,
+     "gt_ge_25m": 18,
+     "misses": 34,
+     "recovered": 8
+    },
+    "morgantown": {
+     "gt": 267,
+     "gt_ge_25m": 15,
+     "misses": 41,
+     "recovered": 5
+    },
+    "bend": {
+     "gt": 327,
+     "gt_ge_25m": 28,
+     "misses": 42,
+     "recovered": 17
+    },
+    "paterson": {
+     "gt": 395,
+     "gt_ge_25m": 88,
+     "misses": 30,
+     "recovered": 25
+    },
+    "gainesville": {
+     "gt": 272,
+     "gt_ge_25m": 50,
+     "misses": 57,
+     "recovered": 17
+    },
+    "laurens_mapillary": {
+     "gt": 249,
+     "gt_ge_25m": 9,
+     "misses": 106,
+     "recovered": 7
+    }
+   }
+  }
+ },
+ "threshold_frontier_S7": [
+  [
+   0.05,
+   163,
+   977
+  ],
+  [
+   0.06,
+   156,
+   794
+  ],
+  [
+   0.07,
+   148,
+   680
+  ],
+  [
+   0.08,
+   135,
+   582
+  ],
+  [
+   0.09,
+   126,
+   505
+  ],
+  [
+   0.1,
+   117,
+   449
+  ],
+  [
+   0.11,
+   107,
+   402
+  ],
+  [
+   0.12,
+   102,
+   357
+  ],
+  [
+   0.13,
+   96,
+   327
+  ],
+  [
+   0.14,
+   91,
+   296
+  ],
+  [
+   0.15,
+   85,
+   259
+  ],
+  [
+   0.16,
+   77,
+   238
+  ],
+  [
+   0.17,
+   69,
+   210
+  ],
+  [
+   0.18,
+   67,
+   177
+  ],
+  [
+   0.19,
+   60,
+   153
+  ],
+  [
+   0.2,
+   56,
+   139
+  ],
+  [
+   0.21,
+   51,
+   118
+  ],
+  [
+   0.22,
+   46,
+   100
+  ],
+  [
+   0.23,
+   40,
+   82
+  ],
+  [
+   0.24,
+   32,
+   71
+  ],
+  [
+   0.25,
+   26,
+   54
+  ],
+  [
+   0.26,
+   22,
+   45
+  ],
+  [
+   0.27,
+   15,
+   38
+  ],
+  [
+   0.28,
+   11,
+   27
+  ],
+  [
+   0.29,
+   4,
+   16
+  ],
+  [
+   0.3,
+   0,
+   0
+  ]
+ ],
+ "narrow_minus_wide_S7": {
+  "2x": {
+   "fp": {
+    "precision": {
+     "observed": 0.010206,
+     "ci_lo": 0.005884,
+     "ci_hi": 0.014647
+    },
+    "recall": {
+     "observed": -0.00534,
+     "ci_lo": -0.008626,
+     "ci_hi": -0.002046
+    },
+    "f1": {
+     "observed": 0.002551,
+     "ci_lo": -0.000324,
+     "ci_hi": 0.005512
+    }
+   },
+   "ignore": {
+    "precision": {
+     "observed": 0.011377,
+     "ci_lo": 0.006714,
+     "ci_hi": 0.016191
+    },
+    "recall": {
+     "observed": -0.00534,
+     "ci_lo": -0.008626,
+     "ci_hi": -0.002046
+    },
+    "f1": {
+     "observed": 0.002782,
+     "ci_lo": -0.000141,
+     "ci_hi": 0.005834
+    }
+   }
+  },
+  "1.5x": {
+   "fp": {
+    "precision": {
+     "observed": 0.00971,
+     "ci_lo": 0.005393,
+     "ci_hi": 0.014325
+    },
+    "recall": {
+     "observed": -0.00534,
+     "ci_lo": -0.009227,
+     "ci_hi": -0.001545
+    },
+    "f1": {
+     "observed": 0.002223,
+     "ci_lo": -0.000959,
+     "ci_hi": 0.005428
+    }
+   },
+   "ignore": {
+    "precision": {
+     "observed": 0.010594,
+     "ci_lo": 0.006002,
+     "ci_hi": 0.01555
+    },
+    "recall": {
+     "observed": -0.00534,
+     "ci_lo": -0.009227,
+     "ci_hi": -0.001545
+    },
+    "f1": {
+     "observed": 0.002394,
+     "ci_lo": -0.000865,
+     "ci_hi": 0.005654
+    }
+   }
+  }
+ }
+}

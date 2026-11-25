@@ -62,6 +62,10 @@ analysis_out/cascade_cost_35/transfer/*
 !analysis_out/cascade_cost_35/argon/
 analysis_out/cascade_cost_35/argon/*
 !analysis_out/cascade_cost_35/argon/*.json
+# the Argon-teacher Stage 0 read (argon_teacher_s0.py): results plus its two derived inputs
+!analysis_out/argon_teacher_s0/
+analysis_out/argon_teacher_s0/*
+!analysis_out/argon_teacher_s0/*.json
 # Stage 0 of the open-weight cascade confirmation (#35): stage0.json + inputs.json, CPU-derivable.
 !analysis_out/cascade_confirm_35/
 analysis_out/cascade_confirm_35/*
@@ -722,6 +726,20 @@ analysis_out/prompt_opt_276/*
 
 # #276 optimizer review pages: a view of iter_*/candidates.json + the crops beside it, ~1 MB of base64 each; `prompt_optimize.py pick` rewrites them
 benchmark/prompt_opt_276/optimize/*/iter_*/review.html
+# Horizon band, Stage 0a-0c (#263): reports re-derived by merged_separation_263.py and
+# horizon_band_263.py --check, plus the Stage 0c peak caches (image-free) when they exist.
+!analysis_out/horizon_band_263/
+analysis_out/horizon_band_263/*
+!analysis_out/horizon_band_263/merged_pairs.json
+!analysis_out/horizon_band_263/merged_pairs.md
+!analysis_out/horizon_band_263/simulate.json
+!analysis_out/horizon_band_263/simulate.md
+!analysis_out/horizon_band_263/calibration.json
+!analysis_out/horizon_band_263/gate_0c.json
+!analysis_out/horizon_band_263/gate_0c.md
+!analysis_out/horizon_band_263/cache_0c/
+analysis_out/horizon_band_263/cache_0c/*
+!analysis_out/horizon_band_263/cache_0c/*.json
 
 # #248 seam-wrapped NMS default study (scripts/analysis/seam_nms_default_248.py): the counts,
 # results, the deck's item list, key and per-rater verdicts are committed; the card images and
