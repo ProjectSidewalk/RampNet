@@ -1,9 +1,11 @@
 """An upscaled second pass over the horizon band, for the shipped RampNet weights (#263).
 
-Stage 0b and 0c of ``detector-phase1-horizon-2x-2026-11-15.md`` (the plan, section 4). The
-idea: keep the production 1x pass everywhere, and add a second pass at 1.5x or 2x over a
-horizontal band around the horizon, where the far-field ramps sit. Band peaks are merged with
-the 1x peaks by #197's seam-wrapped score-ordered ``dedupe`` at the scorer's match radius.
+Stage 0b and 0c of ``detector-phase1-horizon-2x-2026-11-15.md`` (the plan, section 4; the plan
+file is not in the repository, and ``docs/horizon_band_263.md`` Appendix A holds its Stage 0
+rules verbatim). The idea: keep the production 1x pass everywhere, and add a second pass at
+1.5x or 2x over a horizontal band around the horizon, where the far-field ramps sit. Band peaks
+are merged with the 1x peaks by #197's seam-wrapped score-ordered ``dedupe`` at the scorer's
+match radius.
 
 Two band cores (normalized image rows) are compared throughout:
 

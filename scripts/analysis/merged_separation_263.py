@@ -1,5 +1,8 @@
 """Stage 0a of the detector Phase 1 plan: the merged-pair separation histogram (#263).
 
+The plan file is not in the repository; ``docs/horizon_band_263.md`` Appendix A holds its
+Stage 0 rules verbatim.
+
 A *merged* miss (``miss_taxonomy.py``, #46) is a missed ramp whose in-radius supra-threshold
 peak was claimed by a neighbouring ramp: the model fired once for two adjacent ramps. This
 script dumps the separation of every such pair (the missed ramp and the ramp that won the
