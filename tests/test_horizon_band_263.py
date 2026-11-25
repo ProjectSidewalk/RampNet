@@ -559,6 +559,25 @@ def test_run0c_resumes_a_partial_held_out_read_and_keeps_its_calibration(tmp_pat
         assert json.load(f)["decision"] == "band kept for the shipped weights"
 
 
+def test_run0c_never_rewrites_a_frozen_calibration(tmp_path, monkeypatch):
+    """A calibration.json that no longer reproduces from the selection caches stops run0c;
+    it is not silently recalibrated (the held-out caches record its sha256)."""
+    root = str(tmp_path)
+
+    def tamper(cal):
+        cal["calibration"][hb.PRIMARY_0C]["band_threshold"] = 0.5
+    path, _ = _calibrate(root, edit=tamper)
+    with open(path, "rb") as f:
+        frozen = f.read()
+    calls = []
+    monkeypatch.setattr(hb, "cmd_extract", _fake_extract(calls))
+    monkeypatch.setattr(hb, "cmd_report", lambda args: pytest.fail("report must not run"))
+    assert _run0c(root) != 0
+    assert calls == [list(hb.SELECTION)]
+    with open(path, "rb") as f:
+        assert f.read() == frozen
+
+
 def test_run0c_refuses_a_held_out_cache_from_another_calibration(tmp_path, monkeypatch):
     root = str(tmp_path)
     calls = []
