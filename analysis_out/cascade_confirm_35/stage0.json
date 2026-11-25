@@ -1,0 +1,1088 @@
+{
+ "arms": [
+  "y11l_pano",
+  "y11x_pano_h200",
+  "y26_pano"
+ ],
+ "bars": {
+  "C_min_gain": 0.03,
+  "C_min_lower": 0.0,
+  "C_min_wins": 2,
+  "T_min_lower": 0.0,
+  "one_instance_gain": 0.02,
+  "top_panos": 5,
+  "top_share_max": 0.5
+ },
+ "bootstrap": {
+  "resamples": 2000,
+  "rng": "numpy.default_rng",
+  "seed": 0,
+  "selection": "t* and the C candidate re-chosen in every resample",
+  "unit": "pano, stratified by split"
+ },
+ "concentration": {
+  "by_sequence": [
+   {
+    "gain_vs_N_without": 0.089458,
+    "gain_without": 0.084291,
+    "net_promoted": 3,
+    "panos": 2,
+    "sequence": "1vDiqGEpeuIsYb6AXo5y0Z"
+   },
+   {
+    "gain_vs_N_without": 0.090898,
+    "gain_without": 0.085607,
+    "net_promoted": 3,
+    "panos": 6,
+    "sequence": "BkWj9PJOTmhN5KeQIsozwg"
+   },
+   {
+    "gain_vs_N_without": 0.095968,
+    "gain_without": 0.090918,
+    "net_promoted": 0,
+    "panos": 3,
+    "sequence": "C6dwIBRe791hVFz8x2OWJY"
+   },
+   {
+    "gain_vs_N_without": 0.097163,
+    "gain_without": 0.092035,
+    "net_promoted": 0,
+    "panos": 2,
+    "sequence": "C8rnZtapvRTc59YOBjAklG"
+   },
+   {
+    "gain_vs_N_without": 0.097324,
+    "gain_without": 0.092196,
+    "net_promoted": 0,
+    "panos": 4,
+    "sequence": "Dq1MnGTap8j642PmRYXywt"
+   },
+   {
+    "gain_vs_N_without": 0.09384,
+    "gain_without": 0.088334,
+    "net_promoted": 3,
+    "panos": 3,
+    "sequence": "OIomhEn0VrPvSL7TxGi9NW"
+   },
+   {
+    "gain_vs_N_without": 0.099552,
+    "gain_without": 0.094263,
+    "net_promoted": 0,
+    "panos": 2,
+    "sequence": "RbiQWPvZCdhHTA03w1rLql"
+   },
+   {
+    "gain_vs_N_without": 0.096562,
+    "gain_without": 0.091473,
+    "net_promoted": 0,
+    "panos": 4,
+    "sequence": "SpjgxY5nETrQRPuDqzwhoN"
+   },
+   {
+    "gain_vs_N_without": 0.106948,
+    "gain_without": 0.101351,
+    "net_promoted": -2,
+    "panos": 5,
+    "sequence": "XyPtf86jxEsdVoC1puIBhJ"
+   },
+   {
+    "gain_vs_N_without": 0.101406,
+    "gain_without": 0.101406,
+    "net_promoted": 3,
+    "panos": 10,
+    "sequence": "axZPXQLSm6hrvCoYd9f1cl"
+   },
+   {
+    "gain_vs_N_without": 0.094408,
+    "gain_without": 0.08928,
+    "net_promoted": 1,
+    "panos": 2,
+    "sequence": "eTW2wxXc9iFHR8hQ0BZYDL"
+   },
+   {
+    "gain_vs_N_without": 0.094683,
+    "gain_without": 0.08935,
+    "net_promoted": 2,
+    "panos": 7,
+    "sequence": "fqZJNGcvt9HM3QxdhkXisB"
+   },
+   {
+    "gain_vs_N_without": 0.098179,
+    "gain_without": 0.093011,
+    "net_promoted": 0,
+    "panos": 7,
+    "sequence": "ngTGPIQjmsxLf0uY8d4otC"
+   },
+   {
+    "gain_vs_N_without": 0.095136,
+    "gain_without": 0.089761,
+    "net_promoted": 2,
+    "panos": 5,
+    "sequence": "rF2x7s5zpZ9u1TDVHeXStC"
+   },
+   {
+    "gain_vs_N_without": 0.097404,
+    "gain_without": 0.092276,
+    "net_promoted": 0,
+    "panos": 7,
+    "sequence": "sWgIuf2jYGaEJPXzVck8on"
+   },
+   {
+    "gain_vs_N_without": 0.10108,
+    "gain_without": 0.095181,
+    "net_promoted": 3,
+    "panos": 10,
+    "sequence": "vngsVZuQaY9U4lF7zJ6dro"
+   },
+   {
+    "gain_vs_N_without": 0.08524,
+    "gain_without": 0.079183,
+    "net_promoted": 8,
+    "panos": 13,
+    "sequence": "z0rwf2KqY6IS5XELmdtpyV"
+   },
+   {
+    "gain_vs_N_without": 0.089095,
+    "gain_without": 0.083927,
+    "net_promoted": 3,
+    "panos": 2,
+    "sequence": "z2rS8wRVoXTeflg6sMIUj5"
+   }
+  ],
+  "candidate": {
+   "arm": "y11x_pano_h200",
+   "c_min": 0.05,
+   "r_gate": 0.022,
+   "t_lo": 0.1
+  },
+  "flag_one_instance": false,
+  "flag_sequence": false,
+  "flag_top5": false,
+  "full_gain_already_below_0.02": false,
+  "gain": 0.09076,
+  "gain_definition": "held-out F1(C) - max(F1(N), F1(T)) on laurens_mapillary",
+  "gain_vs_N": 0.095811,
+  "net_promoted_negative_panos": 2,
+  "net_promoted_positive_panos": 22,
+  "net_promoted_total": 29,
+  "sequences": 18,
+  "split": "laurens_mapillary",
+  "t_star": 0.29,
+  "top5": [
+   {
+    "net": 3,
+    "pano": "1461635258234682",
+    "sequence": "z0rwf2KqY6IS5XELmdtpyV"
+   },
+   {
+    "net": 3,
+    "pano": "853971067099545",
+    "sequence": "z2rS8wRVoXTeflg6sMIUj5"
+   },
+   {
+    "net": 2,
+    "pano": "1062534315912016",
+    "sequence": "BkWj9PJOTmhN5KeQIsozwg"
+   },
+   {
+    "net": 2,
+    "pano": "1369230248127514",
+    "sequence": "OIomhEn0VrPvSL7TxGi9NW"
+   },
+   {
+    "net": 2,
+    "pano": "1483447699626154",
+    "sequence": "z0rwf2KqY6IS5XELmdtpyV"
+   }
+  ],
+  "top5_share": 0.413793,
+  "worst_leave_one_out": {
+   "gain_without": 0.079183,
+   "sequence": "z0rwf2KqY6IS5XELmdtpyV"
+  }
+ },
+ "folds": [
+  {
+   "C": {
+    "F1": 0.75576,
+    "P": 0.886486,
+    "R": 0.658635,
+    "fn": 85,
+    "fp": 21,
+    "n_gt": 249,
+    "tp": 164
+   },
+   "C_beats_maxNT": true,
+   "C_minus_maxNT": 0.09076,
+   "N": {
+    "F1": 0.65995,
+    "P": 0.885135,
+    "R": 0.526104,
+    "fn": 118,
+    "fp": 17,
+    "n_gt": 249,
+    "tp": 131
+   },
+   "T": {
+    "F1": 0.665,
+    "P": 0.880795,
+    "R": 0.534137,
+    "fn": 116,
+    "fp": 18,
+    "n_gt": 249,
+    "tp": 133
+   },
+   "T_minus_N": 0.00505,
+   "boot_C_minus_maxNT_ci95": [
+    0.034748,
+    0.133011
+   ],
+   "boot_T_minus_N_ci95": [
+    -0.064284,
+    0.048506
+   ],
+   "boot_same_arm_frac": 0.578,
+   "boot_same_candidate_frac": 0.479,
+   "boot_same_t_star_frac": 0.268,
+   "candidate": {
+    "arm": "y11x_pano_h200",
+    "c_min": 0.05,
+    "r_gate": 0.022,
+    "t_lo": 0.1
+   },
+   "held_out": "laurens_mapillary",
+   "t_star": 0.29,
+   "trained_on": [
+    "bayonne",
+    "budapest_district5",
+    "morgantown"
+   ]
+  },
+  {
+   "C": {
+    "F1": 0.650558,
+    "P": 0.738397,
+    "R": 0.581395,
+    "fn": 126,
+    "fp": 62,
+    "n_gt": 301,
+    "tp": 175
+   },
+   "C_beats_maxNT": true,
+   "C_minus_maxNT": 0.050558,
+   "N": {
+    "F1": 0.6,
+    "P": 0.753769,
+    "R": 0.498339,
+    "fn": 151,
+    "fp": 49,
+    "n_gt": 301,
+    "tp": 150
+   },
+   "T": {
+    "F1": 0.592742,
+    "P": 0.753846,
+    "R": 0.488372,
+    "fn": 154,
+    "fp": 48,
+    "n_gt": 301,
+    "tp": 147
+   },
+   "T_minus_N": -0.007258,
+   "boot_C_minus_maxNT_ci95": [
+    0.004838,
+    0.078245
+   ],
+   "boot_T_minus_N_ci95": [
+    -0.02739,
+    0.034678
+   ],
+   "boot_same_arm_frac": 0.8795,
+   "boot_same_candidate_frac": 0.4135,
+   "boot_same_t_star_frac": 0.3375,
+   "candidate": {
+    "arm": "y11l_pano",
+    "c_min": 0.05,
+    "r_gate": 0.011,
+    "t_lo": 0.1
+   },
+   "held_out": "bayonne",
+   "t_star": 0.31,
+   "trained_on": [
+    "laurens_mapillary",
+    "budapest_district5",
+    "morgantown"
+   ]
+  },
+  {
+   "C": {
+    "F1": 0.666667,
+    "P": 0.660131,
+    "R": 0.673333,
+    "fn": 98,
+    "fp": 104,
+    "n_gt": 300,
+    "tp": 202
+   },
+   "C_beats_maxNT": false,
+   "C_minus_maxNT": -0.008159,
+   "N": {
+    "F1": 0.674825,
+    "P": 0.709559,
+    "R": 0.643333,
+    "fn": 107,
+    "fp": 79,
+    "n_gt": 300,
+    "tp": 193
+   },
+   "T": {
+    "F1": 0.631579,
+    "P": 0.589595,
+    "R": 0.68,
+    "fn": 96,
+    "fp": 142,
+    "n_gt": 300,
+    "tp": 204
+   },
+   "T_minus_N": -0.043246,
+   "boot_C_minus_maxNT_ci95": [
+    -0.024928,
+    0.009343
+   ],
+   "boot_T_minus_N_ci95": [
+    -0.064016,
+    -0.0167
+   ],
+   "boot_same_arm_frac": 0.526,
+   "boot_same_candidate_frac": 0.472,
+   "boot_same_t_star_frac": 0.5695,
+   "candidate": {
+    "arm": "y11x_pano_h200",
+    "c_min": 0.05,
+    "r_gate": 0.022,
+    "t_lo": 0.1
+   },
+   "held_out": "budapest_district5",
+   "t_star": 0.19,
+   "trained_on": [
+    "laurens_mapillary",
+    "bayonne",
+    "morgantown"
+   ]
+  },
+  {
+   "C": {
+    "F1": 0.840304,
+    "P": 0.853282,
+    "R": 0.827715,
+    "fn": 46,
+    "fp": 38,
+    "n_gt": 267,
+    "tp": 221
+   },
+   "C_beats_maxNT": false,
+   "C_minus_maxNT": -0.007822,
+   "N": {
+    "F1": 0.848126,
+    "P": 0.895833,
+    "R": 0.805243,
+    "fn": 52,
+    "fp": 25,
+    "n_gt": 267,
+    "tp": 215
+   },
+   "T": {
+    "F1": 0.813433,
+    "P": 0.810409,
+    "R": 0.816479,
+    "fn": 49,
+    "fp": 51,
+    "n_gt": 267,
+    "tp": 218
+   },
+   "T_minus_N": -0.034693,
+   "boot_C_minus_maxNT_ci95": [
+    -0.023144,
+    0.011725
+   ],
+   "boot_T_minus_N_ci95": [
+    -0.082483,
+    -0.001713
+   ],
+   "boot_same_arm_frac": 0.583,
+   "boot_same_candidate_frac": 0.5695,
+   "boot_same_t_star_frac": 0.622,
+   "candidate": {
+    "arm": "y11x_pano_h200",
+    "c_min": 0.05,
+    "r_gate": 0.022,
+    "t_lo": 0.1
+   },
+   "held_out": "morgantown",
+   "t_star": 0.2,
+   "trained_on": [
+    "laurens_mapillary",
+    "bayonne",
+    "budapest_district5"
+   ]
+  }
+ ],
+ "grid": {
+  "c_min": [
+   0.05,
+   0.15,
+   0.25,
+   0.4
+  ],
+  "n_candidates": 144,
+  "r_gate": [
+   0.011,
+   0.022,
+   0.044
+  ],
+  "t_lo": [
+   0.1,
+   0.15,
+   0.2,
+   0.25
+  ],
+  "t_star_grid": [
+   0.1,
+   0.55,
+   0.01
+  ]
+ },
+ "in_sample": {
+  "bayonne": {
+   "N": {
+    "F1": 0.6,
+    "P": 0.753769,
+    "R": 0.498339,
+    "fn": 151,
+    "fp": 49,
+    "n_gt": 301,
+    "tp": 150
+   },
+   "best_C": {
+    "F1": 0.67033,
+    "P": 0.746939,
+    "R": 0.607973,
+    "arm": "y11x_pano_h200",
+    "c_min": 0.05,
+    "fn": 118,
+    "fp": 62,
+    "n_gt": 301,
+    "r_gate": 0.022,
+    "t_lo": 0.1,
+    "tp": 183
+   },
+   "best_T": {
+    "F1": 0.646749,
+    "P": 0.686567,
+    "R": 0.611296,
+    "fn": 117,
+    "fp": 84,
+    "n_gt": 301,
+    "tp": 184
+   },
+   "best_t": 0.19
+  },
+  "budapest_district5": {
+   "N": {
+    "F1": 0.674825,
+    "P": 0.709559,
+    "R": 0.643333,
+    "fn": 107,
+    "fp": 79,
+    "n_gt": 300,
+    "tp": 193
+   },
+   "best_C": {
+    "F1": 0.682513,
+    "P": 0.695502,
+    "R": 0.67,
+    "arm": "y11l_pano",
+    "c_min": 0.15,
+    "fn": 99,
+    "fp": 88,
+    "n_gt": 300,
+    "r_gate": 0.044,
+    "t_lo": 0.1,
+    "tp": 201
+   },
+   "best_T": {
+    "F1": 0.683919,
+    "P": 0.767635,
+    "R": 0.616667,
+    "fn": 115,
+    "fp": 56,
+    "n_gt": 300,
+    "tp": 185
+   },
+   "best_t": 0.37
+  },
+  "laurens_mapillary": {
+   "N": {
+    "F1": 0.65995,
+    "P": 0.885135,
+    "R": 0.526104,
+    "fn": 118,
+    "fp": 17,
+    "n_gt": 249,
+    "tp": 131
+   },
+   "best_C": {
+    "F1": 0.768879,
+    "P": 0.893617,
+    "R": 0.674699,
+    "arm": "y26_pano",
+    "c_min": 0.05,
+    "fn": 81,
+    "fp": 20,
+    "n_gt": 249,
+    "r_gate": 0.022,
+    "t_lo": 0.1,
+    "tp": 168
+   },
+   "best_T": {
+    "F1": 0.741722,
+    "P": 0.823529,
+    "R": 0.674699,
+    "fn": 81,
+    "fp": 36,
+    "n_gt": 249,
+    "tp": 168
+   },
+   "best_t": 0.13
+  },
+  "morgantown": {
+   "N": {
+    "F1": 0.848126,
+    "P": 0.895833,
+    "R": 0.805243,
+    "fn": 52,
+    "fp": 25,
+    "n_gt": 267,
+    "tp": 215
+   },
+   "best_C": {
+    "F1": 0.8577,
+    "P": 0.894309,
+    "R": 0.82397,
+    "arm": "y11x_pano_h200",
+    "c_min": 0.15,
+    "fn": 47,
+    "fp": 26,
+    "n_gt": 267,
+    "r_gate": 0.022,
+    "t_lo": 0.1,
+    "tp": 220
+   },
+   "best_T": {
+    "F1": 0.854871,
+    "P": 0.911017,
+    "R": 0.805243,
+    "fn": 52,
+    "fp": 21,
+    "n_gt": 267,
+    "tp": 215
+   },
+   "best_t": 0.32
+  }
+ },
+ "lyon_kaysville": "not read",
+ "panos": {
+  "bayonne": 125,
+  "budapest_district5": 125,
+  "laurens_mapillary": 94,
+  "morgantown": 125
+ },
+ "panos_missing_arm": {
+  "bayonne": {
+   "y11l_pano": [],
+   "y11x_pano_h200": [],
+   "y26_pano": []
+  },
+  "budapest_district5": {
+   "y11l_pano": [],
+   "y11x_pano_h200": [],
+   "y26_pano": []
+  },
+  "laurens_mapillary": {
+   "y11l_pano": [],
+   "y11x_pano_h200": [],
+   "y26_pano": []
+  },
+  "morgantown": {
+   "y11l_pano": [],
+   "y11x_pano_h200": [],
+   "y26_pano": []
+  }
+ },
+ "panos_missing_op_cache": {
+  "bayonne": [],
+  "budapest_district5": [],
+  "laurens_mapillary": [],
+  "morgantown": []
+ },
+ "plan": "open-weight-cascade-confirm-2026-11-15.md, section 3 (Stage 0)",
+ "pooled": {
+  "C": {
+   "F1": 0.724335,
+   "P": 0.772036,
+   "R": 0.682184,
+   "fn": 355,
+   "fp": 225,
+   "n_gt": 1117,
+   "tp": 762
+  },
+  "C_minus_N": 0.026966,
+  "C_minus_N_ci95": [
+   0.007054,
+   0.042826
+  ],
+  "C_minus_maxNT": 0.026966,
+  "C_minus_maxNT_ci95": [
+   0.006986,
+   0.042621
+  ],
+  "N": {
+   "F1": 0.697368,
+   "P": 0.802095,
+   "R": 0.616831,
+   "fn": 428,
+   "fp": 170,
+   "n_gt": 1117,
+   "tp": 689
+  },
+  "T": {
+   "F1": 0.67565,
+   "P": 0.730489,
+   "R": 0.628469,
+   "fn": 415,
+   "fp": 259,
+   "n_gt": 1117,
+   "tp": 702
+  },
+  "T_minus_N": -0.021719,
+  "T_minus_N_ci95": [
+   -0.038376,
+   -0.003478
+  ]
+ },
+ "pooling_readings": {
+  "choice": "summed_counts (Jon, 2026-11-25)",
+  "mean_F1": {
+   "C_minus_maxNT": 0.032597,
+   "C_minus_maxNT_ci95": [
+    0.010753,
+    0.048785
+   ],
+   "drop_C": false,
+   "outcome": "C only",
+   "share_of_resamples_ge_bar": 0.585,
+   "splits_won": 2
+  },
+  "per_split_mean": {
+   "C_minus_maxNT": 0.031334,
+   "C_minus_maxNT_ci95": [
+    0.008827,
+    0.046535
+   ],
+   "drop_C": false,
+   "outcome": "C only",
+   "share_of_resamples_ge_bar": 0.5185,
+   "splits_won": 2
+  },
+  "plan_text": "pooled held-out C minus max(N, T); the plan does not define pooled",
+  "stop_rests_on": "summed_counts",
+  "summed_counts": {
+   "C_minus_maxNT": 0.026966,
+   "C_minus_maxNT_ci95": [
+    0.006986,
+    0.042621
+   ],
+   "count_margin": {
+    "extra_tp_needed": 6,
+    "fewer_fp_needed": 9,
+    "fp_allowed_at_same_tp": 216,
+    "target_F1": 0.727368,
+    "tp_needed_at_same_fp": 768
+   },
+   "drop_C": true,
+   "outcome": "N",
+   "share_of_resamples_ge_bar": 0.3555,
+   "splits_won": 2
+  }
+ },
+ "rig_key": {
+  "contributors": [
+   {
+    "contributor": "panoramax:Arretche",
+    "exploratory_masked_ge_0.10": 0,
+    "exploratory_peaks_ge_0.10": 2,
+    "exploratory_share_ge_0.10": 0.0,
+    "masked": 0,
+    "panos": 2,
+    "peaks_ge_0.30": 2,
+    "share": 0.0,
+    "split": "bayonne"
+   },
+   {
+    "contributor": "panoramax:sig_bayonne",
+    "exploratory_masked_ge_0.10": 0,
+    "exploratory_peaks_ge_0.10": 393,
+    "exploratory_share_ge_0.10": 0.0,
+    "masked": 0,
+    "panos": 123,
+    "peaks_ge_0.30": 210,
+    "share": 0.0,
+    "split": "bayonne"
+   },
+   {
+    "contributor": "mapillary:grozsa11",
+    "exploratory_masked_ge_0.10": 4,
+    "exploratory_peaks_ge_0.10": 409,
+    "exploratory_share_ge_0.10": 0.00978,
+    "masked": 1,
+    "panos": 107,
+    "peaks_ge_0.30": 256,
+    "share": 0.003906,
+    "split": "budapest_district5"
+   },
+   {
+    "contributor": "mapillary:kami911",
+    "exploratory_masked_ge_0.10": 0,
+    "exploratory_peaks_ge_0.10": 1,
+    "exploratory_share_ge_0.10": 0.0,
+    "masked": 0,
+    "panos": 1,
+    "peaks_ge_0.30": 0,
+    "share": null,
+    "split": "budapest_district5"
+   },
+   {
+    "contributor": "mapillary:vst",
+    "exploratory_masked_ge_0.10": 4,
+    "exploratory_peaks_ge_0.10": 57,
+    "exploratory_share_ge_0.10": 0.070175,
+    "masked": 0,
+    "panos": 17,
+    "peaks_ge_0.30": 35,
+    "share": 0.0,
+    "split": "budapest_district5"
+   },
+   {
+    "contributor": "mapillary:GIS_ISG",
+    "exploratory_masked_ge_0.10": 33,
+    "exploratory_peaks_ge_0.10": 263,
+    "exploratory_share_ge_0.10": 0.125475,
+    "masked": 0,
+    "panos": 94,
+    "peaks_ge_0.30": 153,
+    "share": 0.0,
+    "split": "laurens_mapillary"
+   },
+   {
+    "contributor": "mapillary:jdgat",
+    "exploratory_masked_ge_0.10": 9,
+    "exploratory_peaks_ge_0.10": 369,
+    "exploratory_share_ge_0.10": 0.02439,
+    "masked": 2,
+    "panos": 125,
+    "peaks_ge_0.30": 254,
+    "share": 0.007874,
+    "split": "morgantown"
+   }
+  ],
+  "excluded_no_peaks": [
+   "mapillary:kami911"
+  ],
+  "exploratory_note": "exploratory_* columns count peaks >= 0.10 (the labeler's storage floor). Read after the data, used by no rule.",
+  "mask_y": 0.772222,
+  "primary_reading": "contributor",
+  "readings": {
+   "contributor": {
+    "ecartip": "not evaluated: Lyon is withheld from Stage 0",
+    "laurens_side": [
+     0.0
+    ],
+    "non_lyon_cut_exists": false,
+    "other_side": [
+     0.003906,
+     0.0,
+     0.007874
+    ],
+    "passes": false,
+    "why": "no cut separates laurens_mapillary from morgantown and budapest_district5"
+   },
+   "split": {
+    "ecartip": "not evaluated: Lyon is withheld from Stage 0",
+    "laurens_side": [
+     0.0
+    ],
+    "non_lyon_cut_exists": true,
+    "other_side": [
+     0.007874,
+     0.003436
+    ],
+    "passes": false,
+    "why": "a cut exists without ecartip, but the test also needs ecartip on laurens's side, and Lyon is withheld, so it cannot pass at Stage 0"
+   }
+  },
+  "splits": {
+   "bayonne": {
+    "masked": 0,
+    "peaks_ge_0.30": 212,
+    "share": 0.0
+   },
+   "budapest_district5": {
+    "masked": 1,
+    "peaks_ge_0.30": 291,
+    "share": 0.003436
+   },
+   "laurens_mapillary": {
+    "masked": 0,
+    "peaks_ge_0.30": 153,
+    "share": 0.0
+   },
+   "morgantown": {
+    "masked": 2,
+    "peaks_ge_0.30": 254,
+    "share": 0.007874
+   }
+  }
+ },
+ "rig_mask": {
+  "applied_to": "RampNet peaks of every policy (N, T, C)",
+  "deg": 49.0,
+  "peaks_removed_ge_0.10": {
+   "bayonne": 0,
+   "budapest_district5": 8,
+   "laurens_mapillary": 33,
+   "morgantown": 9
+  },
+  "y": 0.772222
+ },
+ "rules": {
+  "1_drop_T": {
+   "T_minus_N": -0.021719,
+   "T_minus_N_lower": -0.038376,
+   "drop_T": true,
+   "drop_T_on_interval_alone": true,
+   "rig_key_passes": false
+  },
+  "2_alt_C_vs_N": {
+   "C_minus_N": 0.026966,
+   "C_minus_N_lower": 0.007054,
+   "drop_C": true,
+   "splits_won": 2
+  },
+  "2_drop_C": {
+   "C_minus_maxNT": 0.026966,
+   "C_minus_maxNT_lower": 0.006986,
+   "below_0.03": true,
+   "drop_C": true,
+   "fewer_than_2_wins": false,
+   "lower_le_0": false,
+   "splits_won": 2
+  },
+  "3_one_instance": {
+   "flag_one_instance": false,
+   "flag_sequence": false,
+   "flag_top5": false
+  },
+  "4_outcome": "N"
+ },
+ "selection_sensitivity": {
+  "per_arm": {
+   "y11l_pano": {
+    "C_minus_maxNT": 0.030249,
+    "candidates": [
+     {
+      "arm": "y11l_pano",
+      "c_min": 0.05,
+      "r_gate": 0.011,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11l_pano",
+      "c_min": 0.05,
+      "r_gate": 0.011,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11l_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11l_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     }
+    ],
+    "per_split_mean_C_minus_maxNT": 0.034555,
+    "splits_won": 2
+   },
+   "y11x_pano_h200": {
+    "C_minus_maxNT": 0.020012,
+    "candidates": [
+     {
+      "arm": "y11x_pano_h200",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11x_pano_h200",
+      "c_min": 0.15,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11x_pano_h200",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11x_pano_h200",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     }
+    ],
+    "per_split_mean_C_minus_maxNT": 0.023294,
+    "splits_won": 2
+   },
+   "y26_pano": {
+    "C_minus_maxNT": 0.013785,
+    "candidates": [
+     {
+      "arm": "y26_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.2
+     },
+     {
+      "arm": "y26_pano",
+      "c_min": 0.05,
+      "r_gate": 0.011,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y26_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y26_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     }
+    ],
+    "per_split_mean_C_minus_maxNT": 0.017061,
+    "splits_won": 2
+   }
+  },
+  "runner_up": [
+   {
+    "chosen": {
+     "arm": "y11x_pano_h200",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "chosen_held_out_F1": 0.75576,
+    "chosen_train_F1": 0.722288,
+    "held_out": "laurens_mapillary",
+    "runner_up": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.011,
+     "t_lo": 0.1
+    },
+    "runner_up_better_held_out": true,
+    "runner_up_held_out_F1": 0.761468,
+    "runner_up_train_F1": 0.720048,
+    "train_gap": 0.00224
+   },
+   {
+    "chosen": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.011,
+     "t_lo": 0.1
+    },
+    "chosen_held_out_F1": 0.650558,
+    "chosen_train_F1": 0.755613,
+    "held_out": "bayonne",
+    "runner_up": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "runner_up_better_held_out": true,
+    "runner_up_held_out_F1": 0.654344,
+    "runner_up_train_F1": 0.755076,
+    "train_gap": 0.000536
+   },
+   {
+    "chosen": {
+     "arm": "y11x_pano_h200",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "chosen_held_out_F1": 0.666667,
+    "chosen_train_F1": 0.754316,
+    "held_out": "budapest_district5",
+    "runner_up": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "runner_up_better_held_out": true,
+    "runner_up_held_out_F1": 0.668863,
+    "runner_up_train_F1": 0.753642,
+    "train_gap": 0.000674
+   },
+   {
+    "chosen": {
+     "arm": "y11x_pano_h200",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "chosen_held_out_F1": 0.840304,
+    "chosen_train_F1": 0.692308,
+    "held_out": "morgantown",
+    "runner_up": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "runner_up_better_held_out": true,
+    "runner_up_held_out_F1": 0.845283,
+    "runner_up_train_F1": 0.690611,
+    "train_gap": 0.001696
+   }
+  ],
+  "runner_up_pooled_C_minus_maxNT": 0.031108
+ },
+ "splits": [
+  "laurens_mapillary",
+  "bayonne",
+  "budapest_district5",
+  "morgantown"
+ ],
+ "t_hi": 0.3
+}

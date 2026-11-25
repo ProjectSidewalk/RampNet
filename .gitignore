@@ -66,6 +66,10 @@ analysis_out/cascade_cost_35/argon/*
 !analysis_out/argon_teacher_s0/
 analysis_out/argon_teacher_s0/*
 !analysis_out/argon_teacher_s0/*.json
+# Stage 0 of the open-weight cascade confirmation (#35): stage0.json + inputs.json, CPU-derivable.
+!analysis_out/cascade_confirm_35/
+analysis_out/cascade_confirm_35/*
+!analysis_out/cascade_confirm_35/*.json
 
 # Stage 1's coordinate-tolerance result (#96): a few KB, and it is what converts an
 # offset distribution into a decision. Re-derivable on CPU from the committed
