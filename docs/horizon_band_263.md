@@ -182,7 +182,11 @@ the `benchmark/*/panos/` row), so a clean clone cannot re-run that part of 0c. U
 2. `calibrate` freezes the context rule (S7) and the band thresholds (sao_paulo) into
    `analysis_out/horizon_band_263/calibration.json`. It refuses when sao_paulo has no 1× in-core
    detection at 0.30 for a config, since there is then no 1× precision for the band threshold to
-   equal. On a re-run, an existing non-smoke `calibration.json` is **not rewritten**: `run0c` runs
+   equal. This refusal is not skipped for `calibrate --smoke`, so a smoke calibration on a few
+   panos (one per split, as in the local test below) can stop on it when its sao_paulo pano has no
+   1× in-core detection at 0.30. That is harmless: a smoke calibration can never gate a held-out
+   read. Extract more sao_paulo panos (`--limit`) for a smoke run that gets through.
+   On a re-run, an existing non-smoke `calibration.json` is **not rewritten**: `run0c` runs
    `calibrate --check` instead and stops if it does not reproduce from the selection caches.
 3. If the context rule fails for 1.5x-wide, `run0c` **stops** and the held-out splits stay unread.
 4. Otherwise it runs `extract --heldout-read-once` on each held-out split that has no cache yet. Each
@@ -336,7 +340,14 @@ not the CPU as intended (see Deviations). Not verified: A40 time and memory, and
 | 0c strip geometry | same | `protocol.strip_geometry_for_0c` |
 | figure data (threshold frontier) | same | `threshold_frontier_S7` |
 
-Every results table in this doc is pasted from `merged_pairs.md` or `simulate.md`.
+Every results table in this doc is pasted from `merged_pairs.md` or `simulate.md`. `simulate.md`
+prints its intervals to three decimals from values `simulate.json` has already rounded to four, so
+they are rounded twice: 10 of the 144 intervals in its pool tables have one number 0.001 off the
+once-rounded value. Four of the ten are quoted in this doc: the S7 ignore-bound ΔF1 of 2x-wide,
++0.006 (+0.007 once rounded; quoted twice), and of 1.5x-narrow, +0.013 (+0.012); 1.5x-wide's
+ignore-bound band minus matched, +0.051 (+0.050); and the upper bound of GSV3 2x-wide's ΔF1, +0.021
+(+0.020). No bound changes sign and no verdict or sentence reads differently. The narrow-minus-wide
+table is stored at six decimals and rounded once.
 
 ## What the plan says happens next
 
@@ -346,6 +357,17 @@ runs on makelab2 only when Jon approves and starts it. Its manual_gold gate is t
 the band; 0b binds nothing. For the
 arms, rung 1 runs F (LR 3e-6, the control) first, then B (zoom), then A, which 0a now permits. C stays
 unscheduled because 0a did not trigger it. Nothing past Stage 0 has been run.
+
+**Open before 0c runs (Jon's call; none is done in this PR).**
+
+- Whether the context rule binds on its strict reading (the strip peak must also reach 0.30). It
+  changes what 0c concludes, so it has to be settled before any 0c data exists.
+- The calibration refusal also fires under `calibrate --smoke` (step 2 above). The fix: in smoke
+  mode, record a null band threshold instead of refusing.
+- A hand-run `extract --splits juneau,bayonne --heldout-read-once` does not compare the calibration
+  sha256 recorded by the other held-out splits' caches with the current `calibration.json`; only
+  `run0c` does. `report` refuses such a mix, so no mixed result can come out, but the one read of
+  juneau and bayonne would be spent. The fix: move `run0c`'s sha256 comparison into `guard_extract`.
 
 ## Reproduction
 
