@@ -83,6 +83,21 @@ def test_loso_core_choice_ties_go_to_wide():
     assert tab["a"]["wide"] == tab["a"]["narrow"]
 
 
+def test_loso_assembly_uses_each_splits_own_choice():
+    """On the real data all seven choices agree, so only a synthetic case can show that each
+    split's LOSO variant is built with that split's own core."""
+    gt = GroundTruth([(0.5, 0.58)], [], True)
+    band = [(0.5, 0.58, 0.6)]                       # in the wide core, not in the narrow one
+    rows = {c: [(f"{c}-0", gt, [(0.1, 0.8, 0.9)], {s: band for s in hb.SIM_ARMS})]
+            for c in ("a", "b")}
+    loso = {s: {"a": "wide", "b": "narrow"} for s in hb.SIM_ARMS}
+    var = hb.assemble_variants(rows, RSQ, loso, cities=("a", "b"))
+    for s in hb.SIM_ARMS:
+        assert var[(f"{s}-wide", "a")] != var[(f"{s}-narrow", "a")]
+        assert var[(f"{s}-loso", "a")] == var[(f"{s}-wide", "a")]
+        assert var[(f"{s}-loso", "b")] == var[(f"{s}-narrow", "b")]
+
+
 def test_range_bins():
     assert hb.range_bin(0.49) == "at/above horizon"
     assert hb.range_bin(0.9) == "0-8 m"
@@ -289,6 +304,12 @@ def test_committed_simulate_reproduces():
         e = s7["configs"][cfg]["fp"]
         assert (e["ramps_gained"], e["fps_added"],
                 e["matched_recall_threshold"]["extra_fp_vs_base"]) == (g, f, m)
+    # what the doc says beside the LOSO sentence: narrow is not separated from wide on F1;
+    # it trades recall for precision
+    for scale in hb.SIM_ARMS:
+        d = rep["narrow_minus_wide_S7"][scale]["fp"]
+        assert d["f1"]["ci_lo"] < 0 < d["f1"]["ci_hi"]
+        assert d["recall"]["ci_hi"] < 0 < d["precision"]["ci_lo"]
 
 
 # --------------------------------------------------------------------------- #

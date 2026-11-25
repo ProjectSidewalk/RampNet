@@ -606,6 +606,33 @@ def sim_variants(rows, rsq, loso=None):
     return v
 
 
+def assemble_variants(rows, rsq, loso, cities=S7):
+    """{(variant, city): pano list} over ``cities``, each split's f"{scale}-loso" variant built
+    with the core chosen for THAT split (``loso[scale][city]``, from the other splits)."""
+    var = {}
+    for c in cities:
+        for name, ps in sim_variants(rows[c], rsq, loso={s: loso[s][c] for s in SIM_ARMS}).items():
+            var[(name, c)] = ps
+    return var
+
+
+def narrow_minus_wide(var, rsq, cities=S7):
+    """Paired split-stratified bootstrap of the narrow-core band minus the wide-core band
+    (``contrast``: same seed and draws as every other interval here), per scale and bound."""
+    sizes = [len(var[("base", c)]) for c in cities]
+    out = {}
+    for scale in SIM_ARMS:
+        out[scale] = {}
+        for b in ("fp", "ignore"):
+            sa = [scored(c, apply_bound(var[(f"{scale}-narrow", c)], b, rsq), rsq) for c in cities]
+            sb = [scored(c, apply_bound(var[(f"{scale}-wide", c)], b, rsq), rsq) for c in cities]
+            # six decimals, so the table's three are rounded once (round_contrast's four would
+            # round 0.00551 to 0.0055 and then to 0.005)
+            out[scale][b] = {k: {kk: rnd(vv, 6) for kk, vv in v.items()}
+                             for k, v in contrast(sa, sb, sizes).items()}
+    return out
+
+
 def approx_hit(g, preds, rsq):
     """The 0b scratch run's approximate test: any peak within the radius (no 1:1)."""
     return any(dist_sq(g[0], g[1], p[0], p[1], PANO_SCALE_X, PANO_SCALE_Y, True) < rsq
@@ -623,11 +650,7 @@ def build_sim(cache_root=irs.CACHE_ROOT):
         cnts = {c: {core: tsc.counts(pre[c][f"{scale}-{core}"], rsq) for core in CORES}
                 for c in S7}
         loso[scale], loso_tab[scale] = loso_core_choice(cnts)
-    var = {}
-    for c in S7:
-        per = sim_variants(rows[c], rsq, loso={s: loso[s][c] for s in SIM_ARMS})
-        for name, ps in per.items():
-            var[(name, c)] = ps
+    var = assemble_variants(rows, rsq, loso)
     for c in REPORT_ONLY:
         for name, ps in sim_variants(rows[c], rsq).items():
             var[(name, c)] = ps
@@ -736,6 +759,9 @@ def build_sim(cache_root=irs.CACHE_ROOT):
         "pools": pools, "report_only": report_only, "per_split": per_split,
         "misses_by_range": ranges, "scratch_reproduction": approx,
         "threshold_frontier_S7": frontier,
+        # review 1 of PR 295: is narrow separated from wide, or does LOSO's 7 of 7 reflect
+        # seven heavily overlapping folds? Appended last so every earlier byte is unchanged.
+        "narrow_minus_wide_S7": narrow_minus_wide(var, rsq),
     }
     return json.loads(json.dumps(strip_raw(rep)))
 
@@ -776,6 +802,16 @@ def markdown_sim(rep):
                  f"{a['f1_on_others'][h]['narrow']:.4f} | {a['chosen'][h]} | "
                  f"{b['f1_on_others'][h]['wide']:.4f} / {b['f1_on_others'][h]['narrow']:.4f} | "
                  f"{b['chosen'][h]} |")
+    L.append("")
+    L.append("**Narrow minus wide core on S7 pooled (paired 95% CI, same bootstrap). The seven "
+             "LOSO folds share five sixths of their splits, so this is the comparison that "
+             "says how far apart the cores are**\n")
+    L.append("| scale | bound | ΔP | ΔR | ΔF1 |")
+    L.append("|---|---|---|---|---|")
+    for scale, by_b in rep["narrow_minus_wide_S7"].items():
+        for b, d in by_b.items():
+            L.append(f"| {scale} | {b} | {_d(d['precision'])} | {_d(d['recall'])} | "
+                     f"{_d(d['f1'])} |")
     L.append("")
     for scale in SIM_ARMS:
         L.append(f"**S7 misses at 0.30 by flat-ground range, {scale} (scorer definition: "

@@ -76,6 +76,15 @@
 | paterson | 0.8298 / 0.8336 | narrow | 0.8389 / 0.8426 | narrow |
 | gainesville | 0.8385 / 0.8408 | narrow | 0.8467 / 0.8490 | narrow |
 
+**Narrow minus wide core on S7 pooled (paired 95% CI, same bootstrap). The seven LOSO folds share five sixths of their splits, so this is the comparison that says how far apart the cores are**
+
+| scale | bound | ΔP | ΔR | ΔF1 |
+|---|---|---|---|---|
+| 2x | fp | +0.010 [+0.006, +0.015] | -0.005 [-0.009, -0.002] | +0.003 [-0.000, +0.006] |
+| 2x | ignore | +0.011 [+0.007, +0.016] | -0.005 [-0.009, -0.002] | +0.003 [-0.000, +0.006] |
+| 1.5x | fp | +0.010 [+0.005, +0.014] | -0.005 [-0.009, -0.002] | +0.002 [-0.001, +0.005] |
+| 1.5x | ignore | +0.011 [+0.006, +0.016] | -0.005 [-0.009, -0.002] | +0.002 [-0.001, +0.006] |
+
 **S7 misses at 0.30 by flat-ground range, 2x (scorer definition: 1:1 greedy match)**
 
 | range | GT | misses | GT row in wide core | in narrow core | recovered by the full pass alone | by the wide band | by the narrow band |
