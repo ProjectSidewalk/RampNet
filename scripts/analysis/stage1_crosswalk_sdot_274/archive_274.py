@@ -149,7 +149,7 @@ SOURCES = [
      "export_benchmark.py)", "jsonl"),
     # crosswalk_s5 (Juneau look-alike mining), added 2026-11-10. s5 failed guard 6; s4 stays.
     ("s5_mine/store_natives", f"{SK}/s5-mine/store", "the 300 Juneau panos drawn for look-alike mining, streamed "
-     "read-only from the PS store (juneau_store.tar sha256 4709a00f... in s5_mine/work)", "jpg"),
+     "read-only from the PS store (juneau_store.tar sha256 in the repo)", "jpg"),
     ("s5_mine/panos_4096", f"{SK}/s5-mine/prep_4096", "the same, 4096x2048 as inferred; the 102 that carry points "
      "are root_v5's new train JPEGs, byte for byte", None),
     ("s5_mine/work", f"{SK}/s5-mine", "inference logs and the pulled tars' sha256 files", "log"),

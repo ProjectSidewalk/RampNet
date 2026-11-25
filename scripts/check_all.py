@@ -131,7 +131,7 @@ REGISTRY: list = [
             "analysis_out/input_res_sweep_25/", "analysis_out/recall_by_depth_112.json",
             "docs/data/rampnet1_stage1_run/", "docs/data/rampnet1_stage2_run/",
             "docs/data/seed_variance_51_135/", "stage_two/cosine_rung_135_events/",
-            "stage_two/run_a_84_events/")),
+            "stage_two/run_a_84_events/", "analysis_out/stage1_crosswalk_detector_274/")),
     E("sourcing_tables", (AN + "sourcing_tables.py", "--check"),
       "generated tables in the data-sourcing docs re-render identical from committed files (#145)",
       pins=("docs/location_precision_assessment_96.md", "docs/curb_ramp_data_sourcing.md",
