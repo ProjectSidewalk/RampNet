@@ -62,6 +62,10 @@ analysis_out/cascade_cost_35/transfer/*
 !analysis_out/cascade_cost_35/argon/
 analysis_out/cascade_cost_35/argon/*
 !analysis_out/cascade_cost_35/argon/*.json
+# the Argon-teacher Stage 0 read (argon_teacher_s0.py): results plus its two derived inputs
+!analysis_out/argon_teacher_s0/
+analysis_out/argon_teacher_s0/*
+!analysis_out/argon_teacher_s0/*.json
 # Stage 0 of the open-weight cascade confirmation (#35): stage0.json + inputs.json, CPU-derivable.
 !analysis_out/cascade_confirm_35/
 analysis_out/cascade_confirm_35/*
