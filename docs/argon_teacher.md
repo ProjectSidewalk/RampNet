@@ -6,7 +6,7 @@ in the [appendix](#appendix-the-plans-stage-0-text). **Run date:** 2026-11-15.
 **Outputs:** `analysis_out/argon_teacher_s0/results.json`, plus two derived inputs in the same
 directory (`neighbours.json`, `heatmap_features.json`); `docs/figures/argon_teacher/` (two PNGs).
 **Compute:** one RampNet forward pass per benchmark pano (469 panos) on the local RTX 3070,
-about 10 minutes (a timed re-run on 2026-11-24: 565 s for the pano loop, 1.2 s per pano, row
+about 10 minutes (a timed re-run on 2026-11-24 local time, 2026-11-25T05:19Z UTC in the row's `ts`: 565 s for the pano loop, 1.2 s per pano, row
 `argon-teacher-s0:extract-heatmaps` in `analysis_out/usage_log.jsonl`, `paid: false`); everything
 else on the CPU in under 10 seconds. No model API call, no remote host, no spend. Lyon was not read.
 **Status:** Stage 0. The gate bars are the plan's, fixed in the plan before this script was

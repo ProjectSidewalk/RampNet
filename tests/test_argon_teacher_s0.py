@@ -75,7 +75,9 @@ def test_far_band_is_6_degrees_and_stays_in_the_denominator():
     seven = _split([(0.5, 0.5 + 7 / 180)])    # 7 deg: outside it, nothing covers it
     assert a.leak_H(five, far_band=True) == {"n_gt": 1, "leaked": 0, "leak": 0.0}
     assert a.leak_H(seven, far_band=True) == {"n_gt": 1, "leaked": 1, "leak": 1.0}
-    assert a.far_band_count(_merge(five, _split([(0.5, 0.6)], pid="p2"))) == 1
+    # the band ends at 6 deg (the 7 deg ramp is out), and only recall-confirmed panos count
+    assert a.far_band_count(_merge(five, _split([(0.5, 0.6), (0.4, 0.5 + 7 / 180)], pid="p2"),
+                                   _split([(0.5, 0.5 + 5 / 180)], pid="u", confirmed=False))) == 1
 
 
 def test_leak_counts_only_recall_confirmed_panos():
@@ -203,6 +205,105 @@ def test_candidate_table_scores_at_R_by_default(monkeypatch):
     assert (a.candidate_table(d, rows, one, tests, match_r_sq=a.R2_SQ)["f5_elev"]["toy"]["tp"]) == 1
 
 
+def test_candidate_table_passes_join_through(monkeypatch):
+    monkeypatch.setattr(a, "SPLITS", ("toy",))
+    d = {"toy": _split([(0.5, 0.6)])}
+    cands, tests = a.candidates(THR)
+    rows = [_row(0.5, 0.6, f4_yolo_2R=True, f5_elev_in_range=False)]
+    pair = [c for c in cands if c[0] == "f4_yolo & f5_elev"]
+    assert a.candidate_table(d, rows, pair, tests)["f4_yolo & f5_elev"]["toy"]["boxes"] == 0
+    assert a.candidate_table(d, rows, pair, tests, join=any)["f4_yolo & f5_elev"]["toy"]["tp"] == 1
+
+
+def test_2R_read_keeps_blind_at_R():
+    # a 0.05 peak 1.5R from the ramp: the ramp is blind (none within R) whatever the match
+    # radius, and not strict-silent; the box 1.5R off on the other side matches at 2R
+    d = {"toy": _split([(0.5, 0.6)], peaks=[(0.5 + 1.5 * R, 0.6, 0.05)])}
+    _, tests = a.candidates(THR)
+    o = a.score_candidate([_row(0.5 - 1.5 * R, 0.6)], d, ("f5_elev",), False, tests, "toy",
+                          match_r_sq=a.R2_SQ)
+    assert (o["tp"], o["blind_kept"], o["ss_kept"]) == (1, 1, 0)
+
+
+def test_filters_at_2R_scores_at_2R(monkeypatch):
+    # two splits, one ramp each, one box 1.5R off: nothing is eligible at R, all of it at 2R
+    monkeypatch.setattr(a, "SPLITS", ("A", "B"))
+    data = {s: _split([(0.5, 0.6)], zs=[(0.5 + 1.5 * R, 0.6, None)], pid="p") for s in "AB"}
+    rows = [dict(_row(0.5 + 1.5 * R, 0.6), split=s, pano="p") for s in "AB"]
+    counts = {s: a.base_counts(data[s]) for s in "AB"}
+    assert a.filters(data, rows, THR, counts)["held_out_pooled"]["tp"] == 0
+    F = a.filters_at_2R(data, rows, THR, counts)
+    assert {F["loso"][s]["selected"] for s in "AB"} == {"f5_elev"}
+    assert (F["held_out_pooled"]["tp"], F["held_out_pooled"]["fp"]) == (2, 0)
+    assert F["reached_within_2R"] == {"blind_reached": 2, "ss_reached": 2}
+
+
+def test_ceilings_take_the_larger_of_snap_and_no_snap(monkeypatch):
+    # the box is 1.5R off; only its snap lands on the ramp, so the snap arm is the ceiling
+    monkeypatch.setattr(a, "SPLITS", ("toy",))
+    data = {"toy": _split([(0.5, 0.6)])}
+    rows = [_row(0.5 + 1.5 * R, 0.6, f6_snap=[0.5, 0.6, 0.02])]
+    c = a.filter_ceilings(data, rows, THR, {"toy": a.base_counts(data["toy"])})
+    assert (c["no_filter"]["pooled"]["blind_kept"], c["no_filter_snap"]["pooled"]["blind_kept"]) == (0, 1)
+    assert (c["y_attainable"], c["s_attainable"]) == (1, 1)
+
+
+def _table_row(tp=0, fp=0, blind=0):
+    o = {"boxes": tp + fp, "tp": tp, "fp": fp, "ignored": 0, "blind_kept": blind,
+         "ss_kept": blind}
+    o["precision"] = a._prec(o)
+    return o
+
+
+def test_in_sample_ranking_and_counts():
+    # all counts on the first split, zeros elsewhere. b ties a on precision and keeps more
+    # blind ramps; c is between the bars; only b clears both the P and Y go bars
+    first, rest = a.SPLITS[0], a.SPLITS[1:]
+    vals = {"a": (9, 1, 25), "b": (9, 1, 35), "c": (7, 3, 5), "d": (0, 0, 0)}
+    table = {n: {first: _table_row(*v), **{s: _table_row() for s in rest}}
+             for n, v in vals.items()}
+    order = {n: (1, False) for n in vals}
+    ins = a.in_sample(table, order)
+    assert ins["best"] == "b"
+    assert (ins["n_at_or_above_p_kill"], ins["n_at_or_above_p_go"]) == (3, 2)
+    assert ins["p_go_and_y_go"] == ["b"]
+
+
+def test_filters_without_f2_drops_exactly_the_f2_candidates():
+    # an f2 candidate would win on blind ramps kept; without f2 the f3 one must be chosen
+    cands, _ = a.candidates(THR)
+    table = {n: {s: _table_row() for s in a.SPLITS} for n, _, _ in cands}
+    for s in a.SPLITS:
+        table["f2<=3m"][s] = _table_row(5, 0, 10)
+        table["f3>=q75"][s] = _table_row(5, 0, 5)
+    W = a.filters_without_f2({"candidates": table}, THR, _counts())
+    assert W["n_candidates"] == 48
+    assert {W["loso"][s]["selected"] for s in a.SPLITS} == {"f3>=q75"}
+
+
+def test_or_read_scores_pairs_joined_by_or(monkeypatch):
+    monkeypatch.setattr(a, "SPLITS", ("toy",))
+    data = {"toy": _split([(0.5, 0.6)])}
+    rows = [_row(0.5, 0.6, f4_yolo_2R=True, f5_elev_in_range=False)]
+    O = a.filters_or_pairs(data, rows, THR)
+    assert O["n_candidates"] == 62                    # the 31 pairs, with and without snap
+    # every pair with f4_yolo keeps the box at 1 / 0; the name breaks the tie (a single
+    # test, were it included, would win on simplicity)
+    assert O["in_sample"]["best"] == "f1>=0.01 | f4_yolo"
+    assert O["in_sample"]["best_pooled"]["tp"] == 1
+    assert O["in_sample"]["n_at_or_above_p_go"] == 2 * 8     # 8 pairs contain f4_yolo
+
+
+def test_usage_row():
+    row = a.usage_row(469, 565.0, 1.9, "2026-11-25T05:19:01Z", "host", ["GPU"], "rev", 567.0)
+    assert row["paid"] is False and row["est_cost_usd"] == 0.0
+    assert (row["panos_scored"], row["elapsed_s"], row["s_per_pano"]) == (469, 565.0, 1.2047)
+    assert row["gpu_hours"] == round(565.0 / 3600, 4)
+    assert set(row) == {"provider", "model_id", "paid", "hardware", "status", "est_cost_usd",
+                        "pricing", "issue", "ts", "bundle", "label", "run_id", "panos_scored",
+                        "elapsed_s", "s_per_pano", "gpu_hours", "what", "script"}
+
+
 # ---- base counts -------------------------------------------------------------------- #
 def test_base_counts_blind_strict_silent_reached(monkeypatch):
     # g0: nothing near, Argon box 0.5R off -> blind, strict-silent, reached (both)
@@ -212,7 +313,7 @@ def test_base_counts_blind_strict_silent_reached(monkeypatch):
     g = [(0.1, 0.6), (0.3, 0.6), (0.5, 0.6), (0.7, 0.6)]
     d = _merge(_split(g, peaks=[(0.3 + 1.5 * R, 0.6, 0.05), (0.5 + 0.5 * R, 0.6, 0.9)],
                       zs=[(0.1 + 0.5 * R, 0.6, None), (0.3 - 1.5 * R, 0.6, None)]),
-               _split([(0.5, 0.6)], pid="unconfirmed", confirmed=False))
+               _split([(0.5, 0.6)], zs=[(0.5, 0.6, None)], pid="unconfirmed", confirmed=False))
     c = a.base_counts(d)
     assert c == {"n_panos": 2, "n_confirmed": 1, "n_gt": 4, "n_gt_all_panos": 5,
                  "n_blind": 3, "blind_reached": 1, "n_strict_silent": 2, "ss_reached": 1}
