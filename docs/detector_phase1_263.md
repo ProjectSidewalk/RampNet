@@ -291,7 +291,8 @@ same pass as the arms, through one scorer on one GPU type, as #271 did.
   ramp at 30–40 m is not checked.
 - **Operating points.** 0.30 ([`operating_point.md`](operating_point.md)), with 0.55 for continuity.
   budapest_district5 stays out of every pool (it is in `miss_decomposition.HELD_OUT`, which also
-  lists sao_paulo, bayonne and laurens_gsv; this plan uses those three as the roles in §3 say).
+  lists laurens_gsv, sao_paulo, bayonne and manual_gold; this plan uses those four as the roles in §3
+  say).
 
 ## 7. Production cost of the band
 
@@ -384,11 +385,11 @@ moot unless it resumes. If it does, its arms should use whatever LR this plan's 
 - **0c's context rule binds on the lenient (plan) reading** (Jon, 2026-11-25). The rule and the
   reasons he accepted are in §4; PR #295 records both (commit `04d06c88`). The recommendation in
   PR #295's review thread had been the strict reading.
-- **PR #295 merges as reviewed, as Stage 0 with 0c not run** (Jon, 2026-11-25). The two 0c code
-  fixes still open there (a null band threshold under `calibrate --smoke`, and the calibration sha256
-  check moved into `guard_extract`) go into a follow-up PR before 0c can run. PR #295's
-  `horizon_band_263.md` records this ("to be fixed in a follow-up PR before 0c can run", commit
-  `04d06c88`).
+- **PR #295 merges as Stage 0 with 0c not run** (Jon, 2026-11-25, confirmed in conversation; #295's
+  `horizon_band_263.md` states the decision without a date). The two 0c code fixes still open there
+  (a null band threshold under `calibrate --smoke`, and the calibration sha256 check moved into
+  `guard_extract`) go into a follow-up PR before 0c can run. That follow-up clause is what #295's
+  commit `04d06c88` records ("to be fixed in a follow-up PR before 0c can run").
 
 **Open, and Jon's.**
 
@@ -476,4 +477,4 @@ are the 10 seam double-marks in its GT ([`seam.md`](seam.md)).
   held out for the ship read (the first commit of PR #306, `30ab22e6`, read both at rung 1); the cost floor
   for a Phase 1 that reaches rung 2 is about 340 GPU-h, not 320; the control arm on open-rig 3 is
   quoted beside open-rig 4; the "B replaces the band" rule names manual_gold (proposed); the
-  decisions are dated and sourced to PR #295's commit `04d06c88`; smaller wording fixes.
+  decisions are dated, with the reasons and the follow-up clause sourced to PR #295's commit `04d06c88`; smaller wording fixes.
