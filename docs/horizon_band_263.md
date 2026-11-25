@@ -293,7 +293,8 @@ not the CPU as intended (see Deviations). Not verified: A40 time and memory, and
    smoke test above reports peak positions, not score shifts.
 5. **Context-rule reading.** Reference peaks at 0.30, reproduced at the score floor, |median shift|.
    The stricter reading (strip peak also at 0.30) is reported beside it. If the two readings
-   disagree, 0c reports both.
+   disagree, 0c reports both, and the first binds (Jon, 2026-11-25; see "Decided before any 0c data
+   exists" below).
 6. **Calibration details.** Symmetric closest-first pairing (pairing on the 1× peaks above 0.30 alone
    would bias the shift downward); precision on in-core peaks of both passes; the threshold rule
    above.
@@ -358,10 +359,19 @@ the band; 0b binds nothing. For the
 arms, rung 1 runs F (LR 3e-6, the control) first, then B (zoom), then A, which 0a now permits. C stays
 unscheduled because 0a did not trigger it. Nothing past Stage 0 has been run.
 
-**Open before 0c runs (Jon's call; none is done in this PR).**
+**Decided before any 0c data exists (Jon, 2026-11-25): the context rule binds on the plan's
+reading, not the strict one.** A full-pass peak counts as reproduced when a strip core peak lies
+within the radius at any score at or above the floor, with |median shift| < 0.05; the strict
+reading (strip peak also at 0.30) is still reported beside it, as the script already does. Reasons:
+the median-shift clause already bounds a systematic score drop; calibration on sao_paulo exists to
+move the band's threshold when strip scores shift, so 0.30 is not the right bar for strip scores;
+and a strip that loses ramps fails the binding manual_gold gate as a fail, never as a false win.
+The cost of this reading is that a strip which then fails could spend the held-out read; the cost
+of the strict one would be stopping a usable band before calibration can correct its scores. No
+code change follows from this decision.
 
-- Whether the context rule binds on its strict reading (the strip peak must also reach 0.30). It
-  changes what 0c concludes, so it has to be settled before any 0c data exists.
+**Open before 0c runs (to be fixed in a follow-up PR before 0c can run; none is done in this PR).**
+
 - The calibration refusal also fires under `calibrate --smoke` (step 2 above). The fix: in smoke
   mode, record a null band threshold instead of refusing.
 - A hand-run `extract --splits juneau,bayonne --heldout-read-once` does not compare the calibration
