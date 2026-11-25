@@ -54,7 +54,7 @@ def city_server(city, out):
         cities = json.loads(r.read().decode("utf-8"))["cities"]
     c = next(c for c in cities if c["city_id"] == city)
     json.dump({"city": city, "url": c["url"], "visibility": c.get("visibility")},
-              open(p, "w", encoding="utf-8"), indent=1)
+              open(p, "w", encoding="utf-8", newline="\n"), indent=1)
     return c["url"]
 
 
@@ -216,7 +216,7 @@ def cmd_export(a):
                     rec["ignore"].append(ig)
             f.write(json.dumps(rec) + "\n")
     json.dump({"city": a.city, "confirm_rule": a.confirm, "counts": counts},
-              open(os.path.join(a.out, "export_counts.json"), "w", encoding="utf-8"), indent=1)
+              open(os.path.join(a.out, "export_counts.json"), "w", encoding="utf-8", newline="\n"), indent=1)
     log(f"{a.city}: {len(by)} panos; {counts}")
 
 

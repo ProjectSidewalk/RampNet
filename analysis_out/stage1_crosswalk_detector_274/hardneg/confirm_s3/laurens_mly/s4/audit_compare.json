@@ -21,9 +21,9 @@
  "retention": {
   "base_crosswalks": 0,
   "still_detected": 0,
-  "share": NaN,
+  "share": null,
   "min": 0.95,
-  "met": false
+  "met": null
  },
  "boot_n": 2000,
  "boot_seed": 274,

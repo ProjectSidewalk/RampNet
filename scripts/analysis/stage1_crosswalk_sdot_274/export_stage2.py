@@ -146,7 +146,7 @@ def cmd_neg_pick(a):
         f.write("".join(f"./{p[:2]}/{p}.jpg\n" for p in sorted(keep)))
     json.dump({"store_listing_sha256": sha256(a.store_listing), "sampled": len(pick), "kept": len(keep),
                "dropped": why, "neg_m": NEG_M, "seed": SEED},
-              open(os.path.join(a.out, "neg_pick.json"), "w", encoding="utf-8"), indent=1)
+              open(os.path.join(a.out, "neg_pick.json"), "w", encoding="utf-8", newline="\n"), indent=1)
     log(f"kept {len(keep)} of {len(pick)} candidates ({why}) -> neg_files.txt")
 
 
@@ -322,7 +322,7 @@ def cmd_build(a):
                                               "kept_from_root": bool(a.keep_split)},
            "points": sum(len(js["curb_ramp_points_normalized"]) for js, _ in items.values()),
            "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
-    json.dump(man, open(os.path.join(a.out, "manifest.json"), "w", encoding="utf-8"), indent=1)
+    json.dump(man, open(os.path.join(a.out, "manifest.json"), "w", encoding="utf-8", newline="\n"), indent=1)
     log(f"{len(items)} panos -> {a.root}; {counts}; dropped {dropped}")
 
 

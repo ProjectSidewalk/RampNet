@@ -290,7 +290,7 @@ def cmd_sample(a):
                                  for k in ("sdot", "regions")},
             "seed": SEED, "strata": [(s, n) for s, n, _ in STRATA], "pool": len(rows),
             "phase1_excluded": len(excl), "phase1_sheet": bool(a.phase1_sheet), "sampled": len(out)}
-    json.dump(meta, open(os.path.join(a.out, "sample_meta.json"), "w", encoding="utf-8"), indent=1)
+    json.dump(meta, open(os.path.join(a.out, "sample_meta.json"), "w", encoding="utf-8", newline="\n"), indent=1)
     log(f"{len(out)} sampled from {len(rows)} current SDOT crosswalks ({len(excl)} excluded as Phase 1) -> {SAMPLE_CSV}")
 
 
@@ -486,7 +486,7 @@ def cmd_fetch(a):
                 return
             heading = get_pano_heading(pid)
             cv2.imwrite(os.path.join(pix, pid + ".jpg"), equi, [cv2.IMWRITE_JPEG_QUALITY, 92])
-            with open(os.path.join(pix, pid + ".json"), "w", encoding="utf-8") as f:   # written last = done marker
+            with open(os.path.join(pix, pid + ".json"), "w", encoding="utf-8", newline="\n") as f:   # written last = done marker
                 json.dump({"pano_id": pid, "heading": heading, "shape": list(equi.shape),
                            "streetlevel_heading_deg": r.get("streetlevel_heading_deg"),
                            "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}, f)

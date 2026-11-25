@@ -83,6 +83,29 @@ def read_jsonl(path):
         return [json.loads(line) for line in f if line.strip()]
 
 
+def finite(v):
+    """`v` with every NaN or infinite float replaced by None, so it serialises as valid JSON (`null`). A rate with
+    no denominator is undefined, not a number.
+
+    >>> finite({"p": float("nan"), "ci": [0.5, float("inf")], "n": 0})
+    {'p': None, 'ci': [0.5, None], 'n': 0}
+    """
+    if isinstance(v, float):
+        return v if math.isfinite(v) else None
+    if isinstance(v, dict):
+        return {k: finite(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [finite(x) for x in v]
+    return v
+
+
+def write_json(path, obj):
+    """Every committed JSON goes through here: LF on every OS (newline=""), indent 1, and NaN written as null
+    (`finite`); allow_nan=False makes a missed non-finite value an error rather than invalid JSON."""
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        json.dump(finite(obj), f, indent=1, allow_nan=False)
+
+
 # --------------------------------------------------------------------------- #
 # ground truth
 # --------------------------------------------------------------------------- #
@@ -254,8 +277,7 @@ def cmd_infer(a):
         if old.get("sha256") != digest:
             raise SystemExit(f"{mp} records sha256 {old.get('sha256')}, this checkpoint is {digest}: "
                              f"refusing to mix two models' predictions under one label")
-    with open(mp, "w", encoding="utf-8") as f:
-        json.dump(meta, f, indent=1)
+    write_json(mp, meta)
     log(f"{a.label}: sha256 {digest[:12]} on {meta['gpu'] or device.type}")
     if a.ids_file:      # (b'): a flat dir of bprime-prep JPEGs, one "split"
         ids = sorted(l.strip().split("/")[-1][:-4] for l in open(a.ids_file, encoding="utf-8") if l.strip())
@@ -538,8 +560,7 @@ def cmd_score(a):
     res["inputs"]["seattle_test_heading_sources"] = src_counts
     res["inputs"]["census_crossing_nodes"] = len(node_xy)
     res["scored_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    with open(os.path.join(a.out, "scores.json"), "w", encoding="utf-8") as f:
-        json.dump(res, f, indent=1)
+    write_json(os.path.join(a.out, "scores.json"), res)
     for name, rows in (("threshold_sweep.csv", sweep_rows), ("pixel_breakdown.csv", breakdown_rows),
                        ("nodes.csv", node_out)):
         with open(os.path.join(a.out, name), "w", encoding="utf-8", newline="") as f:
@@ -643,6 +664,11 @@ def write_report(res, out, labels):
 # --------------------------------------------------------------------------- #
 # figures (CPU)
 # --------------------------------------------------------------------------- #
+def nan_if_none(v):
+    """A rate that `write_json` stored as null (no denominator), as NaN again for plotting."""
+    return float("nan") if v is None else v
+
+
 def cmd_figures(a):
     import matplotlib
     matplotlib.use("Agg")
@@ -664,7 +690,7 @@ def cmd_figures(a):
             axes[1].plot(ts_, ff, ls, color=colors[i], label=f"{lab} {s}")
         t = res["models"][lab]["threshold"]
         o = res["models"][lab]["split"]["test"]["overall"]
-        axes[0].plot([o["recall"]], [o["precision"]], "o", color=colors[i])
+        axes[0].plot([nan_if_none(o["recall"])], [nan_if_none(o["precision"])], "o", color=colors[i])
         axes[1].axvline(t, color=colors[i], lw=0.8, alpha=0.6)
     axes[0].set_xlabel("recall (all positives)")
     axes[0].set_ylabel("precision (complete panos)")
@@ -684,7 +710,7 @@ def cmd_figures(a):
     wbar = 0.8 / len(labels)
     for i, lab in enumerate(labels):
         by = res["models"][lab]["split"]["test"]["by"]["city"]
-        ax.bar([k + i * wbar for k in range(len(groups))], [by[g]["recall"] if g in by else 0 for g in groups],
+        ax.bar([k + i * wbar for k in range(len(groups))], [nan_if_none(by[g]["recall"]) if g in by else 0 for g in groups],
                wbar, color=colors[i], label=lab)
     ax.set_xticks([k + wbar * (len(labels) - 1) / 2 for k in range(len(groups))])
     ax.set_xticklabels(groups)
@@ -1227,7 +1253,7 @@ def cmd_cards(a):
                 f.write(jpeg)
     if a.crops_out:
         with open(os.path.join(a.crops_out, "index.csv"), "w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=["crop", "card_id"])
+            w = csv.DictWriter(f, fieldnames=["crop", "card_id"], lineterminator="\n")
             w.writeheader()
             w.writerows(crop_index)
     intro = f"""<p>Each card asks about <strong>one</strong> detection: the large outlined cross. Other marks are
@@ -1315,7 +1341,7 @@ def cmd_mine(a):
                          "mode": sup.get("mode"), "year": year_bin(ann.get("capture_date")), "stratum": c["reason"]})
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "candidates.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
     by = {}
@@ -1325,8 +1351,7 @@ def cmd_mine(a):
     meta = {"label": a.label, "threshold": a.threshold, "train_panos": len(anns), "candidates": len(rows),
             "panos_with_candidates": len({r["pano_id"] for r in rows}), "by_city_reason": dict(sorted(by.items())),
             "preds_sha256": sha256(a.preds_file), "dedup": MINE_DEDUP, "radius": RADIUS}
-    with open(os.path.join(a.out, "mine_meta.json"), "w", encoding="utf-8") as f:
-        json.dump(meta, f, indent=1)
+    write_json(os.path.join(a.out, "mine_meta.json"), meta)
     log(json.dumps(meta, indent=1))
 
 
@@ -1365,7 +1390,7 @@ def cmd_sheets(a):
             rows.append({"sheet": name, "cell": i + 1, "crop": r["crop"], "card_id": r["card_id"]})
         sheet.save(os.path.join(a.out, name), quality=88)
     with open(os.path.join(a.out, "sheets.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["sheet", "cell", "crop", "card_id"])
+        w = csv.DictWriter(f, fieldnames=["sheet", "cell", "crop", "card_id"], lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
     log(f"{len(rows)} crops -> {len(rows) // per + (1 if len(rows) % per else 0)} sheets in {a.out}")
@@ -1393,7 +1418,7 @@ def cmd_prescreen_merge(a):
             "ai_reason": got[k][1]} for k in sorted(cells)]
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "prescreen.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(out[0]))
+        w = csv.DictWriter(f, fieldnames=list(out[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(out)
     rng = random.Random(BOOT_SEED)
@@ -1413,15 +1438,14 @@ def cmd_prescreen_merge(a):
     yes = rng.sample(yes, min(a.n_crosswalk, len(yes)))
     sel = [{"card_id": r["card_id"], "ai_verdict": r["ai_verdict"]} for r in flagged + yes]
     with open(os.path.join(a.out, "jon_selection.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["card_id", "ai_verdict"])
+        w = csv.DictWriter(f, fieldnames=["card_id", "ai_verdict"], lineterminator="\n")
         w.writeheader()
         w.writerows(sel)
     counts = {v: sum(1 for r in out if r["ai_verdict"] == v) for v in AI_VERDICTS}
     meta = {"cards": len(out), "ai": counts, "selected_flagged": len(flagged), "selected_crosswalk": len(yes),
             "seed": BOOT_SEED, "flag_verdicts": a.flag_verdicts, "full_cities": a.full_cities,
             "n_other": a.n_other}
-    with open(os.path.join(a.out, "prescreen_meta.json"), "w", encoding="utf-8") as f:
-        json.dump(meta, f, indent=1)
+    write_json(os.path.join(a.out, "prescreen_meta.json"), meta)
     log(json.dumps(meta))
 
 
@@ -1446,13 +1470,12 @@ def cmd_select(a):
                 pool.append(cid)
     pick = random.Random(BOOT_SEED).sample(sorted(pool), min(a.n, len(pool)))
     with open(a.out, "w", encoding="utf-8", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(["card_id", "ai_verdict"])
         w.writerows([cid, ai[cid]] for cid in pick)
     meta = {"pool": len(pool), "picked": len(pick), "ai": a.ai, "strata": a.strata, "cities": a.cities,
             "excluded_rated": len(done), "seed": BOOT_SEED}
-    with open(os.path.splitext(a.out)[0] + ".json", "w", encoding="utf-8") as f:
-        json.dump(meta, f, indent=1)
+    write_json(os.path.splitext(a.out)[0] + ".json", meta)
     log(json.dumps(meta))
 
 
@@ -1500,15 +1523,14 @@ def cmd_bprime_audit(a):
               "panos.csv": ["pano_id", "stratum", "year", "n_dets", "node_weights"]}
     for name, rows in (("candidates.csv", cand), ("panos.csv", pano_rows)):
         with open(os.path.join(a.out, name), "w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=fields[name])
+            w = csv.DictWriter(f, fieldnames=fields[name], lineterminator="\n")
             w.writeheader()
             w.writerows(rows)
     meta = {"label": a.label, "threshold": a.threshold, "seed": a.draw_seed, "n_panos": a.n_panos,
             "excluded_from": a.exclude_panos, "city": a.city,
             "random_panos": len(drawn), "node_fa_panos": len(fa), "node_fa_only_panos": len(fa - drawn),
             "detections": len(cand), "detections_random": sum(1 for c in cand if "random" in c["stratum"])}
-    with open(os.path.join(a.out, "audit_meta.json"), "w", encoding="utf-8") as f:
-        json.dump(meta, f, indent=1)
+    write_json(os.path.join(a.out, "audit_meta.json"), meta)
     log(json.dumps(meta))
 
 
@@ -1567,10 +1589,9 @@ def cmd_audit_summary(a):
            "node_fa": {"panos": len(fa), "detections": len(fa_v),
                        **{k: fa_v.count(k) for k in ("crosswalk", "not_crosswalk", "unsure")}}}
     os.makedirs(a.out, exist_ok=True)
-    with open(os.path.join(a.out, "audit_summary.json"), "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=1)
+    write_json(os.path.join(a.out, "audit_summary.json"), out)
     with open(os.path.join(a.out, "per_pano.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(["pano_id", "stratum", "year", "detections", "crosswalk", "not_crosswalk", "unsure"])
         for r in prow:
             v = verdicts.get(r["pano_id"], [])
@@ -1680,7 +1701,7 @@ def cmd_merge_cards(a):
     os.makedirs(a.out, exist_ok=True)
     cols = ["pano_id", "x", "y", "conf", "city", "mode", "year", "stratum", "models"]
     with open(os.path.join(a.out, "candidates.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
         w.writeheader()
         w.writerows(union)
     by = {}
@@ -1703,7 +1724,7 @@ def cmd_carry(a):
         raise SystemExit(f"{len(miss)} candidates have no rated card, e.g. {miss[:3]}")
     cols = ["card_id", "kind", "pano_id", "x", "y", "conf", "city", "mode", "year", "stratum", "verdict", "note"]
     with open(a.out, "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
         w.writeheader()
         for it in items:
             w.writerow({**it, "card_id": card_id(it), **got[card_id(it)]})
@@ -1791,7 +1812,9 @@ def cmd_audit_compare(a):
     real = [r for r in cards_a if r["verdict"] == "crosswalk"]
     kept = [r for r in real if any(dist_sq(float(r["x"]), float(r["y"]), q[0], q[1], SCALE_X, SCALE_Y, True)
                                    < RADIUS_SQ for q in preds.get(r["pano_id"], []))]
-    retention = len(kept) / len(real) if real else float("nan")
+    # No base crosswalk on the draw (s1 found none on either Laurens draw): there is nothing to retain, so the
+    # guard does not apply and both share and met are null, not a failed guard.
+    retention = len(kept) / len(real) if real else None
     out = {"base": a.base_label, "new": a.new_label, "new_threshold": a.new_threshold, "panos": len(drawn),
            "lookalikes_per_100": {"base": 100 * sum(look_a.values()) / len(drawn),
                                   "new": 100 * sum(look_b.values()) / len(drawn)},
@@ -1799,13 +1822,12 @@ def cmd_audit_compare(a):
            "primary_met": ci[1] < 0,
            "paired_diff_errors_per_100": e_point, f"paired_diff_errors_{ci_key(a.ci)}": e_ci,
            "retention": {"base_crosswalks": len(real), "still_detected": len(kept), "share": retention,
-                         "min": RETENTION_MIN, "met": retention >= RETENTION_MIN},
+                         "min": RETENTION_MIN, "met": None if retention is None else retention >= RETENTION_MIN},
            "boot_n": BOOT_N, "boot_seed": BOOT_SEED}
     if a.ci != 0.95:
         out["ci_level"] = a.ci
     os.makedirs(a.out, exist_ok=True)
-    with open(os.path.join(a.out, "audit_compare.json"), "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=1)
+    write_json(os.path.join(a.out, "audit_compare.json"), out)
     log(json.dumps(out, indent=1))
 
 
@@ -1899,12 +1921,11 @@ def cmd_label_recall(a):
     os.makedirs(a.out, exist_ok=True)
     cols = ["model", "threshold"] + list(labels[0].keys()) + ["best_conf_within_radius", "hit"]
     with open(os.path.join(a.out, "label_hits.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
         w.writeheader()
         for lab, _, thr, _ in models:
             w.writerows({"model": lab, "threshold": thr, **h} for h in hits[lab])
-    with open(os.path.join(a.out, "label_recall.json"), "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=1)
+    write_json(os.path.join(a.out, "label_recall.json"), out)
     log(json.dumps(out, indent=1))
 
 
@@ -2172,8 +2193,7 @@ def cmd_bprime_sample(a):
             "inputs_sha256": {"baseline_nodes": sha256(a.baseline_nodes), "store_listing": sha256(a.store_listing),
                               "pano_data": sha256(a.pano_data)},
             "drawn_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
-    with open(os.path.join(a.out, "sample.json"), "w", encoding="utf-8", newline="\n") as f:
-        json.dump(meta, f, indent=1)
+    write_json(os.path.join(a.out, "sample.json"), meta)
     log(f"(b') {len(sample)} nodes on {len(panos)} panos; cells {cells}; dropped {drop}")
 
 
@@ -2289,8 +2309,7 @@ def cmd_bprime_score(a):
                               "per_cell": per_cell, "true_nodes_by_pano_year": by_year}
         log(f"(b') {lab}: weighted F1 detector {fmt(m['detector']['f1'])} vs OSM {fmt(m['osm']['f1'])}; "
             f"OR {fmt(m['either']['f1'])}")
-    with open(os.path.join(out_dir, "scores.json"), "w", encoding="utf-8", newline="\n") as f:
-        json.dump(out, f, indent=1)
+    write_json(os.path.join(out_dir, "scores.json"), out)
     with open(os.path.join(out_dir, "nodes.csv"), "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(node_rows[0]), lineterminator="\n")
         w.writeheader()
@@ -2330,8 +2349,7 @@ def cmd_oracle(a):
     """Every positive of every pano as a confidence-1.0 detection: what the scoring geometry allows."""
     out_dir = os.path.join(a.preds, a.label)
     os.makedirs(out_dir, exist_ok=True)
-    with open(os.path.join(out_dir, "meta.json"), "w", encoding="utf-8") as f:
-        json.dump({"label": a.label, "checkpoint": "training labels (oracle)", "sha256": "n/a"}, f, indent=1)
+    write_json(os.path.join(out_dir, "meta.json"), {"label": a.label, "checkpoint": "training labels (oracle)", "sha256": "n/a"})
     for split in SPLITS:
         with open(os.path.join(out_dir, f"{split}.jsonl"), "w", encoding="utf-8", newline="\n") as f:
             for pid, ann in load_split(a.root, split).items():

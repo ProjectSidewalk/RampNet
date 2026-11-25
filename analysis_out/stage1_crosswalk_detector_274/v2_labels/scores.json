@@ -67,12 +67,12 @@
         "ignored": 0,
         "unscored": 474,
         "n_gt": 198,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8434343434343434,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.786340409343027,
@@ -87,12 +87,12 @@
         "ignored": 0,
         "unscored": 431,
         "n_gt": 182,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8076923076923077,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7443122037240222,
@@ -127,12 +127,12 @@
         "ignored": 0,
         "unscored": 170,
         "n_gt": 106,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8018867924528302,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7160451566780396,
@@ -169,12 +169,12 @@
         "ignored": 0,
         "unscored": 1403,
         "n_gt": 870,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8068965517241379,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7793402082963029,
@@ -189,16 +189,16 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 0,
-        "precision": NaN,
-        "recall": NaN,
-        "f1": NaN,
+        "precision": null,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 106
        }
@@ -296,12 +296,12 @@
         "ignored": 0,
         "unscored": 328,
         "n_gt": 131,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8015267175572519,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7250688807373158,
@@ -316,12 +316,12 @@
         "ignored": 0,
         "unscored": 212,
         "n_gt": 87,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8620689655172413,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7742118537134604,
@@ -356,12 +356,12 @@
         "ignored": 0,
         "unscored": 80,
         "n_gt": 37,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.7837837837837838,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.628045387261231,
@@ -398,12 +398,12 @@
         "ignored": 0,
         "unscored": 802,
         "n_gt": 483,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8281573498964804,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7919572589634802,
@@ -418,16 +418,16 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 0,
-        "precision": NaN,
-        "recall": NaN,
-        "f1": NaN,
+        "precision": null,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 31
        }
@@ -768,12 +768,12 @@
         "ignored": 0,
         "unscored": 483,
         "n_gt": 198,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.7929292929292929,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.731174721422658,
@@ -788,12 +788,12 @@
         "ignored": 0,
         "unscored": 391,
         "n_gt": 182,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.7637362637362637,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.6969678426152707,
@@ -828,12 +828,12 @@
         "ignored": 0,
         "unscored": 145,
         "n_gt": 106,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.7830188679245284,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.6954026791051231,
@@ -870,12 +870,12 @@
         "ignored": 0,
         "unscored": 1290,
         "n_gt": 870,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.7758620689655172,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7469730840179312,
@@ -890,16 +890,16 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 0,
-        "precision": NaN,
-        "recall": NaN,
-        "f1": NaN,
+        "precision": null,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 106
        }
@@ -997,12 +997,12 @@
         "ignored": 0,
         "unscored": 323,
         "n_gt": 131,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.7480916030534351,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.6674106224590479,
@@ -1017,12 +1017,12 @@
         "ignored": 0,
         "unscored": 188,
         "n_gt": 87,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8160919540229885,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.721943165293875,
@@ -1057,12 +1057,12 @@
         "ignored": 0,
         "unscored": 60,
         "n_gt": 37,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.6756756756756757,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.5146336850482394,
@@ -1099,12 +1099,12 @@
         "ignored": 0,
         "unscored": 724,
         "n_gt": 483,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.7971014492753623,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7589563496798383,
@@ -1119,16 +1119,16 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 0,
-        "precision": NaN,
-        "recall": NaN,
-        "f1": NaN,
+        "precision": null,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 31
        }
@@ -1469,12 +1469,12 @@
         "ignored": 0,
         "unscored": 563,
         "n_gt": 198,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8838383838383839,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.8317285758584666,
@@ -1489,12 +1489,12 @@
         "ignored": 0,
         "unscored": 544,
         "n_gt": 182,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8406593406593407,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7805274939747466,
@@ -1529,12 +1529,12 @@
         "ignored": 0,
         "unscored": 247,
         "n_gt": 106,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8490566037735849,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7687951701145022,
@@ -1571,12 +1571,12 @@
         "ignored": 0,
         "unscored": 1693,
         "n_gt": 870,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8264367816091954,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7998491786335538,
@@ -1592,15 +1592,15 @@
         "unscored": 0,
         "n_gt": 0,
         "precision": 0.0,
-        "recall": NaN,
-        "f1": NaN,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
          0.0,
          0.7934567085261071
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 106
        }
@@ -1698,12 +1698,12 @@
         "ignored": 0,
         "unscored": 411,
         "n_gt": 131,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8396946564885496,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7673383709938736,
@@ -1718,12 +1718,12 @@
         "ignored": 0,
         "unscored": 273,
         "n_gt": 87,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8735632183908046,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.7876199981340796,
@@ -1758,12 +1758,12 @@
         "ignored": 0,
         "unscored": 94,
         "n_gt": 37,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.7567567567567568,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.5988239750929105,
@@ -1800,12 +1800,12 @@
         "ignored": 0,
         "unscored": 955,
         "n_gt": 483,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.8488612836438924,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.8141719283697573,
@@ -1820,16 +1820,16 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 0,
-        "precision": NaN,
-        "recall": NaN,
-        "f1": NaN,
+        "precision": null,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 31
        }
@@ -2170,12 +2170,12 @@
         "ignored": 0,
         "unscored": 645,
         "n_gt": 198,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.4494949494949495,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.3818226605178682,
@@ -2190,12 +2190,12 @@
         "ignored": 0,
         "unscored": 429,
         "n_gt": 182,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.25274725274725274,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.1951666551927058,
@@ -2230,12 +2230,12 @@
         "ignored": 0,
         "unscored": 256,
         "n_gt": 106,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.27358490566037735,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.1977580712218776,
@@ -2272,12 +2272,12 @@
         "ignored": 0,
         "unscored": 2042,
         "n_gt": 870,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.37701149425287356,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.3454142046916752,
@@ -2293,15 +2293,15 @@
         "unscored": 0,
         "n_gt": 0,
         "precision": 0.0,
-        "recall": NaN,
-        "f1": NaN,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
          0.0,
          0.15464382326420195
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 106
        }
@@ -2399,12 +2399,12 @@
         "ignored": 0,
         "unscored": 364,
         "n_gt": 131,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.4351145038167939,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.3532618019412418,
@@ -2419,12 +2419,12 @@
         "ignored": 0,
         "unscored": 253,
         "n_gt": 87,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.19540229885057472,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.12573278124165055,
@@ -2459,12 +2459,12 @@
         "ignored": 0,
         "unscored": 113,
         "n_gt": 37,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.08108108108108109,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.027960066396321384,
@@ -2501,12 +2501,12 @@
         "ignored": 0,
         "unscored": 1154,
         "n_gt": 483,
-        "precision": NaN,
+        "precision": null,
         "recall": 0.36645962732919257,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.32469856601654556,
@@ -2522,15 +2522,15 @@
         "unscored": 0,
         "n_gt": 0,
         "precision": 0.0,
-        "recall": NaN,
-        "f1": NaN,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
          0.0,
          0.2991527535509594
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 31
        }
@@ -2870,12 +2870,12 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 198,
-        "precision": NaN,
+        "precision": null,
         "recall": 1.0,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.9809672535295005,
@@ -2890,12 +2890,12 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 182,
-        "precision": NaN,
+        "precision": null,
         "recall": 1.0,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.9793286325558971,
@@ -2930,12 +2930,12 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 106,
-        "precision": NaN,
+        "precision": null,
         "recall": 1.0,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.9650260010779157,
@@ -2972,12 +2972,12 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 870,
-        "precision": NaN,
+        "precision": null,
         "recall": 1.0,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.9956037799070222,
@@ -2992,16 +2992,16 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 0,
-        "precision": NaN,
-        "recall": NaN,
-        "f1": NaN,
+        "precision": null,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 106
        }
@@ -3099,12 +3099,12 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 131,
-        "precision": NaN,
+        "precision": null,
         "recall": 1.0,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.9715102757605961,
@@ -3119,12 +3119,12 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 87,
-        "precision": NaN,
+        "precision": null,
         "recall": 1.0,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.957711004649852,
@@ -3159,12 +3159,12 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 37,
-        "precision": NaN,
+        "precision": null,
         "recall": 1.0,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.9059390425448564,
@@ -3201,12 +3201,12 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 483,
-        "precision": NaN,
+        "precision": null,
         "recall": 1.0,
-        "f1": NaN,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
          0.9921091377565106,
@@ -3221,16 +3221,16 @@
         "ignored": 0,
         "unscored": 0,
         "n_gt": 0,
-        "precision": NaN,
-        "recall": NaN,
-        "f1": NaN,
+        "precision": null,
+        "recall": null,
+        "f1": null,
         "precision_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "recall_ci": [
-         NaN,
-         NaN
+         null,
+         null
         ],
         "panos": 31
        }

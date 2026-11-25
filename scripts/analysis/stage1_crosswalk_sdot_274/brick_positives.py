@@ -83,7 +83,7 @@ def cmd_select(a):
     assert len(uids) == len(set(uids)), "label_uid not unique"
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "selection.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
     store = sorted({f"{r['city']}/{r['pano_id'][:2]}/{r['pano_id']}.jpg" for r in rows})
@@ -110,7 +110,7 @@ def cmd_candidates(a):
         out.append({"pano_id": r["pano_id"], "x": r["x"], "y": r["y"], "conf": 1.0, "city": r["city"],
                     "mode": "brick_crowd", "year": (r["capture_date"] or "")[:4], "stratum": r["label_uid"]})
     with open(os.path.join(a.out, "candidates.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(out[0]))
+        w = csv.DictWriter(f, fieldnames=list(out[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(out)
     with open(os.path.join(a.out, "missing_from_store.txt"), "w", encoding="utf-8", newline="\n") as f:
@@ -149,7 +149,7 @@ def cmd_prescreen(a):
                      "x": c["x"], "y": c["y"], "sheet": k[0], "cell": k[1], "ai_verdict": got[k][0],
                      "ai_style": got[k][1], "ai_reason": got[k][2]})
     with open(os.path.join(a.out, "prescreen.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
     from collections import Counter
@@ -178,7 +178,7 @@ def cmd_page(a):
                       key=lambda r: r["card_id"])
         pick += [(r, group) for r in rng.sample(pool, min(n, len(pool)))]
     with open(os.path.join(a.out, "jon_selection.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(["card_id", "label_uid", "group"])
         w.writerows((r["card_id"], r["label_uid"], g) for r, g in pick)
     from collections import Counter
@@ -235,7 +235,7 @@ def cmd_tally(a):
     uids = [r["label_uid"] for r in rows]
     assert len(uids) == len(set(uids)), "label_uid not unique"
     with open(os.path.join(a.out, "positives.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
     cross = Counter((sel[c], jon[c]) for c in sel)
@@ -270,7 +270,7 @@ def cmd_crowd_candidates(a):
     assert len(uids) == len(set(uids)), "label_uid not unique"
     assert len(cards) == len(set(cards)), "two labels share a card position"
     with open(a.out, "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(out[0]))
+        w = csv.DictWriter(f, fieldnames=list(out[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(out)
     from collections import Counter
@@ -296,7 +296,7 @@ def cmd_crowd_split(a):
         keep.to_csv(os.path.join(a.out, name), index=False)
         out[mode] = {"crosswalk": int(len(keep)), "file": name,
                      **{v: int(n) for v, n in m[m["mode"] == mode].verdict.value_counts().items()}}
-    with open(os.path.join(a.out, "crowd_split.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(a.out, "crowd_split.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(out, f, indent=2)
     log(f"crowd-split: {out}")
 
