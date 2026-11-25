@@ -1125,6 +1125,23 @@ def test_claude_cache_key_is_frozen():
             f"{mid}/{effort} signature drifted; the annapolis cache is orphaned")
 
 
+def test_claude_effort_high_cache_key_is_frozen():
+    """Regression guard on the Opus 5.5 effort=high leg (docs/claude_effort_high.md).
+    The 13 city splits are published, but the 150-pano manual_gold slice ($11.87) lives
+    only in the producing .model_cache, so a signature drift would orphan it with no
+    other test failing. The signature must also stay the one the published files
+    record."""
+    det = ClaudeDetector(model_id="claude-opus-5-5", effort="high", tool_choice="auto",
+                         max_tokens=20000)
+    path = os.path.join(REPO_ROOT, "benchmark", "model_detections",
+                        "claude-opus-5-5-effort-high-anthropic-maxtokens-20000__richmond.json")
+    with open(path, encoding="utf-8") as f:
+        assert det.signature() == json.load(f)["signature"]
+    assert cache_key("claude-opus-5-5", det.signature(), "richmond", "pano1") == \
+        "c1885eee366855e462b30e271405e248ec7a89af", (
+            "claude-opus-5-5/high/20000 signature drifted; the manual_gold slice is orphaned")
+
+
 def test_claude_as_run_defaults_stay_out_of_the_signature():
     """Encoding and temperature are inputs, so they belong in the key — but only
     once they DEVIATE from what the published legs ran.
@@ -1658,6 +1675,54 @@ def test_the_launcher_validates_the_same_accounts():
     m = re.search(r"ValidateSet\(([^)]*)\)\]\[string\]\$Account", text)
     assert m, "the -Account ValidateSet moved; update this test"
     assert tuple(re.findall(r"'([^']+)'", m.group(1))) == compare.API_ACCOUNTS
+
+
+def _launcher_text():
+    path = os.path.join(REPO_ROOT, "scripts", "model_comparison",
+                        "run_claude_legs_by_account.ps1")
+    with open(path, encoding="utf-8") as f:
+        return path, f.read()
+
+
+def test_the_launcher_validates_the_same_efforts():
+    """Same contract as -Account: -Effort's ValidateSet restates compare.py's
+    --claude-effort choices, and a drift lets the launcher accept a value compare.py
+    then refuses (or refuse one it accepts)."""
+    import re
+    _, text = _launcher_text()
+    m = re.search(r"ValidateSet\(([^)]*)\)\]\[string\]\$Effort", text)
+    assert m, "the -Effort ValidateSet moved; update this test"
+    action = next(a for a in compare.build_parser()._actions
+                  if "--claude-effort" in a.option_strings)
+    assert list(re.findall(r"'([^']+)'", m.group(1))) == list(action.choices)
+
+
+def test_the_launchers_example_uses_the_as_run_max_tokens():
+    """The effort=high example once showed -MaxTokens 32000, which the SDK refuses for a
+    non-streaming call (docs/claude_effort_high.md); the campaign ran 20000."""
+    _, text = _launcher_text()
+    assert "-Effort high -MaxTokens 20000" in text
+    assert "-MaxTokens 32000" not in text
+
+
+@pytest.mark.parametrize("effort", ["high", "xhigh", "max"])
+def test_the_launcher_refuses_high_effort_without_max_tokens(tmp_path, effort):
+    """At high effort and above, a call can think past compare.py's default 4096 and is
+    then paid for and not cached, so the launcher refuses to start without -MaxTokens.
+    The refusal must come before anything else: the DataRoot here is empty and the
+    interpreter does not exist, so even if the guard were gone nothing could run."""
+    shell = shutil.which("pwsh") or shutil.which("powershell")
+    if not shell:
+        pytest.skip("no PowerShell on this machine")
+    path, _ = _launcher_text()
+    r = subprocess.run(
+        [shell, "-NoProfile", "-NonInteractive", "-File", path, "-Account", "claude20",
+         "-Model", "claude-opus-5-5", "-PerPano", "0.1", "-Cap", "0", "-Splits", "richmond",
+         "-Effort", effort, "-DataRoot", str(tmp_path),
+         "-Python", str(tmp_path / "no-such-python.exe")],
+        capture_output=True, text=True, timeout=120)
+    assert r.returncode != 0
+    assert "needs -MaxTokens" in (r.stdout + r.stderr)
 
 
 def test_the_paid_provider_list_covers_every_priced_model():
