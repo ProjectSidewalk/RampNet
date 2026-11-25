@@ -53,6 +53,16 @@ tile or crop is committed; Columbus and Chicago state no licence, so their tiles
 privately and never redistributed. One fetch note: GeoSampa's certificate chains to a Sectigo root that the
 Windows curl store lacks; Python's verified TLS accepts it, so nothing was fetched with verification off.
 
+**São Paulo 2017 is too coarse to rate (rater note, 2026-11-25).** Jon, rating: the 2020 GeoSampa
+tiles resolve crossing paint, and the 2017 tiles do not (example r091, where the 2017 panel is blocky and
+the 2020 panel shows the zebras). The archived 2017 tiles are blocky: a median run of 13 identical pixels
+along a row of the 800 px, 30 m tile, about 0.5 m per source pixel. That is far coarser than the 12 cm
+the city table lists; whether the WMS serves a lower-resolution level at this extent or the 2017 layer is
+coarser than its listing was not checked. (The 2020 tiles are smoothly resampled, so the same
+run-length measure says little about them.) So São Paulo rows are in practice rated on 2020 alone. Read
+their verdicts as single-image ones, and don't count a 2017 "cannot tell" as a disagreement between
+years.
+
 **Seattle parity.** Every Seattle-specific string of the Phase 0 page (title, provider line, service URL,
 years, King County's 36 m minimum extent, panel credits, the service name in an error message, the
 `imagery` tag) is now read from the table: `phase0_template_generic.html` filled with the Seattle row is
