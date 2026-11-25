@@ -322,15 +322,46 @@ def disc_max(h, x, y, radius_px):
     return float(sub[mask].max()) if mask.any() else 0.0
 
 
+def usage_row(n, elapsed_s, load_s, started, host, gpus, revision, wall_s):
+    """The ``paid: false`` ledger row for one ``extract-heatmaps`` run, in the shape
+    ``perspective_photos_218.usage_row`` writes. ``elapsed_s`` is the pano loop (image read,
+    sha256 check, forward pass, decode), model load excluded; ``load_s`` is the load."""
+    return {"provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": False,
+            "hardware": {"host": host, "gpus": gpus}, "status": "ok", "est_cost_usd": 0.0,
+            "pricing": None, "issue": None, "ts": started, "bundle": ",".join(SPLITS),
+            "label": "argon-teacher-s0:extract-heatmaps",
+            "run_id": f"argon-teacher-s0:extract-heatmaps:{host}:{started}",
+            "panos_scored": n, "elapsed_s": round(elapsed_s, 3),
+            "s_per_pano": round(elapsed_s / n, 4) if n else None,
+            "gpu_hours": round(elapsed_s / 3600.0, 4),
+            "what": (f"argon_teacher_s0.py extract-heatmaps (PR 294): one forward pass per pano, "
+                     f"fp32, no TTA; elapsed_s is the pano loop (read + sha256 + forward + "
+                     f"decode), model load {load_s:.1f} s excluded, run wall {wall_s:.0f} s; "
+                     f"weights resolved to Hub revision {revision}"),
+            "script": "scripts/analysis/argon_teacher_s0.py"}
+
+
 def extract_heatmaps(args):
     """One RampNet forward pass per benchmark pano of the four splits (the op_cache's exact
     preprocessing and decode). Keeps only what features 1 and 6 need: per zero-shot Argon
     box the raw heatmap max within R and 2R, and the heatmap modes >= 0.01 (op_cache decode,
-    min_distance 10, exclude_border=False) lying within 2R of some zero-shot Argon box."""
+    min_distance 10, exclude_border=False) lying within 2R of some zero-shot Argon box.
+
+    Timed: appends one ``paid: false`` row to ``--usage-log`` (default: the main checkout's
+    ``analysis_out/usage_log.jsonl``). The timing goes to the ledger, not into the output
+    file, so a re-run can be byte-compared with the committed ``heatmap_features.json``."""
+    import socket
+    import time
+    from datetime import datetime, timezone
     import torch
     import threshold_sweep as ts
+    t_start = time.time()
+    started = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = ts.load_model().to(device)
+    load_s = time.time() - t_start
+    t_loop = time.time()
+    n_panos = 0
     out = {"model": "projectsidewalk/rampnet-model", "device": device.type,
            "preprocess": "threshold_sweep.PRE (2048x4096 bilinear, ImageNet norm, no TTA)",
            "mode_decode": {"threshold_abs": SNAP_FLOOR, "min_distance": 10,
@@ -363,14 +394,31 @@ def extract_heatmaps(args):
             n_op += len(op.get(pid, []))
             n_op_match += sum(1 for p in op.get(pid, []) if near(p[0], p[1], hi, 1.0))
             per[pid] = {"heatmap_shape": [H, W], "box_max_R_2R": bmax, "modes_near_boxes": keep}
+            n_panos += 1
             del h
         out["splits"][split] = {"panos": per, "op_cache_peaks": n_op,
                                 "op_cache_peaks_reproduced_within_1px": n_op_match}
         print(f"{split}: {len(per)} panos; op_cache peaks reproduced {n_op_match}/{n_op}",
               flush=True)
-    os.makedirs(OUT_DIR, exist_ok=True)
-    cc.write_json(os.path.join(OUT_DIR, HEATMAPS), out)
-    print(f"-> {os.path.join(OUT_DIR, HEATMAPS)}")
+    elapsed_s = time.time() - t_loop
+    out_dir = args.out_dir or OUT_DIR
+    os.makedirs(out_dir, exist_ok=True)
+    cc.write_json(os.path.join(out_dir, HEATMAPS), out)
+    print(f"-> {os.path.join(out_dir, HEATMAPS)}")
+    print(f"{n_panos} panos in {elapsed_s:.1f} s ({elapsed_s / max(n_panos, 1):.3f} s/pano), "
+          f"model load {load_s:.1f} s", flush=True)
+    if args.usage_log != "none":
+        from rampnet import ledger
+        from huggingface_hub import hf_hub_download
+        snap = os.path.dirname(hf_hub_download("projectsidewalk/rampnet-model",
+                                               "model.safetensors", local_files_only=True))
+        gpus = [torch.cuda.get_device_name(0)] if device.type == "cuda" else []
+        ul = args.usage_log or os.path.join(ledger.canonical_repo_root(cc.REPO),
+                                            "analysis_out", "usage_log.jsonl")
+        ledger.append_rows(ul, [usage_row(n_panos, elapsed_s, load_s, started,
+                                          socket.gethostname().split(".")[0], gpus,
+                                          os.path.basename(snap), time.time() - t_start)])
+        print(f"usage_log: +1 row -> {ul}", flush=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -426,6 +474,13 @@ def leak_H(d, centres_fn=disc_centres_H, extra=None, far_band=False):
             if not near(g[0], g[1], pts, R2_SQ):
                 leaked += 1
     return {"n_gt": n, "leaked": leaked, "leak": leaked / n if n else None}
+
+
+def far_band_count(d):
+    """Sure ramps less than 6 deg below the horizon (y < FAR_BAND_Y): the ones H2's far band
+    counts as not leaked whatever covers them."""
+    return sum(1 for gt in d["gts"].values() if gt.fn_confirmed
+               for g in gt.gt_points if g[1] < FAR_BAND_Y)
 
 
 def is_empty(d, pid):
@@ -493,7 +548,8 @@ def leak(data, nb):
             "H_plus_neighbours": None if extra is None else leak_H(d, extra=extra),
             "H2": leak_H(d, extra=extra or {}, far_band=True),
             "H2_neighbours_available": extra is not None,
-            "E": leak_E(d)}
+            "E": leak_E(d),
+            "n_far_band": far_band_count(d)}
     ps = res["per_split"]
     for k in ("H", "H_both_argon_legs", "H_plus_far_band", "H2") + tuple(
             f"H_yolo_{a}_only" for a in YOLO_ARMS):
@@ -501,6 +557,7 @@ def leak(data, nb):
     have = [s for s in SPLITS if ps[s]["H2_neighbours_available"]]
     res["pooled"]["H2_splits_with_neighbours"] = {**_pool([ps[s]["H2"] for s in have]),
                                                  "splits": have}
+    res["pooled"]["n_far_band"] = sum(ps[s]["n_far_band"] for s in SPLITS)
     e = [ps[s]["E"] for s in SPLITS]
     em = sum(x["n_empty_matched"] for x in e)
     res["pooled"]["E"] = {"n_empty": sum(x["n_empty"] for x in e), "n_empty_matched": em,
@@ -565,7 +622,17 @@ def features(data, nb, hm, thr):
             yolo = yolo_union(d, pid)
             conf = [c for c in d["conf"].get(pid, []) if c[2] is not None]
             hmp = hms[pid]
-            for i, b in enumerate(d["zs"].get(pid, [])):
+            zs = d["zs"].get(pid, [])
+            # both derived files are keyed by box position in gemini-4-argon__<split>.json
+            if len(hmp["box_max_R_2R"]) != len(zs):
+                raise ValueError(f"{split}:{pid}: heatmap_features.json has "
+                                 f"{len(hmp['box_max_R_2R'])} boxes, Argon has {len(zs)}")
+            if nbs["available"] and pid in nbs["panos"] \
+                    and len(nbs["panos"][pid]["argon_support_m"]) != len(zs):
+                raise ValueError(f"{split}:{pid}: neighbours.json has "
+                                 f"{len(nbs['panos'][pid]['argon_support_m'])} boxes, "
+                                 f"Argon has {len(zs)}")
+            for i, b in enumerate(zs):
                 dr["argon_boxes_confirmed"] += 1
                 if near(b[0], b[1], pk05, R_SQ):
                     continue
@@ -623,13 +690,19 @@ def candidates(thr):
     return out, tests
 
 
-def score_candidate(rows, data, combo, snap, tests, split):
+def score_candidate(rows, data, combo, snap, tests, split, match_r_sq=R_SQ, join=all):
     """Kept boxes of one split under one candidate, scored at R on the recall-confirmed
-    panos: TP / FP / ignored, blind ramps kept, strict-silent ramps kept."""
+    panos: TP / FP / ignored, blind ramps kept, strict-silent ramps kept.
+
+    ``match_r_sq`` is the match radius for both the score and "a kept box within it of the
+    ramp" (R, the plan's; ``filters_at_2R`` passes 2R). Blind and strict-silent stay defined
+    at R and 2R from RampNet's peaks either way. ``join`` combines a pair's tests: ``all``
+    (the plan reading, AND) or ``any`` (the OR read of amendment 5). An empty ``combo`` keeps
+    every box (the no-filter ceiling)."""
     d = data[split]
     kept = {}
     for r in rows:
-        if r["split"] != split or not all(tests[n][1](r) for n in combo):
+        if r["split"] != split or not join(tests[n][1](r) for n in combo):
             continue
         xy = (r["f6_snap"][0], r["f6_snap"][1]) if snap and r["f6_snap"] else (r["x"], r["y"])
         kept.setdefault(r["pano"], []).append(xy)
@@ -640,14 +713,14 @@ def score_candidate(rows, data, combo, snap, tests, split):
         boxes = kept.get(pid, [])
         if not boxes:
             continue
-        s = score_pano(boxes, gt, R_SQ)
+        s = score_pano(boxes, gt, match_r_sq)
         o["boxes"] += len(boxes)
         o["tp"] += s.tp
         o["fp"] += s.fp
         o["ignored"] += s.ignored
         pk = peaks_ge(d, pid, PEAK_FLOOR)
         for g in gt.gt_points:
-            if near(g[0], g[1], boxes, R_SQ):
+            if near(g[0], g[1], boxes, match_r_sq):
                 if not near(g[0], g[1], pk, R_SQ):
                     o["blind_kept"] += 1
                 if not near(g[0], g[1], pk, R2_SQ):
@@ -666,24 +739,30 @@ def _add(rows):
     return o
 
 
-def filters(data, rows, thr, counts):
-    cands, tests = candidates(thr)
+def candidate_table(data, rows, cands, tests, match_r_sq=R_SQ, join=all):
+    """``{name: {split: score row with precision}}`` for every candidate."""
     table = {}
     for name, combo, snap in cands:
-        table[name] = {s: score_candidate(rows, data, combo, snap, tests, s) for s in SPLITS}
+        table[name] = {s: score_candidate(rows, data, combo, snap, tests, s, match_r_sq, join)
+                       for s in SPLITS}
         for s in SPLITS:
             table[name][s]["precision"] = _prec(table[name][s])
-    order = {name: (len(combo), snap) for name, combo, snap in cands}
+    return table
+
+
+def select_loso(table, order, counts):
+    """Leave-one-split-out over a candidate table: per held-out split, among candidates
+    with pooled training precision >= SELECT_PRECISION, the one keeping the most blind
+    ramps on the training splits; then precision; then simpler; then no snap; then name.
+    ``order`` maps name -> (number of tests, snap). Returns (loso, pooled, gates)."""
     loso = {}
     for held in SPLITS:
         train = [s for s in SPLITS if s != held]
         scored = []
-        for name, _, _ in cands:
+        for name in table:
             tr = _add([table[name][s] for s in train])
             if tr["precision"] is not None and tr["precision"] >= SELECT_PRECISION:
                 scored.append((name, tr))
-        # most blind ramps kept on the training splits; then precision; then simpler;
-        # then no snap; then name
         scored.sort(key=lambda t: (-t[1]["blind_kept"], -t[1]["precision"],
                                    order[t[0]][0], order[t[0]][1], t[0]))
         if scored:
@@ -695,8 +774,33 @@ def filters(data, rows, thr, counts):
                           "held_out": {"boxes": 0, "tp": 0, "fp": 0, "ignored": 0,
                                        "blind_kept": 0, "ss_kept": 0, "precision": None}}
     pooled = _add([loso[s]["held_out"] for s in SPLITS])
+    return loso, pooled, gates(loso, pooled, counts)
+
+
+def in_sample(table, order):
+    """Every candidate pooled over all four splits at once (no held-out split, no
+    selection): the best precision (ties: more blind kept, simpler, no snap, name), how
+    many reach the P go and kill bars, and which reach P go and Y go together."""
+    pooled = {n: _add([per[s] for s in SPLITS]) for n, per in table.items()}
+    ranked = sorted((n for n in pooled if pooled[n]["precision"] is not None),
+                    key=lambda n: (-pooled[n]["precision"], -pooled[n]["blind_kept"],
+                                   order[n][0], order[n][1], n))
+    at_go = [n for n in ranked if pooled[n]["precision"] >= P_GO]
+    return {"best": ranked[0] if ranked else None,
+            "best_pooled": pooled[ranked[0]] if ranked else None,
+            "n_at_or_above_p_kill": sum(1 for n in ranked if pooled[n]["precision"] >= P_KILL),
+            "n_at_or_above_p_go": len(at_go),
+            "at_or_above_p_go": {n: pooled[n] for n in at_go},
+            "p_go_and_y_go": [n for n in at_go if pooled[n]["blind_kept"] >= Y_GO]}
+
+
+def filters(data, rows, thr, counts):
+    cands, tests = candidates(thr)
+    table = candidate_table(data, rows, cands, tests)
+    order = {name: (len(combo), snap) for name, combo, snap in cands}
+    loso, pooled, g = select_loso(table, order, counts)
     return {"n_candidates": len(cands), "candidates": table, "loso": loso,
-            "held_out_pooled": pooled, "gates": gates(loso, pooled, counts)}
+            "held_out_pooled": pooled, "gates": g, "in_sample": in_sample(table, order)}
 
 
 def gates(loso, pooled, counts):
@@ -728,32 +832,79 @@ def gates(loso, pooled, counts):
               "verdict": gs, "bars": {"go_n": S_GO_N, "go_fraction": S_GO_FRAC}}}
 
 
-def filters_without_f2(data, rows, thr, counts):
+def filters_without_f2(full, thr, counts):
     """Sensitivity: the same LOSO with every feature-2 candidate removed, because feature 2
-    is unavailable on budapest_district5 (every box there fails it)."""
+    is unavailable on budapest_district5 (every box there fails it). ``full`` is
+    ``filters()``'s result, whose candidate table is reused."""
     cands, tests = candidates(thr)
     keep = {name for name, combo, _ in cands if not any(tests[n][0] == 2 for n in combo)}
-    full = filters(data, rows, thr, counts)
     table = {k: v for k, v in full["candidates"].items() if k in keep}
     order = {name: (len(combo), snap) for name, combo, snap in cands}
-    loso = {}
-    for held in SPLITS:
-        train = [s for s in SPLITS if s != held]
-        scored = [(n, _add([table[n][s] for s in train])) for n in table]
-        scored = [(n, t) for n, t in scored if t["precision"] is not None
-                  and t["precision"] >= SELECT_PRECISION]
-        scored.sort(key=lambda t: (-t[1]["blind_kept"], -t[1]["precision"],
-                                   order[t[0]][0], order[t[0]][1], t[0]))
-        if scored:
-            loso[held] = {"selected": scored[0][0], "n_eligible": len(scored),
-                          "train": scored[0][1], "held_out": dict(table[scored[0][0]][held])}
-        else:
-            loso[held] = {"selected": None, "n_eligible": 0, "train": None,
-                          "held_out": {"boxes": 0, "tp": 0, "fp": 0, "ignored": 0,
-                                       "blind_kept": 0, "ss_kept": 0, "precision": None}}
-    pooled = _add([loso[s]["held_out"] for s in SPLITS])
-    return {"n_candidates": len(keep), "loso": loso, "held_out_pooled": pooled,
-            "gates": gates(loso, pooled, counts)}
+    loso, pooled, g = select_loso(table, order, counts)
+    return {"n_candidates": len(keep), "loso": loso, "held_out_pooled": pooled, "gates": g}
+
+
+def reached_within(data, radius_sq):
+    """Blind and strict-silent ramps with a zero-shot Argon box within ``radius_sq``, pooled
+    (``base_counts`` gives the same at R)."""
+    o = {"blind_reached": 0, "ss_reached": 0}
+    for s in SPLITS:
+        d = data[s]
+        for pid, gt in d["gts"].items():
+            if not gt.fn_confirmed:
+                continue
+            pk, boxes = peaks_ge(d, pid, PEAK_FLOOR), d["zs"].get(pid, [])
+            for g in gt.gt_points:
+                if near(g[0], g[1], boxes, radius_sq):
+                    o["blind_reached"] += not near(g[0], g[1], pk, R_SQ)
+                    o["ss_reached"] += not near(g[0], g[1], pk, R2_SQ)
+    return o
+
+
+def filters_at_2R(data, rows, thr, counts):
+    """Sensitivity, not a gate: the same 80 candidates and the same LOSO with the match
+    radius at 2R (score and "kept box within 2R of the ramp"). Blind and strict-silent are
+    unchanged, and the gates read the plan's R denominators (65 and 42); the counts reached
+    within 2R are given beside them. The plan scores at R; this read exists because Argon's
+    box centres are looser than YOLO's (cascade_argon_35.md)."""
+    cands, tests = candidates(thr)
+    table = candidate_table(data, rows, cands, tests, match_r_sq=R2_SQ)
+    order = {name: (len(combo), snap) for name, combo, snap in cands}
+    loso, pooled, g = select_loso(table, order, counts)
+    return {"match_radius": "2R", "n_candidates": len(cands), "loso": loso,
+            "held_out_pooled": pooled, "gates": g, "in_sample": in_sample(table, order),
+            "reached_within_2R": reached_within(data, R2_SQ)}
+
+
+def filters_or_pairs(data, rows, thr):
+    """Amendment 5's other reading: every pair joined by OR instead of AND (with and without
+    the snap, 62 candidates), in sample on all four splits at once. Not a gate."""
+    cands, tests = candidates(thr)
+    pairs = [(name.replace(" & ", " | "), combo, snap) for name, combo, snap in cands
+             if len(combo) == 2]
+    table = candidate_table(data, rows, pairs, tests, join=any)
+    order = {name: (len(combo), snap) for name, combo, snap in pairs}
+    return {"join": "or", "n_candidates": len(pairs), "in_sample": in_sample(table, order)}
+
+
+def filter_ceilings(data, rows, thr, counts):
+    """What any filter could keep: every one of the featured boxes kept, with and without
+    the snap. A filter keeps a subset of these boxes, so it cannot keep more blind or
+    strict-silent ramps than the larger of the two. Gate Y's 65 and gate S's 42 count
+    ramps reached by any zero-shot box; the rig mask and the 0.30-within-2R drop remove
+    some of those boxes before the filter sees them."""
+    _, tests = candidates(thr)
+    out = {}
+    for key, snap in (("no_filter", False), ("no_filter_snap", True)):
+        per = {s: score_candidate(rows, data, (), snap, tests, s) for s in SPLITS}
+        for s in SPLITS:
+            per[s]["precision"] = _prec(per[s])
+        out[key] = {"per_split": per, "pooled": _add([per[s] for s in SPLITS])}
+    out["blind_reached_by_argon"] = sum(counts[s]["blind_reached"] for s in SPLITS)
+    out["ss_reached_by_argon"] = sum(counts[s]["ss_reached"] for s in SPLITS)
+    out["y_attainable"] = max(out[k]["pooled"]["blind_kept"] for k in ("no_filter", "no_filter_snap"))
+    out["s_attainable"] = max(out[k]["pooled"]["ss_kept"] for k in ("no_filter", "no_filter_snap"))
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -767,6 +918,7 @@ def build():
     pooled_counts = {k: sum(counts[s][k] for s in SPLITS) for k in counts[SPLITS[0]]}
     thr = label_free_thresholds(data)
     rows, drops = features(data, nb, hm, thr)
+    filt = filters(data, rows, thr, counts)
     return {
         "plan": "argon-teacher-2026-11-15, Stage 0",
         "constants": {"R": R, "peak_floor": PEAK_FLOOR, "yolo_floor": YOLO_FLOOR,
@@ -783,8 +935,11 @@ def build():
         "thresholds": thr,
         "feature_drops": drops,
         "features": rows,
-        "filters": filters(data, rows, thr, counts),
-        "filters_without_f2": filters_without_f2(data, rows, thr, counts),
+        "filters": filt,
+        "filters_without_f2": filters_without_f2(filt, thr, counts),
+        "filters_at_2R": filters_at_2R(data, rows, thr, counts),
+        "filters_or_pairs": filters_or_pairs(data, rows, thr),
+        "filter_ceilings": filter_ceilings(data, rows, thr, counts),
         "heatmap_sanity": {s: {k: hm["splits"][s][k] for k in
                                ("op_cache_peaks", "op_cache_peaks_reproduced_within_1px")}
                            for s in SPLITS}}
@@ -844,8 +999,18 @@ def print_features(res):
               f"{'–' if not r['f6_snap'] else _p(r['f6_snap'][2])} |")
 
 
+def _print_in_sample(label, ins):
+    b = ins["best_pooled"]
+    print(f"{label}: best {ins['best']} {_p(b['precision'])} ({b['tp']} / {b['fp']}, "
+          f"{b['blind_kept']} blind kept); {ins['n_at_or_above_p_kill']} at >= {P_KILL}, "
+          f"{ins['n_at_or_above_p_go']} at >= {P_GO}; P go and Y go together: "
+          f"{', '.join(ins['p_go_and_y_go']) or 'none'}")
+
+
 def print_filters(res):
-    for key in ("filters", "filters_without_f2"):
+    for key in ("filters", "filters_without_f2", "filters_at_2R"):
+        if key not in res:
+            continue
         F = res[key]
         print(f"\n**{key}** ({F['n_candidates']} candidates)\n")
         print("| held-out split | selected (training: TP / FP, blind kept) | eligible | "
@@ -863,6 +1028,16 @@ def print_filters(res):
         print(f"| **pooled** | | | {po['boxes']} | {po['tp']} / {po['fp']} / {po['ignored']} | "
               f"{_p(po['precision'])} | {po['blind_kept']} | {po['ss_kept']} |")
         print(f"\ngates: {json.dumps(F['gates'])}")
+        if "in_sample" in F:
+            _print_in_sample("in sample, all four splits", F["in_sample"])
+    if "filters_or_pairs" in res:
+        _print_in_sample("\nOR pairs, in sample", res["filters_or_pairs"]["in_sample"])
+    if "filter_ceilings" in res:
+        c = res["filter_ceilings"]
+        print(f"\nceilings (every featured box kept): Y {c['y_attainable']} of "
+              f"{c['blind_reached_by_argon']}, S {c['s_attainable']} of {c['ss_reached_by_argon']}; "
+              f"no filter {_p(c['no_filter']['pooled']['precision'])} "
+              f"({c['no_filter']['pooled']['tp']} / {c['no_filter']['pooled']['fp']})")
 
 
 # --------------------------------------------------------------------------- #
@@ -932,6 +1107,12 @@ def main():
                                                            "sidewalk-auto-labeler"))
     ap.add_argument("--sites-dir", help="extract-neighbours: dir with <split>.sites.jsonl")
     ap.add_argument("--panos-root", help="extract-heatmaps: dir holding <split>/panos/*.jpg")
+    ap.add_argument("--out-dir", help="extract-heatmaps: write heatmap_features.json here "
+                                      "instead of analysis_out/argon_teacher_s0/ (to "
+                                      "byte-compare a re-run with the committed file)")
+    ap.add_argument("--usage-log", default=None,
+                    help="extract-heatmaps: ledger for the paid:false time row (default: the "
+                         "main checkout's analysis_out/usage_log.jsonl); 'none' to skip")
     args = ap.parse_args()
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")

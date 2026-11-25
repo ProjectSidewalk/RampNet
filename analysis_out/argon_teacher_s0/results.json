@@ -2984,6 +2984,110 @@
    "y": 0.547788
   }
  ],
+ "filter_ceilings": {
+  "blind_reached_by_argon": 65,
+  "no_filter": {
+   "per_split": {
+    "bayonne": {
+     "blind_kept": 26,
+     "boxes": 68,
+     "fp": 42,
+     "ignored": 1,
+     "precision": 0.373134,
+     "ss_kept": 20,
+     "tp": 25
+    },
+    "budapest_district5": {
+     "blind_kept": 7,
+     "boxes": 60,
+     "fp": 50,
+     "ignored": 2,
+     "precision": 0.137931,
+     "ss_kept": 5,
+     "tp": 8
+    },
+    "juneau": {
+     "blind_kept": 5,
+     "boxes": 19,
+     "fp": 13,
+     "ignored": 1,
+     "precision": 0.277778,
+     "ss_kept": 4,
+     "tp": 5
+    },
+    "laurens_mapillary": {
+     "blind_kept": 10,
+     "boxes": 28,
+     "fp": 14,
+     "ignored": 1,
+     "precision": 0.481481,
+     "ss_kept": 9,
+     "tp": 13
+    }
+   },
+   "pooled": {
+    "blind_kept": 48,
+    "boxes": 175,
+    "fp": 119,
+    "ignored": 5,
+    "precision": 0.3,
+    "ss_kept": 38,
+    "tp": 51
+   }
+  },
+  "no_filter_snap": {
+   "per_split": {
+    "bayonne": {
+     "blind_kept": 17,
+     "boxes": 68,
+     "fp": 49,
+     "ignored": 1,
+     "precision": 0.268657,
+     "ss_kept": 16,
+     "tp": 18
+    },
+    "budapest_district5": {
+     "blind_kept": 7,
+     "boxes": 60,
+     "fp": 52,
+     "ignored": 1,
+     "precision": 0.118644,
+     "ss_kept": 6,
+     "tp": 7
+    },
+    "juneau": {
+     "blind_kept": 3,
+     "boxes": 19,
+     "fp": 13,
+     "ignored": 1,
+     "precision": 0.277778,
+     "ss_kept": 3,
+     "tp": 5
+    },
+    "laurens_mapillary": {
+     "blind_kept": 9,
+     "boxes": 28,
+     "fp": 11,
+     "ignored": 1,
+     "precision": 0.592593,
+     "ss_kept": 9,
+     "tp": 16
+    }
+   },
+   "pooled": {
+    "blind_kept": 36,
+    "boxes": 175,
+    "fp": 125,
+    "ignored": 4,
+    "precision": 0.269006,
+    "ss_kept": 34,
+    "tp": 46
+   }
+  },
+  "s_attainable": 38,
+  "ss_reached_by_argon": 42,
+  "y_attainable": 48
+ },
  "filters": {
   "candidates": {
    "f1>=0.01": {
@@ -6072,6 +6176,22 @@
    "ss_kept": 8,
    "tp": 7
   },
+  "in_sample": {
+   "at_or_above_p_go": {},
+   "best": "f2<=3m & f4_yolo",
+   "best_pooled": {
+    "blind_kept": 23,
+    "boxes": 40,
+    "fp": 14,
+    "ignored": 1,
+    "precision": 0.641026,
+    "ss_kept": 19,
+    "tp": 25
+   },
+   "n_at_or_above_p_go": 0,
+   "n_at_or_above_p_kill": 0,
+   "p_go_and_y_go": []
+  },
   "loso": {
    "bayonne": {
     "held_out": {
@@ -6139,6 +6259,261 @@
    }
   },
   "n_candidates": 80
+ },
+ "filters_at_2R": {
+  "gates": {
+   "P": {
+    "bars": {
+     "go": 0.8,
+     "kill": 0.65,
+     "split_min": 0.6,
+     "split_n": 10
+    },
+    "precision": 0.542169,
+    "precision_ignored_counted_true": 0.542169,
+    "splits_10plus_boxes_under_0.60": [
+     "bayonne",
+     "budapest_district5"
+    ],
+    "verdict": "kill"
+   },
+   "S": {
+    "bars": {
+     "go_fraction": 0.25,
+     "go_n": 10
+    },
+    "fraction": 0.666667,
+    "n_strict_silent": 105,
+    "ss_kept": 28,
+    "ss_reached_by_argon": 42,
+    "verdict": "go"
+   },
+   "Y": {
+    "bars": {
+     "go": 30,
+     "kill": 20
+    },
+    "blind_kept": 38,
+    "blind_reached_by_argon": 65,
+    "verdict": "go"
+   }
+  },
+  "held_out_pooled": {
+   "blind_kept": 38,
+   "boxes": 83,
+   "fp": 38,
+   "ignored": 0,
+   "precision": 0.542169,
+   "ss_kept": 28,
+   "tp": 45
+  },
+  "in_sample": {
+   "at_or_above_p_go": {
+    "f1>=0.01 & f3>=q75": {
+     "blind_kept": 14,
+     "boxes": 20,
+     "fp": 3,
+     "ignored": 0,
+     "precision": 0.85,
+     "ss_kept": 11,
+     "tp": 17
+    },
+    "f1>=0.02 & f3>=q75": {
+     "blind_kept": 12,
+     "boxes": 16,
+     "fp": 2,
+     "ignored": 0,
+     "precision": 0.875,
+     "ss_kept": 9,
+     "tp": 14
+    },
+    "f1>=0.03 & f3>=q75": {
+     "blind_kept": 9,
+     "boxes": 13,
+     "fp": 2,
+     "ignored": 0,
+     "precision": 0.846154,
+     "ss_kept": 6,
+     "tp": 11
+    },
+    "f2<=3m & f3>=q75": {
+     "blind_kept": 16,
+     "boxes": 21,
+     "fp": 3,
+     "ignored": 0,
+     "precision": 0.857143,
+     "ss_kept": 13,
+     "tp": 18
+    },
+    "f2<=3m & f4_yolo": {
+     "blind_kept": 28,
+     "boxes": 40,
+     "fp": 5,
+     "ignored": 1,
+     "precision": 0.871795,
+     "ss_kept": 23,
+     "tp": 34
+    },
+    "f2<=5m & f3>=q75": {
+     "blind_kept": 17,
+     "boxes": 22,
+     "fp": 3,
+     "ignored": 0,
+     "precision": 0.863636,
+     "ss_kept": 14,
+     "tp": 19
+    },
+    "f2<=5m & f4_yolo": {
+     "blind_kept": 31,
+     "boxes": 46,
+     "fp": 7,
+     "ignored": 2,
+     "precision": 0.840909,
+     "ss_kept": 25,
+     "tp": 37
+    },
+    "f3>=q75 & f4_yolo": {
+     "blind_kept": 11,
+     "boxes": 16,
+     "fp": 2,
+     "ignored": 0,
+     "precision": 0.875,
+     "ss_kept": 9,
+     "tp": 14
+    }
+   },
+   "best": "f1>=0.02 & f3>=q75",
+   "best_pooled": {
+    "blind_kept": 12,
+    "boxes": 16,
+    "fp": 2,
+    "ignored": 0,
+    "precision": 0.875,
+    "ss_kept": 9,
+    "tp": 14
+   },
+   "n_at_or_above_p_go": 8,
+   "n_at_or_above_p_kill": 45,
+   "p_go_and_y_go": [
+    "f2<=5m & f4_yolo"
+   ]
+  },
+  "loso": {
+   "bayonne": {
+    "held_out": {
+     "blind_kept": 24,
+     "boxes": 51,
+     "fp": 25,
+     "ignored": 0,
+     "precision": 0.509804,
+     "ss_kept": 17,
+     "tp": 26
+    },
+    "n_eligible": 32,
+    "selected": "f2<=3m",
+    "train": {
+     "blind_kept": 21,
+     "boxes": 35,
+     "fp": 6,
+     "ignored": 1,
+     "precision": 0.823529,
+     "ss_kept": 19,
+     "tp": 28
+    }
+   },
+   "budapest_district5": {
+    "held_out": {
+     "blind_kept": 5,
+     "boxes": 19,
+     "fp": 11,
+     "ignored": 0,
+     "precision": 0.421053,
+     "ss_kept": 4,
+     "tp": 8
+    },
+    "n_eligible": 19,
+    "selected": "f4_yolo",
+    "train": {
+     "blind_kept": 33,
+     "boxes": 48,
+     "fp": 7,
+     "ignored": 2,
+     "precision": 0.847826,
+     "ss_kept": 26,
+     "tp": 39
+    }
+   },
+   "juneau": {
+    "held_out": {
+     "blind_kept": 3,
+     "boxes": 4,
+     "fp": 1,
+     "ignored": 0,
+     "precision": 0.75,
+     "ss_kept": 2,
+     "tp": 3
+    },
+    "n_eligible": 9,
+    "selected": "f2<=5m & f4_yolo",
+    "train": {
+     "blind_kept": 28,
+     "boxes": 42,
+     "fp": 6,
+     "ignored": 2,
+     "precision": 0.85,
+     "ss_kept": 23,
+     "tp": 34
+    }
+   },
+   "laurens_mapillary": {
+    "held_out": {
+     "blind_kept": 6,
+     "boxes": 9,
+     "fp": 1,
+     "ignored": 0,
+     "precision": 0.888889,
+     "ss_kept": 5,
+     "tp": 8
+    },
+    "n_eligible": 3,
+    "selected": "f2<=5m & f3>=q75",
+    "train": {
+     "blind_kept": 11,
+     "boxes": 13,
+     "fp": 2,
+     "ignored": 0,
+     "precision": 0.846154,
+     "ss_kept": 9,
+     "tp": 11
+    }
+   }
+  },
+  "match_radius": "2R",
+  "n_candidates": 80,
+  "reached_within_2R": {
+   "blind_reached": 112,
+   "ss_reached": 58
+  }
+ },
+ "filters_or_pairs": {
+  "in_sample": {
+   "at_or_above_p_go": {},
+   "best": "f3>=q75 | f4_yolo",
+   "best_pooled": {
+    "blind_kept": 34,
+    "boxes": 78,
+    "fp": 40,
+    "ignored": 1,
+    "precision": 0.480519,
+    "ss_kept": 27,
+    "tp": 37
+   },
+   "n_at_or_above_p_go": 0,
+   "n_at_or_above_p_kill": 0,
+   "p_go_and_y_go": []
+  },
+  "join": "or",
+  "n_candidates": 62
  },
  "filters_without_f2": {
   "gates": {
@@ -6335,7 +6710,8 @@
      "leak": 0.059801,
      "leaked": 18,
      "n_gt": 301
-    }
+    },
+    "n_far_band": 64
    },
    "budapest_district5": {
     "E": {
@@ -6384,7 +6760,8 @@
      "leak": 0.023333,
      "leaked": 7,
      "n_gt": 300
-    }
+    },
+    "n_far_band": 65
    },
    "juneau": {
     "E": {
@@ -6437,7 +6814,8 @@
      "leak": 0.020202,
      "leaked": 6,
      "n_gt": 297
-    }
+    },
+    "n_far_band": 57
    },
    "laurens_mapillary": {
     "E": {
@@ -6490,7 +6868,8 @@
      "leak": 0.016064,
      "leaked": 4,
      "n_gt": 249
-    }
+    },
+    "n_far_band": 9
    }
   },
   "pooled": {
@@ -6544,7 +6923,8 @@
     "leak": 0.030514,
     "leaked": 35,
     "n_gt": 1147
-   }
+   },
+   "n_far_band": 195
   }
  },
  "plan": "argon-teacher-2026-11-15, Stage 0",
