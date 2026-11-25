@@ -2,9 +2,10 @@
 
 CPU only, committed inputs only, about 5 s. The synthetic tests check the logic on inputs
 whose answer is worked out by hand: the rig mask boundary, the cut test, the top-5 share,
-and the leave-one-split-out selection. The data tests check that the reused
-``cascade_cost_35`` path reproduces that study's committed rows when the mask is off, and
-that ``stage0.json`` regenerates byte for byte.
+the leave-one-split-out selection, every branch of the four rules and their bars, and the
+second pooling reading. The data tests check that the reused ``cascade_cost_35`` path
+reproduces that study's committed rows when the mask is off, and that ``stage0.json`` and
+``inputs.json`` regenerate byte for byte.
 """
 import json
 import os
@@ -52,27 +53,168 @@ def _c(tp, fp, ngt):
 
 
 def test_loso_selects_on_the_other_splits_only():
-    """Three splits, one pano each, two thresholds and two C candidates.
+    """Three splits A, B, C, one pano each (10 GT), two thresholds and two C candidates.
 
-    Threshold 0 wins clearly on B and C and loses on A, so every fold picks it: B + C
-    outvote A, and A + C (or A + B) still favour it (14/9 against 14/10). C candidate 1
-    wins only on A, so A + C prefers candidate 0 (14/7 against 12/8), and so does B + C.
+    Thresholds: t1 is far better on A (F1 1.0 against 0.1), t0 is better on B and C (0.9
+    against 0.7). Trained on B + C, fold A picks t0 (0.90 against 0.70); folds B and C
+    have A in training and pick t1 (0.85 against 0.50). With the held-out split also in
+    training, every fold would pick t1 (0.80 against 0.63 over all three), and on the
+    held-out split alone the picks would be [1, 0, 0]. So only the correct rule gives
+    [0, 1, 1]. C candidates mirror this with B as the odd split: [1, 0, 1]. N is poor
+    (F1 0.2) so that max(N, T) differs from N, pooled and per split.
     """
-    N = [np.array([_c(5, 5, 10)]), np.array([_c(5, 5, 10)]), np.array([_c(5, 5, 10)])]
-    T = [np.array([[_c(5, 9, 10)], [_c(9, 1, 10)]]),     # A: t1 better
-         np.array([[_c(9, 0, 10)], [_c(5, 9, 10)]]),     # B: t0 better
-         np.array([[_c(9, 0, 10)], [_c(5, 9, 10)]])]     # C: t0 better
-    C = [np.array([[_c(6, 5, 10)], [_c(10, 0, 10)]]),
-         np.array([[_c(8, 2, 10)], [_c(2, 8, 10)]]),
-         np.array([[_c(8, 2, 10)], [_c(2, 8, 10)]])]
+    N = [np.array([_c(2, 8, 10)]), np.array([_c(2, 8, 10)]), np.array([_c(2, 8, 10)])]
+    T = [np.array([[_c(1, 9, 10)], [_c(10, 0, 10)]]),    # A: t1 far better
+         np.array([[_c(9, 1, 10)], [_c(7, 3, 10)]]),     # B: t0 better
+         np.array([[_c(9, 1, 10)], [_c(7, 3, 10)]])]     # C: t0 better
+    C = [np.array([[_c(9, 1, 10)], [_c(7, 3, 10)]]),     # A: c0 better
+         np.array([[_c(1, 9, 10)], [_c(10, 0, 10)]]),    # B: c1 far better
+         np.array([[_c(9, 1, 10)], [_c(7, 3, 10)]])]     # C: c0 better
     o = s0.loso(N, T, C)
-    assert o["t_idx"][0].tolist() == [0, 0, 0]
-    assert o["c_idx"][0].tolist() == [0, 0, 0]
-    assert o["t"][0, 0].tolist() == _c(5, 9, 10)          # A scored at the t chosen on B + C
-    assert o["c_pool"][0].tolist() == [22, 9, 22, 30]
+    assert o["t_idx"][0].tolist() == [0, 1, 1]
+    assert o["c_idx"][0].tolist() == [1, 0, 1]
+    assert o["t"][0, 0].tolist() == _c(1, 9, 10)          # A scored at the t chosen on B + C
+    assert o["c"][0, 1].tolist() == _c(1, 9, 10)          # B scored at the C chosen on A + C
+    assert o["t_pool"][0].tolist() == [15, 15, 15, 30]
+    assert o["c_pool"][0].tolist() == [15, 15, 15, 30]
     d = s0.deltas(o)
-    assert d["C_minus_maxNT"][0] == pytest.approx(
-        s0.f1_of(o["c_pool"][0]) - max(s0.f1_of(o["n_pool"][0]), s0.f1_of(o["t_pool"][0])))
+    # pooled: N 0.2, T 0.5, C 0.5, so C - max(N, T) is 0 and C - N is 0.3
+    assert d["C_minus_maxNT"][0] == pytest.approx(0.0)
+    assert d["C_minus_N"][0] == pytest.approx(0.3)
+    # per split, C - max(N, T): A 0.7 - 0.2, B 0.1 - 0.7, C 0.7 - 0.7
+    assert d["split_C_minus_maxNT"][0].tolist() == pytest.approx([0.5, -0.6, 0.0])
+
+
+# ----------------------------------------------------------------- the rules
+def test_bars_are_the_plans():
+    """Plan section 3, as literals, so a changed constant fails here and not only in the
+    byte-compare."""
+    assert s0.T_MIN_LOWER == 0.0
+    assert s0.C_MIN_GAIN == 0.03
+    assert s0.C_MIN_LOWER == 0.0
+    assert s0.C_MIN_WINS == 2
+    assert s0.ONE_INSTANCE_GAIN == 0.02
+    assert s0.TOP_PANOS == 5
+    assert s0.TOP_SHARE_MAX == 0.5
+    assert s0.bars() == {"T_min_lower": 0.0, "C_min_gain": 0.03, "C_min_lower": 0.0,
+                         "C_min_wins": 2, "one_instance_gain": 0.02, "top_panos": 5,
+                         "top_share_max": 0.5}
+
+
+def test_won_is_strict():
+    assert not s0.won(0.0)
+    assert s0.won(1e-9)
+    assert not s0.won(-1e-9)
+
+
+def test_rule1_drop_T_branches():
+    assert not s0.drop_T(True, 0.001)       # key passes, interval clears 0: keep
+    assert s0.drop_T(True, 0.0)             # lower bound at 0
+    assert s0.drop_T(True, -0.01)           # lower bound below 0
+    assert s0.drop_T(False, 0.05)           # key fails
+
+
+def test_rule2_drop_C_branches():
+    assert not s0.drop_C(0.031, 0.001, 2)   # every condition met
+    assert not s0.drop_C(0.03, 0.001, 2)    # exactly at the bar is not below it
+    assert not s0.drop_C(0.04, 0.01, 4)
+    assert s0.drop_C(0.029, 0.01, 4)        # below +0.03
+    assert s0.drop_C(0.05, 0.0, 4)          # lower bound at 0
+    assert s0.drop_C(0.05, -0.01, 4)        # lower bound below 0
+    assert s0.drop_C(0.05, 0.01, 1)         # one win
+
+
+def test_rule3_one_instance_branches():
+    assert s0.one_instance(0.021, 0.5) == (False, False)   # exactly half is not over half
+    assert s0.one_instance(0.05, 0.45) == (False, False)
+    assert s0.one_instance(0.019, 0.3) == (True, False)
+    assert s0.one_instance(0.10, 0.51) == (False, True)
+    assert s0.one_instance(0.10, None) == (False, False)   # nothing to concentrate
+
+
+def test_rule4_outcome_labels():
+    assert s0.outcome(True, True) == "N"
+    assert s0.outcome(False, True) == "T only"
+    assert s0.outcome(True, False) == "C only"
+    assert s0.outcome(False, False) == "T and C"
+
+
+def _deltas(t_n, c_max, c_n, split_c_max, split_c_n, B=40, spread=0.01):
+    """Hand-made ``deltas`` output: point values ``[1]`` / ``[1, S]``, and a bootstrap whose
+    95% interval is the point plus or minus about ``spread``."""
+    jitter = np.linspace(-spread, spread, B)
+    dp = {"T_minus_N": np.array([t_n]), "C_minus_maxNT": np.array([c_max]),
+          "C_minus_N": np.array([c_n]),
+          "split_C_minus_maxNT": np.array([split_c_max]),
+          "split_C_minus_N": np.array([split_c_n])}
+    db = {k: (v[0] + jitter if v.ndim == 1 else v[0][None, :] + jitter[:, None])
+          for k, v in dp.items()}
+    return dp, db
+
+
+def test_rules_read_max_N_T_not_N():
+    """C minus N clears every bar and C minus max(N, T) does not: Rule 2 must drop C and
+    the C-against-N reading must keep it. Wins count only strict gains (one zero split)."""
+    dp, db = _deltas(t_n=0.02, c_max=0.02, c_n=0.05,
+                     split_c_max=[0.05, 0.0, 0.04, -0.01], split_c_n=[0.06, 0.04, 0.05, 0.02])
+    r = s0.rules_from_deltas(dp, db, rig_key_passes=True, worst_loo_gain=0.05, top_share=0.3)
+    assert r["2_drop_C"]["C_minus_maxNT"] == pytest.approx(0.02)
+    assert r["2_drop_C"]["splits_won"] == 2
+    assert r["2_drop_C"]["drop_C"] and r["2_drop_C"]["below_0.03"]
+    assert r["2_alt_C_vs_N"]["splits_won"] == 4
+    assert not r["2_alt_C_vs_N"]["drop_C"]
+    assert not r["1_drop_T"]["drop_T"]                # T - N lower bound ~ +0.01
+    assert r["4_outcome"] == "T only"
+
+
+def test_rules_from_deltas_each_outcome():
+    keep_c = dict(c_max=0.05, c_n=0.05, split_c_max=[0.05] * 4, split_c_n=[0.05] * 4)
+    drop_c = dict(c_max=0.02, c_n=0.02, split_c_max=[0.05] * 4, split_c_n=[0.05] * 4)
+    for rig, t_n, cs, want in ((False, 0.05, drop_c, "N"), (True, 0.05, drop_c, "T only"),
+                               (True, -0.05, keep_c, "C only"), (True, 0.05, keep_c, "T and C")):
+        dp, db = _deltas(t_n=t_n, **cs)
+        r = s0.rules_from_deltas(dp, db, rig_key_passes=rig, worst_loo_gain=0.05, top_share=0.3)
+        assert r["4_outcome"] == want, (rig, t_n, want)
+    # T - N interval straddles 0 (about [-0.0095, +0.0095]): Rule 1 reads the lower bound
+    dp, db = _deltas(t_n=0.0, **keep_c)
+    r = s0.rules_from_deltas(dp, db, rig_key_passes=True, worst_loo_gain=0.05, top_share=0.3)
+    assert r["1_drop_T"]["T_minus_N_lower"] < 0 and r["4_outcome"] == "C only"
+    dp, db = _deltas(t_n=0.05, **keep_c)
+    r = s0.rules_from_deltas(dp, db, rig_key_passes=True, worst_loo_gain=0.01, top_share=0.3)
+    assert r["3_one_instance"] == {"flag_one_instance": True, "flag_sequence": True,
+                                   "flag_top5": False}
+
+
+def test_rig_key_passes_needs_ecartip():
+    """Without ecartip the key cannot pass, even when the other splits can be cut."""
+    assert not s0.rig_key_passes([0.2], [0.0, 0.1])
+    assert s0.rig_key_passes([0.2], [0.0, 0.1], ecartip=0.3)
+    assert not s0.rig_key_passes([0.2], [0.0, 0.1], ecartip=0.05)   # ecartip on the wrong side
+    assert not s0.rig_key_passes([0.0], [0.0, 0.1], ecartip=0.3)    # tie with the other side
+
+
+def test_count_margin():
+    """F1 0.7 at (7 TP, 3 FP, 10 GT); the bar asks for 0.72: one more TP (0.762) or one
+    fewer FP (0.737) gets there."""
+    m = s0.count_margin([7, 3, 7, 10], best_other_f1=0.69, bar=0.03)
+    assert m["extra_tp_needed"] == 1 and m["tp_needed_at_same_fp"] == 8
+    assert m["fewer_fp_needed"] == 1 and m["fp_allowed_at_same_tp"] == 2
+    m = s0.count_margin([8, 2, 8, 10], best_other_f1=0.70, bar=0.03)
+    assert m["extra_tp_needed"] == 0 and m["fewer_fp_needed"] == 0
+
+
+def test_per_split_mean_reading():
+    """The mean of the per-split deltas can clear the bar where the summed counts do not."""
+    dp, db = _deltas(t_n=-0.02, c_max=0.027, c_n=0.027,
+                     split_c_max=[0.09, 0.05, -0.008, -0.008], split_c_n=[0.09, 0.05, 0.0, 0.0])
+    r = s0.per_split_mean_reading(dp, db, drop_t=True)
+    assert r["C_minus_maxNT"] == pytest.approx(0.031)
+    assert r["splits_won"] == 2
+    assert not r["drop_C"] and r["outcome"] == "C only"
+    dp, db = _deltas(t_n=-0.02, c_max=0.027, c_n=0.027,
+                     split_c_max=[0.09, 0.02, -0.008, -0.008], split_c_n=[0.09, 0.02, 0.0, 0.0])
+    r = s0.per_split_mean_reading(dp, db, drop_t=True)
+    assert r["drop_C"] and r["outcome"] == "N"
 
 
 def test_select_breaks_ties_to_the_first_row():
@@ -127,10 +269,42 @@ def test_no_lyon_or_kaysville_input():
     assert not any(("lyon" in s or "kaysville" in s) for s in s0.SPLITS)
 
 
-def test_stage0_regenerates_byte_for_byte():
+@pytest.fixture(scope="module")
+def stage0():
     with open(os.path.join(s0.OUT_DIR, s0.RESULT), encoding="utf-8", newline="") as f:
         committed = f.read()
+    return committed, json.loads(committed)
+
+
+def test_stage0_regenerates_byte_for_byte(stage0):
+    committed, p = stage0
     assert cc.dumps(s0.run()) == committed
-    p = json.loads(committed)
     assert p["rules"]["4_outcome"] == "N"
     assert p["rules"]["1_drop_T"]["drop_T"] and p["rules"]["2_drop_C"]["drop_C"]
+    assert p["bars"] == s0.bars()
+
+
+def test_pooling_readings_agree_with_the_folds(stage0):
+    """The second reading is the plain mean of the four folds' deltas, and the summed
+    reading is the pooled one the rules use; the stop rests on the summed reading."""
+    _, p = stage0
+    pr = p["pooling_readings"]
+    per = [f["C_minus_maxNT"] for f in p["folds"]]
+    assert pr["per_split_mean"]["C_minus_maxNT"] == pytest.approx(sum(per) / 4, abs=2e-6)
+    assert pr["summed_counts"]["C_minus_maxNT"] == p["pooled"]["C_minus_maxNT"]
+    assert pr["summed_counts"]["drop_C"] == p["rules"]["2_drop_C"]["drop_C"]
+    assert pr["stop_rests_on"] == "summed_counts"
+
+
+def test_inputs_json_is_current():
+    """``inputs.json`` hashes each input with CRLF read as LF, so a ``core.autocrlf=true``
+    checkout gives the same hashes as the committed blobs."""
+    with open(os.path.join(s0.OUT_DIR, s0.INPUTS), encoding="utf-8", newline="") as f:
+        assert f.read() == cc.dumps(s0.input_hashes())
+
+
+def test_sha_reads_crlf_as_lf(tmp_path):
+    a, b = tmp_path / "a", tmp_path / "b"
+    a.write_bytes(b'{"x": 1}\n{"y": 2}\n')
+    b.write_bytes(b'{"x": 1}\r\n{"y": 2}\r\n')
+    assert s0._sha(str(a)) == s0._sha(str(b))

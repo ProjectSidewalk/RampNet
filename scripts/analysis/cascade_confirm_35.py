@@ -42,17 +42,26 @@ Rules (plan section 3), numbered here in the order the plan lists them:
   +0.02, or five panoramas carry over half the net promoted ramps.
 * Rule 4, both dropped means **N** and the work stops.
 
+The rules are pure functions (``drop_T``, ``drop_C``, ``one_instance``, ``outcome``,
+combined by ``rules_from_deltas``), and their thresholds are written to ``stage0.json`` as
+``bars``. The plan does not define "pooled". Rule 2 reads it as the four folds' counts
+summed into one F1 (Amendment 3). ``pooling_readings`` also gives the mean of the four
+per-split deltas and the mean-F1 reading, with intervals; ``selection_sensitivity`` gives
+the per-fold runner-up candidates and the procedure restricted to one arm. Neither is used
+by a rule.
+
 **Lyon and Kaysville are never read.** They are the plan's Stage 1 and Stage 2
 confirmation sets. The plan's step 4 also names Lyon's ecartip account; that half of the
-test is left unevaluated here (see the doc's Amendments). The split list is hard-coded,
-and nothing here globs ``benchmark/``.
+test is left unevaluated here (see the doc's Amendments), so ``rig_key_passes`` returns
+False whatever the other shares are, and T can survive Rule 1 only once ecartip's share is
+supplied. The split list is hard-coded, and nothing here globs ``benchmark/``.
 
 Inputs, all committed: ``benchmark/<split>/{records.jsonl,verdicts.json}``,
 ``analysis_out/op_cache/<split>.json``, ``benchmark/model_detections/<arm>__<split>.json``.
 CPU only; no network.
 
     python scripts/analysis/cascade_confirm_35.py            # write stage0.json + inputs.json, print the gates
-    python scripts/analysis/cascade_confirm_35.py --check    # regenerate + byte-compare
+    python scripts/analysis/cascade_confirm_35.py --check    # regenerate both + byte-compare
 """
 import argparse
 import hashlib
@@ -90,17 +99,19 @@ NADIR_MASK_DEG = 49.0
 NADIR_MASK_Y = 0.5 + NADIR_MASK_DEG / 180.0
 BOOTSTRAP = 2000
 SEED = 0
-#: Rule thresholds (plan section 3).
-C_MIN_GAIN = 0.03
-C_MIN_WINS = 2
-ONE_INSTANCE_GAIN = 0.02
-TOP_PANOS = 5
+#: Rule thresholds (plan section 3), written into ``stage0.json`` as ``bars``.
+T_MIN_LOWER = 0.0        # Rule 1: drop T if the lower bound of T - N is at or below this
+C_MIN_GAIN = 0.03        # Rule 2: drop C if C - max(N, T) is below this
+C_MIN_LOWER = 0.0        # Rule 2: ... or its lower bound is at or below this
+C_MIN_WINS = 2           # Rule 2: ... or C wins fewer splits than this
+ONE_INSTANCE_GAIN = 0.02  # Rule 3: flag if leaving out a sequence takes the gain below this
+TOP_PANOS = 5            # Rule 3: ... or this many panoramas carry
+TOP_SHARE_MAX = 0.5      # ... over this share of the net promoted ramps
 
 OUT_DIR = os.path.join(cc.OUT, "cascade_confirm_35")
 RESULT = "stage0.json"
-#: sha256 of every input, written beside the result but NOT byte-compared by ``--check``:
-#: a checkout with ``core.autocrlf=true`` rewrites ``records.jsonl`` line endings, which
-#: changes its hash and nothing else.
+#: sha256 of every input (CRLF read as LF, see ``_sha``), written beside the result and
+#: byte-compared by ``--check``.
 INPUTS = "inputs.json"
 
 
@@ -176,6 +187,7 @@ def deltas(o):
             "C_minus_N": fc - fn,
             "split_F1_N": sn, "split_F1_T": st, "split_F1_C": sc,
             "split_C_minus_maxNT": sc - np.maximum(sn, st),
+            "split_C_minus_N": sc - sn,
             "split_T_minus_N": st - sn}
 
 
@@ -184,12 +196,148 @@ def ci95(v):
     return cc._ci95(v)
 
 
+# --------------------------------------------------------------------------- #
+# the rules (plan section 3), as pure functions of the pooled numbers
+# --------------------------------------------------------------------------- #
+def bars():
+    """The rule thresholds, as written into ``stage0.json``."""
+    return {"T_min_lower": T_MIN_LOWER, "C_min_gain": C_MIN_GAIN, "C_min_lower": C_MIN_LOWER,
+            "C_min_wins": C_MIN_WINS, "one_instance_gain": ONE_INSTANCE_GAIN,
+            "top_panos": TOP_PANOS, "top_share_max": TOP_SHARE_MAX}
+
+
+def won(delta):
+    """Does C beat max(N, T) on a split? Only a strict gain counts; a tie is not a win."""
+    return bool(delta > 0)
+
+
+def drop_T(rig_key_ok, t_lower):
+    """Rule 1: drop T if the rig key test fails, or T - N has a lower bound at or below 0."""
+    return (not rig_key_ok) or t_lower <= T_MIN_LOWER
+
+
+def drop_C(gain, lower, wins):
+    """Rule 2: drop C if C - max(N, T) is below +0.03, or its lower bound is at or below 0,
+    or C wins fewer than two splits. Exactly +0.03 is not below the bar."""
+    return gain < C_MIN_GAIN or lower <= C_MIN_LOWER or wins < C_MIN_WINS
+
+
+def one_instance(worst_loo_gain, top_share):
+    """Rule 3: ``(flag_sequence, flag_top5)``. Leaving out one sequence takes the Laurens
+    gain below +0.02; or the five largest panoramas carry over half (strictly) the net
+    promoted ramps. ``top_share`` is ``None`` when there is nothing to concentrate."""
+    return (bool(worst_loo_gain < ONE_INSTANCE_GAIN),
+            top_share is not None and bool(top_share > TOP_SHARE_MAX))
+
+
+def outcome(drop_t, drop_c):
+    """Rule 4: both dropped means N, and the work stops."""
+    if drop_t and drop_c:
+        return "N"
+    if drop_c:
+        return "T only"
+    if drop_t:
+        return "C only"
+    return "T and C"
+
+
+def rules_from_deltas(dp, db, rig_key_passes, worst_loo_gain, top_share):
+    """All four rules from the pooled numbers: ``dp`` is ``deltas`` of the point estimate
+    (``[1]`` / ``[1, S]``), ``db`` of the bootstrap (``[B]`` / ``[B, S]``). Pure.
+
+    Rule 2 reads C - max(N, T) summed over the folds (the plan's "pooled", Amendment 3).
+    ``2_alt_C_vs_N`` is the same rule against N alone, for the reading where T is dropped
+    as not implementable. Wins are counted per split against that split's own max(N, T).
+    """
+    t_pt, t_lb = float(dp["T_minus_N"][0]), ci95(db["T_minus_N"])[0]
+    rule1 = {"rig_key_passes": rig_key_passes, "T_minus_N": t_pt, "T_minus_N_lower": t_lb,
+             "drop_T": drop_T(rig_key_passes, t_lb),
+             "drop_T_on_interval_alone": t_lb <= T_MIN_LOWER}
+    c_pt, c_lb = float(dp["C_minus_maxNT"][0]), ci95(db["C_minus_maxNT"])[0]
+    wins = sum(won(x) for x in dp["split_C_minus_maxNT"][0])
+    rule2 = {"C_minus_maxNT": c_pt, "C_minus_maxNT_lower": c_lb, "splits_won": wins,
+             "below_0.03": c_pt < C_MIN_GAIN, "lower_le_0": c_lb <= C_MIN_LOWER,
+             "fewer_than_2_wins": wins < C_MIN_WINS,
+             "drop_C": drop_C(c_pt, c_lb, wins)}
+    cn_pt, cn_lb = float(dp["C_minus_N"][0]), ci95(db["C_minus_N"])[0]
+    wins_n = sum(won(x) for x in dp["split_C_minus_N"][0])
+    rule2_vs_N = {"C_minus_N": cn_pt, "C_minus_N_lower": cn_lb, "splits_won": wins_n,
+                  "drop_C": drop_C(cn_pt, cn_lb, wins_n)}
+    f_seq, f_top = one_instance(worst_loo_gain, top_share)
+    rule3 = {"flag_one_instance": f_seq or f_top, "flag_sequence": f_seq, "flag_top5": f_top}
+    return {"1_drop_T": rule1, "2_drop_C": rule2, "2_alt_C_vs_N": rule2_vs_N,
+            "3_one_instance": rule3, "4_outcome": outcome(rule1["drop_T"], rule2["drop_C"])}
+
+
+def per_split_mean_reading(dp, db, drop_t):
+    """Rule 2 under the other plain reading of "pooled": the mean of the four held-out
+    per-split C - max(N, T), with its interval from the same resamples (selection
+    repeated inside each). Wins are the same per-split count. ``drop_t`` is Rule 1's
+    verdict, which this reading does not touch. Pure."""
+    pt = float(dp["split_C_minus_maxNT"][0].mean())
+    boot = db["split_C_minus_maxNT"].mean(axis=1)
+    lo = ci95(boot)
+    wins = sum(won(x) for x in dp["split_C_minus_maxNT"][0])
+    dc = drop_C(pt, lo[0], wins)
+    return {"C_minus_maxNT": pt, "C_minus_maxNT_ci95": lo, "splits_won": wins,
+            "share_of_resamples_ge_bar": float((boot >= C_MIN_GAIN).mean()),
+            "drop_C": dc, "outcome": outcome(drop_t, dc)}
+
+
+def mean_f1_reading(dp, db, drop_t):
+    """Rule 2 with "pooled" read as the mean F1 of each policy over the four held-out
+    splits: mean F1(C) - max(mean F1(N), mean F1(T)). Context only, used by no rule."""
+    def gap(d):
+        mn, mt, mc = (d[k].mean(axis=-1) for k in ("split_F1_N", "split_F1_T", "split_F1_C"))
+        return mc - np.maximum(mn, mt)
+    pt, boot = float(gap(dp)[0]), gap(db)
+    lo = ci95(boot)
+    wins = sum(won(x) for x in dp["split_C_minus_maxNT"][0])
+    dc = drop_C(pt, lo[0], wins)
+    return {"C_minus_maxNT": pt, "C_minus_maxNT_ci95": lo, "splits_won": wins,
+            "share_of_resamples_ge_bar": float((boot >= C_MIN_GAIN).mean()),
+            "drop_C": dc, "outcome": outcome(drop_t, dc)}
+
+
+def count_margin(c, best_other_f1, bar=C_MIN_GAIN):
+    """How far summed counts ``c = (tp, fp, recall tp, recall n_gt)`` are from the bar:
+    the fewest extra true positives (recall TP moving with TP) at the same FP, or the
+    fewest false positives removed at the same TP, that bring F1(c) - ``best_other_f1``
+    to ``bar`` or above. Zero when it is already there."""
+    tp, fp, rtp, ngt = (int(x) for x in c)
+
+    def ok(t, f, r):
+        return float(f1_of([t, f, r, ngt])) - best_other_f1 >= bar
+    k = 0
+    while not ok(tp + k, fp, rtp + k) and rtp + k < ngt:
+        k += 1
+    j = 0
+    while not ok(tp, fp - j, rtp) and j < fp:
+        j += 1
+    return {"target_F1": best_other_f1 + bar,
+            "extra_tp_needed": k, "tp_needed_at_same_fp": tp + k,
+            "fewer_fp_needed": j, "fp_allowed_at_same_tp": fp - j}
+
+
 def cut_separates(side_a, side_b):
     """Does one threshold put every value of ``side_a`` strictly on one side and every
     value of ``side_b`` strictly on the other? Either orientation. Empty sides fail."""
     if not side_a or not side_b:
         return False
     return min(side_a) > max(side_b) or max(side_a) < min(side_b)
+
+
+def rig_key_passes(laurens_side, other_side, ecartip=None):
+    """Step 4's verdict: one cut puts ``laurens_mapillary`` *and* ecartip (Lyon) on one side
+    and morgantown and budapest on the other.
+
+    ``ecartip`` is ecartip's share, or ``None`` when it was not read. Stage 0 never reads
+    Lyon, so here it is always ``None`` and the key cannot pass, whatever the other
+    shares are; T can then only survive Rule 1 once someone supplies ecartip's share.
+    """
+    if ecartip is None:
+        return False
+    return cut_separates(list(laurens_side) + [ecartip], other_side)
 
 
 def top_share(net, k=TOP_PANOS):
@@ -208,11 +356,11 @@ def top_share(net, k=TOP_PANOS):
 # data
 # --------------------------------------------------------------------------- #
 def _sha(path):
-    h = hashlib.sha256()
+    """sha256 of a file with CRLF read as LF. A ``core.autocrlf=true`` checkout rewrites
+    ``records.jsonl`` to CRLF; this keeps its hash equal to the committed blob's. No input
+    contains a CR in the repository, so the value equals the plain sha256 of the blob."""
     with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
+        return hashlib.sha256(f.read().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def input_hashes():
@@ -336,7 +484,7 @@ def rig_key(data):
         readings[level] = {
             "laurens_side": a, "other_side": b, "non_lyon_cut_exists": sep,
             "ecartip": "not evaluated: Lyon is withheld from Stage 0",
-            "passes": False,
+            "passes": rig_key_passes(a, b, ecartip=None),
             "why": ("no cut separates laurens_mapillary from morgantown and budapest_district5"
                     if not sep else
                     "a cut exists without ecartip, but the test also needs ecartip on "
@@ -374,8 +522,7 @@ def concentration(d, N, T, C, t_idx, c_idx, scorer):
     worst = min(rows, key=lambda r: r["gain_without"])
     order = sorted(range(len(pids)), key=lambda i: (-net[i], pids[i]))
     share = top_share(net)
-    flag_seq = worst["gain_without"] < ONE_INSTANCE_GAIN
-    flag_top = share is not None and share > 0.5
+    flag_seq, flag_top = one_instance(worst["gain_without"], share)
     return {"split": LAURENS, "t_star": T_GRID[t_idx], "candidate": _cand(c_idx),
             "gain": g_full, "gain_vs_N": gn_full,
             "gain_definition": "held-out F1(C) - max(F1(N), F1(T)) on laurens_mapillary",
@@ -389,6 +536,47 @@ def concentration(d, N, T, C, t_idx, c_idx, scorer):
             "full_gain_already_below_0.02": g_full < ONE_INSTANCE_GAIN,
             "flag_sequence": bool(flag_seq), "flag_top5": bool(flag_top),
             "flag_one_instance": bool(flag_seq or flag_top)}
+
+
+def selection_sensitivity(N, T, C, point, dp):
+    """Context for Rule 2, used by no rule: what the choice of C candidate is worth.
+
+    * ``runner_up``: per fold, the best and second-best candidates on the training splits
+      (summed-count F1) and how each scores on the held-out split; then the pooled
+      C - max(N, T) if every fold had taken its runner-up.
+    * ``per_arm``: the same leave-one-split-out procedure with the candidates restricted
+      to one arm (48 each); pooled (summed-count) and per-split-mean C - max(N, T).
+    """
+    S = len(N)
+    sc = [c.sum(1) for c in C]                                        # [Kc, 4] per split
+    fn_pool, ft_pool = float(dp["F1_N"][0]), float(dp["F1_T"][0])
+    rows, pool_ru = [], np.zeros(4, np.int64)
+    for h in range(S):
+        f = f1_of(sum(sc[s] for s in range(S) if s != h))
+        order = np.argsort(-f, kind="stable")
+        best, second = int(order[0]), int(order[1])
+        assert best == int(point["c_idx"][0, h])
+        held = f1_of(sc[h])
+        pool_ru += sc[h][second]
+        rows.append({"held_out": SPLITS[h],
+                     "chosen": _cand(best), "chosen_train_F1": float(f[best]),
+                     "chosen_held_out_F1": float(held[best]),
+                     "runner_up": _cand(second), "runner_up_train_F1": float(f[second]),
+                     "runner_up_held_out_F1": float(held[second]),
+                     "train_gap": float(f[best] - f[second]),
+                     "runner_up_better_held_out": bool(held[second] > held[best])})
+    per_arm = {}
+    for a in ARMS:
+        idx = [i for i, c in enumerate(CANDIDATES) if c[0] == a]
+        o = loso(N, T, [c[idx] for c in C])
+        d = deltas(o)
+        per_arm[a] = {"C_minus_maxNT": float(d["C_minus_maxNT"][0]),
+                      "per_split_mean_C_minus_maxNT": float(d["split_C_minus_maxNT"][0].mean()),
+                      "splits_won": sum(won(x) for x in d["split_C_minus_maxNT"][0]),
+                      "candidates": [_cand(idx[int(k)]) for k in o["c_idx"][0]]}
+    return {"runner_up": rows,
+            "runner_up_pooled_C_minus_maxNT": float(f1_of(pool_ru)) - max(fn_pool, ft_pool),
+            "per_arm": per_arm}
 
 
 def in_sample(N, T, C):
@@ -427,7 +615,7 @@ def run(n_boot=BOOTSTRAP, seed=SEED):
             "C": _rep(point["c"][0, h]),
             "T_minus_N": float(dp["split_T_minus_N"][0, h]),
             "C_minus_maxNT": float(dp["split_C_minus_maxNT"][0, h]),
-            "C_beats_maxNT": bool(dp["split_C_minus_maxNT"][0, h] > 0),
+            "C_beats_maxNT": won(dp["split_C_minus_maxNT"][0, h]),
             "boot_T_minus_N_ci95": ci95(db["split_T_minus_N"][:, h]),
             "boot_C_minus_maxNT_ci95": ci95(db["split_C_minus_maxNT"][:, h]),
             "boot_same_t_star_frac": float((boot["t_idx"][:, h] == ti).mean()),
@@ -440,35 +628,35 @@ def run(n_boot=BOOTSTRAP, seed=SEED):
     for k in ("T_minus_N", "C_minus_maxNT", "C_minus_N"):
         pooled[k] = float(dp[k][0])
         pooled[k + "_ci95"] = ci95(db[k])
-    wins = sum(f["C_beats_maxNT"] for f in folds)
 
     rk = rig_key(data)
     li = SPLITS.index(LAURENS)
     conc = concentration(data[li], N[li], T[li], C[li], int(point["t_idx"][0, li]),
                          int(point["c_idx"][0, li]), counts[li][3])
 
-    t_lb = pooled["T_minus_N_ci95"][0]
-    rule1 = {"rig_key_passes": rk["readings"][rk["primary_reading"]]["passes"],
-             "T_minus_N": pooled["T_minus_N"], "T_minus_N_lower": t_lb,
-             "drop_T": (not rk["readings"][rk["primary_reading"]]["passes"]) or t_lb <= 0,
-             "drop_T_on_interval_alone": t_lb <= 0}
-    c_pt, c_lb = pooled["C_minus_maxNT"], pooled["C_minus_maxNT_ci95"][0]
-    rule2 = {"C_minus_maxNT": c_pt, "C_minus_maxNT_lower": c_lb, "splits_won": wins,
-             "below_0.03": c_pt < C_MIN_GAIN, "lower_le_0": c_lb <= 0,
-             "fewer_than_2_wins": wins < C_MIN_WINS,
-             "drop_C": c_pt < C_MIN_GAIN or c_lb <= 0 or wins < C_MIN_WINS}
-    # Second reading (Amendments): if T is dropped as not implementable, compare C with N.
-    cn_pt, cn_lb = pooled["C_minus_N"], pooled["C_minus_N_ci95"][0]
-    wins_n = sum(f["C"]["F1"] > f["N"]["F1"] for f in folds)
-    rule2_vs_N = {"C_minus_N": cn_pt, "C_minus_N_lower": cn_lb, "splits_won": wins_n,
-                  "drop_C": cn_pt < C_MIN_GAIN or cn_lb <= 0 or wins_n < C_MIN_WINS}
-    rule3 = {"flag_one_instance": conc["flag_one_instance"],
-             "flag_sequence": conc["flag_sequence"], "flag_top5": conc["flag_top5"]}
-    outcome = ("N" if rule1["drop_T"] and rule2["drop_C"] else
-               "T only" if rule2["drop_C"] else "C only" if rule1["drop_T"] else "T and C")
+    rules = rules_from_deltas(dp, db, rk["readings"][rk["primary_reading"]]["passes"],
+                              conc["worst_leave_one_out"]["gain_without"], conc["top5_share"])
+    drop_t = rules["1_drop_T"]["drop_T"]
+    best_other = max(float(dp["F1_N"][0]), float(dp["F1_T"][0]))
+    readings = {
+        "plan_text": "pooled held-out C minus max(N, T); the plan does not define pooled",
+        "stop_rests_on": "summed_counts",
+        "choice": "open, Jon's call",
+        "summed_counts": {
+            "C_minus_maxNT": pooled["C_minus_maxNT"], "C_minus_maxNT_ci95":
+                pooled["C_minus_maxNT_ci95"], "splits_won": rules["2_drop_C"]["splits_won"],
+            "share_of_resamples_ge_bar": float((db["C_minus_maxNT"] >= C_MIN_GAIN).mean()),
+            "drop_C": rules["2_drop_C"]["drop_C"], "outcome": rules["4_outcome"],
+            "count_margin": count_margin(point["c_pool"][0], best_other)},
+        "per_split_mean": per_split_mean_reading(dp, db, drop_t),
+        "mean_F1": mean_f1_reading(dp, db, drop_t),
+    }
 
     return {
         "plan": "open-weight-cascade-confirm-2026-11-15.md, section 3 (Stage 0)",
+        "bars": bars(),
+        "pooling_readings": readings,
+        "selection_sensitivity": selection_sensitivity(N, T, C, point, dp),
         "splits": list(SPLITS), "arms": list(ARMS), "t_hi": T_HI,
         "grid": {"t_lo": list(T_LO), "r_gate": list(R_GATE), "c_min": list(C_MIN),
                  "n_candidates": len(CANDIDATES), "t_star_grid": [T_GRID[0], T_GRID[-1], 0.01]},
@@ -490,8 +678,7 @@ def run(n_boot=BOOTSTRAP, seed=SEED):
         "in_sample": {d["split"]: in_sample(N[i], T[i], C[i]) for i, d in enumerate(data)},
         "folds": folds, "pooled": pooled,
         "rig_key": rk, "concentration": conc,
-        "rules": {"1_drop_T": rule1, "2_drop_C": rule2, "2_alt_C_vs_N": rule2_vs_N,
-                  "3_one_instance": rule3, "4_outcome": outcome},
+        "rules": rules,
         "lyon_kaysville": "not read",
     }
 
@@ -534,21 +721,24 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", default=OUT_DIR)
     ap.add_argument("--check", action="store_true",
-                    help="Regenerate stage0.json and byte-compare; exit 1 on a difference.")
+                    help="Regenerate stage0.json and inputs.json and byte-compare; exit 1 on "
+                         "a difference.")
     args = ap.parse_args()
     path = os.path.join(args.out, RESULT)
     p = run()
-    text = cc.dumps(p)
+    texts = {path: cc.dumps(p), os.path.join(args.out, INPUTS): cc.dumps(input_hashes())}
     if args.check:
-        with open(path, encoding="utf-8", newline="") as f:
-            same = f.read() == text
-        print(("same  " if same else "DIFF  ") + path)
-        sys.exit(0 if same else 1)
+        ok = True
+        for fp, text in texts.items():
+            with open(fp, encoding="utf-8", newline="") as f:
+                same = f.read() == text
+            print(("same  " if same else "DIFF  ") + fp)
+            ok = ok and same
+        sys.exit(0 if ok else 1)
     os.makedirs(args.out, exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        f.write(text)
-    with open(os.path.join(args.out, INPUTS), "w", encoding="utf-8", newline="") as f:
-        f.write(cc.dumps(input_hashes()))
+    for fp, text in texts.items():
+        with open(fp, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
     report(p)
     print(f"-> {path}")
 

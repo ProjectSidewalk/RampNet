@@ -4,6 +4,15 @@
   "y11x_pano_h200",
   "y26_pano"
  ],
+ "bars": {
+  "C_min_gain": 0.03,
+  "C_min_lower": 0.0,
+  "C_min_wins": 2,
+  "T_min_lower": 0.0,
+  "one_instance_gain": 0.02,
+  "top_panos": 5,
+  "top_share_max": 0.5
+ },
  "bootstrap": {
   "resamples": 2000,
   "rng": "numpy.default_rng",
@@ -661,6 +670,51 @@
    -0.003478
   ]
  },
+ "pooling_readings": {
+  "choice": "open, Jon's call",
+  "mean_F1": {
+   "C_minus_maxNT": 0.032597,
+   "C_minus_maxNT_ci95": [
+    0.010753,
+    0.048785
+   ],
+   "drop_C": false,
+   "outcome": "C only",
+   "share_of_resamples_ge_bar": 0.585,
+   "splits_won": 2
+  },
+  "per_split_mean": {
+   "C_minus_maxNT": 0.031334,
+   "C_minus_maxNT_ci95": [
+    0.008827,
+    0.046535
+   ],
+   "drop_C": false,
+   "outcome": "C only",
+   "share_of_resamples_ge_bar": 0.5185,
+   "splits_won": 2
+  },
+  "plan_text": "pooled held-out C minus max(N, T); the plan does not define pooled",
+  "stop_rests_on": "summed_counts",
+  "summed_counts": {
+   "C_minus_maxNT": 0.026966,
+   "C_minus_maxNT_ci95": [
+    0.006986,
+    0.042621
+   ],
+   "count_margin": {
+    "extra_tp_needed": 6,
+    "fewer_fp_needed": 9,
+    "fp_allowed_at_same_tp": 216,
+    "target_F1": 0.727368,
+    "tp_needed_at_same_fp": 768
+   },
+   "drop_C": true,
+   "outcome": "N",
+   "share_of_resamples_ge_bar": 0.3555,
+   "splits_won": 2
+  }
+ },
  "rig_key": {
   "contributors": [
    {
@@ -839,6 +893,190 @@
    "flag_top5": false
   },
   "4_outcome": "N"
+ },
+ "selection_sensitivity": {
+  "per_arm": {
+   "y11l_pano": {
+    "C_minus_maxNT": 0.030249,
+    "candidates": [
+     {
+      "arm": "y11l_pano",
+      "c_min": 0.05,
+      "r_gate": 0.011,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11l_pano",
+      "c_min": 0.05,
+      "r_gate": 0.011,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11l_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11l_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     }
+    ],
+    "per_split_mean_C_minus_maxNT": 0.034555,
+    "splits_won": 2
+   },
+   "y11x_pano_h200": {
+    "C_minus_maxNT": 0.020012,
+    "candidates": [
+     {
+      "arm": "y11x_pano_h200",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11x_pano_h200",
+      "c_min": 0.15,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11x_pano_h200",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y11x_pano_h200",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     }
+    ],
+    "per_split_mean_C_minus_maxNT": 0.023294,
+    "splits_won": 2
+   },
+   "y26_pano": {
+    "C_minus_maxNT": 0.013785,
+    "candidates": [
+     {
+      "arm": "y26_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.2
+     },
+     {
+      "arm": "y26_pano",
+      "c_min": 0.05,
+      "r_gate": 0.011,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y26_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     },
+     {
+      "arm": "y26_pano",
+      "c_min": 0.05,
+      "r_gate": 0.022,
+      "t_lo": 0.1
+     }
+    ],
+    "per_split_mean_C_minus_maxNT": 0.017061,
+    "splits_won": 2
+   }
+  },
+  "runner_up": [
+   {
+    "chosen": {
+     "arm": "y11x_pano_h200",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "chosen_held_out_F1": 0.75576,
+    "chosen_train_F1": 0.722288,
+    "held_out": "laurens_mapillary",
+    "runner_up": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.011,
+     "t_lo": 0.1
+    },
+    "runner_up_better_held_out": true,
+    "runner_up_held_out_F1": 0.761468,
+    "runner_up_train_F1": 0.720048,
+    "train_gap": 0.00224
+   },
+   {
+    "chosen": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.011,
+     "t_lo": 0.1
+    },
+    "chosen_held_out_F1": 0.650558,
+    "chosen_train_F1": 0.755613,
+    "held_out": "bayonne",
+    "runner_up": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "runner_up_better_held_out": true,
+    "runner_up_held_out_F1": 0.654344,
+    "runner_up_train_F1": 0.755076,
+    "train_gap": 0.000536
+   },
+   {
+    "chosen": {
+     "arm": "y11x_pano_h200",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "chosen_held_out_F1": 0.666667,
+    "chosen_train_F1": 0.754316,
+    "held_out": "budapest_district5",
+    "runner_up": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "runner_up_better_held_out": true,
+    "runner_up_held_out_F1": 0.668863,
+    "runner_up_train_F1": 0.753642,
+    "train_gap": 0.000674
+   },
+   {
+    "chosen": {
+     "arm": "y11x_pano_h200",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "chosen_held_out_F1": 0.840304,
+    "chosen_train_F1": 0.692308,
+    "held_out": "morgantown",
+    "runner_up": {
+     "arm": "y11l_pano",
+     "c_min": 0.05,
+     "r_gate": 0.022,
+     "t_lo": 0.1
+    },
+    "runner_up_better_held_out": true,
+    "runner_up_held_out_F1": 0.845283,
+    "runner_up_train_F1": 0.690611,
+    "train_gap": 0.001696
+   }
+  ],
+  "runner_up_pooled_C_minus_maxNT": 0.031108
  },
  "splits": [
   "laurens_mapillary",
