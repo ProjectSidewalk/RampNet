@@ -325,3 +325,29 @@ def test_ratings_definitions_sidecar_285():
             with open(os.path.join(base, r["file"]), encoding="utf-8", newline="") as f:
                 times = [t["rated_at"] for t in csv.DictReader(f) if t.get("rated_at")]
             assert times and min(times) >= "2026-11-08T15:52:58Z", r["file"]   # score_274's PAINT_BRICK_FROM
+
+
+# ---- review 2 of #301, N10 ---------------------------------------------------------------------------------------
+
+def test_retention_seed_spread_is_absolute_when_seed_1_keeps_fewest(tmp_path, capsys):
+    # guard 4's allowance subtracts the seed spread; it must count a seed that keeps MORE than the first one
+    none, both = tmp_path / "none.jsonl", tmp_path / "both.jsonl"
+    none.write_text("", encoding="utf-8")
+    both.write_text("\n".join(json.dumps({"pano_id": p, "preds": [[x, 0.6, 0.9]]})
+                              for p, x in (("pa", 0.5), ("pc", 0.3))) + "\n", encoding="utf-8")
+    res = _retention(tmp_path, [f"s1={none}@0.5", f"s2={both}@0.5"])
+    assert [m["kept"] for m in res["models"].values()] == [0, 2]
+    assert res["seed_spread"] == 2
+
+
+def test_supported_needs_the_wilson_lower_bound_strictly_above_human(monkeypatch):
+    # the auto stratum's lower bound exactly equal to the human share is not "above" it
+    monkeypatch.setattr(ps, "wilson", lambda k, n: (0.2, 0.3))
+    rows = [{"cell": i, "stratum": "auto", "city": "c1"} for i in range(1, 61)]
+    rows += [{"cell": i, "stratum": "human", "city": "h"} for i in range(61, 81)]
+    tags = {str(r["cell"]): {"paint": "clear", "point": "on_paint"} for r in rows}
+    for c in list(range(1, 16)) + list(range(61, 65)):        # auto 15 of 60 (0.25), human 4 of 20 (0.2)
+        tags[str(c)] = {"paint": "none", "point": "off"}
+    res = ps.tally(rows, tags)
+    assert res["strata"]["human"]["no_paint_share"] == 0.2 and res["auto_no_paint_training_weighted"] == 0.25
+    assert res["verdict"] == "inconclusive"

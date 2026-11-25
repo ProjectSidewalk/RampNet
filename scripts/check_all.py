@@ -172,15 +172,18 @@ REGISTRY: list = [
     E("crosswalk_followups_285", (AN + "stage1_crosswalk_sdot_274/check_285.py", "--check"),
       "the #285 decision numbers re-derive byte for byte from committed verdicts, ratings and predictions: "
       "crosswalk_s6's primary and guard 6 (four compare.json), guards 4 and 5 (eight retention.json), guard 3 "
-      "(Columbia, three arms), the section C recall and region scores, the car-top rule, and the three A3 gates",
+      "(Columbia, three arms), the section C recall and region scores, the car-top rule, the three A3 gates, "
+      "root_v6's label rules (city-export) and A4 follow-up 1's spot table (fa-sheet)",
       pins=("analysis_out/crosswalk_followups_285/recall/",
             "analysis_out/crosswalk_followups_285/s6/",
             "analysis_out/crosswalk_followups_285/cartop/",
             "analysis_out/crosswalk_followups_285/osm_arm/cities/",
             "analysis_out/stage1_crosswalk_detector_274/hardneg/s6_eval/",
             "analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/"),
-      note="guards 1 and 2 (score, bprime-score) need the Stage 2 root and are not re-run; the A4 follow-up "
-           "sheets need imagery and are pinned by tests/test_fa_sheet_285.py and tests/test_pos_sheet_285.py"),
+      note="guards 1 and 2 (score, bprime-score) need the Stage 2 root and are not re-run; root_v6's positions.csv "
+           "needs records.jsonl, not in the repo; the A4 follow-up sheets' images are not checked (fa-sheet's "
+           "spot table is, from blank stand-ins; follow-up 2's summary is re-derived by "
+           "tests/test_pos_sheet_285.py)"),
     E("yolo_geometry_51", (AN + "yolo_geometry_51.py", "--check"),
       "YOLO control leg reproduces its scoreboard row; committed JSON matches a fresh read (#51)",
       pins=("docs/data/yolo_geometry_51/", "docs/data/yolo_geometry_51.json")),

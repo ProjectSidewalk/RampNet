@@ -11,12 +11,17 @@ compares each output with the committed copy, byte for byte:
 * section C, s4 on the missed-crosswalk marks (`recall_check.py score`) and its region rule
   (`recall_region.py score`, from the committed segmenter pairs);
 * section B, the car-top rule (`cartop_mask.py score`);
-* the A3 precision gates of Sacramento, Kaysville and Brussels (`osm_arm.py city-score`).
+* the A3 precision gates of Sacramento, Kaysville and Brussels (`osm_arm.py city-score`);
+* the `root_v6` label rules (`osm_arm.py city-export`): positives_{full,half}.csv, ignore.csv, panos_{full,half}.txt
+  and summary.json. Its only input outside the repo is each city's records.jsonl, read for pano positions alone;
+  the check writes stand-ins from the committed positions.csv, so positions.csv itself is not compared;
+* A4 follow-up 1's spot table (`recall_check.py fa-sheet`): spots.csv and summary.json. The sheet crops imagery,
+  but neither file depends on pixels, so the check gives it blank stand-in panos (needs Pillow).
 
 Not covered here: guards 1 and 2 (`score_274.py score` and `bprime-score` need the Stage 2 root and the Seattle pano
-data, which are not in the repo), the A4 follow-up sheets (they need imagery; `tests/test_pos_sheet_285.py`
-re-derives follow-up 2's summary from the committed tags, and `tests/test_fa_sheet_285.py` pins follow-up 1's
-spot counts), and every GPU step (inference, placement, the segmenter pairs).
+data, which are not in the repo), `root_v6`'s positions.csv (from records.jsonl, not in the repo), the A4
+follow-up sheets' images and pages, A4 follow-up 2's summary (re-derived from the committed tags by
+`tests/test_pos_sheet_285.py`), and every GPU step (inference, placement, the segmenter pairs).
 
     python scripts/analysis/stage1_crosswalk_sdot_274/check_285.py --check            # exit 1 on any difference
     python scripts/analysis/stage1_crosswalk_sdot_274/check_285.py --check --keep DIR # keep the regenerated files
@@ -48,6 +53,7 @@ S4 = (("crosswalk_s4", 0.23), ("crosswalk_s4_seed2", 0.3), ("crosswalk_s4_seed3"
 ARMS = {"full": (("crosswalk_s6full", 0.17), ("crosswalk_s6full_seed2", 0.27), ("crosswalk_s6full_seed3", 0.24)),
         "half": (("crosswalk_s6half", 0.23), ("crosswalk_s6half_seed2", 0.23), ("crosswalk_s6half_seed3", 0.25)),
         "steps": (("crosswalk_s4_steps1397", 0.24),)}
+EXPORT_CITIES = ("sacramento-ca", "kaysville-ut", "brussels-be")      # the doc's city-export order
 A3 = (("sacramento-ca", "ratings_a3_sacramento_jon_2026-11-11.csv"),
       ("kaysville-ut", "ratings_a3_kaysville_jon_2026-11-12.csv"),
       ("brussels-be", "ratings_a3_brussels_jon_2026-11-12.csv"))
@@ -114,7 +120,53 @@ def module_steps():
         out.append(("osm_arm", {"OUT": f"{F}/osm_arm"}, [f"{c}/a3_candidates.csv", f"{c}/placements_kinds.csv"],
                     ["city-score", "--city", city, "--ratings", f"{c}/ratings/{ratings}"],
                     [f"{c}/a3_score.json"]))
+    out.append(("recall_check", {"OUT": R}, copy_recall,
+                ["fa-sheet", "--verdicts", VERDICTS, "--cities", "juneau-ak", "laurens-ia",
+                 "--compare", *[f"{R}/compare/s6_{arm}/compare.json" for arm in ARMS],
+                 "--native", *[f"{c}={{T}}/native/{c}" for c in CITIES], "--out", "{T}/fa_sheet_page",
+                 "--out-label", "s6"],
+                [f"{R}/fa_sheet/s6/spots.csv", f"{R}/fa_sheet/s6/summary.json"]))
+    o = f"{F}/osm_arm"
+    out.append(("osm_arm", {"OUT": o},
+                [f"{o}/cities/{c}/{n}" for c in EXPORT_CITIES for n in ("placements_kinds.csv", "a3_candidates.csv")]
+                + [f"{o}/cities/{c}/ratings/" for c in EXPORT_CITIES],
+                ["city-export", "--cities", *EXPORT_CITIES, "--keep", "{T}/keep"],
+                [f"{o}/root_v6/{n}" for n in ("positives_full.csv", "positives_half.csv", "ignore.csv",
+                                                "panos_full.txt", "panos_half.txt", "summary.json")]))
     return out
+
+
+def _stand_ins(tmp):
+    """Inputs that live outside the repo, rebuilt from committed files where nothing compared depends on them:
+    city-export's records.jsonl (it reads only pano_id, lat, lng and capture_date, which go to positions.csv) and
+    fa-sheet's native panos (blank images: the spot table and summary are computed from detections, not pixels)."""
+    import csv
+    import json
+    o = os.path.join(REPO, F, "osm_arm", "root_v6")
+    with open(os.path.join(o, "positives_full.csv"), encoding="utf-8", newline="") as f:
+        city_of = {r["pano_id"]: r["city"] for r in csv.DictReader(f)}
+    recs = {c: [] for c in EXPORT_CITIES}
+    with open(os.path.join(o, "positions.csv"), encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            recs[city_of[r["pano_id"]]].append({"pano": {"panorama_id": r["pano_id"], "lat": r["lat"],
+                                                       "lng": r["lng"], "capture_date": r["capture_date"]}})
+    for c, rows in recs.items():
+        d = os.path.join(tmp, "keep", "osm285", c)
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "records.jsonl"), "w", encoding="utf-8", newline="") as f:
+            f.writelines(json.dumps(r) + "\n" for r in rows)
+    from PIL import Image
+    with open(os.path.join(REPO, VERDICTS), encoding="utf-8") as f:
+        verdicts = json.load(f)["panos"]
+    for c in CITIES:
+        d = os.path.join(tmp, "native", c)
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(REPO, R, c, "intersections.csv"), encoding="utf-8", newline="") as f:
+            drawn = [r["pano_id"] for r in csv.DictReader(f) if r["in_draw"] == "1"]
+        for pid in drawn:
+            e = verdicts.get(pid, {})
+            if not e.get("missed") and e.get("no_missed"):
+                Image.new("RGB", (400, 200), (90, 90, 90)).save(os.path.join(d, f"{pid}.jpg"))
 
 
 def _copy(rel, tmp):
@@ -149,6 +201,8 @@ def _run_module(name, consts, argv, tmp):
         return None
     except SystemExit as e:
         return f"{name} {argv[0]} exited: {e}"
+    except Exception as e:          # e.g. city-export's own assert when the kept panos change
+        return f"{name} {argv[0]} raised {type(e).__name__}: {e}"
     finally:
         sys.argv = old_argv
         os.chdir(cwd)
@@ -179,6 +233,7 @@ def run(tmp):
         for rel in outputs:
             compared += 1
             problems += [p for p in [_compare(rel, tmp)] if p]
+    _stand_ins(tmp)
     for name, consts, inputs, argv, outputs in module_steps():
         for rel in inputs:
             _copy(rel, tmp)
