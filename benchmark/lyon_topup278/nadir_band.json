@@ -1,0 +1,407 @@
+{
+ "found_by_eye": "the bottom 31% of every staged pano was looked at on a contact sheet for burned-in logo bands (LOGO_BANDS in lyon_topup_278.py); geometry only, nothing about the detections",
+ "method": "lyon_review_159.measure_band / measure_logo_band (same constants)",
+ "n_with_band": 12,
+ "n_without_band": 58,
+ "panos": {
+  "004fb68d-1c4a-47e9-bac2-57fd12bf61bc": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "03ef6483-607a-4652-b37b-dc00a511ceb5": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "07da9e1b-725a-4be9-ab92-e9140bab520e": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "083d2cfc-810e-4c6f-a1df-d97754c59b93": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "08be5464-fc39-475c-aaa2-ebe68696fdf6": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "0ed46172-24e7-4ce6-9b83-42f149998a14": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "13b81e98-6b42-490f-8262-e0a92c3b5f18": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "144fb3af-196a-48ef-a2da-ab25ea0d380e": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "14e95dc3-0763-4497-b9f8-9c2a1f8981f0": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "16e10c79-1c10-4f4c-bc41-f8b67a802c09": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "1845b7e5-988b-4059-a4cf-c07bac9e3302": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "1b62afd5-a08f-44cb-8190-337e451737e3": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "1be837d4-5ad2-4a51-9e0d-488260dc8356": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "1e066561-ae6d-43e6-8076-05713ce746ed": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "21f8fbe6-8a0d-4b2c-96cc-8efa84e5c631": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "22f3479e-64fb-489b-adc8-fdd57ac1060e": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "23ac3eac-d464-4d65-a2ea-4e27ed932d5b": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "2564e2b6-b30c-425f-81a0-6626b4d762ae": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "2cd7df15-cd45-4925-a069-563a057362d3": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "2d005945-a863-4ab0-a790-43f6ae1800d8": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x5 7680x3840"
+  },
+  "3327102f-66df-4b58-92f5-1e4251243aec": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "3379d259-7b31-4c76-90fd-aab059e8bcfa": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao Qoocam 3 Ultra 7680x3840"
+  },
+  "3409807c-247e-457d-a17a-c27f4f5657e2": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "3417b602-b9d1-41f4-9034-78cbd4d782f8": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "34b12be4-5b67-4837-b548-841ffb67e84e": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "362bf73e-4809-483d-b612-56b851307c54": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "36ae7db3-02b0-4bfc-bb91-8e72f0ff7029": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "3918fe8e-bf9c-4aa5-b4ba-5de33eeed2a3": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "3acc78b9-fed7-41d1-b0a6-7cc5612d33d4": {
+   "band_top_y": 0.875,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "45790f51-970a-47ea-9d46-facde69dc444": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x5 11904x5952"
+  },
+  "48ccdeb0-058b-45b6-8a70-ff7ca9051f11": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "4bbe7285-2f59-4ae3-93ad-568407320f42": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "4df39738-4e31-44b2-bd50-114b3a9bb465": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "5eb65ff3-5edd-4131-acaf-425d32f4a990": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "5f40d3e9-35aa-4606-ad69-c6b87088de14": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "639dfc9b-6373-4307-8e6f-ce51334277fd": {
+   "band_top_y": 0.875,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "643d9189-72c7-43db-bbd0-484ec2d68154": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "6c0478fd-1457-4537-a025-6a374a469bff": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x5 7680x3840"
+  },
+  "714b76de-ade4-4c7e-b3bd-9bee18e79d8e": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "79bd0368-2f28-4be0-9795-566dc047fba5": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "808fba7e-f37d-4744-a512-04261120035e": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "84cffe84-d55c-43df-b82b-458f00966775": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "8c255a93-7651-462c-8f4e-1d06d3847164": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "947c4d07-7cf5-4632-93c7-8b40587c3dd0": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "9a174f10-7f5a-4645-9466-27cad22a8ce0": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "9baa5c4e-d785-4ee2-b5f9-b5986c35a7d1": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "9d942f52-d4f4-436e-96c5-ad8c162a9667": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "a01561af-ecc3-490f-9279-f25bea01b448": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "a55100e9-a412-4450-bd3f-686c4dabadb0": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "a6588fde-bbbb-4fc0-82b9-6da74b50d322": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "aa55cbac-19a8-4dfe-ab2d-63a5e6d27f06": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "ada8d956-87c8-4655-96fc-9a662a9f607e": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "afdb7ba4-88cd-4b77-84b5-6c79dec0c389": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "b230f697-14db-4660-a7f0-989ce7c87bd2": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "b84b0c61-58d2-4f72-a72e-8fc27abcf67d": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "bbc1f720-db2c-4b0e-a27b-46f197e3176a": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "c063013b-e9b4-47b8-9fa2-a8d4d966603f": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "c1c13058-62c4-4738-be0c-6debae7b526e": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "c264d3f1-16c0-4a4b-9fec-944796cc6288": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "c3364d76-bc84-4553-98d8-1a939aa5e156": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "GoPro MAX2 7680x3840"
+  },
+  "c3c27e34-a12a-4537-be65-7ff2a986e8cc": {
+   "band_top_y": 0.873,
+   "group": "other_cameras",
+   "kind": "logo",
+   "label": "nadir logo band",
+   "method": "found by eye on a contact sheet; edge by logo_band_top",
+   "overlay": "La Voie Bleue bike-route logo",
+   "rig": "(no make/model) 10560x5280"
+  },
+  "c596be4e-467f-42c2-81bb-374c514f5eff": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "c86871ef-8f06-4493-b1ff-e1ccbd4f8cde": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "c9d27277-df83-4e05-9559-3615707bf726": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Kandao QooCam 3 11136x5568"
+  },
+  "ca281000-9f4a-4101-b95b-2c97281714a1": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  },
+  "d54616aa-362c-43df-879a-549c7b6ff2cc": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "d8c7e92f-4c07-4629-bb4d-57999da66191": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Garmin VIRB 360 5640x2820"
+  },
+  "da023f7a-08b2-41e3-a2f9-974f6f519dee": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x5 7680x3840"
+  },
+  "de772505-2948-4d4c-b67a-cd3e72a50bd1": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "RICOH THETA S 5376x2688"
+  },
+  "f047bfe4-3054-44c1-994b-0a523e42af12": {
+   "group": "other_cameras",
+   "method": "auto",
+   "rig": "Arashi Vision insta360 x3 5952x2976"
+  }
+ },
+ "what": "top edge of an opaque region at the bottom of the equirect, normalized y (0 = top), per staged pano; absent band_top_y = none found. gt_gallery.py hatches and labels it."
+}

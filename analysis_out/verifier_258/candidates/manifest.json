@@ -1,0 +1,172 @@
+{
+ "splits": {
+  "annapolis": {
+   "counts": {
+    "fp": 139,
+    "ignored": 15,
+    "redundant_fp": 2,
+    "tp": 265
+   },
+   "n_candidates": 419,
+   "n_gt": 294,
+   "n_panos": 125,
+   "sha256": "eafd2087f92537e7e83119f3637ba40e9a42dd481db7bfee11a45f78cd17b3a0"
+  },
+  "bayonne": {
+   "counts": {
+    "fp": 318,
+    "ignored": 29,
+    "redundant_fp": 3,
+    "tp": 218
+   },
+   "n_candidates": 565,
+   "n_gt": 301,
+   "n_panos": 125,
+   "sha256": "d03761ce11bdfaba476c49a670b037a40a6127dd8d5007935dab758bcb790079"
+  },
+  "bend": {
+   "counts": {
+    "fp": 98,
+    "ignored": 29,
+    "redundant_fp": 2,
+    "tp": 289
+   },
+   "n_candidates": 416,
+   "n_gt": 327,
+   "n_panos": 110,
+   "sha256": "f05d6b12485e2564364c216575cc54f0458e5776bf173b930d67eb77437ea139"
+  },
+  "budapest_district5": {
+   "counts": {
+    "fp": 330,
+    "ignored": 29,
+    "redundant_fp": 4,
+    "tp": 227
+   },
+   "n_candidates": 586,
+   "n_gt": 300,
+   "n_panos": 125,
+   "sha256": "1aad93e0f1d847e6f6c89667ec41de04a03d5df6fcdf7468ae8daab7b607ca86"
+  },
+  "clovis": {
+   "counts": {
+    "fp": 185,
+    "ignored": 24,
+    "redundant_fp": 0,
+    "tp": 183
+   },
+   "n_candidates": 392,
+   "n_gt": 195,
+   "n_panos": 125,
+   "sha256": "189e62da2126b66217018669294470d06615c871322dba0f6888b5ea65a0c8e8"
+  },
+  "gainesville": {
+   "counts": {
+    "fp": 171,
+    "ignored": 17,
+    "redundant_fp": 1,
+    "tp": 242
+   },
+   "n_candidates": 430,
+   "n_gt": 272,
+   "n_panos": 125,
+   "sha256": "42258c19ae9d132aa351bc2f51e9b6a0a5d19685236caad58554be814e69c906"
+  },
+  "juneau": {
+   "counts": {
+    "fp": 159,
+    "ignored": 18,
+    "redundant_fp": 5,
+    "tp": 257
+   },
+   "n_candidates": 434,
+   "n_gt": 297,
+   "n_panos": 125,
+   "sha256": "bd9409e7e900b931cec5faec0d1a9862dfa97bd63ae5ceae02eb420ce5590758"
+  },
+  "laurens_gsv": {
+   "counts": {
+    "fp": 72,
+    "ignored": 9,
+    "redundant_fp": 2,
+    "tp": 180
+   },
+   "n_candidates": 261,
+   "n_gt": 220,
+   "n_panos": 86,
+   "sha256": "e1688b02e5601837529456dbc3bbdcc056b6bc2b86de3226d1765bf03db96154"
+  },
+  "laurens_mapillary": {
+   "counts": {
+    "fp": 165,
+    "ignored": 14,
+    "redundant_fp": 0,
+    "tp": 195
+   },
+   "n_candidates": 374,
+   "n_gt": 249,
+   "n_panos": 94,
+   "sha256": "0daa4b8344cad900b672bf4931c45f3fe5f2fb9a35444c498557eb6b1f6d4fbc"
+  },
+  "manual_gold": {
+   "counts": {
+    "fp": 1102,
+    "ignored": 0,
+    "redundant_fp": 38,
+    "tp": 3607
+   },
+   "n_candidates": 4709,
+   "n_gt": 3919,
+   "n_panos": 1000,
+   "sha256": "4dda017357d5ffa2c4007bce26577a16a768f336504b5a6df20e4e076a93a42d"
+  },
+  "morgantown": {
+   "counts": {
+    "fp": 225,
+    "ignored": 18,
+    "redundant_fp": 1,
+    "tp": 237
+   },
+   "n_candidates": 480,
+   "n_gt": 267,
+   "n_panos": 125,
+   "sha256": "90f1d0198c80002e7b06cf6098e8f23906ff843409886e58e26de6be74e81b64"
+  },
+  "paterson": {
+   "counts": {
+    "fp": 71,
+    "ignored": 19,
+    "redundant_fp": 0,
+    "tp": 299
+   },
+   "n_candidates": 389,
+   "n_gt": 395,
+   "n_panos": 125,
+   "sha256": "ef6733ac9d0521cac007f7c0c3a7fe9bf7bf43122a0b12d8487760f8d5356980"
+  },
+  "richmond": {
+   "counts": {
+    "fp": 197,
+    "ignored": 61,
+    "redundant_fp": 0,
+    "tp": 279
+   },
+   "n_candidates": 537,
+   "n_gt": 310,
+   "n_panos": 124,
+   "sha256": "f268c2a2365b714a6abb0e6d004b4e09b0f75704305c577a06c126b50bf43177"
+  },
+  "sao_paulo": {
+   "counts": {
+    "fp": 218,
+    "ignored": 50,
+    "redundant_fp": 1,
+    "tp": 244
+   },
+   "n_candidates": 512,
+   "n_gt": 281,
+   "n_panos": 125,
+   "sha256": "99e6aed5a63123051f417bc6a4761823f18b5e5512818057c2ee777833f23539"
+  }
+ }
+}

@@ -1,0 +1,143 @@
+{
+ "rater": "claude-opus-5-5",
+ "items_digest": "3d4c0bc2a9f57492",
+ "summary": {
+  "n": 14,
+  "two_total": 4,
+  "two_agree": 4,
+  "one_total": 10,
+  "one_agree": 9,
+  "one_by_band": {
+   "one, <= 8 px": {
+    "agree": 3,
+    "n": 3
+   },
+   "one, > 8 px": {
+    "agree": 6,
+    "n": 7
+   }
+  },
+  "ai_answers_on_one": {
+   "same": 9,
+   "different": 0,
+   "unsure": 1,
+   "null": 0
+  },
+  "calibrated": true,
+  "bar": "AI answered `different` on all of Jon's `two` pairs (pre-registered)"
+ },
+ "cards": [
+  {
+   "id": "s248-02",
+   "pano": "2NgKmkIoU9nUwvjk6K5wtw",
+   "jon": "one",
+   "sep_px": 12.81,
+   "ai_pair": "same",
+   "agree": true
+  },
+  {
+   "id": "s248-04",
+   "pano": "JrR9wwG_ynJrSP9ov3Rxrw",
+   "jon": "one",
+   "sep_px": 9.92,
+   "ai_pair": "same",
+   "agree": true
+  },
+  {
+   "id": "s248-05",
+   "pano": "XFxls0YjTNlFLpZ6eNUuwg",
+   "jon": "one",
+   "sep_px": 9.19,
+   "ai_pair": "same",
+   "agree": true
+  },
+  {
+   "id": "s248-07",
+   "pano": "oE6q6mzI7U-P8l35PsTDFA",
+   "jon": "one",
+   "sep_px": 10.35,
+   "ai_pair": "same",
+   "agree": true
+  },
+  {
+   "id": "s248-10",
+   "pano": "bIvg28w_vN1FEprlX0biKg",
+   "jon": "two",
+   "sep_px": 23.83,
+   "ai_pair": "different",
+   "agree": true
+  },
+  {
+   "id": "s248-12",
+   "pano": "XCbhS0jxrSrOLyndJXtQvA",
+   "jon": "one",
+   "sep_px": 6.32,
+   "ai_pair": "same",
+   "agree": true
+  },
+  {
+   "id": "s248-19",
+   "pano": "QGbpvWpeg9zLcu5HZneRbw",
+   "jon": "two",
+   "sep_px": 25.06,
+   "ai_pair": "different",
+   "agree": true
+  },
+  {
+   "id": "s248-22",
+   "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+   "jon": "one",
+   "sep_px": 10.86,
+   "ai_pair": "unsure",
+   "agree": false
+  },
+  {
+   "id": "s248-23",
+   "pano": "MJbCTDJV5advy8eYbL0V5Q",
+   "jon": "two",
+   "sep_px": 17.28,
+   "ai_pair": "different",
+   "agree": true
+  },
+  {
+   "id": "s248-24",
+   "pano": "shnQL5DurRLY94LPJmCTYA",
+   "jon": "one",
+   "sep_px": 10.24,
+   "ai_pair": "same",
+   "agree": true
+  },
+  {
+   "id": "s248-30",
+   "pano": "i3klZw0fkItNns0UNkA_UA",
+   "jon": "two",
+   "sep_px": 25.02,
+   "ai_pair": "different",
+   "agree": true
+  },
+  {
+   "id": "s248-31",
+   "pano": "oyyca_diFZoYJGETmlwc3g",
+   "jon": "one",
+   "sep_px": 7.04,
+   "ai_pair": "same",
+   "agree": true
+  },
+  {
+   "id": "s248-32",
+   "pano": "YRTsmStw9SqMzZGZpNTcsg",
+   "jon": "one",
+   "sep_px": 12.7,
+   "ai_pair": "same",
+   "agree": true
+  },
+  {
+   "id": "s248-34",
+   "pano": "tRwq7cx78-g4Mi59uuN5-Q",
+   "jon": "one",
+   "sep_px": 2.95,
+   "ai_pair": "same",
+   "agree": true
+  }
+ ]
+}

@@ -84,7 +84,9 @@ class TiltParams:
     min_sectors: int = 3            # how many sectors must count
     # A backstop, not a working filter: no committed row comes near it (largest formal SE 0.165
     # deg on the 571 GSV panos, 0.195 deg on the 200 Lyon panos), so it declines nothing there.
-    # Kept so a degenerate fit (e.g. a singular one, SE = inf) is always declined.
+    # Kept so a degenerate fit is always declined: `pitch_roll_se` returns SE = inf both for a
+    # singular normal matrix and for a numerically indefinite inverse (a negative diagonal),
+    # which near-identical normals produce and which used to be clipped to SE 0 (#279).
     max_se_deg: float = 0.25        # largest formal SE of pitch or roll that is accepted
     ambiguity_sep_deg: float = 3.0  # rival hypotheses are those at least this far from the fit
     max_ambiguity: float = 0.8      # best rival's score / the fit's score; above this, decline
@@ -370,6 +372,18 @@ def pitch_roll_se(normals, weights, u, eps_deg=1e-3):
     normalised to mean 1; ``cov = s^2 (J^T W J)^-1`` with ``s^2 = sum W r^2 / (N - 2)``. Segments
     from one physical edge are not independent, so this understates the true error; it is used
     as a ranking for the decline gate, which was calibrated against Google's pose, not as a CI.
+
+    A degenerate fit returns SE = inf on the affected axis, so the gate's SE test declines it:
+    a singular ``J^T W J`` (``LinAlgError``, both axes), or an inverse with a negative diagonal.
+    The second happens when the normals are near-identical: ``J^T W J`` is numerically singular
+    without ``inv`` raising, and its inverse comes back indefinite. Clipping that diagonal to 0,
+    as the first version did, reported SE 0 and passed the SE test (#279). A diagonal that is
+    exactly 0 (a perfect fit, ``s^2 = 0``) is not negative and stays SE 0.
+
+    Example::
+
+        n = np.tile([1.0, 0.0, 0.0], (10, 1))       # ten copies of one normal: degenerate
+        pitch_roll_se(n, np.ones(10), np.array([0.0, 0.0, 1.0]))[:2]   # -> (inf, inf)
     """
     p0, r0 = pitch_roll_from_up(u)
     w = weights / weights.mean()
@@ -388,7 +402,8 @@ def pitch_roll_se(normals, weights, u, eps_deg=1e-3):
         cov = s2 * np.linalg.inv(A)
     except np.linalg.LinAlgError:
         return float("inf"), float("inf"), math.degrees(math.asin(min(1.0, math.sqrt(s2))))
-    se = np.sqrt(np.clip(np.diag(cov), 0.0, None))
+    var = np.diag(cov)
+    se = np.where(var < 0, np.inf, np.sqrt(np.abs(var)))   # abs: only reached for var >= 0
     return float(se[0]), float(se[1]), math.degrees(math.asin(min(1.0, math.sqrt(s2))))
 
 
@@ -430,8 +445,10 @@ def gate_reasons(n_inliers, sector_inliers, se_pitch, se_roll, ambiguity,
     Takes only fields a stored row keeps (inlier count, per-sector inlier counts, formal SEs,
     ambiguity), so the gate can be re-applied to committed rows under other thresholds without
     the images; ``scripts/analysis/pano_tilt_estimate.py`` does that and the tests check it
-    reproduces every committed row's status. A missing or non-finite SE or ambiguity fails its
-    test.
+    reproduces every committed row's status. A missing or non-finite SE or ambiguity (NaN,
+    +inf or -inf) fails its test. Real data never produces -inf (SEs are square roots and
+    ambiguity is a ratio of non-negative scores; stored rows hold a non-finite value as None);
+    it is rejected anyway so the docstring's claim holds for any input (#279).
 
     Example::
 
@@ -439,7 +456,8 @@ def gate_reasons(n_inliers, sector_inliers, se_pitch, se_roll, ambiguity,
         # -> ['ambiguity 0.92 > 0.8']
     """
     def bad(v, limit):
-        return v is None or not (v <= limit)            # also catches nan
+        # not (v <= limit) catches nan and +inf; isfinite adds -inf, which v <= limit passes
+        return v is None or not (math.isfinite(v) and v <= limit)
 
     n_sec = int(sum(c >= params.sector_min_inliers for c in sector_inliers))
     reasons = []
@@ -447,8 +465,13 @@ def gate_reasons(n_inliers, sector_inliers, se_pitch, se_roll, ambiguity,
         reasons.append(f"inliers {n_inliers} < {params.min_inliers}")
     if n_sec < params.min_sectors:
         reasons.append(f"sectors {n_sec} < {params.min_sectors}")
-    # np.maximum, not max: max(0.06, nan) is 0.06, which would pass a NaN roll SE.
-    se = None if se_pitch is None or se_roll is None else float(np.maximum(se_pitch, se_roll))
+    # The worse axis decides, and a non-finite axis is the worse one whatever the other holds:
+    # max(0.06, nan) is 0.06 and np.maximum(-inf, 0.06) is 0.06, either of which would pass.
+    if se_pitch is None or se_roll is None:
+        se = None
+    else:
+        axes = (float(se_pitch), float(se_roll))
+        se = next((v for v in axes if not math.isfinite(v)), max(axes))
     if bad(se, params.max_se_deg):
         reasons.append(f"se {se:.3f} > {params.max_se_deg}" if se is not None else "se missing")
     if bad(ambiguity, params.max_ambiguity):
