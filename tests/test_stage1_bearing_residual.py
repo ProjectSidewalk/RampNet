@@ -76,7 +76,14 @@ def test_cardinal_bearings():
 def test_great_circle_matches_the_geodesic_used_by_stage_1():
     """Stage 1 uses pyproj.Geod.inv. Over the 35 m inclusion radius the two must
     agree far inside the ~3 deg residual being measured, or the dependency-free
-    form is not a valid substitute."""
+    form is not a valid substitute.
+
+    The dependency-free form is spherical and Geod is ellipsoidal (WGS84). Their
+    azimuths differ by up to about (1 - M/N) / 2 rad, where M and N are the
+    meridional and prime-vertical radii: about 0.11 deg at 40.7 N (0.080 deg
+    measured here) and under 0.2 deg at any latitude. So the bound is 0.25 deg,
+    still more than ten times inside the residual. It was 0.01 deg, which only
+    held on machines without pyproj, where this test skips."""
     pyproj = __import__("importlib").util.find_spec("pyproj")
     if pyproj is None:
         import pytest
@@ -88,7 +95,7 @@ def test_great_circle_matches_the_geodesic_used_by_stage_1():
             lat, lng = destination(40.7, -74.0, bearing, rng)
             mine = b.fwd_azimuth_deg(40.7, -74.0, lat, lng)
             theirs, _, _ = geod.inv(-74.0, 40.7, lng, lat)
-            assert abs(b.wrap_deg(mine - theirs)) < 0.01
+            assert abs(b.wrap_deg(mine - theirs)) < 0.25
 
 
 # --------------------------------------------------------------------------- #
