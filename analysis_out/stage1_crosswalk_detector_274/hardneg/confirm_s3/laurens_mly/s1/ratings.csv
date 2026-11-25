@@ -1,0 +1,34 @@
+card_id,kind,pano_id,x,y,conf,city,mode,year,stratum,verdict,note
+det:1141813037936971:0.496:0.771,det,1141813037936971,0.496094,0.771484,0.317777,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:1141813037936971:0.495:0.662,det,1141813037936971,0.495117,0.662109,0.225371,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:1313891707445390:0.487:0.537,det,1313891707445390,0.487305,0.537109,0.421934,laurens-ia,mapillary,,random,not_crosswalk,
+det:1367197891696576:0.504:0.771,det,1367197891696576,0.503906,0.771484,0.390711,laurens-ia,mapillary,,random,not_crosswalk,This is the top of the capture car
+det:1477575690008766:0.519:0.771,det,1477575690008766,0.518555,0.771484,0.257654,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:1492172325416392:0.495:0.771,det,1492172325416392,0.495117,0.771484,0.309144,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:1518811369440769:0.387:0.523,det,1518811369440769,0.386719,0.523438,0.585155,laurens-ia,mapillary,,random,not_crosswalk,Parking lanes in parking lot
+det:1518811369440769:0.495:0.771,det,1518811369440769,0.495117,0.771484,0.336889,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:1537692247436785:0.488:0.771,det,1537692247436785,0.488281,0.771484,0.26188,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:1537692247436785:0.503:0.771,det,1537692247436785,0.50293,0.771484,0.258918,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:1594487021994260:0.035:0.537,det,1594487021994260,0.035156,0.537109,0.560472,laurens-ia,mapillary,,random,not_crosswalk,Shadows
+det:1916768385919741:0.496:0.662,det,1916768385919741,0.496094,0.662109,0.290793,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:1916768385919741:0.495:0.771,det,1916768385919741,0.495117,0.771484,0.226219,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:2045645132873031:0.511:0.758,det,2045645132873031,0.510742,0.757812,0.296903,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:2111761829593085:0.495:0.662,det,2111761829593085,0.495117,0.662109,0.284284,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:2240682929742302:0.496:0.771,det,2240682929742302,0.496094,0.771484,0.361245,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:2254978834984757:0.488:0.662,det,2254978834984757,0.488281,0.662109,0.288915,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:2254978834984757:0.503:0.662,det,2254978834984757,0.50293,0.662109,0.285419,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:25599814142944937:0.496:0.648,det,25599814142944937,0.496094,0.648438,0.306859,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:25599814142944937:0.495:0.771,det,25599814142944937,0.495117,0.771484,0.226674,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:2633627190320171:0.511:0.771,det,2633627190320171,0.510742,0.771484,0.382461,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:3253035404869838:0.012:0.521,det,3253035404869838,0.011719,0.521484,0.355169,laurens-ia,mapillary,,random,not_crosswalk,
+det:4257286077932513:0.496:0.771,det,4257286077932513,0.496094,0.771484,0.441006,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:619737114494553:0.496:0.771,det,619737114494553,0.496094,0.771484,0.270043,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:686757571175841:0.496:0.758,det,686757571175841,0.496094,0.757812,0.413005,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:740136985012870:0.519:0.771,det,740136985012870,0.518555,0.771484,0.2102,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:745517931916661:0.503:0.773,det,745517931916661,0.50293,0.773438,0.325849,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:792527513832008:0.488:0.537,det,792527513832008,0.488281,0.537109,0.575819,laurens-ia,mapillary,,random,not_crosswalk,Shadows from the tree
+det:834516435994421:0.503:0.771,det,834516435994421,0.50293,0.771484,0.31274,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:850410504028771:0.504:0.773,det,850410504028771,0.503906,0.773438,0.367103,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:858081853743118:0.503:0.771,det,858081853743118,0.50293,0.771484,0.253374,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:858362580174721:0.504:0.758,det,858362580174721,0.503906,0.757812,0.460496,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car
+det:858362580174721:0.495:0.662,det,858362580174721,0.495117,0.662109,0.265149,laurens-ia,mapillary,,random,not_crosswalk,Top of the capture car

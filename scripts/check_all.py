@@ -131,7 +131,7 @@ REGISTRY: list = [
             "analysis_out/input_res_sweep_25/", "analysis_out/recall_by_depth_112.json",
             "docs/data/rampnet1_stage1_run/", "docs/data/rampnet1_stage2_run/",
             "docs/data/seed_variance_51_135/", "stage_two/cosine_rung_135_events/",
-            "stage_two/run_a_84_events/")),
+            "stage_two/run_a_84_events/", "analysis_out/stage1_crosswalk_detector_274/")),
     E("sourcing_tables", (AN + "sourcing_tables.py", "--check"),
       "generated tables in the data-sourcing docs re-render identical from committed files (#145)",
       pins=("docs/location_precision_assessment_96.md", "docs/curb_ramp_data_sourcing.md",
@@ -157,6 +157,18 @@ REGISTRY: list = [
             "benchmark/manual_gold/records.jsonl", "benchmark/manual_gold/detections_meta.json",
             "benchmark/manual_gold/seam_verdicts__jon.json", "manual_labels/",
             "docs/data/seam_nms_default_248_figure.csv") + GT),
+    E("stage1_crosswalk_274", (AN + "stage1_crosswalk_sdot_274/check_274.py",),
+      "the #274 crosswalk detector's decision numbers re-derive byte for byte from committed verdicts and "
+      "predictions: P1 (Columbia label recall), the s3 and s4 confirmation draws (P2 included), the s3 audit and "
+      "its retention guard, the Juneau eval draw, and root_v3's 166 negatives; with pyproj, the (b') nodes "
+      "of s2/s3, s4 guard 3 and s5 guard 6",
+      pins=("analysis_out/stage1_crosswalk_detector_274/hardneg/",
+            "analysis_out/stage1_crosswalk_detector_274/bprime/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/s4_matched/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/s5_matched/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/scores.json"),
+      note="the (b') part (bprime-score) runs only where pyproj is installed; CI skips it and says so"),
     E("yolo_geometry_51", (AN + "yolo_geometry_51.py", "--check"),
       "YOLO control leg reproduces its scoreboard row; committed JSON matches a fresh read (#51)",
       pins=("docs/data/yolo_geometry_51/", "docs/data/yolo_geometry_51.json")),

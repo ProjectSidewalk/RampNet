@@ -1,0 +1,30 @@
+{
+ "base": "crosswalk_s1",
+ "new": "crosswalk_s4",
+ "new_threshold": 0.23,
+ "panos": 120,
+ "lookalikes_per_100": {
+  "base": 5.833333333333333,
+  "new": 20.833333333333332
+ },
+ "paired_diff_lookalikes_per_100": 15.0,
+ "paired_diff_ci95": [
+  4.166666666666667,
+  26.666666666666668
+ ],
+ "primary_met": false,
+ "paired_diff_errors_per_100": 14.166666666666666,
+ "paired_diff_errors_ci95": [
+  2.5,
+  26.666666666666668
+ ],
+ "retention": {
+  "base_crosswalks": 59,
+  "still_detected": 56,
+  "share": 0.9491525423728814,
+  "min": 0.95,
+  "met": false
+ },
+ "boot_n": 2000,
+ "boot_seed": 274
+}

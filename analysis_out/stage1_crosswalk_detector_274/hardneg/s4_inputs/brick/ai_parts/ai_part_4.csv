@@ -1,0 +1,204 @@
+sheet,cell,verdict,style,reason
+sheet_0061.jpg,1,crosswalk,brick_edge_lines,brick band across road with white lines
+sheet_0061.jpg,2,crosswalk,brick,brick band across roadway
+sheet_0061.jpg,3,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0061.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0061.jpg,5,crosswalk,brick_edge_lines,coloured crossing band with white bars
+sheet_0061.jpg,6,crosswalk,brick_edge_lines,brick band with white lines in circle
+sheet_0061.jpg,7,crosswalk,paint,painted zebra bars
+sheet_0061.jpg,8,crosswalk,brick_edge_lines,brick crossing beside stop line
+sheet_0061.jpg,9,crosswalk,brick,dark paver band across road
+sheet_0061.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0061.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0061.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0062.jpg,1,crosswalk,paint,faded painted bars on cobblestone
+sheet_0062.jpg,2,crosswalk,brick,brick band across road
+sheet_0062.jpg,3,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0062.jpg,4,crosswalk,paint,faded zebra bars
+sheet_0062.jpg,5,crosswalk,paint,two parallel transverse white lines
+sheet_0062.jpg,6,crosswalk,brick,red band across road
+sheet_0062.jpg,7,crosswalk,paint,faded zebra bars on cobblestone
+sheet_0062.jpg,8,crosswalk,brick_edge_lines,red band bordered by white lines
+sheet_0062.jpg,9,crosswalk,brick_edge_lines,red band bordered by white lines
+sheet_0062.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0062.jpg,11,crosswalk,paint,zebra bars on cobblestone
+sheet_0062.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0063.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0063.jpg,2,crosswalk,paint,zebra bars on cobblestone
+sheet_0063.jpg,3,crosswalk,brick_edge_lines,brick band with white lines in circle
+sheet_0063.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0063.jpg,5,not_crosswalk,none,brick sidewalk island near sign pole
+sheet_0063.jpg,6,crosswalk,brick_edge_lines,faint brick band with white lines
+sheet_0063.jpg,7,crosswalk,brick_edge_lines,red band bordered by white lines
+sheet_0063.jpg,8,crosswalk,paint,zebra bars on cobblestone
+sheet_0063.jpg,9,crosswalk,brick,brick band across road
+sheet_0063.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0063.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0063.jpg,12,crosswalk,paint,zebra bars on brick road
+sheet_0064.jpg,1,unsure,unclear,close-up brick paving; crossing or plaza unclear
+sheet_0064.jpg,2,unsure,unclear,paver surface near curb; no clear crossing
+sheet_0064.jpg,3,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0064.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0064.jpg,5,crosswalk,brick,brick band across road
+sheet_0064.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0064.jpg,7,crosswalk,paint,painted zebra bars
+sheet_0064.jpg,8,crosswalk,brick_edge_lines,red band bordered by white lines
+sheet_0064.jpg,9,unsure,unclear,brick strip between curbs; maybe sidewalk
+sheet_0064.jpg,10,crosswalk,paint,faded painted bars on cobblestone
+sheet_0064.jpg,11,crosswalk,brick_edge_lines,brick band with white line
+sheet_0064.jpg,12,crosswalk,brick_edge_lines,paver band bordered by white lines
+sheet_0065.jpg,1,crosswalk,paint,zebra bars on cobblestone
+sheet_0065.jpg,2,unsure,unclear,cobblestone road; faint paint remnants at edge
+sheet_0065.jpg,3,crosswalk,paint,zebra bars on brick road
+sheet_0065.jpg,4,crosswalk,paint,two parallel transverse white lines
+sheet_0065.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0065.jpg,6,unsure,unclear,faint lines on worn asphalt
+sheet_0065.jpg,7,unsure,unclear,brick herringbone between concrete strips
+sheet_0065.jpg,8,crosswalk,paint,faded painted bars on cobblestone
+sheet_0065.jpg,9,crosswalk,paint,two parallel transverse white lines
+sheet_0065.jpg,10,crosswalk,paint,two parallel transverse white lines
+sheet_0065.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0065.jpg,12,crosswalk,brick,brick band across road
+sheet_0066.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0066.jpg,2,unsure,unclear,distant road; crossing not visible
+sheet_0066.jpg,3,crosswalk,paint,zebra bars inside circle
+sheet_0066.jpg,4,unsure,unclear,marker at far brick corner; unclear
+sheet_0066.jpg,5,crosswalk,paint,faded painted bars on cobblestone
+sheet_0066.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0066.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0066.jpg,8,crosswalk,brick_edge_lines,red band bordered by white lines
+sheet_0066.jpg,9,not_crosswalk,none,brick sidewalk between planting beds
+sheet_0066.jpg,10,unsure,unclear,faint lines on distant road
+sheet_0066.jpg,11,crosswalk,brick_edge_lines,red band bordered by white lines
+sheet_0066.jpg,12,crosswalk,paint,zebra bars on cobblestone
+sheet_0067.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0067.jpg,2,unsure,unclear,brick band at alley entrance; maybe sidewalk
+sheet_0067.jpg,3,crosswalk,paint,painted zebra bars
+sheet_0067.jpg,4,crosswalk,paint,faded painted bars on cobblestone
+sheet_0067.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0067.jpg,6,unsure,unclear,distant road; no crossing visible
+sheet_0067.jpg,7,crosswalk,paint,two white transverse lines across road
+sheet_0067.jpg,8,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0067.jpg,9,unsure,unclear,faint reddish band; too far
+sheet_0067.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0067.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0067.jpg,12,not_crosswalk,none,ordinary paver road near curb
+sheet_0068.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0068.jpg,2,crosswalk,brick_edge_lines,textured band bordered by white lines
+sheet_0068.jpg,3,not_crosswalk,none,decorative paver pattern
+sheet_0068.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0068.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0068.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0068.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0068.jpg,8,not_crosswalk,none,cobblestone road behind bus
+sheet_0068.jpg,9,crosswalk,paint,zebra bars on cobblestone in circle
+sheet_0068.jpg,10,not_crosswalk,none,decorative brick diamond in road
+sheet_0068.jpg,11,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0068.jpg,12,crosswalk,paint,faded painted bar
+sheet_0069.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0069.jpg,2,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0069.jpg,3,crosswalk,paint,painted bars on cobblestone
+sheet_0069.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0069.jpg,5,crosswalk,brick_edge_lines,wide brick band with white line
+sheet_0069.jpg,6,crosswalk,paint,two parallel transverse white lines
+sheet_0069.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0069.jpg,8,unsure,unclear,possible faint band near barricades
+sheet_0069.jpg,9,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0069.jpg,10,crosswalk,paint,two parallel transverse white lines
+sheet_0069.jpg,11,crosswalk,paint,faded painted bars on cobblestone
+sheet_0069.jpg,12,crosswalk,brick_edge_lines,distant red band with white lines
+sheet_0070.jpg,1,unsure,unclear,lines near bus; crossing unclear
+sheet_0070.jpg,2,crosswalk,paint,zebra bars on cobblestone
+sheet_0070.jpg,3,unsure,unclear,paver band pattern; maybe decorative
+sheet_0070.jpg,4,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0070.jpg,5,crosswalk,paint,painted zebra bars
+sheet_0070.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0070.jpg,7,crosswalk,paint,two white lines across brick road
+sheet_0070.jpg,8,unsure,unclear,cobblestone corner; white line may be stop line
+sheet_0070.jpg,9,not_crosswalk,none,plain asphalt road
+sheet_0070.jpg,10,crosswalk,paint,zebra bars on cobblestone
+sheet_0070.jpg,11,crosswalk,brick,brick crossing band; pedestrian crossing
+sheet_0070.jpg,12,crosswalk,paint,zebra bars on cobblestone
+sheet_0071.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0071.jpg,2,not_crosswalk,none,cobblestone bus lane
+sheet_0071.jpg,3,unsure,unclear,paver road; faint marks
+sheet_0071.jpg,4,crosswalk,paint,faded painted bars on cobblestone
+sheet_0071.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0071.jpg,6,crosswalk,paint,painted crossing lines in circle
+sheet_0071.jpg,7,crosswalk,paint,zebra bars on brick road
+sheet_0071.jpg,8,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0071.jpg,9,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0071.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0071.jpg,11,unsure,unclear,overexposed brick surface
+sheet_0071.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0072.jpg,1,unsure,unclear,close-up brick near curb; context unclear
+sheet_0072.jpg,2,crosswalk,paint,zebra bars on cobblestone
+sheet_0072.jpg,3,crosswalk,paint,white transverse lines across road
+sheet_0072.jpg,4,crosswalk,brick,brick band across road
+sheet_0072.jpg,5,not_crosswalk,none,plain asphalt road
+sheet_0072.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0072.jpg,7,crosswalk,brick_edge_lines,brick band with white edge line
+sheet_0072.jpg,8,not_crosswalk,none,decorative brick diamond in road
+sheet_0072.jpg,9,unsure,unclear,brick diamond with faded white paint
+sheet_0072.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0072.jpg,11,crosswalk,paint,zebra bars on cobblestone
+sheet_0072.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0073.jpg,1,crosswalk,paint,faint white crossing lines
+sheet_0073.jpg,2,crosswalk,brick_edge_lines,brick band with white line
+sheet_0073.jpg,3,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0073.jpg,4,not_crosswalk,none,ordinary cobblestone street
+sheet_0073.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0073.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0073.jpg,7,crosswalk,paint,zebra bars on paver road
+sheet_0073.jpg,8,crosswalk,brick_edge_lines,red band bordered by white lines
+sheet_0073.jpg,9,not_crosswalk,none,decorative paver plaza pattern
+sheet_0073.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0073.jpg,11,crosswalk,paint,faded zebra bars on cobblestone
+sheet_0073.jpg,12,crosswalk,paint,faded paint on cobblestone
+sheet_0074.jpg,1,not_crosswalk,none,brick sidewalk near scaffolding
+sheet_0074.jpg,2,unsure,unclear,blank blurred image
+sheet_0074.jpg,3,not_crosswalk,none,ordinary cobblestone road
+sheet_0074.jpg,4,crosswalk,paint,two parallel transverse white lines
+sheet_0074.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0074.jpg,6,crosswalk,brick,paver band across roadway
+sheet_0074.jpg,7,crosswalk,brick,brick band across road
+sheet_0074.jpg,8,unsure,unclear,blank blurred image
+sheet_0074.jpg,9,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0074.jpg,10,unsure,unclear,distant road; crossing unclear
+sheet_0074.jpg,11,crosswalk,brick,rainbow coloured crossing band
+sheet_0074.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0075.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0075.jpg,2,unsure,unclear,blurry; single white bar
+sheet_0075.jpg,3,crosswalk,paint,faded painted bars; blurry
+sheet_0075.jpg,4,unsure,unclear,mostly blurred out
+sheet_0075.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0075.jpg,6,unsure,unclear,blurry white paint patches
+sheet_0075.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0075.jpg,8,crosswalk,paint,faded zebra bars on cobblestone
+sheet_0075.jpg,9,not_crosswalk,none,ordinary cobblestone road
+sheet_0075.jpg,10,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0075.jpg,11,crosswalk,brick,distant brick band across road
+sheet_0075.jpg,12,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0076.jpg,1,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0076.jpg,2,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0076.jpg,3,crosswalk,paint,painted bars on cobblestone
+sheet_0076.jpg,4,crosswalk,brick_edge_lines,brick band with white lines
+sheet_0076.jpg,5,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0076.jpg,6,crosswalk,brick_edge_lines,red band bordered by white lines
+sheet_0076.jpg,7,crosswalk,brick_edge_lines,paver band bordered by white lines
+sheet_0076.jpg,8,crosswalk,brick_edge_lines,paver band with white lines
+sheet_0076.jpg,9,crosswalk,brick,raised brick band across road
+sheet_0076.jpg,10,unsure,unclear,brick pattern with faded white marks
+sheet_0076.jpg,11,crosswalk,brick_edge_lines,brick band with white edge line
+sheet_0076.jpg,12,crosswalk,paint,zebra bars on cobblestone
+sheet_0077.jpg,1,crosswalk,brick_edge_lines,brick band with white lines
+sheet_0077.jpg,2,crosswalk,brick,brick band across road
+sheet_0077.jpg,3,crosswalk,paint,zebra bars on cobblestone
+sheet_0077.jpg,4,crosswalk,brick_edge_lines,paver band bordered by white lines
+sheet_0077.jpg,5,crosswalk,brick_edge_lines,paver band with white lines
+sheet_0077.jpg,6,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0077.jpg,7,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0077.jpg,8,unsure,unclear,distant lines; crossing unclear
+sheet_0077.jpg,9,crosswalk,brick_edge_lines,brick band bordered by white lines
+sheet_0077.jpg,10,crosswalk,brick,brick band across road
+sheet_0077.jpg,11,crosswalk,brick_edge_lines,brick band with white line

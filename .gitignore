@@ -561,6 +561,75 @@ analysis_out/crosswalk_phase0_274/*
 !analysis_out/crosswalk_phase0_274/offsets/
 !analysis_out/crosswalk_phase0_274/per_label/
 !analysis_out/crosswalk_phase0_274/vistas_probe/
+# Stage 1 crosswalk pilot from SDOT (#274): sample, discovery, dataset rows, placements and the GSV search cache
+# (the network record). pixels/ and views/ (GBs of JPEGs) and gallery.html (it points into views/) stay out.
+!analysis_out/stage1_crosswalk_sdot_274/
+analysis_out/stage1_crosswalk_sdot_274/*
+!analysis_out/stage1_crosswalk_sdot_274/*.csv
+!analysis_out/stage1_crosswalk_sdot_274/*.json
+!analysis_out/stage1_crosswalk_sdot_274/*.jsonl
+!analysis_out/stage1_crosswalk_sdot_274/*.md
+!analysis_out/stage1_crosswalk_sdot_274/*.txt
+# Arm C (crowd labels on stored panos, #274): selection, metadata caches, placements, the exported label set and
+# the report. thumbs/ and gallery.html stay out; the panos themselves are a local read-only copy outside the repo.
+!analysis_out/stage1_crosswalk_crowd_274/
+analysis_out/stage1_crosswalk_crowd_274/*
+!analysis_out/stage1_crosswalk_crowd_274/*.csv
+!analysis_out/stage1_crosswalk_crowd_274/*.jsonl
+!analysis_out/stage1_crosswalk_crowd_274/*.md
+!analysis_out/stage1_crosswalk_crowd_274/*.json
+!analysis_out/stage1_crosswalk_crowd_274/negatives/
+analysis_out/stage1_crosswalk_crowd_274/negatives/*
+!analysis_out/stage1_crosswalk_crowd_274/negatives/*.csv
+!analysis_out/stage1_crosswalk_crowd_274/negatives/*.json
+!analysis_out/stage1_crosswalk_crowd_274/negatives/*.jsonl
+!analysis_out/stage1_crosswalk_crowd_274/negatives/*.txt
+!analysis_out/stage1_crosswalk_crowd_274/stage2_build/
+analysis_out/stage1_crosswalk_crowd_274/stage2_build/*
+!analysis_out/stage1_crosswalk_crowd_274/stage2_build/manifest.json
+!analysis_out/stage1_crosswalk_crowd_274/cities/
+analysis_out/stage1_crosswalk_crowd_274/cities/*/*
+!analysis_out/stage1_crosswalk_crowd_274/cities/*/
+!analysis_out/stage1_crosswalk_crowd_274/cities/*/*.csv
+!analysis_out/stage1_crosswalk_crowd_274/cities/*/*.json
+!analysis_out/stage1_crosswalk_crowd_274/cities/*/*.jsonl
+
+# #274 first crosswalk detector scores: report + tables + the per-pano peak predictions (1 MB),
+# so the scores re-derive without a GPU. Galleries embed imagery and are written outside the repo.
+!analysis_out/stage1_crosswalk_detector_274/
+analysis_out/stage1_crosswalk_detector_274/*
+!analysis_out/stage1_crosswalk_detector_274/*.csv
+!analysis_out/stage1_crosswalk_detector_274/*.json
+!analysis_out/stage1_crosswalk_detector_274/*.md
+!analysis_out/stage1_crosswalk_detector_274/preds/
+analysis_out/stage1_crosswalk_detector_274/preds/*/*
+!analysis_out/stage1_crosswalk_detector_274/preds/*/
+!analysis_out/stage1_crosswalk_detector_274/preds/*/*.json
+!analysis_out/stage1_crosswalk_detector_274/preds/*/*.jsonl
+!analysis_out/stage1_crosswalk_detector_274/raw_downloads/
+!analysis_out/stage1_crosswalk_detector_274/bprime/
+analysis_out/stage1_crosswalk_detector_274/bprime/*
+!analysis_out/stage1_crosswalk_detector_274/bprime/*.csv
+!analysis_out/stage1_crosswalk_detector_274/bprime/*.json
+!analysis_out/stage1_crosswalk_detector_274/bprime/*.md
+!analysis_out/stage1_crosswalk_detector_274/bprime/*.txt
+# the 793 (b') panos' rows of Seattle's pano_data export, so bprime-score runs from the repo
+!analysis_out/stage1_crosswalk_detector_274/bprime/*.psv
+!analysis_out/stage1_crosswalk_detector_274/bprime/preds/
+analysis_out/stage1_crosswalk_detector_274/bprime/preds/*/*
+!analysis_out/stage1_crosswalk_detector_274/bprime/preds/*/
+!analysis_out/stage1_crosswalk_detector_274/bprime/preds/*/*.json
+!analysis_out/stage1_crosswalk_detector_274/bprime/preds/*/*.jsonl
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/
+analysis_out/stage1_crosswalk_detector_274/v2_labels/*
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/*.csv
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/*.json
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/*.md
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/preds/
+analysis_out/stage1_crosswalk_detector_274/v2_labels/preds/*/*
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/preds/*/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/preds/*/*.json
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/preds/*/*.jsonl
 
 # #159: image-based pano tilt (docs/pano_tilt_estimate.md). The id list, per-pano rows and
 # summaries; `pano_tilt_estimate.py check` re-derives the id list and summaries.
@@ -591,6 +660,40 @@ analysis_out/control_arm_263/caches_aug82_controls/*
 !analysis_out/control_arm_263/trainlogs/
 analysis_out/control_arm_263/trainlogs/*
 !analysis_out/control_arm_263/trainlogs/*.txt
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/
+analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/*
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/report.md
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/scores.json
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/nodes.csv
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/
+analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/*
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s2/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s3/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s*_seed*/
+# s3 at its pre-registered fixed threshold 0.27 (confirmation guards 1 and 3): every output is small text
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s3_t027/
+# seed replicates (#274, report only): scores at each run's val pick and at the recall-matched threshold
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/seeds/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/seeds_matched/
+# crosswalk_s4 (#274): scores at the val picks and at the recall-matched thresholds, and seed 1's (b') preds
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s4/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s4_matched/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s4/
+# crosswalk_s5 (#274): the same three outputs
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s5/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/s5_matched/
+!analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s5/
+# #274 hard negatives: CSV/JSON/MD outputs at any depth (no imagery is written here)
+!analysis_out/stage1_crosswalk_detector_274/hardneg/
+analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.*
+!analysis_out/stage1_crosswalk_detector_274/hardneg/**/
+!analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.csv
+!analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.json
+!analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.md
+!analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.jsonl
+!analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.txt
+!analysis_out/stage1_crosswalk_detector_274/hardneg/**/*.sha256
+
 # Corner-level cluster review (#224): the bundle's text (snapshot.json, corners.jsonl,
 # crops_missing.csv, report.md, export_runs.json, assignments*.json) is tracked; the pixels
 # and the rendered tool are not -- the auto-labeler's exporter re-cuts them.

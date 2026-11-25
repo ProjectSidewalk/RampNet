@@ -1,0 +1,11 @@
+{
+ "label": "crosswalk_s3",
+ "threshold": 0.29,
+ "seed": 274,
+ "n_panos": 120,
+ "random_panos": 120,
+ "node_fa_panos": 11,
+ "node_fa_only_panos": 10,
+ "detections": 254,
+ "detections_random": 235
+}
