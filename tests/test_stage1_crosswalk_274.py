@@ -135,6 +135,34 @@ def test_compute_cost_tables_match_the_ledger():
     assert f"{sum(r['gpu_hours'] for r in rows):.2f}" == "84.09" and "84.09 GPU-hours" in sec
 
 
+def test_compute_cost_tables_match_the_ledger_285():
+    """The same for docs/compute_cost.md's #285 `crosswalk_s6` section (jobs named cw285_*): 14 training rows,
+    two inference ranges, 65.39 GPU-hours."""
+    sys.path.insert(0, REPO)
+    from rampnet import ledger
+    rows = [r for r in ledger.read_rows(os.path.join(REPO, "analysis_out", "compute_log.jsonl"))
+            if r["cluster"] == "klone" and r["job_name"].startswith("cw285_")]
+    sec = _section("compute_cost.md", "## klone, 2026-11-13: the #285 `crosswalk_s6` study")
+    table = [[c.strip() for c in ln.strip("|").split("|")] for ln in sec.splitlines()
+             if ln.startswith("| ") and ln[2:3].isdigit()]
+    train = [t for t in table if len(t) == 6]
+    infer = [t for t in table if len(t) == 4]
+    want = {r["job_id"]: r for r in rows if r["gpus"] == 4}
+    assert len(train) == len(want) == 14     # no job was requeued, so one row per job id
+    for job, _, state, gpus, wall, gpu_h in train:
+        r = want[job]
+        assert (state, gpus, wall, gpu_h) == (r["state"], f"4 {r['gpu_type'].upper()}", _wall(r["elapsed_s"]),
+                                              f"{r['gpu_hours']:.2f}"), job
+    assert len(infer) == 2
+    one = [r for r in rows if r["gpus"] == 1]
+    for jobs, _, n, gpu_h in infer:
+        lo, hi = jobs.split("-")
+        sel = [r for r in one if lo <= r["job_id"] <= hi]
+        assert (int(n), gpu_h) == (len(sel), f"{sum(r['gpu_hours'] for r in sel):.2f}"), jobs
+    assert sum(int(t[2]) for t in infer) == len(one) == 57
+    assert f"{sum(r['gpu_hours'] for r in rows):.2f}" == "65.39" and "65.39 GPU-hours" in sec
+
+
 # score_274.py's `cards --definition` (and DEFINITIONS["paint_brick"]) arrived in f1e2f21b, 2026-11-08 07:52:58 -0800.
 PAINT_BRICK_FROM = "2026-11-08T15:52:58Z"
 

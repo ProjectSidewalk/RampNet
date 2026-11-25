@@ -568,3 +568,61 @@ L40s. s5 seed 1 was preempted at 50 min and resumed from its checkpoint, so part
 1's 3.35 GPU-hours carried into the finished run. The #274 work that ran on the local RTX 3070
 (the Vistas placement passes, `bprime-prep`, the klone-vs-local inference check) has no Slurm
 record and no `usage_log.jsonl` row; the study doc says so beside those steps.
+
+## klone, 2026-11-13: the #285 `crosswalk_s6` study, 65.39 GPU-hours, $0
+
+Every klone allocation of the `crosswalk_s6` pre-registered test
+([`crosswalk_followups_285.md`](crosswalk_followups_285.md), section A4): the ten calibration
+inference jobs for `crosswalk_s4` seeds 1 to 3, the smoke run, the seven training runs (full and
+half dose, three seeds each, and the step control) with the six that failed on the scrubbed quota
+error and their reruns, and every inference job of the seven trained models. All on `ckpt-all`, so
+free. This was recorded late: the jobs ran on 2026-11-13, and the pull was made on 2026-11-25
+during review of #301. Pulled on a klone login node on 2026-11-25 into
+`docs/data/compute/sacct_klone_2026-11-25_cw285.txt` (13,920 bytes, sha256
+`e3ecc2060d284f5f4997c679d2a8fc15fd4ae2219c7fac2db857476fb6e8adc1`). The records are every job
+named `cw285*` on the account since 2026-11-01 (the scripts under
+`scripts/analysis/stage1_crosswalk_sdot_274/` name every #285 job `cw285_*`); every job id the
+study doc names is among them:
+
+```bash
+sacct -X -D -P -n -u jfroehli -S 2026-11-01 \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    | awk -F'|' '$2 ~ /^cw285/' > sacct_klone_2026-11-25_cw285.txt
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-11-25_cw285.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+Training, 4 GPUs per job; full dose and the step control 1,397 steps, half dose 1,198:
+
+| job | what | state | GPUs | wall-clock | GPU-h |
+| :--- | :--- | :--- | :--- | ---: | ---: |
+| 43218825 | smoke, 20 steps on `root_v6_full` | COMPLETED | 4 A40 | 2 m 27 s | 0.16 |
+| 43218827 | `v6full_s1`, first run (scrubbed quota error) | FAILED | 4 A40 | 1 h 40 m 07 s | 6.67 |
+| 43218828 | `v6full_s2` | COMPLETED | 4 A100 | 1 h 04 m 07 s | 4.27 |
+| 43218829 | `v6full_s3`, first run (scrubbed quota error) | FAILED | 4 A40 | 1 h 09 m 40 s | 4.64 |
+| 43218830 | `v6half_s1`, first run (scrubbed quota error) | FAILED | 4 A40 | 1 h 13 m 50 s | 4.92 |
+| 43218831 | `v6half_s2`, first run (scrubbed quota error) | FAILED | 4 A100 | 30 m 16 s | 2.02 |
+| 43218832 | `v6half_s3`, first run (scrubbed quota error) | FAILED | 4 A40 | 17 s | 0.02 |
+| 43218833 | `v4steps1397_s1`, first run (scrubbed quota error) | FAILED | 4 A40 | 17 s | 0.02 |
+| 43224827 | `v6full_s1` (rerun) | COMPLETED | 4 A100 | 1 h 03 m 31 s | 4.23 |
+| 43224828 | `v6full_s3` (rerun) | COMPLETED | 4 A40 | 2 h 07 m 54 s | 8.53 |
+| 43224829 | `v6half_s1` (rerun) | COMPLETED | 4 A100 | 54 m 51 s | 3.66 |
+| 43224830 | `v6half_s2` (rerun) | COMPLETED | 4 A40 | 1 h 50 m 40 s | 7.38 |
+| 43224831 | `v6half_s3` (rerun) | COMPLETED | 4 A40 | 1 h 50 m 36 s | 7.37 |
+| 43224832 | `v4steps1397_s1` (rerun) | COMPLETED | 4 L40S | 1 h 39 m 43 s | 6.65 |
+
+Inference, 1 GPU per job:
+
+| jobs | what | records | GPU-h |
+| :--- | :--- | ---: | ---: |
+| 43218286-43218295 | calibration: `crosswalk_s4` seeds 1 to 3 on Laurens and Juneau, seeds 2 and 3 on (b′) and the fresh Juneau draw | 10 | 0.48 |
+| 43224951-43235624 | the seven s6 models: val/test, (b′), Juneau, Laurens and the fresh Juneau draw; seed 1 of each arm also on the confirmation cities, the PS labels, Columbia and Bayonne | 47 | 4.36 |
+
+Training 60.55 GPU-h over 14 records, 18.30 of it in the six runs that failed on the storage error
+and were started again from step 0; the seven finished runs and the smoke run are 42.25. Inference
+4.84 GPU-h over 57 jobs. Unlike #274, none was preempted, so `-D` adds no incarnation here. The
+#285 work that ran locally, on the CPU or the RTX 3070 (the car-top rule, the missed-crosswalk
+page and s4's committed Juneau and Laurens predictions, the OSM placement passes, the A4 build, and
+the A4 follow-up sheets), has no Slurm record and no `usage_log.jsonl` row; the study doc says so
+in its compute section.

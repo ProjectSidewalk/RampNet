@@ -1101,3 +1101,21 @@ python $S/pos_sheet.py score --out <keep>/osm285/pos_sheet \
 `build` needs the `root_v6_full` train JPEGs (archived with the A4 roots). It refuses to run if the root's non-auto
 train positives are not exactly root_v4's 8,034. To archive the page with the other `osm285` files, Jon reruns the
 `osm285` rsync to makelab2 (see "Where the pilot files that are not in the repo are archived").
+
+## Compute and time
+
+Every #285 job on klone (all named `cw285_*`) belongs to the A4 `crosswalk_s6` test, all on 2026-11-13, and all
+of it is in `analysis_out/compute_log.jsonl`: 71 records, 65.39 GPU-hours, all on the free `ckpt-all` partition, so $0.
+Training is 60.55 of that (14 four-GPU records: the smoke run, the seven finished runs, and the six first runs that
+failed on the scrubbed quota error, which alone cost 18.30 GPU-hours before they were started again from step 0).
+Inference is 4.84: the ten `crosswalk_s4` calibration jobs (0.48) and 47 jobs for the seven s6 models (4.36). A
+finished run took 3.7 to 8.5 GPU-hours, depending on dose and on whether it landed on A100s, A40s or L40Ss. The
+per-job table, the committed `sacct` dump and the command that rebuilds the rows are in
+[`compute_cost.md`](compute_cost.md) (klone, 2026-11-13). The rows were pulled on 2026-11-25, during review of
+#301, not when the runs finished.
+
+**Not recorded.** Everything else in this doc ran locally, on the CPU or the RTX 3070, and has no row in either
+ledger: the car-top rule (B), the missed-crosswalk page and s4's Juneau and Laurens predictions behind it (C), the
+OSM placement passes and their gate pages (A0 to A3), the A4 build (`city-export`, `bprime-prep`, `add-panos`)
+and the s6 scoring, and both A4 follow-up sheets. Apart from the Vistas timings in the A2 replication block, their
+wall-clock was not measured, so no figure is given for them. They cost $0.
