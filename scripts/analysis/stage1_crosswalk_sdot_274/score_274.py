@@ -99,6 +99,21 @@ def finite(v):
     return v
 
 
+def rounded(v, nd):
+    """`v` with every float rounded to `nd` decimals (bools, ints and strings untouched).
+
+    >>> rounded({"a": [0.1 + 0.2, 3, True, "x"]}, 9)
+    {'a': [0.3, 3, True, 'x']}
+    """
+    if isinstance(v, float):
+        return round(v, nd)
+    if isinstance(v, dict):
+        return {k: rounded(x, nd) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [rounded(x, nd) for x in v]
+    return v
+
+
 def write_json(path, obj):
     """Every committed JSON goes through here: LF on every OS (newline=""), indent 1, and NaN written as null
     (`finite`); allow_nan=False makes a missed non-finite value an error rather than invalid JSON."""
@@ -2312,7 +2327,10 @@ def cmd_bprime_score(a):
                               "per_cell": per_cell, "true_nodes_by_pano_year": by_year}
         log(f"(b') {lab}: weighted F1 detector {fmt(m['detector']['f1'])} vs OSM {fmt(m['osm']['f1'])}; "
             f"OR {fmt(m['either']['f1'])}")
-    write_json(os.path.join(out_dir, "scores.json"), out)
+    # Rounded so check_274 can byte-compare on every numpy build: the weighted sums accumulate in a
+    # build-dependent order, and numpy 2.2.6 (the last for Python 3.10) moved their last bits (~1e-15
+    # relative, e.g. tp_w 2685.053274 vs 2685.0532739999876). Nine decimals is far below anything reported.
+    write_json(os.path.join(out_dir, "scores.json"), rounded(out, 9))
     with open(os.path.join(out_dir, "nodes.csv"), "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(node_rows[0]), lineterminator="\n")
         w.writeheader()
