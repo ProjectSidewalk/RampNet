@@ -22,7 +22,7 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from rampnet import augment as A
-from rampnet.model import KeypointModel
+from rampnet.model import BACKBONE_NAME, KeypointModel, resolve_backbone
 from rampnet.loading import load_checkpoint
 from rampnet.seeding import HISTORICAL_SEED, sampler_seed_for
 
@@ -156,6 +156,11 @@ def parse_args():
                         help="Checkpoint to warm-start from (e.g. the released RampNet weights). "
                              "Ignored when latest_checkpoint.pth exists: resuming an interrupted "
                              "run always takes precedence, and warm-starting applies at step 0 only.")
+    parser.add_argument('--backbone', default=None,
+                        help="timm backbone id (default: $RAMPNET_BACKBONE, else "
+                             "rampnet.model.BACKBONE_NAME, the released model's). #107 compares "
+                             "convnext_base.dinov3_lvd1689m. A run cannot resume from, or "
+                             "warm-start from, a checkpoint of another backbone.")
     parser.add_argument('--checkpoint-dir', default='checkpoints',
                         help="Directory for per-epoch checkpoints (default: checkpoints)")
     parser.add_argument('--seed', type=int, default=HISTORICAL_SEED,
@@ -800,7 +805,9 @@ val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank
 train_loader = DataLoader(train_dataset, batch_size=1, sampler=train_sampler, num_workers=4, pin_memory=True)
 val_loader = DataLoader(val_dataset, batch_size=1, sampler=val_sampler, num_workers=4, pin_memory=True) if val_sampler else None
 
-model = KeypointModel(heatmap_size=heatmap_output_shape, pretrained_backbone=True).cuda(local_rank)
+backbone_name = resolve_backbone(args.backbone)
+model = KeypointModel(heatmap_size=heatmap_output_shape, pretrained_backbone=True,
+                      backbone_name=backbone_name).cuda(local_rank)
 if world_size > 1:
     model = DDP(model, device_ids=[local_rank], output_device=local_rank, find_unused_parameters=False)
 
@@ -844,6 +851,7 @@ if rank == 0:
     os.makedirs(args.checkpoint_dir, exist_ok=True)
     writer = SummaryWriter(log_dir='runs/experiment_1')
     print(f"Preset: {args.preset}, lr: {args.lr}, epochs: {args.epochs}, data root: {new_root_dir}")
+    print(f"Backbone: {backbone_name}")
     # Both seeds in the log, always. A seed sweep whose arms cannot be told apart from
     # their own logs is not reproducible, and the sampler half is the one that is easy
     # to leave unset without noticing.
@@ -890,6 +898,11 @@ if args.init_weights:
 if os.path.exists(checkpoint_file):
     checkpoint = torch.load(checkpoint_file, map_location='cpu')
     check_resume_objective(checkpoint, args.loss_mask, args.mask_norm, checkpoint_file)
+    # Checkpoints written before --backbone existed carry no 'backbone' key and are the default's.
+    resume_backbone = checkpoint.get('backbone', BACKBONE_NAME)
+    if resume_backbone != backbone_name:
+        raise SystemExit(f"Error: {checkpoint_file} was trained with backbone {resume_backbone}, "
+                         f"but this run asks for {backbone_name}. Use a separate run directory.")
     model_to_load = model.module if isinstance(model, DDP) else model
     model_to_load.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -930,7 +943,7 @@ def save_final(step):
     torch.save(state, final_path)
     print(f"Saved final model ({step // args.grad_accum} optimizer steps, {step} "
           f"micro-batches) to {final_path}")
-    torch.save({**MASK_STATE,
+    torch.save({**MASK_STATE, 'backbone': backbone_name,
         'epoch': epoch,
         'global_step': step,
         'batch_idx_in_epoch': resume_offset + i + 1,
@@ -1042,7 +1055,7 @@ for epoch in range(start_epoch, num_epochs):
 
             if periodic_save_due(current_total_step, checkpoint_interval_steps, max_micro_steps):
                 model_state_to_save = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
-                torch.save({**MASK_STATE,
+                torch.save({**MASK_STATE, 'backbone': backbone_name,
                     'epoch': epoch, 
                     'global_step': current_total_step,
                     'batch_idx_in_epoch': resume_offset + i + 1,
@@ -1135,7 +1148,7 @@ for epoch in range(start_epoch, num_epochs):
 
             epoch_checkpoint_path = os.path.join(args.checkpoint_dir, f"epoch_{epoch+1}_step_{global_step}.pth")
             model_state_to_save = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
-            torch.save({**MASK_STATE,
+            torch.save({**MASK_STATE, 'backbone': backbone_name,
                 'epoch': epoch + 1,
                 'global_step': global_step,
                 'batch_idx_in_epoch': 0,
@@ -1192,7 +1205,7 @@ for epoch in range(start_epoch, num_epochs):
                 print(f"Saved visualization to {visualization_path}")
             
             model_state_to_save = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
-            torch.save({**MASK_STATE,
+            torch.save({**MASK_STATE, 'backbone': backbone_name,
                 'epoch': epoch + 1, 
                 'global_step': global_step,
                 'batch_idx_in_epoch': 0,
