@@ -139,11 +139,21 @@ class Grid:
             self.b.setdefault((int(it[0] // self.dlat), int(it[1] // self.dlng)), []).append(it)
 
     def within(self, lat, lng, r):
+        """Every item within r metres, nearest first. A longitude cell is cell_m wide only at lat0; north of it
+        a cell is narrower, so the number of cells searched east and west is computed at the query latitude.
+
+        >>> dlng = Grid([], lat0=40.0).dlng
+        >>> lng0 = math.floor(-134.4 / dlng) * dlng - 1e-9        # the east edge of a cell, at Juneau's latitude
+        >>> g = Grid([(58.3, lng0 + 34.5 / (111320.0 * math.cos(math.radians(58.3))), "e")], lat0=40.0)
+        >>> [it[2] for _, it in g.within(58.3, lng0, 35.0)]       # 34.5 m due east: one cell over is 34.3 m
+        ['e']
+        """
         ci, cj = int(lat // self.dlat), int(lng // self.dlng)
         k = int(r // self.cell_m) + 1
+        kx = int(r // (self.dlng * 111320.0 * max(math.cos(math.radians(lat)), 1e-9))) + 1
         out = []
         for i in range(ci - k, ci + k + 1):
-            for j in range(cj - k, cj + k + 1):
+            for j in range(cj - kx, cj + kx + 1):
                 for it in self.b.get((i, j), ()):
                     d = haversine_m(lat, lng, it[0], it[1])
                     if d <= r:

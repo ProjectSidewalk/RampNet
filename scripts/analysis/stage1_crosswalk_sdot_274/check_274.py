@@ -13,8 +13,12 @@ directory and compares each output with the committed copy, byte for byte:
   s4 -> s5);
 * root_v3's 166 negatives (`export_stage2.confirmed_negatives`): the card ids and the counts in its manifest.
 
-Not covered, because their inputs are not in the repo: `score` (guard 1, the (a) tables, the threshold sweeps),
-`bprime-score` (the (b') rules, s3/s4 guard 3, s5 guard 6), and anything that runs a model.
+Where pyproj is installed (it is not in requirements-dev.txt, so CI skips this part), also `bprime-score` from the
+committed pano-data extract `bprime/seattle_pano_data_bprime.psv`: the (b') `nodes.csv` of v2_labels (s2, s3),
+s4_matched (s4 guard 3) and s5_matched (s5 guard 6) byte for byte, and their `scores.json` apart from `scored_utc`.
+
+Not covered, because the Stage 2 roots are not in the repo: `score` (guard 1, the (a) tables, the threshold sweeps).
+Nothing here runs a model.
 
     python scripts/analysis/stage1_crosswalk_sdot_274/check_274.py            # exit 1 on any difference
     python scripts/analysis/stage1_crosswalk_sdot_274/check_274.py --keep DIR # leave the regenerated files in DIR
@@ -99,6 +103,44 @@ def steps():
     return out
 
 
+BPRIME = (("v2_labels", "crosswalk_s3,crosswalk_s2,crosswalk_s1,released", "v2_labels/bprime"),
+          ("v2_labels/s4_matched", "crosswalk_s4,crosswalk_s1,crosswalk_s3,released", "v2_labels/s4_matched/bprime"),
+          ("v2_labels/s5_matched", "crosswalk_s5,crosswalk_s4,released", "v2_labels/s5_matched/bprime"))
+
+
+def check_bprime(tmp):
+    """(b') from the committed extract, as the doc's `cp` step assembles its inputs. Returns (problems, compared);
+    compared is None when pyproj is absent (ground_point needs it)."""
+    import importlib.util
+    if importlib.util.find_spec("pyproj") is None:
+        return [], None
+    bp = os.path.join(tmp, "bprime_inputs")
+    os.makedirs(bp, exist_ok=True)
+    shutil.copy(os.path.join(REPO, D, "bprime", "sample.csv"), bp)
+    for src in (f"{D}/bprime/preds", f"{D}/v2_labels/bprime/preds"):
+        shutil.copytree(os.path.join(REPO, src), os.path.join(bp, "preds"), dirs_exist_ok=True)
+    problems, compared = [], 0
+    for scores, labels, ref in BPRIME:
+        out = os.path.join(tmp, "bprime_out", ref)
+        r = subprocess.run([sys.executable, S, "bprime-score", "--bprime", bp, "--scores", f"{D}/{scores}",
+                            "--pano-data", f"{D}/bprime/seattle_pano_data_bprime.psv", "--labels", labels,
+                            "--out", out], cwd=REPO, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        if r.returncode:
+            problems.append(f"score_274.py bprime-score for {ref} failed:\n{r.stdout[-2000:]}")
+            continue
+        for name, strip in (("nodes.csv", False), ("scores.json", True)):
+            with open(os.path.join(REPO, D, ref, name), "rb") as f:
+                want = f.read()
+            with open(os.path.join(out, name), "rb") as f:
+                got = f.read()
+            if strip:       # the run's own timestamp is the one line that may differ
+                want, got = ([ln for ln in b.split(b"\n") if b'"scored_utc"' not in ln] for b in (want, got))
+            compared += 1
+            if got != want:
+                problems.append(f"{D}/{ref}/{name}: the regenerated file differs from the committed one")
+    return problems, compared
+
+
 def check_negatives():
     """root_v3's negatives: confirmed_negatives on the committed verdicts gives negatives.csv's card ids, and the
     counts root_v3/manifest.json records. Returns a list of problems."""
@@ -141,7 +183,8 @@ def run(tmp):
             if got != want:
                 problems.append(f"{rel}: the regenerated file differs from the committed one")
     neg_problems, n_neg = check_negatives()
-    return problems + neg_problems, compared, n_neg
+    bp_problems, n_bp = check_bprime(tmp)
+    return problems + neg_problems + bp_problems, compared, n_neg, n_bp
 
 
 def main():
@@ -150,12 +193,14 @@ def main():
     a = ap.parse_args()
     tmp = a.keep or tempfile.mkdtemp(prefix="check274_")
     try:
-        problems, compared, n_neg = run(os.path.abspath(tmp))
+        problems, compared, n_neg, n_bp = run(os.path.abspath(tmp))
     finally:
         if not a.keep:
             shutil.rmtree(tmp, ignore_errors=True)
     for p in problems:
         print("FAIL", p)
+    print("(b') bprime-score: skipped, pyproj is not installed" if n_bp is None else
+          f"(b') bprime-score: {n_bp} regenerated outputs compared")
     print(f"{compared} regenerated outputs compared byte for byte; root_v3 negatives {n_neg}; "
           f"{len(problems)} problem(s)")
     if not compared:

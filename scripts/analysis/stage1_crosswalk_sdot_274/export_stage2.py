@@ -371,6 +371,8 @@ def cmd_add_negatives(a):
     were, so s3 scores on the same data as s1. A negative within NEGATIVE_MIN_DIST of one of its pano's positives
     is left out and counted (the trainer would refuse it)."""
     rows, counts = confirmed_negatives(a.ratings, a.drop)
+    if not rows:
+        raise SystemExit("add-negatives: the ratings hold no not_crosswalk verdict to add; nothing built")
     where = {}
     for s in ("train", "val", "test"):
         d = os.path.join(a.src_root, s)
@@ -419,6 +421,8 @@ def cmd_add_negatives(a):
         for fn in sorted(os.listdir(os.path.join(a.root, s))):
             if fn.endswith(".json"):
                 labels.update(f"{s}/{fn} {sha256(os.path.join(a.root, s, fn))}\n".encode())
+    if not out_rows:
+        raise SystemExit("add-negatives: every negative was left out (near a positive); no negatives.csv written")
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "negatives.csv"), "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(out_rows[0]), lineterminator="\n")
@@ -569,6 +573,8 @@ def cmd_add_panos(a):
         for fn in sorted(os.listdir(os.path.join(a.root, s))):
             if fn.endswith(".json"):
                 labels.update(f"{s}/{fn} {sha256(os.path.join(a.root, s, fn))}\n".encode())
+    if not rows:
+        raise SystemExit("add-panos: no pano to add; no new_panos.csv written")
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "new_panos.csv"), "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")

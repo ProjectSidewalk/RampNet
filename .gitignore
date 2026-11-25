@@ -613,6 +613,8 @@ analysis_out/stage1_crosswalk_detector_274/bprime/*
 !analysis_out/stage1_crosswalk_detector_274/bprime/*.json
 !analysis_out/stage1_crosswalk_detector_274/bprime/*.md
 !analysis_out/stage1_crosswalk_detector_274/bprime/*.txt
+# the 793 (b') panos' rows of Seattle's pano_data export, so bprime-score runs from the repo
+!analysis_out/stage1_crosswalk_detector_274/bprime/*.psv
 !analysis_out/stage1_crosswalk_detector_274/bprime/preds/
 analysis_out/stage1_crosswalk_detector_274/bprime/preds/*/*
 !analysis_out/stage1_crosswalk_detector_274/bprime/preds/*/

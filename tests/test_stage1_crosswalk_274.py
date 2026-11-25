@@ -1,6 +1,7 @@
 """The #274 crosswalk-detector scripts under CI: their doctests, the decision-number check, and the constants
 the scripts copy from the trainer (RampNet#274). CPU only, no network, committed files only."""
 import doctest
+import importlib
 import importlib.util
 import os
 import subprocess
@@ -16,15 +17,16 @@ NEEDS_PYPROJ = {"score_274.ground_point"}
 
 
 def _load(name):
+    """The script as a module, imported by name: the scripts import each other (crowd_arm imports pilot), and
+    DocTestFinder only collects objects whose module is the one in sys.modules."""
     if D not in sys.path:
         sys.path.insert(0, D)
-    spec = importlib.util.spec_from_file_location(name, os.path.join(D, name + ".py"))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    mod = importlib.import_module(name)
+    assert os.path.dirname(os.path.abspath(mod.__file__)) == D, f"{name} imported from {mod.__file__}"
     return mod
 
 
-@pytest.mark.parametrize("name", ["score_274", "brick_positives", "crowd_arm"])
+@pytest.mark.parametrize("name", ["score_274", "brick_positives", "crowd_arm", "pilot"])
 def test_doctests(name):
     """`python -m doctest` on each script, which plain pytest does not collect. score_274's doctests pin
     label_hits, paired_recall_diff, pct_interval, audit_rates, recall_matched_threshold and finite."""

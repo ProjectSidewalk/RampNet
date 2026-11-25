@@ -160,10 +160,15 @@ REGISTRY: list = [
     E("stage1_crosswalk_274", (AN + "stage1_crosswalk_sdot_274/check_274.py",),
       "the #274 crosswalk detector's decision numbers re-derive byte for byte from committed verdicts and "
       "predictions: P1 (Columbia label recall), the s3 and s4 confirmation draws (P2 included), the s3 audit and "
-      "its retention guard, the Juneau eval draw, and root_v3's 166 negatives",
+      "its retention guard, the Juneau eval draw, and root_v3's 166 negatives; with pyproj, the (b') nodes "
+      "of s2/s3, s4 guard 3 and s5 guard 6",
       pins=("analysis_out/stage1_crosswalk_detector_274/hardneg/",
-            "analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s3/",
-            "analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/preds/crosswalk_s4/")),
+            "analysis_out/stage1_crosswalk_detector_274/bprime/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/s4_matched/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/s5_matched/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/scores.json"),
+      note="the (b') part (bprime-score) runs only where pyproj is installed; CI skips it and says so"),
     E("yolo_geometry_51", (AN + "yolo_geometry_51.py", "--check"),
       "YOLO control leg reproduces its scoreboard row; committed JSON matches a fresh read (#51)",
       pins=("docs/data/yolo_geometry_51/", "docs/data/yolo_geometry_51.json")),
