@@ -929,6 +929,8 @@ def prefill_for(items, rows, r=PREFILL_R):
     {'det:p:0.506:0.552': {'verdict': 'not_crosswalk', 'note': 'carried from fp:p:0.500:0.550: bus lane'}}
     >>> prefill_for([{"kind": "fn", "pano_id": "p", "x": 0.5, "y": 0.55}], rows)
     {}
+    >>> PREFILL_R, prefill_for([{"kind": "det", "pano_id": "p", "x": 0.515, "y": 0.55}], rows)   # 0.015 away
+    (0.01, {})
     """
     exact = {row["card_id"]: row for row in rows}
     by = {}

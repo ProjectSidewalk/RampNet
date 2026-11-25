@@ -1292,6 +1292,7 @@ python scripts/analysis/stage1_crosswalk_sdot_274/export_stage2.py build <as abo
 cp -r $D/preds/crosswalk_s1 $D/preds/released $D/v2_labels/preds/ && python $S oracle --root <root> --preds $D/v2_labels/preds
 python $S score --root <root> --preds $D/v2_labels/preds --labels crosswalk_s1,released,label_ceiling <as above> --out $D/v2_labels
 python $S figures --out $D/v2_labels --fig-dir docs/figures/stage1_crosswalk_detector_274/v2_labels
+# ^ no longer runs as written: v2_labels/scores.json now holds five models and `figures` has four colours (IndexError); the committed v2 figures (2026-11-05) predate the fifth
 python $S gallery ... --scores $D/v2_labels --threshold 0.31 --prefill $D/ratings_jon_2026-11-05.csv --out <outside the repo>
 python -m doctest $C
 # retrain on v2 labels (crosswalk_s2): train on klone, infer, then score both models on CPU

@@ -87,3 +87,100 @@ def test_copied_constants_agree_with_the_trainer():
         except ValueError:
             refused = True
         assert refused == (exp.neg_dist(neg, pos) < exp.NEGATIVE_MIN_DIST), (neg, pos)
+
+
+def _section(doc, heading):
+    text = open(os.path.join(REPO, "docs", doc), encoding="utf-8").read()
+    start = text.index(heading)
+    end = text.find("\n## ", start + len(heading))
+    return text[start:] if end < 0 else text[start:end]
+
+
+def _wall(s):
+    if s < 60:
+        return f"{s} s"
+    if s < 3600:
+        return f"{s // 60} m {s % 60:02d} s"
+    return f"{s // 3600} h {s % 3600 // 60:02d} m {s % 60:02d} s"
+
+
+def test_compute_cost_tables_match_the_ledger():
+    """docs/compute_cost.md's #274 section: every training row (job, state, GPUs, wall-clock, GPU-h) and every
+    inference range (records, GPU-h) agrees with the ledger rows the committed dump parses to."""
+    sys.path.insert(0, REPO)
+    from rampnet import ledger
+    rows = [r for r in ledger.read_rows(os.path.join(REPO, "analysis_out", "compute_log.jsonl"))
+            if r["cluster"] == "klone" and r["job_name"].startswith(("cw274", "crosswalk274"))]
+    sec = _section("compute_cost.md", "## klone, 2026-11-04 to 2026-11-09: the #274 crosswalk detector")
+    table = [[c.strip() for c in ln.strip("|").split("|")] for ln in sec.splitlines()
+             if ln.startswith("| ") and ln[2:3].isdigit()]
+    train = [t for t in table if len(t) == 6]
+    infer = [t for t in table if len(t) == 4]
+    want = [r for r in rows if r["gpus"] == 4]
+    assert len(train) == len(want) == 20
+    by_job = {}
+    for r in want:
+        by_job.setdefault(r["job_id"], []).append(r)
+    for job, _, state, gpus, wall, gpu_h in train:
+        r = by_job[job].pop(0)      # a requeued job's incarnations are listed in start order
+        assert (state, gpus, wall, gpu_h) == (r["state"], f"4 {r['gpu_type'].upper()}", _wall(r["elapsed_s"]),
+                                              f"{r['gpu_hours']:.2f}"), job
+    assert len(infer) == 3
+    one = [r for r in rows if r["gpus"] == 1]
+    for jobs, _, n, gpu_h in infer:
+        lo, hi = jobs.split("-")
+        sel = [r for r in one if lo <= r["job_id"] <= hi]
+        assert (int(n), gpu_h) == (len(sel), f"{sum(r['gpu_hours'] for r in sel):.2f}"), jobs
+    assert sum(int(t[2]) for t in infer) == len(one) == 42
+    assert f"{sum(r['gpu_hours'] for r in rows):.2f}" == "84.09" and "84.09 GPU-hours" in sec
+
+
+# score_274.py's `cards --definition` (and DEFINITIONS["paint_brick"]) arrived in f1e2f21b, 2026-11-08 07:52:58 -0800.
+PAINT_BRICK_FROM = "2026-11-08T15:52:58Z"
+
+
+def test_ratings_definitions_sidecar():
+    """analysis_out/stage1_crosswalk_detector_274/ratings_definitions.csv: every committed #274 verdict file is
+    listed once, every row names files that exist, carries the definition's exact text, and a carried or raw copy
+    has its source page's definition. A page cannot have been rated under paint_brick before the code offered it, so
+    no file marked paint_brick holds a verdict timed before f1e2f21b."""
+    import csv
+    import glob
+    import re
+    base = os.path.join(REPO, "analysis_out", "stage1_crosswalk_detector_274")
+    texts = {k: re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", v)).strip() for k, v in _load("score_274").DEFINITIONS.items()}
+    with open(os.path.join(base, "ratings_definitions.csv"), encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    listed = {}
+    for r in rows:
+        assert r["definition_text"] == texts[r["definition"]], r["file"]
+        paths = [r["file"].replace("{draw}", d).replace("{model}", m)
+                 for d in ("seattle", "juneau", "laurens_gsv", "laurens_mly") for m in ("s4", "s5")]
+        for p in sorted(set(paths)):
+            assert os.path.isfile(os.path.join(base, p)), p
+            assert p not in listed, f"{p} listed twice"
+            listed[p] = r["definition"]
+    on_disk = {os.path.relpath(p, base).replace(os.sep, "/") for pat in
+               ("**/ratings_jon_*.csv", "hardneg/confirm_s3/*/s*/ratings.csv", "hardneg/s5_inputs/juneau_eval/*/ratings.csv",
+                "raw_downloads/*_ratings_*.csv") for p in glob.glob(os.path.join(base, pat), recursive=True)}
+    assert on_disk == set(listed), sorted(on_disk ^ set(listed))
+    h = "hardneg/"
+    for d in ("seattle", "juneau", "laurens_gsv", "laurens_mly"):       # carried copies follow their source page
+        for m in ("s1", "s3"):
+            assert listed[f"{h}confirm_s3/{d}/{m}/ratings.csv"] == listed[f"{h}confirm_s3/page/ratings_jon_2026-11-08_confirm.csv"]
+        assert listed[f"{h}confirm_s3/{d}/s4/ratings.csv"] == listed[f"{h}s4_stepB/ratings_jon_2026-11-09_s4_stepB.csv"]
+    for m in ("s4", "s5"):
+        assert listed[f"{h}s5_inputs/juneau_eval/{m}/ratings.csv"] == \
+            listed[f"{h}s5_stepB/ratings_jon_2026-11-10_s5_stepB_fixed.csv"]
+    for r in rows:
+        if r["file"].startswith("raw_downloads/"):
+            page = r["note"].rsplit(" ", 1)[1]
+            assert r["definition"] == listed[page], r["file"]
+    timed = 0
+    for p, d in listed.items():
+        with open(os.path.join(base, p), encoding="utf-8", newline="") as f:
+            times = [t["rated_at"] for t in csv.DictReader(f) if t.get("rated_at") not in (None, "", "prefill")]
+        if times and d == "paint_brick":
+            assert min(times) >= PAINT_BRICK_FROM, (p, min(times))
+            timed += 1
+    assert timed >= 8
