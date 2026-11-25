@@ -339,6 +339,67 @@ def test_ambiguous_bundles_name_every_candidate(run, tmp_path, monkeypatch):
         bsl.main(argv)
 
 
+def _swap_lists(argv, bench, excl):
+    argv = list(argv)
+    argv[argv.index("--benchmark-ids") + 1] = str(bench)
+    argv[argv.index("--exclude-ids") + 1] = str(excl)
+    return argv
+
+
+def test_label_audit_lists_must_cover_every_audit_bundle(run, tmp_path, monkeypatch):
+    # #278: once the top-up directory exists, the first draw's lists alone are refused,
+    # and the top-up's cumulative lists pass.
+    root = tmp_path / "benchmark"
+    first, topup = root / "lyon", root / "lyon_topup278"
+    first.mkdir(parents=True)
+    (first / "ids.txt").write_text("B1\n", encoding="utf-8")
+    (first / "exclude_ids.txt").write_text("X1\n", encoding="utf-8")
+    monkeypatch.setattr(bsl, "BENCHMARK_ROOT", root)
+    assert bsl.main(_argv(run, tmp_path / "o1")) == 0        # first draw alone: as before
+    topup.mkdir()
+    (topup / "ids.txt").write_text("Q1\n", encoding="utf-8")
+    (topup / "exclude_ids.txt").write_text("X1\nQ1\n", encoding="utf-8")
+    with pytest.raises(SystemExit, match="label-audit bundle lyon_topup278.*benchmark-ids"):
+        bsl.main(_argv(run, tmp_path / "o2"))
+    never = run / "never_train.txt"
+    never.write_text("B1\nQ1\n", encoding="utf-8")
+    cumul = run / "exclude_cumulative.txt"
+    cumul.write_text("X1\nQ1\n", encoding="utf-8")
+    with pytest.raises(SystemExit, match="exclude-ids lacks ids of lyon_topup278"):
+        bsl.main(_swap_lists(_argv(run, tmp_path / "o3"), never, run / "exclude.txt"))
+    assert bsl.main(_swap_lists(_argv(run, tmp_path / "o4"), never, cumul)) == 0
+
+
+def test_the_guard_follows_a_label_audit_bundle_to_its_siblings(tmp_path, monkeypatch):
+    # review F4: --city lyon_5m matches benchmark/lyon but not benchmark/lyon_topup278;
+    # the top-up must still be checked, because it is a sibling of a matched audit bundle.
+    root = tmp_path / "benchmark"
+    for name, ids, excl in (("lyon", "B1\n", "X1\n"), ("lyon_topup278", "Q1\n", "X1\nQ1\n")):
+        (root / name).mkdir(parents=True)
+        (root / name / "ids.txt").write_text(ids, encoding="utf-8")
+        (root / name / "exclude_ids.txt").write_text(excl, encoding="utf-8")
+    monkeypatch.setattr(bsl, "BENCHMARK_ROOT", root)
+    bench, excl = tmp_path / "b.txt", tmp_path / "e.txt"
+    bench.write_text("B1\n", encoding="utf-8")
+    excl.write_text("X1\n", encoding="utf-8")
+    assert bsl.benchmark_bundles_for("lyon_5m") == ["lyon"]
+    with pytest.raises(SystemExit, match="lyon_topup278"):
+        bsl.check_never_train_lists("lyon_5m", bench, excl)
+    bench.write_text("B1\nQ1\n", encoding="utf-8")
+    excl.write_text("X1\nQ1\n", encoding="utf-8")
+    bsl.check_never_train_lists("lyon_5m", bench, excl)        # the cumulative pair passes
+
+
+def test_bundles_without_an_exclude_list_are_not_checked(run, tmp_path, monkeypatch):
+    # laurens_gsv / laurens_mapillary style: a build passes one arm's ids, unchanged.
+    root = tmp_path / "benchmark"
+    for name, ids in (("lyon", "B1\n"), ("lyon_other_arm", "ZZ\n")):
+        (root / name).mkdir(parents=True)
+        (root / name / "ids.txt").write_text(ids, encoding="utf-8")
+    monkeypatch.setattr(bsl, "BENCHMARK_ROOT", root)
+    assert bsl.main(_argv(run, tmp_path / "out")) == 0
+
+
 def test_benchmark_and_buffer_drop_whole_sites(run, tmp_path):
     out = tmp_path / "out"
     bsl.main(_argv(run, out))
