@@ -142,7 +142,8 @@ def check_bprime(tmp):
 
 
 def check_negatives():
-    """root_v3's negatives: confirmed_negatives on the committed verdicts gives negatives.csv's card ids, and the
+    """root_v3's negatives: confirmed_negatives on the committed verdicts gives negatives.csv's cards (id, pano_id,
+    x, y, the strings add-negatives copies from the verdicts), and the
     counts root_v3/manifest.json records. Returns a list of problems."""
     sys.path.insert(0, HERE)
     import export_stage2
@@ -151,12 +152,12 @@ def check_negatives():
         [os.path.join(REPO, p, f"ratings_jon_2026-11-06_{k}.csv") for k in ("confirm", "review9", "confirm2")],
         [os.path.join(REPO, p, "drop_disc_rule.csv")])
     with open(os.path.join(REPO, N, "root_v3", "negatives.csv"), encoding="utf-8", newline="") as f:
-        committed = [r["card_id"] for r in csv.DictReader(f)]
+        committed = [(r["card_id"], r["pano_id"], r["x"], r["y"]) for r in csv.DictReader(f)]
     with open(os.path.join(REPO, N, "root_v3", "manifest.json"), encoding="utf-8") as f:
         man = json.load(f)
     problems = []
-    if sorted(r["card_id"] for r in rows) != sorted(committed):
-        problems.append("root_v3/negatives.csv: card ids differ from confirmed_negatives")
+    if sorted((r["card_id"], r["pano_id"], r["x"], r["y"]) for r in rows) != sorted(committed):
+        problems.append("root_v3/negatives.csv: card ids or positions differ from confirmed_negatives")
     for k in ("rated_cards", "verdicts", "dropped_disc_rule", "negatives"):
         if counts[k] != man[k]:
             problems.append(f"root_v3/manifest.json {k}: committed {man[k]}, re-derived {counts[k]}")
