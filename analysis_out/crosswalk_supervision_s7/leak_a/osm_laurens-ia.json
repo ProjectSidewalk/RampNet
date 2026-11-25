@@ -1,0 +1,483 @@
+{
+ "version": 0.6,
+ "generator": "Overpass API 0.7.62.11 87bfad18",
+ "osm3s": {
+  "timestamp_osm_base": "2026-11-15T20:29:34Z",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+ },
+ "elements": [
+  {
+   "type": "node",
+   "id": 13523144363,
+   "lat": 42.8477349,
+   "lon": -94.8512913,
+   "tags": {
+    "crossing": "traffic_signals",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13523147511,
+   "lat": 42.8467865,
+   "lon": -94.8521368,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13523147543,
+   "lat": 42.8467725,
+   "lon": -94.8514581,
+   "tags": {
+    "crossing": "traffic_signals",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13523147547,
+   "lat": 42.8467615,
+   "lon": -94.8507832,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13523147548,
+   "lat": 42.847656,
+   "lon": -94.8514243,
+   "tags": {
+    "crossing": "traffic_signals",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13523147570,
+   "lat": 42.8466738,
+   "lon": -94.8513323,
+   "tags": {
+    "crossing": "traffic_signals",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13523147574,
+   "lat": 42.8477631,
+   "lon": -94.8515542,
+   "tags": {
+    "crossing": "traffic_signals",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13523147598,
+   "lat": 42.8466791,
+   "lon": -94.8515943,
+   "tags": {
+    "crossing": "traffic_signals",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13523147622,
+   "lat": 42.8477416,
+   "lon": -94.8521006,
+   "tags": {
+    "crossing": "unmarked",
+    "crossing:markings": "no",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 13621195543,
+   "lat": 42.8478364,
+   "lon": -94.8514174,
+   "tags": {
+    "crossing": "traffic_signals",
+    "crossing:markings": "yes",
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 14161650218,
+   "lat": 42.8508956,
+   "lon": -94.848653,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "node",
+   "id": 14161650226,
+   "lat": 42.8499695,
+   "lon": -94.8528437,
+   "tags": {
+    "highway": "crossing"
+   }
+  },
+  {
+   "type": "way",
+   "id": 15992323,
+   "nodes": [
+    160692885,
+    160701959,
+    160701960,
+    13523147547,
+    13523144384,
+    13523147636
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "alley"
+   }
+  },
+  {
+   "type": "way",
+   "id": 15992324,
+   "nodes": [
+    13523144381,
+    160701964,
+    160701965,
+    13523147511,
+    13523147622,
+    160701966
+   ],
+   "tags": {
+    "highway": "service",
+    "service": "alley"
+   }
+  },
+  {
+   "type": "way",
+   "id": 15996191,
+   "nodes": [
+    160740153,
+    160699526,
+    160742497,
+    160701960,
+    13523147570,
+    160742504,
+    13523147598,
+    160701965,
+    160689251,
+    160704822,
+    160742511,
+    160704776,
+    160704755,
+    160740441
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "West Main Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Pocahontas, IA",
+    "tiger:name_base": "Main",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no",
+    "tiger:zip_left": "50554",
+    "tiger:zip_right": "50554"
+   }
+  },
+  {
+   "type": "way",
+   "id": 15996665,
+   "nodes": [
+    160745758,
+    14161650218,
+    160749138
+   ],
+   "tags": {
+    "highway": "residential",
+    "name": "Arthur Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Pocahontas, IA",
+    "tiger:name_base": "Arthur",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 15996928,
+   "nodes": [
+    160742504,
+    13523147543,
+    13523147548,
+    160752405,
+    13621195543,
+    160752412,
+    160752420
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "North 3rd Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Pocahontas, IA",
+    "tiger:name_base": "3rd",
+    "tiger:name_direction_prefix": "N",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no",
+    "tiger:zip_left": "50554",
+    "tiger:zip_right": "50554"
+   }
+  },
+  {
+   "type": "way",
+   "id": 15997151,
+   "nodes": [
+    160745737,
+    13523147562,
+    14161616864,
+    160750055,
+    13523147636,
+    13523144363,
+    160752405,
+    13523147574,
+    160701966,
+    160747827,
+    160704827,
+    160755326,
+    160755329,
+    160699925
+   ],
+   "tags": {
+    "highway": "tertiary",
+    "name": "Walnut Street",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Pocahontas, IA",
+    "tiger:name_base": "Walnut",
+    "tiger:name_type": "St",
+    "tiger:reviewed": "no",
+    "tiger:zip_left": "50554",
+    "tiger:zip_right": "50554"
+   }
+  },
+  {
+   "type": "way",
+   "id": 15997383,
+   "nodes": [
+    160745753,
+    14161650216,
+    160757849,
+    160707580,
+    160752420,
+    160707495,
+    160758332,
+    14161650226,
+    160707473,
+    160758335,
+    14161616900,
+    160731653,
+    160715319,
+    160758338
+   ],
+   "tags": {
+    "alt_name": "County Road N28",
+    "highway": "tertiary",
+    "name": "West Section Line Road",
+    "tiger:cfcc": "A41",
+    "tiger:county": "Pocahontas, IA",
+    "tiger:name_base": "Section Line",
+    "tiger:name_base_1": "County Road N28",
+    "tiger:name_direction_prefix": "W",
+    "tiger:name_type": "Rd",
+    "tiger:reviewed": "no"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1474028764,
+   "nodes": [
+    13523147528,
+    13523147570,
+    13523147589
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1474028767,
+   "nodes": [
+    13523147504,
+    13523147574,
+    13523144370
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1474028786,
+   "nodes": [
+    13523144396,
+    13523147537,
+    13523147511,
+    13523147542,
+    13523147525
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1474028790,
+   "nodes": [
+    13523144391,
+    13523147617,
+    13523147547,
+    13523144371,
+    13523147503,
+    13523144364,
+    13523147618,
+    13523144394,
+    13523147643,
+    13523147539,
+    13523147608
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1474028793,
+   "nodes": [
+    13523147552,
+    13523147564,
+    13523147622,
+    13523144370
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1474028797,
+   "nodes": [
+    13523147621,
+    13523147548,
+    13523147505
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1474028800,
+   "nodes": [
+    13523147569,
+    13523144363,
+    13523147505
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1474028805,
+   "nodes": [
+    13523144386,
+    13523147598,
+    13523144369
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1474028809,
+   "nodes": [
+    13523144396,
+    13523147543,
+    13523144391
+   ],
+   "tags": {
+    "crossing": "traffic_signals",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1485797175,
+   "nodes": [
+    13621195541,
+    13621195543,
+    13621195542
+   ],
+   "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1557230597,
+   "nodes": [
+    14161650214,
+    14161650218,
+    14161650215,
+    14161650217,
+    14161650216
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  },
+  {
+   "type": "way",
+   "id": 1557230599,
+   "nodes": [
+    14161650223,
+    14161650227,
+    14161650226,
+    14161650225,
+    14161650224
+   ],
+   "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+   }
+  }
+ ],
+ "query": "[out:json][timeout:120];node[\"highway\"=\"crossing\"](42.839991,-94.857938,42.854476,-94.840086)->.c;.c out body;way(bn.c)[\"highway\"];out body;",
+ "endpoint": "https://overpass-api.de/api/interpreter"
+}
