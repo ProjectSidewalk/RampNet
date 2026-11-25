@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 35.4 MB (393 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 35.7 MB (406 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -61,7 +61,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-11-11 (with the tiles arms, #258, the Vistas 1024 arm on all fourteen splits, the two #276 Gemini legs and the seven #276 Step 5 confidence legs) that is **393 files, 35.4 MB**, and every one of
+signature recorded inside. As of 2026-11-11 (with the tiles arms, #258, the Vistas 1024 arm on all fourteen splits, the two #276 Gemini legs and the seven #276 Step 5 confidence legs; on 2026-11-17 the thirteen Opus 5.5 effort=high files) that is **406 files, 35.7 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -78,6 +78,7 @@ them belongs to a registered leg:
 | `claude-fable-5` at `low` effort, annapolis only, served on Anthropic's first-party API (#156) | 1 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
 | `claude-fable-5-1` at `low` effort, first-party API, all fourteen splits: annapolis (#156) and the other thirteen (2026-10-19/20) | 14 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md), [`claude_newest_ids.md`](claude_newest_ids.md) |
 | `claude-opus-5-5` at `low` effort, first-party API, all fourteen splits (2026-10-19/20) | 14 | [`claude_newest_ids.md`](claude_newest_ids.md); its paired intervals and radius check re-derive from these files with `scripts/analysis/claude_newest_ids_261.py --check`. Re-running the paid legs on `laurens_gsv`, `laurens_mapillary`, `bayonne` or `juneau` needs panoramas that are not on HF yet (the benchmark panos row above) |
+| `claude-opus-5-5` at `high` effort, `max_tokens` 20000, first-party API: all thirteen city splits (2026-11-17; a study leg, off the scoreboard) | 13 | [`claude_effort_high.md`](claude_effort_high.md); its paired intervals re-derive with `scripts/analysis/claude_effort_high.py --check`. A 150-pano `manual_gold` slice also ran but is not published (a partial split) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`vistas_transfer_126.md`](vistas_transfer_126.md) |
 | the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg, all fourteen splits: richmond (#126, #137; re-run and published under #163), bend, paterson, gainesville, annapolis for the #35 cascade transfer read (klone job 40774146, 2026-09-27), and the other nine on makelab2 on 2026-10-20 (`scripts/analysis/vistas1024_all_splits.sh`, verified 9/9 identical to the producing cache) | 14 | [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md); the four transfer splits in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md); the nine of 2026-10-20 in [`vistas_transfer_126.md` §All fourteen splits](vistas_transfer_126.md) |
 
@@ -571,6 +572,7 @@ data are skipped unless `--allow local-cache` is given.
 | `aug_finetune_82` | `aug_finetune_82.py --check` | `finetune_results.json` and `.md` re-derive from the committed per-checkpoint caches in `analysis_out/aug_transfer_82/finetune/` and the #151 pairs (#82). **Slow: `--all` only** (#251) | committed only | 176.5 |
 | `control_arm_263` | `control_arm_263.py --check` | `analysis_out/control_arm_263/results.json` and `.md` re-derive from the committed caches, the #82 controls, `op_cache` and the verdicts' strata (#263). **Slow: `--all` only** (#251) | committed only | 282.9 |
 | `cascade_argon_35` | `cascade_argon_35.py --check` | the 37 Argon and YOLO cascade pair files under `analysis_out/cascade_cost_35/argon/` and `argon_pairs.json` (incl. the unique-point / blind-GT comparison and the scoreboard reconciliation) regenerate byte-identical (#35). **Slow: `--all` only.** Its seconds are from a standalone `--check` run (2026-11-15, same desktop), not from `latest.json` | committed only | 176 |
+| `cascade_confirm_35` | `cascade_confirm_35.py --check` | Stage 0 of the open-weight cascade confirmation (#35, option B1): `analysis_out/cascade_confirm_35/stage0.json` (the leave-one-split-out N / T / C results with selection-aware intervals, the rule bars and verdicts, the readings of "pooled", the rig key test and the Laurens concentration) and `inputs.json` (the sha256 of its 24 inputs, CRLF read as LF) regenerate byte-identical from the committed op_caches, YOLO pano detections, records and verdicts of the four GoPro Max splits ([`cascade_confirm_35.md`](cascade_confirm_35.md)). It does not regenerate the figure. Its seconds are from a standalone `--check` on the desktop (2026-11-24), not from `latest.json` | committed only | 2.3 |
 | `benchmark_power_135` | `benchmark_power_135.py --check` | the default command (the ten pinned #135 splits) regenerates `docs/data/benchmark_power_135.json` byte-identical (#135, #236), or identical except for float leaves within 1e-12 relative, which the output reports as `NOT byte-identical` (the macOS last-bit drift of #251; formatting, ints, strings and keys stay exact). **Slow: `--all` only.** Its seconds are from the standalone `--check` run in #237 (2026-10-03, same desktop), not from `latest.json` | committed only | 676 |
 | `export_model_cache_verify` | `export_model_cache.py --verify --cache-dir {local_root}/.model_cache` | the published `benchmark/model_detections/` score identically to the local `.model_cache` | **local-cache** (`{local_root}/.model_cache` must exist) | 12.4 |
 | `imagery_manifest_verify` | `imagery_manifest.py --verify --panos-root {local_root}` | the local `benchmark/*/panos/` JPEGs match the committed imagery manifests | **local-cache** (`{local_root}/benchmark/*/panos` must exist) | 16.5 |
@@ -582,10 +584,10 @@ The seconds are from the committed run, `analysis_out/check_all/latest.json` (at
 listed:
 
 - `analysis_out/recall_by_depth_112.json`: `manifests_sha256`, `recall_by_depth_112`, `da3_calibration_101`, `laurens_paired_151`
-- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`, `verifier_candidates_258`, `validator_fusion_258`, `validator_auc_258`, `cascade_cost_35`, `benchmark_power_135`
+- `analysis_out/op_cache/`: `seed_variance_read_51_135`, `operating_point_parity_51`, `laurens_paired_151`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`, `verifier_candidates_258`, `validator_fusion_258`, `validator_auc_258`, `cascade_cost_35`, `benchmark_power_135`, `cascade_confirm_35`
 - `analysis_out/input_res_sweep_25/cache/r2048/`: `manifests_sha256`, `laurens_paired_151`, `two_scale_197`, `input_res_sweep_25`, `seam_nms_default_248`, `cascade_transfer_35`
-- `benchmark/model_detections/`: `laurens_paired_151`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`, `export_model_cache_verify`
-- `benchmark/<split>/verdicts.json`: `dataset_cards_150`, `da3_calibration_101`, `seam_nms_default_248`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `verifier_candidates_258`, `validator_fusion_258`, `validator_auc_258`, `cascade_cost_35`, `benchmark_power_135`
+- `benchmark/model_detections/`: `laurens_paired_151`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `cascade_cost_35`, `benchmark_power_135`, `export_model_cache_verify`, `cascade_confirm_35`
+- `benchmark/<split>/verdicts.json`: `dataset_cards_150`, `da3_calibration_101`, `seam_nms_default_248`, `yolo_rescore_benchmark_eval`, `cascade_transfer_35`, `scoreboard`, `verifier_candidates_258`, `validator_fusion_258`, `validator_auc_258`, `cascade_cost_35`, `benchmark_power_135`, `cascade_confirm_35`
 - `analysis_out/verifier_258/candidates/` and `analysis_out/verifier_258/validator_scores/`: `validator_fusion_258`, `validator_auc_258` (the candidates also `verifier_candidates_258`)
 - `benchmark/manual_gold/seam_verdicts__jon.json`: `seam_pairs_248`, `seam_nms_default_248`
 - `docs/data/benchmark_power_135.json`: `run_b_gate_135`, `benchmark_power_135`

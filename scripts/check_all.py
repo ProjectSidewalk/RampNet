@@ -131,7 +131,7 @@ REGISTRY: list = [
             "analysis_out/input_res_sweep_25/", "analysis_out/recall_by_depth_112.json",
             "docs/data/rampnet1_stage1_run/", "docs/data/rampnet1_stage2_run/",
             "docs/data/seed_variance_51_135/", "stage_two/cosine_rung_135_events/",
-            "stage_two/run_a_84_events/")),
+            "stage_two/run_a_84_events/", "analysis_out/stage1_crosswalk_detector_274/")),
     E("sourcing_tables", (AN + "sourcing_tables.py", "--check"),
       "generated tables in the data-sourcing docs re-render identical from committed files (#145)",
       pins=("docs/location_precision_assessment_96.md", "docs/curb_ramp_data_sourcing.md",
@@ -157,6 +157,18 @@ REGISTRY: list = [
             "benchmark/manual_gold/records.jsonl", "benchmark/manual_gold/detections_meta.json",
             "benchmark/manual_gold/seam_verdicts__jon.json", "manual_labels/",
             "docs/data/seam_nms_default_248_figure.csv") + GT),
+    E("stage1_crosswalk_274", (AN + "stage1_crosswalk_sdot_274/check_274.py",),
+      "the #274 crosswalk detector's decision numbers re-derive byte for byte from committed verdicts and "
+      "predictions: P1 (Columbia label recall), the s3 and s4 confirmation draws (P2 included), the s3 audit and "
+      "its retention guard, the Juneau eval draw, and root_v3's 166 negatives; with pyproj, the (b') nodes "
+      "of s2/s3, s4 guard 3 and s5 guard 6",
+      pins=("analysis_out/stage1_crosswalk_detector_274/hardneg/",
+            "analysis_out/stage1_crosswalk_detector_274/bprime/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/bprime/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/s4_matched/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/s5_matched/",
+            "analysis_out/stage1_crosswalk_detector_274/v2_labels/scores.json"),
+      note="the (b') part (bprime-score) runs only where pyproj is installed; CI skips it and says so"),
     E("yolo_geometry_51", (AN + "yolo_geometry_51.py", "--check"),
       "YOLO control leg reproduces its scoreboard row; committed JSON matches a fresh read (#51)",
       pins=("docs/data/yolo_geometry_51/", "docs/data/yolo_geometry_51.json")),
@@ -193,6 +205,12 @@ REGISTRY: list = [
       "from committed detections (PR #261)",
       pins=("analysis_out/claude_newest_ids_261/results.json", "analysis_out/scoreboard.json",
             "benchmark/model_detections/", "manual_labels/") + GT),
+    E("claude_effort_high", (AN + "claude_effort_high.py", "--check"),
+      "Opus 5.5 effort=high vs effort=low: paired per-split and pooled F1 intervals, boxes/pano "
+      "and cost re-derive from committed detections and the ledger",
+      pins=("analysis_out/claude_effort_high/results.json", "analysis_out/scoreboard.json",
+            "analysis_out/usage_log.jsonl", "benchmark/model_detections/",
+            "manual_labels/") + GT),
     E("benchmark_depth_111", (AN + "harvest_depth_111.py", "--check"),
       "benchmark depth manifests are self-consistent and match the records; with the local "
       "archive present every saved entry is re-decoded and compared field by field (#111)",
@@ -396,6 +414,12 @@ REGISTRY: list = [
             "analysis_out/op_cache/", "benchmark/model_detections/",
             "analysis_out/scoreboard.json") + GT,
       slow=True),
+    E("cascade_confirm_35", (AN + "cascade_confirm_35.py", "--check"),
+      "Stage 0 of the open-weight cascade confirmation regenerates stage0.json and inputs.json "
+      "byte-identical (#35)",
+      pins=("analysis_out/cascade_confirm_35/stage0.json",
+            "analysis_out/cascade_confirm_35/inputs.json", "analysis_out/op_cache/",
+            "benchmark/model_detections/") + GT),
     # Slow: 676 s of bootstrap on the Windows desktop CPU, so --all only, not --ci (#236).
     E("benchmark_power_135", (AN + "benchmark_power_135.py", "--check"),
       "the default command regenerates docs/data/benchmark_power_135.json byte-identical, or "

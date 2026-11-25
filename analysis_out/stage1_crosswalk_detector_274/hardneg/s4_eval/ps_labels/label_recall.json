@@ -1,0 +1,62 @@
+{
+ "labels": 21,
+ "panos": 13,
+ "base": "crosswalk_s1",
+ "new": "crosswalk_s4",
+ "ci_level": 0.95,
+ "boot_n": 2000,
+ "boot_seed": 274,
+ "radius": 0.05,
+ "models": {
+  "crosswalk_s1": {
+   "preds": "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/preds/crosswalk_s1/ps_labels.jsonl",
+   "sha256": "29098651d0d54b62efbe7e656f18bb86494e18a732ba0eda4e28ccfa63343283",
+   "threshold": 0.21,
+   "hits": 5,
+   "recall": 0.23809523809523808,
+   "ci95": [
+    0.0,
+    0.5263157894736842
+   ]
+  },
+  "crosswalk_s4": {
+   "preds": "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/preds/crosswalk_s4/ps_labels.jsonl",
+   "sha256": "9506ffcbe88a0f341209672e888a1670b7eeca36d5579d9d97ca43a653f4f0e3",
+   "threshold": 0.23,
+   "hits": 8,
+   "recall": 0.38095238095238093,
+   "ci95": [
+    0.13636363636363635,
+    0.6666666666666666
+   ]
+  },
+  "crosswalk_s3": {
+   "preds": "analysis_out/stage1_crosswalk_detector_274/hardneg/confirm_s3/preds/crosswalk_s3/ps_labels.jsonl",
+   "sha256": "b4fd3da891f3081d24496780766b37efaa18c743c46f774dbd176f3aa7687c46",
+   "threshold": 0.27,
+   "hits": 4,
+   "recall": 0.19047619047619047,
+   "ci95": [
+    0.0,
+    0.4090909090909091
+   ]
+  }
+ },
+ "paired": {
+  "crosswalk_s4 - crosswalk_s1": {
+   "diff": 0.14285714285714285,
+   "ci95": [
+    0.0,
+    0.3125
+   ]
+  },
+  "crosswalk_s3 - crosswalk_s1": {
+   "diff": -0.047619047619047616,
+   "ci95": [
+    -0.1363636363636364,
+    0.0
+   ]
+  }
+ },
+ "primary_met": false
+}

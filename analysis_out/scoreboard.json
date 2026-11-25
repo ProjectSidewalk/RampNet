@@ -65,7 +65,8 @@
     "gemini-3.8-flash-definition-expert-confidence-on": "vlm_prompt_276",
     "gemini-4-argon-confidence-on": "vlm_prompt_276",
     "gemini-4-argon-definition-para3-confidence-on": "vlm_prompt_276",
-    "gemini-4-argon-definition-expert-confidence-on": "vlm_prompt_276"
+    "gemini-4-argon-definition-expert-confidence-on": "vlm_prompt_276",
+    "claude-opus-5-5-effort-high-anthropic-maxtokens-20000": "claude_effort_high"
   },
   "curves": {
     "rampnet": {

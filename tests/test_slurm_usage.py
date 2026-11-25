@@ -49,6 +49,8 @@ KLONE_DUMP_RESTAGE = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                   "sacct_klone_2026-10-21_restage263.txt")
 KLONE_DUMP_CONTROL = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                   "sacct_klone_2026-10-22_control263.txt")
+KLONE_DUMP_CW274 = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                                "sacct_klone_2026-11-24_crosswalk274.txt")
 HYAKUSAGE_REPORT = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                 "hyakusage_tillicum_2026-09-21.txt")
 
@@ -376,7 +378,8 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     # then the klone pull of 2026-10-22, the #263 control arm (six training jobs, three of them
     # failed on a bad node, and five scoring jobs); then the klone pulls of 2026-10-22, the #258
     # validator scoring job and its richmond 4096 resolution control (appended after #263's
-    # rows when main was merged into the #258 branch).
+    # rows when main was merged into the #258 branch); then the klone pull of 2026-11-24, the 62
+    # records of the #274 crosswalk detector (s1 to s5, run 2026-11-04 to 2026-11-09).
     parsed, stamps = [], []
     for dump, cluster, stamp in ((KLONE_DUMP, "klone", "2026-08-19T"),
                                  (TILLICUM_DUMP, "tillicum", "2026-09-21T"),
@@ -391,7 +394,8 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
                                  (KLONE_DUMP_RESTAGE, "klone", "2026-10-21T"),
                                  (KLONE_DUMP_CONTROL, "klone", "2026-10-22T"),
                                  (KLONE_DUMP_V258, "klone", "2026-10-22T"),
-                                 (KLONE_DUMP_V258_4096, "klone", "2026-10-22T")):
+                                 (KLONE_DUMP_V258_4096, "klone", "2026-10-22T"),
+                                 (KLONE_DUMP_CW274, "klone", "2026-11-25T")):  # 2026-11-24 Pacific
         with open(dump, encoding="utf-8") as fh:
             rows = parse_sacct(fh.read(), cluster=cluster, user="jfroehli")
         parsed += rows
@@ -399,7 +403,7 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
     assert len(committed) == len(parsed) == (3990 + 38 + 3 + 5 + 5 + 10 + 1 + 3 + 43 + 11 + 3
-                                             + 11 + 1 + 1)
+                                             + 11 + 1 + 1 + 62)
     # The #263 control arm (docs/control_arm_263.md, klone 2026-10-22): 34.20 GPU-hours of
     # training (3.48 of it the three runs that failed on g3110) and 3.10 of scoring, all free.
     # Selected by job name: the #258 rows below were pulled the same day.
@@ -412,6 +416,16 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     assert round(sum(r["gpu_hours"] for r in train), 2) == 34.20
     assert round(sum(r["gpu_hours"] for r in train if r["state"] == "FAILED"), 2) == 3.48
     assert round(sum(r["gpu_hours"] for r in ctl if r["job_name"] == "control263_score"), 2) == 3.10
+    # The #274 crosswalk detector (docs/compute_cost.md, klone 2026-11-24): 62 records, 84.09
+    # GPU-hours, all on ckpt-all and free; 20 four-GPU training records (77.22 GPU-h, s5 seed 1
+    # preempted twice) and 42 one-GPU inference jobs (6.87 GPU-h). Selected by job name.
+    cw = [r for r in committed if r["cluster"] == "klone"
+          and r["job_name"].startswith(("cw274", "crosswalk274"))]
+    assert len(cw) == 62 and all(r["est_cost_usd"] == 0.0 for r in cw)
+    assert round(sum(r["gpu_hours"] for r in cw), 2) == 84.09
+    cw_train = [r for r in cw if r["gpus"] == 4]
+    assert len(cw_train) == 20 and round(sum(r["gpu_hours"] for r in cw_train), 2) == 77.22
+    assert [r["state"] for r in cw if r["job_id"] == "43086644"] == ["PREEMPTED", "PREEMPTED", "COMPLETED"]
     # The #258 validator scoring job and its richmond 4096 control (docs/verifier_258.md,
     # klone 2026-10-22): one row each, both free.
     v258 = [r for r in committed if r["job_id"] in ("42152480", "42153716")]
@@ -597,6 +611,12 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     assert hashlib.sha256(raw_k).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
     assert f"({len(raw_k):,} bytes" in doc
     assert raw_k.count(b"\r\n") == 0
+    # ...and the 2026-11-24 klone pull for the #274 crosswalk detector.
+    with open(KLONE_DUMP_CW274, "rb") as fh:
+        raw_cw = fh.read()
+    assert hashlib.sha256(raw_cw).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_cw):,} bytes" in doc
+    assert raw_cw.count(b"\r\n") == 0
     # The pin only holds if git never normalises the dump's line endings: a
     # core.autocrlf=true clone checks it out CRLF and the hash above fails for a
     # file that is byte-correct. So .gitattributes must mark it -text (or binary),

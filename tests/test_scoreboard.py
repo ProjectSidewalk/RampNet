@@ -1467,8 +1467,8 @@ def test_study_legs_are_named_but_not_scored(board):
     each is listed under ``study_legs`` with its study doc, and the page names every
     one. Their numbers live in that doc at the thresholds the study selected."""
     study = {roster.published_name(leg): leg.study for leg in roster.STUDY_LEGS}
-    assert len(study) == 7
-    assert set(study.values()) == {"vlm_prompt_276"}
+    assert sorted(study.values()).count("vlm_prompt_276") == 7
+    assert set(study.values()) == {"vlm_prompt_276", "claude_effort_high"}
     assert not study.keys() & {m["model"] for m in board["models"]}
     assert not study.keys() & set(board["per_split"])
     assert board["study_legs"] == study

@@ -98,18 +98,26 @@ class ResumeSkipSampler(Sampler):
     ``latest_checkpoint.pth`` write *before* validation would. Left as a known gap
     rather than fixed here, because the change is to a training script no test on this
     branch exercises end to end and the run it would have helped is finished.
+
+    ``multiple`` (``--trim-epoch-to-accum``, #274) trims each epoch to the largest multiple
+    of it, dropping the last ``len(base) % multiple`` indices of the epoch's permutation, so
+    that a multi-epoch ``--grad-accum`` run never has a group straddle an epoch boundary.
+    The default (1) changes nothing.
     """
 
-    def __init__(self, base):
+    def __init__(self, base, multiple=1):
         self.base = base
         self.skip = 0
-        self.epoch_length = len(base)
+        self.epoch_length = len(base) - len(base) % multiple
+        self._trimmed = self.epoch_length < len(base)
 
     def set_epoch(self, epoch):
         self.base.set_epoch(epoch)
 
     def __iter__(self):
         indices = iter(self.base)
+        if self._trimmed:
+            return itertools.islice(indices, self.skip, self.epoch_length)
         return itertools.islice(indices, self.skip, None) if self.skip else indices
 
     def __len__(self):
@@ -185,6 +193,13 @@ def parse_args():
                              "final_step_<N>.pth (model state_dict) and latest_checkpoint.pth, "
                              "and skip validation. Default: none (run --epochs in full, as "
                              "the recipe does). For the #82 fine-tune screen.")
+    parser.add_argument('--trim-epoch-to-accum', action='store_true',
+                        help="Trim each per-rank epoch to a multiple of --grad-accum (drops at "
+                             "most grad-accum - 1 micro-batches per rank per epoch, from the end "
+                             "of that epoch's shuffle). Lets a multi-epoch --max-steps run use "
+                             "--grad-accum when the per-rank epoch length is not a multiple of "
+                             "it, which is otherwise refused (#274 crosswalk_s4: 4,294 train "
+                             "panos, 1,073 per rank at world size 4). Default off.")
     parser.add_argument('--grad-accum', type=int, default=1,
                         help="Micro-batches per optimizer step (default 1, the recipe). "
                              "Global batch = world size x this, so a job that gets fewer "
@@ -311,7 +326,9 @@ def generate_heatmap_from_points(points_normalized, heatmap_shape=(512, 1024), s
 
 #: The values a pano JSON's ``supervision.mode`` may take (#263, docs/sparse_supervision.md).
 #: A JSON with no ``supervision`` block is dense, which is every published Stage 1 pano.
-SUPERVISION_MODES = ('sparse', 'verified_empty')
+#: 'dense_ignore' (#274, crosswalks): trained everywhere like a dense pano except inside its
+#: ignore discs and ignore boxes -- a label-complete pano whose unverifiable regions are known.
+SUPERVISION_MODES = ('sparse', 'verified_empty', 'dense_ignore')
 
 #: ``--mask-norm`` choices (#263). 'pixels' divides the masked sum by the pixel count, so a
 #: sparse positive is trained exactly as a dense one is; 'weight' divides by the weighted
@@ -351,13 +368,124 @@ def supervision_mode(data, points_normalized):
     if mode not in SUPERVISION_MODES:
         raise ValueError(f"supervision.mode must be one of {SUPERVISION_MODES}, got {mode!r}")
     ignore = _point_list(sup.get('ignore_points', []), 'supervision.ignore_points')
-    if mode == 'sparse' and not points_normalized:
-        raise ValueError("supervision.mode 'sparse' with no positives: the pano would teach "
-                         "nothing")
+    if mode == 'sparse' and not points_normalized and not sup.get('negative_points'):
+        raise ValueError("supervision.mode 'sparse' with no positives and no negative_points: "
+                         "the pano would teach nothing")
     if mode == 'verified_empty' and (points_normalized or ignore):
         raise ValueError(f"supervision.mode 'verified_empty' with {len(points_normalized)} "
                          f"positives and {len(ignore)} ignore points listed")
     return mode, ignore
+
+
+def supervision_ignore_boxes(data):
+    """``supervision.ignore_boxes`` of a 'dense_ignore' pano (#274): a list of
+    [x_left, x_right, y_top, y_bottom] in pano fractions. ``x_left > x_right`` means the box
+    wraps the 0/360 seam. Raises ValueError on anything else, so a malformed box never
+    silently trains as background.
+
+    >>> supervision_ignore_boxes({'supervision': {'mode': 'dense_ignore',
+    ...                                           'ignore_boxes': [[0.9, 0.1, 0.5, 0.7]]}})
+    [(0.9, 0.1, 0.5, 0.7)]
+    """
+    raw = (data.get('supervision') or {}).get('ignore_boxes', [])
+    if not isinstance(raw, list):
+        raise ValueError(f"supervision.ignore_boxes must be a list, got {raw!r}")
+    out = []
+    for b in raw:
+        if not (isinstance(b, (list, tuple)) and len(b) == 4
+                and all(isinstance(v, (int, float)) and 0.0 <= v <= 1.0 for v in b)
+                and b[2] <= b[3]):
+            raise ValueError(f"supervision.ignore_boxes entry must be [x_left, x_right, y_top, "
+                             f"y_bottom] in [0, 1] with y_top <= y_bottom, got {b!r}")
+        out.append(tuple(float(v) for v in b))
+    return out
+
+
+#: A verified negative must sit at least this far from every positive (#274 hard negatives), in the
+#: scorer's matcher units: x in pano widths (seam-wrapped), y in pano heights counted half. It is
+#: the crosswalk scorer's match radius, so a negative never sits where a detection would match a label.
+NEGATIVE_MIN_DIST = 0.05
+
+
+def supervision_negative_points(data, points_normalized):
+    """``supervision.negative_points`` of a pano (#274 hard negatives): [x, y] spots a human
+    verified are NOT the label type, as a list of (x, y). Valid in every supervision mode; each
+    trains as background in its own disc (``add_negative_weight``). Raises ValueError on a
+    malformed list or on a negative within NEGATIVE_MIN_DIST of a positive -- a negative on a
+    labelled crosswalk means the label builder and the verdicts disagree.
+
+    >>> supervision_negative_points({'supervision': {'mode': 'sparse',
+    ...                              'negative_points': [[0.2, 0.6]]}}, [(0.5, 0.6)])
+    [(0.2, 0.6)]
+    """
+    sup = data.get('supervision') or {}
+    neg = _point_list(sup.get('negative_points', []), 'supervision.negative_points')
+    for nx, ny in neg:
+        for px, py in points_normalized:
+            dx = abs(nx - px)
+            if math.hypot(min(dx, 1.0 - dx), (ny - py) / 2) < NEGATIVE_MIN_DIST:
+                raise ValueError(f"supervision.negative_points ({nx}, {ny}) is within "
+                                 f"{NEGATIVE_MIN_DIST} of positive ({px}, {py})")
+    return neg
+
+
+def add_negative_weight(weight, points_normalized, negative_points, heatmap_shape=(512, 1024),
+                        sigma=10.0):
+    """Turn on the loss inside each verified negative's disc (radius ceil(3*sigma) heatmap px):
+    the target there is 0, so the pano teaches "not this" at that spot even where its mode would
+    not (a sparse pano's background, an ignore point or box). A pixel nearer a positive than every
+    negative is never switched on -- positives win ties, as for ignore points. The weight is only
+    ever raised (torch.maximum), and a positive's disc already has weight 1 in every mode except
+    where an ignore point nearer still has zeroed it, so that is the one place the `d_neg < d_pos`
+    term changes anything: an ignore point between a positive and a negative keeps the positive's
+    side ignored. Discs do not wrap the seam, as in the target. Returns a new (1, H, W) float32
+    tensor.
+
+    >>> import torch
+    >>> w = add_negative_weight(torch.zeros(1, 512, 1024), [], [(0.5, 0.5)])
+    >>> int(w[0, 256, 512]), int(w[0, 256, 560]), int(w.sum())
+    (1, 0, 2821)
+    """
+    radius = int(math.ceil(3 * sigma))
+    d_neg = _nearest_dist_sq(negative_points, heatmap_shape, radius)
+    d_pos = _nearest_dist_sq(points_normalized, heatmap_shape, radius)
+    on = (d_neg <= radius * radius) & (d_neg < d_pos)
+    return torch.maximum(weight, torch.from_numpy(on.astype(np.float32)).unsqueeze(0))
+
+
+def generate_dense_ignore_weight(points_normalized, heatmap_shape=(512, 1024), sigma=10.0,
+                                 ignore_points=(), ignore_boxes=()):
+    """Loss-weight map for a 'dense_ignore' pano (#274), shape (1, H, W), float32.
+
+    1 everywhere (the pano teaches background, as a dense pano does) except:
+      * inside an ignore point's disc (radius ceil(3*sigma) heatmap px), a pixel strictly
+        nearer that ignore point than every positive gets 0 -- ``generate_weight_from_points``'
+        tie rule, so an ignore point beside a positive never erases the positive's peak;
+      * inside an ignore box, every pixel outside all positives' discs gets 0. Boxes may wrap
+        the seam (x_left > x_right); the positives' discs do not wrap, as in the target.
+    With no ignore points or boxes this is all ones, i.e. exactly a dense pano.
+    """
+    heatmap_h, heatmap_w = heatmap_shape
+    radius = int(math.ceil(3 * sigma))
+    weight = np.ones(heatmap_shape, dtype=bool)
+    d_pos = _nearest_dist_sq(points_normalized, heatmap_shape, radius)
+    if ignore_points:
+        d_ign = _nearest_dist_sq(ignore_points, heatmap_shape, radius)
+        weight &= ~((d_ign <= radius * radius) & (d_ign < d_pos))
+    if ignore_boxes:
+        boxed = np.zeros(heatmap_shape, dtype=bool)
+        for xl, xr, yt, yb in ignore_boxes:
+            r0 = max(0, int(math.floor(yt * heatmap_h)))
+            r1 = min(heatmap_h, int(math.ceil(yb * heatmap_h)) + 1)
+            c0 = max(0, int(math.floor(xl * heatmap_w)))
+            c1 = min(heatmap_w, int(math.ceil(xr * heatmap_w)) + 1)
+            if xl <= xr:
+                boxed[r0:r1, c0:c1] = True
+            else:
+                boxed[r0:r1, c0:] = True
+                boxed[r0:r1, :c1] = True
+        weight &= ~(boxed & (d_pos > radius * radius))
+    return torch.from_numpy(weight.astype(np.float32)).unsqueeze(0)
 
 
 def _nearest_dist_sq(points_normalized, heatmap_shape, radius):
@@ -550,6 +678,11 @@ class EquiHeatmapDataset(Dataset):
                 mode, ignore_points = supervision_mode(data, points_normalized)
             else:
                 mode, ignore_points = 'unknown', []
+            # #274: boxes are read only for 'dense_ignore' panos, so no other path calls this.
+            ignore_boxes = supervision_ignore_boxes(data) if mode == 'dense_ignore' else []
+            # #274 hard negatives: read only when the JSON lists them, so no other path calls this.
+            has_neg = isinstance(data, dict) and bool((data.get('supervision') or {}).get('negative_points'))
+            negative_points = supervision_negative_points(data, points_normalized) if has_neg else []
         elif isinstance(data, dict) and 'supervision' in data:
             raise ValueError(f"{json_path} carries a 'supervision' block (#263) but "
                              f"--loss-mask is off, so it would train as a dense pano. Pass "
@@ -564,6 +697,9 @@ class EquiHeatmapDataset(Dataset):
             if self.loss_mask:
                 # #263: the unverified detections mirror with the positives.
                 ignore_points = [(1.0 - x_norm, y_norm) for x_norm, y_norm in ignore_points]
+                # #274: a box mirrors with its edges swapped (a seam-wrapping box stays wrapping).
+                ignore_boxes = [(1.0 - xr, 1.0 - xl, yt, yb) for xl, xr, yt, yb in ignore_boxes]
+                negative_points = [(1.0 - x_norm, y_norm) for x_norm, y_norm in negative_points]
 
         if self.augment is not None:
             # Pixel-wise only, so the points are untouched. Draws come from the
@@ -588,10 +724,18 @@ class EquiHeatmapDataset(Dataset):
                 weight = generate_weight_from_points(points_normalized,
                                                      heatmap_shape=self.target_heatmap_shape,
                                                      ignore_points=ignore_points)
+            elif mode == 'dense_ignore':
+                weight = generate_dense_ignore_weight(points_normalized,
+                                                      heatmap_shape=self.target_heatmap_shape,
+                                                      ignore_points=ignore_points,
+                                                      ignore_boxes=ignore_boxes)
             elif mode == 'unknown':
                 weight = torch.zeros_like(heatmap)
             else:                                           # dense, verified_empty
                 weight = torch.ones_like(heatmap)
+            if negative_points and mode != 'unknown':
+                weight = add_negative_weight(weight, points_normalized, negative_points,
+                                             heatmap_shape=self.target_heatmap_shape)
             return image, heatmap, weight
 
         return image, heatmap
@@ -649,7 +793,8 @@ if len(val_dataset) == 0 and rank == 0:
 # since nothing in the logs distinguishes the two.
 train_sampler = ResumeSkipSampler(
     DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=True, drop_last=True,
-                       seed=sampler_seed_for(args.seed)))
+                       seed=sampler_seed_for(args.seed)),
+    multiple=args.grad_accum if args.trim_epoch_to_accum else 1)
 val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False) if len(val_dataset) > 0 else None
 
 train_loader = DataLoader(train_dataset, batch_size=1, sampler=train_sampler, num_workers=4, pin_memory=True)
@@ -677,14 +822,20 @@ max_micro_steps = args.max_steps * args.grad_accum if args.max_steps else None
 if max_micro_steps is not None:
     total_train_steps = min(total_train_steps, max_micro_steps)
 # Accumulation groups are aligned on global_step, and an epoch's per-rank length need not
-# be a multiple of --grad-accum, so a group could straddle an epoch boundary. The screen
-# this exists for stays inside epoch 1; refuse anything else rather than handle it.
+# be a multiple of --grad-accum, so a group could straddle an epoch boundary. The #82
+# screen stays inside epoch 1. A multi-epoch run (#274: 1,000 steps over a 3,601-pano
+# train split, ~4.4 epochs) is safe exactly when the per-rank epoch length is a multiple
+# of --grad-accum: every epoch then starts on a group boundary, since global_step only
+# ever advances by whole epochs between them (and checkpoints land on group boundaries,
+# checked above). Anything else is refused rather than handled.
 if args.grad_accum > 1 and (max_micro_steps is None
-                            or max_micro_steps > train_sampler.epoch_length):
+                            or (max_micro_steps > train_sampler.epoch_length
+                                and train_sampler.epoch_length % args.grad_accum)):
     if rank == 0:
         print(f"Error: --grad-accum {args.grad_accum} is only supported for a --max-steps run "
-              f"that ends inside the first epoch ({train_sampler.epoch_length} micro-batches "
-              f"per rank at world size {world_size}).")
+              f"that ends inside the first epoch, or whose per-rank epoch length is a "
+              f"multiple of it ({train_sampler.epoch_length} micro-batches per rank at "
+              f"world size {world_size}).")
     cleanup_distributed()
     raise SystemExit(2)
 

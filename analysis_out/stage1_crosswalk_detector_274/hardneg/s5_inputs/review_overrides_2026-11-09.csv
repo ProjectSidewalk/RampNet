@@ -1,0 +1,10 @@
+card_id,action,reason
+det:1420479858641040:0.488:0.539,drop,"Jon's note: the disc covers part of a crosswalk (disc rule -> not a negative)"
+det:1667892940621911:0.137:0.631,drop,"Jon's note: the disc covers the crosswalk (disc rule -> not a negative)"
+det:781344950436375:0.042:0.523,drop,"Claude review: a brick-coloured band across the side street sits at the disc's edge"
+det:999622525013341:0.000:0.568,drop,"Claude review: a far zebra lies inside the disc's top"
+det:758809496982537:0.792:0.570,ignore,"Claude review: cross sits below the crossing's line, on asphalt above the car top"
+det:847105430806469:0.520:0.553,ignore,"Claude review: cross on plain asphalt beside a zebra, not on it"
+det:847105430806469:0.660:0.568,ignore,"Claude review: cross on plain road by the curb between two crossings"
+det:967726144797557:0.527:0.570,ignore,"Claude review: transverse dashed lines; crossing or bike/lane extension unclear"
+det:967726144797557:0.581:0.553,ignore,"Claude review: transverse dashed lines; crossing or bike/lane extension unclear"

@@ -1,0 +1,11 @@
+card_id,kind,pano_id,x,y,conf,city,mode,year,stratum,verdict,note
+det:1350560189413209:0.152:0.617,det,1350560189413209,0.152344,0.617188,0.299837,laurens-ia,mapillary,,random,not_crosswalk,
+det:1368903798268610:0.645:0.852,det,1368903798268610,0.644531,0.851562,0.406853,laurens-ia,mapillary,,random,not_crosswalk,This is the top of the capture car
+det:1374668754308970:0.816:0.602,det,1374668754308970,0.816406,0.601562,0.373486,laurens-ia,mapillary,,random,crosswalk,
+det:1548748269637648:0.000:0.883,det,1548748269637648,0.0,0.882812,0.269302,laurens-ia,mapillary,,random,not_crosswalk,This is the top of the capture car
+det:712628838068605:0.637:0.852,det,712628838068605,0.636719,0.851562,0.256317,laurens-ia,mapillary,,random,not_crosswalk,This is the top of the capture car
+det:740136985012870:0.582:0.898,det,740136985012870,0.582031,0.898438,0.254285,laurens-ia,mapillary,,random,not_crosswalk,This is the top of the capture car
+det:745517931916661:0.551:0.896,det,745517931916661,0.550781,0.896484,0.330302,laurens-ia,mapillary,,random,not_crosswalk,This is the top of the capture car
+det:745517931916661:0.652:0.850,det,745517931916661,0.652344,0.849609,0.309091,laurens-ia,mapillary,,random,not_crosswalk,This is the top of the capture car
+det:858081853743118:0.659:0.867,det,858081853743118,0.65918,0.867188,0.360626,laurens-ia,mapillary,,random,not_crosswalk,This is the top of the capture car
+det:858081853743118:0.363:0.680,det,858081853743118,0.363281,0.679688,0.331456,laurens-ia,mapillary,,random,not_crosswalk,

@@ -1,0 +1,697 @@
+sheet,cell,verdict,reason
+sheet_0233.jpg,1,crosswalk,crosswalk paint
+sheet_0233.jpg,2,crosswalk,crosswalk paint
+sheet_0233.jpg,3,crosswalk,crosswalk paint
+sheet_0233.jpg,4,crosswalk,crosswalk paint
+sheet_0233.jpg,5,crosswalk,crosswalk paint
+sheet_0233.jpg,6,crosswalk,crosswalk paint
+sheet_0233.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0233.jpg,8,unsure,ambiguous
+sheet_0233.jpg,9,unsure,ambiguous
+sheet_0233.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0233.jpg,11,crosswalk,crosswalk paint
+sheet_0233.jpg,12,crosswalk,crosswalk paint
+sheet_0234.jpg,1,unsure,ambiguous
+sheet_0234.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0234.jpg,3,unsure,ambiguous
+sheet_0234.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0234.jpg,5,crosswalk,crosswalk paint
+sheet_0234.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0234.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0234.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0234.jpg,9,crosswalk,crosswalk paint
+sheet_0234.jpg,10,unsure,ambiguous
+sheet_0234.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0234.jpg,12,unsure,ambiguous
+sheet_0235.jpg,1,unsure,ambiguous
+sheet_0235.jpg,2,unsure,ambiguous
+sheet_0235.jpg,3,crosswalk,crosswalk paint
+sheet_0235.jpg,4,crosswalk,crosswalk paint
+sheet_0235.jpg,5,unsure,ambiguous
+sheet_0235.jpg,6,crosswalk,crosswalk paint
+sheet_0235.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0235.jpg,8,crosswalk,crosswalk paint
+sheet_0235.jpg,9,unsure,ambiguous
+sheet_0235.jpg,10,unsure,ambiguous
+sheet_0235.jpg,11,crosswalk,crosswalk paint
+sheet_0235.jpg,12,crosswalk,crosswalk paint
+sheet_0236.jpg,1,crosswalk,crosswalk paint
+sheet_0236.jpg,2,unsure,ambiguous
+sheet_0236.jpg,3,crosswalk,crosswalk paint
+sheet_0236.jpg,4,crosswalk,crosswalk paint
+sheet_0236.jpg,5,crosswalk,crosswalk paint
+sheet_0236.jpg,6,unsure,ambiguous
+sheet_0236.jpg,7,unsure,ambiguous
+sheet_0236.jpg,8,crosswalk,crosswalk paint
+sheet_0236.jpg,9,unsure,ambiguous
+sheet_0236.jpg,10,unsure,ambiguous
+sheet_0236.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0236.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0237.jpg,1,crosswalk,crosswalk paint
+sheet_0237.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0237.jpg,3,crosswalk,crosswalk paint
+sheet_0237.jpg,4,unsure,ambiguous
+sheet_0237.jpg,5,crosswalk,crosswalk paint
+sheet_0237.jpg,6,unsure,ambiguous
+sheet_0237.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0237.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0237.jpg,9,unsure,ambiguous
+sheet_0237.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0237.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0237.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0238.jpg,1,crosswalk,crosswalk paint
+sheet_0238.jpg,2,crosswalk,crosswalk paint
+sheet_0238.jpg,3,crosswalk,crosswalk paint
+sheet_0238.jpg,4,crosswalk,crosswalk paint
+sheet_0238.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0238.jpg,6,crosswalk,crosswalk paint
+sheet_0238.jpg,7,unsure,ambiguous
+sheet_0238.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0238.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0238.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0238.jpg,11,unsure,ambiguous
+sheet_0238.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0239.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0239.jpg,2,unsure,ambiguous
+sheet_0239.jpg,3,unsure,ambiguous
+sheet_0239.jpg,4,crosswalk,crosswalk paint
+sheet_0239.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0239.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0239.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0239.jpg,8,crosswalk,crosswalk paint
+sheet_0239.jpg,9,crosswalk,crosswalk paint
+sheet_0239.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0239.jpg,11,unsure,ambiguous
+sheet_0239.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0240.jpg,1,crosswalk,crosswalk paint
+sheet_0240.jpg,2,crosswalk,crosswalk paint
+sheet_0240.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0240.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0240.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0240.jpg,6,crosswalk,crosswalk paint
+sheet_0240.jpg,7,crosswalk,crosswalk paint
+sheet_0240.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0240.jpg,9,crosswalk,crosswalk paint
+sheet_0240.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0240.jpg,11,crosswalk,crosswalk paint
+sheet_0240.jpg,12,crosswalk,crosswalk paint
+sheet_0241.jpg,1,unsure,ambiguous
+sheet_0241.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0241.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0241.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0241.jpg,5,crosswalk,crosswalk paint
+sheet_0241.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0241.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0241.jpg,8,unsure,ambiguous
+sheet_0241.jpg,9,unsure,ambiguous
+sheet_0241.jpg,10,crosswalk,crosswalk paint
+sheet_0241.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0241.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0242.jpg,1,crosswalk,crosswalk paint
+sheet_0242.jpg,2,crosswalk,crosswalk paint
+sheet_0242.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0242.jpg,4,crosswalk,crosswalk paint
+sheet_0242.jpg,5,unsure,ambiguous
+sheet_0242.jpg,6,crosswalk,crosswalk paint
+sheet_0242.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0242.jpg,8,crosswalk,crosswalk paint
+sheet_0242.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0242.jpg,10,unsure,ambiguous
+sheet_0242.jpg,11,crosswalk,crosswalk paint
+sheet_0242.jpg,12,unsure,ambiguous
+sheet_0243.jpg,1,crosswalk,crosswalk paint
+sheet_0243.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0243.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0243.jpg,4,unsure,ambiguous
+sheet_0243.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0243.jpg,6,crosswalk,crosswalk paint
+sheet_0243.jpg,7,crosswalk,crosswalk paint
+sheet_0243.jpg,8,unsure,ambiguous
+sheet_0243.jpg,9,unsure,ambiguous
+sheet_0243.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0243.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0243.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0244.jpg,1,unsure,ambiguous
+sheet_0244.jpg,2,crosswalk,crosswalk paint
+sheet_0244.jpg,3,crosswalk,crosswalk paint
+sheet_0244.jpg,4,crosswalk,crosswalk paint
+sheet_0244.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0244.jpg,6,crosswalk,crosswalk paint
+sheet_0244.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0244.jpg,8,crosswalk,crosswalk paint
+sheet_0244.jpg,9,unsure,ambiguous
+sheet_0244.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0244.jpg,11,crosswalk,crosswalk paint
+sheet_0244.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0245.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0245.jpg,2,crosswalk,crosswalk paint
+sheet_0245.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0245.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0245.jpg,5,unsure,ambiguous
+sheet_0245.jpg,6,crosswalk,crosswalk paint
+sheet_0245.jpg,7,crosswalk,crosswalk paint
+sheet_0245.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0245.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0245.jpg,10,unsure,ambiguous
+sheet_0245.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0245.jpg,12,unsure,ambiguous
+sheet_0246.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0246.jpg,2,crosswalk,crosswalk paint
+sheet_0246.jpg,3,unsure,ambiguous
+sheet_0246.jpg,4,crosswalk,crosswalk paint
+sheet_0246.jpg,5,crosswalk,crosswalk paint
+sheet_0246.jpg,6,unsure,ambiguous
+sheet_0246.jpg,7,crosswalk,crosswalk paint
+sheet_0246.jpg,8,unsure,ambiguous
+sheet_0246.jpg,9,crosswalk,crosswalk paint
+sheet_0246.jpg,10,unsure,ambiguous
+sheet_0246.jpg,11,crosswalk,crosswalk paint
+sheet_0246.jpg,12,unsure,ambiguous
+sheet_0247.jpg,1,crosswalk,crosswalk paint
+sheet_0247.jpg,2,unsure,ambiguous
+sheet_0247.jpg,3,unsure,ambiguous
+sheet_0247.jpg,4,unsure,ambiguous
+sheet_0247.jpg,5,unsure,ambiguous
+sheet_0247.jpg,6,unsure,ambiguous
+sheet_0247.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0247.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0247.jpg,9,unsure,ambiguous
+sheet_0247.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0247.jpg,11,crosswalk,crosswalk paint
+sheet_0247.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0248.jpg,1,crosswalk,crosswalk paint
+sheet_0248.jpg,2,unsure,ambiguous
+sheet_0248.jpg,3,crosswalk,crosswalk paint
+sheet_0248.jpg,4,unsure,ambiguous
+sheet_0248.jpg,5,unsure,ambiguous
+sheet_0248.jpg,6,unsure,ambiguous
+sheet_0248.jpg,7,unsure,ambiguous
+sheet_0248.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0248.jpg,9,crosswalk,crosswalk paint
+sheet_0248.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0248.jpg,11,unsure,ambiguous
+sheet_0248.jpg,12,unsure,ambiguous
+sheet_0249.jpg,1,crosswalk,crosswalk paint
+sheet_0249.jpg,2,unsure,ambiguous
+sheet_0249.jpg,3,crosswalk,crosswalk paint
+sheet_0249.jpg,4,crosswalk,crosswalk paint
+sheet_0249.jpg,5,crosswalk,crosswalk paint
+sheet_0249.jpg,6,unsure,ambiguous
+sheet_0249.jpg,7,unsure,ambiguous
+sheet_0249.jpg,8,crosswalk,crosswalk paint
+sheet_0249.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0249.jpg,10,crosswalk,crosswalk paint
+sheet_0249.jpg,11,crosswalk,crosswalk paint
+sheet_0249.jpg,12,unsure,ambiguous
+sheet_0250.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0250.jpg,2,unsure,ambiguous
+sheet_0250.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0250.jpg,4,unsure,ambiguous
+sheet_0250.jpg,5,crosswalk,crosswalk paint
+sheet_0250.jpg,6,unsure,ambiguous
+sheet_0250.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0250.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0250.jpg,9,unsure,ambiguous
+sheet_0250.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0250.jpg,11,unsure,ambiguous
+sheet_0250.jpg,12,crosswalk,crosswalk paint
+sheet_0251.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0251.jpg,2,crosswalk,crosswalk paint
+sheet_0251.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0251.jpg,4,crosswalk,crosswalk paint
+sheet_0251.jpg,5,crosswalk,crosswalk paint
+sheet_0251.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0251.jpg,7,crosswalk,crosswalk paint
+sheet_0251.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0251.jpg,9,crosswalk,crosswalk paint
+sheet_0251.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0251.jpg,11,crosswalk,crosswalk paint
+sheet_0251.jpg,12,crosswalk,crosswalk paint
+sheet_0252.jpg,1,crosswalk,crosswalk paint
+sheet_0252.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0252.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0252.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0252.jpg,5,unsure,ambiguous
+sheet_0252.jpg,6,unsure,ambiguous
+sheet_0252.jpg,7,unsure,ambiguous
+sheet_0252.jpg,8,crosswalk,crosswalk paint
+sheet_0252.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0252.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0252.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0252.jpg,12,unsure,ambiguous
+sheet_0253.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0253.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0253.jpg,3,crosswalk,crosswalk paint
+sheet_0253.jpg,4,unsure,ambiguous
+sheet_0253.jpg,5,crosswalk,crosswalk paint
+sheet_0253.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0253.jpg,7,crosswalk,crosswalk paint
+sheet_0253.jpg,8,crosswalk,crosswalk paint
+sheet_0253.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0253.jpg,10,crosswalk,crosswalk paint
+sheet_0253.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0253.jpg,12,crosswalk,crosswalk paint
+sheet_0254.jpg,1,unsure,ambiguous
+sheet_0254.jpg,2,crosswalk,crosswalk paint
+sheet_0254.jpg,3,unsure,ambiguous
+sheet_0254.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0254.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0254.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0254.jpg,7,unsure,ambiguous
+sheet_0254.jpg,8,unsure,ambiguous
+sheet_0254.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0254.jpg,10,crosswalk,crosswalk paint
+sheet_0254.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0254.jpg,12,unsure,ambiguous
+sheet_0255.jpg,1,unsure,ambiguous
+sheet_0255.jpg,2,unsure,ambiguous
+sheet_0255.jpg,3,crosswalk,crosswalk paint
+sheet_0255.jpg,4,crosswalk,crosswalk paint
+sheet_0255.jpg,5,crosswalk,crosswalk paint
+sheet_0255.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0255.jpg,7,unsure,ambiguous
+sheet_0255.jpg,8,crosswalk,crosswalk paint
+sheet_0255.jpg,9,crosswalk,crosswalk paint
+sheet_0255.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0255.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0255.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0256.jpg,1,crosswalk,crosswalk paint
+sheet_0256.jpg,2,crosswalk,crosswalk paint
+sheet_0256.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0256.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0256.jpg,5,crosswalk,crosswalk paint
+sheet_0256.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0256.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0256.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0256.jpg,9,crosswalk,crosswalk paint
+sheet_0256.jpg,10,crosswalk,crosswalk paint
+sheet_0256.jpg,11,unsure,ambiguous
+sheet_0256.jpg,12,unsure,ambiguous
+sheet_0257.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0257.jpg,2,unsure,ambiguous
+sheet_0257.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0257.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0257.jpg,5,crosswalk,crosswalk paint
+sheet_0257.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0257.jpg,7,unsure,ambiguous
+sheet_0257.jpg,8,crosswalk,crosswalk paint
+sheet_0257.jpg,9,crosswalk,crosswalk paint
+sheet_0257.jpg,10,crosswalk,crosswalk paint
+sheet_0257.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0257.jpg,12,crosswalk,crosswalk paint
+sheet_0258.jpg,1,unsure,ambiguous
+sheet_0258.jpg,2,unsure,ambiguous
+sheet_0258.jpg,3,unsure,ambiguous
+sheet_0258.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0258.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0258.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0258.jpg,7,unsure,ambiguous
+sheet_0258.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0258.jpg,9,crosswalk,crosswalk paint
+sheet_0258.jpg,10,unsure,ambiguous
+sheet_0258.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0258.jpg,12,unsure,ambiguous
+sheet_0259.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0259.jpg,2,crosswalk,crosswalk paint
+sheet_0259.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0259.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0259.jpg,5,crosswalk,crosswalk paint
+sheet_0259.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0259.jpg,7,unsure,ambiguous
+sheet_0259.jpg,8,unsure,ambiguous
+sheet_0259.jpg,9,crosswalk,crosswalk paint
+sheet_0259.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0259.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0259.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0260.jpg,1,crosswalk,crosswalk paint
+sheet_0260.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0260.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0260.jpg,4,crosswalk,crosswalk paint
+sheet_0260.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0260.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0260.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0260.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0260.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0260.jpg,10,crosswalk,crosswalk paint
+sheet_0260.jpg,11,unsure,ambiguous
+sheet_0260.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0261.jpg,1,crosswalk,crosswalk paint
+sheet_0261.jpg,2,crosswalk,crosswalk paint
+sheet_0261.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0261.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0261.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0261.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0261.jpg,7,unsure,ambiguous
+sheet_0261.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0261.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0261.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0261.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0261.jpg,12,crosswalk,crosswalk paint
+sheet_0262.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0262.jpg,2,unsure,ambiguous
+sheet_0262.jpg,3,unsure,ambiguous
+sheet_0262.jpg,4,unsure,ambiguous
+sheet_0262.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0262.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0262.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0262.jpg,8,crosswalk,crosswalk paint
+sheet_0262.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0262.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0262.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0262.jpg,12,crosswalk,crosswalk paint
+sheet_0263.jpg,1,crosswalk,crosswalk paint
+sheet_0263.jpg,2,unsure,ambiguous
+sheet_0263.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0263.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0263.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0263.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0263.jpg,7,unsure,ambiguous
+sheet_0263.jpg,8,crosswalk,crosswalk paint
+sheet_0263.jpg,9,unsure,ambiguous
+sheet_0263.jpg,10,crosswalk,crosswalk paint
+sheet_0263.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0263.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0264.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0264.jpg,2,unsure,ambiguous
+sheet_0264.jpg,3,unsure,ambiguous
+sheet_0264.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0264.jpg,5,crosswalk,crosswalk paint
+sheet_0264.jpg,6,crosswalk,crosswalk paint
+sheet_0264.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0264.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0264.jpg,9,unsure,ambiguous
+sheet_0264.jpg,10,crosswalk,crosswalk paint
+sheet_0264.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0264.jpg,12,unsure,ambiguous
+sheet_0265.jpg,1,crosswalk,crosswalk paint
+sheet_0265.jpg,2,crosswalk,crosswalk paint
+sheet_0265.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0265.jpg,4,crosswalk,crosswalk paint
+sheet_0265.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0265.jpg,6,crosswalk,crosswalk paint
+sheet_0265.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0265.jpg,8,unsure,ambiguous
+sheet_0265.jpg,9,unsure,ambiguous
+sheet_0265.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0265.jpg,11,unsure,ambiguous
+sheet_0265.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0266.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0266.jpg,2,crosswalk,crosswalk paint
+sheet_0266.jpg,3,crosswalk,crosswalk paint
+sheet_0266.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0266.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0266.jpg,6,crosswalk,crosswalk paint
+sheet_0266.jpg,7,unsure,ambiguous
+sheet_0266.jpg,8,unsure,ambiguous
+sheet_0266.jpg,9,crosswalk,crosswalk paint
+sheet_0266.jpg,10,crosswalk,crosswalk paint
+sheet_0266.jpg,11,crosswalk,crosswalk paint
+sheet_0266.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0267.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0267.jpg,2,crosswalk,crosswalk paint
+sheet_0267.jpg,3,unsure,ambiguous
+sheet_0267.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0267.jpg,5,crosswalk,crosswalk paint
+sheet_0267.jpg,6,unsure,ambiguous
+sheet_0267.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0267.jpg,8,crosswalk,crosswalk paint
+sheet_0267.jpg,9,crosswalk,crosswalk paint
+sheet_0267.jpg,10,crosswalk,crosswalk paint
+sheet_0267.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0267.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0268.jpg,1,crosswalk,crosswalk paint
+sheet_0268.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0268.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0268.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0268.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0268.jpg,6,crosswalk,crosswalk paint
+sheet_0268.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0268.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0268.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0268.jpg,10,unsure,ambiguous
+sheet_0268.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0268.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0269.jpg,1,unsure,ambiguous
+sheet_0269.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0269.jpg,3,crosswalk,crosswalk paint
+sheet_0269.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0269.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0269.jpg,6,unsure,ambiguous
+sheet_0269.jpg,7,unsure,ambiguous
+sheet_0269.jpg,8,crosswalk,crosswalk paint
+sheet_0269.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0269.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0269.jpg,11,crosswalk,crosswalk paint
+sheet_0269.jpg,12,crosswalk,crosswalk paint
+sheet_0270.jpg,1,unsure,ambiguous
+sheet_0270.jpg,2,crosswalk,crosswalk paint
+sheet_0270.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0270.jpg,4,unsure,ambiguous
+sheet_0270.jpg,5,crosswalk,crosswalk paint
+sheet_0270.jpg,6,unsure,ambiguous
+sheet_0270.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0270.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0270.jpg,9,crosswalk,crosswalk paint
+sheet_0270.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0270.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0270.jpg,12,crosswalk,crosswalk paint
+sheet_0271.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0271.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0271.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0271.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0271.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0271.jpg,6,crosswalk,crosswalk paint
+sheet_0271.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0271.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0271.jpg,9,crosswalk,crosswalk paint
+sheet_0271.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0271.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0271.jpg,12,crosswalk,crosswalk paint
+sheet_0272.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0272.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0272.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0272.jpg,4,crosswalk,crosswalk paint
+sheet_0272.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0272.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0272.jpg,7,crosswalk,crosswalk paint
+sheet_0272.jpg,8,crosswalk,crosswalk paint
+sheet_0272.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0272.jpg,10,crosswalk,crosswalk paint
+sheet_0272.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0272.jpg,12,crosswalk,crosswalk paint
+sheet_0273.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0273.jpg,2,unsure,ambiguous
+sheet_0273.jpg,3,crosswalk,crosswalk paint
+sheet_0273.jpg,4,unsure,ambiguous
+sheet_0273.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0273.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0273.jpg,7,unsure,ambiguous
+sheet_0273.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0273.jpg,9,unsure,ambiguous
+sheet_0273.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0273.jpg,11,crosswalk,crosswalk paint
+sheet_0273.jpg,12,unsure,ambiguous
+sheet_0274.jpg,1,crosswalk,crosswalk paint
+sheet_0274.jpg,2,crosswalk,crosswalk paint
+sheet_0274.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0274.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0274.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0274.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0274.jpg,7,crosswalk,crosswalk paint
+sheet_0274.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0274.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0274.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0274.jpg,11,crosswalk,crosswalk paint
+sheet_0274.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0275.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0275.jpg,2,crosswalk,crosswalk paint
+sheet_0275.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0275.jpg,4,crosswalk,crosswalk paint
+sheet_0275.jpg,5,crosswalk,crosswalk paint
+sheet_0275.jpg,6,crosswalk,crosswalk paint
+sheet_0275.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0275.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0275.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0275.jpg,10,crosswalk,crosswalk paint
+sheet_0275.jpg,11,unsure,ambiguous
+sheet_0275.jpg,12,unsure,ambiguous
+sheet_0276.jpg,1,unsure,ambiguous
+sheet_0276.jpg,2,crosswalk,crosswalk paint
+sheet_0276.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0276.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0276.jpg,5,unsure,ambiguous
+sheet_0276.jpg,6,crosswalk,crosswalk paint
+sheet_0276.jpg,7,crosswalk,crosswalk paint
+sheet_0276.jpg,8,crosswalk,crosswalk paint
+sheet_0276.jpg,9,crosswalk,crosswalk paint
+sheet_0276.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0276.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0276.jpg,12,crosswalk,crosswalk paint
+sheet_0277.jpg,1,unsure,ambiguous
+sheet_0277.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0277.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0277.jpg,4,unsure,ambiguous
+sheet_0277.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0277.jpg,6,crosswalk,crosswalk paint
+sheet_0277.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0277.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0277.jpg,9,crosswalk,crosswalk paint
+sheet_0277.jpg,10,crosswalk,crosswalk paint
+sheet_0277.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0277.jpg,12,unsure,ambiguous
+sheet_0278.jpg,1,unsure,ambiguous
+sheet_0278.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0278.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0278.jpg,4,crosswalk,crosswalk paint
+sheet_0278.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0278.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0278.jpg,7,unsure,ambiguous
+sheet_0278.jpg,8,crosswalk,crosswalk paint
+sheet_0278.jpg,9,crosswalk,crosswalk paint
+sheet_0278.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0278.jpg,11,crosswalk,crosswalk paint
+sheet_0278.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0279.jpg,1,unsure,ambiguous
+sheet_0279.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0279.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0279.jpg,4,unsure,ambiguous
+sheet_0279.jpg,5,unsure,ambiguous
+sheet_0279.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0279.jpg,7,unsure,ambiguous
+sheet_0279.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0279.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0279.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0279.jpg,11,crosswalk,crosswalk paint
+sheet_0279.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0280.jpg,1,crosswalk,crosswalk paint
+sheet_0280.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0280.jpg,3,unsure,ambiguous
+sheet_0280.jpg,4,crosswalk,crosswalk paint
+sheet_0280.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0280.jpg,6,crosswalk,crosswalk paint
+sheet_0280.jpg,7,crosswalk,crosswalk paint
+sheet_0280.jpg,8,crosswalk,crosswalk paint
+sheet_0280.jpg,9,crosswalk,crosswalk paint
+sheet_0280.jpg,10,crosswalk,crosswalk paint
+sheet_0280.jpg,11,crosswalk,crosswalk paint
+sheet_0280.jpg,12,crosswalk,crosswalk paint
+sheet_0281.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0281.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0281.jpg,3,unsure,ambiguous
+sheet_0281.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0281.jpg,5,crosswalk,crosswalk paint
+sheet_0281.jpg,6,crosswalk,crosswalk paint
+sheet_0281.jpg,7,unsure,ambiguous
+sheet_0281.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0281.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0281.jpg,10,unsure,ambiguous
+sheet_0281.jpg,11,crosswalk,crosswalk paint
+sheet_0281.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0282.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0282.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0282.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0282.jpg,4,crosswalk,crosswalk paint
+sheet_0282.jpg,5,crosswalk,crosswalk paint
+sheet_0282.jpg,6,crosswalk,crosswalk paint
+sheet_0282.jpg,7,unsure,ambiguous
+sheet_0282.jpg,8,unsure,ambiguous
+sheet_0282.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0282.jpg,10,unsure,ambiguous
+sheet_0282.jpg,11,crosswalk,crosswalk paint
+sheet_0282.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0283.jpg,1,crosswalk,crosswalk paint
+sheet_0283.jpg,2,unsure,ambiguous
+sheet_0283.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0283.jpg,4,crosswalk,crosswalk paint
+sheet_0283.jpg,5,crosswalk,crosswalk paint
+sheet_0283.jpg,6,crosswalk,crosswalk paint
+sheet_0283.jpg,7,crosswalk,crosswalk paint
+sheet_0283.jpg,8,crosswalk,crosswalk paint
+sheet_0283.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0283.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0283.jpg,11,crosswalk,crosswalk paint
+sheet_0283.jpg,12,crosswalk,crosswalk paint
+sheet_0284.jpg,1,crosswalk,crosswalk paint
+sheet_0284.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0284.jpg,3,crosswalk,crosswalk paint
+sheet_0284.jpg,4,crosswalk,crosswalk paint
+sheet_0284.jpg,5,crosswalk,crosswalk paint
+sheet_0284.jpg,6,unsure,ambiguous
+sheet_0284.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0284.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0284.jpg,9,crosswalk,crosswalk paint
+sheet_0284.jpg,10,crosswalk,crosswalk paint
+sheet_0284.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0284.jpg,12,unsure,ambiguous
+sheet_0285.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0285.jpg,2,crosswalk,crosswalk paint
+sheet_0285.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0285.jpg,4,crosswalk,crosswalk paint
+sheet_0285.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0285.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0285.jpg,7,crosswalk,crosswalk paint
+sheet_0285.jpg,8,crosswalk,crosswalk paint
+sheet_0285.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0285.jpg,10,not_crosswalk,no crosswalk paint
+sheet_0285.jpg,11,unsure,ambiguous
+sheet_0285.jpg,12,crosswalk,crosswalk paint
+sheet_0286.jpg,1,crosswalk,crosswalk paint
+sheet_0286.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0286.jpg,3,crosswalk,crosswalk paint
+sheet_0286.jpg,4,not_crosswalk,no crosswalk paint
+sheet_0286.jpg,5,crosswalk,crosswalk paint
+sheet_0286.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0286.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0286.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0286.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0286.jpg,10,unsure,ambiguous
+sheet_0286.jpg,11,crosswalk,crosswalk paint
+sheet_0286.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0287.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0287.jpg,2,crosswalk,crosswalk paint
+sheet_0287.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0287.jpg,4,crosswalk,crosswalk paint
+sheet_0287.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0287.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0287.jpg,7,unsure,ambiguous
+sheet_0287.jpg,8,crosswalk,crosswalk paint
+sheet_0287.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0287.jpg,10,crosswalk,crosswalk paint
+sheet_0287.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0287.jpg,12,not_crosswalk,no crosswalk paint
+sheet_0288.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0288.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0288.jpg,3,crosswalk,crosswalk paint
+sheet_0288.jpg,4,crosswalk,crosswalk paint
+sheet_0288.jpg,5,not_crosswalk,no crosswalk paint
+sheet_0288.jpg,6,crosswalk,crosswalk paint
+sheet_0288.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0288.jpg,8,unsure,ambiguous
+sheet_0288.jpg,9,crosswalk,crosswalk paint
+sheet_0288.jpg,10,crosswalk,crosswalk paint
+sheet_0288.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0288.jpg,12,unsure,ambiguous
+sheet_0289.jpg,1,not_crosswalk,no crosswalk paint
+sheet_0289.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0289.jpg,3,crosswalk,crosswalk paint
+sheet_0289.jpg,4,crosswalk,crosswalk paint
+sheet_0289.jpg,5,crosswalk,crosswalk paint
+sheet_0289.jpg,6,crosswalk,crosswalk paint
+sheet_0289.jpg,7,not_crosswalk,no crosswalk paint
+sheet_0289.jpg,8,crosswalk,crosswalk paint
+sheet_0289.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0289.jpg,10,crosswalk,crosswalk paint
+sheet_0289.jpg,11,not_crosswalk,no crosswalk paint
+sheet_0289.jpg,12,crosswalk,crosswalk paint
+sheet_0290.jpg,1,crosswalk,crosswalk paint
+sheet_0290.jpg,2,not_crosswalk,no crosswalk paint
+sheet_0290.jpg,3,not_crosswalk,no crosswalk paint
+sheet_0290.jpg,4,unsure,ambiguous
+sheet_0290.jpg,5,crosswalk,crosswalk paint
+sheet_0290.jpg,6,not_crosswalk,no crosswalk paint
+sheet_0290.jpg,7,crosswalk,crosswalk paint
+sheet_0290.jpg,8,not_crosswalk,no crosswalk paint
+sheet_0290.jpg,9,not_crosswalk,no crosswalk paint
+sheet_0290.jpg,10,crosswalk,crosswalk paint
+sheet_0290.jpg,11,unsure,ambiguous
+sheet_0290.jpg,12,crosswalk,crosswalk paint

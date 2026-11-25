@@ -1,0 +1,167 @@
+card_id,pano_id,x,y,city,mode,stratum,split,note
+det:-hIndMKlwVkNf1zfSivgMw:0.027:0.539,-hIndMKlwVkNf1zfSivgMw,0.0273,0.5391,seattle-wa,sparse,sparse_ignore_pt,train,
+det:1Ekw2suvhD3Mx5inM0Q2Bw:0.582:0.570,1Ekw2suvhD3Mx5inM0Q2Bw,0.582,0.5703,seattle-wa,sparse,sparse_bg,train,These are a series of rail tracks I believe
+det:1Z5BVCDk7H7BjEib86aP0w:0.058:0.568,1Z5BVCDk7H7BjEib86aP0w,0.0576,0.5684,amsterdam,sparse,sparse_bg,train,Traffic lane markings indicating no stopping
+det:2gaQqDFNySUSQbd_8zVJBg:0.472:0.584,2gaQqDFNySUSQbd_8zVJBg,0.4717,0.584,seattle-wa,sparse,sparse_ignore_pt,train,Double yellow line for road
+det:31xo5W_HcUzDcFBrzBn6ZA:0.136:0.678,31xo5W_HcUzDcFBrzBn6ZA,0.1357,0.6777,burnaby,sparse,sparse_bg,train,Turn lane marking
+det:3NFsEoo3yTKXurpuBFEsNw:0.253:0.584,3NFsEoo3yTKXurpuBFEsNw,0.2529,0.584,amsterdam,sparse,sparse_ignore_pt,train,Can't tell. I don't think so though
+det:5Mgcu09FN90IAYG-pWT4_A:0.972:0.537,5Mgcu09FN90IAYG-pWT4_A,0.9717,0.5371,seattle-wa,sparse,sparse_bg,train,
+det:7Y5wp0DYMtXa8FAlA2JX0g:0.026:0.648,7Y5wp0DYMtXa8FAlA2JX0g,0.0264,0.6484,amsterdam,sparse,sparse_bg,train,
+det:7yHz4VTYFwAFU9xfXPzYTA:0.301:0.617,7yHz4VTYFwAFU9xfXPzYTA,0.3008,0.6172,amsterdam,sparse,sparse_bg,train,These are the triangles along the road
+det:7yHz4VTYFwAFU9xfXPzYTA:0.339:0.602,7yHz4VTYFwAFU9xfXPzYTA,0.3389,0.6016,amsterdam,sparse,sparse_bg,train,Triangle lane markings
+det:8AxnXUfYoG6eZsDjuGAuJw:0.051:0.537,8AxnXUfYoG6eZsDjuGAuJw,0.0508,0.5371,seattle-wa,sparse,sparse_bg,train,This is a turn lane
+det:8YSGTZmHI0244-xw0-2drQ:0.308:0.555,8YSGTZmHI0244-xw0-2drQ,0.3076,0.5547,amsterdam,sparse,sparse_bg,train,This is lane markings for turn lanes
+det:8bzdyonR3uQWi0eLVvogMw:0.979:0.568,8bzdyonR3uQWi0eLVvogMw,0.9795,0.5684,teaneck-nj,sparse,sparse_bg,train,This is painted marking on a corner to extend that corner giving drivers a better sense of where to drive
+det:8jtT85sOBTHtqnt-zUuu-g:0.151:0.600,8jtT85sOBTHtqnt-zUuu-g,0.1514,0.5996,amsterdam,sparse,sparse_bg,train,Triangles!
+det:91PktqGbhsXGYbCgL4ODNw:0.145:0.570,91PktqGbhsXGYbCgL4ODNw,0.1445,0.5703,amsterdam,sparse,sparse_bg,train,This is like a no parking zone marking
+det:9PMPic_bktUA3kz5rViHgQ:0.628:0.586,9PMPic_bktUA3kz5rViHgQ,0.6279,0.5859,teaneck-nj,sparse,sparse_bg,train,Snow and a sidewalk. Not a crosswalk
+det:9V7zijT9is6j6XNCtC0ErQ:0.597:0.633,9V7zijT9is6j6XNCtC0ErQ,0.5967,0.6328,teaneck-nj,sparse,sparse_bg,train,
+det:9eQE4Ytbxu_EsQoAi_jKLw:0.839:0.646,9eQE4Ytbxu_EsQoAi_jKLw,0.8389,0.6465,amsterdam,sparse,sparse_bg,train,This is a turn lane marking
+det:9tyJCuZht4kVBThXVN44pg:0.175:0.742,9tyJCuZht4kVBThXVN44pg,0.1748,0.7422,amsterdam,sparse,sparse_bg,train,Too zoomed in
+det:AIvOR_614qUEISmbmE4oOw:0.479:0.553,AIvOR_614qUEISmbmE4oOw,0.4795,0.5527,seattle-wa,dense_ignore,dense_ignored,train,Green zebra crossing for bikes
+det:ATOvRN-RPMH33x7sMPIUEg:0.246:0.600,ATOvRN-RPMH33x7sMPIUEg,0.2461,0.5996,amsterdam,sparse,sparse_ignore_pt,train,Not sure but I think this is for cars
+det:AZRWZAQp8myx-lJVRg6y7Q:0.113:0.537,AZRWZAQp8myx-lJVRg6y7Q,0.1133,0.5371,seattle-wa,sparse,sparse_ignore_pt,train,
+det:B8M7lO-0FAFVH1zbsI_Z_g:0.917:0.553,B8M7lO-0FAFVH1zbsI_Z_g,0.917,0.5527,teaneck-nj,sparse,sparse_bg,train,This is a driveway
+det:B8_dHon6OI4HK9D_3Dbr6A:0.574:0.602,B8_dHon6OI4HK9D_3Dbr6A,0.5742,0.6016,teaneck-nj,sparse,sparse_bg,train,This is snow on the buffer next to the sidewalk
+det:BFRClD1O7086ejzacQN7jg:0.776:0.584,BFRClD1O7086ejzacQN7jg,0.7764,0.584,teaneck-nj,sparse,sparse_bg,train,Car stop line
+det:BZrynsCpGXa0TBc3jE6efQ:0.324:0.553,BZrynsCpGXa0TBc3jE6efQ,0.3242,0.5527,teaneck-nj,sparse,sparse_ignore_pt,train,Bus stop or other lane marking here
+det:BdnrfVSemN_coOuh4Wx63A:0.855:0.678,BdnrfVSemN_coOuh4Wx63A,0.8555,0.6777,burnaby,sparse,sparse_bg,train,These are concrete tactile markings on a curb ramp
+det:BgEuFQL6n3b5XOyPhUxmVg:0.324:0.648,BgEuFQL6n3b5XOyPhUxmVg,0.3242,0.6484,amsterdam,sparse,sparse_bg,train,Turn triangle marking
+det:C3_URy16JcXZaE5_szUgLA:0.488:0.521,C3_URy16JcXZaE5_szUgLA,0.4883,0.5215,seattle-wa,sparse,sparse_bg,train,
+det:D5c1wAImBOq_vZirBEfruw:0.152:0.664,D5c1wAImBOq_vZirBEfruw,0.1523,0.6641,amsterdam,sparse,sparse_bg,train,
+det:D5c1wAImBOq_vZirBEfruw:0.215:0.678,D5c1wAImBOq_vZirBEfruw,0.2148,0.6777,amsterdam,sparse,sparse_bg,train,This is a lane marking
+det:D6W33RcpKEBt4fZqcNv4cw:0.347:0.553,D6W33RcpKEBt4fZqcNv4cw,0.3467,0.5527,burnaby,sparse,sparse_bg,train,Top of a car.
+det:E58gdN9LYw7ObgWT3oQ5rg:0.707:0.553,E58gdN9LYw7ObgWT3oQ5rg,0.707,0.5527,amsterdam,sparse,sparse_bg,train,I think this is for bikes rather than pedestrians. Not sure though
+det:EAHjdzdofVkoeMdLgEa2SQ:0.512:0.555,EAHjdzdofVkoeMdLgEa2SQ,0.5117,0.5547,burnaby,sparse,sparse_bg,train,Turn lane markings
+det:EPAfFEoedar2OMMb0VAqyw:0.089:0.539,EPAfFEoedar2OMMb0VAqyw,0.0889,0.5391,amsterdam,sparse,sparse_ignore_pt,train,This is painted markings for the road. There is a crosswalk with the green circle but not where the crosshair is
+det:FPjXirfCLiURrtp5KKFNSQ:0.862:0.600,FPjXirfCLiURrtp5KKFNSQ,0.8623,0.5996,burnaby,sparse,sparse_bg,train,Lane markings on road
+det:FPjXirfCLiURrtp5KKFNSQ:0.879:0.631,FPjXirfCLiURrtp5KKFNSQ,0.8789,0.6309,burnaby,sparse,sparse_bg,train,Turn lane marking
+det:FTtWcZONXIn4FLBc84qhUA:0.011:0.539,FTtWcZONXIn4FLBc84qhUA,0.0107,0.5391,amsterdam,sparse,sparse_bg,train,
+det:FaPs9UeBhHde9WG5nqrG9Q:0.261:0.568,FaPs9UeBhHde9WG5nqrG9Q,0.2607,0.5684,seattle-wa,dense_ignore,dense_ignored,train,Green zebra stripes for bikers
+det:GJidFnrKHBqDSIJ_TLMkVw:0.340:0.570,GJidFnrKHBqDSIJ_TLMkVw,0.3398,0.5703,amsterdam,sparse,sparse_bg,train,Triangle lane marking
+det:HGMyl5zY6PsOx202H0Uf1w:0.840:0.537,HGMyl5zY6PsOx202H0Uf1w,0.8398,0.5371,teaneck-nj,sparse,sparse_bg,train,Parking lot
+det:HJ9F23xnenSXhvCPrc8A4w:0.479:0.521,HJ9F23xnenSXhvCPrc8A4w,0.4795,0.5215,amsterdam,sparse,sparse_bg,train,Rail tracks embedded in pavement and painted text
+det:HyLdj8PxYlAmgNhSIZ6kFQ:0.988:0.521,HyLdj8PxYlAmgNhSIZ6kFQ,0.9883,0.5215,seattle-wa,sparse,sparse_bg,train,Too far in the distance but I don't think there is a crosswalk here
+det:I84yIrcx5inavNpdJIoHGw:0.128:0.537,I84yIrcx5inavNpdJIoHGw,0.1279,0.5371,amsterdam,sparse,sparse_ignore_pt,train,Crosshair seems like it's in the center of the road
+det:I9nI6OE6GFP-SGSnGQd4Iw:0.401:0.539,I9nI6OE6GFP-SGSnGQd4Iw,0.4014,0.5391,amsterdam,sparse,sparse_bg,train,Turn lane
+det:I9nI6OE6GFP-SGSnGQd4Iw:0.465:0.523,I9nI6OE6GFP-SGSnGQd4Iw,0.4648,0.5234,amsterdam,sparse,sparse_bg,train,Dashed lines for turn lane
+det:IHCrs4vOWLi50fVqlHXwkA:0.145:0.615,IHCrs4vOWLi50fVqlHXwkA,0.1445,0.6152,teaneck-nj,sparse,sparse_bg,train,Line marking the turning lane
+det:IIEAUIE0Rg3PCkVv9FsUYw:0.308:0.602,IIEAUIE0Rg3PCkVv9FsUYw,0.3076,0.6016,amsterdam,sparse,sparse_ignore_pt,train,
+det:IcztdtkcQuPB8WFNX0YADw:0.612:0.646,IcztdtkcQuPB8WFNX0YADw,0.6123,0.6465,teaneck-nj,sparse,sparse_bg,train,Parallel bike lane markings down the street
+det:Idie2id36zRfJch5Kf-ZDw:0.363:0.600,Idie2id36zRfJch5Kf-ZDw,0.3633,0.5996,seattle-wa,sparse,sparse_bg,train,This is a turn lane
+det:Idie2id36zRfJch5Kf-ZDw:0.559:0.584,Idie2id36zRfJch5Kf-ZDw,0.5586,0.584,seattle-wa,sparse,sparse_bg,train,Looks like a bike lane
+det:JJ6m0ATuVLmBejMK8Wgx3A:0.206:0.664,JJ6m0ATuVLmBejMK8Wgx3A,0.2061,0.6641,amsterdam,sparse,sparse_bg,train,This is a turn lane marking
+det:JJ6m0ATuVLmBejMK8Wgx3A:0.316:0.633,JJ6m0ATuVLmBejMK8Wgx3A,0.3164,0.6328,amsterdam,sparse,sparse_bg,train,Lane markings
+det:JPmFGCmjVpWwq6yQ6fsxkA:0.879:0.633,JPmFGCmjVpWwq6yQ6fsxkA,0.8789,0.6328,burnaby,sparse,sparse_bg,train,This is a dashed parallel line for bike path
+det:KE5Ueu1lJfqYQVxuF5J1VQ:0.809:0.756,KE5Ueu1lJfqYQVxuF5J1VQ,0.8086,0.7559,teaneck-nj,sparse,sparse_bg,train,This is a curb ramp
+det:KWwgdpDKRmbRkRjebwMztg:0.793:0.568,KWwgdpDKRmbRkRjebwMztg,0.793,0.5684,teaneck-nj,sparse,sparse_bg,train,This is a stop line and not a crosswalk
+det:K_Wb3dxA3RGeTA7BdSpeEA:0.770:0.568,K_Wb3dxA3RGeTA7BdSpeEA,0.7695,0.5684,teaneck-nj,sparse,sparse_bg,train,Double yellow stripe lane marking
+det:KjBLwesThDVWNYkpC0Q_jQ:0.582:0.646,KjBLwesThDVWNYkpC0Q_jQ,0.582,0.6465,seattle-wa,sparse,sparse_bg,train,This is a protective painted area to protect bikes
+det:Kx0JZvqQV78IsYHgws8xIA:0.534:0.492,Kx0JZvqQV78IsYHgws8xIA,0.5342,0.4922,amsterdam,sparse,sparse_bg,train,Just a bike/pedestrian brick pathway
+det:LDSiTIxvLHhuaJAGKLhg0w:0.254:0.586,LDSiTIxvLHhuaJAGKLhg0w,0.2539,0.5859,seattle-wa,sparse,sparse_bg,train,Turn lanes
+det:LRvJivhO2TkPKh1546BuSQ:0.269:0.555,LRvJivhO2TkPKh1546BuSQ,0.2686,0.5547,amsterdam,sparse,sparse_bg,train,"Aha, we see those painted triangles again but now I see it with more context and it's used to mark a lane on a round about"
+det:LSBl2o9EETnb_DkE23vqiw:0.848:0.523,LSBl2o9EETnb_DkE23vqiw,0.8477,0.5234,seattle-wa,sparse,sparse_ignore_pt,train,I would need a better photo where I can zoom in but this looks like a stop line and not a crosswalk
+det:Lg1NJEKl5AsHBOBBH5Lz7w:0.237:0.615,Lg1NJEKl5AsHBOBBH5Lz7w,0.2373,0.6152,burnaby,sparse,sparse_bg,train,This is a turn lane
+det:MM6HIP_988wEqx8ZOGSoGQ:0.136:0.586,MM6HIP_988wEqx8ZOGSoGQ,0.1357,0.5859,amsterdam,sparse,sparse_bg,train,
+det:MbtpFNeJ2WabPp0dPAGMBg:0.394:0.631,MbtpFNeJ2WabPp0dPAGMBg,0.3936,0.6309,amsterdam,sparse,sparse_bg,train,
+det:Md031MQl9zXHqOV8INj7OA:0.223:0.568,Md031MQl9zXHqOV8INj7OA,0.2227,0.5684,amsterdam,sparse,sparse_bg,train,This is a bike lane. There is a crosswalk on the left side of the image orthgonal to the bike lane
+det:MyGiDkhCwd_h6QJYZanHDg:0.214:0.537,MyGiDkhCwd_h6QJYZanHDg,0.2139,0.5371,seattle-wa,sparse,sparse_bg,train,This is a median
+det:N7uLpWpwDnWu8Xr7lwinIQ:0.270:0.615,N7uLpWpwDnWu8Xr7lwinIQ,0.2695,0.6152,amsterdam,sparse,sparse_bg,train,I'm pretty sure not. Series of triangles... curious what that lane marking generally means. I think this is in Amsterdam
+det:NLqXtJ78Y5XMrAfW8L0W3w:0.684:0.521,NLqXtJ78Y5XMrAfW8L0W3w,0.6836,0.5215,seattle-wa,sparse,sparse_bg,train,This is a parking lot with parking lane markers I believe
+det:OzFhYH5JtHgyzJsxaQmZDA:0.145:0.539,OzFhYH5JtHgyzJsxaQmZDA,0.1445,0.5391,amsterdam,sparse,sparse_ignore_pt,train,"Ha, this is the red and white stripes of like a service vehicle or ambulance"
+det:PnWiKbrze4XtU6y0QsBJBA:0.207:0.631,PnWiKbrze4XtU6y0QsBJBA,0.207,0.6309,teaneck-nj,sparse,sparse_bg,train,This is a double line marking the split betweeen directions of traffic
+det:QIaTqkpGRmkDofzUA8l7sg:0.074:0.568,QIaTqkpGRmkDofzUA8l7sg,0.0742,0.5684,amsterdam,sparse,sparse_bg,train,
+det:QPMjdaJ_iJN3W4C4mGSkXw:0.379:0.568,QPMjdaJ_iJN3W4C4mGSkXw,0.3789,0.5684,amsterdam,sparse,sparse_bg,train,Triangles marking traffic lane
+det:QPMjdaJ_iJN3W4C4mGSkXw:0.426:0.555,QPMjdaJ_iJN3W4C4mGSkXw,0.4258,0.5547,amsterdam,sparse,sparse_bg,train,This is a lane marking in the road not for pedestrians
+det:QTVK7FDL1Vi37ab-iOI9_Q:0.597:0.523,QTVK7FDL1Vi37ab-iOI9_Q,0.5967,0.5234,amsterdam,sparse,sparse_bg,train,
+det:Razb7wb5hQMKjwdekbo4_g:0.183:0.617,Razb7wb5hQMKjwdekbo4_g,0.1826,0.6172,amsterdam,sparse,sparse_bg,train,Turn lane markings
+det:Rxy03yVva7Geli7sHw81rw:0.245:0.568,Rxy03yVva7Geli7sHw81rw,0.2451,0.5684,seattle-wa,sparse,sparse_bg,train,Top of a car
+det:S2ZVmiN0MBgOlmNvK1U6pQ:0.120:0.617,S2ZVmiN0MBgOlmNvK1U6pQ,0.1201,0.6172,teaneck-nj,sparse,sparse_bg,train,Double yellow line marking opposite flows of traffic
+det:S2ZVmiN0MBgOlmNvK1U6pQ:0.301:0.646,S2ZVmiN0MBgOlmNvK1U6pQ,0.3008,0.6465,teaneck-nj,sparse,sparse_bg,train,This is a double yellow line to mark the different directions of traffic
+det:SBM8Yl8dXFnG9zIdBzLjqw:0.371:0.539,SBM8Yl8dXFnG9zIdBzLjqw,0.3711,0.5391,amsterdam,sparse,sparse_bg,train,Lane markings
+det:SsqfthXq1pt5dr0zrAzbiw:0.090:0.600,SsqfthXq1pt5dr0zrAzbiw,0.0898,0.5996,amsterdam,sparse,sparse_bg,train,
+det:SsqfthXq1pt5dr0zrAzbiw:0.659:0.615,SsqfthXq1pt5dr0zrAzbiw,0.6592,0.6152,amsterdam,sparse,sparse_bg,train,I don't think so
+det:T6GDwbDUucIgIoO2PQqmVA:0.488:0.553,T6GDwbDUucIgIoO2PQqmVA,0.4883,0.5527,amsterdam,sparse,sparse_bg,train,Triangle traffic lane markings
+det:Ta8ZjemUBDcaCK6fyffTBA:0.105:0.586,Ta8ZjemUBDcaCK6fyffTBA,0.1055,0.5859,burnaby,sparse,sparse_bg,train,This is a lane marking on a road
+det:TaKlXVj9lQbIQjVO2DSm8w:0.160:0.600,TaKlXVj9lQbIQjVO2DSm8w,0.1602,0.5996,seattle-wa,sparse,sparse_bg,train,This is a parking reserved area on the street
+det:VUZ7pyM8ZxhCCgX88SWN-g:0.996:0.568,VUZ7pyM8ZxhCCgX88SWN-g,0.9961,0.5684,burnaby,sparse,sparse_bg,train,
+det:WK72sYr_yqOp_X5JEJ4Few:0.925:0.568,WK72sYr_yqOp_X5JEJ4Few,0.9248,0.5684,seattle-wa,dense_ignore,dense_ignored,train,The crosshair is on a paved area in the middle of a road and not over a crosswalk. There is a dashed parallel line for a bike lane in the upper part of the blue disc
+det:WgGF77_DhMV7F-bny0RKcQ:0.839:0.537,WgGF77_DhMV7F-bny0RKcQ,0.8389,0.5371,amsterdam,sparse,sparse_bg,train,"Wow, this is a reflection of a crosswalk in a store window. Let's remember this one for a future paper or talk. Incredible!"
+det:X2y8GcJ7fbKHO8U9uyTD6g:0.394:0.600,X2y8GcJ7fbKHO8U9uyTD6g,0.3936,0.5996,teaneck-nj,sparse,sparse_bg,train,This is a double yellow line in the middle of a four lane road
+det:XbomKKnpnd4ik1c6NpFpFw:0.729:0.617,XbomKKnpnd4ik1c6NpFpFw,0.7295,0.6172,amsterdam,sparse,sparse_bg,train,These are like tactile surfaec indicators on the sidewalk
+det:XwPUuoeDTj_kXctm3izxYg:0.394:0.539,XwPUuoeDTj_kXctm3izxYg,0.3936,0.5391,seattle-wa,sparse,sparse_ignore_pt,train,
+det:Y-BTU6coU-CuyZGT9f-mUg:0.113:0.537,Y-BTU6coU-CuyZGT9f-mUg,0.1133,0.5371,amsterdam,sparse,sparse_ignore_pt,train,I believe this is a dotted pathway for the bike lane in the intersection
+det:Y-BTU6coU-CuyZGT9f-mUg:0.378:0.537,Y-BTU6coU-CuyZGT9f-mUg,0.3779,0.5371,amsterdam,sparse,sparse_bg,train,Lane markings
+det:YbuahbV9QhFESwGDN2o3SQ:0.190:0.617,YbuahbV9QhFESwGDN2o3SQ,0.1904,0.6172,seattle-wa,sparse,sparse_bg,train,Turn lanes
+det:YbuahbV9QhFESwGDN2o3SQ:0.207:0.631,YbuahbV9QhFESwGDN2o3SQ,0.207,0.6309,seattle-wa,sparse,sparse_bg,train,Turn lanes
+det:YbuahbV9QhFESwGDN2o3SQ:0.222:0.600,YbuahbV9QhFESwGDN2o3SQ,0.2217,0.5996,seattle-wa,sparse,sparse_bg,train,Turning lanes
+det:YbuahbV9QhFESwGDN2o3SQ:0.269:0.615,YbuahbV9QhFESwGDN2o3SQ,0.2686,0.6152,seattle-wa,sparse,sparse_bg,train,This is a turn lane on the road
+det:ZAgyewCe8_syZZAjDKkPZA:0.479:0.555,ZAgyewCe8_syZZAjDKkPZA,0.4795,0.5547,seattle-wa,sparse,sparse_ignore_pt,train,This is a stop line for cars
+det:ZLHHdfddy7m6xw71kxTKMw:0.073:0.631,ZLHHdfddy7m6xw71kxTKMw,0.0732,0.6309,teaneck-nj,sparse,sparse_bg,train,Turn lane marking with ONLY text
+det:Z_CN9zat9uCEbGdBX-7pYw:0.417:0.555,Z_CN9zat9uCEbGdBX-7pYw,0.417,0.5547,amsterdam,sparse,sparse_bg,train,Turn lane markings
+det:Z_CN9zat9uCEbGdBX-7pYw:0.605:0.600,Z_CN9zat9uCEbGdBX-7pYw,0.6055,0.5996,amsterdam,sparse,sparse_bg,train,This is a median with a zebra stripe to mark the curb maybe?
+det:Z_CN9zat9uCEbGdBX-7pYw:0.855:0.523,Z_CN9zat9uCEbGdBX-7pYw,0.8555,0.5234,amsterdam,sparse,sparse_bg,train,
+det:ZedCD0AT5_-8XKiLIhCdQw:0.159:0.631,ZedCD0AT5_-8XKiLIhCdQw,0.1592,0.6309,amsterdam,sparse,sparse_bg,train,Turn lane markings
+det:ZoCGl5fSwkL_-Q4AXn94Hw:0.965:0.537,ZoCGl5fSwkL_-Q4AXn94Hw,0.9648,0.5371,seattle-wa,sparse,sparse_bg,train,Stop line for cars. Not a crosswalk
+det:ZrblO_S1p4gy7QcsLtnGXQ:0.965:0.521,ZrblO_S1p4gy7QcsLtnGXQ,0.9648,0.5215,seattle-wa,sparse,sparse_bg,train,This is a stop line for cars
+det:_kzQc875UbTTils0aU9sLA:0.332:0.617,_kzQc875UbTTils0aU9sLA,0.332,0.6172,amsterdam,sparse,sparse_bg,train,"No, this is a turning lane marker"
+det:aDs9unQcDLluULWCoMUf2A:0.098:0.584,aDs9unQcDLluULWCoMUf2A,0.0977,0.584,amsterdam,sparse,sparse_ignore_pt,train,Lots of painted markings here but not for crosswalk
+det:aSOmFAB6iFNb-Wnmos2N0g:0.011:0.553,aSOmFAB6iFNb-Wnmos2N0g,0.0107,0.5527,seattle-wa,sparse,sparse_bg,train,These are speed bumps with double triangles that create a lil zebra stripe like pattern
+det:alF72QyEcLm0JuqUMVTCpw:0.964:0.600,alF72QyEcLm0JuqUMVTCpw,0.9639,0.5996,burnaby,sparse,sparse_ignore_pt,train,Stop line for cars.
+det:az3LdLW6QRKqK2WCTqZ5AQ:0.035:0.539,az3LdLW6QRKqK2WCTqZ5AQ,0.0352,0.5391,teaneck-nj,sparse,sparse_bg,train,Lane markings on road for lanes
+det:b-RmAzPZL7Iro4_6MjhFAw:0.097:0.646,b-RmAzPZL7Iro4_6MjhFAw,0.0967,0.6465,amsterdam,sparse,sparse_bg,train,This is a rail track embedded into pavement
+det:b4N-Dc5GSHfgLKCQBlYQRQ:0.270:0.568,b4N-Dc5GSHfgLKCQBlYQRQ,0.2695,0.5684,burnaby,sparse,sparse_ignore_pt,train,
+det:bDRpesLP7vhlzqC7CMJBGw:0.379:0.555,bDRpesLP7vhlzqC7CMJBGw,0.3789,0.5547,teaneck-nj,sparse,sparse_bg,train,Turn lane markings
+det:bQekbr4QCCEnwRq7PhlvTQ:0.270:0.648,bQekbr4QCCEnwRq7PhlvTQ,0.2695,0.6484,teaneck-nj,sparse,sparse_bg,train,Double yellow line separating traffic
+det:bp45se5HI7aYX3gNYXTIsg:0.948:0.553,bp45se5HI7aYX3gNYXTIsg,0.9482,0.5527,amsterdam,sparse,sparse_bg,train,
+det:cls4bfbaluUYMelgwOnOmA:0.089:0.553,cls4bfbaluUYMelgwOnOmA,0.0889,0.5527,amsterdam,sparse,sparse_bg,train,
+det:dAjRI5qsUWpPKMC_Ap_2mg:0.504:0.662,dAjRI5qsUWpPKMC_Ap_2mg,0.5039,0.6621,amsterdam,sparse,sparse_bg,train,This is a rail track
+det:gB-pnvpcoWB4TWwqH0-tcA:0.472:0.568,gB-pnvpcoWB4TWwqH0-tcA,0.4717,0.5684,burnaby,sparse,sparse_bg,train,This is a stop line for cars
+det:gIyjVhMYeFw75biqewENTg:0.051:0.537,gIyjVhMYeFw75biqewENTg,0.0508,0.5371,seattle-wa,sparse,sparse_ignore_pt,train,This is a green painted zebra stripe for a bike
+det:gIyjVhMYeFw75biqewENTg:0.245:0.586,gIyjVhMYeFw75biqewENTg,0.2451,0.5859,seattle-wa,sparse,sparse_bg,train,Turn lane markings
+det:hkHQakM3nfuk9-eQOmdN6A:0.011:0.553,hkHQakM3nfuk9-eQOmdN6A,0.0107,0.5527,burnaby,sparse,sparse_ignore_pt,train,
+det:izi-cEOyaTuycjuDWhTqQA:0.434:0.570,izi-cEOyaTuycjuDWhTqQA,0.4336,0.5703,amsterdam,sparse,sparse_bg,train,Dashed traffic lane markings
+det:j_d3DtX4V0u1FWql-6yelQ:0.316:0.615,j_d3DtX4V0u1FWql-6yelQ,0.3164,0.6152,teaneck-nj,sparse,sparse_bg,train,This is the stop line for traffic. The crosswalk is on the left barely visible in the image but not within the blue or yellow circles
+det:j_d3DtX4V0u1FWql-6yelQ:0.386:0.568,j_d3DtX4V0u1FWql-6yelQ,0.3857,0.5684,teaneck-nj,sparse,sparse_bg,train,Lane marking on road
+det:jfDLwkkeifVccyLuJ4vccg:0.715:0.539,jfDLwkkeifVccyLuJ4vccg,0.7148,0.5391,teaneck-nj,sparse,sparse_bg,train,
+det:jqEZPUmuIbwcXduCbMbqTA:0.059:0.523,jqEZPUmuIbwcXduCbMbqTA,0.0586,0.5234,amsterdam,sparse,sparse_bg,train,Lane markings
+det:kNCmqDHLBQPXPuKSZ2zLJg:0.058:0.584,kNCmqDHLBQPXPuKSZ2zLJg,0.0576,0.584,seattle-wa,sparse,sparse_ignore_pt,train,Green zebra stripes for a biker
+det:kcM3raookk-Fu1q-dCxslQ:0.000:0.537,kcM3raookk-Fu1q-dCxslQ,0,0.5371,seattle-wa,sparse,sparse_bg,train,Bike lane markings on the road. Not a crosswalk
+det:kcM3raookk-Fu1q-dCxslQ:0.487:0.523,kcM3raookk-Fu1q-dCxslQ,0.4873,0.5234,seattle-wa,sparse,sparse_ignore_pt,train,
+det:lu13n3MCMOfwAX792QvNtw:0.230:0.633,lu13n3MCMOfwAX792QvNtw,0.2305,0.6328,burnaby,sparse,sparse_bg,train,Turn lane marking
+det:lv7EbISzF3RbEuHxRlhycQ:0.058:0.537,lv7EbISzF3RbEuHxRlhycQ,0.0576,0.5371,burnaby,sparse,sparse_bg,train,
+det:mCLZAxQbX1C1iJIRTUX46A:0.918:0.521,mCLZAxQbX1C1iJIRTUX46A,0.918,0.5215,teaneck-nj,sparse,sparse_ignore_pt,train,Too far in distance but I think this is a parking lot?
+det:moRbRGT5UpvhyA61PrKTMg:0.473:0.523,moRbRGT5UpvhyA61PrKTMg,0.4727,0.5234,amsterdam,sparse,sparse_bg,train,Triangle traffic lane markings
+det:moRbRGT5UpvhyA61PrKTMg:0.604:0.570,moRbRGT5UpvhyA61PrKTMg,0.6045,0.5703,amsterdam,sparse,sparse_bg,train,Not sure what this is. I don't think it's a crosswalk though
+det:nl7Yk4KDwj1XQMdcAsqEog:0.901:0.523,nl7Yk4KDwj1XQMdcAsqEog,0.9014,0.5234,teaneck-nj,sparse,sparse_ignore_pt,train,This is painted area for parking lot
+det:oFN_1Ruyiq_y3op4zYQXxw:0.699:0.508,oFN_1Ruyiq_y3op4zYQXxw,0.6992,0.5078,seattle-wa,sparse,sparse_bg,train,Parking lot lane markings
+det:oNM_ggmUVU6kmqKfWSPxHg:0.879:0.555,oNM_ggmUVU6kmqKfWSPxHg,0.8789,0.5547,seattle-wa,sparse,sparse_bg,train,This is a stop line for cars
+det:ohSY6wHHdZuyuqtIrUcSAA:0.495:0.555,ohSY6wHHdZuyuqtIrUcSAA,0.4951,0.5547,teaneck-nj,sparse,sparse_bg,train,Stop line
+det:pE-2nSs3hu9LIoJwJTRw6g:0.379:0.662,pE-2nSs3hu9LIoJwJTRw6g,0.3789,0.6621,amsterdam,sparse,sparse_bg,train,
+det:plFfwYTfWAFaS7m6j-dGmg:0.238:0.537,plFfwYTfWAFaS7m6j-dGmg,0.2383,0.5371,seattle-wa,sparse,sparse_ignore_pt,train,Parking lot stripes
+det:puTcHm0PyfU4mAY4i4z1Mw:0.776:0.537,puTcHm0PyfU4mAY4i4z1Mw,0.7764,0.5371,amsterdam,sparse,sparse_bg,train,This is just a very wide brick pedestrian pathway
+det:qkvBErlBk6y6AP274w_I7w:0.496:0.537,qkvBErlBk6y6AP274w_I7w,0.4961,0.5371,amsterdam,sparse,sparse_bg,train,Lane markings
+det:rXdxtzhvQ1bw_sWg0IUfUQ:0.832:0.617,rXdxtzhvQ1bw_sWg0IUfUQ,0.832,0.6172,teaneck-nj,sparse,sparse_bg,train,Double yellow line separating sides of road
+det:r_cf4SGRgZzkMgoTek80Og:0.410:0.568,r_cf4SGRgZzkMgoTek80Og,0.4102,0.5684,amsterdam,sparse,sparse_bg,train,Turn lane markings
+det:rjPEn5KCPuVPMzpcfyAnmQ:0.137:0.539,rjPEn5KCPuVPMzpcfyAnmQ,0.1367,0.5391,seattle-wa,sparse,sparse_ignore_pt,train,Green zebra stripe for bike lane
+det:rjPEn5KCPuVPMzpcfyAnmQ:0.151:0.553,rjPEn5KCPuVPMzpcfyAnmQ,0.1514,0.5527,seattle-wa,sparse,sparse_ignore_pt,train,This is a green painted zebra stripe for bikes
+det:rmbGQTWViiV3IgShfghJUQ:0.535:0.568,rmbGQTWViiV3IgShfghJUQ,0.5352,0.5684,burnaby,sparse,sparse_bg,train,This is a bike lane
+det:ruI67f0OkVk3beRB3TS6gg:0.104:0.539,ruI67f0OkVk3beRB3TS6gg,0.1045,0.5391,seattle-wa,sparse,sparse_bg,train,"Shadows, etc. contribute to making this look like a crosswalk. I Don't think it is"
+det:s-Ph2jtk2e8de3BSrMkmXg:0.152:0.523,s-Ph2jtk2e8de3BSrMkmXg,0.1523,0.5234,seattle-wa,sparse,sparse_ignore_pt,train,This is a red painted area for a bus stop or a bus lane
+det:tdUpe_HrVrtkxFXWI_kpTQ:0.145:0.553,tdUpe_HrVrtkxFXWI_kpTQ,0.1445,0.5527,amsterdam,sparse,sparse_bg,train,Those triangles marking traffic lane
+det:twqsgetq3QkfKoPogg9CNA:0.120:0.537,twqsgetq3QkfKoPogg9CNA,0.1201,0.5371,amsterdam,sparse,sparse_ignore_pt,train,Lots of dashed lines to help cars properly turn I think?
+det:uWEh5JToTIXFebSSVwkMuQ:0.934:0.537,uWEh5JToTIXFebSSVwkMuQ,0.9336,0.5371,amsterdam,sparse,sparse_bg,train,Dotted lane markings for road lanes
+det:vWdWQ0E_6daw1lIjIk4kTg:0.832:0.709,vWdWQ0E_6daw1lIjIk4kTg,0.832,0.709,teaneck-nj,sparse,sparse_bg,train,Too zoomed in to know
+det:vhHWORk-pSt5rgtcGDxKRQ:0.074:0.602,vhHWORk-pSt5rgtcGDxKRQ,0.0742,0.6016,burnaby,sparse,sparse_bg,train,Traffic lane markings
+det:vp6wn-gYAzGi8DAr6fXqCg:0.136:0.553,vp6wn-gYAzGi8DAr6fXqCg,0.1357,0.5527,amsterdam,sparse,sparse_ignore_pt,train,This is a dashed painted bike lane on the road
+det:vzacaMqiqQ3d1lF69TtCzQ:0.152:0.631,vzacaMqiqQ3d1lF69TtCzQ,0.1523,0.6309,teaneck-nj,sparse,sparse_bg,train,Turn lane marking
+det:vzacaMqiqQ3d1lF69TtCzQ:0.355:0.648,vzacaMqiqQ3d1lF69TtCzQ,0.3555,0.6484,teaneck-nj,sparse,sparse_bg,train,This is a word painted on the road
+det:w42AuvlyIWLQQdHlF_NbHQ:0.776:0.615,w42AuvlyIWLQQdHlF_NbHQ,0.7764,0.6152,amsterdam,sparse,sparse_bg,train,This is a brick bikelane
+det:wC7m8uICzsdLQ87q0PbCww:0.301:0.537,wC7m8uICzsdLQ87q0PbCww,0.3008,0.5371,amsterdam,sparse,sparse_ignore_pt,train,Lots of dashed lines on the road. Def not a crosswalk though
+det:x3tpqq9dgo320qBurfozow:0.440:0.553,x3tpqq9dgo320qBurfozow,0.4404,0.5527,amsterdam,sparse,sparse_bg,train,
+det:xFLE9CZhEDPGo21v9DhbPw:0.410:0.539,xFLE9CZhEDPGo21v9DhbPw,0.4102,0.5391,amsterdam,sparse,sparse_ignore_pt,train,"The crosshair is directly over a pole that has zebra stripes on it (some reason, three poles here with zebra stripes)"
+det:xhgo1VSpzOswQEv7ovLmJA:0.604:0.553,xhgo1VSpzOswQEv7ovLmJA,0.6045,0.5527,teaneck-nj,sparse,sparse_bg,train,
+det:yFqziKl3DwTodrsgbK3qTQ:0.504:0.523,yFqziKl3DwTodrsgbK3qTQ,0.5039,0.5234,burnaby,sparse,sparse_bg,train,Traffic lane markings
+det:yHNY6UAag38_ix5zTzUROA:0.347:0.615,yHNY6UAag38_ix5zTzUROA,0.3467,0.6152,amsterdam,sparse,sparse_bg,train,Stop line marking for a bike path
+det:ygy7nEpBm5IPRhI0cLTPBA:0.433:0.537,ygy7nEpBm5IPRhI0cLTPBA,0.4326,0.5371,seattle-wa,dense_ignore,dense_ignored,train,This is a warning strip next to the light rail track
+det:zT0ZDzLy7pqdaGTz8ZBvbA:0.104:0.602,zT0ZDzLy7pqdaGTz8ZBvbA,0.1045,0.6016,amsterdam,sparse,sparse_bg,train,

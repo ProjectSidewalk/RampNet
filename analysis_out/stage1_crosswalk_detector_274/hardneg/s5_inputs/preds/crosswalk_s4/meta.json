@@ -1,0 +1,14 @@
+{
+ "label": "crosswalk_s4",
+ "checkpoint": "D:\\Git\\sal-scratch-keep\\crosswalk274-klone\\x4\\ckpts\\v4_s1\\final_step_1000.pth",
+ "sha256": "ebad379b5f7c1645dc39ccb820cd18500109723ae5b1e5706c1e4521b2ab42b4",
+ "score_floor": 0.05,
+ "min_distance": 10,
+ "tta": false,
+ "fp16": false,
+ "extractor": "threshold_sweep.heatmap_for + peaks_to_dets",
+ "root": "D:\\Git\\sal-scratch-keep\\crosswalk274-root",
+ "device": "cuda",
+ "torch": "2.8.0+cu126",
+ "gpu": "NVIDIA GeForce RTX 3070"
+}

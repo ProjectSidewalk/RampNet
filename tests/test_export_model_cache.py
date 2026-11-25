@@ -373,6 +373,29 @@ def test_the_same_hole_on_the_effort_pin_is_closed_too():
     assert em.publication_name("claude:claude-sonnet-5", cargs, "sonnet-medium") == "sonnet-medium"
 
 
+def _cargs_from_cli(*flags):
+    args = em.build_parser().parse_args(["--cache-dir", "/nope", *flags])
+    cargs = em._compare_args("/nope")
+    for k, v in em.signature_overrides(args).items():
+        setattr(cargs, k, v)
+    return cargs
+
+
+def test_claude_max_tokens_reaches_the_registered_effort_high_leg():
+    """--claude-max-tokens has to travel from the CLI into the namespace the signature and
+    roster.leg_for read. Parsed but dropped, it leaves the default 4096 in place: the
+    export then rebuilds a signature with no max_tokens, finds no cache for the
+    effort=high leg, and the name lookup refuses it as unregistered (review 1 of #299)."""
+    flags = ("--models", "claude:claude-opus-5-5", "--claude-effort", "high",
+             "--claude-serving-path", "anthropic")
+    cargs = _cargs_from_cli(*flags, "--claude-max-tokens", "20000")
+    assert cargs.claude_max_tokens == 20000
+    assert em.publication_name("claude:claude-opus-5-5", cargs) == \
+        "claude-opus-5-5-effort-high-anthropic-maxtokens-20000"
+    with pytest.raises(ValueError, match="claude_max_tokens"):
+        em.publication_name("claude:claude-opus-5-5", _cargs_from_cli(*flags))
+
+
 def test_publish_as_refuses_more_than_one_spec(tmp_path):
     with pytest.raises(ValueError, match="ONE leg"):
         em.export("/nope", str(tmp_path), ["annapolis"],
