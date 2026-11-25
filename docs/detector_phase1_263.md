@@ -58,7 +58,11 @@ domain ([`aug_transfer_82.md`](aug_transfer_82.md)), and the control arm replica
   nine-split US pool, F1 at 0.30 is −0.011 [−0.017, −0.006], every seed below zero.
   laurens_mapillary max-F1 is −0.050 [−0.073, −0.025], every seed. Open-rig 4 max-F1 is −0.004
   [−0.015, +0.004]; the three seeds' max-F1 are 0.691 / 0.700 / 0.684 (released 0.696 plus each
-  seed's contrast), an SD of 0.008. Seeds mostly move the operating point: the seed-to-seed F1 range
+  seed's contrast), an SD of 0.008. On open-rig 3 (budapest_district5 left out), the pool this
+  plan's rules read, the control looks worse: max-F1 −0.012 [−0.021, +0.001] and F1 at 0.30 −0.005
+  [−0.020, +0.010]. That max-F1 point estimate is below the ship rule's −0.010 floor (§6), while its
+  interval is not wholly below zero; so the unchanged recipe's own 2,000-step fine-tune would fail
+  that floor against released. Seeds mostly move the operating point: the seed-to-seed F1 range
   at 0.55 is 0.086 on the open-rig pool. The doc proposes, without a decision, that every later arm
   be read against its same-seed control, with max-F1 beside every fixed threshold.
 - **Seed variance** ([`seed_variance_51_135.md`](seed_variance_51_135.md)): macro US7 F1, the mean of
@@ -92,6 +96,11 @@ domain ([`aug_transfer_82.md`](aug_transfer_82.md)), and the control arm replica
 | band | S7 (already read at 2× in #196/#197); sao_paulo for thresholds | manual_gold, juneau, bayonne (never run upscaled) |
 | arms | sao_paulo (threshold, checkpoint); manual_gold (rung 1 gate) | macro US7; open-rig 3 (laurens_mapillary, bayonne, juneau), with budapest_district5 and laurens_gsv reported beside |
 
+- **Rung 1 reads manual_gold only** (and sao_paulo for thresholds), as the 2026-11-15 plan has it.
+  Every rung 1 checkpoint is scored on all 14 splits in one pass, so that one scorer and one cache
+  serve both rungs, but the US7, open-rig and laurens_gsv caches are written and not read until the
+  rung 2 / ship read. That read is their one read. The alternative, open-rig 3 as a named rung 1
+  guard (which takes it out of "read once"), is listed in §11 as Jon's call.
 - laurens_mapillary was read at 2× in #197 and again in the plan's 2026-11-15 scratch run. It enters
   no band rule and is reported only.
 - budapest_district5 is in `miss_decomposition.HELD_OUT` (low-confidence single-rater GT), so the
@@ -148,10 +157,12 @@ Written in PR #295, not run.** Jon approves and starts it.
   20 at 2×). The strip must reproduce at least 95% of these, with |median score shift| under 0.05.
   **Decided (Jon, 2026-11-25): the lenient reading binds.** A reference peak counts as reproduced when
   a strip core peak lies within the match radius at any score at or above the floor. The strict
-  reading, which also requires the strip peak to reach 0.30, is reported beside it. Jon's reasons:
-  the median-shift clause bounds a systematic drop in score; the sao_paulo calibration exists to move
+  reading, which also requires the strip peak to reach 0.30, is reported beside it. Jon chose the
+  plan's (lenient) reading on the reasons below, which Claude set out for him and he accepted: the
+  median-shift clause bounds a systematic drop in score; the sao_paulo calibration exists to move
   the band threshold when strip scores shift; and a strip that loses ramps fails the binding
-  manual_gold gate as a fail, never as a false win.
+  manual_gold gate as a fail, never as a false win. PR #295 records the decision and these reasons in
+  `horizon_band_263.md`, "Decided before any 0c data exists (Jon, 2026-11-25)" (commit `04d06c88`).
 - **Calibration (sao_paulo).** A band threshold is set, to equal the 1× in-core precision at 0.30,
   if the median paired score shift exceeds 0.03 or in-core precision at 0.30 differs by more than
   0.05.
@@ -177,12 +188,12 @@ needs the from-scratch rung.
 | 2 | **B. zoom augmentation** | a geometric `zoom` op (spec below), range [0.5, 2.0] | scale: far-field sub_threshold and silent misses | on S7 at 0.30, 153 misses at 25 m or beyond (of 300 GT); the frozen full 2× pass recovers 70 of them under the scorer's 1:1 match (59 of 112 under the plan's approximate count; PR #295, `simulate.md`) | yes | manual_gold recall beyond 25 m up less than +0.03 at the control's FP count | proposed; the op does not exist |
 | 3 | **A. target σ** | Gaussian target σ 10 → 6 (`generate_heatmap_from_points`); `min_distance` stays 10 | merged pairs (#46) | S7: merged is 29.0% of misses, 124 pairs, 0.060 recall points; with `min_distance` 10 kept, at most the 78 pairs above it (0.038), 35 of them outside paterson; 80 of the 124 are paterson's. manual_gold: 185 of 423 misses (0.047 recall points); its separations are not computed | yes | manual_gold merged misses fall less than 10% | proposed; 0a permits it |
 | 4 | **rung 2** | the passing arms as one bundle, from scratch | as its parts | as its parts | no | n/a; 3 seeds plus one tie-in seed | proposed |
-| — | **C. stride-16 head** | FPN-style head on the stride-16 feature, or a learned upsample (#221) | the 8-px peak lattice | localization is 2.1% of misses (9); the Gaussian decode moves positions by −0.727 px but no detection metric | no (new parameters) | — | not scheduled: 0a did not trigger it |
-| — | **D. circular padding** | `padding_mode="circular"` on the horizontal axis | seam response | about 0.001 F1 is at stake at the seam (`rampnet1_findings.md`, `seam_nms_default_248.md`) | yes | — | dropped |
+| — | **C. stride-16 head** | FPN-style head on the stride-16 feature, or a learned upsample (#221) | the 8-px peak lattice | localization is 2.1% of misses (9); the Gaussian decode moves positions by −0.727 px but no detection metric | no (new parameters) | — | not scheduled (proposed): 0a did not trigger it |
+| — | **D. circular padding** | `padding_mode="circular"` on the horizontal axis | seam response | about 0.001 F1 is at stake at the seam (`rampnet1_findings.md`, `seam_nms_default_248.md`) | yes | — | dropped (proposed) |
 | — | **E. flat-ramp supervision** | none in Phase 1 | flush and minimal-reveal ramps (#151) | — | — | — | deferred: needs labels, not a recipe change |
 
-Not in Phase 1, by the #263 body: the backbone swap (#107), Richmond or Bayonne panos in training,
-any frontier-model spend. `--mask-norm pixels|weight` ([`sparse_supervision.md`](sparse_supervision.md))
+Out of scope in the #263 body (each item there returns after its decision point), and not proposed
+here: the backbone swap (#107), Richmond or Bayonne panos in training, any frontier-model spend. `--mask-norm pixels|weight` ([`sparse_supervision.md`](sparse_supervision.md))
 belongs to Phase 2, where sparse panos exist. If 0a had triggered C, it would run after rung 2.
 
 **The zoom op.** A geometric op in `rampnet/augment.py`: a random scale in [0.5, 2.0] of the
@@ -219,13 +230,18 @@ the seed-1 kill is not met. Scoring uses the #82 scorer unchanged (`operating_po
   12 GPU-h) ties the two dataset copies together.
 - **Pass.** The same-seed mean contrast on manual_gold has an interval above zero, and 2 of 3 seeds
   agree.
-- **No-regression.** An arm is rejected if its same-seed contrast on open-rig 3 is below zero by more
-  than control263's seed SD on the same read, whatever manual_gold says. From the per-seed rows of
-  `control_arm_263.md`, that SD is about 0.004 at max-F1 and about 0.012 at F1 @0.30.
+- **No open-rig rule at rung 1.** Rung 1 reads manual_gold only (§3); the open rigs are read once,
+  at the ship read (§6). The alternative is in §11: a rung 1 guard that rejects an arm whose
+  same-seed contrast on open-rig 3 is below zero by more than control263's seed SD on the same read
+  (from the per-seed rows of `control_arm_263.md`, about 0.004 at max-F1 and about 0.012 at F1
+  @0.30). It would catch a transfer loss before rung 2 is spent, at the cost of the open rigs' one
+  read.
 - **A null on B is inconclusive**, since 2,000 steps may not teach scale. B then leaves the default
   bundle, and Jon decides whether to run a from-scratch seed.
-- **B replaces the band** if its single-pass recall beyond 25 m is within 0.02 of shipped-plus-band
-  and its 0–8 m recall is within 0.01 of shipped.
+- **B replaces the band** if, on manual_gold, its single-pass recall beyond 25 m is within 0.02 of
+  shipped-plus-band and its 0–8 m recall is within 0.01 of shipped. The split is proposed here (the
+  2026-11-15 plan names none): manual_gold is where 0c measures shipped-plus-band, it is readable at
+  rung 1, and it avoids the S7 overlap in §3's caveat. Jon's call (§11).
 - **GPU type.** control263 was scored on A40 for released, s1 and s2, and on L40S for s3
   (`control_arm_263.md`, Caveats); the cross-type difference was never measured. Score each arm on
   its same-seed control's GPU type, or measure the difference on one split first.
@@ -247,29 +263,35 @@ same pass as the arms, through one scorer on one GPU type, as #271 did.
 
 ## 6. Readout and ship rule
 
-- **Primary: macro US7 F1**, each checkpoint at its own sao_paulo-selected threshold, with F1 at 0.30
-  and 0.55, max-F1, and each seed's own contrast beside it. Rung 1: same-seed arm minus control,
-  paired pano bootstrap stratified by split, 2,000 draws, macro mean per draw. Rung 2: Welch over seed
-  means, 3 arm seeds against Campaign B's nine, with the paired pano bootstrap per seed beside it.
-  manual_gold is the rung 1 gate and a secondary read at rung 2, not pooled in.
+- **Rung 1 reads manual_gold only:** same-seed arm minus control, paired pano bootstrap, 2,000 draws,
+  with the pass rule and seed-1 kills of §5. US7 and the open rigs are not read at rung 1 (§3).
+- **Primary, at the rung 2 / ship read: macro US7 F1**, each checkpoint at its own
+  sao_paulo-selected threshold, with F1 at 0.30 and 0.55, max-F1, and each seed's own contrast
+  beside it. Welch over seed means, 3 arm seeds against Campaign B's nine, with the paired pano
+  bootstrap per seed (stratified by split, 2,000 draws, macro mean per draw) beside it. manual_gold
+  is a secondary read there, not pooled in.
 - **Minimum detectable effect.** With s_B = 0.0094 and n = 3 against n = 9, a seed-mean Welch test
   (3.5 df) has 80% power at about 0.025 F1; at 0.015 its power is about 0.42. Rung 1's paired reads
   have no stated MDE. Arm A's whole reachable ceiling (0.038 recall points) is about the size of this
   MDE in F1 or below it, so A rests on the per-bucket and paired-pano reads, not on the Welch test.
-- **Per-bucket readout.** `miss_taxonomy.py` on each arm, so that A is judged on the merged bucket and
-  B on the far-field buckets, not only on F1. This is how a negative F1 result still says whether an
+- **Per-bucket readout.** `miss_taxonomy.py` on each arm (on manual_gold at rung 1, on US7 at the
+  ship read), so that A is judged on the merged bucket and B on the far-field buckets, not only on
+  F1. This is how a negative F1 result still says whether an
   arm did what it was built to do.
 - **Ship rule, one named checkpoint** (seed chosen on sao_paulo): the macro US7 interval against
   **shipped** is above zero; open-rig 3 F1 and max-F1 are not wholly below zero and their point
   estimates are at least −0.010 (open-rig 4 and laurens_gsv shown beside); manual_gold is not wholly
-  below zero. Beating the replicate mean is reported and is never sufficient.
+  below zero. Beating the replicate mean is reported and is never sufficient. For scale: the
+  unchanged recipe's 2,000-step fine-tune (control263) sits at −0.012 max-F1 on open-rig 3, below
+  this floor (§2).
 - **Unjudged detections.** New far-field true positives that nobody judged count as FPs, which
   biases against B and the band. Every F1 for B and the band is reported under both bounds: far
   unmatched detections as FPs, and as ignore points. No rating is planned. Only if the two bounds give
   different verdicts: one audit of 100 far-field detections, last. Whether manual_gold marks every
   ramp at 30–40 m is not checked.
 - **Operating points.** 0.30 ([`operating_point.md`](operating_point.md)), with 0.55 for continuity.
-  `HELD_OUT` stays held out.
+  budapest_district5 stays out of every pool (it is in `miss_decomposition.HELD_OUT`, which also
+  lists sao_paulo, bayonne and laurens_gsv; this plan uses those three as the roles in §3 say).
 
 ## 7. Production cost of the band
 
@@ -305,9 +327,11 @@ makelab2 and writes its own `paid: false` rows to `analysis_out/usage_log.jsonl`
 | rung 2, one bundle, 3 seeds | about 170 (280 at 1.67×) | Campaign B ran 6 replicates within 5 h 15 min | about 56 GPU-h per epoch and 1.67× preemption overhead (`stage2_training_cost.md`); 5 h 15 min from `seed_variance_51_135.md` |
 | rung 2 tie-in seed | about 56 (93) | | as above |
 | rung 2 scoring, 4 checkpoints, plus Campaign B's nine re-scored | about 10 | hours | 0.75 GPU-h per checkpoint |
-| **Phase 1, from here** | **about 320 to 550** | **about a week if klone is free** | lower: fewest seeds, no preemption; upper: all seeds, 1.3× on rung 1, 1.67× on rung 2 |
+| **Phase 1 through rung 2, from here** | **about 340 to 550** | **about a week if klone is free** | lower: no preemption, and the fewest seeds that can reach rung 2 (one of A or B at three seeds, since rung 1's pass needs 2 of 3 seeds to agree, the other killed at seed 1): 3 + 38 + 38 + 13 + 13 + 170 + 56 + 10 = 341; upper: all seeds, 1.3× on rung 1, 1.67× on rung 2 |
 
-If no arm passes rung 1, rung 2 does not run and Phase 1 stops at about 80 to 170 GPU-h. C, if it
+Rung 1 scoring writes caches for all 14 splits so that the ship read needs no second scoring pass;
+only manual_gold and sao_paulo are read at rung 1 (§3). If no arm passes rung 1, rung 2 does not run
+and Phase 1 stops at about 80 to 170 GPU-h. C, if it
 were ever triggered, would add about 170 to 280. The plan's own total (4 + 140 + 235–345 =
 380–490) did not follow from its rows: its rung 1 rows sum to 72–120 before scoring, not 140. This
 table replaces it.
@@ -325,8 +349,10 @@ table replaces it.
   `epoch_1_step_9378`, `/gscratch/makelab/jonf/seedvar/`) and control263's three
   (`/gscratch/makelab/jonf/control263/`) were still there.
 - **Space.** `/gscratch/makelab` was at 968 of 1,024 GB and 969,056 of 1,000,000 files on 2026-11-16
-  (`hyakstorage`, same source); the file count is now the tighter limit. A best-model checkpoint is
-  360,358,458 bytes ([`replication.md`](replication.md)), and rung 2 keeps two per seed.
+  (`hyakstorage`, same source); the file count is now the tighter limit. A `KeypointModel`
+  checkpoint is about 344 MiB: `control_arm_263.md` lists control263's three at 344 MB each, and the
+  two Stage 1 crop-model checkpoints in [`replication.md`](replication.md), the same architecture, are
+  360,358,458 bytes each. Rung 2 keeps two per seed.
 - **Ledger.** control263 has its 11 rows (37.29 GPU-h). Campaign B's training jobs (39880702,
   39880703, 39880706 and the six seed 4–9 jobs) have no row in `compute_log.jsonl`. `sacct`
   retention is finite, so they should be recovered now with `slurm_usage.py` from a `sacct -D` pull.
@@ -355,10 +381,14 @@ moot unless it resumes. If it does, its arms should use whatever LR this plan's 
 
 **Decided.**
 
-- **0c's context rule binds on the lenient reading** (Jon, 2026-11-25). The rule and Jon's reasons are
-  in §4. PR #295's own recommendation had been the strict reading.
-- **PR #295 merges as Stage 0 with 0c not run** (Jon, as recorded in PR #295's `horizon_band_263.md`,
-  "What the plan says happens next").
+- **0c's context rule binds on the lenient (plan) reading** (Jon, 2026-11-25). The rule and the
+  reasons he accepted are in §4; PR #295 records both (commit `04d06c88`). The recommendation in
+  PR #295's review thread had been the strict reading.
+- **PR #295 merges as reviewed, as Stage 0 with 0c not run** (Jon, 2026-11-25). The two 0c code
+  fixes still open there (a null band threshold under `calibrate --smoke`, and the calibration sha256
+  check moved into `guard_extract`) go into a follow-up PR before 0c can run. PR #295's
+  `horizon_band_263.md` records this ("to be fixed in a follow-up PR before 0c can run", commit
+  `04d06c88`).
 
 **Open, and Jon's.**
 
@@ -367,12 +397,16 @@ moot unless it resumes. If it does, its arms should use whatever LR this plan's 
   #271), and no decision has been posted on #263 since 2026-10-22. The case for opening now: it is $0,
   needs no ratings, and its arms do not touch the open-imagery question. The case against: klone time
   that the verifier (#258) and Phase 2 also want.
-- Starting 0c on makelab2; and PR #295's three open items before 0c (a null band threshold under
-  `calibrate --smoke`; the calibration sha256 check moved into `guard_extract`; storing `simulate.json`'s
-  contrasts at six decimals).
+- Starting 0c on makelab2, once the follow-up PR with the two 0c code fixes has merged.
+- Whether to store all of `simulate.json`'s contrasts at six decimals (raised in PR #295's review
+  thread; not a before-0c item).
 - σ (6 proposed) and the zoom range ([0.5, 2.0] proposed, matching the frozen sweep's 2×).
 - The 1.75× cost limit.
 - The primary statistic, the no-regression pool (open-rig 3) and the ship rule (§6).
+- Whether rung 1 reads manual_gold only (proposed, §3) or also applies a rung 1 guard on open-rig 3
+  (§5), which would take open-rig 3 out of "held out, read once".
+- The split for the "B replaces the band" rule (manual_gold proposed, §5).
+- Arm C not scheduled and arm D dropped (both proposed, §5).
 - The reading rule proposed in `control_arm_263.md` (same-seed control, max-F1 beside every fixed
   threshold), which this plan adopts.
 - The LR rule (§5).
@@ -414,9 +448,13 @@ are the 10 seam double-marks in its GT ([`seam.md`](seam.md)).
   2. Arm A's ceiling with `min_distance` kept: 78 pairs and 0.038 recall points, not 124 and 0.060;
      35 outside paterson; S7's under-8-px count was already in `open_rig_misses_258.md` (§4, §5).
   3. The MDE: about 0.025 F1 at 80% power, not 0.015 (§6). The plan had repeated #270's error.
-  4. The primary statistic as macro US7, with the rung 1 and rung 2 readouts (§6).
+  4. The primary statistic as macro US7, with the rung 2 readout (§6). The finding's rung 1 US7
+     read was written for #270's design, where US7 was not held out; this plan keeps rung 1 on
+     manual_gold only, as the 2026-11-15 plan has it.
   5. The no-regression pool as open-rig 3, budapest_district5 held out, and Campaign B re-scored on
-     klone with the arms (§3, §5, §6). The ship rule's "open-rig four" became open-rig 3.
+     klone with the arms (§3, §5, §6). The ship rule's "open-rig four" became open-rig 3. The
+     finding's rung 1 rejection rule on that pool is not adopted, for the same reason as item 4; it
+     is listed in §11 as an alternative for Jon.
   6. The σ rationale, from the per-pixel max in `train.py` (§5).
   7. The cost table, rebuilt from measured sources (§8).
   8. The control arm reported as done, with its result (§2).
@@ -434,3 +472,8 @@ are the 10 seam double-marks in its GT ([`seam.md`](seam.md)).
   the 1.5× strip is 5.64 MP and about 1.67× (PR #295's grid-aligned window), not 5.0 MP and 1.6×;
   arm A's manual_gold bucket is 185 of 423 misses, which the plan gave without its denominator. The
   plan's schedule and cloud cutoff dates are dropped as stale.
+- **2026-11-25, review 1 of PR #306.** Rung 1 reads manual_gold only, and US7 and open-rig 3 stay
+  held out for the ship read (the first commit of PR #306, `30ab22e6`, read both at rung 1); the cost floor
+  for a Phase 1 that reaches rung 2 is about 340 GPU-h, not 320; the control arm on open-rig 3 is
+  quoted beside open-rig 4; the "B replaces the band" rule names manual_gold (proposed); the
+  decisions are dated and sourced to PR #295's commit `04d06c88`; smaller wording fixes.
