@@ -578,6 +578,33 @@ def test_run0c_never_rewrites_a_frozen_calibration(tmp_path, monkeypatch):
         assert f.read() == frozen
 
 
+def test_run0c_recalibrates_over_a_smoke_calibration(tmp_path, monkeypatch):
+    """A smoke calibration.json is not frozen: run0c replaces it with the real one."""
+    root = str(tmp_path)
+    for s in hb.SELECTION:
+        _write_cache(root, s)
+    path = os.path.join(root, "calibration.json")
+    assert hb.main(["calibrate", "--cache-root", root, "--out", path, "--smoke"]) == 0
+    calls = []
+    monkeypatch.setattr(hb, "cmd_extract", _fake_extract(calls))
+    assert _run0c(root) == 0
+    with open(path, encoding="utf-8") as f:
+        assert json.load(f)["smoke"] is False
+    assert calls == [list(hb.SELECTION), list(hb.HELD_OUT)]
+
+
+def test_run0c_with_every_split_read_reads_nothing_more(tmp_path, monkeypatch):
+    """A third run, after every held-out split is read: no extract call for the held-out
+    stage at all (an empty --splits would trip extract's guard), and report runs again."""
+    root = str(tmp_path)
+    calls = []
+    monkeypatch.setattr(hb, "cmd_extract", _fake_extract(calls))
+    assert _run0c(root) == 0
+    calls.clear()
+    assert _run0c(root) == 0
+    assert calls == [list(hb.SELECTION)]
+
+
 def test_run0c_refuses_a_held_out_cache_from_another_calibration(tmp_path, monkeypatch):
     root = str(tmp_path)
     calls = []
@@ -659,6 +686,35 @@ def test_extract_ledger_counts_the_split_it_died_in(tmp_path, monkeypatch):
     assert rows["horizon-band-263:r2048"]["status"] == "failed"
     assert rows["horizon-band-263:r2048"]["panos_scored"] == 3       # 2 sao_paulo + 1 richmond
     assert rows["horizon-band-263:full@1.5x"]["panos_scored"] == 1   # richmond only (S7)
+
+
+def test_extract_ledger_counts_each_split_once_on_a_clean_run(tmp_path, monkeypatch):
+    h = _ExtractHarness(tmp_path, monkeypatch)
+    assert h.extract("sao_paulo,richmond") == 0
+    rows = h.rows()
+    assert rows["horizon-band-263:r2048"]["status"] == "ok"
+    assert rows["horizon-band-263:r2048"]["panos_scored"] == 4       # 2 + 2, not 2 + 2 + 2
+    assert rows["horizon-band-263:full@1.5x"]["panos_scored"] == 2   # richmond only
+
+
+def test_figure_bins_draw_every_pair(tmp_path, monkeypatch):
+    """The 0a histogram's bins reach past the widest pair the title counts. Skips where
+    matplotlib is not installed (CI's requirements-dev.txt does not list it)."""
+    pytest.importorskip("matplotlib")
+    import matplotlib.axes
+    seen = []
+    real_hist = matplotlib.axes.Axes.hist
+
+    def spy(self, x, *a, **kw):
+        seen.append(kw.get("bins"))
+        return real_hist(self, x, *a, **kw)
+    monkeypatch.setattr(matplotlib.axes.Axes, "hist", spy)
+    assert hb.main(["figures", "--fig-dir", str(tmp_path)]) == 0
+    with open(hb.MERGED_JSON, encoding="utf-8") as f:
+        seps = [p["chebyshev"] for p in json.load(f)["pairs"]]
+    bins = seen[0]
+    assert bins[0] <= min(seps) and bins[-1] > max(seps)
+    assert len(seps) == 136
 
 
 def test_extract_never_leaves_a_partial_cache_under_the_final_name(tmp_path, monkeypatch):
