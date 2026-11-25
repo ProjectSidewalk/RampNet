@@ -34,6 +34,13 @@ def test_arm_c_needs_more_than_one_third_under_8px():
     assert t["chebyshev"]["under_8px"] == 2 and t["euclidean"]["under_8px"] == 1
 
 
+def test_a_pair_exactly_8px_apart_is_not_under_8px():
+    # the real data comes within 0.014 px of the line (7.9861 and 8.0319), so pin it
+    t = ms.triggers(_pairs([("a", 8.0, 8.0), ("a", 7.999, 8.0), ("a", 10.0, 10.0)]))
+    assert t["chebyshev"]["under_8px"] == 1 and t["euclidean"]["under_8px"] == 0
+    assert t["chebyshev"]["between_8_and_12px"] == 2           # 8.0 and 10.0
+
+
 def test_arm_a_counts_12px_or_more_outside_paterson_only():
     spec = [("bend", 12.0, 12.0)] * 29 + [("paterson", 20.0, 20.0)] * 10 + [("bend", 11.99, 13)]
     t = ms.triggers(_pairs(spec))

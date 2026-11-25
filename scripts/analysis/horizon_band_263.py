@@ -894,8 +894,9 @@ def cmd_figures(args):
         mp = json.load(f)
     pat = [p["chebyshev"] for p in mp["pairs"] if p["city"] == "paterson"]
     fig, ax = plt.subplots(figsize=(7.2, 3.6))
-    bins = np.arange(0, 24, 1.0)
     other = [p["chebyshev"] for p in mp["pairs"] if p["city"] != "paterson"]
+    # 1-px bins out to the widest pair, so every pair the title counts is drawn
+    bins = np.arange(0, math.floor(max(other + pat)) + 2, 1.0)
     ax.hist([other, pat],
             bins=bins, stacked=True, color=[BLUE, ORANGE], edgecolor="white", linewidth=1,
             label=["outside paterson", "paterson"])
