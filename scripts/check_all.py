@@ -402,6 +402,11 @@ REGISTRY: list = [
             "analysis_out/op_cache/", "benchmark/model_detections/",
             "analysis_out/scoreboard.json") + GT,
       slow=True),
+    E("argon_teacher_s0", (AN + "argon_teacher_s0.py", "--check"),
+      "the Argon-teacher Stage 0 leak, feature table, 80 candidate filters and LOSO gates "
+      "regenerate byte-identical from the committed derived inputs",
+      pins=("analysis_out/argon_teacher_s0/", "analysis_out/op_cache/",
+            "benchmark/model_detections/") + GT),
     E("cascade_confirm_35", (AN + "cascade_confirm_35.py", "--check"),
       "Stage 0 of the open-weight cascade confirmation regenerates stage0.json and inputs.json "
       "byte-identical (#35)",
