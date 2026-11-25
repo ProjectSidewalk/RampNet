@@ -1,0 +1,20 @@
+{
+ "iteration": 2,
+ "model": "gemini-3.8-flash",
+ "from": null,
+ "candidate": "prompt276-flash38-r2",
+ "used_fp": false,
+ "used_fn": true,
+ "verdicts": {
+  "iteration": 2,
+  "model": "gemini-3.8-flash",
+  "fp": "unsure",
+  "fn": "ramp",
+  "judged_at": "2026-11-10T00:02:52.357Z"
+ },
+ "prompt": "You are improving the instruction given to an object detector, a vision-language model that finds curb ramps in street-level images. The instruction is sent with every image.\n\nCurrent instruction: \"Detect every curb ramp in this street-level image. A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street. Return one tight bounding box per curb ramp. Do not box driveways, stairs, or crosswalk paint. If there are no curb ramps, return an empty list.\"\n\nImage 1: the BLUE box marks a real curb ramp that the detector missed, confirmed by the reviewer.\n\nRewrite the whole instruction so that the detector still finds every ordinary curb ramp, finds cases like the blue-boxed one. You may change any part of it: how the task is worded, how a curb ramp is described, what to exclude, and what to do when unsure. Keep it an instruction to detect curb ramps and return one tight bounding box per curb ramp, and an empty list when there are none. Do not specify an output format, coordinates or scores; those are added separately. Describe visual features a detector can use; do not refer to these specific images or to 'the reviewer'. One paragraph, at most 150 words. Return JSON: {\"prompt\": \"...\"}.",
+ "raw": "{\n  \"prompt\": \"Detect every curb ramp in this street-level image. A curb ramp (curb cut) is a sloped transition cut into or built against a sidewalk curb at a street corner, intersection, or pedestrian crossing that allows wheeled access between the sidewalk and roadway. Include standard perpendicular, parallel, and curved corner-apex ramps, even if partially obstructed or cluttered by utility poles, support posts, signs, or bollards. Look for sloped concrete or asphalt sections where the elevated curb depresses flush to the road surface, frequently leading to painted crosswalk markings. Return one tight bounding box per curb ramp covering the ramp transition area. Do not box continuous driveways, steps, or flat crosswalk paint alone. If there are no curb ramps, return an empty list.\"\n}",
+ "instruction": "Detect every curb ramp in this street-level image. A curb ramp (curb cut) is a sloped transition cut into or built against a sidewalk curb at a street corner, intersection, or pedestrian crossing that allows wheeled access between the sidewalk and roadway. Include standard perpendicular, parallel, and curved corner-apex ramps, even if partially obstructed or cluttered by utility poles, support posts, signs, or bollards. Look for sloped concrete or asphalt sections where the elevated curb depresses flush to the road surface, frequently leading to painted crosswalk markings. Return one tight bounding box per curb ramp covering the ramp transition area. Do not box continuous driveways, steps, or flat crosswalk paint alone. If there are no curb ramps, return an empty list.",
+ "at": "2026-11-12T15:57:16Z",
+ "scope": "prompt"
+}

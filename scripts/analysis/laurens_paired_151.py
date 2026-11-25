@@ -272,7 +272,7 @@ def legs():
         out.append((f"rampnet_r2048@{op:.2f}", "rampnet_r2048", r2, op,
                     "#25 sweep r2048 re-extraction of the benchmark JPEGs"))
     for leg in roster.ROSTER:
-        if leg.provider == "rampnet":
+        if leg.provider == "rampnet" or leg.study:   # study legs score in their own doc
             continue
         name = roster.published_name(leg)
         preds = {a: load_detections(leg.label, a, publish_as=name) for a in ARMS}
@@ -306,8 +306,10 @@ def input_hashes():
         paths.append(os.path.join("analysis_out", "input_res_sweep_25", "cache", "r2048", f"{a}.json"))
         if os.path.exists(os.path.join(OP_CACHE_DIR, f"{a}.json")):
             paths.append(os.path.join("analysis_out", "op_cache", f"{a}.json"))
+    study = {roster.published_name(c) for c in roster.STUDY_LEGS}   # not inputs here
     for name in sorted(os.listdir(os.path.join(REPO, "benchmark", "model_detections"))):
-        if name.endswith(f"__{GSV}.json") or name.endswith(f"__{MLY}.json"):
+        if ((name.endswith(f"__{GSV}.json") or name.endswith(f"__{MLY}.json"))
+                and name.rsplit("__", 1)[0] not in study):
             paths.append(os.path.join("benchmark", "model_detections", name))
     out = {}
     for rel in paths:

@@ -1,0 +1,6 @@
+[
+ {"image": "shared4_1_ramp_flash_fn.jpg", "caption": "The boxed region is a curb ramp."},
+ {"image": "shared4_2_not_ramp_flash_fp.jpg", "caption": "The boxed region is not a curb ramp."},
+ {"image": "shared4_3_ramp_argon_fn.jpg", "caption": "The boxed region is a curb ramp."},
+ {"image": "shared4_4_not_ramp_argon_fp.jpg", "caption": "The boxed region is not a curb ramp."}
+]

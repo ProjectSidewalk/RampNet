@@ -1,0 +1,284 @@
+{
+ "rater": "claude-opus-5-5",
+ "rater_kind": "AI pre-rater (Opus 5.5, claude-opus-5-5), blinded to key and scores",
+ "rated": "2026-11-15",
+ "method": "viewed review/cards/<id>.jpg in deck order with the Read tool; key.json and seam_verdicts__jon.json not opened",
+ "items_digest": "3d4c0bc2a9f57492",
+ "rubric_version": 1,
+ "rubric": [
+  {
+   "rule": "Pair: is A the same physical object as B?",
+   "detail": "same = one object marked twice; different = two distinct objects; unsure = cannot tell. The crops are rolled so the panorama seam is at the centre; the imagery there is continuous, so judge the world, not the projection."
+  },
+  {
+   "rule": "Each mark: is it a curb ramp?",
+   "detail": "ramp / not_ramp / unsure, for the object under the mark."
+  },
+  {
+   "rule": "A driveway is NOT a curb ramp",
+   "detail": "Driveway aprons are excluded however ramp-like they look."
+  },
+  {
+   "rule": "Mark only what you can SEE",
+   "detail": "Never call a ramp because a crossing implies one."
+  },
+  {
+   "rule": "Unsure is a real answer",
+   "detail": "An unsure verdict sends the card to a human; a coerced one is noise."
+  }
+ ],
+ "verdicts": [
+  {
+   "id": "s248-01",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "both at the base of one corner ramp"
+  },
+  {
+   "id": "s248-02",
+   "pair": "same",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "one rounded corner apron; low resolution, ramp unclear"
+  },
+  {
+   "id": "s248-03",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "blended corner ramp: A on the slope, B at its foot"
+  },
+  {
+   "id": "s248-04",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "curb face absent across both marks: one flush ramp"
+  },
+  {
+   "id": "s248-05",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "ramp with yellow pad; B at its left flare base"
+  },
+  {
+   "id": "s248-06",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "corner ramp with domes; A on its left flare"
+  },
+  {
+   "id": "s248-07",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "one diagonal corner ramp with dark pad; B at its right end"
+  },
+  {
+   "id": "s248-08",
+   "pair": "same",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "both at the pole base by the crosswalk; curb hidden by debris"
+  },
+  {
+   "id": "s248-09",
+   "pair": "different",
+   "A": "unsure",
+   "B": "ramp",
+   "note": "B over the left red-pad ramp; A at the far corner curb"
+  },
+  {
+   "id": "s248-10",
+   "pair": "different",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "two separate red tactile pads"
+  },
+  {
+   "id": "s248-11",
+   "pair": "unsure",
+   "A": "ramp",
+   "B": "unsure",
+   "note": "A where the curb is flush; B on the leaf-lined curb or flare"
+  },
+  {
+   "id": "s248-12",
+   "pair": "same",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "pedestrian occludes the corner"
+  },
+  {
+   "id": "s248-13",
+   "pair": "same",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "same low-resolution corner, no ramp visible"
+  },
+  {
+   "id": "s248-14",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "one concrete ramp in a brick sidewalk"
+  },
+  {
+   "id": "s248-15",
+   "pair": "different",
+   "A": "not_ramp",
+   "B": "ramp",
+   "note": "B on a yellow-pad ramp; A on the sidewalk edge by a parking lot"
+  },
+  {
+   "id": "s248-16",
+   "pair": "same",
+   "A": "ramp",
+   "B": "unsure",
+   "note": "both above one yellow-pad ramp; B on the bush edge"
+  },
+  {
+   "id": "s248-17",
+   "pair": "same",
+   "A": "unsure",
+   "B": "ramp",
+   "note": "broad blended corner ramp; A on the landing above its flare"
+  },
+  {
+   "id": "s248-18",
+   "pair": "same",
+   "A": "unsure",
+   "B": "ramp",
+   "note": "red-pad ramp; A just past it at the curb (flare or curb)"
+  },
+  {
+   "id": "s248-19",
+   "pair": "different",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "left-crosswalk landing vs right-crosswalk ramp"
+  },
+  {
+   "id": "s248-20",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "both on one grooved ramp pad"
+  },
+  {
+   "id": "s248-21",
+   "pair": "same",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "median curb at a crosswalk; cut-through unclear"
+  },
+  {
+   "id": "s248-22",
+   "pair": "unsure",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "low-resolution corner; one or two features unclear"
+  },
+  {
+   "id": "s248-23",
+   "pair": "different",
+   "A": "unsure",
+   "B": "ramp",
+   "note": "B at the right-crosswalk ramp; A at the left-crosswalk end"
+  },
+  {
+   "id": "s248-24",
+   "pair": "same",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "two ends of one flush opening; driveway or ramp unclear"
+  },
+  {
+   "id": "s248-25",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "either side of one yellow pad"
+  },
+  {
+   "id": "s248-26",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "one continuous tactile strip on a wide island ramp"
+  },
+  {
+   "id": "s248-27",
+   "pair": "unsure",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "B on the corner sidewalk, A on the road patch below"
+  },
+  {
+   "id": "s248-28",
+   "pair": "same",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "one crosswalk landing; lowered curb not clearly visible"
+  },
+  {
+   "id": "s248-29",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "curb face ends; flush landing at the crosswalk"
+  },
+  {
+   "id": "s248-30",
+   "pair": "different",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "two faded pads on one corner"
+  },
+  {
+   "id": "s248-31",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "same landing as s248-29"
+  },
+  {
+   "id": "s248-32",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "one wide blended corner ramp"
+  },
+  {
+   "id": "s248-33",
+   "pair": "unsure",
+   "A": "ramp",
+   "B": "unsure",
+   "note": "A on the tactile-strip ramp; B near the left crosswalk, blurry"
+  },
+  {
+   "id": "s248-34",
+   "pair": "same",
+   "A": "unsure",
+   "B": "unsure",
+   "note": "shaded corner, ramp not discernible"
+  },
+  {
+   "id": "s248-35",
+   "pair": "same",
+   "A": "ramp",
+   "B": "ramp",
+   "note": "both on one yellow pad"
+  },
+  {
+   "id": "s248-36",
+   "pair": "different",
+   "A": "ramp",
+   "B": "not_ramp",
+   "note": "A at the curb ramp; B on the roadway by a utility plate"
+  }
+ ]
+}

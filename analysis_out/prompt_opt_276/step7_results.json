@@ -1,0 +1,123 @@
+{
+ "model": "gemini-3.8-flash",
+ "pool": [
+  "laurens_mapillary",
+  "bayonne"
+ ],
+ "thresholds": {
+  "zs": 0.0,
+  "expert": 0.0
+ },
+ "draws": 2000,
+ "seed": 276,
+ "runs": [
+  {
+   "run": "original",
+   "f1": {
+    "zs": {
+     "laurens_mapillary": 0.1625,
+     "bayonne": 0.3501
+    },
+    "expert": {
+     "laurens_mapillary": 0.2718,
+     "bayonne": 0.3764
+    }
+   },
+   "macro_f1": {
+    "zs": 0.2563,
+    "expert": 0.3241
+   },
+   "macro_delta_f1": 0.0678,
+   "ci95": [
+    0.0268,
+    0.1062
+   ],
+   "p": 0.0,
+   "expert_ahead_on": [
+    "laurens_mapillary",
+    "bayonne"
+   ]
+  },
+  {
+   "run": "rep1",
+   "f1": {
+    "zs": {
+     "laurens_mapillary": 0.2014,
+     "bayonne": 0.3269
+    },
+    "expert": {
+     "laurens_mapillary": 0.2349,
+     "bayonne": 0.3918
+    }
+   },
+   "macro_f1": {
+    "zs": 0.2642,
+    "expert": 0.3133
+   },
+   "macro_delta_f1": 0.0492,
+   "ci95": [
+    0.0131,
+    0.0869
+   ],
+   "p": 0.009,
+   "expert_ahead_on": [
+    "laurens_mapillary",
+    "bayonne"
+   ]
+  },
+  {
+   "run": "rep2",
+   "f1": {
+    "zs": {
+     "laurens_mapillary": 0.173,
+     "bayonne": 0.2857
+    },
+    "expert": {
+     "laurens_mapillary": 0.223,
+     "bayonne": 0.379
+    }
+   },
+   "macro_f1": {
+    "zs": 0.2294,
+    "expert": 0.301
+   },
+   "macro_delta_f1": 0.0716,
+   "ci95": [
+    0.0347,
+    0.1103
+   ],
+   "p": 0.0,
+   "expert_ahead_on": [
+    "laurens_mapillary",
+    "bayonne"
+   ]
+  }
+ ],
+ "spread": {
+  "zs": {
+   "macro_f1": [
+    0.2563,
+    0.2642,
+    0.2294
+   ],
+   "range": 0.0348,
+   "mean": 0.25
+  },
+  "expert": {
+   "macro_f1": [
+    0.3241,
+    0.3133,
+    0.301
+   ],
+   "range": 0.0231,
+   "mean": 0.3128
+  }
+ },
+ "summary": {
+  "delta_min": 0.0492,
+  "delta_max": 0.0716,
+  "all_ci_exclude_zero": true,
+  "expert_ahead_every_split_every_run": true,
+  "largest_same_arm_range": 0.0348
+ }
+}

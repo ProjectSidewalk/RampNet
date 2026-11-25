@@ -1,0 +1,52 @@
+{
+ "iteration": 1,
+ "model": "gemini-3.8-flash",
+ "train": {
+  "precision": 0.7308,
+  "recall": 0.2452,
+  "f1": 0.3671,
+  "tp": 38,
+  "fp": 14,
+  "n_gt": 155
+ },
+ "diagnostics_2R": {
+  "precision_1R": 0.7308,
+  "recall_1R": 0.2452,
+  "precision_2R": 0.8824,
+  "recall_2R": 0.2903,
+  "n_gt": 155,
+  "n_pred": 52
+ },
+ "fp": {
+  "pano": "wX8uKBQfioiFHogENC9FbQ",
+  "x": 0.35166455118657025,
+  "y": 0.6232116283175703,
+  "conf": 0.85,
+  "view_yaw_deg": 300.0,
+  "view_pitch_deg": -30.0,
+  "u": 0.554,
+  "v": 0.4325,
+  "image": "fp.jpg",
+  "detail": "fp_detail.jpg"
+ },
+ "fn": {
+  "pano": "74L65cpBc6Sv_D15h1n4Rw",
+  "x": 0.9482421875,
+  "y": 0.5546875,
+  "nearest_pred_px": null,
+  "view_yaw_deg": 180.0,
+  "view_pitch_deg": -30.0,
+  "u": 0.3239,
+  "v": 0.3217,
+  "image": "fn.jpg",
+  "detail": "fn_detail.jpg"
+ },
+ "picked_at": "2026-11-09T17:32:48Z",
+ "excluded_panos": [],
+ "scope": "prompt",
+ "prompt_body": null,
+ "reused_from": "optimize/gemini-3.8-flash/iter_01",
+ "reused_iteration": 1,
+ "picked_under_definition": null,
+ "reused_at": "2026-11-12T15:38:47Z"
+}

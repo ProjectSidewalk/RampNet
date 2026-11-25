@@ -67,7 +67,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hf_export_common import (  # noqa: E402
-    clear_build_dir, git_commit, hf_features_metadata, hf_value, sha256_bytes)
+    clear_build_dir, git_commit, hf_features_metadata, hf_value, sha256_bytes, size_category)
 
 Image.MAX_IMAGE_PIXELS = None          # benchmark natives reach 16384x8192; not a decompression bomb
 
@@ -685,6 +685,57 @@ def reviewed_rows(benchmark, city):
     return len(json.loads(path.read_text(encoding="utf-8")).get("panos", {}))
 
 
+def split_table(extents):
+    """The card's per-split table (#150): imagery source, reviewed panoramas, capture months.
+
+    `extents` are rows shaped like Croissant's `split_extents` record set (keys `split`,
+    `imagery_source`, `num_panoramas`, `capture_date_min`, `capture_date_max`). render_card
+    derives them from the committed bundles with validate_croissant.derive_split_extents, the
+    function the Croissant validator re-derives that record set with; export_dataset_cards.py
+    reads them from croissant/rampnet-benchmark.json. Either way they are the same numbers.
+    """
+    lines = ["| split | imagery | reviewed panoramas | capture months |",
+             "| :--- | :--- | ---: | :--- |"]
+    for row in sorted(extents, key=lambda r: r["split"]):
+        lines.append("| `{}` | {} | {:,} | {} to {} |".format(
+            row["split"], row["imagery_source"], row["num_panoramas"],
+            row["capture_date_min"], row["capture_date_max"]))
+    lines.append("| **total** | | **{:,}** | |".format(sum(r["num_panoramas"] for r in extents)))
+    return "\n".join(lines)
+
+
+STRATA = ("top", "random", "empty")
+
+
+def strata_table(benchmark, cities):
+    """The card's per-split sampling strata (#150 review), counted from each split's
+    verdicts.json `group` -- the value build_records writes as `review_group` on every row."""
+    lines = ["| split | `top` | `random` | `empty` | reviewed |", "| :--- | ---: | ---: | ---: | ---: |"]
+    for city in cities:
+        path = Path(benchmark) / city / "verdicts.json"
+        panos = json.loads(path.read_text(encoding="utf-8")).get("panos", {}) if path.is_file() else {}
+        counts = dict((g, 0) for g in STRATA)
+        for verdict in panos.values():
+            group = verdict.get("group")
+            if group not in counts:
+                raise ValueError("{}: unexpected review group {!r}".format(city, group))
+            counts[group] += 1
+        lines.append("| `{}` | {} | {} | {} | {} |".format(
+            city, counts["top"], counts["random"], counts["empty"], sum(counts.values())))
+    return "\n".join(lines)
+
+
+CROISSANT_DIR = REPO_ROOT / "croissant"
+
+
+def croissant_citations(croissant_dir=CROISSANT_DIR):
+    """(paper BibTeX, benchmark BibTeX): the `citeAs` of the dataset and benchmark Croissant
+    records, so the card prints the citations the record of truth holds (#150 review)."""
+    def cite(name):
+        return json.loads((Path(croissant_dir) / name).read_text(encoding="utf-8"))["citeAs"]
+    return cite("rampnet-dataset.json"), cite("rampnet-benchmark.json")
+
+
 def render_card(out, benchmark, repo_id, index):
     # A split counts once it has ground truth; imagery is counted separately, because the two
     # differ while any split is records-only (see records_only_splits).
@@ -692,6 +743,8 @@ def render_card(out, benchmark, repo_id, index):
     imagery = sorted(set(sum((index.get(c, []) for c in IMAGERY_CONFIGS), [])))
     total = package_bytes(out, index)
     overlap_md, overlap_counts = overlap_listing(benchmark, cities)
+    from validate_croissant import derive_split_extents     # stdlib only; the Croissant rule
+    extents = derive_split_extents(cities, benchmark)
     card_text = TEMPLATE.read_text(encoding="utf-8").format(
         configs_yaml=configs_yaml(index),
         git_commit=git_commit(),
@@ -708,6 +761,11 @@ def render_card(out, benchmark, repo_id, index):
         bend_unseen_rows=reviewed_rows(benchmark, "bend") - overlap_counts.get("bend", 0),
         split_date_range=split_date_range(benchmark, cities),
         total_gb="{:.2f}".format(total / 1e9),
+        split_table=split_table(extents),
+        size_category=size_category(sum(r["num_panoramas"] for r in extents)),
+        strata_table=strata_table(benchmark, cities),
+        paper_cite_as=croissant_citations()[0],
+        cite_as=croissant_citations()[1],
     )
     (out / "README.md").write_text(card_text, encoding="utf-8")
     return total

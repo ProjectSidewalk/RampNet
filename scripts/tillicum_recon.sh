@@ -8,8 +8,8 @@
 #   ./scripts/tillicum_recon.sh              (on a Tillicum login node)
 #   wsl-ssh.ps1 tillicum script scripts/tillicum_recon.sh     (from a Claude session)
 #
-# CPU-only jobs are prohibited on Tillicum, so this deliberately runs on the LOGIN
-# node -- it is all metadata queries, nothing that would warrant an allocation.
+# This deliberately runs on the LOGIN node -- it is all metadata queries, nothing that
+# would warrant an allocation.
 
 echo "=============================================================="
 echo " Tillicum recon -- $(date)"
@@ -37,7 +37,7 @@ echo "contents of /gpfs/projects/makelab:"
 ls -la /gpfs/projects/makelab 2>&1 | head -10 | sed 's/^/  /'
 
 echo
-echo "## 3. SCHEDULER  (expect: no partitions, QoS-driven)"
+echo "## 3. SCHEDULER  (expect: QoS-driven; partitions gpu-h200 and gpu-h200-mig)"
 echo "-- sinfo --"
 sinfo -o "%.14P %.6a %.10l %.6D %.6t %N" 2>&1 | head -10 | sed 's/^/  /'
 echo "-- QoS available to us --"
