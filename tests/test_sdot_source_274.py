@@ -105,6 +105,11 @@ def test_crowd_arm_explained_rule():
     assert mod.explained(point, [(0.208, 0.6)])                # within EXPLAIN_R of the centroid
     assert not mod.explained(point, [(0.22, 0.6)])             # 0.02 away: explained under the old r = 0.05 only
     assert not mod.explained(point, [(0.2, 0.64)])             # y counts half: 0.02 in matcher units, still too far
+    # The centroid rule on its own: these marks are outside the point's extent padded by EXPLAIN_PAD (y 0.59 to 0.61)
+    assert mod.explained(point, [(0.2, 0.615)])                # 0.0075 from the centroid: explained by the centroid only
+    assert not mod.explained(point, [(0.2, 0.625)])            # 0.0125: neither rule
+    # The extent rule's y pad on its own: inside the long component's x extent, far from its centroid
+    assert not mod.explained(long_near, [(0.38, 0.815)])       # 0.005 beyond the padded y range
 
 
 def test_crowd_arm_far_click_does_not_explain_the_near_crosswalk():
