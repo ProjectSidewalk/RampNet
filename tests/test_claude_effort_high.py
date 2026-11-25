@@ -405,10 +405,15 @@ def test_the_figure_draws_the_committed_micro_intervals(results, tmp_path, monke
 
 
 def test_the_days_other_ledger_rows_are_what_the_doc_says():
-    """The manual_gold slice and the effort=max calibration, read off the ledger."""
+    """The manual_gold slice and the effort=max calibration, read off the ledger.
+
+    The slice is the 2026-11-17 leg. The leg that finished manual_gold (2026-11-25) is a
+    second manual_gold row, which the doc does not describe yet.
+    """
     with open(DOC, encoding="utf-8") as fh:
         doc = _flat(fh.read())
-    mg = [r for r in _high_rows() if r["bundle"] == "manual_gold"]
+    mg = [r for r in _high_rows()
+          if r["bundle"] == "manual_gold" and r["ts"].startswith("2026-11-17")]
     assert len(mg) == 1 and mg[0]["panos_scored"] == 150
     assert f"${mg[0]['est_cost_usd']:.2f} for a 150-pano `manual_gold` slice" in doc
     assert f"about ${850 * mg[0]['est_cost_usd'] / 150:.0f}" in doc
